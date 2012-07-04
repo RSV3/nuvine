@@ -1,7 +1,7 @@
 ## The following requirements were added by pip --freeze:
 Django==1.4
 #M2Crypto==0.21.1
-ScientificPython==2.9.1
+ScientificPython==2.6
 #Tkinter==0.0.0
 altgraph==0.9
 bdist-mpkg==0.4.4
