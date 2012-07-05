@@ -20,6 +20,7 @@ def settings(request):
   """
     User settings
   """
+  data = {}
 
   return render_to_response("accounts/settings.html", data, 
                         context_instance=RequestContext(request))
