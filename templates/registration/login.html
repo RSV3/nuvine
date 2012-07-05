@@ -4,19 +4,40 @@
 {% block content %}
 
   <div class="container">
-  <form method="POST" action="{% url login %}">
-    {% csrf_token %}
+    <div class="row">
+      <div class="span8">
+        <form class="form-horizontal well" method="POST" action="{% url login %}">
+          {% csrf_token %}
 
-    {% if error %}
-      <div class="alert alert-error">
-        {{ error }}
-      </div>
-    {% endif %}
-    <table>
-    {{ form.as_table }}
-    </table>
-    <input class="btn btn-primary" type="submit" value="login" />
-  </form>
+          {% if error %}
+            <div class="alert alert-error">
+              {{ error }}
+            </div>
+            <div class="alert alert-error">
+              {{ form.errors }}
+            </div>
+          {% endif %}
 
+          <fieldset class="control-group">
+            <label class="control-label" for="email">E-mail:</label>
+            <div class="controls">
+              <input type="text" class="input-xlarge" name="email">
+            </div>
+          </fieldset>
+          <fieldset class="control-group">
+            <label class="control-label" for="password">Password:</label>
+            <div class="controls">
+              <input type="text" class="input-xlarge" name="password">
+            </div>
+          </fieldset>
+          <fieldset class="control-group">
+            <div class="controls">
+              <input class="btn btn-primary" type="submit" value="login" />
+            </div>
+          </fieldset>
+           
+        </form>
+      </div> <!-- span8 -->
+    </div> <!-- row -->
   </div>
 {% endblock content %}
