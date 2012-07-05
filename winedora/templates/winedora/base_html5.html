@@ -69,20 +69,20 @@
           {% if user.is_authenticated %}
           <div class="btn-group pull-right">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-              <i class="icon-user"></i> Username
+              <i class="icon-user"></i> {{ user.email }}
               <span class="caret"></span>
             </a>
 
             <ul class="dropdown-menu">
-              <li><a href="#">Profile</a></li>
+              <li><a href="{% url accounts_settings %}">Settings</a></li>
               <li class="divider"></li>
-              <li><a href="#">Sign Out</a></li>
+              <li><a href="{% url logout %}">Sign Out</a></li>
             </ul>
           </div>
           {% else %}
 
           <div class="pull-right">
-            <a href="#">Login</a>
+            <a href="{% url login %}">Login</a>
           </div>
 
           {% endif %}

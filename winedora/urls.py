@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from emailusernames.forms import EmailAuthenticationForm
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -16,4 +17,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'winedora.views.home', name='landing_page'),
     url(r'^', include('main.urls')),
+    url(r'^accounts/', include('accounts.urls')),
 )
