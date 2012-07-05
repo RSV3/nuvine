@@ -1,5 +1,7 @@
 *.py[co]
 nuvine-env
+settings_local.py
+winedora.test.db
 
 # Packages
 *.egg

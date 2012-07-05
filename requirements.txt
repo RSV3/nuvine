@@ -1,8 +1,9 @@
 ## The following requirements were added by pip --freeze:
 Django==1.4
-#M2Crypto==0.21.1
+M2Crypto==0.21.1
 #ScientificPython==2.9.1
-#Tkinter==0.0.0
+South==0.7.5
+Tkinter==0.0.0
 altgraph==0.9
 bdist-mpkg==0.4.4
 beautifulsoup4==4.1.1
@@ -16,20 +17,21 @@ ipython==0.12
 #libxml2-python==2.7.8
 lxml==2.3.4
 macholib==1.4.3
-numpy==1.6.2
 #matplotlib==1.1.0
 modulegraph==0.9.1
-#networkx==1.6
+networkx==1.6
 nose==1.1.2
+numpy==1.6.2
 psycopg2==2.4.5
 py2app==0.6.4
 pyOpenSSL==0.13
-#pygraphviz==1.0
+pygraphviz==1.0
 #pyobjc-core==2.3
 #pyobjc-framework-Cocoa==2.3
 pyparsing==1.5.6
 python-dateutil==1.5
 pytz==2012c
+readline==6.2.2
 #scipy==0.10.1
 virtualenv==1.7.1.2
 wsgiref==0.1.2

@@ -1,5 +1,10 @@
 # Django settings for winedora project.
 
+import os
+
+# need to get directory of parent-parent since settings.py in two layers below
+PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -35,7 +40,7 @@ DATABASES = {
 TIME_ZONE = 'America/New_York'
 
 # Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
+# http://www.i18nguy.com/unicode/language-identifiers.htm
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
@@ -53,18 +58,18 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = PROJECT_ROOT+'/sitestatic/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -75,6 +80,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    PROJECT_ROOT+'/static',
 )
 
 # List of finder classes that know how to find static files in
@@ -127,6 +133,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'main',
+    'winedora',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -157,3 +166,9 @@ LOGGING = {
         },
     }
 }
+
+try:
+  from winedora.settings_local import *
+except:
+  print "Error importing settings local"
+  pass

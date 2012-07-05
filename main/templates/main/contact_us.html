@@ -1,0 +1,34 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Contact Us</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+
+  <div class="row">
+    <div class="span12">
+    If you have any questions please feel free to fill out this form and we will reach out to you at soonest convenience.
+    </div>
+  </div>
+
+  <section id="contact_form">
+  
+    <form method="POST" action="{% url contact_us %}">
+      {% csrf_token %}
+
+      <table>
+      {{ form.as_table }}
+      </table> 
+      <button type="submit" class="btn btn-primary">Contact Me</button>
+    </form>
+
+  </section>
+
+</div>
+
+{% endblock content %}
+
