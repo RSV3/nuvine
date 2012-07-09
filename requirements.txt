@@ -11,7 +11,8 @@ certifi==0.0.8
 configobj==4.6.0
 distribute==0.6.24
 dj-database-url==0.2.1
-https://github.com/kwantopia/django-email-as-username/zipball/master#egg=django-email-as-username==1.5.1
+-e https://github.com/kwantopia/django-email-as-username/zipball/master#egg=django-email-as-username==1.5.1
+django-notification==0.2
 dot2tex==2.8.7
 feedparser==5.1.2
 ipython==0.12
@@ -36,3 +37,4 @@ readline==6.2.2
 #scipy==0.10.1
 virtualenv==1.7.1.2
 wsgiref==0.1.2
+PyYAML==3.1

@@ -1,0 +1,30 @@
+Order management
+
+can only order six
+
+one-time
+monthly
+every second month
+quarterly
+
+if unsubscribe: send e-mail, sorry to lose you, and people came back to subscribe
+
+less than three months will cause backfilling of past shipping charges
+
+red/mixed/white
+
+Host a party
+What's my wine personality
+Buy wine
+Become party specialist
+
+Important:
+Wine personality
+My ratings 
+
+bio, info, contact info
+
+rep needs to be associated with order
+unlink: no more communication with me
+
+Supplier needs to be able to upload pic and info of wine that is fulfilled

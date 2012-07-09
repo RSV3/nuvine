@@ -5,7 +5,7 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = True
+DEBUG = False 
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -134,12 +134,16 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'accounts',
     'main',
+    'personality',
     'winedora',
     'south',
     'emailusernames',
-    'accounts',
+    'notification',
 )
+
+SOUTH_TESTS_MIGRATE = False
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 

@@ -1,11 +1,22 @@
 {% extends "winedora/base_html5.html" %}
 
+{% block header %}
+  <h1>Verifying Your Account</h1>
+{% endblock header %}
 
 {% block content %}
 
-  <div class="container">
-    <div class="row">
-      <div class="span8">
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span8">
+    Please verify that your e-mail address is {{ email }} and update your password.
+    </div>
+  </div>
+  <div class="row">
+  <form>
+    {{ form.as_table }}
+  </form>
+
         <form class="form-horizontal well" method="POST" action="{% url login %}">
           {% csrf_token %}
 
@@ -27,7 +38,7 @@
           <fieldset class="control-group">
             <label class="control-label" for="password">Password:</label>
             <div class="controls">
-              <input type="password" class="input-xlarge" name="password">
+              <input type="text" class="input-xlarge" name="password">
             </div>
           </fieldset>
           <fieldset class="control-group">
@@ -39,5 +50,7 @@
         </form>
       </div> <!-- span8 -->
     </div> <!-- row -->
-  </div>
+
+</div>
+
 {% endblock content %}

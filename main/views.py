@@ -5,8 +5,11 @@ from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
 
 from main.forms import ContactRequestForm
+from personality.forms import WineRatingsForm, AllWineRatingsForm
+from personality.utils import calculate_wine_personality
 
 import json
 
@@ -75,6 +78,148 @@ def contact_us(request):
   data["form"] = form
 
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
+
+@login_required
+def start_order(request):
+  """
+    Show order page
+  
+  """
+  data = {}
+
+  return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+
+@login_required
+def record_wine_ratings(request):
+  """
+    Record wine ratings for a particular wine.
+    Used by party specialists or attendees themselves.
+  """
+
+  data = {}
+
+  u = request.user
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  att_group = Group.objects.get(name="Attendee")
+
+  if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
+    # one can record ratings only if party specialist or attendee
+
+    if request.method == "POST":
+      form = WineRatingsForm(request.POST)
+      if form.is_valid():
+        form.save()      
+
+        if (ps_group in u.groups.all()):
+          # ask if you want to fill out next customer's ratings or order wine
+          data["role"] = "specialist"
+          
+        if (att_group in u.groups.all()):
+          # ask if you want order wine
+          data["role"] = "attendee"
+
+        return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
+    else:
+      # show forms
+      form = WineRatingsForm()
+
+    data["form"] = form
+
+    return render_to_response("main/record_wine_ratings.html", data, context_instance=RequestContext(request))
+  else:
+    raise Http404 
+
+@login_required
+def record_all_wine_ratings(request):
+  """
+    Record wine ratings.
+    Used by party specialists or attendees themselves.
+  """
+
+  data = {}
+
+  u = request.user
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  att_group = Group.objects.get(name="Attendee")
+
+  if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
+    # one can record ratings only if party specialist or attendee
+
+    if request.method == "POST":
+      form = AllWineRatingsForm(request.POST)
+      if form.is_valid():
+        results = form.save() 
+        data["invitee"] = results[0]
+
+        personality = calculate_wine_personality(*results)
+        data["personality"] = personality
+
+        if (ps_group in u.groups.all()):
+          # ask if you want to fill out next customer's ratings or order wine
+          data["role"] = "specialist"
+          
+        if (att_group in u.groups.all()):
+          # ask if you want order wine
+          data["role"] = "attendee"
+
+        return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
+
+    else:
+      # show forms
+      form = AllWineRatingsForm()
+
+    data["form"] = form
+
+    return render_to_response("main/record_wine_ratings.html", data, context_instance=RequestContext(request))
+
+  else:
+    # user needs to be a party specialist or attendee to fill this out
+    # attendee is filling out their own data
+    raise Http404 
+
+@login_required
+def parties(request):
+  """
+    Show list of parties
+  """
+  data = {}
+
+  data["parties"] = Party.objects.all()
+  data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
+
+  return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
+
+@login_required
+def add_invitees(request):
+  """
+    Add invitees 
+  """
+
+  data = {}
+
+  u = request.user
+
+  return render_to_response("main/add_invitees.html", data, context_instance=RequestContext(request))
+
+def signup_party_specialist(request):
+
+  data = {}
+
+  return render_to_response("main/signup_party_specialist.html", data, context_instance=RequestContext(request))
+
+def signup_party_attendee(request):
+
+  data = {}
+
+  return render_to_response("main/signup_party_attendee.html", data, context_instance=RequestContext(request))
+
+def signup_party_host(request):
+
+  data = {}
+
+  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
 
 @login_required
 def tag(request):

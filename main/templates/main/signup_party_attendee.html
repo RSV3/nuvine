@@ -1,0 +1,47 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Sign up for future invitations to wine parties</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+
+  <div class="row">
+    <div class="span12">
+      Are you insterested in participating in future wine parties?
+    </div>
+  </div>
+
+  <section id="host_signup_form">
+  
+    <form method="POST" action="{% url signup_party_attendee %}">
+      {% csrf_token %}
+
+      <table>
+      {{ form.as_table }}
+      </table> 
+      <button type="submit" class="btn btn-primary">Contact Me</button>
+    </form>
+
+  </section>
+
+  <section id="address">
+  <address>
+    <strong>RSV Opco 3, Inc.</strong>
+    <br>
+    One Kendall Square
+    <br>
+    Building 400, B4202
+    <br>
+    Cambridge, MA 02139
+    <br>
+  </address>
+  </section>
+
+</div>
+
+{% endblock content %}
+
