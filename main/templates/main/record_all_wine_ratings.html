@@ -1,0 +1,801 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    ul {
+      list-style-type:none;
+      float: left;
+    }
+
+    li {
+      float: left;
+    }
+
+    .radio {
+      display: inline;
+    }
+  </style>
+{% endblock %}
+
+{% block header %}
+  <h1>Record Wine Ratings</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <div class="row">
+    {# Need to check for permissions whether this is a party specialist #}
+    <div class="span12">
+      Please enter attendee information and add their ratings
+    </div>
+  </div>
+
+  <section id="user_ratings">
+  
+    <div class="row">
+      <div class="span12">
+        <form method="POST" action="" class="form-horizontal">
+          {% csrf_token %}
+
+          <fieldset>
+            <legend>User Information</legend>
+            <div class="control-group {% if form.first_name.errors %}error{% endif %}">
+              <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
+              <div class="controls">
+                {{ form.first_name }} 
+                {% if form.first_name.errors %}
+                  <span class="help-inline">
+                    {{ form.first_name.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group {% if form.last_name.errors %}error{% endif %}">
+              <div class="control-label" for="id_last_name">{{ form.last_name.label }}</div>
+              <div class="controls">
+                {{ form.last_name }} 
+                {% if form.last_name.errors %}
+                  <span class="help-inline">
+                    {{ form.last_name.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group {% if form.email.errors %}error{% endif %}">
+              <div class="control-label" for="id_email">{{ form.email.label }}</div>
+              <div class="controls">
+                {{ form.email }} 
+                {% if form.email.errors %}
+                  <span class="help-inline">
+                    {{ form.email.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="row">
+            <div class="span6">
+              <fieldset>
+                <legend>Wine 1 Ratings</legend>
+                {{ form.wine1 }}
+                <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_overall">{{ form.wine1_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_overall}} 
+                    {% if form.wine1_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_overall">{{ form.wine1_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_dnl}} 
+                    {% if form.wine1_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_sweet">{{ form.wine1_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_sweet}} 
+                    {% if form.wine1_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_sweet_dnl">{{ form.wine1_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_sweet_dnl}} 
+                    {% if form.wine1_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_weight">{{ form.wine1_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_weight}} 
+                    {% if form.wine1_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_weight_dnl">{{ form.wine1_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_weight_dnl}} 
+                    {% if form.wine1_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_texture">{{ form.wine1_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_texture}} 
+                    {% if form.wine1_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_texture_dnl">{{ form.wine1_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_texture_dnl}} 
+                    {% if form.wine1_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_sizzle">{{ form.wine1_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_sizzle}} 
+                    {% if form.wine1_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine1_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine1_sizzle_dnl">{{ form.wine1_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine1_sizzle_dnl}} 
+                    {% if form.wine1_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+            </div> <!-- span6 -->
+
+            <div class="span6">
+              <fieldset>
+                <legend>Wine 2 Ratings</legend>
+                {{ form.wine2 }}
+                <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_overall">{{ form.wine2_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_overall}} 
+                    {% if form.wine2_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_overall">{{ form.wine2_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_dnl}} 
+                    {% if form.wine2_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_sweet">{{ form.wine2_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_sweet}} 
+                    {% if form.wine2_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_sweet_dnl">{{ form.wine2_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_sweet_dnl}} 
+                    {% if form.wine2_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_weight">{{ form.wine2_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_weight}} 
+                    {% if form.wine2_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_weight_dnl">{{ form.wine2_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_weight_dnl}} 
+                    {% if form.wine2_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_texture">{{ form.wine2_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_texture}} 
+                    {% if form.wine2_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_texture_dnl">{{ form.wine2_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_texture_dnl}} 
+                    {% if form.wine2_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_sizzle">{{ form.wine2_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_sizzle}} 
+                    {% if form.wine2_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine2_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine2_sizzle_dnl">{{ form.wine2_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine2_sizzle_dnl}} 
+                    {% if form.wine2_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+            </div> <!-- span6 -->
+
+          </div><!-- row -->
+
+          <div class="row">
+            <div class="span6">
+              <fieldset>
+                <legend>Wine 3 Ratings</legend>
+                {{ form.wine3 }}
+                <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_overall">{{ form.wine3_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_overall}} 
+                    {% if form.wine3_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_overall">{{ form.wine3_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_dnl}} 
+                    {% if form.wine3_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_sweet">{{ form.wine3_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_sweet}} 
+                    {% if form.wine3_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_sweet_dnl">{{ form.wine3_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_sweet_dnl}} 
+                    {% if form.wine3_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_weight">{{ form.wine3_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_weight}} 
+                    {% if form.wine3_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_weight_dnl">{{ form.wine3_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_weight_dnl}} 
+                    {% if form.wine3_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_texture">{{ form.wine3_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_texture}} 
+                    {% if form.wine3_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_texture_dnl">{{ form.wine3_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_texture_dnl}} 
+                    {% if form.wine3_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_sizzle">{{ form.wine3_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_sizzle}} 
+                    {% if form.wine3_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine3_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine3_sizzle_dnl">{{ form.wine3_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine3_sizzle_dnl}} 
+                    {% if form.wine3_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+            </div> <!-- span6 -->
+
+            <div class="span6">
+              <fieldset>
+                <legend>Wine 4 Ratings</legend>
+                {{ form.wine4 }}
+                <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_overall">{{ form.wine4_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_overall}} 
+                    {% if form.wine4_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_overall">{{ form.wine4_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_dnl}} 
+                    {% if form.wine4_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_sweet">{{ form.wine4_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_sweet}} 
+                    {% if form.wine4_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_sweet_dnl">{{ form.wine4_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_sweet_dnl}} 
+                    {% if form.wine4_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_weight">{{ form.wine4_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_weight}} 
+                    {% if form.wine4_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_weight_dnl">{{ form.wine4_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_weight_dnl}} 
+                    {% if form.wine4_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_texture">{{ form.wine4_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_texture}} 
+                    {% if form.wine4_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_texture_dnl">{{ form.wine4_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_texture_dnl}} 
+                    {% if form.wine4_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_sizzle">{{ form.wine4_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_sizzle}} 
+                    {% if form.wine4_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine4_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine4_sizzle_dnl">{{ form.wine4_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine4_sizzle_dnl}} 
+                    {% if form.wine4_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+              </div> <!-- span6 -->
+
+          </div><!-- row -->
+
+
+          <div class="row">
+            <div class="span6">
+              <fieldset>
+                <legend>Wine 5 Ratings</legend>
+                {{ form.wine5 }}
+                <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_overall">{{ form.wine5_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_overall}} 
+                    {% if form.wine5_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_overall">{{ form.wine5_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_dnl}} 
+                    {% if form.wine5_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_sweet">{{ form.wine5_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_sweet}} 
+                    {% if form.wine5_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_sweet_dnl">{{ form.wine5_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_sweet_dnl}} 
+                    {% if form.wine5_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_weight">{{ form.wine5_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_weight}} 
+                    {% if form.wine5_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_weight_dnl">{{ form.wine5_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_weight_dnl}} 
+                    {% if form.wine5_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_texture">{{ form.wine5_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_texture}} 
+                    {% if form.wine5_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_texture_dnl">{{ form.wine5_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_texture_dnl}} 
+                    {% if form.wine5_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_sizzle">{{ form.wine5_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_sizzle}} 
+                    {% if form.wine5_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine5_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine5_sizzle_dnl">{{ form.wine5_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine5_sizzle_dnl}} 
+                    {% if form.wine5_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+              </div> <!-- span6 -->
+
+              <div class="span6">
+              <fieldset>
+                <legend>Wine 6 Ratings</legend>
+                {{ form.wine6 }}
+                <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_overall">{{ form.wine6_overall.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_overall}} 
+                    {% if form.wine6_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_overall">{{ form.wine6_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_dnl}} 
+                    {% if form.wine6_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_sweet">{{ form.wine6_sweet.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_sweet}} 
+                    {% if form.wine6_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sweet.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_sweet_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_sweet_dnl">{{ form.wine6_sweet_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_sweet_dnl}} 
+                    {% if form.wine6_sweet_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sweet_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_weight.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_weight">{{ form.wine6_weight.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_weight}} 
+                    {% if form.wine6_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_weight.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_weight_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_weight_dnl">{{ form.wine6_weight_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_weight_dnl}} 
+                    {% if form.wine6_weight_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_weight_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_texture.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_texture">{{ form.wine6_texture.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_texture}} 
+                    {% if form.wine6_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_texture_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_texture_dnl">{{ form.wine6_texture_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_texture_dnl}} 
+                    {% if form.wine6_texture_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_texture_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_sizzle">{{ form.wine6_sizzle.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_sizzle}} 
+                    {% if form.wine6_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sizzle.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.wine6_sizzle_dnl.errors %}error{% endif %}">
+                  <div class="control-label" for="id_wine6_sizzle_dnl">{{ form.wine6_sizzle_dnl.label }}</div>
+                  <div class="controls">
+                    {{ form.wine6_sizzle_dnl}} 
+                    {% if form.wine6_sizzle_dnl.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sizzle_dnl.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+              </div> <!-- span6 -->
+
+            </div><!-- row -->
+
+
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+{% endblock content %}

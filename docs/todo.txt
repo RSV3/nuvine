@@ -1,3 +1,14 @@
+Need to allow party specialist to 
+
+- See parties
+
+- See attendees of a party
+
+- Enter ratings from a party page
+
+Need to allow attendees to change password
+
+
 Order management
 
 can only order six

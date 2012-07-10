@@ -13,6 +13,7 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   {% if personality %}
+  <section id="wine_personality">
   <div class="row">
     <div class="span12">
       You are a {{ personality.name }}  
@@ -21,8 +22,10 @@
       {{ personality.description }}
     </div>
   </div>
+  </section>
   {% endif %}
 
+  <section id="continue_order">
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
@@ -33,15 +36,16 @@
   <div class="row">
     {% if role == "specialist" %}
     <div class="span12">
-      <a href="{% url record_all_wine_ratings %}" class="btn btn_primary">Enter attendee data</a>
-      <a href="{% url start_order %}" class="btn btn_primary">Order wine for {{ invitee.first_name }}</a>
+      <a href="{% url record_all_wine_ratings %}" class="btn btn-primary">Enter attendee data</a>
+      <a href="{% url start_order %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
     </div>
     {% else %}
      <div class="span12">
-      <a href="{% url start_order %}" class="btn btn_primary">Start your wine order</a>
+      <a href="{% url start_order %}" class="btn btn-primary">Start your wine order</a>
     </div>
     {% endif %}
   </div>
+  </section>
 
 </div>
 

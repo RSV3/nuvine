@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 
+from personality.models import Wine 
+
 from main.forms import ContactRequestForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 from personality.utils import calculate_wine_personality
@@ -168,11 +170,19 @@ def record_all_wine_ratings(request):
 
     else:
       # show forms
-      form = AllWineRatingsForm()
+      initial_data = { 'wine1': Wine.objects.get(number=1, active=True).id,
+                        'wine2': Wine.objects.get(number=2, active=True).id,
+                        'wine3': Wine.objects.get(number=3, active=True).id,
+                        'wine4': Wine.objects.get(number=4, active=True).id,
+                        'wine5': Wine.objects.get(number=5, active=True).id,
+                        'wine6': Wine.objects.get(number=6, active=True).id
+                        }
+
+      form = AllWineRatingsForm(initial=initial_data)
 
     data["form"] = form
 
-    return render_to_response("main/record_wine_ratings.html", data, context_instance=RequestContext(request))
+    return render_to_response("main/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
   else:
     # user needs to be a party specialist or attendee to fill this out
