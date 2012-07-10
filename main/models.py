@@ -11,6 +11,9 @@ from datetime import date, datetime, timedelta
 class ContactReason(models.Model):
   reason = models.CharField(max_length=1024)
 
+  def __unicode__(self):
+    return self.reason
+
 class ContactRequest(models.Model):
 
   SEX_CHOICES = (
