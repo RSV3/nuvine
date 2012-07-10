@@ -1,490 +1,21 @@
-- pk: 8
-  model: contenttypes.contenttype
-  fields: {app_label: accounts, model: address, name: address}
-- pk: 16
-  model: contenttypes.contenttype
-  fields: {model: cart, name: cart, app_label: main}
-- fields: {model: contactreason, name: contact reason, app_label: main}
-  pk: 11
-  model: contenttypes.contenttype
-- pk: 12
-  model: contenttypes.contenttype
-  fields: {name: contact request, app_label: main, model: contactrequest}
-- fields: {app_label: contenttypes, model: contenttype, name: content type}
-  pk: 4
-  model: contenttypes.contenttype
-- pk: 9
-  model: contenttypes.contenttype
-  fields: {model: creditcard, name: credit card, app_label: accounts}
-- pk: 2
-  model: contenttypes.contenttype
-  fields: {model: group, name: group, app_label: auth}
-- model: contenttypes.contenttype
-  fields: {model: lineitem, name: line item, app_label: main}
-  pk: 15
-- pk: 7
-  model: contenttypes.contenttype
-  fields: {model: logentry, name: log entry, app_label: admin}
-- pk: 22
-  model: contenttypes.contenttype
-  fields: {app_label: south, model: migrationhistory, name: migration history}
-- pk: 25
-  model: contenttypes.contenttype
-  fields: {model: notice, name: notice, app_label: notification}
-- pk: 26
-  model: contenttypes.contenttype
-  fields: {model: noticequeuebatch, name: notice queue batch, app_label: notification}
-- model: contenttypes.contenttype
-  fields: {app_label: notification, model: noticesetting, name: notice setting}
-  pk: 24
-- fields: {model: noticetype, name: notice type, app_label: notification}
-  pk: 23
-  model: contenttypes.contenttype
-- pk: 27
-  model: contenttypes.contenttype
-  fields: {name: observed item, app_label: notification, model: observeditem}
-- pk: 17
-  model: contenttypes.contenttype
-  fields: {model: order, name: order, app_label: main}
-- pk: 18
-  model: contenttypes.contenttype
-  fields: {model: orderreview, name: order review, app_label: main}
-- pk: 13
-  model: contenttypes.contenttype
-  fields: {model: party, name: party, app_label: main}
-- fields: {model: partyinvite, name: party invite, app_label: main}
-  pk: 14
-  model: contenttypes.contenttype
-- pk: 1
-  model: contenttypes.contenttype
-  fields: {name: permission, app_label: auth, model: permission}
-- pk: 5
-  model: contenttypes.contenttype
-  fields: {model: session, name: session, app_label: sessions}
-- fields: {name: site, app_label: sites, model: site}
-  pk: 6
-  model: contenttypes.contenttype
-- pk: 3
-  model: contenttypes.contenttype
-  fields: {model: user, name: user, app_label: auth}
-- model: contenttypes.contenttype
-  fields: {model: userprofile, name: user profile, app_label: accounts}
-  pk: 10
-- pk: 19
-  model: contenttypes.contenttype
-  fields: {model: wine, name: wine, app_label: personality}
-- pk: 21
-  model: contenttypes.contenttype
-  fields: {model: winepersonality, name: wine personality, app_label: personality}
-- pk: 20
-  model: contenttypes.contenttype
-  fields: {model: wineratingdata, name: wine rating data, app_label: personality}
-- pk: a4fbb78f50f37cc68cf99a3661b3f555
-  model: sessions.session
-  fields: {expire_date: !!timestamp '2012-07-24 03:12:15.459254', session_data: 'NDI3OTRiMDMxZDViZGQ5M2E0Y2QzNmU2MTcyMjdmNGVkZTE1YTA1MDqAAn1xAS4=
-
-      '}
-- fields: {expire_date: !!timestamp '2012-07-24 00:03:12.559739', session_data: 'NzA4ZWJjODk3MDBmOTkyZjQ0MDZmODA1ZGViMDMzYWUxMTAzZGRmMDqAAn1xAShVEl9hdXRoX3Vz
-
-      ZXJfYmFja2VuZHECVShlbWFpbHVzZXJuYW1lcy5iYWNrZW5kcy5FbWFpbEF1dGhCYWNrZW5kcQNV
-
-      DV9hdXRoX3VzZXJfaWRxBEsCdS4=
-
-      '}
-  pk: 286a2166f01910e15dc3c60b124f9601
-  model: sessions.session
-- pk: 74a8025b8cb92deff0e4d9d73af97a2a
-  model: sessions.session
-  fields: {expire_date: !!timestamp '2012-07-24 00:03:27.93545', session_data: 'NzA4ZWJjODk3MDBmOTkyZjQ0MDZmODA1ZGViMDMzYWUxMTAzZGRmMDqAAn1xAShVEl9hdXRoX3Vz
-
-      ZXJfYmFja2VuZHECVShlbWFpbHVzZXJuYW1lcy5iYWNrZW5kcy5FbWFpbEF1dGhCYWNrZW5kcQNV
-
-      DV9hdXRoX3VzZXJfaWRxBEsCdS4=
-
-      '}
-- pk: 1
-  model: sites.site
-  fields: {domain: example.com, name: example.com}
-- model: main.contactreason
-  fields: {reason: Interested in holding a party}
+- fields: {reason: Interested in holding a party}
   pk: 1
-- model: main.contactreason
+  model: main.contactreason
+- pk: 2
+  model: main.contactreason
   fields: {reason: Interested in becoming a party specialist}
-  pk: 2
-- pk: 3
+- fields: {reason: Interested in attending a party in my local area}
+  pk: 3
   model: main.contactreason
-  fields: {reason: Interested in attending a party in my local area}
-- pk: 4
+- fields: {reason: Interested in finding more about Winedora}
+  pk: 4
   model: main.contactreason
-  fields: {reason: Interested in finding more about Winedora}
-- pk: 5
-  model: main.contactreason
+- model: main.contactreason
   fields: {reason: Send me any new updates}
+  pk: 5
 - pk: 6
   model: main.contactreason
   fields: {reason: Other}
-- fields: {active: true, sip_bits: 'Light, "clean" blend of four regional varietals                             from
-      the Loire Valley (France), predominantly Uni Blanc and Columbard.', number: 1,
-    name: Domaine De Pellehaut "Harmonie De Gascogne", added: 2012-07-09, deactivated: null,
-    year: 0, price: '0'}
-  pk: 1
-  model: personality.wine
-- pk: 2
-  model: personality.wine
-  fields: {year: 0, price: '0', active: true, sip_bits: Classic California chard.
-      Made by respected wine-maker Michael                                 Pozzan.  This
-      wine has limited availability and crated for the                                 restaurant
-      industry., number: 2, name: Contrada Chardonnay, added: 2012-07-09, deactivated: null}
-- pk: 3
-  model: personality.wine
-  fields: {added: 2012-07-09, deactivated: null, year: 0, price: '0', sip_bits: 'This
-      wine defines "aromatics on the nose"; "Frizzante" is                             Italian
-      that refers to the slight effervescence, paying homage to this                             varietal''s
-      roots, although this wine hails from Oregon.', active: true, number: 3, name: Foris
-      Vineyards Muscat Frizzante}
-- pk: 4
-  model: personality.wine
-  fields: {number: 4, name: Giuseppe Savine Rondineto "Vino Quotidinao", added: 2012-07-09,
-    deactivated: null, year: 0, price: '0', active: true, sip_bits: 'Light bodied
-      Italian red that can be served slight chilled (really)                             perfect
-      for people just getting into the "world of red";                             translates
-      to "wine for everyday"; believe it or not, this is                             mad
-      from 100% Merlot!'}
-- pk: 5
-  model: personality.wine
-  fields: {price: '0', sip_bits: 'Small Produced, Classic for the style. Fantastic,
-      respected family-owned                             operation from Lodi, California.',
-    active: true, number: 5, name: Lange Twins Zinfandel, added: 2012-07-09, deactivated: null,
-    year: 0}
-- pk: 6
-  model: personality.wine
-  fields: {deactivated: null, year: 0, price: '0', active: true, sip_bits: 'Awesome
-      wine from South America. This line is special and only 3000                             cases
-      of this wine is produced. Bold, dark - might stain your teeth purple                             for
-      a while - grab a steak or some Roquefort Bleu!', number: 6, name: Carlos Basso
-      Dos Fincas Cabernet Sauvignon/Merlot, added: 2012-07-09}
-- pk: 1
-  model: personality.winepersonality
-  fields: {name: Easy Going, description: 'You''re "easy going" - even before the                                   wine.
-      You''re the type of person that                                   comes home
-      after a long day at the                                   office or with the
-      kids and reaches for a                                   glass. Your wine is
-      happy, light and                                   white - clean, eortless and
-      something                                   to unwind with.'}
-- pk: 2
-  model: personality.winepersonality
-  fields: {name: Moxie, description: 'Bold, confident, outstanding - and we''re                                   talking
-      about you as much as the wine you drink. You don''t talk, you make a                                   statement
-      - and when it''s about wine, it''s "I                                   drink
-      red!". Dynamic and charismatic, you                                   could
-      spend the night with just these                                   wines and
-      be completely content.'}
-- fields: {description: 'You find comfort in the wine you drink -                                   wine
-      for you is an occasion where you''re                                   often
-      the life of the party. Life''s not that                                   complicated,
-      nor is your wine. The key                                   for you is FUN.
-      Some may consider you                                   a little quirky and
-      frequently playful, and                                   that''s what''s in
-      your glass.', name: Whimsical}
-  pk: 3
-  model: personality.winepersonality
-- pk: 4
-  model: personality.winepersonality
-  fields: {name: Sensational, description: 'And that you are. You put thought into                                   your
-      whole wine experience, thirsting for                                   everything
-      in the glass - the history, the                                   depth, the
-      pairings - all are appreciated in                                   every sip.
-      The wines are exciting,                                   stunning, and entices
-      you into exploring                                   even more.'}
-- pk: 5
-  model: personality.winepersonality
-  fields: {name: Exuberant, description: 'Vivacious and cheerful, you''re often the                                   host
-      of the party. You see your wine as                                   an accompaniment
-      both for the evening                                   or the food. But you
-      do not necessarily                                   see it taking center stage.
-      Your wine is a                                   lively yet informal addition,
-      whose                                   absence would be missed.'}
-- fields: {name: Serendipitous, description: 'When asked do you prefer red or white?                                   You
-      say YES! Often welcoming impromptu                                   opportunities
-      with a desire for                                   spontaneity, chance and
-      discovery of life                                   and wine. Your unconstrained
-      nature                                   empowers you to float from one sensual                                   pleasure
-      to the next.'}
-  pk: 6
-  model: personality.winepersonality
-- pk: 1
-  model: south.migrationhistory
-  fields: {migration: 0001_email_usernames, applied: !!timestamp '2012-07-10 02:32:08.481529',
-    app_name: accounts}
-- pk: 22
-  model: auth.permission
-  fields: {codename: add_address, name: Can add address, content_type: 8}
-- pk: 25
-  model: auth.permission
-  fields: {name: Can change address, content_type: 8, codename: change_address}
-- pk: 28
-  model: auth.permission
-  fields: {codename: delete_address, name: Can delete address, content_type: 8}
-- fields: {codename: add_creditcard, name: Can add credit card, content_type: 9}
-  pk: 23
-  model: auth.permission
-- pk: 26
-  model: auth.permission
-  fields: {name: Can change credit card, content_type: 9, codename: change_creditcard}
-- model: auth.permission
-  fields: {codename: delete_creditcard, name: Can delete credit card, content_type: 9}
-  pk: 29
-- pk: 24
-  model: auth.permission
-  fields: {codename: add_userprofile, name: Can add user profile, content_type: 10}
-- pk: 27
-  model: auth.permission
-  fields: {codename: change_userprofile, name: Can change user profile, content_type: 10}
-- fields: {codename: delete_userprofile, name: Can delete user profile, content_type: 10}
-  pk: 30
-  model: auth.permission
-- pk: 19
-  model: auth.permission
-  fields: {codename: add_logentry, name: Can add log entry, content_type: 7}
-- model: auth.permission
-  fields: {content_type: 7, codename: change_logentry, name: Can change log entry}
-  pk: 20
-- pk: 21
-  model: auth.permission
-  fields: {codename: delete_logentry, name: Can delete log entry, content_type: 7}
-- pk: 1
-  model: auth.permission
-  fields: {codename: add_group, name: Can add group, content_type: 2}
-- model: auth.permission
-  fields: {codename: change_group, name: Can change group, content_type: 2}
-  pk: 4
-- pk: 7
-  model: auth.permission
-  fields: {codename: delete_group, name: Can delete group, content_type: 2}
-- pk: 2
-  model: auth.permission
-  fields: {content_type: 1, codename: add_permission, name: Can add permission}
-- pk: 5
-  model: auth.permission
-  fields: {codename: change_permission, name: Can change permission, content_type: 1}
-- pk: 8
-  model: auth.permission
-  fields: {content_type: 1, codename: delete_permission, name: Can delete permission}
-- pk: 3
-  model: auth.permission
-  fields: {codename: add_user, name: Can add user, content_type: 3}
-- fields: {codename: change_user, name: Can change user, content_type: 3}
-  pk: 6
-  model: auth.permission
-- pk: 9
-  model: auth.permission
-  fields: {name: Can delete user, content_type: 3, codename: delete_user}
-- pk: 10
-  model: auth.permission
-  fields: {codename: add_contenttype, name: Can add content type, content_type: 4}
-- pk: 11
-  model: auth.permission
-  fields: {codename: change_contenttype, name: Can change content type, content_type: 4}
-- pk: 12
-  model: auth.permission
-  fields: {codename: delete_contenttype, name: Can delete content type, content_type: 4}
-- fields: {codename: add_cart, name: Can add cart, content_type: 16}
-  pk: 31
-  model: auth.permission
-- pk: 39
-  model: auth.permission
-  fields: {name: Can change cart, content_type: 16, codename: change_cart}
-- fields: {content_type: 16, codename: delete_cart, name: Can delete cart}
-  pk: 47
-  model: auth.permission
-- pk: 32
-  model: auth.permission
-  fields: {codename: add_contactreason, name: Can add contact reason, content_type: 11}
-- pk: 40
-  model: auth.permission
-  fields: {codename: change_contactreason, name: Can change contact reason, content_type: 11}
-- model: auth.permission
-  fields: {codename: delete_contactreason, name: Can delete contact reason, content_type: 11}
-  pk: 48
-- pk: 33
-  model: auth.permission
-  fields: {codename: add_contactrequest, name: Can add contact request, content_type: 12}
-- pk: 41
-  model: auth.permission
-  fields: {content_type: 12, codename: change_contactrequest, name: Can change contact
-      request}
-- pk: 49
-  model: auth.permission
-  fields: {codename: delete_contactrequest, name: Can delete contact request, content_type: 12}
-- pk: 34
-  model: auth.permission
-  fields: {codename: add_lineitem, name: Can add line item, content_type: 15}
-- model: auth.permission
-  fields: {content_type: 15, codename: change_lineitem, name: Can change line item}
-  pk: 42
-- fields: {codename: delete_lineitem, name: Can delete line item, content_type: 15}
-  pk: 50
-  model: auth.permission
-- pk: 35
-  model: auth.permission
-  fields: {name: Can add order, content_type: 17, codename: add_order}
-- pk: 43
-  model: auth.permission
-  fields: {codename: change_order, name: Can change order, content_type: 17}
-- pk: 51
-  model: auth.permission
-  fields: {codename: delete_order, name: Can delete order, content_type: 17}
-- pk: 36
-  model: auth.permission
-  fields: {codename: add_orderreview, name: Can add order review, content_type: 18}
-- fields: {codename: change_orderreview, name: Can change order review, content_type: 18}
-  pk: 44
-  model: auth.permission
-- pk: 52
-  model: auth.permission
-  fields: {name: Can delete order review, content_type: 18, codename: delete_orderreview}
-- pk: 37
-  model: auth.permission
-  fields: {codename: add_party, name: Can add party, content_type: 13}
-- fields: {name: Can change party, content_type: 13, codename: change_party}
-  pk: 45
-  model: auth.permission
-- pk: 53
-  model: auth.permission
-  fields: {codename: delete_party, name: Can delete party, content_type: 13}
-- model: auth.permission
-  fields: {codename: add_partyinvite, name: Can add party invite, content_type: 14}
-  pk: 38
-- pk: 46
-  model: auth.permission
-  fields: {codename: change_partyinvite, name: Can change party invite, content_type: 14}
-- pk: 54
-  model: auth.permission
-  fields: {codename: delete_partyinvite, name: Can delete party invite, content_type: 14}
-- pk: 67
-  model: auth.permission
-  fields: {codename: add_notice, name: Can add notice, content_type: 25}
-- pk: 72
-  model: auth.permission
-  fields: {codename: change_notice, name: Can change notice, content_type: 25}
-- model: auth.permission
-  fields: {content_type: 25, codename: delete_notice, name: Can delete notice}
-  pk: 77
-- pk: 68
-  model: auth.permission
-  fields: {codename: add_noticequeuebatch, name: Can add notice queue batch, content_type: 26}
-- model: auth.permission
-  fields: {name: Can change notice queue batch, content_type: 26, codename: change_noticequeuebatch}
-  pk: 73
-- pk: 78
-  model: auth.permission
-  fields: {codename: delete_noticequeuebatch, name: Can delete notice queue batch,
-    content_type: 26}
-- pk: 69
-  model: auth.permission
-  fields: {codename: add_noticesetting, name: Can add notice setting, content_type: 24}
-- pk: 74
-  model: auth.permission
-  fields: {content_type: 24, codename: change_noticesetting, name: Can change notice
-      setting}
-- pk: 79
-  model: auth.permission
-  fields: {codename: delete_noticesetting, name: Can delete notice setting, content_type: 24}
-- pk: 70
-  model: auth.permission
-  fields: {name: Can add notice type, content_type: 23, codename: add_noticetype}
-- pk: 75
-  model: auth.permission
-  fields: {codename: change_noticetype, name: Can change notice type, content_type: 23}
-- fields: {codename: delete_noticetype, name: Can delete notice type, content_type: 23}
-  pk: 80
-  model: auth.permission
-- pk: 71
-  model: auth.permission
-  fields: {name: Can add observed item, content_type: 27, codename: add_observeditem}
-- model: auth.permission
-  fields: {codename: change_observeditem, name: Can change observed item, content_type: 27}
-  pk: 76
-- pk: 81
-  model: auth.permission
-  fields: {codename: delete_observeditem, name: Can delete observed item, content_type: 27}
-- pk: 55
-  model: auth.permission
-  fields: {codename: add_wine, name: Can add wine, content_type: 19}
-- fields: {codename: change_wine, name: Can change wine, content_type: 19}
-  pk: 58
-  model: auth.permission
-- pk: 61
-  model: auth.permission
-  fields: {codename: delete_wine, name: Can delete wine, content_type: 19}
-- model: auth.permission
-  fields: {content_type: 21, codename: add_winepersonality, name: Can add wine personality}
-  pk: 56
-- pk: 59
-  model: auth.permission
-  fields: {codename: change_winepersonality, name: Can change wine personality, content_type: 21}
-- pk: 62
-  model: auth.permission
-  fields: {codename: delete_winepersonality, name: Can delete wine personality, content_type: 21}
-- model: auth.permission
-  fields: {codename: add_wineratingdata, name: Can add wine rating data, content_type: 20}
-  pk: 57
-- pk: 60
-  model: auth.permission
-  fields: {codename: change_wineratingdata, name: Can change wine rating data, content_type: 20}
-- pk: 63
-  model: auth.permission
-  fields: {content_type: 20, codename: delete_wineratingdata, name: Can delete wine
-      rating data}
-- pk: 13
-  model: auth.permission
-  fields: {codename: add_session, name: Can add session, content_type: 5}
-- pk: 14
-  model: auth.permission
-  fields: {content_type: 5, codename: change_session, name: Can change session}
-- pk: 15
-  model: auth.permission
-  fields: {codename: delete_session, name: Can delete session, content_type: 5}
-- fields: {codename: add_site, name: Can add site, content_type: 6}
-  pk: 16
-  model: auth.permission
-- pk: 17
-  model: auth.permission
-  fields: {name: Can change site, content_type: 6, codename: change_site}
-- pk: 18
-  model: auth.permission
-  fields: {codename: delete_site, name: Can delete site, content_type: 6}
-- pk: 64
-  model: auth.permission
-  fields: {codename: add_migrationhistory, name: Can add migration history, content_type: 22}
-- pk: 65
-  model: auth.permission
-  fields: {codename: change_migrationhistory, name: Can change migration history,
-    content_type: 22}
-- fields: {codename: delete_migrationhistory, name: Can delete migration history,
-    content_type: 22}
-  pk: 66
-  model: auth.permission
-- pk: 1
-  model: auth.group
-  fields:
-    permissions: []
-    name: Party Specialist
-- pk: 2
-  model: auth.group
-  fields:
-    name: Party Host
-    permissions: []
-- pk: 3
-  model: auth.group
-  fields:
-    name: Attendee
-    permissions: []
-- pk: 4
-  model: auth.group
-  fields:
-    name: Supplier
-    permissions: []
 - pk: 1
   model: auth.user
   fields:
@@ -500,37 +31,38 @@
     username: kwan@mit.edu
     date_joined: 2012-07-10 02:30:23.140871
     is_superuser: true
-- pk: 2
-  model: auth.user
+- model: auth.user
   fields:
+    last_login: 2012-07-10 00:03:27.928724
     is_active: true
+    username: elizabeth@redstar.com
     email: elizabeth@redstar.com
     groups: [1]
-    username: elizabeth@redstar.com
     user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-10 02:33:12.702085
     first_name: ''
+    date_joined: 2012-07-10 02:33:12.702085
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$pojEDrLmb6kp$2hvoBC99sqPvzCahVCF+QCvMRMq0xsS/iB+aVvvPRVo=
-    last_login: 2012-07-10 00:03:27.928724
+  pk: 2
 - pk: 3
   model: auth.user
   fields:
-    first_name: ''
     date_joined: 2012-07-10 02:33:12.859951
+    first_name: ''
     is_staff: false
     last_name: ''
-    last_login: 2012-07-10 02:33:12.859951
     password: pbkdf2_sha256$10000$QVdrg6rPmRD5$cvKsF7sD6KwpziG8Dmm5V9QFjAoKwky8POJYcGrtmaU=
+    last_login: 2012-07-10 02:33:12.859951
     is_active: true
+    email: johnstecco@gmail.com
     groups: [1]
     username: johnstecco@gmail.com
-    email: johnstecco@gmail.com
     user_permissions: []
     is_superuser: false
 - fields:
+    last_name: ''
     password: pbkdf2_sha256$10000$8aqRGwUL9cvK$j5YYmHaujyLiYrr9Zf95gLcqaxa10hYIzsDGia7r0lo=
     last_login: 2012-07-10 02:33:13.15801
     is_active: true
@@ -542,11 +74,10 @@
     date_joined: 2012-07-10 02:33:13.15801
     first_name: ''
     is_staff: false
-    last_name: ''
   pk: 4
   model: auth.user
-- fields:
-    groups: [1]
+- model: auth.user
+  fields:
     user_permissions: []
     is_superuser: false
     first_name: ''
@@ -556,10 +87,10 @@
     password: pbkdf2_sha256$10000$sW4hM7kKIS3n$Y0rSwmqcOHifvfYbTq5Z38qJ63zHo7ar3D9ZO1CGBKE=
     last_login: 2012-07-10 02:33:13.167771
     is_active: true
-    username: specialist2@example.com
     email: specialist2@example.com
+    groups: [1]
+    username: specialist2@example.com
   pk: 5
-  model: auth.user
 - pk: 6
   model: auth.user
   fields:
@@ -578,19 +109,20 @@
 - pk: 7
   model: auth.user
   fields:
-    is_active: true
+    username: host2@example.com
     email: host2@example.com
     groups: [2]
-    username: host2@example.com
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-10 02:33:13.487413
+    user_permissions: []
     first_name: ''
+    date_joined: 2012-07-10 02:33:13.487413
     is_staff: false
     last_name: ''
-    password: pbkdf2_sha256$10000$xnC8ezbPEKxc$Z9eaK6QXra90NY9Rlx3Ws4tNvakr7ejaYd9SfGauMg8=
     last_login: 2012-07-10 02:33:13.487413
-- fields:
+    password: pbkdf2_sha256$10000$xnC8ezbPEKxc$Z9eaK6QXra90NY9Rlx3Ws4tNvakr7ejaYd9SfGauMg8=
+    is_active: true
+- model: auth.user
+  fields:
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$EzoEhhurE0p2$5gRhkyamYo+EF7joYQ8fPt6VbPBDHHX3WCGL7epCF+M=
@@ -604,38 +136,38 @@
     date_joined: 2012-07-10 02:33:13.651613
     first_name: ''
   pk: 8
-  model: auth.user
-- pk: 9
-  model: auth.user
+- model: auth.user
   fields:
+    last_login: 2012-07-10 02:33:13.812832
     is_active: true
+    username: attendee1@example.com
     email: attendee1@example.com
     groups: [3]
-    username: attendee1@example.com
     user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-10 02:33:13.812832
     first_name: ''
+    date_joined: 2012-07-10 02:33:13.812832
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$cH6nmMo06Y9c$9jl9+VSXjkAbORkc1YdGERX+pXIes2fVXd7h7ymE5dA=
-    last_login: 2012-07-10 02:33:13.812832
+  pk: 9
 - pk: 10
   model: auth.user
   fields:
-    first_name: ''
     date_joined: 2012-07-10 02:33:13.968845
+    first_name: ''
     is_staff: false
     last_name: ''
-    last_login: 2012-07-10 02:33:13.968845
     password: pbkdf2_sha256$10000$u525PLqGuPQR$wUoZ1bOoHzUpm8MN8cQ2l0XkFzNHztLct9eNz/LIUgs=
+    last_login: 2012-07-10 02:33:13.968845
     is_active: true
+    email: attendee2@example.com
     groups: [3]
     username: attendee2@example.com
-    email: attendee2@example.com
     user_permissions: []
     is_superuser: false
 - fields:
+    last_name: ''
     password: pbkdf2_sha256$10000$1chLSNdGdzpO$iUGHfQe4KxiK9sJfHPBVPmwqRODxyRLXmTDMq127PF0=
     last_login: 2012-07-10 02:33:14.121089
     is_active: true
@@ -647,11 +179,10 @@
     date_joined: 2012-07-10 02:33:14.121089
     first_name: ''
     is_staff: false
-    last_name: ''
   pk: 11
   model: auth.user
-- fields:
-    groups: [3]
+- model: auth.user
+  fields:
     user_permissions: []
     is_superuser: false
     first_name: ''
@@ -661,10 +192,10 @@
     password: pbkdf2_sha256$10000$CwjFRlz4Lz7N$+0253aeqmh4bBapE5UQ5cZpBGbCO4LNv3oAYY4WLDgU=
     last_login: 2012-07-10 02:33:14.280017
     is_active: true
-    username: attendee4@example.com
     email: attendee4@example.com
+    groups: [3]
+    username: attendee4@example.com
   pk: 12
-  model: auth.user
 - pk: 13
   model: auth.user
   fields:
@@ -683,19 +214,20 @@
 - pk: 14
   model: auth.user
   fields:
-    is_active: true
+    username: attendee6@example.com
     email: attendee6@example.com
     groups: [3]
-    username: attendee6@example.com
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-10 02:33:14.59369
+    user_permissions: []
     first_name: ''
+    date_joined: 2012-07-10 02:33:14.59369
     is_staff: false
     last_name: ''
-    password: pbkdf2_sha256$10000$BmtoUIlosSDC$zwuzY+K+dzJawALVnbtO0oZuHFoX0/2a8SZCXn6JLMk=
     last_login: 2012-07-10 02:33:14.59369
-- fields:
+    password: pbkdf2_sha256$10000$BmtoUIlosSDC$zwuzY+K+dzJawALVnbtO0oZuHFoX0/2a8SZCXn6JLMk=
+    is_active: true
+- model: auth.user
+  fields:
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$Kt8PdRvS3B9a$y8IDhaO/LdZN+7XBNKW5cIU2Dby0ROEfavN9/Y8KglA=
@@ -709,38 +241,38 @@
     date_joined: 2012-07-10 02:33:14.747237
     first_name: ''
   pk: 15
-  model: auth.user
-- pk: 16
-  model: auth.user
+- model: auth.user
   fields:
+    last_login: 2012-07-10 02:33:14.904998
     is_active: true
+    username: attendee8@example.com
     email: attendee8@example.com
     groups: [3]
-    username: attendee8@example.com
     user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-10 02:33:14.904998
     first_name: ''
+    date_joined: 2012-07-10 02:33:14.904998
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$32QjWdfpQOWP$a0J/tBszUwyfQs1Ky1hdp/hGAFXWn5GNfnsgQ4N4dkg=
-    last_login: 2012-07-10 02:33:14.904998
+  pk: 16
 - pk: 17
   model: auth.user
   fields:
-    first_name: ''
     date_joined: 2012-07-10 02:33:15.56955
+    first_name: ''
     is_staff: false
     last_name: ''
-    last_login: 2012-07-10 02:33:15.56955
     password: pbkdf2_sha256$10000$vORWBohCwnfO$yE36bYCVfScOCf8k2M+mH3Q8IGbz0sC0e0IlHvTr3/Y=
+    last_login: 2012-07-10 02:33:15.56955
     is_active: true
+    email: attendee9@example.com
     groups: [3]
     username: attendee9@example.com
-    email: attendee9@example.com
     user_permissions: []
     is_superuser: false
 - fields:
+    last_name: ''
     password: pbkdf2_sha256$10000$Oy9hJasAfy35$mF5Xl+nYWhMXg1JoRK5UYIH0c5mIFGHeJWz2U0hJmmM=
     last_login: 2012-07-10 02:45:26.277816
     is_active: true
@@ -752,11 +284,10 @@
     date_joined: 2012-07-10 02:33:15.21732
     first_name: ''
     is_staff: false
-    last_name: ''
   pk: 18
   model: auth.user
-- fields:
-    groups: [4]
+- model: auth.user
+  fields:
     user_permissions: []
     is_superuser: false
     first_name: ''
@@ -766,7 +297,96 @@
     password: pbkdf2_sha256$10000$BqbsA6qx6zqE$STzSZSabr6w/VKw8F36hIVMWYcYYBAoBLFpbbGIFG6g=
     last_login: 2012-07-10 02:33:15.381564
     is_active: true
-    username: supplier2@example.com
     email: supplier2@example.com
+    groups: [4]
+    username: supplier2@example.com
   pk: 19
-  model: auth.user
+- pk: 1
+  model: personality.wine
+  fields: {deactivated: null, year: 0, price: '0', active: true, sip_bits: 'Light,
+      "clean" blend of four regional varietals                             from the
+      Loire Valley (France), predominantly Uni Blanc and Columbard.', number: 1, name: Domaine
+      De Pellehaut "Harmonie De Gascogne", added: 2012-07-09}
+- pk: 2
+  model: personality.wine
+  fields: {name: Contrada Chardonnay, added: 2012-07-09, deactivated: null, year: 0,
+    price: '0', active: true, sip_bits: Classic California chard. Made by respected
+      wine-maker Michael                                 Pozzan.  This wine has limited
+      availability and crated for the                                 restaurant industry.,
+    number: 2}
+- pk: 3
+  model: personality.wine
+  fields: {price: '0', active: true, sip_bits: 'This wine defines "aromatics on the
+      nose"; "Frizzante" is                             Italian that refers to the
+      slight effervescence, paying homage to this                             varietal''s
+      roots, although this wine hails from Oregon.', number: 3, name: Foris Vineyards
+      Muscat Frizzante, added: 2012-07-09, deactivated: null, year: 0}
+- fields: {year: 0, price: '0', active: true, sip_bits: 'Light bodied Italian red
+      that can be served slight chilled (really)                             perfect
+      for people just getting into the "world of red";                             translates
+      to "wine for everyday"; believe it or not, this is                             mad
+      from 100% Merlot!', number: 4, name: Giuseppe Savine Rondineto "Vino Quotidinao",
+    added: 2012-07-09, deactivated: null}
+  pk: 4
+  model: personality.wine
+- pk: 5
+  model: personality.wine
+  fields: {added: 2012-07-09, deactivated: null, year: 0, price: '0', sip_bits: 'Small
+      Produced, Classic for the style. Fantastic, respected family-owned                             operation
+      from Lodi, California.', active: true, number: 5, name: Lange Twins Zinfandel}
+- pk: 6
+  model: personality.wine
+  fields: {number: 6, name: Carlos Basso Dos Fincas Cabernet Sauvignon/Merlot, added: 2012-07-09,
+    deactivated: null, year: 0, price: '0', active: true, sip_bits: 'Awesome wine
+      from South America. This line is special and only 3000                             cases
+      of this wine is produced. Bold, dark - might stain your teeth purple                             for
+      a while - grab a steak or some Roquefort Bleu!'}
+- pk: 1
+  model: personality.winepersonality
+  fields: {description: 'You''re "easy going" - even before the                                   wine.
+      You''re the type of person that                                   comes home
+      after a long day at the                                   office or with the
+      kids and reaches for a                                   glass. Your wine is
+      happy, light and                                   white - clean, eortless and
+      something                                   to unwind with.', name: Easy Going}
+- pk: 2
+  model: personality.winepersonality
+  fields: {name: Moxie, description: 'Bold, confident, outstanding - and we''re                                   talking
+      about you as much as the wine you drink. You don''t talk, you make a                                   statement
+      - and when it''s about wine, it''s "I                                   drink
+      red!". Dynamic and charismatic, you                                   could
+      spend the night with just these                                   wines and
+      be completely content.'}
+- fields: {name: Whimsical, description: 'You find comfort in the wine you drink -                                   wine
+      for you is an occasion where you''re                                   often
+      the life of the party. Life''s not that                                   complicated,
+      nor is your wine. The key                                   for you is FUN.
+      Some may consider you                                   a little quirky and
+      frequently playful, and                                   that''s what''s in
+      your glass.'}
+  pk: 3
+  model: personality.winepersonality
+- pk: 4
+  model: personality.winepersonality
+  fields: {description: 'And that you are. You put thought into                                   your
+      whole wine experience, thirsting for                                   everything
+      in the glass - the history, the                                   depth, the
+      pairings - all are appreciated in                                   every sip.
+      The wines are exciting,                                   stunning, and entices
+      you into exploring                                   even more.', name: Sensational}
+- pk: 5
+  model: personality.winepersonality
+  fields: {name: Exuberant, description: 'Vivacious and cheerful, you''re often the                                   host
+      of the party. You see your wine as                                   an accompaniment
+      both for the evening                                   or the food. But you
+      do not necessarily                                   see it taking center stage.
+      Your wine is a                                   lively yet informal addition,
+      whose                                   absence would be missed.'}
+- pk: 6
+  model: personality.winepersonality
+  fields: {name: Serendipitous, description: 'When asked do you prefer red or white?                                   You
+      say YES! Often welcoming impromptu                                   opportunities
+      with a desire for                                   spontaneity, chance and
+      discovery of life                                   and wine. Your unconstrained
+      nature                                   empowers you to float from one sensual                                   pleasure
+      to the next.'}
