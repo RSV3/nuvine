@@ -254,7 +254,7 @@ def tag(request):
 def party_list(request):
   data = {}
 
-  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_add(request):
@@ -263,7 +263,7 @@ def party_add(request):
   """
   data = {}
 
-  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_attendee_add(request):
@@ -276,7 +276,7 @@ def party_attendee_add(request):
 
   # TODO: need to track who added and make sure the attendee is linked to that specialist or host
 
-  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/party_attendee_add.html", data, context_instance=RequestContext(request))
 
 
 
