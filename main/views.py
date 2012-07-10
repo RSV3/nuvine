@@ -137,7 +137,11 @@ def record_all_wine_ratings(request):
   """
     Record wine ratings.
     Used by party specialists or attendees themselves.
+
   """
+
+  #TODO: Need to track the party specialist that is adding the ratings so that this attendee is linked
+  #     to the party specialist
 
   data = {}
 
@@ -244,4 +248,35 @@ def tag(request):
   data["result"] = "tagging successful"
 
   return HttpResponse(json.dumps(data), mimetype="application/json") 
+
+
+@login_required
+def party_list(request):
+  data = {}
+
+  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+
+@login_required
+def party_add(request):
+  """
+    Add a new party
+  """
+  data = {}
+
+  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+
+@login_required
+def party_attendee_add(request):
+  """
+    Add a new attendee to a party 
+  """
+  data = {}
+
+  # TODO: only allow host or party specialist to add
+
+  # TODO: need to track who added and make sure the attendee is linked to that specialist or host
+
+  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
+
+
 

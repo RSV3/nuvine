@@ -7,9 +7,22 @@
 
 {% block content %}
 
-
   <div class="container">
-    This is where user personal content lies: {{ output }}
+    <div class="row">
+      <div class="span8 offset1">
+        <div class="row">
+          <a href="{% url party_list %}">Parties</a>
+        </div>
+        <div class="row">
+          <a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a>
+        </div>
+        <div class="row">
+        </div>
+      </div>
+    </div>
+
+    This is where user personal content lies depending on user group/permissions: {{ output }}
+    
   </div>
 
 {% endblock content %}

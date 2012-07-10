@@ -2,9 +2,14 @@ Need to allow party specialist to
 
 - See parties
 
+- Add attendees to a party
+
 - See attendees of a party
 
 - Enter ratings from a party page
+  - when typing e-mail, it autocompletes and fills first name and last names also
+
+Need to allow hosts to see their parties and invite attendees
 
 Need to allow attendees to change password
 
