@@ -1,0 +1,5 @@
+heroku addons:remove HEROKU_POSTGRESQL_TEAL --app winedora-staging
+heroku addons:add heroku-postgresql:dev --app winedora-staging
+heroku pg:promote HEROKU_POSTGRESQL_TEAL
+# don't use this
+DROP SCHEMA public CASCADE;
