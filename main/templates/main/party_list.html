@@ -1,4 +1,3 @@
-
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
@@ -7,43 +6,48 @@
 
 {% block content %}
 
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+<div class="container-fluid" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-
-  <div class="row">
+  <div class="row-fluid">
     {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      The following are list of parties you are managing.  You can edit or add new parties.
+    <div class="span3">
+      <div class="well sidebar-nav">
+        <ul class="nav nav-list">
+          <li class="nav-header">Management</li>
+          <li><a href="{% url party_add %}">Create Party</a></li>
+          <li><a href="{% url party_attendee_add %}">Invite Attendee</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
 
-  <section id="parties">
-  <div class="row">
-    {% for party in parties %}
-      {# create a table of party and party information #}
-      {{ party }}
-    {% endfor %}
-  </div>
-
-  </section>
-
-  <section id="add_host">
-    {# add new host #}
-  </section>
-
-  <section id="add_party">
-    {# add new parties #}
-  
-    <form method="POST" action="{% url contact_us %}">
-      {% csrf_token %}
-
-      <table>
-      {{ form.as_table }}
-      </table> 
-      <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-
-  </section>
+    <div class="span9">
+      <section id="parties">
+      <table class="table-striped">
+        <thead>
+          <td>Date</td>
+          <td>Host</td>
+          <td>Title</td>
+          <td>Contact Phone</td>
+          <td>Address</td>
+          <td>Invitees [Coming]</td>
+        </thead>
+        <tbody>
+        {% for party in parties %}
+          {# create a table of party and party information #}
+          <tr>
+            <td>{{ party.event_date }}</td>
+            <td><a href="mailto:{{ party.host.email }}">{{ party.host.first_name }} {{ party.host.last_name }}</a></td>
+            <td>{{ party.title }}</td>
+            <td>{{ party.phone }}</td>
+            <td>{{ party.address }}</td>
+            <td>{{ party.invitees }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </section>
+    </div>
+  </div> <!-- row-fluid -->
 
 </div>
 

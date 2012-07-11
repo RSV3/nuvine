@@ -2,15 +2,289 @@
   pk: 1
   fields:
     name: Party Specialist
-- model: auth.group
-  pk: 2
+    permissions: []
+- pk: 2
+  model: auth.group
   fields:
     name: Party Host
+    permissions: []
 - model: auth.group
-  pk: 3
   fields:
     name: Attendee
-- model: auth.group
-  pk: 4
+    permissions: []
+  pk: 3
+- pk: 4
+  model: auth.group
   fields:
+    permissions: []
     name: Supplier
+- pk: 1
+  model: auth.user
+  fields:
+    user_permissions: []
+    first_name: ''
+    email: elizabeth@redstar.com
+    date_joined: 2012-07-11 14:54:06.032468
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$qNJp3RCCQi4f$sqmH808rDiu6eIYewm7iI2cLy0nSOdGvcmrs5QK0K80=
+    last_login: 2012-07-11 14:54:06.032468
+    is_active: true
+    username: elizabeth@redstar.com
+    groups: [1]
+    is_superuser: false
+- fields:
+    user_permissions: []
+    last_login: 2012-07-11 14:54:06.187261
+    email: johnstecco@gmail.com
+    is_active: true
+    groups: [1]
+    username: johnstecco@gmail.com
+    password: pbkdf2_sha256$10000$8LGscO82nqhh$g0XpQkwy8WwCQ0AFC2NEkkZpC/vQPlVqjfhnFZgFr+0=
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:06.187261
+    first_name: ''
+    is_staff: false
+    last_name: ''
+  pk: 2
+  model: auth.user
+- fields:
+    is_superuser: false
+    password: pbkdf2_sha256$10000$kSHbAfItfABq$UxOL33uCOh1SSGGsPo9dWFJ2YCH4/+R4MoNzPu3iZ5g=
+    date_joined: 2012-07-11 14:54:06.347401
+    first_name: ''
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:06.347401
+    email: specialist1@example.com
+    user_permissions: []
+    is_active: true
+    username: specialist1@example.com
+    groups: [1]
+  pk: 3
+  model: auth.user
+- pk: 4
+  model: auth.user
+  fields:
+    last_name: ''
+    password: pbkdf2_sha256$10000$x2TrWk1Jm5MN$vXdJI/56ee4Q2w9blJGiZ/pMR9q9sZfGlnghoiXZct4=
+    last_login: 2012-07-11 14:54:06.506402
+    is_active: true
+    user_permissions: []
+    groups: [1]
+    username: specialist2@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:06.506402
+    first_name: ''
+    email: specialist2@example.com
+    is_staff: false
+- fields:
+    groups: [2]
+    username: host1@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:06.660484
+    first_name: ''
+    is_staff: false
+    user_permissions: []
+    last_name: ''
+    last_login: 2012-07-11 14:54:06.660484
+    email: host1@example.com
+    password: pbkdf2_sha256$10000$oCTfFAiadW8D$37Z3BRGrD3YzJ/Y2C+wYxcFzndYcfaF0MK64rW3qPng=
+    is_active: true
+  pk: 5
+  model: auth.user
+- fields:
+    date_joined: 2012-07-11 14:54:06.823799
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:06.823799
+    password: pbkdf2_sha256$10000$gzPxCzlOCOGD$uTD9ODXn9eqXhbpCQJf5BtGxrvk8LEdZlcfLIAUWfRQ=
+    is_active: true
+    user_permissions: []
+    groups: [2]
+    username: host2@example.com
+    email: host2@example.com
+    is_superuser: false
+    first_name: ''
+  pk: 6
+  model: auth.user
+- pk: 7
+  model: auth.user
+  fields:
+    is_active: true
+    groups: [2]
+    username: host3@example.com
+    user_permissions: []
+    email: host3@example.com
+    is_superuser: false
+    password: pbkdf2_sha256$10000$I1PQPVuiM2bY$4CqxORlk0C6XAH46usEpBZndsEe2LrcI+n27MwkVxe8=
+    date_joined: 2012-07-11 14:54:06.977166
+    first_name: ''
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:06.977166
+- pk: 8
+  model: auth.user
+  fields:
+    user_permissions: []
+    first_name: ''
+    email: attendee1@example.com
+    date_joined: 2012-07-11 14:54:07.137987
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$vG4NyfxnfcJo$v5AuT107pEvyjSjaS3G2gjzvWhLgehKqiyaJZEqXjFE=
+    last_login: 2012-07-11 14:54:07.137987
+    is_active: true
+    username: attendee1@example.com
+    groups: [3]
+    is_superuser: false
+- fields:
+    user_permissions: []
+    last_login: 2012-07-11 14:54:07.303873
+    email: attendee2@example.com
+    is_active: true
+    groups: [3]
+    username: attendee2@example.com
+    password: pbkdf2_sha256$10000$5nPgRli9nICm$EIpQftp/tFwpetQf+WuBwDPS9gukNAivJZ20jg6Yg9g=
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:07.303873
+    first_name: ''
+    is_staff: false
+    last_name: ''
+  pk: 9
+  model: auth.user
+- fields:
+    is_superuser: false
+    password: pbkdf2_sha256$10000$3f2tw3nF65JD$Dc5p4B0c3ywhT5Tx77VrPrY7gAdoL3/S1fzgF/dHU64=
+    date_joined: 2012-07-11 14:54:07.455441
+    first_name: ''
+    email: attendee3@example.com
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:07.455441
+    user_permissions: []
+    is_active: true
+    username: attendee3@example.com
+    groups: [3]
+  pk: 10
+  model: auth.user
+- pk: 11
+  model: auth.user
+  fields:
+    last_name: ''
+    user_permissions: []
+    password: pbkdf2_sha256$10000$R1UZi2PeSnE0$7OfJ/vrh2cwQvDq1m5DFxNGFlP6KS5foXJz8z0sg+ac=
+    last_login: 2012-07-11 14:54:07.608363
+    is_active: true
+    groups: [3]
+    username: attendee4@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:07.608363
+    first_name: ''
+    email: attendee4@example.com
+    is_staff: false
+- fields:
+    user_permissions: []
+    groups: [3]
+    username: attendee5@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:07.778971
+    first_name: ''
+    is_staff: false
+    email: attendee5@example.com
+    last_name: ''
+    last_login: 2012-07-11 14:54:07.778971
+    password: pbkdf2_sha256$10000$7N3mCrqSdKhY$W6+tWpLxVT9/hZFHfX7F7f8Yuth0K9PnXCnP4UoS2bc=
+    is_active: true
+  pk: 12
+  model: auth.user
+- fields:
+    date_joined: 2012-07-11 14:54:07.934848
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:07.934848
+    password: pbkdf2_sha256$10000$RFGXbxLUR8tM$oEKG/qyJIYUqGYfTNDtvR6a4uueWbO9zRQrXokbSmao=
+    is_active: true
+    user_permissions: []
+    groups: [3]
+    username: attendee6@example.com
+    email: attendee6@example.com
+    is_superuser: false
+    first_name: ''
+  pk: 13
+  model: auth.user
+- pk: 14
+  model: auth.user
+  fields:
+    is_active: true
+    password: pbkdf2_sha256$10000$y6kW3ZpUPja9$3enlmp9vdfc5hhFBIvTcSbUOQMVLC0f4tzdeNSCwfNI=
+    groups: [3]
+    username: attendee7@example.com
+    user_permissions: []
+    email: attendee7@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:08.090464
+    first_name: ''
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 14:54:08.090464
+- pk: 15
+  model: auth.user
+  fields:
+    user_permissions: []
+    first_name: ''
+    email: attendee8@example.com
+    date_joined: 2012-07-11 14:54:08.246091
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$4fGYvPnmmeAx$okuIjHBnHxl+s6Bn+L3a5ebNYGaLQLxCQDI5dpkHHD8=
+    last_login: 2012-07-11 14:54:08.246091
+    is_active: true
+    username: attendee8@example.com
+    groups: [3]
+    is_superuser: false
+- fields:
+    user_permissions: []
+    last_login: 2012-07-11 14:54:08.402797
+    email: attendee9@example.com
+    is_active: true
+    groups: [3]
+    username: attendee9@example.com
+    password: pbkdf2_sha256$10000$cmsDgeyCIgqV$0J9hLOeDpEYRujMVO6CjIsbDMy1/M62KD04UY2CpQ/c=
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:08.402797
+    first_name: ''
+    is_staff: false
+    last_name: ''
+  pk: 16
+  model: auth.user
+- fields:
+    is_superuser: false
+    password: pbkdf2_sha256$10000$IpLiNGzHt3cj$oXjt8zNGuknl7+Otde5BWy6XznJblX6BcT4a0CHlnLQ=
+    date_joined: 2012-07-11 14:54:08.55661
+    first_name: ''
+    is_staff: false
+    last_name: ''
+    email: supplier1@example.com
+    last_login: 2012-07-11 14:54:08.55661
+    user_permissions: []
+    is_active: true
+    username: supplier1@example.com
+    groups: [4]
+  pk: 17
+  model: auth.user
+- pk: 18
+  model: auth.user
+  fields:
+    last_name: ''
+    password: pbkdf2_sha256$10000$x5Bks677jQSd$SlGd/xg1oa4cLKfE7DufKMXF713t70/LEzdUuo8U8LY=
+    last_login: 2012-07-11 14:54:08.712975
+    is_active: true
+    user_permissions: []
+    groups: [4]
+    username: supplier2@example.com
+    is_superuser: false
+    date_joined: 2012-07-11 14:54:08.712975
+    first_name: ''
+    email: supplier2@example.com
+    is_staff: false

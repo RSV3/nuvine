@@ -34,12 +34,18 @@ class Party(models.Model):
 
   # default to the name of the host
   host = models.ForeignKey(User)
-  name = models.CharField(max_length=128)
+  title = models.CharField(max_length=128)
   description = models.TextField()
   address = models.ForeignKey(Address)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
+
+  def invitees(self):
+    invites = PartyInvite.objects.filter(party=self).count()
+    coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
+
+    return "%d [%d]"%(invites, coming)
 
 class PartyInvite(models.Model):
 
@@ -72,7 +78,7 @@ class LineItem(models.Model):
 
   name = models.CharField(max_length=64)
   quantity = models.IntegerField(default=0)
-  price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE)
+  price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE[0][0])
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 

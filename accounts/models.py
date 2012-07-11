@@ -38,6 +38,8 @@ class UserProfile(models.Model):
   shipping_address = models.ForeignKey(Address, null=True, related_name="shipped_to")
   credit_cards = models.ManyToManyField(CreditCard)
 
+  party_addresses = models.ManyToManyField(Address)
+
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
     UserProfile.objects.create(user=instance)

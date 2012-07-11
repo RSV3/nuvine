@@ -5,15 +5,18 @@ from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 
 from personality.models import Wine 
 
-from main.forms import ContactRequestForm
+from main.forms import ContactRequestForm, PartyCreateForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
+
 from personality.utils import calculate_wine_personality
 
 import json
+
+from datetime import date
 
 @login_required
 def home(request):
@@ -262,6 +265,20 @@ def party_add(request):
     Add a new party
   """
   data = {}
+
+  if request.method == "POST":
+    form = PartyCreateForm(request.POST)
+    if form.is_valid():
+      new_party = form.save()
+
+      # TODO: go to party list page
+      return HttpResponseRedirect(reverse("party_list"))
+
+  else:
+    initial_data = {'event_date': date.today().strftime("%m/%d/%Y")}
+    form = PartyCreateForm(initial=initial_data)
+
+  data["form"] = form
 
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
