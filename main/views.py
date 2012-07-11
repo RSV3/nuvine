@@ -1,15 +1,16 @@
 # Create your views here.
 from urlparse import urlparse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 
+from main.models import Party, PartyInvite
 from personality.models import Wine 
 
-from main.forms import ContactRequestForm, PartyCreateForm
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 
 from personality.utils import calculate_wine_personality
@@ -26,6 +27,20 @@ def home(request):
 
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
+
+    ps_group = Group.objects.get(name='Party Specialist')
+    ph_group = Group.objects.get(name='Party Host')
+    sp_group = Group.objects.get(name='Supplier')
+    at_group = Group.objects.get(name='Attendee')
+
+    if ps_group in u.groups.all():
+      data["specialist"] = True
+    if ph_group in u.groups.all():
+      data["host"] = True
+    if sp_group in u.groups.all():
+      data["supplier"] = True
+    if at_group in u.groups.all():
+      data["attendee"] = True
 
     # go to home page
 
@@ -48,7 +63,6 @@ def home(request):
     # - order wine
 
     # if user is admin
-    pass
   else:
     data["output"] = "User is not authenticated"
     return HttpResponseRedirect(reverse("landing_page"))
@@ -75,8 +89,7 @@ def contact_us(request):
     form = ContactRequestForm(request.POST)
     if form.is_valid():
       form.save()
-      # TODO: alert saying
-      form = ContactRequestForm() 
+      return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
   else:
     form = ContactRequestForm()
 
@@ -136,7 +149,7 @@ def record_wine_ratings(request):
     raise Http404 
 
 @login_required
-def record_all_wine_ratings(request):
+def record_all_wine_ratings(request, email=None):
   """
     Record wine ratings.
     Used by party specialists or attendees themselves.
@@ -177,6 +190,7 @@ def record_all_wine_ratings(request):
 
     else:
       # show forms
+
       initial_data = { 'wine1': Wine.objects.get(number=1, active=True).id,
                         'wine2': Wine.objects.get(number=2, active=True).id,
                         'wine3': Wine.objects.get(number=3, active=True).id,
@@ -184,6 +198,12 @@ def record_all_wine_ratings(request):
                         'wine5': Wine.objects.get(number=5, active=True).id,
                         'wine6': Wine.objects.get(number=6, active=True).id
                         }
+
+      if email:
+        attendee = User.objects.get(email=email)
+        initial_data['email'] = attendee.email
+        initial_data['first_name'] = attendee.first_name
+        initial_data['last_name'] = attendee.last_name
 
       form = AllWineRatingsForm(initial=initial_data)
 
@@ -207,18 +227,6 @@ def parties(request):
   data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
 
   return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
-
-@login_required
-def add_invitees(request):
-  """
-    Add invitees 
-  """
-
-  data = {}
-
-  u = request.user
-
-  return render_to_response("main/add_invitees.html", data, context_instance=RequestContext(request))
 
 def signup_party_specialist(request):
 
@@ -255,7 +263,20 @@ def tag(request):
 
 @login_required
 def party_list(request):
+
+  u = request.user
+
   data = {}
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
+
+  if (ps_group in u.groups.all()) or (ph_group in u.groups.all()):
+
+    # TODO: need to filter to parties that a particular user manages
+    data['parties'] = Party.objects.all()
+  else:
+    raise Http404
 
   return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
 
@@ -283,9 +304,37 @@ def party_add(request):
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_attendee_add(request):
+def party_attendee_list(request, party_id):
   """
-    Add a new attendee to a party 
+    Show attendees of a party
+  """
+
+  data = {}
+
+  u = request.user
+
+  party = None
+  if int(party_id) != 0:
+    party = get_object_or_404(Party, pk=party_id)
+
+  ps_group = Group.objects.get(name='Party Specialist')
+  ph_group = Group.objects.get(name='Party Host')
+  sp_group = Group.objects.get(name='Supplier')
+  if ps_group in u.groups.all() or ph_group in u.groups.all() or sp_group in u.groups.all(): 
+    
+    invitees = PartyInvite.objects.filter(party=party)
+
+    data["party"] = party
+    data["invitees"] = invitees
+
+    return render_to_response("main/party_attendee_list.html", data, context_instance=RequestContext(request))
+  else:
+    raise Http404
+
+@login_required
+def party_attendee_invite(request, party_id=0):
+  """
+    Invite a new attendee to a party 
   """
   data = {}
 
@@ -293,7 +342,96 @@ def party_attendee_add(request):
 
   # TODO: need to track who added and make sure the attendee is linked to that specialist or host
 
-  return render_to_response("main/party_attendee_add.html", data, context_instance=RequestContext(request))
+  u = request.user
 
+  party = None
+  if int(party_id) != 0:
+    party = get_object_or_404(Party, pk=party_id)
 
+  ps_group = Group.objects.get(name='Party Specialist')
+  ph_group = Group.objects.get(name='Party Host')
+  if ps_group in u.groups.all() or ph_group in u.groups.all(): 
+    if request.method == "POST":
+      form = PartyInviteAttendeeForm(request.POST)
+      if form.is_valid():
+        new_invite = form.save()
+        return HttpResponseRedirect(reverse("party_attendee_list", args=[new_invite.party.id]))
+    else:
+      if int(party_id) == 0:
+        form = PartyInviteAttendeeForm()
+      else:
+        initial_data = {'party': party}
+        form =  PartyInviteAttendeeForm(initial=initial_data)
+
+    data["form"] = form
+    data["party"] = party
+
+    return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
+  else:
+    raise Http404
+
+@login_required
+def supplier_party_list(request):
+  """
+    Shows party list from suppliers point of view
+
+    So it displays all parties
+  """
+  data = {}
+
+  data['parties'] = Party.objects.all()
+
+  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+
+@login_required
+def party_order_list(request, party_id):
+  """
+    Shows party list from suppliers point of view
+
+    So it displays all parties
+  """
+  data = {}
+
+  data['parties'] = Party.objects.all()
+
+  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+
+@login_required
+def pending_orders(request):
+  """
+    Shows party list from suppliers point of view
+
+    So it displays all parties
+  """
+  data = {}
+
+  data['parties'] = Party.objects.all()
+
+  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+
+@login_required
+def fulfilled_orders(request):
+  """
+    Shows party list from suppliers point of view
+
+    So it displays all parties
+  """
+  data = {}
+
+  data['parties'] = Party.objects.all()
+
+  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+
+@login_required
+def all_orders(request):
+  """
+    Shows party list from suppliers point of view
+
+    So it displays all parties
+  """
+  data = {}
+
+  data['parties'] = Party.objects.all()
+
+  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
 

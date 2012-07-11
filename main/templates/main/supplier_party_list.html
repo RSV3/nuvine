@@ -1,0 +1,37 @@
+{% extends "main/menu_base.html" %}
+
+{% block header %}
+  <h1>Parties</h1>
+{% endblock header %}
+
+{% block left_navigation %}
+          <li><a href="{% url pending_orders %}">Pending Orders</a></li>
+          <li><a href="{% url fulfilled_orders %}">Fulfilled Orders</a></li>
+          <li><a href="{% url all_orders %}">All Orders</a></li>
+{% endblock left_navigation %}
+
+{% block right_content %}
+      <table class="table table-striped">
+        <thead>
+          <th>Date</th>
+          <th>Host</th>
+          <th>Title</th>
+          <th>Contact Phone</th>
+          <th>Address</th>
+          <th>Orders [Pending]</th>
+        </thead>
+        <tbody>
+        {% for party in parties %}
+          {# create a table of party and party information #}
+          <tr>
+            <td>{{ party.event_date|date:"M d, Y" }}</td>
+            <td><a href="mailto:{{ party.host.email }}">{{ party.host.first_name }} {{ party.host.last_name }}</a></td>
+            <td>{{ party.title }}</td>
+            <td>{{ party.phone }}</td>
+            <td>{{ party.address }}</td>
+            <td><a href="{% url party_order_list party.id %}">{{ party.num_orders }}</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+{% endblock right_content %}

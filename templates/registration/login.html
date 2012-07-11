@@ -1,6 +1,5 @@
 {% extends "winedora/base_html5.html" %}
 
-
 {% block content %}
 
   <div class="container">
@@ -9,30 +8,31 @@
         <form class="form-horizontal well" method="POST" action="{% url login %}">
           {% csrf_token %}
 
-          {% if error %}
-            <div class="alert alert-error">
-              {{ error }}
-            </div>
-            <div class="alert alert-error">
-              {{ form.errors }}
-            </div>
-          {% endif %}
+          <fieldset>
+            <legend>Login with e-mail and password</legend>
+            
+            {% if form.non_field_errors %}
+              <div class="alert alert-error">
+                <strong>Error</strong>{{ form.non_field_errors }}
+              </div>
+            {% endif %}
 
-          <fieldset class="control-group">
-            <label class="control-label" for="email">E-mail:</label>
-            <div class="controls">
-              <input type="text" class="input-xlarge" name="email">
+            <div class="control-group">
+              <label class="control-label" for="id_email">{{ form.email.label }}</label>
+              <div class="controls">
+                {{ form.email }}
+              </div>
             </div>
-          </fieldset>
-          <fieldset class="control-group">
-            <label class="control-label" for="password">Password:</label>
-            <div class="controls">
-              <input type="password" class="input-xlarge" name="password">
+            <div class="control-group">
+              <label class="control-label" for="id_password">{{ form.password.label }}</label>
+              <div class="controls">
+                {{ form.password }}
+              </div>
             </div>
-          </fieldset>
-          <fieldset class="control-group">
-            <div class="controls">
-              <input class="btn btn-primary" type="submit" value="login" />
+            <div class="control-group">
+              <div class="controls">
+                <input class="btn btn-primary" type="submit" value="login" />
+              </div>
             </div>
           </fieldset>
            

@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'winedora.views.home', name='landing_page'),
     url(r'^', include('main.urls')),
+    url(r'^personality/', include('personality.urls')),
     url(r'^accounts/', include('accounts.urls')),
 )

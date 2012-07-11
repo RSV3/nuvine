@@ -1,29 +1,45 @@
-{% extends "winedora/base_html5.html" %}
+{% extends "main/menu_base.html" %}
 
 {% block header %}
   <h1>Welcome Back to Winedora</h1>
 {% endblock header %}
 
+{% block left_navigation %}
+  {% if specialist %}
+  <li><a href="{% url party_list %}">Parties</a></li>
+  <li><a href="{% url party_add %}">Create Party</a></li>
+  <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+  <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
+  <li><a href="{% url start_order %}">Order Wine</a></li>
+  {% endif %}
+  {% if host %}
+  <li><a href="{% url party_list %}">Parties</a></li>
+  <li><a href="{% url party_add %}">Create Party</a></li>
+  <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+  <li><a href="{% url order_start %}">Order Wine</a></li>
+  {% endif %}
+  {% if supplier %}
+  <li><a href="{% url supplier_party_list %}">Parties</a></li>
+  {% endif %}
+  {% if attendee %}
+  <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
+  <li><a href="{% url start_order %}">Order Wine</a></li>
+  {% endif %}
+{% endblock left_navigation %}
 
-{% block content %}
+{% block right_content %}
+  {% if specialist %}
+    You are a party specialist
+  {% endif %}
+  {% if host %}
+    You are a party host 
+  {% endif %}
+  {% if attendee %}
+    You are a party attendee 
+  {% endif %}
+  {% if supplier %}
+    You are a supplier 
+  {% endif %}
+{% endblock right_content %}
 
-  <div class="container">
-    <div class="row">
-      <div class="span8 offset1">
-        <div class="row">
-          <a href="{% url party_list %}">Parties</a>
-        </div>
-        <div class="row">
-          <a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a>
-        </div>
-        <div class="row">
-        </div>
-      </div>
-    </div>
-
-    This is where user personal content lies depending on user group/permissions: {{ output }}
-    
-  </div>
-
-{% endblock content %}
 

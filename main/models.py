@@ -41,11 +41,18 @@ class Party(models.Model):
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
 
+  def __unicode__(self):
+    return self.title
+
   def invitees(self):
     invites = PartyInvite.objects.filter(party=self).count()
     coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
 
     return "%d [%d]"%(invites, coming)
+
+  def num_orders(self):
+    # TODO: num orders and num orders pending 
+    return "%d [%d]"%(5, 4) 
 
 class PartyInvite(models.Model):
 

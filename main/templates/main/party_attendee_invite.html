@@ -1,0 +1,73 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Invite People {% if party %}to {{ party.title }}{% endif %}</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="invite_attendee">
+  <div class="row">
+    <div class="span12">
+      
+        <form class="form-horizontal well" method="POST" action="{% url party_attendee_invite %}">
+          {% csrf_token %}
+
+          <fieldset>
+            <legend>Please enter attendee information</legend>
+            
+            {% if form.non_field_errors %}
+              <div class="alert alert-error">
+                <strong>Error</strong>{{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <div class="control-group">
+              <label class="control-label" for="id_party">{{ form.party.label }}</label>
+              <div class="controls">
+                {{ form.party}}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="id_invitee">{{ form.invitee.label }}</label>
+              <div class="controls">
+                {{ form.invitee }}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="id_first_name">{{ form.first_name.label }}</label>
+              <div class="controls">
+                {{ form.first_name }}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="id_last_name">{{ form.last_name.label }}</label>
+              <div class="controls">
+                {{ form.last_name }}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="id_email">{{ form.email.label }}</label>
+              <div class="controls">
+                {{ form.email }}
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="controls">
+                <button type="submit" class="btn btn-primary">Invite</button>
+              </div>
+            </div>
+          </fieldset>
+ 
+        </form>
+
+    </div>
+  </div>
+  </section>
+
+</div>
+
+{% endblock content %}

@@ -17,13 +17,100 @@
 
   <section id="contact_form">
   
-    <form method="POST" action="{% url contact_us %}">
+    <form class="form-horizontal" method="POST" action="{% url contact_us %}">
       {% csrf_token %}
 
-      <table>
-      {{ form.as_table }}
-      </table> 
-      <button type="submit" class="btn btn-primary">Contact Me</button>
+
+      <fieldset>
+
+      <div class="control-group {% if form.subject.errors %}error{% endif %}">
+        <div class="control-label" for="id_subject">{{ form.subject.label }}</div>
+        <div class="controls">
+          {{ form.subject }} 
+          {% if form.subject.errors %}
+            <span class="help-inline">
+              {{ form.subject.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="control-group {% if form.first_name.errors %}error{% endif %}">
+        <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
+        <div class="controls">
+          {{ form.first_name }} 
+          {% if form.first_name.errors %}
+            <span class="help-inline">
+              {{ form.first_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-label" for="id_last_name">{{ form.last_name.label }}</div>
+        <div class="controls">
+          {{ form.last_name }} 
+          {% if form.last_name.errors %}
+            <span class="help-inline">
+              {{ form.last_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="control-group {% if form.email.errors %}error{% endif %}">
+        <div class="control-label" for="id_email">{{ form.email.label }}</div>
+        <div class="controls">
+          {{ form.email }} 
+          {% if form.email.errors %}
+            <span class="help-inline">
+              {{ form.email.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="control-group {% if form.sex.errors %}error{% endif %}">
+        <div class="control-label" for="id_sex">{{ form.sex.label }}</div>
+        <div class="controls">
+          {{ form.sex }} 
+          {% if form.sex.errors %}
+            <span class="help-inline">
+              {{ form.sex.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="control-group {% if form.message.errors %}error{% endif %}">
+        <div class="control-label" for="id_message">{{ form.message.label }}</div>
+        <div class="controls">
+          {{ form.message }} 
+          {% if form.message.errors %}
+            <span class="help-inline">
+              {{ form.message.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+
+      <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
+        <div class="control-label" for="id_zipcode">{{ form.zipcode.label }}</div>
+        <div class="controls">
+          {{ form.zipcode }} 
+          {% if form.zipcode.errors %}
+            <span class="help-inline">
+              {{ form.zipcode.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="controls">
+          <button type="submit" class="btn btn-primary">Contact Me</button>
+        </div>
+      </div>
+      </fieldset>
     </form>
 
   </section>

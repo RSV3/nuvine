@@ -1,0 +1,24 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block content %}
+<div class="container-fluid" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row-fluid">
+
+    <div class="span3">
+      <div class="well sidebar-nav">
+        <ul class="nav nav-list">
+          <li class="nav-header">Menu</li>
+          {% block left_navigation %}
+          {% endblock left_navigation %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="span9">
+      {% block right_content %}
+      {% endblock right_content %}
+    </div>
+
+  </div>
+{% endblock content %}
+

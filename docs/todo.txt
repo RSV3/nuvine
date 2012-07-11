@@ -1,3 +1,6 @@
+Need to lower case all e-mail uses
+
+
 Need to allow party specialist to 
 
 - See parties

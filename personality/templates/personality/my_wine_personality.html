@@ -1,0 +1,40 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>My Wine Personality</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="wine_personality">
+  <div class="row">
+  {% if personality %}
+    <div class="span12">
+      You are a {{ personality.name }}  
+    </div>
+    <div class="span12">
+      {{ personality.description }}
+    </div>
+  {% else %}
+    <div class="span12">
+      You have yet to discover your wine personality.  Order the wine tasting kit or participate in one of the parties!
+    </div>
+  {% endif %}
+  </div>
+  </section>
+
+  <section id="continue_order">
+  <div class="row">
+    {# Need to check for permissions whether this is a party specialist #}
+    <div class="span12">
+      Order wine that suits your tastes: <a href="{% url start_order %}" class="btn btn-primary">Start your wine order</a>
+    </div>
+  </div>
+
+  </section>
+
+</div>
+
+{% endblock content %}

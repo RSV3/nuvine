@@ -14,6 +14,12 @@ class Address(models.Model):
   state = models.CharField(max_length=10)
   zipcode = models.CharField(max_length=20)
 
+  def __unicode__(self):
+    return "%s, %s"%(self.street1, self.zipcode)
+
+  def full_text(self):
+    return "%s, %s, %s %s"%(self.street1, self.city, self.state, self.zipcode)
+
 class CreditCard(models.Model):
   nick_name = models.CharField(max_length=64)
   card_number = models.CharField(max_length=32)

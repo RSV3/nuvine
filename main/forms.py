@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from emailusernames.utils import create_user, create_superuser
-from main.models import Party, ContactRequest
+from main.models import Party, PartyInvite, ContactRequest
 from accounts.models import Address
 
 class ContactRequestForm(forms.ModelForm):
@@ -40,6 +40,8 @@ class PartyCreateForm(forms.ModelForm):
         user = User.objects.get(email=cleaned_data['email'])
       except User.DoesNotExist:
         user = create_user(email=cleaned_data['email'], password='')
+        user.first_name = cleaned_data['first_name']
+        user.last_name = cleaned_data['last_name']
 
       # add the user to Party Host group
       ph_group = Group.objects.get(name="Party Host")
@@ -64,35 +66,53 @@ class PartyCreateForm(forms.ModelForm):
       cleaned_data['address'] = address
       del self._errors['address']
 
+    if 'title' not in cleaned_data:
+      cleaned_data['title'] = "%s's Party"%cleaned_data['host'].first_name
+      del self._errors['title']
+
     return cleaned_data 
 
-  def save(self, force_insert=False, force_update=False, commit=True):
-    m = super(PartyCreateForm, self).save(commit=False)
-    data = self.cleaned_data
+class PartyInviteAttendeeForm(forms.ModelForm):
+  """
+    Invite a new attendee
+  """
 
-    """
-    if not data['host']:
+  first_name = forms.CharField(max_length=30, required=False)
+  last_name = forms.CharField(max_length=30, required=False)
+  email = forms.EmailField(required=False)
+
+  class Meta:
+    model = PartyInvite
+    exclude = ['response']
+
+  def __init__(self, *args, **kwargs):
+    super(PartyInviteAttendeeForm, self).__init__(*args, **kwargs)
+    att_group = Group.objects.get(name="Attendee")
+    self.fields['invitee'].queryset = User.objects.filter(groups__in=[att_group])
+
+  def clean(self):
+    cleaned_data = super(PartyInviteAttendeeForm, self).clean()
+
+    if 'invitee' not in cleaned_data: 
+      # create new host and return host ID
       try:
-        user = User.objects.get(email=data['email'])
+        user = User.objects.get(email=cleaned_data['email'])
       except User.DoesNotExist:
-        user = create_user(email=data['email'], password='')
+        user = create_user(email=cleaned_data['email'], password='')
+        user.first_name = cleaned_data['first_name']
+        user.last_name = cleaned_data['last_name']
 
-      m.host = user
+      # add the user to Party Attendee group
+      att_group = Group.objects.get(name="Attendee")
+      user.groups.add(att_group)
+      user.save()
 
-    if not data['address']:
-      try:
-        address = Address.objects.get(street1=data['street1'], street2=data['street2'], city=data['city'], state=data['state'], zipcode=data['zipcode'])
-      except Address.DoesNotExist:
-        address = Address(street1=data['street1'],
-                          street2=data['street2'],
-                          city=data['city'],
-                          state=data['state'],
-                          zipcdoe=data['zipcode'])
-        address.save()
-      
-      m.address = address
-    """
+      cleaned_data['invitee'] = user 
+      del self._errors['invitee']
 
-    if commit:
-      m.save()
-    return m
+    if 'party' in cleaned_data and 'invitee' in cleaned_data:
+      party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
+      if party_invited.exists():
+        raise forms.ValidationError("Invitee already has been invited to the party")
+
+    return cleaned_data

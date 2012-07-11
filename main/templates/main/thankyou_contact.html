@@ -1,0 +1,18 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Thank you for contacting us</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <div class="row">
+    <div class="span12">
+      We will reach out to you soon. In the meanwhile you may order your wine tasting kit or participate in one of our parties. <a href="{% url landing_page %}">Go to home</a>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
