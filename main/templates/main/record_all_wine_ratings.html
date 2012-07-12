@@ -9,10 +9,15 @@
 
     li {
       float: left;
+      margin-right: 10px;
     }
 
     .radio {
       display: inline;
+    }
+
+    .shaded {
+      background-color: #FAFAF3;
     }
   </style>
 {% endblock %}
@@ -103,28 +108,32 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine1_sweet">{{ form.wine1_sweet.label }}</div>
-                  <div class="controls">
-                    {{ form.wine1_sweet}} 
-                    {% if form.wine1_sweet.errors %}
-                      <span class="help-inline">
-                        {{ form.wine1_sweet.errors }}
-                      </span>
-                    {% endif %}
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine1_sweet">{{ form.wine1_sweet.label }}</div>
+                    <div class="controls">
+                      {{ form.wine1_sweet}} 
+                      {% if form.wine1_sweet.errors %}
+                        <span class="help-inline">
+                          {{ form.wine1_sweet.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="control-group {% if form.wine1_sweet_dnl.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine1_sweet_dnl">{{ form.wine1_sweet_dnl.label }}</div>
+                    <div class="controls">
+                      {{ form.wine1_sweet_dnl}} 
+                      {% if form.wine1_sweet_dnl.errors %}
+                        <span class="help-inline">
+                          {{ form.wine1_sweet_dnl.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
-                <div class="control-group {% if form.wine1_sweet_dnl.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine1_sweet_dnl">{{ form.wine1_sweet_dnl.label }}</div>
-                  <div class="controls">
-                    {{ form.wine1_sweet_dnl}} 
-                    {% if form.wine1_sweet_dnl.errors %}
-                      <span class="help-inline">
-                        {{ form.wine1_sweet_dnl.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
+
                 <div class="control-group {% if form.wine1_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine1_weight">{{ form.wine1_weight.label }}</div>
                   <div class="controls">
@@ -147,26 +156,29 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine1_texture">{{ form.wine1_texture.label }}</div>
-                  <div class="controls">
-                    {{ form.wine1_texture}} 
-                    {% if form.wine1_texture.errors %}
-                      <span class="help-inline">
-                        {{ form.wine1_texture.errors }}
-                      </span>
-                    {% endif %}
+
+                <div class="shaded">
+                  <div class="control-group shaded {% if form.wine1_texture.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine1_texture">{{ form.wine1_texture.label }}</div>
+                    <div class="controls">
+                      {{ form.wine1_texture}} 
+                      {% if form.wine1_texture.errors %}
+                        <span class="help-inline">
+                          {{ form.wine1_texture.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
                   </div>
-                </div>
-                <div class="control-group {% if form.wine1_texture_dnl.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine1_texture_dnl">{{ form.wine1_texture_dnl.label }}</div>
-                  <div class="controls">
-                    {{ form.wine1_texture_dnl}} 
-                    {% if form.wine1_texture_dnl.errors %}
-                      <span class="help-inline">
-                        {{ form.wine1_texture_dnl.errors }}
-                      </span>
-                    {% endif %}
+                  <div class="control-group {% if form.wine1_texture_dnl.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine1_texture_dnl">{{ form.wine1_texture_dnl.label }}</div>
+                    <div class="controls">
+                      {{ form.wine1_texture_dnl}} 
+                      {% if form.wine1_texture_dnl.errors %}
+                        <span class="help-inline">
+                          {{ form.wine1_texture_dnl.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
                 <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
@@ -180,6 +192,7 @@
                     {% endif %}
                   </div>
                 </div>
+
                 <div class="control-group {% if form.wine1_sizzle_dnl.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine1_sizzle_dnl">{{ form.wine1_sizzle_dnl.label }}</div>
                   <div class="controls">
@@ -220,6 +233,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine2_sweet">{{ form.wine2_sweet.label }}</div>
                   <div class="controls">
@@ -242,6 +257,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine2_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine2_weight">{{ form.wine2_weight.label }}</div>
                   <div class="controls">
@@ -264,6 +281,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine2_texture.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine2_texture">{{ form.wine2_texture.label }}</div>
                   <div class="controls">
@@ -286,6 +305,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine2_sizzle">{{ form.wine2_sizzle.label }}</div>
                   <div class="controls">
@@ -340,6 +361,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine3_sweet">{{ form.wine3_sweet.label }}</div>
                   <div class="controls">
@@ -362,6 +385,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine3_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine3_weight">{{ form.wine3_weight.label }}</div>
                   <div class="controls">
@@ -384,6 +409,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine3_texture.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine3_texture">{{ form.wine3_texture.label }}</div>
                   <div class="controls">
@@ -406,6 +433,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine3_sizzle">{{ form.wine3_sizzle.label }}</div>
                   <div class="controls">
@@ -457,6 +486,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine4_sweet">{{ form.wine4_sweet.label }}</div>
                   <div class="controls">
@@ -479,6 +510,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine4_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine4_weight">{{ form.wine4_weight.label }}</div>
                   <div class="controls">
@@ -501,6 +534,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine4_texture.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine4_texture">{{ form.wine4_texture.label }}</div>
                   <div class="controls">
@@ -523,6 +558,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine4_sizzle">{{ form.wine4_sizzle.label }}</div>
                   <div class="controls">
@@ -578,6 +615,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine5_sweet">{{ form.wine5_sweet.label }}</div>
                   <div class="controls">
@@ -600,6 +639,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine5_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine5_weight">{{ form.wine5_weight.label }}</div>
                   <div class="controls">
@@ -622,6 +663,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine5_texture.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine5_texture">{{ form.wine5_texture.label }}</div>
                   <div class="controls">
@@ -644,6 +687,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine5_sizzle">{{ form.wine5_sizzle.label }}</div>
                   <div class="controls">
@@ -695,6 +740,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine6_sweet">{{ form.wine6_sweet.label }}</div>
                   <div class="controls">
@@ -717,6 +764,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine6_weight.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine6_weight">{{ form.wine6_weight.label }}</div>
                   <div class="controls">
@@ -739,6 +788,8 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
                 <div class="control-group {% if form.wine6_texture.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine6_texture">{{ form.wine6_texture.label }}</div>
                   <div class="controls">
@@ -761,6 +812,8 @@
                     {% endif %}
                   </div>
                 </div>
+                </div>
+
                 <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine6_sizzle">{{ form.wine6_sizzle.label }}</div>
                   <div class="controls">
@@ -788,12 +841,12 @@
             </div><!-- row -->
 
             <div class="row">
-              <div class="span12 offset4">
+              <div class="span12">
                 <fieldset>
-                  <div class="control-group">
-                    <div class="controls">
-                      <button type="submit" class="btn btn-primary">Save Ratings</button>
-                    </div>
+                  <div class="form-actions">
+                    <center>
+                      <button type="submit" class="pull-right btn btn-primary">Save Ratings</button>
+                    </center>
                   </div>
                 </fieldset>
               </div>
