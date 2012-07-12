@@ -39,7 +39,7 @@ class PartyCreateForm(forms.ModelForm):
       try:
         user = User.objects.get(email=cleaned_data['email'])
       except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'], password='')
+        user = create_user(email=cleaned_data['email'], password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
 
@@ -98,9 +98,10 @@ class PartyInviteAttendeeForm(forms.ModelForm):
       try:
         user = User.objects.get(email=cleaned_data['email'])
       except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'], password='')
+        user = create_user(email=cleaned_data['email'], password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
+        user.save()
 
       # add the user to Party Attendee group
       att_group = Group.objects.get(name="Attendee")
