@@ -16,10 +16,14 @@
   <section id="wine_personality">
   <div class="row">
     <div class="span12">
-      You are a {{ personality.name }}  
+      <p>
+      <h2>You are a <span class="uppercase">{{ personality.name }}</span></h2>
+      </p>
     </div>
     <div class="span12">
+      <p class="lead">
       {{ personality.description }}
+      </p>
     </div>
   </div>
   </section>
@@ -33,10 +37,10 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row form-actions">
     {% if role == "specialist" %}
     <div class="span12">
-      <a href="{% url record_all_wine_ratings %}" class="btn btn-primary">Enter attendee data</a>
+      <a href="{% url record_all_wine_ratings %}" class="btn btn-primary">Enter next attendee data</a>
       <a href="{% url start_order %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
     </div>
     {% else %}
