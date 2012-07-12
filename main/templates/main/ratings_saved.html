@@ -12,8 +12,8 @@
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  {% if personality %}
   <section id="wine_personality">
+  {% if personality %}
   <div class="row">
     <div class="span12">
       <p>
@@ -26,8 +26,22 @@
       </p>
     </div>
   </div>
-  </section>
+  {% else %}
+   <div class="row">
+    <div class="span12">
+      <p>
+      <h2>You are a <span class="uppercase">Complex</span></h2>
+      </p>
+    </div>
+    <div class="span12">
+      <p class="lead">
+      We are unable to classify you into any particular personality.
+      </p>
+    </div>
+  </div>
+ 
   {% endif %}
+  </section>
 
   <section id="continue_order">
   <div class="row">

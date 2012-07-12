@@ -34,6 +34,7 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
   character = ''
 
   wine_vec = np.array([wine1.overall, wine2.overall, wine3.overall, wine4.overall, wine5.overall, wine6.overall])
+  #print wine_vec
 
   if wine1.overall >= 3 and wine2.overall >= 3:
     character += 'Easy Going - '

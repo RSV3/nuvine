@@ -114,32 +114,32 @@ class AllWineRatingsForm(forms.Form):
       try:
         rating_data = WineRatingData.objects.get(user=user, wine=wine)
         # update
-        rating_data.overall = data['wine%d_overall'%i]
-        rating_data.dnl = data['wine%d_dnl'%i]
-        rating_data.sweet = data['wine%d_sweet'%i]
-        rating_data.sweet_dnl = data['wine%d_sweet_dnl'%i]
-        rating_data.weight = data['wine%d_weight'%i]
-        rating_data.weight_dnl = data['wine%d_weight_dnl'%i]
-        rating_data.texture = data['wine%d_texture'%i]
-        rating_data.texture_dnl = data['wine%d_texture_dnl'%i]
-        rating_data.sizzle = data['wine%d_sizzle'%i]
-        rating_data.sizzle_dnl = data['wine%d_sizzle_dnl'%i]
+        rating_data.overall = int(data['wine%d_overall'%i])
+        rating_data.dnl = int(data['wine%d_dnl'%i])
+        rating_data.sweet = int(data['wine%d_sweet'%i])
+        rating_data.sweet_dnl = int(data['wine%d_sweet_dnl'%i])
+        rating_data.weight = int(data['wine%d_weight'%i])
+        rating_data.weight_dnl = int(data['wine%d_weight_dnl'%i])
+        rating_data.texture = int(data['wine%d_texture'%i])
+        rating_data.texture_dnl = int(data['wine%d_texture_dnl'%i])
+        rating_data.sizzle = int(data['wine%d_sizzle'%i])
+        rating_data.sizzle_dnl = int(data['wine%d_sizzle_dnl'%i])
         rating_data.save()
       except WineRatingData.DoesNotExist:
         # create new data
         rating_data = WineRatingData.objects.create(
             user = user,
             wine = wine,
-            overall = data['wine%d_overall'%i],
-            dnl = data['wine%d_dnl'%i],
-            sweet = data['wine%d_sweet'%i],
-            sweet_dnl = data['wine%d_sweet_dnl'%i],
-            weight = data['wine%d_weight'%i],
-            weight_dnl = data['wine%d_weight_dnl'%i],
-            texture = data['wine%d_texture'%i],
-            texture_dnl = data['wine%d_texture_dnl'%i],
-            sizzle = data['wine%d_sizzle'%i],
-            sizzle_dnl = data['wine%d_sizzle_dnl'%i]
+            overall = int(data['wine%d_overall'%i]),
+            dnl = int(data['wine%d_dnl'%i]),
+            sweet = int(data['wine%d_sweet'%i]),
+            sweet_dnl = int(data['wine%d_sweet_dnl'%i]),
+            weight = int(data['wine%d_weight'%i]),
+            weight_dnl = int(data['wine%d_weight_dnl'%i]),
+            texture = int(data['wine%d_texture'%i]),
+            texture_dnl = int(data['wine%d_texture_dnl'%i]),
+            sizzle = int(data['wine%d_sizzle'%i]),
+            sizzle_dnl = int(data['wine%d_sizzle_dnl'%i])
           )
       results.append(rating_data)
 
