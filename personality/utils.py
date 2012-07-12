@@ -35,22 +35,22 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
 
   wine_vec = np.array([wine1.overall, wine2.overall, wine3.overall, wine4.overall, wine5.overall, wine6.overall])
 
-  if wine1.overall > 3 and wine2.overall > 3:
+  if wine1.overall >= 3 and wine2.overall >= 3:
     character += 'Easy Going - '
     wine_personality = 'Easy Going'
-  if wine3.overall > 3 and wine4.overall > 3:
+  if wine3.overall >= 3 and wine4.overall >= 3:
     character += 'Whimsical - '
     wine_personality = 'Whimsical'
-  if wine4.overall > 3 and wine5.overall > 3:
+  if wine4.overall >= 3 and wine5.overall >= 3:
     character += 'Exuberant - '
     wine_personality = 'Exuberant'
-  if wine5.overall > 3 and wine6.overall > 3:
+  if wine5.overall >= 3 and wine6.overall >= 3:
     character += 'Moxie - '
     wine_personality = 'Moxie'
-  if wine1.overall > 3 and wine5.overall > 3 and wine6.overall > 3:  
+  if wine1.overall >= 3 and wine5.overall >= 3 and wine6.overall >= 3:  
     character += 'Sensational - '
     wine_personality = 'Sensational'
-  if np.sum(wine_vec > 3) >= 5:
+  if np.sum(wine_vec >= 3) >= 5:
     character += 'Serendipitous'
     wine_personality = 'Serendipitous'
   
