@@ -25,6 +25,8 @@ class Wine(models.Model):
     self.active = True
     self.save()
 
+  def __unicode__(self):
+    return "%s: %s"%(self.number, self.name)
 
 class WineRatingData(models.Model):
 
@@ -101,4 +103,6 @@ class WinePersonality(models.Model):
   name = models.CharField(max_length=32)
   description = models.TextField()
 
+  def __unicode__(self):
+    return self.name
 
