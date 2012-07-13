@@ -7,6 +7,9 @@
     - AfterTaste
     - Overall impression
 
+* http://www.iwinedb.com
+  - Some tasting notes you can search for, but very old web
+
 * http://vincod.com
   - Serves the wineries to create a QR code scannable wine fact sheet
   - Data on wine seem to be entered by the winery itself
@@ -39,3 +42,30 @@
 
 * http://www.vintank.com
   - wine industry and winery web site analytics tracking how social networks talk about wine
+
+* http://www.winelog.net
+  - community driven
+  - 30000 wines and 4000 wineries
+  - tag and rate and recommend
+
+* htpp://www.logabottle.com
+  - community driven sharing of bottles
+  - very primitive drupal type of site
+  
+* http://www.openbottles.com
+  - social discovery and learning of wine
+  - doesn't seem to be active since 2010
+
+* http://www.snooth.com
+  - wine stories
+  - wine reviews
+
+# Wine blog
+
+* http://www.vinography.com/
+
+# Wine app
+
+* http://www.cor.kz
+  - Uses twitter and cellartracker data
+
