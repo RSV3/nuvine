@@ -87,3 +87,6 @@
       discovery of life                                   and wine. Your unconstrained
       nature                                   empowers you to float from one sensual                                   pleasure
       to the next.'}
+- pk: 7
+  model: personality.winepersonality
+  fields: {name: Complex, description: 'You have a very complex taste palate. It will require more experimentation to understand your tastes.'}

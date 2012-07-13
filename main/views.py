@@ -164,6 +164,7 @@ def record_all_wine_ratings(request, email=None):
   u = request.user
 
   ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
   att_group = Group.objects.get(name="Attendee")
 
   if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
@@ -177,12 +178,11 @@ def record_all_wine_ratings(request, email=None):
 
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
-
-        if (ps_group in u.groups.all()):
+         
+        if (ps_group in u.groups.all()) or (ps_group in u.groups.all()):
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "specialist"
-          
-        if (att_group in u.groups.all()):
+        elif (att_group in u.groups.all()):
           # ask if you want order wine
           data["role"] = "attendee"
 

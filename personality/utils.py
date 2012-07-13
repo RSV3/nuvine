@@ -56,7 +56,10 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
     wine_personality = 'Serendipitous'
   
   profile = user.get_profile()
-  profile.wine_personality = WinePersonality.objects.get(name=wine_personality)
+  if wine_personality:
+    profile.wine_personality = WinePersonality.objects.get(name=wine_personality)
+  else:
+    profile.wine_personality = WinePersonality.objects.get(name='Complex')
   profile.save()
 
   return profile.wine_personality

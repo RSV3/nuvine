@@ -101,10 +101,11 @@ class AllWineRatingsForm(forms.Form):
       user.last_name = data['last_name']
       user.save()
 
-      # add to attendee group
-      attendee_group = Group.objects.get(name="Attendee")
-      user.groups.add(attendee_group)
-      user.save()
+      if user.groups.all().count() == 0:
+        # add to attendee group
+        attendee_group = Group.objects.get(name="Attendee")
+        user.groups.add(attendee_group)
+        user.save()
 
     results.append(user)
 

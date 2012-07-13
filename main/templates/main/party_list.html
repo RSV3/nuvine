@@ -24,7 +24,7 @@
       {# create a table of party and party information #}
       <tr>
         <td>{{ party.event_date|date:"M d, Y" }}</td>
-        <td><a href="mailto:{{ party.host.email }}">{{ party.host.first_name }} {{ party.host.last_name }}</a></td>
+        <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
         <td><a href="{% url party_attendee_list party.id %}">{{ party.title }}</a></td>
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>

@@ -11,15 +11,15 @@ class ContactRequestForm(forms.ModelForm):
 
 class PartyCreateForm(forms.ModelForm):
 
-  first_name = forms.CharField(max_length=30)
-  last_name = forms.CharField(max_length=30)
-  email = forms.EmailField()
+  first_name = forms.CharField(max_length=30, required=False)
+  last_name = forms.CharField(max_length=30, required=False)
+  email = forms.EmailField(required=False)
 
-  street1 = forms.CharField(label="Street 1", max_length=128)
+  street1 = forms.CharField(label="Street 1", max_length=128, required=False)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
-  city = forms.CharField(label="City", max_length=64)
-  state = forms.CharField(max_length=10)
-  zipcode = forms.CharField(max_length=20)
+  city = forms.CharField(label="City", max_length=64, required=False)
+  state = forms.CharField(max_length=10, required=False)
+  zipcode = forms.CharField(max_length=20, required=False)
 
   class Meta:
     model = Party
@@ -42,11 +42,14 @@ class PartyCreateForm(forms.ModelForm):
         user = create_user(email=cleaned_data['email'], password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
+        user.save()
 
-      # add the user to Party Host group
-      ph_group = Group.objects.get(name="Party Host")
-      user.groups.add(ph_group)
-      user.save()
+      ps_group = Group.objects.get(name="Party Specialist")
+      if ps_group not in user.groups.all():
+        # add the user to Party Host group
+        ph_group = Group.objects.get(name="Party Host")
+        user.groups.add(ph_group)
+        user.save()
 
       cleaned_data['host'] = user 
       del self._errors['host']
@@ -103,10 +106,11 @@ class PartyInviteAttendeeForm(forms.ModelForm):
         user.last_name = cleaned_data['last_name']
         user.save()
 
-      # add the user to Party Attendee group
-      att_group = Group.objects.get(name="Attendee")
-      user.groups.add(att_group)
-      user.save()
+      if user.groups.all().count() == 0:
+        # add the user to Party Attendee group
+        att_group = Group.objects.get(name="Attendee")
+        user.groups.add(att_group)
+        user.save()
 
       cleaned_data['invitee'] = user 
       del self._errors['invitee']
