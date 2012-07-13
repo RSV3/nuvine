@@ -3,3 +3,12 @@ heroku addons:add heroku-postgresql:dev --app winedora-staging
 heroku pg:promote HEROKU_POSTGRESQL_TEAL
 # don't use this
 DROP SCHEMA public CASCADE;
+
+
+# heroku backup
+heroku pgbackups:capture --app winedora-staging
+curl -o latest.dump `heroku pgbackups:url`
+# when restoring from a dump
+pg_restore --verbose --clean --no-acl --no-owner -h localhost -U vinely -d winedora latest.dump
+
+heroku pgbackups:restore DATABASE `heroku pgbackups:url --app myapp` --app myapp-staging

@@ -2,6 +2,7 @@
 nuvine-env
 settings_local.py
 winedora.test.db
+latest.dump
 
 # Packages
 *.egg

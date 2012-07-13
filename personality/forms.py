@@ -93,10 +93,10 @@ class AllWineRatingsForm(forms.Form):
 
     data = self.cleaned_data
     try:
-      user = User.objects.get(email=data['email'])
+      user = User.objects.get(email=data['email'].lower())
     except User.DoesNotExist:
       # create new user
-      user = create_user(email=data['email'], password='welcome')
+      user = create_user(email=data['email'].lower(), password='welcome')
       user.first_name = data['first_name']
       user.last_name = data['last_name']
       user.save()

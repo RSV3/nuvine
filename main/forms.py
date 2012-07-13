@@ -37,9 +37,9 @@ class PartyCreateForm(forms.ModelForm):
     if 'host' not in cleaned_data: 
       # create new host and return host ID
       try:
-        user = User.objects.get(email=cleaned_data['email'])
+        user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'], password='welcome')
+        user = create_user(email=cleaned_data['email'].lower(), password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
         user.save()
@@ -99,9 +99,9 @@ class PartyInviteAttendeeForm(forms.ModelForm):
     if 'invitee' not in cleaned_data: 
       # create new host and return host ID
       try:
-        user = User.objects.get(email=cleaned_data['email'])
+        user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'], password='welcome')
+        user = create_user(email=cleaned_data['email'].lower(), password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
         user.save()
