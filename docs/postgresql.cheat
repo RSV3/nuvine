@@ -1,3 +1,9 @@
+# postgresql setup
+#
+psql -h localhost -U postgres template1
+CREATE USER vinely with PASSWORD 'test';
+CREATE DATABASE winedora OWNER vinely ENCODING 'UTF8';
+
 heroku addons:remove HEROKU_POSTGRESQL_TEAL --app winedora-staging
 heroku addons:add heroku-postgresql:dev --app winedora-staging
 heroku pg:promote HEROKU_POSTGRESQL_TEAL
