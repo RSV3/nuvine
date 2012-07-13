@@ -30,7 +30,7 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
 
   """
 
-  wine_personality = ''
+  wine_personality = 'Complex'
   character = ''
 
   wine_vec = np.array([wine1.overall, wine2.overall, wine3.overall, wine4.overall, wine5.overall, wine6.overall])
@@ -56,10 +56,7 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
     wine_personality = 'Serendipitous'
   
   profile = user.get_profile()
-  if wine_personality:
-    profile.wine_personality = WinePersonality.objects.get(name=wine_personality)
-  else:
-    profile.wine_personality = WinePersonality.objects.get(name='Complex')
+  profile.wine_personality = WinePersonality.objects.get(name=wine_personality)
   profile.save()
 
   return profile.wine_personality
