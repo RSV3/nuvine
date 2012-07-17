@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 
 from django.test import TestCase
 from django.contrib.auth.models import User, Group
+from accounts.models import VerificationQueue
 
 from emailusernames.utils import create_user, create_superuser
 
@@ -77,6 +78,10 @@ class SimpleTest(TestCase):
     attendees = User.objects.filter(groups=att_group)
     self.assertEqual(attendees.count(), 9)
 
+  def test_verification_code(self):
+    u = User.objects.get(email="attendee9@example.com")
+    vque = VerificationQueue(user=u, verification_code="12345")
+    vque.save()
 
   def test_basic_addition(self):
     """

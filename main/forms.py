@@ -4,6 +4,8 @@ from emailusernames.utils import create_user, create_superuser
 from main.models import Party, PartyInvite, ContactRequest
 from accounts.models import Address
 
+from emailusernames.forms import EmailUserCreationForm
+
 class ContactRequestForm(forms.ModelForm):
 
   class Meta:
@@ -121,3 +123,44 @@ class PartyInviteAttendeeForm(forms.ModelForm):
         raise forms.ValidationError("Invitee already has been invited to the party")
 
     return cleaned_data
+
+class PartySpecialistSignupForm(EmailUserCreationForm):
+  """
+    Create a new party specialist candidate
+  """
+
+  phone = forms.CharField(max_length=16)
+
+  street1 = forms.CharField(label="Street 1", max_length=128, required=False)
+  street2 = forms.CharField(label="Street 2", max_length=128, required=False)
+  city = forms.CharField(label="City", max_length=64, required=False)
+  state = forms.CharField(max_length=10, required=False)
+  zipcode = forms.CharField(max_length=20, required=False)
+
+  def __init__(self, *args, **kwargs):
+    super(PartySpecialistSignupForm, self).__init__(*args, **kwargs)
+
+  def clean_phone(self):
+    data = self.cleaned_data['phone']
+    table = string.maketrans("", "")
+    stripped_phone = data.translate(table, string.punctuation+string.whitespace)
+    if (stripped_phone[0] == 1 and len(stripped_phone) != 11) or len(stripped_phone) != 10:
+      raise forms.ValidationError("US phone number is invalid")
+
+    return stripped_phone
+
+  def save(self, commit=True):
+    instance = super(PartySpecialistSignUpForm, self).save()
+
+    try:
+      address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
+    except Address.DoesNotExist:
+      address = Address(street1=cleaned_data['street1'],
+                        street2=cleaned_data['street2'],
+                        city=cleaned_data['city'],
+                        state=cleaned_data['state'],
+                        zipcode=cleaned_data['zipcode'])
+      address.save()
+
+
+

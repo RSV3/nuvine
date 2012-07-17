@@ -8,6 +8,9 @@ from django.core.urlresolvers import reverse
 
 from emailusernames.forms import EmailAuthenticationForm, EmailUserCreationForm
 
+from accounts.forms import VerifyAccountForm
+from accounts.models import VerificationQueue
+
 @login_required
 def profile(request):
   """
@@ -90,23 +93,51 @@ def verify_account(request, verification_code):
 
   data = {}
 
+  data["verification_code"] = verification_code 
+  
   if request.method == 'POST':
     form = VerifyAccountForm(request.POST)
     if form.is_valid():
-      form.save()
+      verification_queue = form.save()
+      verification_queue.verified = True
+      verification_queue.save()
+
       # activate user
       user = verify.user
       user.is_active = True
       user.save()
+
+      # TODO: show an alert and send to home page
+
+      return HttpResponseRedirect(reverse("home_page"))
   else:
     form = VerifyAccountForm()
 
+  try:
+    verification = VerificationQueue.objects.get(verification_code=verification_code)
+    if verification.verified:
+      data["error"] = "You have already been verified"
+    else:
+      data["email"] = verification.user.email
+  except VerificationQueue.DoesNotExist:
+    data["error"] = "Verification code is not valid"
+    
   data["form"] = form
-
-  verify = VerificationQueue.objects.get(verification_code=verfication_code)
-  data["email"] = verify.user.email
-
-  verify.delete()
 
   return render_to_response("accounts/verify_account.html", data,
                         context_instance=RequestContext(request))
+
+def approval_application(request):
+  """
+    Personal information to apply for application
+  """
+  data = {}
+
+  form = ApprovalApplicationForm(request.POST or None)
+  if form.is_valid():
+    form.save()
+
+  data["form"] = form
+
+  return render_to_response("accounts/approval_application.html", data,
+                                  context_instance=RequestContext(request))

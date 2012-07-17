@@ -28,6 +28,12 @@ class CreditCard(models.Model):
   verification_code = models.CharField(max_length=4)
   billing_zipcode = models.CharField(max_length=5)
 
+class VerificationQueue(models.Model):
+  user = models.ForeignKey(User)
+  verification_code = models.CharField(max_length=64)
+  verified = models.BooleanField(default=False)
+  created = models.DateTimeField(auto_now_add=True)
+
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
@@ -51,3 +57,4 @@ def create_user_profile(sender, instance, created, **kwargs):
     UserProfile.objects.create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
+

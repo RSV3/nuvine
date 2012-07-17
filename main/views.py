@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from main.models import Party, PartyInvite
 from personality.models import Wine 
 
-from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 
 from personality.utils import calculate_wine_personality
@@ -231,6 +231,10 @@ def parties(request):
 def signup_party_specialist(request):
 
   data = {}
+  
+  form = PartySpecialistSignupForm(request.POST or None)
+
+  data["form"] = form
 
   return render_to_response("main/signup_party_specialist.html", data, context_instance=RequestContext(request))
 

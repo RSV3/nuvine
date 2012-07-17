@@ -10,6 +10,7 @@ urlpatterns = patterns('',
   url(r'^login/$', 'django.contrib.auth.views.login',
      {'authentication_form': EmailAuthenticationForm}, name='login'),
 
+  url(r'^approval/application/$', 'accounts.views.approval_application', name='approval_application'),
   url(r'^profile/$', 'accounts.views.profile', name='accounts_profile'),
   url(r'^settings/$', 'accounts.views.settings', name='accounts_settings'),
   url(r'^signup/(?P<account_type>\d+)/$', 'accounts.views.sign_up', name='sign_up'),
