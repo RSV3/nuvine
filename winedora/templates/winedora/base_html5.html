@@ -75,7 +75,7 @@
             </a>
 
             <ul class="dropdown-menu">
-              <li><a href="{% url accounts_settings %}">Settings</a></li>
+              <li><a href="{% url change_password %}">Settings</a></li>
               <li class="divider"></li>
               <li><a href="{% url logout %}">Sign Out</a></li>
             </ul>
@@ -153,11 +153,24 @@
   
   <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
        mathiasbynens.be/notes/async-analytics-snippet -->
-  <script>
-    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
+
+  {% if not debug %}
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33499659-1']);
+    _gaq.push(['_setDomainName', 'vinely.com']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
   </script>
+  {% endif %}
+
 </body>
 </html>

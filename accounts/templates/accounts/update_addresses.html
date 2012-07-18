@@ -1,0 +1,105 @@
+{% extends "main/menu_base.html" %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
+{% endblock %}
+
+
+{% block header %}
+  <h1>My Account Settings</h1>
+{% endblock header %}
+
+
+{% block left_navigation %}
+  <li><a href="{% url change_password %}">Change Password</a></li>
+  <li><a href="{% url verify_eligibility %}">Verify Eligibility</a></li>
+  <li><a href="{% url edit_subscription %}">Edit Subscription</a></li>
+  <li class="active"><a href="{% url update_addresses %}">Update Addresses</a></li>
+{% endblock left_navigation %}
+
+{% block right_content %}
+  <div class="row">
+      <form class="form-horizontal well" method="POST" action="{% url update_addresses %}">
+          {% csrf_token %}
+
+          {% if error %}
+            <div class="alert alert-error">
+              {{ error }}
+            </div>
+          {% endif %}
+          {% if form.errors %}
+            <div class="alert alert-error">
+              {{ form.errors }}
+            </div>
+          {% endif %}
+
+        <fieldset>
+          <legend>Update Addresses</legend>
+          <div class="control-group">
+            <div class="control-label" for="id_user">
+            {{ form.user.label }}
+            </div>
+            <div class="controls">
+              {{ form.user }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_dob">
+            {{ form.dob.label }}
+            </div>
+            <div class="controls">
+              {{ form.dob }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_dl_number">
+            {{ form.dl_number.label }}
+            </div>
+            <div class="controls">
+              {{ form.dl_number }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_phone">
+            {{ form.phone.label }}
+            </div>
+            <div class="controls">
+              {{ form.phone }}
+            </div>
+          </div>
+          <!-- TODO: need to put terms of service -->
+          <div class="control-group">
+            <div class="control-label" for="id_accepted_tos">
+            {{ form.accepted_tos.label }}
+            </div>
+            <div class="controls">
+              {{ form.accepted_tos }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_above_21">
+            {{ form.above_21.label }}
+            </div>
+            <div class="controls">
+              {{ form.above_21 }}
+            </div>
+          </div>
+          <div class="form-actions">
+            <div class="controls">
+              <input class="btn btn-primary" type="submit" value="Submit" />
+            </div>
+          </div>
+        </fieldset>
+           
+      </form>
+    </div> <!-- row -->
+{% endblock right_content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript">
+    $(document).ready( function () {
+        $(".datepicker").datepicker();
+    });
+  </script>
+{% endblock %}

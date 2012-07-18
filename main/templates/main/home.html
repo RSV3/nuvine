@@ -25,6 +25,23 @@
 {% endblock left_navigation %}
 
 {% block right_content %}
+
+  {% if messages %}
+  <div class="row">
+    <div class="messages span12">
+        {% for message in messages %}
+          {% if "info" in message.tags %}
+            <div class="alert alert-info">{{ message }}</div>
+          {% elif "success" in message.tags %}
+            <div class="alert alert-success">{{ message }}</div>
+          {% elif "error" in message.tags or "warning" in message.tags %}
+            <div class="alert alert-error">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   {% if specialist %}
     You are a party specialist
   {% endif %}

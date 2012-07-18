@@ -1,15 +1,24 @@
 # Create your views here.
 from urlparse import urlparse
 from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.template import RequestContext, Context, Template
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
+from django.contrib import messages
 
-from emailusernames.forms import EmailAuthenticationForm, EmailUserCreationForm
+from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
 
-from accounts.forms import VerifyAccountForm
+from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm 
 from accounts.models import VerificationQueue
+from accounts.utils import send_verification_email
+
+import uuid
+import logging
+
+log = logging.getLogger(__name__)
 
 @login_required
 def profile(request):
@@ -17,6 +26,26 @@ def profile(request):
     After user logged in
   """
   return HttpResponseRedirect(reverse('home_page'))
+
+@login_required
+def change_password(request):
+
+  data = {}
+
+  u = request.user
+
+  form = ChangePasswordForm(request.POST or None)
+  if form.is_valid():
+    # set password
+    u.set_password(form.cleaned_data['new_password'])
+    u.save()
+
+    messages.success(request, 'Password has been updated')
+
+  form.initial['email'] = u.email
+  data["form"] = form
+  return render_to_response("accounts/change_password.html", data, 
+                        context_instance=RequestContext(request))
 
 @login_required
 def settings(request):
@@ -37,32 +66,46 @@ def sign_up(request, account_type):
   """
 
   data = {}
+  role = ""
+  if int(account_type) == 0:
+    role = "Party Specialist"
+  elif int(account_type) == 1:
+    role = "Party Host"
+  elif int(account_type) == 2:
+    role = "Attendee"
+  elif int(account_type) == 3:
+    role = "Supplier"
+  elif int(account_type) == 4:
+    role = "Tasting"
 
-  if request.method == 'POST':
-    # create users and send e-mail notifications
-    form = EmailUserCreationForm(request.POST) 
+  if not role:
+    raise Http404
 
-    if form.is_valid():
-      user = form.save()
+  # create users and send e-mail notifications
+  form = NameEmailUserCreationForm(request.POST or None) 
 
-      if int(account_type) == 0:
-        user.groups.add(Group.objects.get(name="Party Specialist"))
-      elif int(account_type) == 2:
-        user.groups.add(Group.objects.get(name="Party Host"))
-      elif int(account_type) == 3:
-        user.groups.add(Group.objects.get(name="Party Attendee"))
-      elif int(account_type) == 4:
-        user.groups.add(Group.objects.get(name="Party Supplier"))
+  if form.is_valid():
+    user = form.save()
 
-      user.is_active = False
-      user.save()
+    user.groups.add(Group.objects.get(name=role))
 
-      # TODO: send out verification e-mail
-  else:
-    form = EmailUserCreationForm()
-    # show forms
+    user.is_active = False
+    temp_password = User.objects.make_random_password()
+    user.set_password(temp_password)
+    user.save()
+
+    verification_code = str(uuid.uuid4())
+    vque = VerificationQueue(user=user, verification_code=verification_code)
+    vque.save()
+
+    # send out verification e-mail, create a verification code
+    send_verification_email(request, verification_code, temp_password, user.email)
+
+    return render_to_response("accounts/verification_sent.html", c, context_instance=RequestContext(request))
 
   data['form'] = form
+  data['role'] = role
+  data['account_type'] = account_type
 
   return render_to_response("accounts/sign_up.html", data,
                         context_instance=RequestContext(request))
@@ -94,24 +137,6 @@ def verify_account(request, verification_code):
   data = {}
 
   data["verification_code"] = verification_code 
-  
-  if request.method == 'POST':
-    form = VerifyAccountForm(request.POST)
-    if form.is_valid():
-      verification_queue = form.save()
-      verification_queue.verified = True
-      verification_queue.save()
-
-      # activate user
-      user = verify.user
-      user.is_active = True
-      user.save()
-
-      # TODO: show an alert and send to home page
-
-      return HttpResponseRedirect(reverse("home_page"))
-  else:
-    form = VerifyAccountForm()
 
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
@@ -121,23 +146,72 @@ def verify_account(request, verification_code):
       data["email"] = verification.user.email
   except VerificationQueue.DoesNotExist:
     data["error"] = "Verification code is not valid"
-    
-  data["form"] = form
+  
+  if "error" not in data:
+    form = VerifyAccountForm(request.POST or None)
+    if form.is_valid():
+      verification.verified = True
+      verification.save()
+
+      # activate user
+      user = verification.user
+      user.set_password(form.cleaned_data['new_password'])
+      user.is_active = True
+      user.save()
+
+      user = authenticate(email=user.email, password=form.cleaned_data['new_password'])
+      if user is not None:
+        login(request, user)
+      else:
+        log.debug("For some reason %s could not be verified and authenticated."%user.email)
+        return HttpResponseRedirect(reverse("login")) 
+
+      # TODO: show an alert and send to home page
+
+      return HttpResponseRedirect(reverse("home_page"))
+
+    form.initial['email'] = verification.user.email
+    data["form"] = form
 
   return render_to_response("accounts/verify_account.html", data,
                         context_instance=RequestContext(request))
 
-def approval_application(request):
+@login_required
+def verify_eligibility(request):
   """
     Personal information to apply for application
   """
   data = {}
 
-  form = ApprovalApplicationForm(request.POST or None)
+  # TODO: Need to make the user enter home address and add that to party address
+
+  form = VerifyEligibilityForm(request.POST or None)
+  if form.is_valid():
+    form.save()
+
+  form.initial['user'] = request.user
+  data["form"] = form
+
+  return render_to_response("accounts/verify_eligibility.html", data,
+                                  context_instance=RequestContext(request))
+
+@login_required
+def update_addresses(request):
+  """
+    Update your addresses 
+  """
+  data = {}
+
+  # TODO: Need to make the user enter home address and add that to party address
+
+  form = UpdateAddressForm(request.POST or None)
   if form.is_valid():
     form.save()
 
   data["form"] = form
 
-  return render_to_response("accounts/approval_application.html", data,
+  return render_to_response("accounts/update_addresses.html", data,
                                   context_instance=RequestContext(request))
+
+
+

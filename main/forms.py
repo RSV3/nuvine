@@ -42,13 +42,14 @@ class PartyCreateForm(forms.ModelForm):
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
         user = create_user(email=cleaned_data['email'].lower(), password='welcome')
+        user.is_active = False
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
         user.save()
 
       ps_group = Group.objects.get(name="Party Specialist")
       if ps_group not in user.groups.all():
-        # add the user to Party Host group
+        # add the user to Party Host group if not a party specialist already
         ph_group = Group.objects.get(name="Party Host")
         user.groups.add(ph_group)
         user.save()
@@ -106,6 +107,7 @@ class PartyInviteAttendeeForm(forms.ModelForm):
         user = create_user(email=cleaned_data['email'].lower(), password='welcome')
         user.first_name = cleaned_data['first_name']
         user.last_name = cleaned_data['last_name']
+        user.is_active = False
         user.save()
 
       if user.groups.all().count() == 0:

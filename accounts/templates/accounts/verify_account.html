@@ -13,6 +13,11 @@
       {{ error }} 
     </div>
   </div>
+  <div class="row">
+    <div class="span8">
+      <p>&nbsp;</p>
+    </div>
+  </div>
   {% else %}
   <div class="row">
     <div class="span8">
@@ -20,8 +25,15 @@
     </div>
   </div>
   <div class="row">
+    <div class="span8">
+      <p>&nbsp;</p>
+    </div>
+  </div>
+  <div class="row">
     <form class="form-horizontal well" method="POST" action="{% url verify_account verification_code %}">
       {% csrf_token %}
+
+      {{ form.email }}
 
       {% if form.errors %}
         <div class="alert alert-error">
@@ -31,20 +43,20 @@
 
         <fieldset>
           <div class="control-group">
-            <label class="control-label" for="id_temp_password">Temporary password:</label>
+            <label class="control-label" for="id_temp_password">{{ form.temp_password.label }}</label>
             <div class="controls">
               {{ form.temp_password }}
             </div>
           </div>
           <hr>
           <div class="control-group">
-            <label class="control-label" for="id_new_password">New Password:</label>
+            <label class="control-label" for="id_new_password">{{ form.new_password.label }}</label>
             <div class="controls">
               {{ form.new_password }}
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="id_retype_password">Retype Password:</label>
+            <label class="control-label" for="id_retype_password">{{ form.retype_password.label }}</label>
             <div class="controls">
               {{ form.retype_password }}
             </div>

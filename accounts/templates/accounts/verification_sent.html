@@ -1,0 +1,23 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Verification Sent</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span8">
+      You should be receiving a verification e-mail soon at {{ email }}. Please click the link in the e-mail to verify your e-mail address to get started.
+    </div>
+  </div>
+  <div class="row">
+    <div class="span8">
+      <p>&nbsp;</p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock content %}

@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Order Wine</h1>
+  <h1>View Orders</h1>
 {% endblock header %}
 
 {% block content %}
@@ -11,40 +11,30 @@
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Please start ordering your wine choices 
+      If party specialist, see all orders from their parties
     </div>
   </div>
 
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Display Good, Better and Best 
+      If party host, see all orders from their parties
     </div>
   </div>
 
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Select frequency of subscription 
-      - Monthly
-      - Bi-monthly
-      - Quarterly
-      - One-Time
+      If attendee, see the status of their orders
     </div>
   </div>
 
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Add to Cart or Checkout 
-      - If checkout, review order
-      - Add to card just adds to cart, notifies and allows one to add more
-      -
+      If supplier, see all orders, party specialist they belong to, order date and can flag processing, processed 
     </div>
   </div>
-
-
-
 </div>
 
 {% endblock %}

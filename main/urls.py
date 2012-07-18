@@ -17,13 +17,9 @@ urlpatterns = patterns('main.views',
     url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
     url(r'^order/start/$', 'start_order', name='start_order'),
 
-    url(r'^signup/party_specialist/$', 'signup_party_specialist', name='signup_party_specialist'),
-    url(r'^signup/party_attendee/$', 'signup_party_attendee', name='signup_party_attendee'),
-    url(r'^signup/party_host/$', 'signup_party_host', name='signup_party_host'),
-
-
     url(r'^supplier/party/list/$', 'supplier_party_list', name='supplier_party_list'),
     url(r'^orders/pending/$', 'pending_orders', name='pending_orders'),
     url(r'^orders/fulfilled/$', 'fulfilled_orders', name='fulfilled_orders'),
     url(r'^orders/all/$', 'all_orders', name='all_orders'),
+    url(r'^edit/subscription/$', 'edit_subscription', name='edit_subscription'),
 )

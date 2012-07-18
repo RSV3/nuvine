@@ -140,7 +140,6 @@ INSTALLED_APPS = (
     'winedora',
     'south',
     'emailusernames',
-    'notification',
 )
 
 SOUTH_TESTS_MIGRATE = False
@@ -150,6 +149,22 @@ AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = (
     'emailusernames.backends.EmailAuthBackend',
 )
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+if DEBUG:
+  EMAIL_HOST = 'smtp.gmail.com'
+  EMAIL_PORT = 587 
+  EMAIL_HOST_USER = 'support@vinely.com'
+  EMAIL_HOST_PASSWORD = 'hi2winedora'
+  EMAIL_USE_TLS = True
+else:
+  EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER')
+  EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT')  # 587
+  EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
+  EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
+  EMAIL_USE_TLS = True
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -182,6 +197,7 @@ LOGGING = {
 
 try:
   from winedora.settings_local import *
-except:
-  print "Error importing settings local"
-  pass
+except Exception as e:
+  #print "Error importing settings local"
+  #pass
+  print e

@@ -37,13 +37,13 @@ class VerificationQueue(models.Model):
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
-  dob = models.DateField(null=True, blank=True)
+  dob = models.DateField(verbose_name="Date of Birth", null=True, blank=True)
   # drivers license number
-  dl_number = models.CharField(max_length=32, null=True, blank=True)
+  dl_number = models.CharField(verbose_name="Driver's Licence #", max_length=32, null=True, blank=True)
   phone = models.CharField(max_length=16, null=True, blank=True)
-  accepted_tos = models.BooleanField(default=False)
+  accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   age = models.IntegerField(default=0)
-  above_21 = models.BooleanField(default=False)
+  above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
   wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
 
   billing_address = models.ForeignKey(Address, null=True, related_name="billed_to")

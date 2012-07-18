@@ -1,0 +1,77 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  {% if role == "Attendee" %}
+  <h1>Sign up to attend a future Vinely party</h1>
+  {% elif role == "Tasting" %}
+  <h1>Order your own Vinely tasting kit</h1>
+  {% else %}
+  <h1>Sign up to become a {{ role }}</h1>
+  {% endif %}
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span8">
+    It's easy to get started with Vinely!
+    <p>&nbsp;</p>
+    </div>
+  </div>
+  <div class="row">
+    <form class="form-horizontal well" method="POST" action="{% url sign_up account_type %}">
+      {% csrf_token %}
+
+      {% if error %}
+        <div class="alert alert-error">
+          {{ error }}
+        </div>
+      {% endif %}
+      {% if form.errors %}
+        <div class="alert alert-error">
+          {{ form.errors }}
+        </div>
+      {% endif %}
+
+      <fieldset>
+        <div class="control-group">
+          <div class="control-label" for="id_first_name">
+          {{ form.first_name.label }}
+          </div>
+          <div class="controls">
+            {{ form.first_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label" for="id_last_name">
+          {{ form.last_name.label_tag }}
+          </div>
+          <div class="controls">
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label" for="id_email">
+          {{ form.email.label_tag }}
+          </div>
+          <div class="controls">
+            {{ form.email }}
+          </div>
+        </div>
+            <input type="hidden" name="password1" value="Sign Up" />
+            <input type="hidden" name="password2" value="Sign Up" />
+        <div class="form-actions">
+          <div class="controls">
+            <input class="btn btn-primary" type="submit" value="Sign Up" />
+          </div>
+        </div>
+
+      </fieldset>
+    </form>
+
+  </div>
+</div> <!-- container -->
+
+{% endblock content %}

@@ -132,3 +132,10 @@ class OrderReview(models.Model):
   wine_rating = models.ForeignKey(WineRatingData)
   timestamp = models.DateTimeField(auto_now_add=True)
 
+class MyHosts(models.Model):
+  """
+    Shows the hosts that are assigned to a party specialist
+  """
+  specialist = models.ForeignKey(User, related_name="my_hosts")
+  host = models.ForeignKey(User, related_name="my_specialist")
+  timestamp = models.DateTimeField(auto_now_add=True)

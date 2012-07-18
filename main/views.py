@@ -102,10 +102,38 @@ def start_order(request):
   """
     Show order page
   
+    Add items to cart and go to cart view 
   """
   data = {}
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+
+@login_required
+def cart(request):
+  """
+    
+    Show items in cart, have a link to go back to start_order to order more
+
+    submit goes to checkout
+  """
+  data = {}
+
+  return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
+
+@login_required
+def checkout(request):
+  """
+    Fill out credit card, shipping and billing address
+
+    Submit will lead to main/order_complete.html
+  """
+  data = {}
+  return render_to_response("main/checkout.html", data, context_instance=RequestContext(request))
+
+@login_required
+def view_orders(request):
+  data = {}
+  return render_to_response("main/view_orders.html", data, context_instance=RequestContext(request))
 
 @login_required
 def record_wine_ratings(request):
@@ -275,10 +303,12 @@ def party_list(request):
   ps_group = Group.objects.get(name="Party Specialist")
   ph_group = Group.objects.get(name="Party Host")
 
-  if (ps_group in u.groups.all()) or (ph_group in u.groups.all()):
-
+  if (ps_group in u.groups.all()):
     # TODO: need to filter to parties that a particular user manages
-    data['parties'] = Party.objects.all()
+    my_hosts = MyHosts.objects.filter(specialist=u).values_list('host', flat=True)
+    data['parties'] = Party.objects.filter(host__in=my_hosts)
+  elif (ph_group in u.groups.all()):
+    data['parties'] = Party.objects.filter(host=u)
   else:
     raise Http404
 
@@ -291,14 +321,35 @@ def party_add(request):
   """
   data = {}
 
+  u = request.user
+
   if request.method == "POST":
     form = PartyCreateForm(request.POST)
     if form.is_valid():
+
       new_party = form.save()
+      new_host = new_party.host
 
-      # TODO: go to party list page
+      if not new_host.is_active:
+
+        # map host to a specialist
+        my_hosts = MyHosts(specialist=u, host=new_host)
+        my_hosts.save()
+
+        # new host, so send password and invitation
+        temp_password = User.objects.make_random_password()
+        new_host.set_password(temp_password)
+        new_host.save()
+
+        verification_code = str(uuid.uuid4())
+        vque = VerificationQueue(user=new_host, verification_code=verification_code)
+        vque.save()
+
+        # send an invitation e-mail if new user created 
+        send_new_invitation_email(request, verification_code, temp_password, new_host.email)
+
+      # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
-
   else:
     initial_data = {'event_date': date.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
@@ -339,12 +390,14 @@ def party_attendee_list(request, party_id):
 def party_attendee_invite(request, party_id=0):
   """
     Invite a new attendee to a party 
+
+      - only allow host or party specialist to add
+      - need to track who added and make sure the attendee is linked to that specialist or host
+
   """
   data = {}
 
-  # TODO: only allow host or party specialist to add
 
-  # TODO: need to track who added and make sure the attendee is linked to that specialist or host
 
   u = request.user
 
@@ -359,6 +412,21 @@ def party_attendee_invite(request, party_id=0):
       form = PartyInviteAttendeeForm(request.POST)
       if form.is_valid():
         new_invite = form.save()
+
+        new_invitee = new_invite.invitee
+        if not new_invitee.is_active:
+          # new user created through party invitation
+          temp_password = User.objects.make_random_password()
+          new_invitee.set_password(temp_password)
+          new_invitee.save()
+
+          verification_code = str(uuid.uuid4())
+          vque = VerificationQueue(user=new_invitee, verification_code=verification_code)
+          vque.save()
+
+          # send an invitation e-mail if new user created 
+          send_new_invitation_email(request, verification_code, temp_password, new_invitee.email)
+
         return HttpResponseRedirect(reverse("party_attendee_list", args=[new_invite.party.id]))
     else:
       if int(party_id) == 0:
@@ -438,4 +506,17 @@ def all_orders(request):
   data['parties'] = Party.objects.all()
 
   return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+
+@login_required
+def edit_subscription(request):
+  """
+    Update one's subscription's
+
+    - Cancel
+    - Change product
+    - Change frequency
+  """
+  data = {}
+
+  return render_to_response("main/edit_subscription.html", data, context_instance=RequestContext(request))
 
