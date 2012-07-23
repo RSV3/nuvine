@@ -95,7 +95,12 @@
             <div class="control-group {% if form.host.errors %}error{% endif %}">
               <div class="control-label" for="id_host">{{ form.host.label }}</div>
               <div class="controls">
-                {{ form.host }} 
+                <select name="host" id="id_host">
+                  <option value selected="selected">----------</option>
+                  {% for value, text in form.host.field.choices %}
+                    <option value="{{ value }}">{{ text }}</option>
+                  {% endfor %}
+                </select>
                 {% if form.host.errors %}
                   <span class="help-inline">
                     {{ form.host.errors }}

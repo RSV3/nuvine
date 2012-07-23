@@ -38,7 +38,8 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_date'].widget = forms.HiddenInput()
 
     ph_group = Group.objects.get(name="Party Host")
-    self.fields['host'].queryset = User.objects.filter(groups__in=[ph_group])
+    #self.fields['host'].queryset = User.objects.filter(groups__in=[ph_group]).only('id','email')
+    self.fields['host'].choices = [(u.id, u.email) for u in User.objects.filter(groups__in=[ph_group]).only('id','email')]
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
