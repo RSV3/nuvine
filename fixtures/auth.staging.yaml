@@ -1,0 +1,515 @@
+- pk: 1
+  model: auth.group
+  fields:
+    permissions: []
+    name: Party Specialist
+- pk: 2
+  model: auth.group
+  fields:
+    name: Party Host
+    permissions: []
+- pk: 3
+  model: auth.group
+  fields:
+    name: Attendee
+    permissions: []
+- pk: 4
+  model: auth.group
+  fields:
+    name: Supplier
+    permissions: []
+- pk: 3
+  model: auth.user
+  fields:
+    password: pbkdf2_sha256$10000$NJYvJkbEPjX7$2X0JuAJ/IZlVwEHiXen7BaL/X4HbHMSgU2tU+IomEVk=
+    date_joined: 2012-07-11 19:22:40.801536
+    first_name: ''
+    user_permissions: []
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 19:22:40.801536
+    is_active: true
+    email: specialist1@example.com
+    groups: [1]
+    username: VXsUUJOOQHstHL7OwcUPCankLt2M2c
+    is_superuser: false
+- pk: 4
+  model: auth.user
+  fields:
+    user_permissions: []
+    last_login: 2012-07-11 19:22:40.959656
+    is_active: true
+    username: PtHaEEZNZx7h3lPDaxcsjq9laQh_Mp
+    groups: [1]
+    email: specialist2@example.com
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:40.959656
+    password: pbkdf2_sha256$10000$CpreKCf6x2R3$+bcjtFnLgpWGlijPXnx28EjISYYsTzxwWW9KDjZ/F5g=
+    is_staff: false
+    last_name: ''
+- pk: 6
+  model: auth.user
+  fields:
+    is_superuser: false
+    password: pbkdf2_sha256$10000$E2zAXUTbPZIW$qbc0o1yJTrZFDgotRPG7aSZECN6KurffyrUYDMKe5Wo=
+    date_joined: 2012-07-11 19:22:41.269917
+    first_name: ''
+    is_staff: false
+    user_permissions: []
+    email: host2@example.com
+    last_name: ''
+    last_login: 2012-07-11 19:22:41.269917
+    is_active: true
+    groups: [2]
+    username: 3ylOeWStVim2mLHi8xfr3Xwu3RJD6W
+- pk: 7
+  model: auth.user
+  fields:
+    last_name: ''
+    user_permissions: []
+    email: host3@example.com
+    last_login: 2012-07-11 19:22:41.433678
+    password: pbkdf2_sha256$10000$zUgBPuBfykAP$8Ujje04VHM8/BM+lhjBtqzj485Q4G3BpThICwXimNxI=
+    is_active: true
+    groups: [2]
+    username: dRC9fZMMhaY0pU82FlkX1Ib-t6g0QV
+    is_superuser: false
+    date_joined: 2012-07-11 19:22:41.433678
+    first_name: ''
+    is_staff: false
+- pk: 8
+  model: auth.user
+  fields:
+    groups: [3]
+    username: LmLFKSXinCaaMy0P17EAHTG_X4Gne1
+    user_permissions: []
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:41.588407
+    is_staff: false
+    password: pbkdf2_sha256$10000$SaNTxwrgFnlx$c1XXWwy0+cWfjZos3L5UXG34xePmoQW4xNQUe6HWgPM=
+    last_name: ''
+    last_login: 2012-07-11 19:22:41.588407
+    is_active: true
+    email: attendee1@example.com
+- pk: 9
+  model: auth.user
+  fields:
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$i82nYRuj49dT$c4oe9YHRTwqKAxXZMihSHGygGtSIKhyX07QDBd78eaU=
+    last_login: 2012-07-11 19:22:41.74579
+    is_active: true
+    groups: [3]
+    username: moFTaTrmMxRGXxCLbvv1lSNB0llY4e
+    email: attendee2@example.com
+    is_superuser: false
+    user_permissions: []
+    date_joined: 2012-07-11 19:22:41.74579
+    first_name: ''
+- pk: 10
+  model: auth.user
+  fields:
+    password: pbkdf2_sha256$10000$CCaRrSIcNyMU$/rUvF04CzHlPRQdAJbJSex03veyb4bulOshnAs3Y9Xk=
+    is_active: true
+    username: VlXZ7hSJI-9xcZYLBitQI9CB8G_tjX
+    groups: [3]
+    is_superuser: false
+    user_permissions: []
+    first_name: ''
+    date_joined: 2012-07-11 19:22:41.917502
+    is_staff: false
+    email: attendee3@example.com
+    last_name: ''
+    last_login: 2012-07-11 19:22:41.917502
+- pk: 11
+  model: auth.user
+  fields:
+    password: pbkdf2_sha256$10000$Q7lBoHd5wAws$WFEh/KCMG9LfKu+NqDM9SIqCtZOeC9ncxq1oWxBk9N0=
+    date_joined: 2012-07-11 19:22:42.71793
+    first_name: ''
+    is_staff: false
+    last_name: ''
+    last_login: 2012-07-11 19:22:42.71793
+    is_active: true
+    user_permissions: []
+    email: attendee4@example.com
+    groups: [3]
+    username: 8GEScG56OPuOAgSOCyaSGQU8vj9Jqi
+    is_superuser: false
+- pk: 12
+  model: auth.user
+  fields:
+    user_permissions: []
+    last_login: 2012-07-11 19:22:42.227173
+    is_active: true
+    username: 2X64pLkMvmQItP2_qw3NPb_gs7wOwo
+    groups: [3]
+    email: attendee5@example.com
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:42.227173
+    password: pbkdf2_sha256$10000$VFEewsCluhZy$1U3N07hxjUcT4vFvdJJlqyj4CXhYVphavw8nvGJZlB8=
+    is_staff: false
+    last_name: ''
+- pk: 13
+  model: auth.user
+  fields:
+    is_superuser: false
+    date_joined: 2012-07-11 19:22:42.381766
+    first_name: ''
+    is_staff: false
+    user_permissions: []
+    password: pbkdf2_sha256$10000$wtdEgNkYqhZ3$+m2bqDUlN4ShBtQxudw7SmBCjQdCFzPlw74qzLhxalg=
+    last_name: ''
+    last_login: 2012-07-11 19:22:42.381766
+    email: attendee6@example.com
+    is_active: true
+    groups: [3]
+    username: niqg7wLEmphrEPPtEf9EF4Pk9Qyrcj
+- pk: 14
+  model: auth.user
+  fields:
+    last_name: ''
+    user_permissions: []
+    email: attendee7@example.com
+    last_login: 2012-07-11 19:22:42.53618
+    password: pbkdf2_sha256$10000$1VRWgcAeftU5$RvgsqyZMU+MzLB1h/KTAwklJnqP/EIS6BqePPWTD9P0=
+    is_active: true
+    groups: [3]
+    username: GtOs8KqT3GmjR46U7IHBkN7n2ZC1pQ
+    is_superuser: false
+    date_joined: 2012-07-11 19:22:42.53618
+    first_name: ''
+    is_staff: false
+- pk: 15
+  model: auth.user
+  fields:
+    groups: [3]
+    username: ZyvyoK0cV-5mjvyC6sWtCUMTyH_e2q
+    user_permissions: []
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:42.691392
+    is_staff: false
+    password: pbkdf2_sha256$10000$q5u5g8jzxJXC$5M0yvyCBzt0P3i2JiGIiUrQddgbBhsDapFZjp7OjTvk=
+    last_name: ''
+    last_login: 2012-07-11 19:22:42.691392
+    is_active: true
+    email: attendee8@example.com
+- pk: 16
+  model: auth.user
+  fields:
+    email: attendee9@example.com
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$adPgvc4oRQVI$o3/Gbk5HU6WFl9I3Ycet26lNZIHyUk7cCMw26wiSt60=
+    last_login: 2012-07-11 19:22:42.844872
+    is_active: true
+    groups: [3]
+    username: gmqzSvqMfrlMPzeWqdr4o8zvGSVIFx
+    is_superuser: false
+    user_permissions: []
+    date_joined: 2012-07-11 19:22:42.844872
+    first_name: ''
+- pk: 17
+  model: auth.user
+  fields:
+    password: pbkdf2_sha256$10000$X2DzqsIooqhe$UpfmT9nESP/l6XUlM94i1iY+hhFK2FGELdGKua3ABmg=
+    is_active: true
+    username: 1yWeeG7vG1sTiN6nr6qgRKsWk7aVOd
+    groups: [4]
+    is_superuser: false
+    user_permissions: []
+    first_name: ''
+    date_joined: 2012-07-11 19:22:43.1004
+    is_staff: false
+    email: supplier1@example.com
+    last_name: ''
+    last_login: 2012-07-11 19:22:43.1004
+- pk: 18
+  model: auth.user
+  fields:
+    password: pbkdf2_sha256$10000$kfiSLZ1Ty0ny$nLgYEuT0kcGnW5OB4jG22LBCDTIAgmuVxxmmqnAvg8Y=
+    date_joined: 2012-07-11 19:22:43.155379
+    first_name: ''
+    is_staff: false
+    email: supplier2@example.com
+    last_name: ''
+    last_login: 2012-07-11 19:22:43.155379
+    is_active: true
+    user_permissions: []
+    groups: [4]
+    username: j4AtiqPjvI4vodn2sVBAX9GgNSSZ-N
+    is_superuser: false
+- pk: 5
+  model: auth.user
+  fields:
+    last_login: 2012-07-11 21:10:18.757419
+    user_permissions: []
+    is_active: true
+    username: wUH1yZnfx7bE8xka1isL7yFSQjf0Rh
+    groups: [2]
+    email: host1@example.com
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:41.11718
+    password: pbkdf2_sha256$10000$xZRJLlf799Mx$xIDqAmABerXOAHdTJYCZaobwlI+jlFyCgwd4q+sW4zo=
+    is_staff: false
+    last_name: ''
+- pk: 19
+  model: auth.user
+  fields:
+    is_superuser: false
+    date_joined: 2012-07-12 13:19:26.353179
+    first_name: Tom
+    is_staff: false
+    user_permissions: []
+    email: tom@auxiliaryinc.com
+    last_name: Crimp
+    last_login: 2012-07-12 13:19:26.353179
+    is_active: true
+    password: '!'
+    groups: [2]
+    username: vcb80vtdY83epKvOEcDZ2h2YYU-q7r
+- pk: 2
+  model: auth.user
+  fields:
+    last_name: ''
+    last_login: 2012-07-12 16:08:35.024999
+    password: pbkdf2_sha256$10000$3F8cYh20OC0W$qFw4c2WhhpAfPB8RsXYJN+k5DjewHnYQ9+uEc0MU7Zs=
+    is_active: true
+    groups: [1, 3]
+    username: onoG7UIZmDzWfPJn9Gj8XRquX36Ncy
+    email: johnstecco@gmail.com
+    is_superuser: false
+    first_name: ''
+    user_permissions: []
+    date_joined: 2012-07-11 19:22:40.650788
+    is_staff: false
+- pk: 31
+  model: auth.user
+  fields:
+    is_active: true
+    groups: [3]
+    username: W0jdjlj2LT8D9d98Oi2PVi2FmIPTYR
+    email: kate@auxiliaryinc.com
+    user_permissions: []
+    is_superuser: false
+    first_name: 'Kate '
+    date_joined: 2012-07-17 17:22:53.015226
+    is_staff: false
+    last_name: 'Quinn '
+    password: pbkdf2_sha256$10000$ENRBnWvVN6uF$Tfrm8LGfGcWJ2V8uGhlrZyj3GpSZU2la4de0gBYVP9g=
+    last_login: 2012-07-17 17:22:53.015226
+- pk: 21
+  model: auth.user
+  fields:
+    user_permissions: []
+    first_name: Jayme
+    is_staff: false
+    password: '!'
+    last_name: Mendal
+    last_login: 2012-07-12 18:21:09.337941
+    email: jayme@redstar.com
+    is_active: true
+    groups: []
+    username: 2VU4MMCIuEyfWpRiQAtmr9YQQHTbI8
+    date_joined: 2012-07-12 18:21:09.337941
+    is_superuser: false
+- pk: 22
+  model: auth.user
+  fields:
+    is_active: true
+    email: Annalisa@redstar.com
+    username: mow7_v0rjSGBpO5z-aeqELUaB-v3mw
+    groups: []
+    is_superuser: false
+    date_joined: 2012-07-12 18:24:50.346917
+    first_name: Annalisa
+    user_permissions: []
+    is_staff: false
+    last_name: Oswald
+    password: '!'
+    last_login: 2012-07-12 18:24:50.346917
+- model: auth.user
+  fields:
+    is_staff: false
+    last_name: Eberts
+    password: pbkdf2_sha256$10000$X4AZHHtLxXQX$AVL7N7uolmklroinA/IeIJnU1pY+QGM15kijGHWxSvU=
+    last_login: 2012-07-17 17:23:41.032358
+    is_active: true
+    email: Jeremy@auxiliaryinc.com
+    groups: [3]
+    username: wAsdktsrnaS3udMxWZXRDljf-ATquf
+    user_permissions: []
+    is_superuser: false
+    date_joined: 2012-07-17 17:23:41.032358
+    first_name: Jeremy
+  pk: 32
+- model: auth.user
+  fields:
+    last_login: 2012-07-23 16:10:36.660406
+    is_active: true
+    username: vVAUSQMUmPrN2yi7ddoZZJfCyfW2-J
+    email: elizabeth@redstar.com
+    groups: [1]
+    user_permissions: []
+    is_superuser: false
+    first_name: ''
+    date_joined: 2012-07-11 19:22:40.494089
+    is_staff: false
+    last_name: ''
+    password: pbkdf2_sha256$10000$iXk0SrbFEnut$dOYGNzfFFTV7n5U+KEp9s3ePvtx24exeh+QpfJ2VNs8=
+  pk: 1
+- pk: 20
+  model: auth.user
+  fields:
+    date_joined: 2012-07-12 18:17:31.386653
+    first_name: 'Bill '
+    is_staff: false
+    last_name: whittenberg
+    password: pbkdf2_sha256$10000$4Py3A2PVz8D7$cMi0+A3qWokYZSFSbmJtLEDDpc+VJVDKNOBav+9jx4A=
+    last_login: 2012-07-12 18:17:31.386653
+    is_active: true
+    email: bill@redstar.com
+    groups: [3]
+    username: HnBo9h47tzwpkhxd4YDUMA5GcTkgia
+    user_permissions: []
+    is_superuser: false
+- fields:
+    last_name: Lee
+    password: pbkdf2_sha256$10000$4hOmBJIkvOSh$kDFW85+hLVG572/W2p3AUMTQWey6gOAm2nyh+qlkcaU=
+    last_login: 2012-07-12 20:26:41.535583
+    is_active: true
+    email: kwan@redstar.com
+    groups: [3]
+    username: 39GXhn5HIUS1aC0_QhPzpHCW5940yA
+    user_permissions: []
+    is_superuser: false
+    date_joined: 2012-07-12 20:08:51.243626
+    first_name: Kwan
+    is_staff: false
+  pk: 23
+  model: auth.user
+- model: auth.user
+  fields:
+    user_permissions: []
+    is_superuser: false
+    first_name: Andrew
+    date_joined: 2012-07-23 16:11:29.349384
+    is_staff: false
+    last_name: Lau
+    password: pbkdf2_sha256$10000$O84rRmFlfLIV$3RG/4pFbd5GczOnT2VbAiB1BJjF0YzGqxWjPXxdxb7A=
+    last_login: 2012-07-23 16:11:29.349384
+    is_active: false
+    email: amlau@redstar.com
+    groups: [2]
+    username: 8b-_O02V57j66luz4RjMjWLFqjBWQU
+  pk: 33
+- pk: 24
+  model: auth.user
+  fields:
+    last_name: Boswell
+    password: pbkdf2_sha256$10000$edlbE9brUVfL$YI0yj5G3N22EcrKoLff7XUrieD9nfmLLfhYy9Q5pWPo=
+    last_login: 2012-07-17 17:15:02.725808
+    is_active: true
+    email: zac@auxiliaryinc.com
+    groups: [3]
+    username: _ZyVor8ErEyzEJ8mFM-QxXu299x2mQ
+    user_permissions: []
+    is_superuser: false
+    date_joined: 2012-07-17 17:15:02.725808
+    first_name: Zac
+    is_staff: false
+- pk: 25
+  model: auth.user
+  fields:
+    username: JJzuU2CtePzlIO76Yxl_E-N5za_JWI
+    email: ben@auxiliaryinc.com
+    groups: [3]
+    is_superuser: false
+    user_permissions: []
+    first_name: Ben
+    date_joined: 2012-07-17 17:16:08.448033
+    is_staff: false
+    last_name: Peterson
+    last_login: 2012-07-17 17:16:08.448033
+    password: pbkdf2_sha256$10000$3HhirEOVFXyJ$mYe6OzLfCeVLBlsnnNjS/e6+vf5fBPAW2Q7RDpJjG+U=
+    is_active: true
+- model: auth.user
+  fields:
+    is_staff: false
+    last_name: Mier
+    password: pbkdf2_sha256$10000$0l052cOwCrAT$FWoLjVw+cKeRbX24rU5BZ0Usu+9VaY/43yQqLHmNdwk=
+    last_login: 2012-07-17 17:16:50.025057
+    is_active: true
+    email: sarah@auxiliaryinc.com
+    groups: [3]
+    username: GE_qV2OvzivnxxdHzO49toXE1gKM1n
+    user_permissions: []
+    is_superuser: false
+    date_joined: 2012-07-17 17:16:50.025057
+    first_name: Sarah
+  pk: 26
+- model: auth.user
+  fields:
+    last_login: 2012-07-17 17:17:35.52576
+    is_active: true
+    username: pqiwgqzNtjsaSJWymZBIcXpjJ26ORF
+    email: Christa@auxiliaryinc.com
+    groups: [3]
+    user_permissions: []
+    is_superuser: false
+    first_name: Christa
+    date_joined: 2012-07-17 17:17:35.52576
+    is_staff: false
+    last_name: Brenner
+    password: pbkdf2_sha256$10000$zZiUShOW4bKk$vGzhZUS3zLyDl+hNR1oRkPQ8N7qRxYGUqEmLPy487d4=
+  pk: 27
+- pk: 28
+  model: auth.user
+  fields:
+    date_joined: 2012-07-17 17:18:38.283791
+    first_name: Leslie
+    is_staff: false
+    last_name: Parks
+    password: pbkdf2_sha256$10000$9s6MbjCyppXH$KVaUviumrKze/+2FHeBM02mtFpeskrJsVZmd4ZiomFo=
+    last_login: 2012-07-17 17:18:38.283791
+    is_active: true
+    email: Leslie@auxiliaryinc.com
+    groups: [3]
+    username: Kb4Qb0v7nage4RrIs3dwNbmnRDtnMW
+    user_permissions: []
+    is_superuser: false
+- fields:
+    last_name: 'Postma '
+    last_login: 2012-07-17 17:21:15.554143
+    is_active: true
+    password: pbkdf2_sha256$10000$cuGVcLj9SgBG$QrdbaoA3SlyK826Lteuh9cva9ForBrTGaTUNQyFxB6Q=
+    groups: [3]
+    username: Fl11UlzW0VcxEWMIiLF6Zg_BCoVhxx
+    is_superuser: false
+    email: dana@auxiliaryinc.com
+    user_permissions: []
+    first_name: 'Dana '
+    is_staff: false
+    date_joined: 2012-07-17 17:21:15.554143
+  pk: 29
+  model: auth.user
+- pk: 30
+  model: auth.user
+  fields:
+    is_active: true
+    groups: [3]
+    username: SkF0lxVvp0Z1QySTqNGwic8LT0fo3m
+    password: pbkdf2_sha256$10000$uOQ3xwmVWJFn$31oXcQ7S5jtZ90Fu5LqnmmOvuTZEBrt95syECZKTQYk=
+    is_superuser: false
+    user_permissions: []
+    first_name: Neil
+    email: neil@auxiliaryinc.com
+    is_staff: false
+    last_name: Hubert
+    date_joined: 2012-07-17 17:22:03.333885
+    last_login: 2012-07-17 17:22:03.333885

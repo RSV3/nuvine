@@ -1,0 +1,245 @@
+- model: personality.wine
+  pk: 1
+  fields: {added: 2012-07-10, name: Domaine De Pellehaut "Harmonie De Gascogne", year: 0,
+    price: '0.00', sip_bits: 'Light, "clean" blend of four regional varietals                             from
+      the Loire Valley (France), predominantly Uni Blanc and Columbard.', deactivated: null,
+    number: 1, active: true}
+- model: personality.wine
+  fields: {number: 2, name: Contrada Chardonnay, added: 2012-07-10, deactivated: null,
+    year: 0, price: '0.00', active: true, sip_bits: Classic California chard. Made
+      by respected wine-maker Michael                                 Pozzan.  This
+      wine has limited availability and crated for the                                 restaurant
+      industry.}
+  pk: 2
+- pk: 3
+  model: personality.wine
+  fields: {price: '0.00', active: true, sip_bits: 'This wine defines "aromatics on
+      the nose"; "Frizzante" is                             Italian that refers to
+      the slight effervescence, paying homage to this                             varietal''s
+      roots, although this wine hails from Oregon.', number: 3, name: Foris Vineyards
+      Muscat Frizzante, added: 2012-07-10, deactivated: null, year: 0}
+- pk: 4
+  model: personality.wine
+  fields: {deactivated: null, year: 0, price: '0.00', active: true, sip_bits: 'Light
+      bodied Italian red that can be served slight chilled (really)                             perfect
+      for people just getting into the "world of red";                             translates
+      to "wine for everyday"; believe it or not, this is                             mad
+      from 100% Merlot!', number: 4, name: Giuseppe Savine Rondineto "Vino Quotidinao",
+    added: 2012-07-10}
+- pk: 5
+  model: personality.wine
+  fields: {number: 5, name: Lange Twins Zinfandel, added: 2012-07-10, deactivated: null,
+    year: 0, price: '0.00', sip_bits: 'Small Produced, Classic for the style. Fantastic,
+      respected family-owned                             operation from Lodi, California.',
+    active: true}
+- pk: 6
+  model: personality.wine
+  fields: {active: true, sip_bits: 'Awesome wine from South America. This line is
+      special and only 3000                             cases of this wine is produced.
+      Bold, dark - might stain your teeth purple                             for a
+      while - grab a steak or some Roquefort Bleu!', number: 6, name: Carlos Basso
+      Dos Fincas Cabernet Sauvignon/Merlot, added: 2012-07-10, deactivated: null,
+    year: 0, price: '0.00'}
+- pk: 1
+  model: personality.wineratingdata
+  fields: {user: 2, texture: 2, weight: 3, sweet_dnl: 2, weight_dnl: 2, sizzle_dnl: 3,
+    dnl: 3, sweet: 3, sizzle: 2, timestamp: !!timestamp '2012-07-12 16:21:59.361004',
+    overall: 4, wine: 1, texture_dnl: 2}
+- pk: 2
+  model: personality.wineratingdata
+  fields: {sizzle_dnl: 3, weight_dnl: 2, sweet: 4, dnl: 1, timestamp: !!timestamp '2012-07-12
+      16:21:59.390673', sizzle: 2, wine: 2, overall: 2, user: 2, texture_dnl: 2, texture: 3,
+    sweet_dnl: 1, weight: 2}
+- pk: 3
+  model: personality.wineratingdata
+  fields: {dnl: 1, timestamp: !!timestamp '2012-07-12 16:21:59.450489', sizzle: 2,
+    wine: 3, overall: 2, user: 2, texture_dnl: 2, texture: 3, sweet_dnl: 1, weight: 2,
+    weight_dnl: 2, sizzle_dnl: 3, sweet: 4}
+- pk: 4
+  model: personality.wineratingdata
+  fields: {user: 2, texture_dnl: 2, texture: 3, sweet_dnl: 2, weight: 3, sizzle_dnl: 3,
+    weight_dnl: 2, sweet: 3, dnl: 2, timestamp: !!timestamp '2012-07-12 16:21:59.487327',
+    sizzle: 3, wine: 4, overall: 3}
+- pk: 5
+  model: personality.wineratingdata
+  fields: {sweet_dnl: 3, weight: 4, sizzle_dnl: 3, weight_dnl: 3, sweet: 2, dnl: 3,
+    timestamp: !!timestamp '2012-07-12 16:21:59.728248', sizzle: 3, wine: 5, overall: 4,
+    user: 2, texture_dnl: 3, texture: 4}
+- model: personality.wineratingdata
+  fields: {dnl: 3, sweet: 2, sizzle: 4, timestamp: !!timestamp '2012-07-12 16:21:59.751148',
+    overall: 5, wine: 6, texture_dnl: 3, user: 2, texture: 4, weight: 4, sweet_dnl: 3,
+    sizzle_dnl: 3, weight_dnl: 3}
+  pk: 6
+- model: personality.wineratingdata
+  fields: {wine: 1, overall: 4, user: 20, texture_dnl: 0, texture: 0, sweet_dnl: 0,
+    weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12
+      18:17:31.826721', sizzle: 0}
+  pk: 7
+- pk: 8
+  model: personality.wineratingdata
+  fields: {texture: 0, sweet_dnl: 0, weight: 0, weight_dnl: 0, sizzle_dnl: 0, sweet: 0,
+    dnl: 0, sizzle: 0, timestamp: !!timestamp '2012-07-12 18:17:31.905969', wine: 2,
+    overall: 2, texture_dnl: 0, user: 20}
+- pk: 9
+  model: personality.wineratingdata
+  fields: {sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12
+      18:17:31.937126', sizzle: 0, wine: 3, overall: 3, user: 20, texture_dnl: 0,
+    texture: 0, sweet_dnl: 0, weight: 0}
+- pk: 10
+  model: personality.wineratingdata
+  fields: {timestamp: !!timestamp '2012-07-12 18:17:31.96357', sizzle: 0, wine: 4,
+    overall: 3, user: 20, texture_dnl: 0, texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0,
+    weight_dnl: 0, sweet: 0, dnl: 0}
+- pk: 11
+  model: personality.wineratingdata
+  fields: {wine: 5, texture_dnl: 0, user: 20, texture: 0, weight: 0, sweet_dnl: 0,
+    sizzle_dnl: 0, weight_dnl: 0, dnl: 0, sweet: 0, timestamp: !!timestamp '2012-07-12
+      18:17:31.979564', sizzle: 0, overall: 2}
+- pk: 12
+  model: personality.wineratingdata
+  fields: {sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0,
+    timestamp: !!timestamp '2012-07-12 18:17:32.051025', sizzle: 0, wine: 6, overall: 2,
+    user: 20, texture_dnl: 0, texture: 0}
+- fields: {sizzle_dnl: 0, sweet: 0, dnl: 0, sizzle: 0, timestamp: !!timestamp '2012-07-12
+      18:21:09.384881', wine: 1, overall: 2, texture_dnl: 0, user: 21, texture: 0,
+    weight: 0, sweet_dnl: 0, weight_dnl: 0}
+  pk: 13
+  model: personality.wineratingdata
+- model: personality.wineratingdata
+  fields: {wine: 2, overall: 4, user: 21, texture_dnl: 0, texture: 0, sweet_dnl: 0,
+    weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12
+      18:21:09.41454', sizzle: 0}
+  pk: 14
+- fields: {texture_dnl: 0, texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0,
+    sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12 18:21:09.455181', sizzle: 0,
+    wine: 3, overall: 2, user: 21}
+  pk: 15
+  model: personality.wineratingdata
+- pk: 16
+  model: personality.wineratingdata
+  fields: {sizzle_dnl: 0, weight_dnl: 0, dnl: 0, sweet: 0, timestamp: !!timestamp '2012-07-12
+      18:21:09.466764', sizzle: 0, overall: 1, wine: 4, user: 21, texture_dnl: 0,
+    texture: 0, sweet_dnl: 0, weight: 0}
+- pk: 17
+  model: personality.wineratingdata
+  fields: {timestamp: !!timestamp '2012-07-12 18:21:09.498018', sizzle: 0, wine: 5,
+    overall: 3, user: 21, texture_dnl: 0, texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0,
+    weight_dnl: 0, sweet: 0, dnl: 0}
+- pk: 18
+  model: personality.wineratingdata
+  fields: {texture_dnl: 0, user: 21, texture: 0, weight: 0, sweet_dnl: 0, weight_dnl: 0,
+    sizzle_dnl: 0, dnl: 0, sweet: 0, sizzle: 0, timestamp: !!timestamp '2012-07-12
+      18:21:09.508607', overall: 4, wine: 6}
+- pk: 19
+  model: personality.wineratingdata
+  fields: {sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0,
+    timestamp: !!timestamp '2012-07-12 18:24:50.412588', sizzle: 0, wine: 1, overall: 3,
+    user: 22, texture_dnl: 0, texture: 0}
+- fields: {sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12 18:24:50.434337',
+    sizzle: 0, wine: 2, overall: 3, user: 22, texture_dnl: 0, texture: 0, sweet_dnl: 0,
+    weight: 0, weight_dnl: 0, sizzle_dnl: 0}
+  pk: 20
+  model: personality.wineratingdata
+- fields: {overall: 2, wine: 3, user: 22, texture_dnl: 0, texture: 0, sweet_dnl: 0,
+    weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12
+      18:24:50.450429', sizzle: 0}
+  pk: 21
+  model: personality.wineratingdata
+- model: personality.wineratingdata
+  fields: {texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0,
+    dnl: 0, timestamp: !!timestamp '2012-07-12 18:24:50.465935', sizzle: 0, wine: 4,
+    overall: 4, user: 22, texture_dnl: 0}
+  pk: 22
+- pk: 23
+  model: personality.wineratingdata
+  fields: {sweet_dnl: 0, weight_dnl: 0, sizzle_dnl: 0, dnl: 0, sweet: 0, sizzle: 0,
+    timestamp: !!timestamp '2012-07-12 18:24:50.477999', overall: 3, wine: 5, texture_dnl: 0,
+    user: 22, texture: 0, weight: 0}
+- pk: 24
+  model: personality.wineratingdata
+  fields: {timestamp: !!timestamp '2012-07-12 18:24:50.500218', sizzle: 0, wine: 6,
+    overall: 5, user: 22, texture_dnl: 0, texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0,
+    weight_dnl: 0, sweet: 0, dnl: 0}
+- pk: 25
+  model: personality.wineratingdata
+  fields: {overall: 4, user: 23, texture_dnl: 0, texture: 0, sweet_dnl: 0, weight: 0,
+    weight_dnl: 0, sizzle_dnl: 0, sweet: 0, dnl: 0, sizzle: 0, timestamp: !!timestamp '2012-07-12
+      20:08:51.610569', wine: 1}
+- pk: 26
+  model: personality.wineratingdata
+  fields: {sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0, dnl: 0,
+    timestamp: !!timestamp '2012-07-12 20:08:51.659141', sizzle: 0, wine: 2, overall: 3,
+    user: 23, texture_dnl: 0, texture: 0}
+- pk: 27
+  model: personality.wineratingdata
+  fields: {weight_dnl: 0, sweet: 0, dnl: 0, timestamp: !!timestamp '2012-07-12 20:08:51.683077',
+    sizzle: 0, wine: 3, overall: 5, user: 23, texture_dnl: 0, texture: 0, sweet_dnl: 0,
+    weight: 0, sizzle_dnl: 0}
+- fields: {overall: 4, wine: 4, texture_dnl: 0, user: 23, texture: 0, weight: 0, sweet_dnl: 0,
+    sizzle_dnl: 0, weight_dnl: 0, dnl: 0, sweet: 0, timestamp: !!timestamp '2012-07-12
+      20:08:51.696629', sizzle: 0}
+  pk: 28
+  model: personality.wineratingdata
+- fields: {texture: 0, sweet_dnl: 0, weight: 0, sizzle_dnl: 0, weight_dnl: 0, sweet: 0,
+    dnl: 0, timestamp: !!timestamp '2012-07-12 20:08:51.722009', sizzle: 0, wine: 5,
+    overall: 3, user: 23, texture_dnl: 0}
+  pk: 29
+  model: personality.wineratingdata
+- pk: 30
+  model: personality.wineratingdata
+  fields: {weight_dnl: 0, sizzle_dnl: 0, sweet: 0, dnl: 0, sizzle: 0, timestamp: !!timestamp '2012-07-12
+      20:08:51.737284', wine: 6, overall: 4, texture_dnl: 0, user: 23, texture: 0,
+    weight: 0, sweet_dnl: 0}
+- pk: 1
+  model: personality.winepersonality
+  fields: {name: Easy Going, description: 'You''re "easy going" - even before the                                   wine.
+      You''re the type of person that                                   comes home
+      after a long day at the                                   office or with the
+      kids and reaches for a                                   glass. Your wine is
+      happy, light and                                   white - clean, eortless and
+      something                                   to unwind with.'}
+- pk: 2
+  model: personality.winepersonality
+  fields: {name: Moxie, description: 'Bold, confident, outstanding - and we''re                                   talking
+      about you as much as the wine you drink. You don''t talk, you make a                                   statement
+      - and when it''s about wine, it''s "I                                   drink
+      red!". Dynamic and charismatic, you                                   could
+      spend the night with just these                                   wines and
+      be completely content.'}
+- fields: {name: Whimsical, description: 'You find comfort in the wine you drink -                                   wine
+      for you is an occasion where you''re                                   often
+      the life of the party. Life''s not that                                   complicated,
+      nor is your wine. The key                                   for you is FUN.
+      Some may consider you                                   a little quirky and
+      frequently playful, and                                   that''s what''s in
+      your glass.'}
+  pk: 3
+  model: personality.winepersonality
+- pk: 4
+  model: personality.winepersonality
+  fields: {name: Sensational, description: 'And that you are. You put thought into                                   your
+      whole wine experience, thirsting for                                   everything
+      in the glass - the history, the                                   depth, the
+      pairings - all are appreciated in                                   every sip.
+      The wines are exciting,                                   stunning, and entices
+      you into exploring                                   even more.'}
+- pk: 5
+  model: personality.winepersonality
+  fields: {name: Exuberant, description: 'Vivacious and cheerful, you''re often the                                   host
+      of the party. You see your wine as                                   an accompaniment
+      both for the evening                                   or the food. But you
+      do not necessarily                                   see it taking center stage.
+      Your wine is a                                   lively yet informal addition,
+      whose                                   absence would be missed.'}
+- model: personality.winepersonality
+  fields: {name: Serendipitous, description: 'When asked do you prefer red or white?                                   You
+      say YES! Often welcoming impromptu                                   opportunities
+      with a desire for                                   spontaneity, chance and
+      discovery of life                                   and wine. Your unconstrained
+      nature                                   empowers you to float from one sensual                                   pleasure
+      to the next.'}
+  pk: 6
+- pk: 7
+  model: personality.winepersonality
+  fields: {description: You have a very complex taste palate. It will require more
+      experimentation to understand your tastes., name: Complex}

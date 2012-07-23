@@ -1,0 +1,31 @@
+Running `python manage.py dumpdata accounts --format yaml` attached to terminal... up, run.1
+No module named settings_local
+Traceback (most recent call last):
+  File "manage.py", line 10, in <module>
+    execute_from_command_line(sys.argv)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/core/management/__init__.py", line 443, in execute_from_command_line
+    utility.execute()
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/core/management/__init__.py", line 382, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/core/management/base.py", line 196, in run_from_argv
+    self.execute(*args, **options.__dict__)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/core/management/base.py", line 232, in execute
+    output = self.handle(*args, **options)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/core/management/commands/dumpdata.py", line 109, in handle
+    objects.extend(model._default_manager.using(using).all())
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/models/query.py", line 87, in __len__
+    self._result_cache.extend(self._iter)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/models/query.py", line 291, in iterator
+    for row in compiler.results_iter():
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 763, in results_iter
+    for rows in self.execute_sql(MULTI):
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 818, in execute_sql
+    cursor.execute(sql, params)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/backends/util.py", line 40, in execute
+    return self.cursor.execute(sql, params)
+  File "/app/.heroku/venv/lib/python2.7/site-packages/django/db/backends/postgresql_psycopg2/base.py", line 52, in execute
+    return self.cursor.execute(query, args)
+django.db.utils.DatabaseError: relation "accounts_verificationqueue" does not exist
+LINE 1: ...ied", "accounts_verificationqueue"."created" FROM "accounts_...
+                                                             ^
+

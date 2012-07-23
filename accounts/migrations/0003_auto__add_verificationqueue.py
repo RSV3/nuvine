@@ -18,22 +18,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('accounts', ['VerificationQueue'])
 
-        # Adding M2M table for field party_addresses on 'UserProfile'
-        db.create_table('accounts_userprofile_party_addresses', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('userprofile', models.ForeignKey(orm['accounts.userprofile'], null=False)),
-            ('address', models.ForeignKey(orm['accounts.address'], null=False))
-        ))
-        db.create_unique('accounts_userprofile_party_addresses', ['userprofile_id', 'address_id'])
-
-
     def backwards(self, orm):
         # Deleting model 'VerificationQueue'
         db.delete_table('accounts_verificationqueue')
-
-        # Removing M2M table for field party_addresses on 'UserProfile'
-        db.delete_table('accounts_userprofile_party_addresses')
-
 
     models = {
         'accounts.address': {
