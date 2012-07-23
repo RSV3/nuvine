@@ -1,4 +1,9 @@
 nuvine
 ======
 
-Fresh start for winedora site
+Fresh start for Vinely site
+
+Release Notes
+======
+
+
