@@ -11,6 +11,8 @@ class ContactRequestForm(forms.ModelForm):
   class Meta:
     model = ContactRequest
 
+valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
+
 class PartyCreateForm(forms.ModelForm):
 
   first_name = forms.CharField(max_length=30, required=False)
@@ -23,12 +25,17 @@ class PartyCreateForm(forms.ModelForm):
   state = forms.CharField(max_length=10, required=False)
   zipcode = forms.CharField(max_length=20, required=False)
 
+  event_day = forms.DateField(label="Event date")
+  event_time = forms.TimeField(input_formats=valid_time_formats)
+
   class Meta:
     model = Party
 
   def __init__(self, *args, **kwargs):
     super(PartyCreateForm, self).__init__(*args, **kwargs)
-    self.fields['event_date'].widget.attrs['class'] = 'datepicker'
+    self.fields['event_day'].widget.attrs['class'] = 'datepicker'
+    self.fields['event_time'].widget.attrs['class'] = 'timepicker'
+    self.fields['event_date'].widget = forms.HiddenInput()
 
     ph_group = Group.objects.get(name="Party Host")
     self.fields['host'].queryset = User.objects.filter(groups__in=[ph_group])
@@ -75,6 +82,12 @@ class PartyCreateForm(forms.ModelForm):
     if 'title' not in cleaned_data:
       cleaned_data['title'] = "%s's Party"%cleaned_data['host'].first_name
       del self._errors['title']
+
+    if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
+      cleaned_data['event_date'] = "%s %s"%(cleaned_data['event_day'], cleaned_data['event_time'])
+      del self._errors['event_date']
+    else:
+      raise forms.ValidationError("Party date and time are required.")
 
     return cleaned_data 
 

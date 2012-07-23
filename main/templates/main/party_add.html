@@ -2,6 +2,7 @@
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
+  <link rel="stylesheet" href="{{ STATIC_URL }}timepicker/css/timepicker.css"> 
 {% endblock %}
 
 {% block header %}
@@ -65,18 +66,28 @@
                 {% endif %}
               </div>
             </div>
-            <div class="control-group {% if form.event_date.errors %}error{% endif %}">
-              <div class="control-label" for="id_event_date">{{ form.event_date.label }}</div>
+            <div class="control-group {% if form.event_day.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_day">{{ form.event_day.label }}</div>
               <div class="controls">
-                {{ form.event_date }} 
-                {% if form.event_date.errors %}
+                {{ form.event_day }} 
+                {% if form.event_day.errors %}
                   <span class="help-inline">
-                    {{ form.event_date.errors }}
+                    {{ form.event_day.errors }}
                   </span>
                 {% endif %}
               </div>
             </div>
-
+            <div class="control-group {% if form.event_time.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_time">{{ form.event_time.label }}</div>
+              <div class="controls">
+                {{ form.event_time }} 
+                {% if form.event_time.errors %}
+                  <span class="help-inline">
+                    {{ form.event_time.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
           </fieldset>
 
           <fieldset>
@@ -225,9 +236,11 @@
 
 {% block additional_scripts %}
   <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}timepicker/js/bootstrap-timepicker.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.datepicker').datepicker();
+      $('.timepicker').timepicker();
     });
   </script>
 {% endblock additional_scripts %}

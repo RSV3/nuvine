@@ -139,3 +139,6 @@ class MyHosts(models.Model):
   specialist = models.ForeignKey(User, related_name="my_hosts")
   host = models.ForeignKey(User, related_name="my_specialist")
   timestamp = models.DateTimeField(auto_now_add=True)
+
+  def __unicode__(self):
+    return "%s - %s"%(specialist, host)

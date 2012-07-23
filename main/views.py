@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 
-from main.models import Party, PartyInvite
+from main.models import Party, PartyInvite, MyHosts
 from personality.models import Wine 
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm
@@ -17,7 +17,7 @@ from personality.utils import calculate_wine_personality
 
 import json
 
-from datetime import date
+from datetime import date, datetime
 
 @login_required
 def home(request):
@@ -330,12 +330,11 @@ def party_add(request):
       new_party = form.save()
       new_host = new_party.host
 
+      # map host to a specialist
+      my_hosts = MyHosts.objects.get_or_create(specialist=u, host=new_host)
+      my_hosts.save()
+
       if not new_host.is_active:
-
-        # map host to a specialist
-        my_hosts = MyHosts(specialist=u, host=new_host)
-        my_hosts.save()
-
         # new host, so send password and invitation
         temp_password = User.objects.make_random_password()
         new_host.set_password(temp_password)
@@ -351,7 +350,7 @@ def party_add(request):
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
-    initial_data = {'event_date': date.today().strftime("%m/%d/%Y")}
+    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
 
   data["form"] = form
