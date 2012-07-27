@@ -4,6 +4,8 @@ settings_local.py
 winedora.test.db
 latest.dump
 .env
+emails
+sitemedia
 
 # Packages
 *.egg

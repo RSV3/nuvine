@@ -6,16 +6,21 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
+from django import forms
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
-from main.models import Party, PartyInvite, MyHosts
+from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, CustomizeOrder, Order
 from personality.models import Wine 
 
-from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, CreditCardForm, PaymentForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
+from accounts.models import VerificationQueue
+from accounts.utils import send_verification_email
 
 from personality.utils import calculate_wine_personality
 
-import json
+import json, uuid
 
 from datetime import date, datetime
 
@@ -97,7 +102,15 @@ def contact_us(request):
 
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
 
-@login_required
+def how_it_works(request):
+  """
+
+  """
+
+  data = {}
+
+  return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
+
 def start_order(request):
   """
     Show order page
@@ -106,9 +119,135 @@ def start_order(request):
   """
   data = {}
 
+  data["your_personality"] = "Moxie"
+  products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
+
+  data["products"] = products
+
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
 
+
 @login_required
+def order_tasting_kit(request):
+  """
+
+    Order tasting kit
+
+  """
+  data = {}
+
+  form = SimpleItemOrderForm(request.POST or None)
+  if form.is_valid():
+    # need to be able to add item to cart
+    item = form.save()
+    return HttpResponseRedirect(reverse("main.views.cart"))
+
+  tasting_kits = Product.objects.filter(category="Tasting Kit")
+  data = {
+        'item_name': tasting_kit.name,
+        'item_description': tasting_kit.description,
+        'item_price': tasting_kit.price
+      }
+  data["form"] = form
+  return render_to_response("main/order_tasting_kit.html", data, context_instance=RequestContext(request))
+
+
+def cart_add_tasting_kit(request):
+  """
+    
+    Add tasting kit to cart
+
+    submit goes to checkout
+  """
+  data = {}
+
+  u = request.user
+
+  # TODO: check user personality and select the level
+
+  form = AddTastingKitToCartForm(request.POST or None)
+
+  if form.is_valid():
+    # add line item to cart
+    item = form.save()
+    if 'cart' in request.session:
+      cart = Cart.objects.get(id=request.session['cart'])
+      cart.orders.add(item)
+      cart.save()
+    else:
+      # create new cart
+      if u.is_authenticated():
+        cart = Cart(user=u)
+      else:
+        # anonymous cart
+        cart = Cart()
+      cart.save()
+      cart.orders.add(item)
+      request.session['cart'] = cart.id
+
+    return HttpResponseRedirect(reverse("cart"))
+
+  product = Product.objects.get(category=Product.PRODUCT_TYPE[0][0])
+  data["product"] = product
+  form.initial = {'product': product, 'total_price': product.unit_price}
+  data["form"] = form
+
+  return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
+
+def cart_add_wine(request, level="good"):
+  """
+    
+    Add item to cart
+
+    submit goes to checkout
+  """
+  data = {}
+
+  u = request.user
+
+  # TODO: check user personality and select the frequency recommendation and case size
+
+  form = AddWineToCartForm(request.POST or None)
+
+  if form.is_valid():
+    # add line item to cart
+    item = form.save()
+    if 'cart' in request.session:
+      cart = Cart.objects.get(id=request.session['cart'])
+      cart.orders.add(item)
+      cart.save()
+    else:
+      # create new cart
+      if u.is_authenticated():
+        cart = Cart(user=u)
+      else:
+        # anonymous cart
+        cart = Cart()
+      cart.save()
+      cart.orders.add(item)
+      request.session['cart'] = cart.id
+
+    return HttpResponseRedirect(reverse("cart"))
+
+  # big image of wine
+  # TODO: need to check wine personality and choose the right product
+  if level == "good":
+    product = Product.objects.get(name="Good Level Name")
+  elif level == "better":
+    product = Product.objects.get(name="Better Level Name")
+  elif level == "best":
+    product = Product.objects.get(name="Best Level Name")
+
+  data["product"] = product
+
+  form.initial = {'level': level, 
+                'total_price': product.unit_price,
+                'product': product}
+  data["form"] = form
+  data["level"] = level
+
+  return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
+
 def cart(request):
   """
     
@@ -118,17 +257,112 @@ def cart(request):
   """
   data = {}
 
+  cart_id = request.session['cart']
+  cart = Cart.objects.get(id=cart_id) 
+  data["orders"] = cart.orders.all()
+  data["cart"] = cart
+
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
-@login_required
-def checkout(request):
-  """
-    Fill out credit card, shipping and billing address
+def customize_checkout(request):
+  data = {}
 
-    Submit will lead to main/order_complete.html
+  u = request.user
+
+  if u.is_authenticated():
+    try:
+      custom = CustomizeOrder.objects.get(user=u) 
+      # customization already happened
+
+      # go to shipping 
+      return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
+    except CustomizeOrder.DoesNotExist:
+      # continue to show customization form
+      pass
+
+  form = CustomizeOrderForm(request.POST or None)
+  if form.is_valid():
+    custom = form.save(commit=False)
+    if u.is_authenticated():
+      custom.user = u
+    custom.save()
+    return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
+      
+  form.initial = {'wine_mix': 0, 'sparkling': 0}
+  data['form'] = form
+  return render_to_response("main/customize_checkout.html", data, context_instance=RequestContext(request))
+
+@login_required
+def place_order(request):
+  """
+    This page allows you to review the order and finalize the order
+ 
+    Credit card will also be charged
   """
   data = {}
-  return render_to_response("main/checkout.html", data, context_instance=RequestContext(request))
+  u = request.user
+
+  data["your_personality"] = "Moxie"
+  
+  if 'cart' in request.session:
+    cart = Cart.objects.get(id=request.session['cart'])
+    data["orders"] = cart.orders.all()
+    data["cart" ] = cart
+
+    profile = u.get_profile()
+    card = profile.credit_cards.all()[0]
+    data["credit_card"] = card 
+
+    if request.method == "POST": 
+      order_id = str(uuid.uuid4())
+      try:
+        order = Order.objects.get(cart=cart)
+        order.order_id = order_id 
+        if u.is_authenticated():
+          order.user = u
+        order.save()
+      except Order.DoesNotExist:
+        order = Order(user=u, order_id=order_id, cart=cart)
+        order.save()
+      data["order"] = order
+
+      # save cart to order
+      return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
+
+    return render_to_response("main/place_order.html", data, context_instance=RequestContext(request))
+  else:
+    messages.error(request, 'Your session expired, please start ordering again.')
+    return HttpResponseRedirect(reverse("start_order"))
+
+@login_required
+def order_complete(request, order_id):
+
+  data = {}
+
+  u = request.user
+
+  try:
+    order = Order.objects.get(user=u, order_id=order_id)
+  except Order.DoesNotExist:
+    raise Http404
+
+  data["order"] = order
+
+  cart = Cart.objects.get(id=request.session['cart'])
+  data["cart"] = cart
+  data["orders"] = cart.orders.all()
+
+  profile = u.get_profile()
+  card = profile.credit_cards.all()[0]
+  data["credit_card"] = card 
+
+  return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
+
+@login_required
+def order_history(request):
+
+  data = {}
+  return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
 @login_required
 def view_orders(request):
@@ -256,28 +490,6 @@ def parties(request):
 
   return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
 
-def signup_party_specialist(request):
-
-  data = {}
-  
-  form = PartySpecialistSignupForm(request.POST or None)
-
-  data["form"] = form
-
-  return render_to_response("main/signup_party_specialist.html", data, context_instance=RequestContext(request))
-
-def signup_party_attendee(request):
-
-  data = {}
-
-  return render_to_response("main/signup_party_attendee.html", data, context_instance=RequestContext(request))
-
-def signup_party_host(request):
-
-  data = {}
-
-  return render_to_response("main/signup_party_host.html", data, context_instance=RequestContext(request))
-
 @login_required
 def tag(request):
   """ 
@@ -396,8 +608,6 @@ def party_attendee_invite(request, party_id=0):
   """
   data = {}
 
-
-
   u = request.user
 
   party = None
@@ -507,6 +717,29 @@ def all_orders(request):
   return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
 
 @login_required
+def edit_credit_card(request):
+  """
+    - Update or add credit card information
+
+    Assume that user is authenticated
+  """
+  data = {}
+  u = request.user
+
+  form = PaymentForm(request.POST or None)
+  #form = CreditCardForm(request.POST or None)
+  if form.is_valid():
+    new_card = form.save()
+    # save the card to user
+    profile = u.get_profile()
+    profile.credit_cards.add(new_card)
+    return HttpResponseRedirect(reverse("place_order"))
+
+  data['form'] = form
+
+  return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
+
+@login_required
 def edit_subscription(request):
   """
     Update one's subscription's
@@ -518,4 +751,59 @@ def edit_subscription(request):
   data = {}
 
   return render_to_response("main/edit_subscription.html", data, context_instance=RequestContext(request))
+
+def edit_shipping_address(request):
+  """
+    - Update or add shipping address
+  """
+  data = {}
+
+  # prepopulate with shipping address
+
+  u = request.user
+
+  if u.is_anonymous():
+    form = ShippingForm(request.POST or None)
+  else:
+    form = ShippingForm(request.POST or None, instance=u)
+
+  if form.is_valid():
+    user = form.save()
+    if not user.is_active: 
+      role = Group.objects.get(name="Attendee")
+      user.groups.add(Group.objects.get(name=role))
+
+      # new user created so authenticate
+      temp_password = User.objects.make_random_password()
+      user.set_password(temp_password)
+      user.save()
+
+      verification_code = str(uuid.uuid4())
+      vque = VerificationQueue(user=user, verification_code=verification_code)
+      vque.save()
+
+      # send out verification e-mail, create a verification code
+      send_verification_email(request, verification_code, temp_password, user.email)
+
+      if not u.is_authenticated():
+        user = authenticate(email=user.email, password=temp_password)
+
+        # return authenticated user
+        if user is not None:
+          login(request, user)
+        else:
+          raise Http404
+
+    return HttpResponseRedirect(reverse("edit_credit_card"))
+
+  if u.is_authenticated():
+    if u.get_profile().shipping_addresses.all().count() > 0:
+      form.fields['shipping_addresses'] = forms.ChoiceField()
+      form.fields['shipping_addresses'].widget.queryset = u.get_profile().shipping_addresses.all()
+    form.initial = {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'phone': u.get_profile().phone}
+
+  data['form'] = form
+
+  return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
+
 

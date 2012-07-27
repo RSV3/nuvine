@@ -98,7 +98,7 @@ SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+#    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'personality',
     'accounts',
+    'sorl.thumbnail',
     'main',
     'winedora',
     'south',
@@ -165,6 +166,7 @@ else:
   EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
   EMAIL_USE_TLS = True
 
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

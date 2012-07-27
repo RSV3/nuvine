@@ -8,19 +8,43 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'MyHosts'
-        db.create_table('main_myhosts', (
+        # Adding model 'Product'
+        db.create_table('main_product', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('specialist', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_hosts', to=orm['auth.User'])),
-            ('host', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_specialist', to=orm['auth.User'])),
-            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('category', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('description', self.gf('django.db.models.fields.CharField')(max_length=512)),
+            ('unit_price', self.gf('django.db.models.fields.DecimalField')(default=0.0, max_digits=10, decimal_places=2)),
+            ('image', self.gf('sorl.thumbnail.fields.ImageField')(max_length=100)),
         ))
-        db.send_create_signal('main', ['MyHosts'])
+        db.send_create_signal('main', ['Product'])
+
+        # Deleting field 'LineItem.name'
+        db.delete_column('main_lineitem', 'name')
+
+        # Deleting field 'LineItem.unit_price'
+        db.delete_column('main_lineitem', 'unit_price')
+
+        # Adding field 'LineItem.product'
+        db.add_column('main_lineitem', 'product',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Product'], null=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'MyHosts'
-        db.delete_table('main_myhosts')
+        # Deleting model 'Product'
+        db.delete_table('main_product')
+
+
+        # User chose to not deal with backwards NULL issues for 'LineItem.name'
+        raise RuntimeError("Cannot reverse this migration. 'LineItem.name' and its values cannot be restored.")
+        # Adding field 'LineItem.unit_price'
+        db.add_column('main_lineitem', 'unit_price',
+                      self.gf('django.db.models.fields.DecimalField')(default=0.0, max_digits=10, decimal_places=2),
+                      keep_default=False)
+
+        # Deleting field 'LineItem.product'
+        db.delete_column('main_lineitem', 'product_id')
 
 
     models = {
@@ -95,12 +119,12 @@ class Migration(SchemaMigration):
         },
         'main.lineitem': {
             'Meta': {'object_name': 'LineItem'},
+            'frequency': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'price_category': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'quantity': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'total_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'}),
-            'unit_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'})
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Product']", 'null': 'True'}),
+            'quantity': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'total_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'})
         },
         'main.myhosts': {
             'Meta': {'object_name': 'MyHosts'},
@@ -112,11 +136,16 @@ class Migration(SchemaMigration):
         'main.order': {
             'Meta': {'object_name': 'Order'},
             'cart': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Cart']", 'unique': 'True'}),
-            'frequency': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'order_id': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'main.orderfulfilled': {
+            'Meta': {'object_name': 'OrderFulfilled'},
+            'fulfilled_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Order']"})
         },
         'main.orderreview': {
             'Meta': {'object_name': 'OrderReview'},
@@ -143,6 +172,15 @@ class Migration(SchemaMigration):
             'invitee': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'})
+        },
+        'main.product': {
+            'Meta': {'object_name': 'Product'},
+            'category': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '512'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'image': ('sorl.thumbnail.fields.ImageField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'unit_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'})
         },
         'personality.wine': {
             'Meta': {'object_name': 'Wine'},

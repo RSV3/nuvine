@@ -1,7 +1,10 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load currency %}
+{% load thumbnail %}
+
 {% block header %}
-  <h1>Order Completed</h1>
+  <h1>Your Order has been Submitted</h1>
 {% endblock header %}
 
 {% block content %}
@@ -11,32 +14,91 @@
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Your order has been completed.  Return to <a href="{% url home_page %}">Home Page</a>.
+      Your order can be tracked in <a href="{% url order_history %}">Order History</a>
     </div>
   </div>
+
+  <section id="order-summary">
+  <div class="row">
+    {# Need to check for permissions whether this is a party specialist #}
+    <div class="span3 well">
+      <p><h3>Order Information</h3></p>
+      <p>Order #: {{ order.order_id}}</p>
+      <p>Order Date: {{ order.order_date|date}}</p>
+      <p>&nbsp;</p>
+      <p><h3>Shipping Information</h3></p>
+      <address>
+        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>{{ user.shipping_address.steet1 }}</p>
+        {% if user.shipping_address.street2 %}
+        <p>{{ user.shipping_address.steet2 }}</p>
+        {% endif %}
+        <p>{{ user.shipping_address.city }}, {{ user.shipping_address.state }} {{ user.shipping_address.zipcode }}</p>
+      </address>
+      <p></p>
+      <p><h3>Billing Information</h3></p>
+      <p></p>
+      <p>Credit card ending in {{ credit_card.last_four }}</p>
+      <p>Exp Date: {{ credit_card.exp_date }}</p>
+    </div>
+    <div class="span8">
+      <div class="row">
+        <div class="span8">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for item in orders %}
+            <tr>
+              <td>
+                <div class="cart-item">
+                  <div class="cart-item-image">
+                  {% thumbnail item.product.image "100x100" format="PNG" as im %}
+                    <img src="{{ im.url }}"/>
+                  {% endthumbnail %}
+                  </div>
+                  <div class="cart-item-name">
+                    {{ item.product.name }} (Vinely product ID: {{ item.product.id }})
+                  </div>
+                </div>
+              </td>
+              <td>{{ item.quantity_str }}</td>
+              <td>{{ item.subtotal|currency }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="span6">
+          &nbsp;
+        </div>
+        <div class="span2 pull-right">
+          <p>Subtotal: {{ cart.subtotal|currency }}</p>
+          <p>Shipping: {{ cart.shipping|currency }}</p>
+          <p>Tax: {{ cart.tax|currency }}</p>
+          <p><b>Total: {{ cart.total|currency }}</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
 
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Display Good, Better and Best 
-    </div>
-  </div>
-
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Select frequency of subscription 
-      - Monthly
-      - Bi-monthly
-      - Quarterly
-      - One-Time
-    </div>
-  </div>
-
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Complete Order - After completing order show confirmation page
+      <div class="form-actions">
+        <div class="pull-right">
+          <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

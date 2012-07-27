@@ -1,0 +1,84 @@
+{% extends "winedora/base_html5.html" %}
+ 
+{% load currency %}
+{% load thumbnail %}
+
+{% block header %}
+  <h1>Shop for Wine</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container">
+
+  <section id="product-item-info">
+    <div class="row">
+      {# Need to check for permissions whether this is a party specialist #}
+
+      <div class="span6">
+        <!--<img height="500" src="{{ product.image.url }}">-->
+        {% thumbnail product.image "400" as im %}
+          <img height="400" src="{{ im.url }}" /> 
+        {% endthumbnail %}
+      </div>
+
+      <div class="span6">
+        <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
+          {% csrf_token %}
+          {{ form.product }}
+          <p><h3>{{ product.name }}</h3></p>
+          <p>{{ product.description }}</p>
+          <div class="control-group {% if form.quantity.errors %}error{% endif %}">
+            <div class="control-label" for="id_quantity">{{ form.quantity.label }}</div>
+            <div class="controls">
+              {{ form.quantity }} 
+              {% if form.quantity.errors %}
+                <span class="help-inline">
+                  {{ form.quantity.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <p></p>
+          <p><h3>Here's our recommendation</h3></p>
+          <dl class="dl-horizontal">
+            <dt>Monthly: </dt>
+            <dd>You drink between x and y bottles per week</dd>
+            <dt>Bi-Monthly: </dt>
+            <dd>You drink between x and y bottles per week</dd>
+            <dt>Quarterly: </dt>
+            <dd>You drink between x and y bottles per week</dd>
+          </dl>
+          <p>
+          <p>
+          <p></p>
+          <div class="control-group {% if form.frequency.errors %}error{% endif %}">
+            <div class="control-label" for="id_frequency">{{ form.frequency.label }}</div>
+            <div class="controls">
+              {{ form.frequency }} 
+              {% if form.frequency.errors %}
+                <span class="help-inline">
+                  {{ form.frequency.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <p>&nbsp;</p>
+          <div class="download">
+          </div>
+          <p><b>Unit Price:</b> {{ product.unit_price|currency }}</p>
+          {{ form.total_price }}
+          <div class="form-actions">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary">Add to Cart</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </section>    
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,110 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Order Wine: Billing</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="page-header">
+    Enter Credit Card Information 
+  </div>
+
+  <section id="billing-information">
+  <div class="row">
+    {# Need to check for permissions whether this is a party specialist #}
+    <div class="span12">
+      <form class="form-horizontal" method="POST" action="{% url edit_credit_card %}">
+        {% csrf_token %}
+
+        {{ form.errors }}
+        <fieldset>
+        <div class="control-group{% if form.card_number.errors %} error{% endif %}">
+          <div class="control-label" for="id_card_number">{{ form.card_number.label }}</div>
+          <div class="controls">
+            {{ form.card_number}} 
+            {% if form.card_number.errors %}
+              <span class="help-inline">
+                {{ form.card_number.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.exp_month.errors %} error{% endif %}">
+          <div class="control-label" for="id_exp_month">{{ form.exp_month.label }}</div>
+          <div class="controls">
+            {{ form.exp_month}} {{ form.exp_year }}
+            {% if form.exp_month.errors %}
+              <span class="help-inline">
+                {{ form.exp_month.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.expiry_date.errors %} error{% endif %}">
+          <div class="control-label" for="id_expiry_date">{{ form.expiry_date.label }}</div>
+          <div class="controls">
+            {{ form.expiry_date}} 
+            {% if form.expiry_date.errors %}
+              <span class="help-inline">
+                {{ form.expiry_date.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.verification_code.errors %} error{% endif %}">
+          <div class="control-label" for="id_verification_code">{{ form.verification_code.label }}</div>
+          <div class="controls">
+            {{ form.verification_code}} 
+            {% if form.verification_code.errors %}
+              <span class="help-inline">
+                {{ form.verification_code.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.billing_zipcode.errors %} error{% endif %}">
+          <div class="control-label" for="id_billing_zipcode">{{ form.billing_zipcode.label }}</div>
+          <div class="controls">
+            {{ form.billing_zipcode}} 
+            {% if form.billing_zipcode.errors %}
+              <span class="help-inline">
+                {{ form.billing_zipcode.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.save_card.errors %} error{% endif %}">
+          <div class="controls">
+            <label class="checkbox">
+            {{ form.save_card}} 
+            {{ form.save_card.label }}
+            {% if form.save_card.errors %}
+              <span class="help-inline">
+                {{ form.save_card.errors }}
+              </span>
+            {% endif %}
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <input class="btn btn-primary" type="submit" value="Place Order">
+        </div>
+        </fieldset>
+
+      </form>
+    </div>
+  </div>
+  </section>
+
+</div>
+
+{% endblock %}
+

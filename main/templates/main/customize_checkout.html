@@ -1,0 +1,67 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    ul {
+      list-style-type:none;
+    }
+
+  </style>
+{% endblock %}
+
+{% block header %}
+  <h1>Checkout: Customize your order</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="customize-questions">
+  <div class="row">
+    {# Need to check for permissions whether this is a party specialist #}
+    <div class="span12">
+      <form action="{% url customize_checkout %}" method="POST">
+        {% csrf_token %}
+        {{ form.user }}
+        <div class="control-group {% if form.wine_mix.errors %}error{% endif %}">
+          <div class="control-label" for="id_wine_mix">{{ form.wine_mix.label }}</div>
+          <div class="controls">
+            <div><p></p></div>
+            {{ form.wine_mix}} 
+            {% if form.wine_mix.errors %}
+              <span class="help-inline">
+                {{ form.wine_mix.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="download">
+          <p>
+          &nbsp;
+          </p>
+        </div>
+        <div class="control-group {% if form.sparkling.errors %}error{% endif %}">
+          <div class="control-label" for="id_sparkling">{{ form.sparkling.label }}</div>
+          <div class="controls">
+            <div><p></p></div>
+            {{ form.sparkling }} 
+            {% if form.sparkling.errors %}
+              <span class="help-inline">
+                {{ form.sparkling.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="form-actions">
+          <input class="btn btn-primary" type="submit" value="Next">
+        </div>
+      </form>
+    </div>
+  </div>
+  </section>
+
+</div>
+
+{% endblock %}
+

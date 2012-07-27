@@ -64,7 +64,7 @@ class Migration(SchemaMigration):
         # Adding model 'Cart'
         db.create_table('main_cart', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal('main', ['Cart'])
@@ -85,8 +85,6 @@ class Migration(SchemaMigration):
             ('cart', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Cart'], unique=True)),
             ('frequency', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('order_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('fulfilled', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('fulfilled_date', self.gf('django.db.models.fields.DateTimeField')()),
         ))
         db.send_create_signal('main', ['Order'])
 
@@ -182,7 +180,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'orders': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.LineItem']", 'symmetrical': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
         },
         'main.contactreason': {
             'Meta': {'object_name': 'ContactReason'},
@@ -213,8 +211,6 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Order'},
             'cart': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Cart']", 'unique': 'True'}),
             'frequency': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'fulfilled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'fulfilled_date': ('django.db.models.fields.DateTimeField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'order_id': ('django.db.models.fields.CharField', [], {'max_length': '128'}),

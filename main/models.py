@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from accounts.models import Address
 from personality.models import WineRatingData
+from sorl.thumbnail import ImageField
 
 from datetime import date, datetime, timedelta
 
@@ -67,6 +68,23 @@ class PartyInvite(models.Model):
   invitee = models.ForeignKey(User)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
 
+class Product(models.Model):
+  PRODUCT_TYPE = (
+      (0, 'Tasting Kit'),
+      (1, 'Wine Package'),
+      (2, 'Wine Bottle'),
+  )
+
+  name = models.CharField(max_length=128)
+  category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
+  description = models.CharField(max_length=512)
+  unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  image = ImageField(upload_to="products/")
+  cart_tag = models.CharField(max_length=64, default="x")
+  active = models.BooleanField(default=True)
+  # when it was last added 
+  timestamp = models.DateTimeField(auto_now_add=True)
+
 class LineItem(models.Model):
 
   PRICE_TYPE = (
@@ -75,52 +93,81 @@ class LineItem(models.Model):
       (2, 'Sales Tax'),
       (3, 'Shipping'),
       (4, 'Discount'),
-      (5, 'Good: 6 bottles'),
-      (6, 'Good: 12 bottles'),
-      (7, 'Better: 6 bottles'),
-      (8, 'Better: 12 bottles'),
-      (9, 'Best: 6 bottles'),
-      (10, 'Best: 12 bottles'),
+      (5, 'Good: 12 bottles'),
+      (6, 'Good: 6 bottles'),
+      (7, 'Better: 12 bottles'),
+      (8, 'Better: 6 bottles'),
+      (9, 'Best: 12 bottles'),
+      (10, 'Best: 6 bottles'),
+      (11, 'Host Tasting Kit'),
   )
 
-  name = models.CharField(max_length=64)
-  quantity = models.IntegerField(default=0)
+  FREQUENCY_CHOICES = (
+      (0, 'One-time purchase'),
+      (1, 'Monthly'),
+      (2, 'Bi-monthly'),
+      (3, 'Quarterly'),
+  )
+
+  product = models.ForeignKey(Product, null=True)
+  sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE[0][0])
-  unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  quantity = models.IntegerField(default=1)
+  frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=1)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+  def subtotal(self):
+    return self.quantity*self.product.unit_price
+
+  def quantity_str(self):
+    if self.price_category in [5,6,7,8,9,10]:
+      return "Full Case" if self.quantity == 1 else "Half Case"
+    else:
+      return str(self.quantity)
 
 class Cart(models.Model):
   """
     All orders added up
   """
-  user = models.ForeignKey(User)
+  user = models.ForeignKey(User, null=True)
   orders = models.ManyToManyField(LineItem)
   updated = models.DateTimeField(auto_now=True)
+
+  def subtotal(self):
+    # sum of all line items
+    price_sum = 0 
+    for o in self.orders.all():
+      price_sum += o.quantity*o.total_price
+    return price_sum 
+
+  def shipping(self):
+    return 16 
+
+  def tax(self):
+    return 22
+
+  def total(self):
+    return 1525
+
 
 class Order(models.Model):
   """
     An order is created when a user finally pays for the order
-  """
-  FREQUENCY_CHOICES = (
-      (0, 'Monthly'),
-      (1, 'Bi-monthly'),
-      (2, 'Quarterly'),
-      (3, 'One-time purchase')
-  )
 
+    The orders also indicate how frequently it will be fulfilled
+  """
   user = models.ForeignKey(User)
   # unique order id
   order_id = models.CharField(max_length=128) 
   cart = models.OneToOneField(Cart)
-  frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=0)
   order_date = models.DateTimeField(auto_now_add=True)
-  fulfilled = models.BooleanField(default=False)
-  fulfilled_date = models.DateTimeField()
 
-  def fulfill_order(self):
-    self.fulfilled = True
-    self.fulfilled_date = datetime.today()
-    self.save()
+class OrderFulfilled(models.Model):
+  """
+    Every time an order is fulfilled it is logged here
+  """
+  order = models.ForeignKey(Order)
+  fulfilled_date = models.DateTimeField(auto_now_add=True)
 
 class OrderReview(models.Model):
   """
@@ -142,3 +189,22 @@ class MyHosts(models.Model):
 
   def __unicode__(self):
     return "%s - %s"%(specialist, host)
+
+class CustomizeOrder(models.Model):
+  user = models.ForeignKey(User, null=True)
+
+  MIX_CHOICES = (
+      ( 0, 'Send me a mix of red & white wine'),
+      ( 1, 'Send me red wine only'),
+      ( 2, 'Send me white wine only')
+  )
+
+  wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.")
+
+  SPARKLING_CHOICES = (
+      ( 0, 'No' ),
+      ( 1, 'Yes' )
+  )
+
+  sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?")
+  timestamp = models.DateTimeField(auto_now_add=True)

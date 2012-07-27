@@ -8,19 +8,34 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'MyHosts'
-        db.create_table('main_myhosts', (
+        # Adding model 'OrderFulfilled'
+        db.create_table('main_orderfulfilled', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('specialist', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_hosts', to=orm['auth.User'])),
-            ('host', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_specialist', to=orm['auth.User'])),
-            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('order', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Order'])),
+            ('fulfilled_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
-        db.send_create_signal('main', ['MyHosts'])
+        db.send_create_signal('main', ['OrderFulfilled'])
+
+        # Adding field 'LineItem.frequency'
+        db.add_column('main_lineitem', 'frequency',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
+
+        # Deleting field 'Order.frequency'
+        db.delete_column('main_order', 'frequency')
 
 
     def backwards(self, orm):
-        # Deleting model 'MyHosts'
-        db.delete_table('main_myhosts')
+        # Deleting model 'OrderFulfilled'
+        db.delete_table('main_orderfulfilled')
+
+        # Deleting field 'LineItem.frequency'
+        db.delete_column('main_lineitem', 'frequency')
+
+        # Adding field 'Order.frequency'
+        db.add_column('main_order', 'frequency',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
 
 
     models = {
@@ -95,6 +110,7 @@ class Migration(SchemaMigration):
         },
         'main.lineitem': {
             'Meta': {'object_name': 'LineItem'},
+            'frequency': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'price_category': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -112,11 +128,16 @@ class Migration(SchemaMigration):
         'main.order': {
             'Meta': {'object_name': 'Order'},
             'cart': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['main.Cart']", 'unique': 'True'}),
-            'frequency': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'order_id': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'main.orderfulfilled': {
+            'Meta': {'object_name': 'OrderFulfilled'},
+            'fulfilled_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Order']"})
         },
         'main.orderreview': {
             'Meta': {'object_name': 'OrderReview'},

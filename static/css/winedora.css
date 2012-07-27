@@ -1,3 +1,21 @@
 .uppercase {
   text-transform: uppercase;
 }
+
+.smaller {
+  font-size: 0.8em;
+}
+
+.cart-item-image {
+  float:left;
+}
+
+.cart-item-name {
+  padding-left: 140px;
+  padding-top: 20px;
+}
+
+.cart-sub-total {
+  padding-left: 100px;
+}
+

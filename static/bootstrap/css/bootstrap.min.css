@@ -91,7 +91,8 @@ li{line-height:1.3em;}
 ul.unstyled,ol.unstyled{margin-left:0;list-style:none;}
 dl{margin-bottom:1.3em;}
 dt,dd{line-height:1.3em;}
-dt{font-weight:bold;line-height:0.30000000000000004em;}
+/*dt{font-weight:bold;line-height:0.30000000000000004em;}*/
+dt{font-weight:bold;}
 dd{margin-left:0.65em;}
 .dl-horizontal dt{float:left;width:120px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .dl-horizontal dd{margin-left:130px;}

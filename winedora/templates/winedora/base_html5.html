@@ -75,7 +75,7 @@
             </a>
 
             <ul class="dropdown-menu">
-              <li><a href="{% url change_password %}">Settings</a></li>
+              <li><a href="{% url change_password %}">My Account</a></li>
               <li class="divider"></li>
               <li><a href="{% url logout %}">Sign Out</a></li>
             </ul>
@@ -90,7 +90,9 @@
 
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="{% url home_page %}">Home</a></li>
+              <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
+              <li><a href="{% url how_it_works %}">How it works</a></li>
+              <li><a href="{% url sign_up 4 %}">Join Us</a></li>
               <li><a href="{% url about %}">About</a></li>
               <li><a href="{% url contact_us %}">Contact</a></li>
             </ul>
@@ -99,7 +101,6 @@
         </div>
       </div>
     </div>
-
 
   <header>
     <div class="container">

@@ -29,6 +29,8 @@ class SimpleTest(TestCase):
     if not User.objects.filter(email="specialist1@example.com").exists():
       u = create_user("specialist1@example.com", "hello")
       u.groups.add(ps_group)
+      u.is_staff = True
+      u.save()
 
       u = create_user("specialist2@example.com", "hello")
       u.groups.add(ps_group)

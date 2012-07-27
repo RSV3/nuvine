@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, include, url
 from emailusernames.forms import EmailAuthenticationForm
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -19,4 +21,4 @@ urlpatterns = patterns('',
     url(r'^', include('main.urls')),
     url(r'^personality/', include('personality.urls')),
     url(r'^accounts/', include('accounts.urls')),
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

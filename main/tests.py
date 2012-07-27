@@ -8,9 +8,10 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.core.files import File
 from accounts.models import Address
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user, create_superuser
 
@@ -31,65 +32,67 @@ class SimpleTest(TestCase):
     att_group, created = Group.objects.get_or_create(name="Attendee")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
 
-    u = create_user("elizabeth@redstar.com", "egoede")
-    u.groups.add(ps_group)
+    if not User.objects.filter(email="specialist1@example.com").exists():
 
-    u = create_user("johnstecco@gmail.com", "jstecco")
-    u.groups.add(ps_group)
+      u = create_user("elizabeth@redstar.com", "egoede")
+      u.groups.add(ps_group)
 
-    u = create_user("specialist1@example.com", "hello")
-    u.groups.add(ps_group)
+      u = create_user("johnstecco@gmail.com", "jstecco")
+      u.groups.add(ps_group)
 
-    u = create_user("specialist2@example.com", "hello")
-    u.groups.add(ps_group)
+      u = create_user("specialist1@example.com", "hello")
+      u.groups.add(ps_group)
 
-    u = create_user("host1@example.com", "hello")
-    u.groups.add(ph_group)
+      u = create_user("specialist2@example.com", "hello")
+      u.groups.add(ps_group)
 
-    u = create_user("host2@example.com", "hello")
-    u.groups.add(ph_group)
+      u = create_user("host1@example.com", "hello")
+      u.groups.add(ph_group)
 
-    u = create_user("host3@example.com", "hello")
-    u.groups.add(ph_group)
+      u = create_user("host2@example.com", "hello")
+      u.groups.add(ph_group)
 
-    u = create_user("attendee1@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("host3@example.com", "hello")
+      u.groups.add(ph_group)
 
-    u = create_user("attendee2@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee1@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee3@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee2@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee4@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee3@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee5@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee4@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee6@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee5@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee7@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee6@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee8@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee7@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("attendee9@example.com", "hello")
-    u.groups.add(att_group)
+      u = create_user("attendee8@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("supplier1@example.com", "hello")
-    u.groups.add(supp_group)
+      u = create_user("attendee9@example.com", "hello")
+      u.groups.add(att_group)
 
-    u = create_user("supplier2@example.com", "hello")
-    u.groups.add(supp_group)
+      u = create_user("supplier1@example.com", "hello")
+      u.groups.add(supp_group)
 
-    suppliers = User.objects.filter(groups=supp_group)
-    self.assertEqual(suppliers.count(), 2)
+      u = create_user("supplier2@example.com", "hello")
+      u.groups.add(supp_group)
 
-    attendees = User.objects.filter(groups=att_group)
-    self.assertEqual(attendees.count(), 9)
+      suppliers = User.objects.filter(groups=supp_group)
+      self.assertEqual(suppliers.count(), 2)
+
+      attendees = User.objects.filter(groups=att_group)
+      self.assertEqual(attendees.count(), 9)
 
   def create_wine_personalities(self):
     WinePersonality.objects.get_or_create(name="Easy Going",
@@ -231,7 +234,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party1 = Party.objects.create(host=host1, name="John's party", description="Wine party on a sizzling hot day",
+    party1 = Party.objects.create(host=host1, title="John's party", description="Wine party on a sizzling hot day",
                               address=address1, event_date=datetime.today()+timedelta(days=10))
 
     host2 = User.objects.get(email="host2@example.com")
@@ -242,7 +245,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party2 = Party.objects.create(host=host2, name="Mary's party", description="Wine party in the garden",
+    party2 = Party.objects.create(host=host2, title="Mary's party", description="Wine party in the garden",
                               address=address2, event_date=datetime.today()+timedelta(days=15))
 
     # invite people
@@ -388,6 +391,60 @@ class SimpleTest(TestCase):
 
   def test_attendee_rating_order(self):
     pass
+
+  def test_product_ordering(self):
+
+    f = open("data/tasting-kit.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Host Tasting Kit",
+                                  description="Host a party or understand your tastes",
+                                  unit_price=99.99,
+                                  category=Product.PRODUCT_TYPE[0][0],
+                                  cart_tag="tasting_kit")
+    self.assertEqual(created, True)
+    p.image = File(f)
+    p.save()
+    f.close()
+
+
+    f = open("data/good.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Good Level Name",
+                                  description="Good set of wines for good people",
+                                  unit_price=99.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="good")
+    p.image = File(f)
+    p.save()
+    f.close()
+
+    f = open("data/better.png", 'r')
+    p, created = Product.objects.get_or_create(name="Better Level Name",
+                                  description="Better set of wines for better people",
+                                  unit_price=199.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="better")
+    p.image = File(f)
+    p.save()
+    f.close()
+
+    f = open("data/best.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Best Level Name",
+                                  description="Best set of wines for best people",
+                                  unit_price=249.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="best")
+    p.image = File(f)
+    p.save()
+    f.close()
+
+    """
+    response = self.client.get(reverse("main.views.cart_add_tasting_kit"))
+    self.assertEquals(response.status, 200)
+
+    response = self.client.post(reverse("main.views.cart_add_tasting_kit"), { "product": 1,
+                                                                              "quantity": 2,
+                                                                              "total_price": 100})
+    self.assertRedirects(response, reverse("main.views.cart"))
+    """
 
   def test_basic_addition(self):
     """

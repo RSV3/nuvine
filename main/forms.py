@@ -1,17 +1,31 @@
 from django import forms
 from django.contrib.auth.models import User, Group
-from emailusernames.utils import create_user, create_superuser
-from main.models import Party, PartyInvite, ContactRequest
-from accounts.models import Address
+from django.contrib.localflavor.us import forms as us_forms
+from django.contrib.localflavor.us import us_states
 
+from emailusernames.utils import create_user, create_superuser
 from emailusernames.forms import EmailUserCreationForm
+
+from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder
+from accounts.models import Address, CreditCard
+from creditcard.fields import *
+
+import uuid
+
+
+valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 
 class ContactRequestForm(forms.ModelForm):
 
+  zipcode = us_forms.USZipCodeField()
+
+  def __init__(self, *args, **kwargs):
+    super(ContactRequestForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].widget.attrs['placeholder'] = 'First name'
+    self.fields['last_name'].widget.attrs['placeholder'] = 'Last name'
+
   class Meta:
     model = ContactRequest
-
-valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 
 class PartyCreateForm(forms.ModelForm):
 
@@ -23,7 +37,7 @@ class PartyCreateForm(forms.ModelForm):
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
   city = forms.CharField(label="City", max_length=64, required=False)
   state = forms.CharField(max_length=10, required=False)
-  zipcode = forms.CharField(max_length=20, required=False)
+  zipcode = us_forms.USZipCodeField(required=False)
 
   event_day = forms.DateField(label="Event date")
   event_time = forms.TimeField(input_formats=valid_time_formats)
@@ -147,11 +161,11 @@ class PartySpecialistSignupForm(EmailUserCreationForm):
 
   phone = forms.CharField(max_length=16)
 
-  street1 = forms.CharField(label="Street 1", max_length=128, required=False)
-  street2 = forms.CharField(label="Street 2", max_length=128, required=False)
+  street1 = forms.CharField(label="Address 1", max_length=128, required=False)
+  street2 = forms.CharField(label="Address 2", max_length=128, required=False)
   city = forms.CharField(label="City", max_length=64, required=False)
   state = forms.CharField(max_length=10, required=False)
-  zipcode = forms.CharField(max_length=20, required=False)
+  zipcode = us_forms.USZipCodeField(required=False)
 
   def __init__(self, *args, **kwargs):
     super(PartySpecialistSignupForm, self).__init__(*args, **kwargs)
@@ -166,7 +180,7 @@ class PartySpecialistSignupForm(EmailUserCreationForm):
     return stripped_phone
 
   def save(self, commit=True):
-    instance = super(PartySpecialistSignUpForm, self).save()
+    instance = super(PartySpecialistSignUpForm, self).save(commit)
 
     try:
       address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
@@ -178,5 +192,177 @@ class PartySpecialistSignupForm(EmailUserCreationForm):
                         zipcode=cleaned_data['zipcode'])
       address.save()
 
+    return instance
 
 
+class AddWineToCartForm(forms.ModelForm):
+  level = forms.CharField(widget=forms.HiddenInput)
+
+  def __init__(self, *args, **kwargs):
+    super(AddWineToCartForm, self).__init__(*args, **kwargs)
+    self.fields['quantity'].widget = forms.Select() 
+    self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')] 
+    self.fields['product'].widget = forms.HiddenInput()
+    self.fields['total_price'].widget = forms.HiddenInput()
+
+  class Meta:
+    model = LineItem 
+    exclude = ['sku']
+
+  def clean(self):
+    cleaned_data = super(AddWineToCartForm, self).clean()
+
+    quantity = int(cleaned_data['quantity'])
+    if cleaned_data['level'] == "good":
+      if quantity == 1:
+        price_category = 5
+      elif quantity == 2:
+        price_category = 6
+    elif cleaned_data['level'] == "better":
+      if quantity == 1:
+        price_category = 7
+      elif quantity == 2:
+        price_category = 8
+    elif cleaned_data['level'] == "best":
+      if quantity == 1:
+        price_category = 9 
+      elif quantity == 2:
+        price_category = 10 
+      
+    cleaned_data['price_category'] = price_category
+    del self._errors['price_category']
+
+    return cleaned_data
+
+class AddTastingKitToCartForm(forms.ModelForm):
+
+  def __init__(self, *args, **kwargs):
+    super(AddTastingKitToCartForm, self).__init__(*args, **kwargs)
+    self.fields['product'].widget = forms.HiddenInput()
+    self.fields['total_price'].widget = forms.HiddenInput()
+    self.fields['quantity'].widget = forms.Select() 
+    self.fields['quantity'].widget.choices = [(1, 1), (2, 2), (3, 3)] 
+
+  class Meta:
+    model = LineItem 
+    exclude = ['price_category', 'frequency']
+
+  def clean(self):
+    cleaned_data = super(AddTastingKitToCartForm, self).clean()
+    cleaned_data['price_category'] = 11 
+
+    return cleaned_data
+
+class CustomizeOrderForm(forms.ModelForm):
+
+  def __init__(self, *args, **kwargs):
+    super(CustomizeOrderForm, self).__init__(*args, **kwargs)
+    self.fields['wine_mix'].widget = forms.RadioSelect(choices=CustomizeOrder.MIX_CHOICES)
+    self.fields['sparkling'].widget = forms.RadioSelect(choices=CustomizeOrder.SPARKLING_CHOICES)
+
+  class Meta:
+    model = CustomizeOrder
+    exclude = ['user', 'timestamp']
+
+class ShippingForm(forms.ModelForm):
+
+  first_name = forms.CharField(max_length=30, required=False)
+  last_name = forms.CharField(max_length=30, required=False)
+
+  address1 = forms.CharField(label="Address 1", max_length=128)
+  address2 = forms.CharField(label="Address 2", max_length=128, required=False)
+  company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
+  city = forms.CharField(label="City", max_length=64, required=False)
+  state = us_forms.USStateField() #choices=us_states.STATE_CHOICES)
+  zipcode = us_forms.USZipCodeField()
+  phone = us_forms.USPhoneNumberField()
+  email = forms.EmailField()
+
+  news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", required=False)
+
+  class Meta:
+    model = User
+    exclude = ['username', 'password', 'last_login', 'date_joined']
+
+  def save(self, commit=True):
+    data = self.cleaned_data
+    try:
+      # existing user
+      user = User.objects.get(email=data['email'].lower())
+      # save address
+    except User.DoesNotExist:
+      # create user if it doesn't exist
+      user = create_user(email=data['email'].lower(), password='welcome')
+      user.is_active = False 
+      user.first_name = data['first_name']
+      user.last_name = data['last_name']
+      user.save()
+
+    new_shipping = Address( street1 = data['address1'],
+                          street2 = data['address2'],
+                          city = data['city'],
+                          state = data['state'],
+                          zipcode = data['zipcode'])
+    if data['company_co']:
+      new_shipping.company_co = data['company_co']
+
+    new_shipping.save()
+
+    profile = user.get_profile()
+    profile.shipping_address = new_shipping
+    profile.shipping_addresses.add(new_shipping)
+    profile.news_optin = data['news_optin']
+    profile.save()
+
+    return user
+
+class CreditCardForm(forms.ModelForm):
+  card_number = CreditCardField(required=True)
+  expiry_date = ExpiryDateField(required=True)
+  verification_code = VerificationValueField(required=True)
+  billing_zipcode = us_forms.USZipCodeField()
+  save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+
+  class Meta:
+    model = CreditCard
+
+class PaymentForm(forms.ModelForm):
+  card_number = CreditCardField(required = True, label = "Card Number")
+  exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)])
+  exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
+  verification_code = forms.IntegerField(required = True, label = "CVV Number",
+      max_value = 9999, widget = forms.TextInput(attrs={'size': '4'}))
+  billing_zipcode = us_forms.USZipCodeField()
+  save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+
+  class Meta:
+    model = CreditCard
+
+  def __init__(self, *args, **kwargs):
+    self.payment_data = kwargs.pop('payment_data', None)
+    super(PaymentForm, self).__init__(*args, **kwargs)
+ 
+  def clean(self):
+    cleaned_data = super(PaymentForm, self).clean()
+    exp_month = cleaned_data.get('exp_month')
+    exp_year = cleaned_data.get('exp_year')
+
+    if exp_year in forms.fields.EMPTY_VALUES:
+      #raise forms.ValidationError("You must select a valid Expiration year.")
+      self._errors["exp_year"] = self.error_class(["You must select a valid Expiration year."])
+      del cleaned_data["exp_year"]
+    if exp_month in forms.fields.EMPTY_VALUES:
+      #raise forms.ValidationError("You must select a valid Expiration month.")
+      self._errors["exp_month"] = self.error_class(["You must select a valid Expiration month."])
+      del cleaned_data["exp_month"]
+    year = int(exp_year)
+    month = int(exp_month)
+    # find last day of the month
+    day = monthrange(year, month)[1]
+    expire = date(year, month, day)
+ 
+    if date.today() > expire:
+      #raise forms.ValidationError("The expiration date you entered is in the past.")
+      self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
+ 
+    return cleaned_data

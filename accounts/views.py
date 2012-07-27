@@ -63,6 +63,7 @@ def sign_up(request, account_type):
                           1 - party host
                           2 - party attendees
                           3 - supplier
+                          4 - tasting lead
   """
 
   data = {}

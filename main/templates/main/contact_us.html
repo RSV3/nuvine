@@ -36,18 +36,15 @@
       </div>
 
       <div class="control-group {% if form.first_name.errors %}error{% endif %}">
-        <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
+        <div class="control-label" for="id_email">Full name</div>
         <div class="controls">
           {{ form.first_name }} 
+          {{ form.last_name }} 
           {% if form.first_name.errors %}
             <span class="help-inline">
               {{ form.first_name.errors }}
             </span>
           {% endif %}
-        </div>
-        <div class="control-label" for="id_last_name">{{ form.last_name.label }}</div>
-        <div class="controls">
-          {{ form.last_name }} 
           {% if form.last_name.errors %}
             <span class="help-inline">
               {{ form.last_name.errors }}

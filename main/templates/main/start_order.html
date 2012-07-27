@@ -1,49 +1,45 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load currency %}
+{% load thumbnail %}
+
 {% block header %}
-  <h1>Order Wine</h1>
+  <h1>Shop for Wine</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
+  <section id="products">
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Please start ordering your wine choices 
+    {% for product in products %}
+    <div class="span4">
+      <center>
+        <a href="{% url cart_add_wine product.cart_tag %}">
+          <div class="product-wine">
+            <p>
+            {% thumbnail product.image "x250" as im %}
+            <img height="250" src="{{ im.url }}"/>
+            {% endthumbnail %}
+            </p>
+            <p></p>
+            <p>{{ product.name }} for {{ your_personality }}</p>
+            <p>{{ product.unit_price|currency }}</p>
+          </div>
+        </a>
+      </center>
     </div>
+    {% endfor %}
   </div>
+  </section>
 
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Display Good, Better and Best 
-    </div>
+  <div class="row download">
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
   </div>
-
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Select frequency of subscription 
-      - Monthly
-      - Bi-monthly
-      - Quarterly
-      - One-Time
-    </div>
-  </div>
-
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      Add to Cart or Checkout 
-      - If checkout, review order
-      - Add to card just adds to cart, notifies and allows one to add more
-      -
-    </div>
-  </div>
-
-
 
 </div>
 
