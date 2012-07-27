@@ -1,3 +1,12 @@
+Need to encrypt credit card number
+Need to show order history (from attendee)
+
+Need to show order history from party point of view (Host)
+Need to show order history from every host point of view (Party specialist)
+Need to show all order history (supplier)
+
+Need to send out invitations
+
 Need to lower case all e-mail uses
 
 
