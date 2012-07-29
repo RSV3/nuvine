@@ -5,7 +5,7 @@ winedora.test.db
 latest.dump
 .env
 emails
-sitemedia
+#sitemedia
 
 # Packages
 *.egg
