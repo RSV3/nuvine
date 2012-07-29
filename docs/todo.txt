@@ -3,24 +3,21 @@ Need to get static files served from s3 and also get the wine product images fro
 Need to show order history from party point of view (Host)
 Need to show order history from every host point of view (Party specialist)
 Need to show all order history (supplier)
-
 Need to send out invitations
 
-Need to lower case all e-mail uses
+Done: Need to lower case all e-mail uses
 
 Done: Need to be able to delete an item from cart
 Done: Need to encrypt credit card number
 Done: Need to show order history (from attendee)
 
 
-Need to allow party specialist to 
-
+Done: Need to allow party specialist to 
 - See parties
-
 - Add attendees to a party
-
 - See attendees of a party
 
+Need to also fill previous ratings when an e-mail matches an existing rating data
 - Enter ratings from a party page
   - when typing e-mail, it autocompletes and fills first name and last names also
 
@@ -28,6 +25,7 @@ Need to allow hosts to see their parties and invite attendees
 
 Need to allow attendees to change password
 
+Need to allow Paul to see attendees ratings
 
 Order management
 
