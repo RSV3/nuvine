@@ -29,6 +29,7 @@ psycopg2==2.4.5
 py2app==0.6.4
 pyOpenSSL==0.13
 pygraphviz==1.0
+pycrypto==2.6
 #pyobjc-core==2.3
 #pyobjc-framework-Cocoa==2.3
 pyparsing==1.5.6
