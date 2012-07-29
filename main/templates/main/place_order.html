@@ -19,10 +19,11 @@
             <th>Item</th>
             <th>Quantity</th>
             <th>Total</th>
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>
-          {% for item in orders %}
+          {% for item in items %}
           <tr>
             <td>
               <div class="cart-item">
@@ -38,6 +39,7 @@
             </td>
             <td>{{ item.quantity_str }}</td>
             <td>{{ item.subtotal|currency }}</td>
+            <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url place_order %}"><i class="icon-trash"></i></a></td> 
           </tr>
           {% endfor %}
         </tbody>
@@ -52,11 +54,11 @@
       <p><h3>Shipping Information</h3></p>
       <address>
         <p>{{ user.first_name }} {{ user.last_name }}</p>
-        <p>{{ user.shipping_address.steet1 }}</p>
-        {% if user.shipping_address.street2 %}
-        <p>{{ user.shipping_address.steet2 }}</p>
+        <p>{{ shipping_address.street1 }}</p>
+        {% if shipping_address.street2 %}
+        <p>{{ shipping_address.street2 }}</p>
         {% endif %}
-        <p>{{ user.shipping_address.city }}, {{ user.shipping_address.state }} {{ user.shipping_address.zipcode }}</p>
+        <p>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.zipcode }}</p>
         <p><a href="{% url edit_shipping_address %}">Edit</a></p>
       </address>
     </div>

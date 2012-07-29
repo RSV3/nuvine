@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.conf import settings
+from Crypto.Cipher import AES
+import binascii, string
 
 from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
@@ -33,10 +36,32 @@ class CreditCard(models.Model):
   billing_zipcode = models.CharField(max_length=5, help_text="5 digit zipcode")
 
   def last_four(self):
-    return self.card_number[-4:]
+    cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
+    card_cipher = binascii.unhexlify(self.card_number)
+    pad_number = cipher.decrypt(card_cipher)
+    card_num = string.strip(pad_number, 'X')
+    return card_num[-4:]
 
   def exp_date(self):
     return "%s/%s"%(self.exp_month, self.exp_year)
+
+  def encrypt_card_num(self, number):
+    """
+      saves card number
+    """
+    pad_number = string.ljust(str(number), 16, 'X')
+    cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
+    msg = cipher.encrypt(pad_number)
+    self.card_number = msg.encode('hex')
+
+  def decrypt_card_num(self, number=None):
+    cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
+    if number:
+      card_cipher = binascii.unhexlify(number)
+    else:
+      card_cipher = binascii.unhexlify(self.card_number)
+    pad_number = cipher.decrypt(card_cipher)
+    return string.strip(pad_number, 'X')
 
 class VerificationQueue(models.Model):
   user = models.ForeignKey(User)
@@ -57,10 +82,13 @@ class UserProfile(models.Model):
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
   wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
 
+  # for temporary storing during order checkout
   billing_address = models.ForeignKey(Address, null=True, related_name="billed_to")
   shipping_address = models.ForeignKey(Address, null=True, related_name="shipped_to")
+  credit_card = models.ForeignKey(CreditCard, null=True, related_name="owner")
 
-  credit_cards = models.ManyToManyField(CreditCard)
+  # for permanently storing for future
+  credit_cards = models.ManyToManyField(CreditCard, related_name="owned_by")
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user")
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user")
 

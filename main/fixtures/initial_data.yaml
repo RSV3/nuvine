@@ -1,1 +1,38 @@
-[{"pk": 1, "model": "main.contactreason", "fields": {"reason": "Interested in holding a party"}}, {"pk": 2, "model": "main.contactreason", "fields": {"reason": "Interested in becoming a party specialist"}}, {"pk": 3, "model": "main.contactreason", "fields": {"reason": "Interested in attending a party in my local area"}}, {"pk": 4, "model": "main.contactreason", "fields": {"reason": "Interested in finding more about Winedora"}}, {"pk": 5, "model": "main.contactreason", "fields": {"reason": "Send me any new updates"}}, {"pk": 6, "model": "main.contactreason", "fields": {"reason": "Other"}}, {"pk": 1, "model": "main.product", "fields": {"category": 0, "cart_tag": "x", "name": "Host Tasting Kit", "timestamp": "2012-07-26T04:00:00Z", "image": "products/tasting-kit_14.jpg", "unit_price": "99.99", "active": true, "description": "Host a party or understand your tastes"}}, {"pk": 2, "model": "main.product", "fields": {"category": 1, "cart_tag": "x", "name": "Good Level Name", "timestamp": "2012-07-26T04:00:00Z", "image": "products/good_14.jpg", "unit_price": "99.99", "active": true, "description": "Good set of wines for good people"}}, {"pk": 3, "model": "main.product", "fields": {"category": 1, "cart_tag": "x", "name": "Better Level Name", "timestamp": "2012-07-26T04:00:00Z", "image": "products/better_14.png", "unit_price": "199.99", "active": true, "description": "Better set of wines for better people"}}, {"pk": 4, "model": "main.product", "fields": {"category": 1, "cart_tag": "x", "name": "Best Level Name", "timestamp": "2012-07-26T04:00:00Z", "image": "products/best_14.jpg", "unit_price": "249.99", "active": true, "description": "Best set of wines for best people"}}, {"pk": 5, "model": "main.product", "fields": {"category": 0, "cart_tag": "tasting_kit", "name": "Host Tasting Kit", "timestamp": "2012-07-27T01:48:26.871Z", "image": "products/tasting-kit_16.jpg", "unit_price": "99.99", "active": true, "description": "Host a party or understand your tastes"}}, {"pk": 6, "model": "main.product", "fields": {"category": 1, "cart_tag": "good", "name": "Good Level Name", "timestamp": "2012-07-27T01:48:26.883Z", "image": "products/good_16.jpg", "unit_price": "99.99", "active": true, "description": "Good set of wines for good people"}}, {"pk": 7, "model": "main.product", "fields": {"category": 1, "cart_tag": "better", "name": "Better Level Name", "timestamp": "2012-07-27T01:48:26.894Z", "image": "products/better_16.png", "unit_price": "199.99", "active": true, "description": "Better set of wines for better people"}}, {"pk": 8, "model": "main.product", "fields": {"category": 1, "cart_tag": "best", "name": "Best Level Name", "timestamp": "2012-07-27T01:48:26.905Z", "image": "products/best_16.jpg", "unit_price": "249.99", "active": true, "description": "Best set of wines for best people"}}, {"pk": 1, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 2, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 3, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 4, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 5, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 6, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 7, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 8, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 9, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 10, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 1, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 2}}, {"pk": 11, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 4, "total_price": "249.99", "frequency": 1, "price_category": 0, "quantity": 12}}, {"pk": 12, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 2, "total_price": "99.99", "frequency": 1, "price_category": 0, "quantity": 1}}, {"pk": 13, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 3, "total_price": "199.99", "frequency": 1, "price_category": 7, "quantity": 1}}, {"pk": 14, "model": "main.lineitem", "fields": {"sku": "xxxxxxxxxxxxxxxxxxxxxxxxxx", "product": 2, "total_price": "99.99", "frequency": 1, "price_category": 5, "quantity": 1}}, {"pk": 1, "model": "main.cart", "fields": {"updated": "2012-07-27T00:35:12.939Z", "user": null, "orders": [9, 10, 11, 12, 13, 14]}}]
+- model: main.contactreason
+  fields: {reason: Interested in holding a party}
+  pk: 1
+- pk: 2
+  model: main.contactreason
+  fields: {reason: Interested in becoming a party specialist}
+- pk: 3
+  model: main.contactreason
+  fields: {reason: Interested in attending a party in my local area}
+- pk: 4
+  model: main.contactreason
+  fields: {reason: Interested in finding more about Winedora}
+- pk: 5
+  model: main.contactreason
+  fields: {reason: Send me any new updates}
+- pk: 6
+  model: main.contactreason
+  fields: {reason: Other}
+- fields: {name: Host Tasting Kit, active: true, timestamp: !!timestamp '2012-07-29
+      03:39:27.616688', description: Host a party or understand your tastes, category: 0,
+    image: products/tasting-kit_17.jpg, cart_tag: tasting_kit, unit_price: '99.99'}
+  pk: 1
+  model: main.product
+- model: main.product
+  fields: {unit_price: '99.99', name: Good Level Name, active: true, timestamp: !!timestamp '2012-07-29
+      03:39:27.634048', description: Good set of wines for good people, category: 1,
+    image: products/good_17.jpg, cart_tag: good}
+  pk: 2
+- fields: {description: Better set of wines for better people, image: products/better_17.png,
+    cart_tag: better, unit_price: '199.99', name: Better Level Name, active: true,
+    timestamp: !!timestamp '2012-07-29 03:39:27.648231', category: 1}
+  pk: 3
+  model: main.product
+- pk: 4
+  model: main.product
+  fields: {timestamp: !!timestamp '2012-07-29 03:39:27.658775', description: Best
+      set of wines for best people, category: 1, image: products/best_17.jpg, cart_tag: best,
+    unit_price: '249.99', name: Best Level Name, active: true}

@@ -36,11 +36,14 @@ class PartyCreateForm(forms.ModelForm):
   street1 = forms.CharField(label="Street 1", max_length=128, required=False)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
   city = forms.CharField(label="City", max_length=64, required=False)
-  state = forms.CharField(max_length=10, required=False)
+  state = us_forms.USStateField()
   zipcode = us_forms.USZipCodeField(required=False)
 
   event_day = forms.DateField(label="Event date")
   event_time = forms.TimeField(input_formats=valid_time_formats)
+
+  # replace form field for Party.phone
+  phone = us_forms.USPhoneNumberField()
 
   class Meta:
     model = Party
@@ -122,7 +125,7 @@ class PartyInviteAttendeeForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(PartyInviteAttendeeForm, self).__init__(*args, **kwargs)
     att_group = Group.objects.get(name="Attendee")
-    self.fields['invitee'].queryset = User.objects.filter(groups__in=[att_group])
+    self.fields['invitee'].choices = [('', '---------')]+[(u.id, u.email) for u in User.objects.filter(groups__in=[att_group]).only('id','email')]
 
   def clean(self):
     cleaned_data = super(PartyInviteAttendeeForm, self).clean()
@@ -289,6 +292,11 @@ class ShippingForm(forms.ModelForm):
     try:
       # existing user
       user = User.objects.get(email=data['email'].lower())
+      if not user.first_name: 
+        user.first_name = data['first_name']
+      if not user.last_name:
+        user.last_name = data['last_name']
+      user.save()
       # save address
     except User.DoesNotExist:
       # create user if it doesn't exist
@@ -312,11 +320,16 @@ class ShippingForm(forms.ModelForm):
     profile.shipping_address = new_shipping
     profile.shipping_addresses.add(new_shipping)
     profile.news_optin = data['news_optin']
+    if data['phone']:
+      profile.phone = data['phone']
     profile.save()
 
     return user
 
 class CreditCardForm(forms.ModelForm):
+  """
+    This form is not used 
+  """
   card_number = CreditCardField(required=True)
   expiry_date = ExpiryDateField(required=True)
   verification_code = VerificationValueField(required=True)
@@ -327,6 +340,9 @@ class CreditCardForm(forms.ModelForm):
     model = CreditCard
 
 class PaymentForm(forms.ModelForm):
+  """
+    This form is used
+  """
   card_number = CreditCardField(required = True, label = "Card Number")
   exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)])
   exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
@@ -344,6 +360,7 @@ class PaymentForm(forms.ModelForm):
  
   def clean(self):
     cleaned_data = super(PaymentForm, self).clean()
+
     exp_month = cleaned_data.get('exp_month')
     exp_year = cleaned_data.get('exp_year')
 
@@ -366,3 +383,17 @@ class PaymentForm(forms.ModelForm):
       self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
  
     return cleaned_data
+
+  def save(self, commit=True):
+    self.cleaned_data['card_number']
+
+  def save(self, commit=True, force_insert=False, force_update=False, *args, **kwargs):
+    m = super(PaymentForm, self).save(commit=False, *args, **kwargs)
+
+    # encrypt card number
+    m.encrypt_card_num(self.cleaned_data['card_number'])
+
+    if commit:
+      m.save()
+    return m
+    

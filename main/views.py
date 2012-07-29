@@ -16,7 +16,8 @@ from personality.models import Wine
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, CreditCardForm, PaymentForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 from accounts.models import VerificationQueue
-from accounts.utils import send_verification_email
+from accounts.utils import send_verification_email, send_new_invitation_email
+from main.utils import send_order_confirmation_email
 
 from personality.utils import calculate_wine_personality
 
@@ -172,7 +173,7 @@ def cart_add_tasting_kit(request):
     item = form.save()
     if 'cart' in request.session:
       cart = Cart.objects.get(id=request.session['cart'])
-      cart.orders.add(item)
+      cart.items.add(item)
       cart.save()
     else:
       # create new cart
@@ -182,7 +183,7 @@ def cart_add_tasting_kit(request):
         # anonymous cart
         cart = Cart()
       cart.save()
-      cart.orders.add(item)
+      cart.items.add(item)
       request.session['cart'] = cart.id
 
     return HttpResponseRedirect(reverse("cart"))
@@ -214,7 +215,7 @@ def cart_add_wine(request, level="good"):
     item = form.save()
     if 'cart' in request.session:
       cart = Cart.objects.get(id=request.session['cart'])
-      cart.orders.add(item)
+      cart.items.add(item)
       cart.save()
     else:
       # create new cart
@@ -224,7 +225,7 @@ def cart_add_wine(request, level="good"):
         # anonymous cart
         cart = Cart()
       cart.save()
-      cart.orders.add(item)
+      cart.items.add(item)
       request.session['cart'] = cart.id
 
     return HttpResponseRedirect(reverse("cart"))
@@ -237,6 +238,9 @@ def cart_add_wine(request, level="good"):
     product = Product.objects.get(name="Better Level Name")
   elif level == "best":
     product = Product.objects.get(name="Best Level Name")
+  elif level == "x":
+    # not a valid product
+    raise Http404
 
   data["product"] = product
 
@@ -259,10 +263,24 @@ def cart(request):
 
   cart_id = request.session['cart']
   cart = Cart.objects.get(id=cart_id) 
-  data["orders"] = cart.orders.all()
+  data["items"] = cart.items.all()
   data["cart"] = cart
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
+
+def cart_remove_item(request, cart_id, item_id):
+  """
+    Delete an item from cart
+  """
+
+  data = {}
+
+  cart = Cart.objects.get(id=cart_id)
+  item = LineItem.objects.get(id=item_id)
+  
+  cart.items.remove(item)
+
+  return HttpResponseRedirect(request.GET.get("next"))
 
 def customize_checkout(request):
   data = {}
@@ -301,35 +319,54 @@ def place_order(request):
   """
   data = {}
   u = request.user
+  profile = u.get_profile()
 
   data["your_personality"] = "Moxie"
+
+  # set this to use in edit_shipping_address and edit_credit_card to indicate that
+  # order has been reviewed 
+  request.session['order'] = True 
   
   if 'cart' in request.session:
     cart = Cart.objects.get(id=request.session['cart'])
-    data["orders"] = cart.orders.all()
-    data["cart" ] = cart
-
-    profile = u.get_profile()
-    card = profile.credit_cards.all()[0]
-    data["credit_card"] = card 
 
     if request.method == "POST": 
-      order_id = str(uuid.uuid4())
+      # finalize order
+
+      if 'order_id' in request.session:
+        # existing order id, in case user submits multiple times
+        order_id = request.session['order_id']
+      else:
+        # new order id
+        order_id = str(uuid.uuid4())
+        request.session['order_id'] = order_id
+
       try:
         order = Order.objects.get(cart=cart)
         order.order_id = order_id 
         if u.is_authenticated():
           order.user = u
-        order.save()
       except Order.DoesNotExist:
+        # create new order for this cart
         order = Order(user=u, order_id=order_id, cart=cart)
-        order.save()
-      data["order"] = order
+
+      # save credit card and shipping address in the order
+      order.credit_card = profile.credit_card
+      order.shipping_address = profile.shipping_address
+      order.save()
 
       # save cart to order
       return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
 
-    return render_to_response("main/place_order.html", data, context_instance=RequestContext(request))
+    else:
+      # review what you have ordered
+      data["items"] = cart.items.all()
+      data["cart" ] = cart
+
+      data["credit_card"] = profile.credit_card 
+      data["shipping_address"] = profile.shipping_address
+
+      return render_to_response("main/place_order.html", data, context_instance=RequestContext(request))
   else:
     messages.error(request, 'Your session expired, please start ordering again.')
     return HttpResponseRedirect(reverse("start_order"))
@@ -341,6 +378,11 @@ def order_complete(request, order_id):
 
   u = request.user
 
+  if 'order' in request.session:
+    del request.session['order']
+  if 'order_id' in request.session:
+    del request.session['order_id']
+
   try:
     order = Order.objects.get(user=u, order_id=order_id)
   except Order.DoesNotExist:
@@ -350,11 +392,10 @@ def order_complete(request, order_id):
 
   cart = Cart.objects.get(id=request.session['cart'])
   data["cart"] = cart
-  data["orders"] = cart.orders.all()
+  data["items"] = cart.items.all()
 
-  profile = u.get_profile()
-  card = profile.credit_cards.all()[0]
-  data["credit_card"] = card 
+  # need to send e-mail
+  send_order_confirmation_email(request, order_id, u.email)
 
   return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
 
@@ -362,6 +403,10 @@ def order_complete(request, order_id):
 def order_history(request):
 
   data = {}
+  u = request.user
+
+  data["orders"] = Order.objects.filter(user=u)
+
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -543,8 +588,7 @@ def party_add(request):
       new_host = new_party.host
 
       # map host to a specialist
-      my_hosts = MyHosts.objects.get_or_create(specialist=u, host=new_host)
-      my_hosts.save()
+      my_hosts, created = MyHosts.objects.get_or_create(specialist=u, host=new_host)
 
       if not new_host.is_active:
         # new host, so send password and invitation
@@ -609,6 +653,10 @@ def party_attendee_invite(request, party_id=0):
   data = {}
 
   u = request.user
+
+  if Party.objects.all().count() == 0:
+    data["no_parties"] = True
+    return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
 
   party = None
   if int(party_id) != 0:
@@ -725,17 +773,37 @@ def edit_credit_card(request):
   """
   data = {}
   u = request.user
+  profile = u.get_profile()
 
   form = PaymentForm(request.POST or None)
   #form = CreditCardForm(request.POST or None)
+
   if form.is_valid():
     new_card = form.save()
+    profile.credit_card = new_card
+    profile.save()
     # save the card to user
-    profile = u.get_profile()
-    profile.credit_cards.add(new_card)
+    if form.cleaned_data['save_card']:
+      profile.credit_cards.add(new_card)
     return HttpResponseRedirect(reverse("place_order"))
 
+  # prepopulate with previous credit card used
+  if 'order' in request.session and request.session['order'] and profile.credit_card:
+    card_info = profile.credit_card
+    form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+                    'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
+                    'billing_zipcode': card_info.billing_zipcode}
+  else:
+    cards = profile.credit_cards.all()
+    if cards.count() > 0:
+      card_info = cards[0]
+      form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+                      'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
+                      'billing_zipcode': card_info.billing_zipcode}
   data['form'] = form
+  if 'order' in request.session and request.session['order']:
+    # display different set of buttons if currently in address update stage
+    data['update'] = True
 
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
@@ -769,6 +837,7 @@ def edit_shipping_address(request):
 
   if form.is_valid():
     user = form.save()
+
     if not user.is_active: 
       role = Group.objects.get(name="Attendee")
       user.groups.add(Group.objects.get(name=role))
@@ -785,24 +854,45 @@ def edit_shipping_address(request):
       # send out verification e-mail, create a verification code
       send_verification_email(request, verification_code, temp_password, user.email)
 
+      # if current browsing user is not authenticated
       if not u.is_authenticated():
-        user = authenticate(email=user.email, password=temp_password)
+        u = authenticate(email=user.email, password=temp_password)
 
         # return authenticated user
-        if user is not None:
-          login(request, user)
+        if u is not None:
+          login(request, u)
         else:
           raise Http404
 
-    return HttpResponseRedirect(reverse("edit_credit_card"))
+    if 'order' in request.session and request.session['order']:
+      return HttpResponseRedirect(reverse("place_order"))
+    else:
+      return HttpResponseRedirect(reverse("edit_credit_card"))
 
+  # populate with initial data if user is authenticated
+  initial_data = {}
   if u.is_authenticated():
+    initial_data = {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'phone': u.get_profile().phone}
     if u.get_profile().shipping_addresses.all().count() > 0:
       form.fields['shipping_addresses'] = forms.ChoiceField()
       form.fields['shipping_addresses'].widget.queryset = u.get_profile().shipping_addresses.all()
-    form.initial = {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'phone': u.get_profile().phone}
 
+      current_shipping = u.get_profile().shipping_address
+
+      initial_data['address1'] = current_shipping.street1
+      initial_data['address2'] = current_shipping.street2
+      initial_data['company_co'] = current_shipping.company_co
+      initial_data['city'] = current_shipping.city
+      initial_data['state'] = current_shipping.state
+      initial_data['zipcode'] = current_shipping.zipcode
+      initial_data['news_optin'] = u.get_profile().news_optin
+
+  form.initial = initial_data
   data['form'] = form
+
+  if 'order' in request.session and request.session['order']:
+    # display different set of buttons if currently in address update stage
+    data['update'] = True
 
   return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from accounts.models import Address
+from accounts.models import Address, CreditCard
 from personality.models import WineRatingData
 from sorl.thumbnail import ImageField
 
@@ -117,7 +117,12 @@ class LineItem(models.Model):
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
   def subtotal(self):
-    return self.quantity*self.product.unit_price
+    if self.price_category in [5,7,9]:
+      return self.product.unit_price
+    elif self.price_category in [6,8,10]:
+      return 0.5*float(self.product.unit_price)
+    else:
+      return self.quantity*self.product.unit_price
 
   def quantity_str(self):
     if self.price_category in [5,6,7,8,9,10]:
@@ -130,23 +135,26 @@ class Cart(models.Model):
     All orders added up
   """
   user = models.ForeignKey(User, null=True)
-  orders = models.ManyToManyField(LineItem)
+  items = models.ManyToManyField(LineItem)
   updated = models.DateTimeField(auto_now=True)
 
   def subtotal(self):
     # sum of all line items
     price_sum = 0 
-    for o in self.orders.all():
-      price_sum += o.quantity*o.total_price
+    for o in self.items.all():
+      price_sum += float(o.subtotal())
     return price_sum 
 
   def shipping(self):
+    # TODO: flat rate
     return 16 
 
   def tax(self):
+    # TODO: tax needs to be calculated based on the state
     return 22
 
   def total(self):
+    # TODO: total everything including shipping and tax
     return 1525
 
 
@@ -160,7 +168,30 @@ class Order(models.Model):
   # unique order id
   order_id = models.CharField(max_length=128) 
   cart = models.OneToOneField(Cart)
+  shipping_address = models.ForeignKey(Address, null=True)
+  credit_card = models.ForeignKey(CreditCard, null=True)
   order_date = models.DateTimeField(auto_now_add=True)
+
+  FULFILL_CHOICES = (
+      ( 0, 'Ordered' ),
+      ( 1, 'Processing' ),
+      ( 2, 'Delayed' ),
+      ( 3, 'Out of Stock'),
+      ( 4, 'Shipped' ),
+      ( 5, 'Received' ),
+  )
+  fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
+
+  CARRIER_TYPE = (
+      ( 0, 'Unspecified'),
+      ( 1, 'FedEx'),
+      ( 2, 'UPS' ),
+      ( 3, 'DHL' ),
+      ( 4, 'USPS' )
+  )
+  carrier = models.IntegerField(choices=CARRIER_TYPE, default=0)
+  tracking_number = models.CharField(max_length=128, null=True, blank=True)
+  ship_date = models.DateTimeField(blank=True, null=True)
 
 class OrderFulfilled(models.Model):
   """

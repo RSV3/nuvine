@@ -1,0 +1,43 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+
+{% block header %}
+  <h1>Your Order History</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="order-history">
+  <div class="row">
+    <div class="span12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Order Total</th>
+            <th>Order Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><a href="{% url order_complete order.order_id %}">{{ order.order_id }}</a></td>
+            <td>{{ order.order_date }}</td>
+            <td>{{ order.cart.total|currency }}</td>
+            <td>{{ order.get_fulfill_status_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>  
+
+    </div>
+  </div>
+  </section>
+
+
+</div>
+{% endblock %}

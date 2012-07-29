@@ -12,10 +12,11 @@ class Migration(SchemaMigration):
         db.create_table('accounts_address', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('nick_name', self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True)),
+            ('company_co', self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True)),
             ('street1', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('street2', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
             ('city', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('state', self.gf('django.db.models.fields.CharField')(max_length=10)),
+            ('state', self.gf('django.contrib.localflavor.us.models.USStateField')(max_length=2)),
             ('zipcode', self.gf('django.db.models.fields.CharField')(max_length=20)),
         ))
         db.send_create_signal('accounts', ['Address'])
@@ -23,14 +24,24 @@ class Migration(SchemaMigration):
         # Adding model 'CreditCard'
         db.create_table('accounts_creditcard', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('nick_name', self.gf('django.db.models.fields.CharField')(max_length=64)),
+            ('nick_name', self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True)),
             ('card_number', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('exp_month', self.gf('django.db.models.fields.CharField')(max_length=2)),
-            ('exp_year', self.gf('django.db.models.fields.CharField')(max_length=2)),
+            ('exp_month', self.gf('django.db.models.fields.IntegerField')()),
+            ('exp_year', self.gf('django.db.models.fields.IntegerField')()),
             ('verification_code', self.gf('django.db.models.fields.CharField')(max_length=4)),
             ('billing_zipcode', self.gf('django.db.models.fields.CharField')(max_length=5)),
         ))
         db.send_create_signal('accounts', ['CreditCard'])
+
+        # Adding model 'VerificationQueue'
+        db.create_table('accounts_verificationqueue', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('verification_code', self.gf('django.db.models.fields.CharField')(max_length=64)),
+            ('verified', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        ))
+        db.send_create_signal('accounts', ['VerificationQueue'])
 
         # Adding model 'UserProfile'
         db.create_table('accounts_userprofile', (
@@ -38,13 +49,15 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
             ('dob', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('dl_number', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
-            ('phone', self.gf('django.db.models.fields.CharField')(max_length=16, null=True, blank=True)),
+            ('phone', self.gf('django.contrib.localflavor.us.models.PhoneNumberField')(max_length=20, null=True, blank=True)),
             ('accepted_tos', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('news_optin', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('age', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('above_21', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('wine_personality', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['personality.WinePersonality'], null=True, blank=True)),
             ('billing_address', self.gf('django.db.models.fields.related.ForeignKey')(related_name='billed_to', null=True, to=orm['accounts.Address'])),
             ('shipping_address', self.gf('django.db.models.fields.related.ForeignKey')(related_name='shipped_to', null=True, to=orm['accounts.Address'])),
+            ('credit_card', self.gf('django.db.models.fields.related.ForeignKey')(related_name='owner', null=True, to=orm['accounts.CreditCard'])),
         ))
         db.send_create_signal('accounts', ['UserProfile'])
 
@@ -64,6 +77,14 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('accounts_userprofile_party_addresses', ['userprofile_id', 'address_id'])
 
+        # Adding M2M table for field shipping_addresses on 'UserProfile'
+        db.create_table('accounts_userprofile_shipping_addresses', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('userprofile', models.ForeignKey(orm['accounts.userprofile'], null=False)),
+            ('address', models.ForeignKey(orm['accounts.address'], null=False))
+        ))
+        db.create_unique('accounts_userprofile_shipping_addresses', ['userprofile_id', 'address_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'Address'
@@ -71,6 +92,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'CreditCard'
         db.delete_table('accounts_creditcard')
+
+        # Deleting model 'VerificationQueue'
+        db.delete_table('accounts_verificationqueue')
 
         # Deleting model 'UserProfile'
         db.delete_table('accounts_userprofile')
@@ -81,14 +105,18 @@ class Migration(SchemaMigration):
         # Removing M2M table for field party_addresses on 'UserProfile'
         db.delete_table('accounts_userprofile_party_addresses')
 
+        # Removing M2M table for field shipping_addresses on 'UserProfile'
+        db.delete_table('accounts_userprofile_shipping_addresses')
+
 
     models = {
         'accounts.address': {
             'Meta': {'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'company_co': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'nick_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
-            'state': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+            'state': ('django.contrib.localflavor.us.models.USStateField', [], {'max_length': '2'}),
             'street1': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'street2': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'zipcode': ('django.db.models.fields.CharField', [], {'max_length': '20'})
@@ -97,10 +125,10 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'CreditCard'},
             'billing_zipcode': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
             'card_number': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'exp_month': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
-            'exp_year': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
+            'exp_month': ('django.db.models.fields.IntegerField', [], {}),
+            'exp_year': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nick_name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'nick_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'verification_code': ('django.db.models.fields.CharField', [], {'max_length': '4'})
         },
         'accounts.userprofile': {
@@ -109,15 +137,26 @@ class Migration(SchemaMigration):
             'accepted_tos': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'age': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'billed_to'", 'null': 'True', 'to': "orm['accounts.Address']"}),
-            'credit_cards': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['accounts.CreditCard']", 'symmetrical': 'False'}),
+            'credit_card': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'owner'", 'null': 'True', 'to': "orm['accounts.CreditCard']"}),
+            'credit_cards': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'owned_by'", 'symmetrical': 'False', 'to': "orm['accounts.CreditCard']"}),
             'dl_number': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'dob': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'party_addresses': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['accounts.Address']", 'symmetrical': 'False'}),
-            'phone': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
+            'news_optin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'party_addresses': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'hosting_user'", 'symmetrical': 'False', 'to': "orm['accounts.Address']"}),
+            'phone': ('django.contrib.localflavor.us.models.PhoneNumberField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'shipped_to'", 'null': 'True', 'to': "orm['accounts.Address']"}),
+            'shipping_addresses': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'shipping_user'", 'symmetrical': 'False', 'to': "orm['accounts.Address']"}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'}),
             'wine_personality': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['personality.WinePersonality']", 'null': 'True', 'blank': 'True'})
+        },
+        'accounts.verificationqueue': {
+            'Meta': {'object_name': 'VerificationQueue'},
+            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'verification_code': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'verified': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},

@@ -148,6 +148,9 @@ class SimpleTest(TestCase):
                                   empowers you to float from one sensual \
                                   pleasure to the next.")
 
+    WinePersonality.objects.get_or_create(name="Complex",
+                                  description="You have a very complex taste palate. It will require more experimentation to understand your tastes.")
+
   def create_wine_samplers(self):
 
     Wine.objects.get_or_create(name="Domaine De Pellehaut \"Harmonie De Gascogne\"",
@@ -194,12 +197,56 @@ class SimpleTest(TestCase):
     reason = ContactReason.objects.get_or_create(reason="Send me any new updates")
     reason = ContactReason.objects.get_or_create(reason="Other")
 
+  def create_products(self):
+    f = open("data/tasting-kit.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Host Tasting Kit",
+                                  description="Host a party or understand your tastes",
+                                  unit_price=99.99,
+                                  category=Product.PRODUCT_TYPE[0][0],
+                                  cart_tag="tasting_kit")
+    self.assertEqual(created, True)
+    p.image = File(f)
+    p.save()
+    f.close()
+
+
+    f = open("data/good.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Good Level Name",
+                                  description="Good set of wines for good people",
+                                  unit_price=99.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="good")
+    p.image = File(f)
+    p.save()
+    f.close()
+
+    f = open("data/better.png", 'r')
+    p, created = Product.objects.get_or_create(name="Better Level Name",
+                                  description="Better set of wines for better people",
+                                  unit_price=199.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="better")
+    p.image = File(f)
+    p.save()
+    f.close()
+
+    f = open("data/best.jpg", 'r')
+    p, created = Product.objects.get_or_create(name="Best Level Name",
+                                  description="Best set of wines for best people",
+                                  unit_price=249.99,
+                                  category=Product.PRODUCT_TYPE[1][0],
+                                  cart_tag="best")
+    p.image = File(f)
+    p.save()
+    f.close()
+
   def setUp(self):
     # initial data
     self.create_contact_reasons()
     self.create_usable_accounts()
     self.create_wine_personalities()
     self.create_wine_samplers()
+    self.create_products()
 
   def test_contact_us_models(self):
     total_reasons = ContactReason.objects.all().count()
@@ -394,49 +441,6 @@ class SimpleTest(TestCase):
 
   def test_product_ordering(self):
 
-    f = open("data/tasting-kit.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Host Tasting Kit",
-                                  description="Host a party or understand your tastes",
-                                  unit_price=99.99,
-                                  category=Product.PRODUCT_TYPE[0][0],
-                                  cart_tag="tasting_kit")
-    self.assertEqual(created, True)
-    p.image = File(f)
-    p.save()
-    f.close()
-
-
-    f = open("data/good.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Good Level Name",
-                                  description="Good set of wines for good people",
-                                  unit_price=99.99,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="good")
-    p.image = File(f)
-    p.save()
-    f.close()
-
-    f = open("data/better.png", 'r')
-    p, created = Product.objects.get_or_create(name="Better Level Name",
-                                  description="Better set of wines for better people",
-                                  unit_price=199.99,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="better")
-    p.image = File(f)
-    p.save()
-    f.close()
-
-    f = open("data/best.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Best Level Name",
-                                  description="Best set of wines for best people",
-                                  unit_price=249.99,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="best")
-    p.image = File(f)
-    p.save()
-    f.close()
-
-    """
     response = self.client.get(reverse("main.views.cart_add_tasting_kit"))
     self.assertEquals(response.status, 200)
 
@@ -444,7 +448,6 @@ class SimpleTest(TestCase):
                                                                               "quantity": 2,
                                                                               "total_price": 100})
     self.assertRedirects(response, reverse("main.views.cart"))
-    """
 
   def test_basic_addition(self):
     """

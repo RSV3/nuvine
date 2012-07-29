@@ -8,11 +8,10 @@
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  <div class="page-header">
-    Enter Shipping Address 
-  </div>
-
   <section id="shipping-information">
+  <div class="page-header">
+    <h4>Enter Shipping Address</h4>
+  </div>
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
@@ -155,9 +154,17 @@
           </div>
         </div>
 
+        {% if update %}
+        <div class="form-actions">
+          <a href="{% url place_order %}" class="btn">Cancel</a>  
+          <input class="btn btn-primary" type="submit" value="Update">
+        </div>
+        {% else %}
         <div class="form-actions">
           <input class="btn btn-primary" type="submit" value="Next">
         </div>
+        {% endif %}
+
         </fieldset>
 
       </form>

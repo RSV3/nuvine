@@ -26,10 +26,11 @@
             <th>Item</th>
             <th>Quantity</th>
             <th>Total</th>
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>
-          {% for item in orders %}
+          {% for item in items %}
           <tr>
             <td>
               <div class="cart-item">
@@ -45,6 +46,7 @@
             </td>
             <td>{{ item.quantity_str }}</td>
             <td>{{ item.subtotal|currency }}</td>
+            <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url cart %}"><i class="icon-trash"></i></a></td> 
           </tr>
           {% endfor %}
         </tbody>
@@ -69,7 +71,7 @@
     <div class="span12">
       <div class="form-actions">
         <div class="pull-right">
-          <a class="btn btn-primary" href="{{ continue_shopping }}">
+          <a class="btn btn-primary" href="{% url start_order %}">
             <i class="icon-plus-sign icon-white"></i> Continue Shopping</a>
           <a class="btn btn-success" href="{% url customize_checkout %}">
             <i class="icon-shopping-cart icon-white"></i> Checkout</a>

@@ -1,3 +1,4 @@
+Need to be able to delete an item from cart
 Need to encrypt credit card number
 Need to show order history (from attendee)
 
