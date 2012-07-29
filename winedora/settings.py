@@ -5,7 +5,7 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = False 
+DEBUG = True 
 TEMPLATE_DEBUG = DEBUG
 DEPLOY = False # only True if production
 
@@ -100,10 +100,11 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
-STATICFILES_STORAGE = 'winedora.s3utils.StaticRootS3BotoStorage'
+if not DEBUG:
+  #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+  #STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+  DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
+  STATICFILES_STORAGE = 'winedora.s3utils.StaticRootS3BotoStorage'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('

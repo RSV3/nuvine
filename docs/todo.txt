@@ -1,4 +1,6 @@
-Need to get static files served from s3 and also get the wine product images from there
+Need to write script to refresh products
+
+Done: Need to get static files served from s3 and also get the wine product images from there
 
 Need to show order history from party point of view (Host)
 Need to show order history from every host point of view (Party specialist)

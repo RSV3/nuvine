@@ -76,6 +76,7 @@ class Product(models.Model):
   )
 
   name = models.CharField(max_length=128)
+  sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
   description = models.CharField(max_length=512)
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -110,7 +111,6 @@ class LineItem(models.Model):
   )
 
   product = models.ForeignKey(Product, null=True)
-  sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE[0][0])
   quantity = models.IntegerField(default=1)
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=1)
@@ -156,7 +156,6 @@ class Cart(models.Model):
   def total(self):
     # TODO: total everything including shipping and tax
     return 1525
-
 
 class Order(models.Model):
   """

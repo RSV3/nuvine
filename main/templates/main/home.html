@@ -15,11 +15,13 @@
   <li><a href="{% url party_list %}">Parties</a></li>
   <li><a href="{% url party_add %}">Create Party</a></li>
   <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+  <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
   <li><a href="{% url start_order %}">Order Wine</a></li>
   {% elif supplier %}
   <li><a href="{% url supplier_party_list %}">Parties</a></li>
   {% elif attendee %}
   <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
+  <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
   <li><a href="{% url start_order %}">Order Wine</a></li>
   {% endif %}
 {% endblock left_navigation %}

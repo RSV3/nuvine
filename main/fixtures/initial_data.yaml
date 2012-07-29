@@ -1,38 +1,38 @@
-- model: main.contactreason
+- pk: 1
+  model: main.contactreason
   fields: {reason: Interested in holding a party}
-  pk: 1
 - pk: 2
   model: main.contactreason
   fields: {reason: Interested in becoming a party specialist}
 - pk: 3
   model: main.contactreason
   fields: {reason: Interested in attending a party in my local area}
-- pk: 4
+- fields: {reason: Interested in finding more about Winedora}
+  pk: 4
   model: main.contactreason
-  fields: {reason: Interested in finding more about Winedora}
 - pk: 5
   model: main.contactreason
   fields: {reason: Send me any new updates}
 - pk: 6
   model: main.contactreason
   fields: {reason: Other}
-- fields: {name: Host Tasting Kit, active: true, timestamp: !!timestamp '2012-07-29
-      03:39:27.616688', description: Host a party or understand your tastes, category: 0,
-    image: products/tasting-kit_17.jpg, cart_tag: tasting_kit, unit_price: '99.99'}
-  pk: 1
+- pk: 1
   model: main.product
-- model: main.product
-  fields: {unit_price: '99.99', name: Good Level Name, active: true, timestamp: !!timestamp '2012-07-29
-      03:39:27.634048', description: Good set of wines for good people, category: 1,
-    image: products/good_17.jpg, cart_tag: good}
-  pk: 2
-- fields: {description: Better set of wines for better people, image: products/better_17.png,
-    cart_tag: better, unit_price: '199.99', name: Better Level Name, active: true,
-    timestamp: !!timestamp '2012-07-29 03:39:27.648231', category: 1}
-  pk: 3
+  fields: {description: Host a party or understand your tastes, category: 0, image: products/tasting-kit.jpg,
+    cart_tag: tasting_kit, unit_price: '99.99', name: Host Tasting Kit, active: true,
+    sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2012-07-29 21:38:27.549265'}
+- pk: 2
   model: main.product
+  fields: {unit_price: '99.99', name: Good Level Name, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    active: true, timestamp: !!timestamp '2012-07-29 21:38:27.558721', category: 1,
+    description: Good set of wines for good people, image: products/good.jpg, cart_tag: good}
+- pk: 3
+  model: main.product
+  fields: {timestamp: !!timestamp '2012-07-29 21:38:27.568171', description: Better
+      set of wines for better people, category: 1, image: products/better.png, cart_tag: better,
+    unit_price: '199.99', name: Better Level Name, active: true, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx}
 - pk: 4
   model: main.product
-  fields: {timestamp: !!timestamp '2012-07-29 03:39:27.658775', description: Best
-      set of wines for best people, category: 1, image: products/best_17.jpg, cart_tag: best,
-    unit_price: '249.99', name: Best Level Name, active: true}
+  fields: {cart_tag: best, unit_price: '249.99', name: Best Level Name, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    active: true, timestamp: !!timestamp '2012-07-29 21:38:27.577563', category: 1,
+    description: Best set of wines for best people, image: products/best.jpg}

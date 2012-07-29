@@ -54,6 +54,7 @@ class Migration(SchemaMigration):
         db.create_table('main_product', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('sku', self.gf('django.db.models.fields.CharField')(default='xxxxxxxxxxxxxxxxxxxxxxxxxx', max_length=32)),
             ('category', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=512)),
             ('unit_price', self.gf('django.db.models.fields.DecimalField')(default=0.0, max_digits=10, decimal_places=2)),
@@ -68,7 +69,6 @@ class Migration(SchemaMigration):
         db.create_table('main_lineitem', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Product'], null=True)),
-            ('sku', self.gf('django.db.models.fields.CharField')(default='xxxxxxxxxxxxxxxxxxxxxxxxxx', max_length=32)),
             ('price_category', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('quantity', self.gf('django.db.models.fields.IntegerField')(default=1)),
             ('frequency', self.gf('django.db.models.fields.IntegerField')(default=1)),
@@ -283,7 +283,6 @@ class Migration(SchemaMigration):
             'price_category': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Product']", 'null': 'True'}),
             'quantity': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'sku': ('django.db.models.fields.CharField', [], {'default': "'xxxxxxxxxxxxxxxxxxxxxxxxxx'", 'max_length': '32'}),
             'total_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'})
         },
         'main.myhosts': {
@@ -348,6 +347,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('sorl.thumbnail.fields.ImageField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'sku': ('django.db.models.fields.CharField', [], {'default': "'xxxxxxxxxxxxxxxxxxxxxxxxxx'", 'max_length': '32'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'unit_price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'})
         },

@@ -6,6 +6,7 @@ latest.dump
 .env
 emails
 #sitemedia
+cache
 
 # Packages
 *.egg
