@@ -5,8 +5,9 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = True 
+DEBUG = False 
 TEMPLATE_DEBUG = DEBUG
+DEPLOY = False # only True if production
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -56,6 +57,10 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+AWS_ACCESS_KEY_ID = 'AKIAJUZPYKIUZOFKIPOQ'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'temp.vinely.com'
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
@@ -73,7 +78,10 @@ STATIC_ROOT = PROJECT_ROOT+'/sitestatic/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
+STATIC_URL = 'https://s3.amazonaws.com/temp.vinely.com/'
+#STATIC_URL = '/static/'
+
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -90,6 +98,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
@@ -141,7 +151,10 @@ INSTALLED_APPS = (
     'winedora',
     'south',
     'emailusernames',
+    'storages',
+    'gunicorn',
 )
+
 
 SOUTH_TESTS_MIGRATE = False
 
@@ -153,7 +166,7 @@ AUTHENTICATION_BACKENDS = (
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-if DEBUG:
+if not DEPLOY:
   EMAIL_HOST = 'smtp.gmail.com'
   EMAIL_PORT = 587 
   EMAIL_HOST_USER = 'support@vinely.com'
