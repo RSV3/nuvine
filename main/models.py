@@ -49,11 +49,18 @@ class Party(models.Model):
     invites = PartyInvite.objects.filter(party=self).count()
     coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
 
-    return "%d [%d]"%(invites, coming)
+    if invites == 0:
+      return ""
+    else:
+      return "%d [%d]"%(coming, invites)
 
   def num_orders(self):
     # TODO: num orders and num orders pending 
     return "%d [%d]"%(5, 4) 
+
+  def credit(self):
+    # TODO: determines the dollar amount purchased at the party
+    return 54.99
 
 class PartyInvite(models.Model):
 

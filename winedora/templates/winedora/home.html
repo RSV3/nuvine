@@ -6,26 +6,8 @@
 
 
 {% block content %}
-
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  <!--
-  <div class="subnav">
-    <ul class="nav nav-pills">
-      <li>
-        <a href="#headline">Party Specialists</a>
-      </li>
-      <li>
-        <a href="#features">Party Hosts</a>
-      </li>
-      <li>
-        <a href="#results">Attendees</a>
-      </li>
-    </ul>
-  </div>
-  -->
-
-  <div class="container">
     <div class="row">
       <div class="span4">
         <h2>Host Your Own Parties</h2>
@@ -48,7 +30,8 @@
         <p><a class="btn" href="{% url sign_up 0 %}">Sign Up &raquo;</a></p>
 
       </div>
-    </div>
+    </div><!-- row -->
+
     <div class="row">
       <p>&nbsp;</p>
     </div>
@@ -58,9 +41,8 @@
       <p>Join parties and explore those wines that may give you a new taste to life.</p>
       <p><a class="btn btn-primary btn-large" href="{% url sign_up 2 %}">Let me know when Vinely is in town &raquo;</a></p>
     </div>
-  </div>
 
-</div>
+</div><!-- container -->
 
 {% endblock content %}
 

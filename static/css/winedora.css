@@ -7,7 +7,7 @@
 }
 
 .cart-item-image {
-  float:left;
+  float: left;
 }
 
 .cart-item-name {
@@ -19,3 +19,10 @@
   padding-left: 100px;
 }
 
+.user-pic {
+  float: left;
+}
+
+.user-contact {
+  padding-left: 140px;
+}

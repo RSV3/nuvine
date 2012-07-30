@@ -552,6 +552,9 @@ def tag(request):
 
 @login_required
 def party_list(request):
+  """
+    Show upcoming and past parties
+  """
 
   u = request.user
 
@@ -559,13 +562,28 @@ def party_list(request):
 
   ps_group = Group.objects.get(name="Party Specialist")
   ph_group = Group.objects.get(name="Party Host")
+  sp_group = Group.objects.get(name='Supplier')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if sp_group in u.groups.all():
+    data["supplier"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+
+  today = datetime.today()
 
   if (ps_group in u.groups.all()):
-    # TODO: need to filter to parties that a particular user manages
+    # need to filter to parties that a particular user manages
     my_hosts = MyHosts.objects.filter(specialist=u).values_list('host', flat=True)
-    data['parties'] = Party.objects.filter(host__in=my_hosts)
+    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
   elif (ph_group in u.groups.all()):
-    data['parties'] = Party.objects.filter(host=u)
+    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
   else:
     raise Http404
 
@@ -579,6 +597,26 @@ def party_add(request):
   data = {}
 
   u = request.user
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
+  sp_group = Group.objects.get(name='Supplier')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if sp_group in u.groups.all():
+    data["supplier"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+
+  data["no_perms"] = False
+  if ps_group not in u.groups.all():
+    # if not a party specialist, one does not have permissions
+    data["no_perms"] = True
+    return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   if request.method == "POST":
     form = PartyCreateForm(request.POST)
@@ -627,9 +665,20 @@ def party_attendee_list(request, party_id):
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name='Party Specialist')
-  ph_group = Group.objects.get(name='Party Host')
+  ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
   sp_group = Group.objects.get(name='Supplier')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if sp_group in u.groups.all():
+    data["supplier"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+
   if ps_group in u.groups.all() or ph_group in u.groups.all() or sp_group in u.groups.all(): 
     
     invitees = PartyInvite.objects.filter(party=party)

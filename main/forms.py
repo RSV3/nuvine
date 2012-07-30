@@ -36,7 +36,7 @@ class PartyCreateForm(forms.ModelForm):
   street1 = forms.CharField(label="Street 1", max_length=128, required=False)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
   city = forms.CharField(label="City", max_length=64, required=False)
-  state = us_forms.USStateField()
+  state = us_forms.USStateField(required=False)
   zipcode = us_forms.USZipCodeField(required=False)
 
   event_day = forms.DateField(label="Event date")
@@ -87,6 +87,7 @@ class PartyCreateForm(forms.ModelForm):
       try:
         address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
       except Address.DoesNotExist:
+        # TODO: need to check whether these fields are all filled out
         address = Address(street1=cleaned_data['street1'],
                           street2=cleaned_data['street2'],
                           city=cleaned_data['city'],

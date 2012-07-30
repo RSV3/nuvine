@@ -1,15 +1,53 @@
 {% extends "main/menu_base_flip.html" %}
 
+{% load currency %}
+
 {% block header %}
-  <h1>Parties</h1>
+<h1>Parties</h1>
+  {% if host %}
+  Contact your party specialist to host a new party.  Once your party has been scheduled, it will appear below.
+  {% elif specialist %}
+  Parties you are managing
+  {% endif %}
+
 {% endblock header %}
 
-{% block left_navigation %}
-          <li><a href="{% url party_add %}">Create Party</a></li>
-          <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
-{% endblock left_navigation %}
+{% block side_navigation %}
+  {% if specialist %}
+    <li><a href="{% url party_add %}">Create Party</a></li>
+  {% endif %}
+    <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+{% endblock side_navigation %}
 
-{% block right_content %}
+{% block main_content %}
+  <section id="explanation">
+
+    <div class="user-info">
+      <div class="user-pic">
+        &nbsp;
+      </div>
+      <div class="user-contact">
+        <div class="user-name">
+          {% if user.first_name %}
+            {{ user.first_name }} {{ user.last_name }}
+          {% else %}
+            Valued Customer Name
+          {% endif %}
+        </div>
+        <div class="user-phone">
+          <i class="icon-user"></i> {{ user.get_profile.phone }}
+        </div>
+        <div class="user-email">
+          <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="upcoming-parties">
+  <div class="page-header">
+    Upcoming Parties
+  </div>
   <table class="table table-striped">
     <thead>
       <th>Date</th>
@@ -17,7 +55,7 @@
       <th>Title</th>
       <th>Contact Phone</th>
       <th>Address</th>
-      <th>Invitees [Coming]</th>
+      <th>Guests</th>
     </thead>
     <tbody>
     {% for party in parties %}
@@ -28,9 +66,42 @@
         <td><a href="{% url party_attendee_list party.id %}">{{ party.title }}</a></td>
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>
-        <td>{{ party.invitees }}</td>
+        <td>{% if party.invitees %}{{ party.invitees }}{% else %}<a href="{% url party_attendee_invite party.id %}">Invite Guests</a>{% endif %}</td>
       </tr>
     {% endfor %}
     </tbody>
   </table>
-{% endblock right_content %}
+  </section>
+
+  <section id="past-parties">
+  <div class="page-header">
+    Past Parties
+  </div>
+  <table class="table table-striped">
+    <thead>
+      <th>Date</th>
+      <th>Host</th>
+      <th>Title</th>
+      <th>Contact Phone</th>
+      <th>Address</th>
+      <th>Guests</th>
+      <th>My Credit</th>
+    </thead>
+    <tbody>
+    {% for party in past_parties %}
+      {# create a table of party and party information #}
+      <tr>
+        <td>{{ party.event_date|date:"M d, Y" }}</td>
+        <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
+        <td><a href="{% url party_attendee_list party.id %}">{{ party.title }}</a></td>
+        <td>{{ party.phone }}</td>
+        <td>{{ party.address }}</td>
+        <td>{{ party.invitees }}</td>
+        <td>{{ party.credit|currency }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </section>
+
+{% endblock main_content %}

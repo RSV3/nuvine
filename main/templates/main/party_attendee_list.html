@@ -1,25 +1,19 @@
-{% extends "winedora/base_html5.html" %}
+{% extends "main/menu_base.html" %}
 
 {% block header %}
   <h1>{{ party.title }}: Attendees</h1>
+  Here are your honored guests.  Feel free to invite new attendees.
 {% endblock header %}
 
-{% block content %}
 
-<div class="container-fluid" data-spy="scroll" data-offset="50" data-target=".subnav">
+{% block left_navigation %}
+{% if specialist %}
+  <li><a href="{% url party_add %}">Create Party</a></li>
+{% endif %}
+  <li><a href="{% url party_attendee_invite party.id %}">Invite Attendee</a></li>
+{% endblock left_navigation %}
 
-  <div class="row-fluid">
-    {# Need to check for permissions whether this is a party specialist #}
-    <div class="span3">
-      <div class="well sidebar-nav">
-        <ul class="nav nav-list">
-          <li class="nav-header">Management</li>
-          <li><a href="{% url party_add %}">Create Party</a></li>
-          <li><a href="{% url party_attendee_invite party.id %}">Invite Attendee</a></li>
-        </ul>
-      </div>
-    </div>
-
+{% block right_content %}
     <div class="span9">
       <table class="table table-striped">
         <thead>
@@ -55,8 +49,5 @@
         </tbody>
       </table>
     </div>
-  </div> <!-- row-fluid -->
+{% endblock right_content %}
 
-</div>
-
-{% endblock content %}

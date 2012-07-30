@@ -1,16 +1,16 @@
-{% extends "main/menu_base.html" %}
+{% extends "main/menu_base_flip.html" %}
 
 {% block header %}
   <h1>Parties</h1>
 {% endblock header %}
 
-{% block left_navigation %}
+{% block side_navigation %}
           <li><a href="{% url pending_orders %}">Pending Orders</a></li>
           <li><a href="{% url fulfilled_orders %}">Fulfilled Orders</a></li>
           <li><a href="{% url all_orders %}">All Orders</a></li>
-{% endblock left_navigation %}
+{% endblock side_navigation %}
 
-{% block right_content %}
+{% block main_content %}
       <table class="table table-striped">
         <thead>
           <th>Date</th>
@@ -34,4 +34,4 @@
         {% endfor %}
         </tbody>
       </table>
-{% endblock right_content %}
+{% endblock main_content %}

@@ -6,7 +6,7 @@
 
 
 {% block header %}
-  <h1>My Account Settings</h1>
+  <h1>My Account</h1>
 {% endblock header %}
 
 
@@ -69,19 +69,15 @@
           </div>
           <!-- TODO: need to put terms of service -->
           <div class="control-group">
-            <div class="control-label" for="id_accepted_tos">
-            {{ form.accepted_tos.label }}
-            </div>
             <div class="controls">
               {{ form.accepted_tos }}
+              {{ form.accepted_tos.label }}
             </div>
           </div>
           <div class="control-group">
-            <div class="control-label" for="id_above_21">
-            {{ form.above_21.label }}
-            </div>
             <div class="controls">
               {{ form.above_21 }}
+            {{ form.above_21.label }}
             </div>
           </div>
           <div class="form-actions">
@@ -92,7 +88,7 @@
         </fieldset>
            
       </form>
-    </div> <!-- row -->
+  </div> <!-- row -->
 {% endblock right_content %}
 
 {% block additional_scripts %}

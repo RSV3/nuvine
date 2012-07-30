@@ -6,13 +6,22 @@
 {% endblock %}
 
 {% block header %}
-  <h1>Create New Party</h1>
+  <h1>Create a New Party</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
+  {% if no_perms %}
+  <section id="reach-specialist">
+  <div class="row">
+    <div class="span12">
+      <h3>Please contact your party specialist in order to schedule a party. Go back to your <a href="{% url party_list %}">Party List</a></h3>
+    </div>
+  </div>
+  </section>
+  {% else %}
 
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
@@ -21,7 +30,7 @@
     </div>
   </div>
 
-  <section id="add_party">
+  <section id="add-party">
     {# add new parties form #}
   
     <form class="form-horizontal" method="POST" action="{% url party_add %}">
@@ -225,15 +234,7 @@
     </form>
   </section>
 
-  <section id="parties">
-  <div class="row">
-    {% for party in parties %}
-      {# create a table of party and party information #}
-      {{ party }}
-    {% endfor %}
-  </div>
-
-  </section>
+  {% endif %} <!-- if user has permissions to create party -->
 
 </div>
 
