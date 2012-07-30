@@ -63,11 +63,6 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
-AWS_PRELOAD_METADATA = True
-
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
@@ -106,11 +101,26 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-if not DEBUG:
+AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
+AWS_PRELOAD_METADATA = True
+
+if DEBUG is False:
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
   #STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-  DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
-  STATICFILES_STORAGE = 'winedora.s3utils.StaticRootS3BotoStorage'
+  #DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
+  #STATICFILES_STORAGE = 'winedora.s3utils.StaticRootS3BotoStorage'
+  DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
+  DEFAULT_S3_PATH = 'media'
+  STATICFILES_STORAGE = 's3_folder_storage.s3.StaticStorage'
+  STATIC_S3_PATH = 'static'
+
+  MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
+  MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+  STATIC_ROOT = '/%s/' % STATIC_S3_PATH
+  STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
+  ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
@@ -164,6 +174,7 @@ INSTALLED_APPS = (
     'emailusernames',
     'storages',
     'gunicorn',
+    's3_folder_storage',
 )
 
 
