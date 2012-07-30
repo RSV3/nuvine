@@ -1,4 +1,4 @@
-Need to write script to refresh products
+Done: Need to write script to refresh products
 
 Done: Need to get static files served from s3 and also get the wine product images from there
 

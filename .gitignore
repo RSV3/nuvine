@@ -1,6 +1,7 @@
 *.py[co]
 nuvine-env
 settings_local.py
+settings_debug.py
 winedora.test.db
 latest.dump
 .env

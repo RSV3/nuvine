@@ -6,8 +6,14 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
 DEBUG = False 
+
+try:
+  from winedora.settings_debug import *
+except Exception as e:
+  print e
+
 TEMPLATE_DEBUG = DEBUG
-DEPLOY = False # only True if production
+DEPLOY = False # only True if production (for mail settings)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -57,9 +63,9 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-AWS_ACCESS_KEY_ID = 'AKIAJUZPYKIUZOFKIPOQ'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'temp.vinely.com'
+AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 AWS_PRELOAD_METADATA = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
@@ -69,7 +75,7 @@ MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'https://temp.vinely.com.s3.amazonaws.com/media/'
+MEDIA_URL = 'https://cdn.vinely.com.s3.amazonaws.com/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -79,7 +85,7 @@ STATIC_ROOT = PROJECT_ROOT+'/sitestatic/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = 'https://temp.vinely.com.s3.amazonaws.com/static/'
+STATIC_URL = 'https://cdn.vinely.com.s3.amazonaws.com/static/'
 #STATIC_URL = '/static/'
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
@@ -218,6 +224,4 @@ LOGGING = {
 try:
   from winedora.settings_local import *
 except Exception as e:
-  #print "Error importing settings local"
-  #pass
   print e
