@@ -102,7 +102,7 @@ def sign_up(request, account_type):
     # send out verification e-mail, create a verification code
     send_verification_email(request, verification_code, temp_password, user.email)
 
-    return render_to_response("accounts/verification_sent.html", c, context_instance=RequestContext(request))
+    return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 
   data['form'] = form
   data['role'] = role

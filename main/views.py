@@ -16,7 +16,7 @@ from personality.models import Wine
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, CreditCardForm, PaymentForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 from accounts.models import VerificationQueue
-from accounts.utils import send_verification_email, send_new_invitation_email
+from accounts.utils import send_verification_email, send_new_invitation_email, send_party_invitation_email, send_new_party_email
 from main.utils import send_order_confirmation_email
 
 from personality.utils import calculate_wine_personality
@@ -639,7 +639,7 @@ def party_add(request):
         vque.save()
 
         # send an invitation e-mail if new user created 
-        send_new_invitation_email(request, verification_code, temp_password, new_host.email)
+        send_new_party_email(request, verification_code, temp_password, new_host.email)
 
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
@@ -720,7 +720,8 @@ def party_attendee_invite(request, party_id=0):
         new_invite = form.save()
 
         new_invitee = new_invite.invitee
-        if not new_invitee.is_active:
+
+        if new_invitee.is_active is False:
           # new user created through party invitation
           temp_password = User.objects.make_random_password()
           new_invitee.set_password(temp_password)
@@ -731,13 +732,18 @@ def party_attendee_invite(request, party_id=0):
           vque.save()
 
           # send an invitation e-mail if new user created 
-          send_new_invitation_email(request, verification_code, temp_password, new_invitee.email)
+          send_new_invitation_email(request, verification_code, temp_password, new_invite, new_invitee.email)
+        else:
+          send_party_invitation_email(request, verification_code, new_invite, new_invitee.email)
 
         return HttpResponseRedirect(reverse("party_attendee_list", args=[new_invite.party.id]))
     else:
+      # if request is GET
       if int(party_id) == 0:
+        # unspecified party
         form = PartyInviteAttendeeForm()
       else:
+        # specified party
         initial_data = {'party': party}
         form =  PartyInviteAttendeeForm(initial=initial_data)
 
