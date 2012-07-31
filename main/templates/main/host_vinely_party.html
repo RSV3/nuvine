@@ -1,0 +1,40 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Host Vinely Party</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="vinely-party-request">
+  <div class="row">
+    <div class="span12">
+      Thank you for your interest in hosting a Vinely Party!  We are very excited.  The following e-mail has been sent to the Vinely Sales Rep.  We will get back to you soon!
+    </div>
+  </div>
+  </section>
+
+  <section id="message-body">
+    <div class="row">
+      <div class="span12">
+        <blockquote>
+          {{ message }}
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <div class="span12">
+      <div class="form-actions">
+        <p><a class="btn btn-primary" href="{% url home_page %}">Return Home</a></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock content %}
+

@@ -136,6 +136,10 @@
               <span class="help-inline">
                 {{ form.email.errors }}
               </span>
+            {% else %}
+              <span class="help-inline">
+                {{ form.email.help_text }}
+              </span>
             {% endif %}
           </div>
         </div>

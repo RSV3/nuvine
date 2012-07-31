@@ -53,7 +53,7 @@
     <div class="span3">
       <p><h3>Shipping Information</h3></p>
       <address>
-        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>{{ receiver.first_name }} {{ receiver.last_name }}</p>
         <p>{{ shipping_address.street1 }}</p>
         {% if shipping_address.street2 %}
         <p>{{ shipping_address.street2 }}</p>
@@ -89,7 +89,11 @@
         <div class="pull-right">
           <form action="{% url place_order %}" method="POST">
             {% csrf_token %}
-            <input class="btn btn-primary" type="submit" value="Place Order">
+            <a class="btn btn-primary" href="{% url start_order %}">
+              <i class="icon-plus-sign icon-white"></i> Continue Shopping</a>
+            <button type="submit" class="btn btn-success">
+              <i class="icon-ok icon-white"></i> Place Order
+            </button>
           </form>
         </div>
       </div>

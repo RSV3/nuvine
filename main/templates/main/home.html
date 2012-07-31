@@ -11,25 +11,30 @@
   <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
   <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
   <li><a href="{% url start_order %}">Order Wine</a></li>
+  <li><a href="{% url order_history %}">Order History</a></li>
   {% elif host %}
   <li><a href="{% url party_list %}">Your Parties</a></li>
   <li><a href="{% url party_add %}">Create Party</a></li>
   <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
   <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
   <li><a href="{% url start_order %}">Order Wine</a></li>
+  <li><a href="{% url order_history %}">Order History</a></li>
   {% elif supplier %}
   <li><a href="{% url supplier_party_list %}">All Parties</a></li>
+  <li><a href="{% url supplier_order_backlog %}">Order Backlog</a></li>
   {% elif attendee %}
   <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
   <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
   <li><a href="{% url start_order %}">Order Wine</a></li>
+  <li><a href="{% url order_history %}">Order History</a></li>
+  <li><a href="{% url host_vinely_party %}">Host your own Vinely party</a></li>
   {% endif %}
 {% endblock side_navigation %}
 
 {% block main_content %}
 
   {% if messages %}
-  <div class="row">
+  <div class="span9">
     <div class="messages span9">
         {% for message in messages %}
           {% if "info" in message.tags %}
@@ -44,18 +49,42 @@
   </div>
   {% endif %}
 
+  <div class="span9">
   {% if specialist %}
-    You are a party specialist
+    Welcome {{ user.first_name }}. You are a party specialist.
   {% endif %}
   {% if host %}
-    You are a party host 
+    Welcome {{ user.first_name }}. You are a party host.
   {% endif %}
   {% if attendee %}
-    You are a party attendee 
+    Welcome {{ user.first_name }}. You are a party attendee.
   {% endif %}
   {% if supplier %}
-    You are a supplier 
+    Welcome {{ user.first_name }}. You are a supplier.
   {% endif %}
+  </div>
+
+  {% if wine_personality %}
+  <div class="span9">
+    You are a {{ wine_personality.name }}!
+  </div>
+  {% else %}
+  <div class="span9">
+    You will find out your wine profile at the party on {{ party_date|date:"n/j" }}!
+  </div>
+  {% endif %}
+
+
+  {% if questionnaire_completed %}
+    <div class="span9">
+        You have completed your questionnaire and you are ready to rock with Vinely! 
+    </div>
+  {% else %}
+    <div class="span9">
+        Fill out the <a href="{% url pre_questionnaire %}">Questionnaire</a> before attending the party.
+    </div>
+  {% endif %}
+
 {% endblock main_content %}
 
 

@@ -201,7 +201,7 @@ class SimpleTest(TestCase):
     f = open("data/tasting-kit.jpg", 'r')
     p, created = Product.objects.get_or_create(name="Host Tasting Kit",
                                   description="Host a party or understand your tastes",
-                                  unit_price=99.99,
+                                  unit_price=125.00,
                                   category=Product.PRODUCT_TYPE[0][0],
                                   cart_tag="tasting_kit")
     self.assertEqual(created, True)
@@ -213,7 +213,7 @@ class SimpleTest(TestCase):
     f = open("data/good.jpg", 'r')
     p, created = Product.objects.get_or_create(name="Good Level Name",
                                   description="Good set of wines for good people",
-                                  unit_price=99.99,
+                                  unit_price=75.00,
                                   category=Product.PRODUCT_TYPE[1][0],
                                   cart_tag="good")
     p.image = File(f)
@@ -223,7 +223,7 @@ class SimpleTest(TestCase):
     f = open("data/better.png", 'r')
     p, created = Product.objects.get_or_create(name="Better Level Name",
                                   description="Better set of wines for better people",
-                                  unit_price=199.99,
+                                  unit_price=120.00,
                                   category=Product.PRODUCT_TYPE[1][0],
                                   cart_tag="better")
     p.image = File(f)
@@ -233,7 +233,7 @@ class SimpleTest(TestCase):
     f = open("data/best.jpg", 'r')
     p, created = Product.objects.get_or_create(name="Best Level Name",
                                   description="Best set of wines for best people",
-                                  unit_price=249.99,
+                                  unit_price=225.00,
                                   category=Product.PRODUCT_TYPE[1][0],
                                   cart_tag="best")
     p.image = File(f)

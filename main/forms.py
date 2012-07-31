@@ -53,6 +53,7 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
+    self.fields['description'].required = False
 
     ph_group = Group.objects.get(name="Party Host")
     #self.fields['host'].queryset = User.objects.filter(groups__in=[ph_group]).only('id','email')
@@ -244,16 +245,18 @@ class AddTastingKitToCartForm(forms.ModelForm):
     super(AddTastingKitToCartForm, self).__init__(*args, **kwargs)
     self.fields['product'].widget = forms.HiddenInput()
     self.fields['total_price'].widget = forms.HiddenInput()
+    self.fields['frequency'].widget = forms.HiddenInput()
+    self.fields['price_category'].widget = forms.HiddenInput()
     self.fields['quantity'].widget = forms.Select() 
     self.fields['quantity'].widget.choices = [(1, 1), (2, 2), (3, 3)] 
 
   class Meta:
     model = LineItem 
-    exclude = ['price_category', 'frequency']
 
   def clean(self):
     cleaned_data = super(AddTastingKitToCartForm, self).clean()
     cleaned_data['price_category'] = 11 
+    cleaned_data['frequency'] = 0
 
     return cleaned_data
 
@@ -280,9 +283,10 @@ class ShippingForm(forms.ModelForm):
   state = us_forms.USStateField() #choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
-  email = forms.EmailField()
+  email = forms.EmailField(help_text="A new account will be created using this e-mail address if not an active account")
 
-  news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", required=False)
+  news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", \
+                                initial=True, required=False)
 
   class Meta:
     model = User
@@ -335,7 +339,7 @@ class CreditCardForm(forms.ModelForm):
   expiry_date = ExpiryDateField(required=True)
   verification_code = VerificationValueField(required=True)
   billing_zipcode = us_forms.USZipCodeField()
-  save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
 
   class Meta:
     model = CreditCard
@@ -350,7 +354,7 @@ class PaymentForm(forms.ModelForm):
   verification_code = forms.IntegerField(required = True, label = "CVV Number",
       max_value = 9999, widget = forms.TextInput(attrs={'size': '4'}))
   billing_zipcode = us_forms.USZipCodeField()
-  save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
 
   class Meta:
     model = CreditCard
@@ -358,6 +362,7 @@ class PaymentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     self.payment_data = kwargs.pop('payment_data', None)
     super(PaymentForm, self).__init__(*args, **kwargs)
+    self.fields['verification_code'].widget = forms.PasswordInput()
  
   def clean(self):
     cleaned_data = super(PaymentForm, self).clean()

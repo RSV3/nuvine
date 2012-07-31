@@ -217,4 +217,9 @@ def update_addresses(request):
                                   context_instance=RequestContext(request))
 
 
+@login_required
+def pre_questionnaire(request):
+  data = {}
 
+  return render_to_response("accounts/pre_questionnaire.html", data,
+                                  context_instance=RequestContext(request))

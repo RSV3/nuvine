@@ -36,7 +36,7 @@ class Party(models.Model):
   # default to the name of the host
   host = models.ForeignKey(User)
   title = models.CharField(max_length=128)
-  description = models.TextField()
+  description = models.TextField(verbose_name="Special Instructions")
   address = models.ForeignKey(Address)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -125,9 +125,9 @@ class LineItem(models.Model):
 
   def subtotal(self):
     if self.price_category in [5,7,9]:
-      return self.product.unit_price
+      return 2*float(self.product.unit_price)
     elif self.price_category in [6,8,10]:
-      return 0.5*float(self.product.unit_price)
+      return self.product.unit_price
     else:
       return self.quantity*self.product.unit_price
 
@@ -153,16 +153,22 @@ class Cart(models.Model):
     return price_sum 
 
   def shipping(self):
-    # TODO: flat rate
-    return 16 
+    shipping = 0
+    for item in self.items.all():
+      if item.frequency == 0:
+        shipping += 12
+      # no need to add shipping if they are subscribing
+
+    return shipping 
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
-    return 22
+    tax = float(self.subtotal())*0.06
+    return tax 
 
   def total(self):
     # TODO: total everything including shipping and tax
-    return 1525
+    return self.shipping() + self.tax() + self.subtotal() 
 
 class Order(models.Model):
   """
@@ -170,7 +176,8 @@ class Order(models.Model):
 
     The orders also indicate how frequently it will be fulfilled
   """
-  user = models.ForeignKey(User)
+  ordered_by = models.ForeignKey(User, related_name="ordered")
+  receiver = models.ForeignKey(User, related_name="received")
   # unique order id
   order_id = models.CharField(max_length=128) 
   cart = models.OneToOneField(Cart)
@@ -183,8 +190,9 @@ class Order(models.Model):
       ( 1, 'Processing' ),
       ( 2, 'Delayed' ),
       ( 3, 'Out of Stock'),
-      ( 4, 'Shipped' ),
-      ( 5, 'Received' ),
+      ( 4, 'Wine Selected'),
+      ( 5, 'Shipped' ),
+      ( 6, 'Received' ),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
@@ -231,9 +239,10 @@ class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-      ( 0, 'Send me a mix of red & white wine'),
-      ( 1, 'Send me red wine only'),
-      ( 2, 'Send me white wine only')
+      ( 0, 'Your Vinely recommendation'),
+      ( 1, 'Send me a mix of red & white wine'),
+      ( 2, 'Send me red wine only'),
+      ( 3, 'Send me white wine only')
   )
 
   wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.")

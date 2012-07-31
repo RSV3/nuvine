@@ -18,12 +18,14 @@
     </div>
   </div>
 
+  <section id="cart-items">
   <div class="row">
     <div class="span12">
       <table class="table">
         <thead>
           <tr>
             <th>Item</th>
+            <th>Subscription</th>
             <th>Quantity</th>
             <th>Total</th>
             <th>Remove</th>
@@ -44,6 +46,7 @@
                 </div>
               </div>
             </td>
+            <td>{{ item.get_frequency_display }}</td>
             <td>{{ item.quantity_str }}</td>
             <td>{{ item.subtotal|currency }}</td>
             <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url cart %}"><i class="icon-trash"></i></a></td> 
@@ -79,7 +82,7 @@
       </div>
     </div>
   </div>
-
+  </section>
 
 </div>
 

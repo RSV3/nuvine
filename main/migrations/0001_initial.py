@@ -95,7 +95,8 @@ class Migration(SchemaMigration):
         # Adding model 'Order'
         db.create_table('main_order', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('ordered_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='ordered', to=orm['auth.User'])),
+            ('receiver', self.gf('django.db.models.fields.related.ForeignKey')(related_name='received', to=orm['auth.User'])),
             ('order_id', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('cart', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['main.Cart'], unique=True)),
             ('shipping_address', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounts.Address'], null=True)),
@@ -301,10 +302,11 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'order_id': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'ordered_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ordered'", 'to': "orm['auth.User']"}),
+            'receiver': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'received'", 'to': "orm['auth.User']"}),
             'ship_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Address']", 'null': 'True'}),
-            'tracking_number': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+            'tracking_number': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'})
         },
         'main.orderfulfilled': {
             'Meta': {'object_name': 'OrderFulfilled'},

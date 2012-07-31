@@ -1,6 +1,30 @@
 Need to allow user to update their picture from their My Account
 
 
+July 31, 2012
+
+
+Done: - Party attendee notification on homepage
+  - You will find out your wine personality in the party on date 7/21
+
+Done: good: $75-$150, better: $120-$240, best: $225-$450
+Done: sales tax for michigan, california 6%
+
+Done - edit shipping page to show that new account will be created
+Done - default to receiving news
+Done - remove the save credit card checkbox
+
+Done: - free shipping if they select monthly
+Done  - Link to the survey (possibly make it only available for rsvp yes) - required for attending the party
+Done - Customize order
+  - need to default to your vinely recommendation
+Done - Creating a party: 
+  - description field is still required (make it not required)
+  - change to special instructions
+
+
+July 30, 2012
+
 Done: Need to write script to refresh products
 
 Done: Need to get static files served from s3 and also get the wine product images from there

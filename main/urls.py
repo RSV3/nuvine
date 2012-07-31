@@ -6,6 +6,8 @@ urlpatterns = patterns('main.views',
     url(r'^contact/$', 'contact_us', name='contact_us'),
     url(r'^howto/$', 'how_it_works', name='how_it_works'),
 
+    url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
+
     url(r'^party/list/$', 'party_list', name='party_list'),
     url(r'^party/add/$', 'party_add', name='party_add'),
     url(r'^party/attendee/list/(?P<party_id>\d+)/$', 'party_attendee_list', name='party_attendee_list'),

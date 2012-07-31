@@ -77,10 +77,11 @@ class UserProfile(models.Model):
   dl_number = models.CharField(verbose_name="Driver's Licence #", max_length=32, null=True, blank=True)
   phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
-  news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=False)
+  news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
   age = models.IntegerField(default=0)
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
   wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
+  prequestionnaire = models.BooleanField(default=False)
 
   # for temporary storing during order checkout
   billing_address = models.ForeignKey(Address, null=True, related_name="billed_to")

@@ -1,8 +1,24 @@
 from django.core.mail import send_mail
 from django.template import Context, Template
+from main.models import Order
 
 
-def send_order_confirmation_email(request, order_id, receiver_email):
+def send_order_confirmation_email(request, order_id):
+
+    order = Order.objects.get(order_id=order_id)
+
+    if order.fulfill_status > 0:
+      # return if already processing since e-mail has already been sent
+      return
+    
+    receiver_email = order.receiver.email
+    sender_email = order.ordered_by.email
+
+    destination = [receiver_email]
+    if sender_email != receiver_email:
+      destination.append(sender_email)
+
+    # TODO: if the order contains a tasting kit, notify the party specialist
 
     message_template = Template("""
 
@@ -19,12 +35,44 @@ def send_order_confirmation_email(request, order_id, receiver_email):
 
     """)
 
-    c = Context({"customer": request.user.first_name if request.user.first_name else "Valued Customer", 
+    c = Context({"customer": order.receiver.first_name if order.receiver.first_name else "Valued Customer", 
                 "host_name": request.get_host(),
                 "order_id": order_id}) 
     message = message_template.render(c)
 
     # send out verification e-mail, create a verification code
-    send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', [receiver_email])
+    send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', destination)
 
+    order.fulfill_status = 1
+    order.save()
 
+def send_host_vinely_party_email(request):
+
+    message_template = Template("""
+
+    Dear Vinely,
+
+    I ({{ first_name }} {{ last_name }}) would like to host a Vinely party.
+
+    Could you please connect me to a party specialist that may help me with this arrangement?
+
+    Please let me know via e-mail at: {{ email }} or call me at {{ phone }}.
+
+    Look forward to hearing from you soon!
+
+    """)
+
+    profile = request.user.get_profile()
+
+    c = Context({"first_name": request.user.first_name if request.user.first_name else "Unknown", 
+                "last_name": request.user.last_name if request.user.last_name else "Name",
+                "email": request.user.email,
+                "phone": profile.phone ,
+                "host_name": request.get_host()})
+
+    message = message_template.render(c)
+
+    # send out verification e-mail, create a verification code
+    send_mail('I am interested in hosting a Vinely Party!', message, request.user.email, ['sales@vinely.com'])
+
+    return message

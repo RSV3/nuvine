@@ -1,0 +1,30 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Wine Personality Questionnaire</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span8">
+      Please fill out the following questionnaire before coming to the party
+    </div>
+  </div>
+  <div class="row">
+    <div class="span8">
+      <p>&nbsp;</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span8">
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url home_page %}">Submit</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock content %}
