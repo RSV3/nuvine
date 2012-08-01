@@ -10,6 +10,7 @@ urlpatterns = patterns('main.views',
 
     url(r'^party/list/$', 'party_list', name='party_list'),
     url(r'^party/add/$', 'party_add', name='party_add'),
+    url(r'^party/rsvp/(?P<party_id>\d+)/$', 'party_rsvp', name='party_rsvp'),
     url(r'^party/attendee/list/(?P<party_id>\d+)/$', 'party_attendee_list', name='party_attendee_list'),
     url(r'^party/attendee/invite/(?P<party_id>\d+)/$', 'party_attendee_invite', name='party_attendee_invite'),
     url(r'^party/attendee/invite/$', 'party_attendee_invite', name='party_attendee_invite'),

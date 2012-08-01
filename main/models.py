@@ -72,7 +72,9 @@ class PartyInvite(models.Model):
   )
 
   party = models.ForeignKey(Party)
-  invitee = models.ForeignKey(User)
+  invitee = models.ForeignKey(User, related_name="my_invites")
+  # if other than the host
+  invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
 
 class Product(models.Model):
@@ -155,9 +157,11 @@ class Cart(models.Model):
   def shipping(self):
     shipping = 0
     for item in self.items.all():
-      if item.frequency == 0:
-        shipping += 12
-      # no need to add shipping if they are subscribing
+      if item.price_category in [5, 6, 8]:
+        # add shipping for good half, full, better half case
+        shipping += 16
+      elif item.frequency == 0:
+        shipping += 16
 
     return shipping 
 
@@ -254,3 +258,27 @@ class CustomizeOrder(models.Model):
 
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?")
   timestamp = models.DateTimeField(auto_now_add=True)
+
+class EngagementInterest(models.Model):
+  """
+    Interest in becoming party specialist or party host or attending party
+  """
+
+  ENGAGEMENT_CHOICES = (
+    (0, 'Party Host'),
+    (1, 'Party Specialist'),
+    (2, 'Attending Party'),
+    (3, 'Tasting Kit'),
+  )
+
+  user = models.ForeignKey(User)
+  engagement_type = models.IntegerField(choices=ENGAGEMENT_CHOICES, default=ENGAGEMENT_CHOICES[0][0])
+  latest = models.DateTimeField(auto_now=True)
+  timestamp = models.DateTimeField(auto_now_add=True)
+
+  def update_time(self):
+    self.latest = datetime.now()
+    self.save()
+
+  def __unicode__(self):
+    return "%s interest in %s"%(self.user.email, EngagementInterest.ENGAGEMENT_CHOICES[self.engagement_type][1])

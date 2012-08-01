@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
 
+from main.models import EngagementInterest
+
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm 
@@ -77,7 +79,7 @@ def sign_up(request, account_type):
   elif int(account_type) == 3:
     role = "Supplier"
   elif int(account_type) == 4:
-    role = "Tasting"
+    role = "Attendee"
 
   if not role:
     raise Http404
@@ -94,6 +96,9 @@ def sign_up(request, account_type):
     temp_password = User.objects.make_random_password()
     user.set_password(temp_password)
     user.save()
+
+    # save engagement type
+    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[3][0])
 
     verification_code = str(uuid.uuid4())
     vque = VerificationQueue(user=user, verification_code=verification_code)

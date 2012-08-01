@@ -8,6 +8,8 @@
   Contact your party specialist to host a new party.  Once your party has been scheduled, it will appear below.
   {% elif specialist %}
   Parties you are managing
+  {% elif attendee %}
+  Parties you are attending
   {% endif %}
 
 {% endblock header %}
@@ -20,9 +22,25 @@
 {% endblock side_navigation %}
 
 {% block main_content %}
-  <section id="explanation">
 
-    <div class="user-info">
+  {% if messages %}
+  <section id="alert-messages">
+    <div class="messages span9">
+        {% for message in messages %}
+          {% if "info" in message.tags %}
+            <div class="alert alert-info">{{ message }}</div>
+          {% elif "success" in message.tags %}
+            <div class="alert alert-success">{{ message }}</div>
+          {% elif "error" in message.tags or "warning" in message.tags %}
+            <div class="alert alert-error">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section id="explanation">
+    <div class="user-info span9">
       <div class="user-pic">
         &nbsp;
       </div>

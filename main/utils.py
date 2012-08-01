@@ -1,7 +1,21 @@
 from django.core.mail import send_mail
 from django.template import Context, Template
-from main.models import Order
+from main.models import Order, EngagementInterest
+from datetime import tzinfo, timedelta
 
+ZERO = timedelta(0)
+
+class UTC(tzinfo):
+  """UTC"""
+
+  def utcoffset(self, dt):
+    return ZERO
+
+  def tzname(self, dt):
+    return "UTC"
+
+  def dst(self, dt):
+    return ZERO
 
 def send_order_confirmation_email(request, order_id):
 
@@ -14,9 +28,9 @@ def send_order_confirmation_email(request, order_id):
     receiver_email = order.receiver.email
     sender_email = order.ordered_by.email
 
-    destination = [receiver_email]
+    recipients = [receiver_email]
     if sender_email != receiver_email:
-      destination.append(sender_email)
+      recipients.append(sender_email)
 
     # TODO: if the order contains a tasting kit, notify the party specialist
 
@@ -41,12 +55,12 @@ def send_order_confirmation_email(request, order_id):
     message = message_template.render(c)
 
     # send out verification e-mail, create a verification code
-    send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', destination)
+    send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', recipients)
 
     order.fulfill_status = 1
     order.save()
 
-def send_host_vinely_party_email(request):
+def send_host_vinely_party_email(request, specialist=None):
 
     message_template = Template("""
 
@@ -72,7 +86,17 @@ def send_host_vinely_party_email(request):
 
     message = message_template.render(c)
 
-    # send out verification e-mail, create a verification code
-    send_mail('I am interested in hosting a Vinely Party!', message, request.user.email, ['sales@vinely.com'])
+    # update our DB that there was repeated interest
+    interest, created = EngagementInterest.objects.get_or_create(user=request.user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
+    if not created:
+      interest.update_time()
+    else:
+      # new engagement interest
+      recipients = ['sales@vinely.com']
+      if specialist:
+        recipients.append(specialist.email)
+
+      # notify party specialist or vinely sales 
+      send_mail('I am interested in hosting a Vinely Party!', message, request.user.email, recipients)
 
     return message

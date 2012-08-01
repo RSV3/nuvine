@@ -1,0 +1,29 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Rate Your Wines</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <div class="row">
+    <div class="span12">
+      If you have received and tasted your wine, you will see links here to rate
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span12">
+      Info graphic
+    </div>
+    <div class="span12">
+        <p><a class="btn btn-primary" href="{% url sign_up 4 %}">Sign Up &raquo;</a></p>
+    </div>
+  </div>
+
+</div>
+
+{% endblock content %}
+

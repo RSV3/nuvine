@@ -45,7 +45,8 @@ class Migration(SchemaMigration):
         db.create_table('main_partyinvite', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('party', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Party'])),
-            ('invitee', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('invitee', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_invites', to=orm['auth.User'])),
+            ('invited_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='my_guests', null=True, to=orm['auth.User'])),
             ('response', self.gf('django.db.models.fields.IntegerField')(default=0)),
         ))
         db.send_create_signal('main', ['PartyInvite'])
@@ -146,6 +147,16 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('main', ['CustomizeOrder'])
 
+        # Adding model 'EngagementInterest'
+        db.create_table('main_engagementinterest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('engagement_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('latest', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+        ))
+        db.send_create_signal('main', ['EngagementInterest'])
+
 
     def backwards(self, orm):
         # Deleting model 'ContactReason'
@@ -186,6 +197,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'CustomizeOrder'
         db.delete_table('main_customizeorder')
+
+        # Deleting model 'EngagementInterest'
+        db.delete_table('main_engagementinterest')
 
 
     models = {
@@ -277,6 +291,14 @@ class Migration(SchemaMigration):
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'}),
             'wine_mix': ('django.db.models.fields.IntegerField', [], {})
         },
+        'main.engagementinterest': {
+            'Meta': {'object_name': 'EngagementInterest'},
+            'engagement_type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'latest': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
         'main.lineitem': {
             'Meta': {'object_name': 'LineItem'},
             'frequency': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
@@ -336,7 +358,8 @@ class Migration(SchemaMigration):
         'main.partyinvite': {
             'Meta': {'object_name': 'PartyInvite'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'invitee': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'invited_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'my_guests'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'invitee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'my_invites'", 'to': "orm['auth.User']"}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },

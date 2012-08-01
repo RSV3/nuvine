@@ -25,8 +25,10 @@
   {% elif attendee %}
   <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
   <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-  <li><a href="{% url start_order %}">Order Wine</a></li>
-  <li><a href="{% url order_history %}">Order History</a></li>
+  {% if wine_personality %}
+    <li><a href="{% url start_order %}">Order Wine</a></li>
+    <li><a href="{% url order_history %}">Order History</a></li>
+  {% endif %}
   <li><a href="{% url host_vinely_party %}">Host your own Vinely party</a></li>
   {% endif %}
 {% endblock side_navigation %}
@@ -34,8 +36,7 @@
 {% block main_content %}
 
   {% if messages %}
-  <div class="span9">
-    <div class="messages span9">
+    <div class="messages">
         {% for message in messages %}
           {% if "info" in message.tags %}
             <div class="alert alert-info">{{ message }}</div>
@@ -46,7 +47,6 @@
           {% endif %}
         {% endfor %}
     </div>
-  </div>
   {% endif %}
 
   <div class="span9">

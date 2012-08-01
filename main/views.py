@@ -12,14 +12,18 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q
 
-from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, CustomizeOrder, Order
+from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, \
+                        CustomizeOrder, Order, EngagementInterest
 from personality.models import Wine 
-
-from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, CreditCardForm, PaymentForm
-from personality.forms import WineRatingsForm, AllWineRatingsForm
 from accounts.models import VerificationQueue
+
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
+                        AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
+                        CreditCardForm, PaymentForm
+from personality.forms import WineRatingsForm, AllWineRatingsForm
+
 from accounts.utils import send_verification_email, send_new_invitation_email, send_party_invitation_email, send_new_party_email
-from main.utils import send_order_confirmation_email, send_host_vinely_party_email
+from main.utils import send_order_confirmation_email, send_host_vinely_party_email, UTC
 
 from personality.utils import calculate_wine_personality
 
@@ -60,6 +64,9 @@ def home(request):
       data['wine_personality'] = False
 
     data['questionnaire_completed'] = profile.prequestionnaire 
+
+    # TODO: if there are orders pending
+    data['pending_ratings'] = False
 
     # go to home page
 
@@ -117,6 +124,14 @@ def contact_us(request):
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
 
 @login_required
+def rate_wines(request):
+  """
+    Rate wines
+  """
+  data = {}
+  return render_to_response("main/rate_wines.html", data, context_instance=RequestContext(request))
+
+@login_required
 def host_vinely_party(request):
   """
     Host your own Vinely party
@@ -148,13 +163,20 @@ def start_order(request):
   """
   data = {}
 
-  data["your_personality"] = "Moxie"
+  u = request.user
+
+  data["your_personality"] = "Unidentified"
+  if u.is_authenticated():
+    personality = u.get_profile().wine_personality
+    if personality:
+      data["your_personality"] = personality.name
+
+  # filter only wine packages
   products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
 
   data["products"] = products
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
-
 
 @login_required
 def order_tasting_kit(request):
@@ -634,7 +656,7 @@ def party_list(request):
   if at_group in u.groups.all():
     data["attendee"] = True
 
-  today = datetime.today()
+  today = datetime.now(tz=UTC())
 
   if (ps_group in u.groups.all()):
     # need to filter to parties that a particular user manages
@@ -644,6 +666,14 @@ def party_list(request):
   elif (ph_group in u.groups.all()):
     data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
+  elif (at_group in u.groups.all()):
+    for inv in PartyInvite.objects.filter(invitee=u):
+      data['parties'] = []
+      data['past_parties'] = []
+      if inv.party.event_date < today:
+        data['past_parties'].append(inv.party)
+      else:
+        data['parties'].append(inv.party)
   else:
     raise PermissionDenied 
 
@@ -698,12 +728,41 @@ def party_add(request):
         vque = VerificationQueue(user=new_host, verification_code=verification_code)
         vque.save()
 
-        # send an invitation e-mail if new user created 
+        # send an invitation e-mail if new host created 
         send_new_party_email(request, verification_code, temp_password, new_host.email)
 
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
+    # if the current user is host, display party specialist
+    if "host" in data and data["host"]:
+      specialists = MyHosts.objects.filter(host=u)
+      if specialists.exists():
+        specialist = specialists[0].specialist
+        data["my_specialist"] = specialist 
+        send_host_vinely_party_email(request, specialist)
+      else:
+        send_host_vinely_party_email(request)
+
+    # if the current user is attendee, display party specialist
+    if "attendee" in data and data["attendee"]:
+      # find the latest party that guest attended and then through the host to find the party specialist
+      party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
+      if party_invites.exists():
+        party = party_invites[0].party
+        primary_host = party.host
+        specialists = MyHosts.objects.filter(host=primary_host)
+        if specialists.exists():
+          specialist = specialists[0].specialist
+          data["my_specialist"] = specialist 
+          send_host_vinely_party_email(request, specialist)
+        else:
+          # if no specialist found, just e-mail sales
+          send_host_vinely_party_email(request)
+      else:
+        # if no previous party found, just e-mail sales
+        send_host_vinely_party_email(request)
+
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
 
@@ -739,16 +798,13 @@ def party_attendee_list(request, party_id):
   if at_group in u.groups.all():
     data["attendee"] = True
 
-  if ps_group in u.groups.all() or ph_group in u.groups.all() or sp_group in u.groups.all(): 
     
-    invitees = PartyInvite.objects.filter(party=party)
+  invitees = PartyInvite.objects.filter(party=party)
 
-    data["party"] = party
-    data["invitees"] = invitees
+  data["party"] = party
+  data["invitees"] = invitees
 
-    return render_to_response("main/party_attendee_list.html", data, context_instance=RequestContext(request))
-  else:
-    raise PermissionDenied 
+  return render_to_response("main/party_attendee_list.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_attendee_invite(request, party_id=0):
@@ -767,17 +823,28 @@ def party_attendee_invite(request, party_id=0):
     data["no_parties"] = True
     return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
 
+  ps_group = Group.objects.get(name='Party Specialist')
+  ph_group = Group.objects.get(name='Party Host')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+
   party = None
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name='Party Specialist')
-  ph_group = Group.objects.get(name='Party Host')
-  if ps_group in u.groups.all() or ph_group in u.groups.all(): 
+  if ps_group in u.groups.all() or ph_group in u.groups.all() or at_group in u.groups.all(): 
     if request.method == "POST":
       form = PartyInviteAttendeeForm(request.POST)
       if form.is_valid():
         new_invite = form.save()
+        new_invite.invited_by = u
+        new_invite.save()
 
         new_invitee = new_invite.invitee
 
@@ -792,10 +859,11 @@ def party_attendee_invite(request, party_id=0):
           vque.save()
 
           # send an invitation e-mail if new user created 
-          send_new_invitation_email(request, verification_code, temp_password, new_invite, new_invitee.email)
+          send_new_invitation_email(request, verification_code, temp_password, new_invite)
         else:
-          send_party_invitation_email(request, verification_code, new_invite, new_invitee.email)
+          send_party_invitation_email(request, new_invite)
 
+        messages.success(request, '%s %s (%s) has been invited to the party.' % ( new_invitee.first_name, new_invitee.last_name, new_invitee.email ))
         return HttpResponseRedirect(reverse("party_attendee_list", args=[new_invite.party.id]))
     else:
       # if request is GET
@@ -807,12 +875,44 @@ def party_attendee_invite(request, party_id=0):
         initial_data = {'party': party}
         form =  PartyInviteAttendeeForm(initial=initial_data)
 
+    if at_group in u.groups.all():
+      today = datetime.now(tz=UTC())
+      parties = []
+      for inv in PartyInvite.objects.filter(invitee=u, party__event_date__gt=today):
+        parties.append((inv.party.id, inv.party.title))
+      form.fields['party'].choices = parties 
+    elif ph_group in u.groups.all():
+      today = datetime.now(tz=UTC())
+      parties = Party.objects.filter(host=u, event_date__gt=today)
+      form.fields['party'].queryset = parties 
+    elif ps_group in u.groups.all():
+      my_hosts = MyHosts.objects.filter(specialist=u)
+      my_host_list = []
+      for my_host in my_hosts:
+        my_host_list.append(my_host.host)
+      parties = Party.objects.filter(host__in=my_host_list)
+      form.fields['party'].queryset = parties
+
     data["form"] = form
     data["party"] = party
 
     return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
   else:
     raise PermissionDenied 
+
+@login_required
+def party_rsvp(request, party_id):
+
+  data = {}
+  u = request.user
+
+  party = get_object_or_404(Party, pk=party_id) 
+  try:
+    invite = PartyInvite.objects.get(party=party, invitee=u)
+  except PartyInvite.DoesNotExist:
+    raise Http404
+
+  return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
 @login_required
 def supplier_party_list(request):

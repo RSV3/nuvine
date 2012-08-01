@@ -68,7 +68,9 @@
           <a class="brand" href="{% url landing_page %}">Vinely</a>
 
           {% if user.is_authenticated %}
+
           <div class="btn-group pull-right">
+
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               <i class="icon-user"></i> {{ user.email }}
               <span class="caret"></span>
@@ -80,14 +82,48 @@
               <li><a href="{% url logout %}">Sign Out</a></li>
             </ul>
           </div>
-          {% else %}
 
+          <div class="nav-collapse" id="sub-menu">
+            <ul class="nav pull-right" id="sub-menu-right">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Help <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu" id="swatch-menu">
+                  <li><a href="{% url how_it_works %}">How it works</a></li>
+                  <li><a href="{% url sign_up 4 %}">Join Us</a></li>
+                  <li><a href="{% url about %}">About</a></li>
+                  <li><a href="{% url contact_us %}">Contact</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          {% else %}
+          <!-- if not logged in, show login link -->
           <div class="pull-right">
             <a href="{% url login %}">Login</a>
           </div>
-
           {% endif %}
 
+          {% if user.is_authenticated %} 
+          <div class="nav-collapse" id="main-menu">
+            <ul class="nav" id="main-menu-left">
+              <li>
+                <a href="{% url party_list %}">PARTIES</a>
+              </li>
+              {% if wine_personality %}
+              <li>
+                <a href="{% url start_order %}">SHOP</a>
+              </li>
+              {% endif %}
+              {% if pending_ratings %} 
+              <li>
+                <a href="{% url rate_wines %}">RATE_WINES</a>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+          {% else %}
           <div class="nav-collapse collapse">
             <ul class="nav">
               <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
@@ -97,6 +133,8 @@
               <li><a href="{% url contact_us %}">Contact</a></li>
             </ul>
           </div><!--/.nav-collapse -->
+          {% endif %}
+
           {% endblock navbar_menu %}
         </div>
       </div>
@@ -150,6 +188,12 @@
   <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
   <script src="{{ STATIC_URL }}js/application.js"></script>
   <script src="{{ STATIC_URL }}js/less.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready( function () {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
 
   {% block additional_scripts %}
   {% endblock additional_scripts %}

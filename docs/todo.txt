@@ -1,5 +1,10 @@
 Need to allow user to update their picture from their My Account
 
+Need to create RSVP page and invitation preview page
+
+Need to able to RSVP and see the rsvp's
+
+Need to be able to send invitation to bulk of people.
 
 July 31, 2012
 

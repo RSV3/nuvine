@@ -439,6 +439,16 @@ class SimpleTest(TestCase):
   def test_attendee_rating_order(self):
     pass
 
+  def test_party_add_request(self):
+    """
+      1. Test party adding by specialist
+
+      2. Test party add by host
+
+      3. Test party add by attendee
+
+    """
+
   def test_product_ordering(self):
 
     response = self.client.get(reverse("main.views.cart_add_tasting_kit"))
