@@ -44,7 +44,7 @@ def send_order_confirmation_email(request, order_id):
 
     You can check the status of your order at:
 
-    http://{{ host_name }}{% url order_complete order_id %}
+      http://{{ host_name }}{% url order_complete order_id %}
 
 
     """)
@@ -100,3 +100,46 @@ def send_host_vinely_party_email(request, specialist=None):
       send_mail('I am interested in hosting a Vinely Party!', message, request.user.email, recipients)
 
     return message
+
+def send_new_party_scheduled_email(request, party):
+
+    message_template = Template("""
+
+    Dear {{ host_first_name }},
+
+    The following party has been scheduled:
+
+      Party: "{{ party.title }}"
+      {% if party.description %}{{ party.description }}{% endif %}
+      Date: {{ party.event_date|date:"F j, o" }}
+      Time: {{ party.event_date|date:"g:i A" }}
+
+
+    You can start inviting guests to your party at:
+
+      http://{{ host_name }}{% url party_attendee_invite party.id %}
+    
+    If you have any questions, please contact me via e-mail: {{ specialist_email }} {% if specialist_phone %}or via phone: {{ specialist_phone }}{% endif %} 
+
+    Look forward to seeing you soon!
+
+    Your party specialist {{ specialist_first_name }} {{ specialist_last_name }}
+
+    """)
+
+    profile = request.user.get_profile()
+
+    c = Context({"host_first_name": party.host.first_name if party.host.first_name else "Superb Host", 
+                "specialist_email": request.user.email,
+                "specialist_phone": profile.phone,
+                "specialist_first_name": request.user.first_name,
+                "specialist_last_name": request.user.last_name,
+                "party": party,
+                "host_name": request.get_host()})
+
+    message = message_template.render(c)
+
+    recipients = [party.host.email]
+
+    # notify party host that your party has been scheduled 
+    send_mail('Your Vinely Party has been Scheduled!', message, request.user.email, recipients)

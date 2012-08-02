@@ -26,6 +26,11 @@ class Address(models.Model):
   def full_text(self):
     return "%s, %s, %s %s"%(self.street1, self.city, self.state, self.zipcode)
 
+  def google_maps_address(self):
+    search_str = "%s %s, %s %s"%(self.street1, self.city, self.state, self.zipcode)
+    new_str = string.replace(search_str, " ", "+")
+    return new_str 
+
 class CreditCard(models.Model):
   nick_name = models.CharField(max_length=64, null=True, blank=True)
   card_number = models.CharField(max_length=32)

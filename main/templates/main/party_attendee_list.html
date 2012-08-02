@@ -8,28 +8,15 @@
 
 {% block side_navigation %}
   {% if specialist %}
+    <li><a href="{% url party_list %}">Your Parties</a></li>
     <li><a href="{% url party_add %}">Create Party</a></li>
+  {% elif host %}
+    <li><a href="{% url party_list %}">Your Parties</a></li>
   {% endif %}
   <li><a href="{% url party_attendee_invite party.id %}">Invite Attendee</a></li>
 {% endblock side_navigation %}
 
 {% block main_content %}
-  {% if messages %}
-  <section id="alert-messages">
-    <div class="messages">
-        {% for message in messages %}
-          {% if "info" in message.tags %}
-            <div class="alert alert-info">{{ message }}</div>
-          {% elif "success" in message.tags %}
-            <div class="alert alert-success">{{ message }}</div>
-          {% elif "error" in message.tags or "warning" in message.tags %}
-            <div class="alert alert-error">{{ message }}</div>
-          {% endif %}
-        {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
   <section id="party-attendees">
     <table class="table table-striped">
       <thead>

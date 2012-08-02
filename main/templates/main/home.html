@@ -6,48 +6,41 @@
 
 {% block side_navigation %}
   {% if specialist %}
-  <li><a href="{% url party_list %}">Your Parties</a></li>
-  <li><a href="{% url party_add %}">Create Party</a></li>
-  <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
-  <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
-  <li><a href="{% url start_order %}">Order Wine</a></li>
-  <li><a href="{% url order_history %}">Order History</a></li>
-  {% elif host %}
-  <li><a href="{% url party_list %}">Your Parties</a></li>
-  <li><a href="{% url party_add %}">Create Party</a></li>
-  <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
-  <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-  <li><a href="{% url start_order %}">Order Wine</a></li>
-  <li><a href="{% url order_history %}">Order History</a></li>
-  {% elif supplier %}
-  <li><a href="{% url supplier_party_list %}">All Parties</a></li>
-  <li><a href="{% url supplier_order_backlog %}">Order Backlog</a></li>
-  {% elif attendee %}
-  <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
-  <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-  {% if wine_personality %}
+    <li><a href="{% url party_list %}">Your Parties</a></li>
+    <li><a href="{% url party_add %}">Create Party</a></li>
+    <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+    <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
     <li><a href="{% url start_order %}">Order Wine</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
+  {% elif host %}
+    <li><a href="{% url party_list %}">Your Parties</a></li>
+    <li><a href="{% url party_add %}">Create Party</a></li>
+    <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
+    <li><a href="{% url start_order %}">Order Wine</a></li>
+    <li><a href="{% url order_history %}">Order History</a></li>
+  {% elif supplier %}
+    <li><a href="{% url supplier_party_list %}">All Parties</a></li>
+    <li><a href="{% url supplier_order_backlog %}">Order Backlog</a></li>
+  {% elif attendee %}
+    <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
+    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
+    {% if wine_personality %}
+      <li><a href="{% url start_order %}">Order Wine</a></li>
+      <li><a href="{% url order_history %}">Order History</a></li>
+    {% endif %}
+    <li><a href="{% url host_vinely_party %}">Host your own Vinely party</a></li>
   {% endif %}
-  <li><a href="{% url host_vinely_party %}">Host your own Vinely party</a></li>
-  {% endif %}
+
+
+  <li class="nav-header">Alerts</li>
+  {% for invite in invites %}
+    <li><a href="{% url party_rsvp invite.party.id %}">RSVP to {{ invite.party.title }}</a>
+  {% endfor %}
+
 {% endblock side_navigation %}
 
 {% block main_content %}
-
-  {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-          {% if "info" in message.tags %}
-            <div class="alert alert-info">{{ message }}</div>
-          {% elif "success" in message.tags %}
-            <div class="alert alert-success">{{ message }}</div>
-          {% elif "error" in message.tags or "warning" in message.tags %}
-            <div class="alert alert-error">{{ message }}</div>
-          {% endif %}
-        {% endfor %}
-    </div>
-  {% endif %}
 
   <div class="span9">
   {% if specialist %}

@@ -76,6 +76,13 @@ class PartyInvite(models.Model):
   # if other than the host
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
+  invited_timestamp = models.DateTimeField(auto_now_add=True)
+  response_timestamp = models.DateTimeField(blank=True, null=True)
+
+  def set_response(self, response):
+    self.response = response
+    self.response_timestamp = datetime.now()
+    self.save()
 
 class Product(models.Model):
   PRODUCT_TYPE = (
@@ -157,12 +164,15 @@ class Cart(models.Model):
   def shipping(self):
     shipping = 0
     for item in self.items.all():
+      # always $16 - August 2, 2012
+      shipping += 16
+      """
       if item.price_category in [5, 6, 8]:
         # add shipping for good half, full, better half case
         shipping += 16
       elif item.frequency == 0:
         shipping += 16
-
+      """
     return shipping 
 
   def tax(self):

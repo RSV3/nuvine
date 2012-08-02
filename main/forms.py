@@ -55,15 +55,11 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_date'].widget = forms.HiddenInput()
     self.fields['description'].required = False
 
-    ph_group = Group.objects.get(name="Party Host")
-    #self.fields['host'].queryset = User.objects.filter(groups__in=[ph_group]).only('id','email')
-    self.fields['host'].choices = [(u.id, u.email) for u in User.objects.filter(groups__in=[ph_group]).only('id','email')]
-
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
 
     if 'host' not in cleaned_data: 
-      # create new host and return host ID
+      # create new host or find existing host 
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:

@@ -1,0 +1,124 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>You have been invited to {{ party.title }}!</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="party-message">
+    <div class="row">
+      <div class="span12">
+        <blockquote>
+        This season we celebrate the great wines of Italy to understand your tastes.  Please join us.
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section id="party-information">
+    <div class="row">
+      <div class="span6">
+        <p><b>Will you attend?</b></p>
+        <p>
+        <a class="btn btn-success btn-large" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+        <a class="btn btn-primary btn-large" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+        <a class="btn btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign"> </i>Maybe</a>
+        </p>
+        {% if invite.response %}
+        <p>
+          You have replied <b>{{ invite.get_response_display }}</b>. 
+        </p>
+        {% endif %}
+        {% if invite.response == 1 %}
+          <p>
+            We are sorry that you can't attend.  If your plan changes, you can always update your RSVP.
+          </p>
+        {% elif invite.response == 2 %}
+          <p>
+            Unsure? If your plan changes, you can always update your RSVP.
+          </p>
+        {% elif invite.response == 3 %}
+          <p>
+            We look forward to seeing you there! 
+          </p>
+        {% endif %}
+      </div>
+
+      <div class="span6">
+        <p><b>Party Details</b></p>
+        <table>
+          <tbody>
+            <tr>
+              <td>Hosted by:</td>
+              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
+            </tr>
+            <tr>
+              <td>Date and Time:</td>
+              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+            </tr>
+            <tr>
+              <td>Location:</td>
+              <td>
+                {{ party.address.street1 }}<br>
+                {% if party.adddress.street2 %}{{ party.address.street2 }}<br>{% endif %}
+                {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }} [<a href="https://maps.google.com/maps?q={{party.address.google_maps_address}}">map</a>]<br>
+              </td>
+            </tr>
+            <tr>
+              <td>Special Instructions:</td>
+              <td>{{ party.description }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+
+    </div> <!-- .row -->
+  </section>
+
+  <section id="party-attendees">
+    <div class="page-header">
+      Other Guests - You can also <a href="{% url party_attendee_invite party.id %}">invite your friends</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <th>Name</th>
+        <th>E-mail</th>
+        <th>Phone</th>
+        <th>Coming</th>
+        <th>Wine Personality</th>
+      </thead>
+      <tbody>
+      {% for inv in invitees %}
+        {# create a table of invitees #}
+        <tr>
+          {% if inv.invitee.first_name or inv.invitee.last_name %}
+          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+          {% else %}
+          <td>Anonymous</td>
+          {% endif %}
+          <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+          {% if inv.invitee.get_profile.phone %}
+          <td>{{ inv.invitee.get_profile.phone }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %}
+          <td>{{ inv.get_response_display }}</td>
+          {% if inv.invitee.get_profile.wine_personality %}
+          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+          {% else %}
+          <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+{% endblock content %}
+

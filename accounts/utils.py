@@ -13,6 +13,8 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
     Use this password to verify your account.
 
+    from your Vinely specialists.
+
     """)
 
     c = Context({"host_name": request.get_host(),
@@ -32,7 +34,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     Please verify your e-mail address and create a new password by going to:
 
-    http://{{ host_name }}{% url verify_account verification_code %}
+      http://{{ host_name }}{% url verify_account verification_code %}
 
     Your temporary password is: {{ temp_password }} 
 
@@ -41,7 +43,9 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     You need to also RSVP to your party invitation at:
 
-    http://{{ host_name }}{% url party_rsvp party_id %}
+      http://{{ host_name }}{% url party_rsvp party_id %}
+
+    from your Vinely specialists.
 
     """)
 
@@ -61,18 +65,26 @@ def send_party_invitation_email(request, party_invite):
 
     message_template = Template("""
 
-    You have been invited to Vinely Party [{{ party_name }}] 
-    by {{ invite_host_name }} ({{ invite_host_email }}).
+    You have been invited to a Vinely Party by {{ invite_host_name }} ({{ invite_host_email }}).
 
+      Party: "{{ party.title }}"
+      {% if party.description %}{{ party.description }}{% endif %}
+      Date: {{ party.event_date|date:"F j, o" }}
+      Time: {{ party.event_date|date:"g:i A" }}
 
-    You need to also RSVP to your party invitation at:
+    You need RSVP to your party invitation at:
 
-    http://{{ host_name }}{% url party_rsvp party_id %}
+      http://{{ host_name }}{% url party_rsvp party.id %}
+
+    Please do this as soon as possible.  
+
+    Thank you!
+
+    from your Vinely Specialists
 
     """)
 
-    c = Context({"party_name": party_invite.party.title,
-                "party_id": party_invite.party.id,
+    c = Context({"party": party_invite.party,
                 "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
                 "invite_host_email": request.user.email,
                 "host_name": request.get_host()})
@@ -95,6 +107,9 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
     Your temporary password is: {{ temp_password }} 
 
     Use this password to verify your account.
+
+
+    from your Vinely Specialists
 
     """)
 

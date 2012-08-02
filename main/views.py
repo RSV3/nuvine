@@ -22,8 +22,9 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeF
                         CreditCardForm, PaymentForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 
-from accounts.utils import send_verification_email, send_new_invitation_email, send_party_invitation_email, send_new_party_email
-from main.utils import send_order_confirmation_email, send_host_vinely_party_email, UTC
+from accounts.utils import send_verification_email, send_new_invitation_email, send_party_invitation_email, \
+                        send_new_party_email
+from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, UTC
 
 from personality.utils import calculate_wine_personality
 
@@ -53,7 +54,7 @@ def home(request):
       data["supplier"] = True
     if at_group in u.groups.all():
       data["attendee"] = True
-
+      data["invites"] = PartyInvite.objects.filter(invitee=u) 
 
     data['party_date'] = date.today() + timedelta(days=10)
 
@@ -730,6 +731,11 @@ def party_add(request):
 
         # send an invitation e-mail if new host created 
         send_new_party_email(request, verification_code, temp_password, new_host.email)
+      else:
+        # existing host needs to notified that party has been arranged
+        send_new_party_scheduled_email(request, new_party)
+
+      messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
 
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
@@ -765,15 +771,20 @@ def party_add(request):
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
+    ph_group = Group.objects.get(name="Party Host")
+    # need to figure out hosts filtered by party specialist
+    form.fields['host'].choices = [(myhost.host.id, myhost.host.email) for myhost in MyHosts.objects.filter(specialist=u)]
 
   data["form"] = form
 
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_attendee_list(request, party_id):
+def party_details(request, party_id):
   """
-    Show attendees of a party
+    Get details of a party
+
+    Similar to party_attendee_list
   """
 
   data = {}
@@ -781,7 +792,7 @@ def party_attendee_list(request, party_id):
   u = request.user
 
   party = None
-  if int(party_id) != 0:
+  if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
   ps_group = Group.objects.get(name="Party Specialist")
@@ -798,7 +809,45 @@ def party_attendee_list(request, party_id):
   if at_group in u.groups.all():
     data["attendee"] = True
 
-    
+  invitees = PartyInvite.objects.filter(party=party)
+
+  data["party"] = party
+  data["invitees"] = invitees
+
+  # TODO: might have to fix this and set Party to have a particular specialist
+  myhosts = MyHosts.objects.filter(host=party.host).order_by("-timestamp")
+  data["specialist"] = myhosts[0].specialist
+
+  return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
+
+@login_required
+def party_attendee_list(request, party_id):
+  """
+    Show attendees of a party
+  """
+
+  data = {}
+
+  u = request.user
+
+  party = None
+  if party_id and int(party_id) != 0:
+    party = get_object_or_404(Party, pk=party_id)
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
+  sp_group = Group.objects.get(name='Supplier')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if sp_group in u.groups.all():
+    data["supplier"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
@@ -838,6 +887,13 @@ def party_attendee_invite(request, party_id=0):
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
+    if at_group in u.groups.all():
+      try:
+        # attendee must have been already invited to invite more
+        invite = PartyInvite.objects.get(party=party, invitee=u)
+      except PartyInvite.DoesNotExist:
+        raise PermissionDenied
+
   if ps_group in u.groups.all() or ph_group in u.groups.all() or at_group in u.groups.all(): 
     if request.method == "POST":
       form = PartyInviteAttendeeForm(request.POST)
@@ -858,7 +914,7 @@ def party_attendee_invite(request, party_id=0):
           vque = VerificationQueue(user=new_invitee, verification_code=verification_code)
           vque.save()
 
-          # send an invitation e-mail if new user created 
+          # send an invitation e-mail, new user created 
           send_new_invitation_email(request, verification_code, temp_password, new_invite)
         else:
           send_party_invitation_email(request, new_invite)
@@ -901,7 +957,7 @@ def party_attendee_invite(request, party_id=0):
     raise PermissionDenied 
 
 @login_required
-def party_rsvp(request, party_id):
+def party_rsvp(request, party_id, response=None):
 
   data = {}
   u = request.user
@@ -911,6 +967,15 @@ def party_rsvp(request, party_id):
     invite = PartyInvite.objects.get(party=party, invitee=u)
   except PartyInvite.DoesNotExist:
     raise Http404
+
+  if response:
+    invite.response = int(response)
+    invite.save()
+
+  invitees = PartyInvite.objects.filter(party=party).exclude(invitee=u)
+  data["party"] = party
+  data["invitees"] = invitees
+  data["invite"] = invite
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 

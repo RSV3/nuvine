@@ -1,0 +1,112 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Party: {{ party.title }} Details</h1>
+  Here are your party details.  Invite more attendees to learn about their wine profiles.
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  
+  <section id="party-information">
+    <div class="row">
+      <div class="span6">
+        <table>
+          <tbody>
+            <tr>
+              <td>Hosted by:</td>
+              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
+            </tr>
+            <tr>
+              <td>Date and Time:</td>
+              <td>{{ party.event_date|date:"F j, o, g:i A" }}</td>
+            </tr>
+            <tr>
+              <td>Location:</td>
+              <td>{{ party.address.full_text }}</td>
+            </tr>
+            <tr>
+              <td>Guests Attending:</td>
+              <td>{{ party.invitees }}</td>
+            </tr>
+            <tr>
+              <td>Special Instructions:</td>
+              <td>{{ party.description }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="span6">
+        <p>
+          <div class="user-info">
+            <div class="user-pic">
+              &nbsp;
+            </div>
+            <div class="user-contact">
+              <p><b>Party Specialist:</b></p>
+              <div class="user-name">
+                {% if specialist.first_name %}
+                  {{ specialist.first_name }} {{ specialist.last_name }}
+                {% else %}
+                  Valued Customer Name
+                {% endif %}
+              </div>
+              <div class="user-phone">
+                <i class="icon-user"></i> {% if specialist.get_profile.phone %}{{ specialist.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
+              </div>
+              <div class="user-email">
+                <a href="mailto:{{ specialist.email }}">{{ specialist.email }}</a>
+              </div>
+            </div>
+          </div>
+        </p>
+        <p><a href="#">Tips for hosting a successful party</a></p>
+      </div>
+    </div> <!-- .row -->
+  </section>
+
+  <section id="party-attendees">
+    <div class="page-header">
+      Guests - <a href="{% url party_attendee_invite party.id %}">Add Guests</a>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <th>Name</th>
+        <th>E-mail</th>
+        <th>Phone</th>
+        <th>Coming</th>
+        <th>Wine Personality</th>
+      </thead>
+      <tbody>
+      {% for inv in invitees %}
+        {# create a table of invitees #}
+        <tr>
+          {% if inv.invitee.first_name or inv.invitee.last_name %}
+          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+          {% else %}
+          <td>Anonymous</td>
+          {% endif %}
+          <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+          {% if inv.invitee.get_profile.phone %}
+          <td>{{ inv.invitee.get_profile.phone }}</td>
+          {% else %}
+          <td>-</td>
+          {% endif %}
+          <td>{{ inv.get_response_display }}</td>
+          {% if inv.invitee.get_profile.wine_personality %}
+          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+          {% else %}
+          <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+{% endblock content %}
+

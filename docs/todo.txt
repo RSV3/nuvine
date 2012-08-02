@@ -1,3 +1,11 @@
+Thank you message after survey completed
+Success for filling out the invitation
+Success for join to become host form
+
+Done: Add guest link from the Party Detail page
+Done: Show list of attendees
+Done: Link for "Tips for hosting a successful party"
+
 Need to allow user to update their picture from their My Account
 
 Need to create RSVP page and invitation preview page
