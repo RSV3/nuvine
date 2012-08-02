@@ -22,18 +22,17 @@
 
 {% block main_content %}
 
-
   <section id="explanation">
-    <div class="user-info span9">
+    <div class="user-info">
       <div class="user-pic">
-        &nbsp;
+        <img width="120" src="http://i3.squidoocdn.com/resize/squidoo_images/250/draft_lens12465611module112776691photo_1280702420jessica-simpson-drunk.jpg">
       </div>
       <div class="user-contact">
         <div class="user-name">
           {% if user.first_name %}
             {{ user.first_name }} {{ user.last_name }}
           {% else %}
-            Valued Customer Name
+            Valued User Name 
           {% endif %}
         </div>
         <div class="user-phone">

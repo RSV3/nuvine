@@ -5,12 +5,12 @@ Success for join to become host form
 Done: Add guest link from the Party Detail page
 Done: Show list of attendees
 Done: Link for "Tips for hosting a successful party"
+Done: Need to able to RSVP and see the rsvp's
 
 Need to allow user to update their picture from their My Account
 
-Need to create RSVP page and invitation preview page
 
-Need to able to RSVP and see the rsvp's
+Invitation preview page
 
 Need to be able to send invitation to bulk of people.
 
