@@ -26,3 +26,7 @@
 .user-contact {
   padding-left: 140px;
 }
+
+#id_custom_message {
+  width: 600px;
+}

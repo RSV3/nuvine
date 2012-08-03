@@ -1,0 +1,98 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Customize Invitation</h1>
+  Feel free to add your custom invite message.
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <form method="POST" action="{% url party_send_invites %}">
+    {% csrf_token %}
+
+    {{ form.party }}
+
+    {% for g in guests %}
+      <input type="hidden" value="{{ g }}" name="guests">
+    {% endfor %}
+    <div class="row">
+      <div class="span12">
+        <table>
+          <tbody>
+            <tr>
+              <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-attendees">edit guests</a>)
+            </tr>
+            <tr>
+              <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
+            </tr>
+            <tr>
+              <td>Subject:</td><td>{{ form.custom_subject }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="span12">
+      <center>
+        <img src="http://www.winepartiesbydesign.com/_images/banner_1.png">
+      </center>
+    </div>
+
+    <div class="row">
+      <div class="span12">
+        <p>Vinely party is about learning and having fun while exploring your wine tastes.  We invite you to come and explore the intricacies of wine with your fellow Vinely friends.</p>
+
+        <div class="control-group">
+          <div class="controls">
+            {{ form.custom_message }}
+          </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="span6">
+        <p><h3>Party Details</h3></p>
+        <p>&nbsp;</p>
+        <table cellpadding="10">
+          <tbody>
+            <tr>
+              <td>Date and Time:</td>
+              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+            </tr>
+            <tr>
+              <td>Location:</td>
+              <td>
+                {{ party.address.street1 }}<br>
+                {% if party.address.street2 %}{{ party.address.street2 }}<br>{% endif %}
+                {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="span6">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="span12">
+        <div class="form-actions">
+          <div class="controls">
+            <button type="submit" class="btn btn-primary">
+              Send Invitation 
+            </button>
+          </div>
+      </div>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+{% endblock content %}

@@ -292,3 +292,13 @@ class EngagementInterest(models.Model):
 
   def __unicode__(self):
     return "%s interest in %s"%(self.user.email, EngagementInterest.ENGAGEMENT_CHOICES[self.engagement_type][1])
+
+class InvitationSent(models.Model):
+  """
+    Tracking the invitations sent from Party Details page
+  """
+  party = models.ForeignKey(Party)
+  custom_subject = models.CharField(max_length=128, default="You're invited to a Vinely Party!")
+  custom_message = models.CharField(max_length=1024, blank=True, null=True)
+  guests = models.ManyToManyField(User)
+  timestamp = models.DateTimeField(auto_now_add=True)

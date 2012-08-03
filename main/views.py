@@ -19,12 +19,12 @@ from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CreditCardForm, PaymentForm
+                        CreditCardForm, PaymentForm, CustomizeInvitationForm
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 
-from accounts.utils import send_verification_email, send_new_invitation_email, send_party_invitation_email, \
-                        send_new_party_email
-from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, UTC
+from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
+from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
+                        distribute_party_invites_email, send_party_invitation_email, UTC
 
 from personality.utils import calculate_wine_personality
 
@@ -782,9 +782,8 @@ def party_add(request):
 @login_required
 def party_details(request, party_id):
   """
-    Get details of a party
+    Get details of a party, view party guests and inform, invite new guests
 
-    Similar to party_attendee_list
   """
 
   data = {}
@@ -916,11 +915,9 @@ def party_attendee_invite(request, party_id=0):
 
           # send an invitation e-mail, new user created 
           send_new_invitation_email(request, verification_code, temp_password, new_invite)
-        else:
-          send_party_invitation_email(request, new_invite)
 
         messages.success(request, '%s %s (%s) has been invited to the party.' % ( new_invitee.first_name, new_invitee.last_name, new_invitee.email ))
-        return HttpResponseRedirect(reverse("party_attendee_list", args=[new_invite.party.id]))
+        return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
     else:
       # if request is GET
       if int(party_id) == 0:
@@ -978,6 +975,56 @@ def party_rsvp(request, party_id, response=None):
   data["invite"] = invite
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
+
+@login_required
+def party_customize_invite(request):
+  """
+    Customize invitations to those people
+  """
+
+  # TODO: show that the following invitation will be sent
+  data = {}
+
+  if request.method == 'POST':
+    guests = request.POST.getlist('guests')
+    party = Party.objects.get(id=request.POST.get('party'))
+    print "Selected guests:", guests
+
+    form = CustomizeInvitationForm()
+    form.initial = {'party': party}
+    data["party"] = party
+    data["guests"] = guests 
+    data["form"] = form
+    data["guest_count"] = len(guests)
+
+    return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
+  else:
+    return PermissionDenied
+
+@login_required
+def party_send_invites(request):
+  """
+    Send invitations to those people
+  """
+
+  data = {}
+
+  # send invitation 
+  form = CustomizeInvitationForm(request.POST or None)
+  if request.method == 'POST':
+    invitation_sent = form.save()
+    party = invitation_sent.party
+
+    # send e-mails
+    distribute_party_invites_email(request, invitation_sent)
+
+    messages.success(request, "Invitations have been sent to your guests.")
+
+    return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
+
+  data["form"] = form
+
+  return render_to_response("main/party_send_invites.html", data, context_instance=RequestContext(request))
 
 @login_required
 def supplier_party_list(request):

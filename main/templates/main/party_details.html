@@ -20,7 +20,7 @@
             </tr>
             <tr>
               <td>Date and Time:</td>
-              <td>{{ party.event_date|date:"F j, o, g:i A" }}</td>
+              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
             </tr>
             <tr>
               <td>Location:</td>
@@ -69,41 +69,50 @@
 
   <section id="party-attendees">
     <div class="page-header">
-      Guests - <a href="{% url party_attendee_invite party.id %}">Add Guests</a>
+      Guests - <a class="btn btn-primary" href="{% url party_attendee_invite party.id %}">Add Guests</a>
     </div>
-    <table class="table table-striped">
-      <thead>
-        <th>Name</th>
-        <th>E-mail</th>
-        <th>Phone</th>
-        <th>Coming</th>
-        <th>Wine Personality</th>
-      </thead>
-      <tbody>
-      {% for inv in invitees %}
-        {# create a table of invitees #}
-        <tr>
-          {% if inv.invitee.first_name or inv.invitee.last_name %}
-          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
-          {% else %}
-          <td>Anonymous</td>
-          {% endif %}
-          <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-          {% if inv.invitee.get_profile.phone %}
-          <td>{{ inv.invitee.get_profile.phone }}</td>
-          {% else %}
-          <td>-</td>
-          {% endif %}
-          <td>{{ inv.get_response_display }}</td>
-          {% if inv.invitee.get_profile.wine_personality %}
-          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-          {% else %}
-          <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
-          {% endif %}
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <form method="POST" action="{% url party_customize_invite %}">
+      {% csrf_token %}
+      <input type="hidden" name="party" value="{{ party.id }}">
+      <table class="table table-striped">
+        <thead>
+          <th>Select</th>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+          <th>RSVP</th>
+          <th>Wine Personality</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+            <td>Anonymous</td>
+            {% endif %}
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+            {% if inv.invitee.get_profile.phone %}
+            <td>{{ inv.invitee.get_profile.phone }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+            <td>{{ inv.get_response_display }}</td>
+            {% if inv.invitee.get_profile.wine_personality %}
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+            {% else %}
+            <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <div class="control-group">
+        <button type="submit" class="btn btn-primary">Send Invite</button>
+      </div>
+    </form>
   </section>
 
 </div>

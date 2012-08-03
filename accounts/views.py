@@ -70,15 +70,18 @@ def sign_up(request, account_type):
 
   data = {}
   role = ""
-  if int(account_type) == 0:
+
+  account_type = int(account_type)
+  if account_type == 0:
     role = "Party Specialist"
-  elif int(account_type) == 1:
+  elif account_type == 1:
     role = "Party Host"
-  elif int(account_type) == 2:
+  elif account_type == 2:
     role = "Attendee"
-  elif int(account_type) == 3:
+  elif account_type == 3:
     role = "Supplier"
-  elif int(account_type) == 4:
+  elif account_type == 4:
+    # people who order wine tasting kit
     role = "Attendee"
 
   if not role:
@@ -108,6 +111,10 @@ def sign_up(request, account_type):
     send_verification_email(request, verification_code, temp_password, user.email)
 
     data["email"] = user.email
+
+    data["account_type"] = account_type 
+    if account_type == 1:
+      messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 

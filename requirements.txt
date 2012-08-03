@@ -16,7 +16,8 @@ dj-database-url==0.2.1
 -e git+https://github.com/kwantopia/django-email-as-username.git#egg=django-email-as-username==1.5.2
 #https://github.com/kwantopia/django-email-as-username/zipball/master#egg=django-email-as-username==1.5.2
 #django-email-as-username==1.5.1
-django-storages==1.1.5
+#django-storages==1.1.5
+-e hg+https://bitbucket.org/yuchant/django-storages#egg=django-storages
 dot2tex==2.8.7
 feedparser==5.1.2
 gunicorn==0.14.6

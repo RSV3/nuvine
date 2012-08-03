@@ -6,7 +6,7 @@ from django.contrib.localflavor.us import us_states
 from emailusernames.utils import create_user, create_superuser
 from emailusernames.forms import EmailUserCreationForm
 
-from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder
+from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, InvitationSent
 from accounts.models import Address, CreditCard
 from creditcard.fields import *
 
@@ -386,9 +386,6 @@ class PaymentForm(forms.ModelForm):
  
     return cleaned_data
 
-  def save(self, commit=True):
-    self.cleaned_data['card_number']
-
   def save(self, commit=True, force_insert=False, force_update=False, *args, **kwargs):
     m = super(PaymentForm, self).save(commit=False, *args, **kwargs)
 
@@ -399,3 +396,13 @@ class PaymentForm(forms.ModelForm):
       m.save()
     return m
     
+class CustomizeInvitationForm(forms.ModelForm):
+
+  class Meta:
+    model = InvitationSent
+
+  def __init__(self, *args, **kwargs):
+    super(CustomizeInvitationForm, self).__init__(*args, **kwargs)
+    self.fields['custom_subject'].widget.attrs['class'] = 'span4'
+    self.fields['party'].widget = forms.HiddenInput()
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5})
