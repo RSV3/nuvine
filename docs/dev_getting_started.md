@@ -20,4 +20,6 @@
 
   $ git push heroku-staging staging:master
 
+# To pull updates
 
+	$ git pull origin staging
