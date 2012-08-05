@@ -16,7 +16,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine1 = forms.IntegerField(widget=forms.HiddenInput())
   wine1_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect(attrs={"class":"radio"}), choices=WineRatingData.LIKENESS_CHOICES)
-  wine1_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine1_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine1_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine1_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine1_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -28,7 +28,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine2 = forms.IntegerField(widget=forms.HiddenInput())
   wine2_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
-  wine2_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine2_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine2_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine2_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine2_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -41,7 +41,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine3 = forms.IntegerField(widget=forms.HiddenInput())
   wine3_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
-  wine3_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine3_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine3_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine3_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine3_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -53,7 +53,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine4 = forms.IntegerField(widget=forms.HiddenInput())
   wine4_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
-  wine4_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine4_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine4_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine4_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine4_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -65,7 +65,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine5 = forms.IntegerField(widget=forms.HiddenInput())
   wine5_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
-  wine5_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine5_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine5_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine5_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine5_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -77,7 +77,7 @@ class AllWineRatingsForm(forms.Form):
 
   wine6 = forms.IntegerField(widget=forms.HiddenInput())
   wine6_overall = forms.ChoiceField(label="Overall Rating", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
-  wine6_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  #wine6_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine6_sweet = forms.ChoiceField(label="Sweet", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine6_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine6_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
@@ -116,7 +116,7 @@ class AllWineRatingsForm(forms.Form):
         rating_data = WineRatingData.objects.get(user=user, wine=wine)
         # update
         rating_data.overall = int(data['wine%d_overall'%i])
-        rating_data.dnl = int(data['wine%d_dnl'%i])
+        #rating_data.dnl = int(data['wine%d_dnl'%i])
         rating_data.sweet = int(data['wine%d_sweet'%i])
         rating_data.sweet_dnl = int(data['wine%d_sweet_dnl'%i])
         rating_data.weight = int(data['wine%d_weight'%i])
@@ -132,7 +132,7 @@ class AllWineRatingsForm(forms.Form):
             user = user,
             wine = wine,
             overall = int(data['wine%d_overall'%i]),
-            dnl = int(data['wine%d_dnl'%i]),
+            #dnl = int(data['wine%d_dnl'%i]),
             sweet = int(data['wine%d_sweet'%i]),
             sweet_dnl = int(data['wine%d_sweet_dnl'%i]),
             weight = int(data['wine%d_weight'%i]),
