@@ -4,22 +4,22 @@
 
 # Code update from github
 
-  $ git pull origin
+    $ git pull origin
   
 # For checking in code
 
-  $ git status (to see which files have changed)
-  $ git add <file names> [or] git add . (to add all files)
-  $ git commit -m "any comment on your changes"
+    $ git status (to see which files have changed)
+    $ git add <file names> [or] git add . (to add all files)
+    $ git commit -m "any comment on your changes"
   
 # To push commits to github
 
-  $ git push origin staging
+    $ git push origin staging
 
 # To push commits to heroku-staging
 
-  $ git push heroku-staging staging:master
+    $ git push heroku-staging staging:master
 
 # To pull updates
 
-	$ git pull origin staging
+    $ git pull origin staging
