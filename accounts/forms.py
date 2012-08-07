@@ -65,3 +65,14 @@ class UpdateAddressForm(forms.ModelForm):
     super(UpdateAddressForm, self).__init__(*args, **kwargs)
 
 
+class ForgotPasswordForm(forms.Form):
+
+  email = forms.EmailField()
+
+  def clean_email(self):
+    try:
+      u = User.objects.get(email=self.cleaned_data['email'])
+    except User.DoesNotExist:
+      raise forms.ValidationError('User with %s does not exist'%(self.cleaned_data['email']))
+
+    return self.cleaned_data['email']

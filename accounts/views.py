@@ -8,14 +8,15 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 from main.models import EngagementInterest
 
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
 
-from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm 
+from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm
 from accounts.models import VerificationQueue
-from accounts.utils import send_verification_email
+from accounts.utils import send_verification_email, send_password_change_email
 
 import uuid
 import logging
@@ -49,14 +50,29 @@ def change_password(request):
   return render_to_response("accounts/change_password.html", data, 
                         context_instance=RequestContext(request))
 
-@login_required
-def settings(request):
-  """
-    User settings
-  """
+def forgot_password(request):
+
   data = {}
 
-  return render_to_response("accounts/settings.html", data, 
+  form = ForgotPasswordForm(request.POST or None)
+  if form.is_valid():
+    # find user with this e-mail and assign temporary password
+    user = User.objects.get(email = form.cleaned_data['email'])
+    temp_password = User.objects.make_random_password()
+    user.set_password(temp_password)
+    user.save()
+
+    verification_code = str(uuid.uuid4())
+    vque = VerificationQueue(user=user, verification_code=verification_code, verification_type=VerificationQueue.VERIFICATION_CHOICES[1][0])
+    vque.save()
+
+    # send an e-mail with random password
+    send_password_change_email(request, verification_code, temp_password, user.email)
+    data["changed_password"] = True      
+    data["email"] = form.cleaned_data['email']
+
+  data['form'] = form
+  return render_to_response("accounts/forgot_password.html", data, 
                         context_instance=RequestContext(request))
 
 def sign_up(request, account_type):
@@ -101,7 +117,18 @@ def sign_up(request, account_type):
     user.save()
 
     # save engagement type
-    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[3][0])
+    engagement_type = 2
+    if account_type == 1:
+      engagemnt_type = 0
+    elif account_type == 0:
+      engagement_type = 1
+    elif account_type == 2:
+      engagement_type = 2
+    elif account_type == 4:
+      engagement_type = 3
+
+    interest, created = EngagementInterest.objects.get_or_create(user=user, 
+                                                      engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[engagement_type][0])
 
     verification_code = str(uuid.uuid4())
     vque = VerificationQueue(user=user, verification_code=verification_code)
@@ -127,20 +154,27 @@ def sign_up(request, account_type):
 
 def verify_email(request, verification_code):
   """
-    Verify e-mail
+    Verify e-mail, used when user changes e-mail address
   """
   data = {}
 
-  verify = VerificationQueue.objects.get(verification_code=verification_code)
-  data['email'] = verify.user.email
-  user = verify.user
-  user.is_active = True
-  user.save()
+  try:
+    verify = VerificationQueue.objects.get(verification_code=verification_code, verified=False,
+                                          verification_type=VerificationQueue.VERIFICATION_CHOICES[2][0])
+    old_email = verify.user.email
 
-  verify.delete()
+    user = verify.user
+    user.email = verify.verify_data
+    user.save()
 
-  return render_to_response("accounts/verified_email.html", data,
-                        context_instance=RequestContext(request))
+    verify.verified = True
+    verify.save()
+
+    messages.success(request, "Your new e-mail %s has been verified and old e-mail %s removed."%(user.email, old_email))
+
+    return render_to_response("accounts/verified_email.html", data, context_instance=RequestContext(request))
+  except VerificationQueue.DoesNotExist:
+    raise PermissionDenied
 
 def verify_account(request, verification_code):
   """
@@ -181,7 +215,10 @@ def verify_account(request, verification_code):
         log.debug("For some reason %s could not be verified and authenticated."%user.email)
         return HttpResponseRedirect(reverse("login")) 
 
-      # TODO: show an alert and send to home page
+      if verification.verification_type == VerificationQueue.VERIFICATION_CHOICES[0][0]:
+        messages.success(request, "Your account has been verified and now is active.")
+      elif verification.verification_type == VerificationQueue.VERIFICATION_CHOICES[1][0]:
+        messages.success(request, "Your password has been reset to your new password.")
 
       return HttpResponseRedirect(reverse("home_page"))
 

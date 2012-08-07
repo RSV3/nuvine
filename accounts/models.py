@@ -69,9 +69,19 @@ class CreditCard(models.Model):
     return string.strip(pad_number, 'X')
 
 class VerificationQueue(models.Model):
+
+  VERIFICATION_CHOICES = (
+    (0, 'New Account'),
+    (1, 'Forgot Password'),
+    (2, 'Verify E-mail')
+  )
+
   user = models.ForeignKey(User)
   verification_code = models.CharField(max_length=64)
   verified = models.BooleanField(default=False)
+  verification_type = models.IntegerField(choices=VERIFICATION_CHOICES, default=0)
+  #: verify_data is used when verifying e-mail only for now
+  verify_data = models.CharField(max_length=128, blank=True, null=True)
   created = models.DateTimeField(auto_now_add=True)
 
 class UserProfile(models.Model):

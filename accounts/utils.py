@@ -25,6 +25,31 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   # send out verification e-mail, create a verification code
   send_mail('Welcome to Vinely!', message, 'support@vinely.com', [receiver_email])
 
+def send_password_change_email(request, verification_code, temp_password, receiver_email):
+
+  message_template = Template("""
+
+  You have requested for your password to be reset, please use the temporary password 
+  and update your account with a new password at:
+
+  http://{{ host_name }}{% url verify_account verification_code %}
+
+  Your temporary password is: {{ temp_password }} 
+
+  Use this password to verify your account.
+
+  from your Vinely specialists.
+
+  """)
+
+  c = Context({"host_name": request.get_host(),
+              "verification_code": verification_code,
+              "temp_password": temp_password})
+  message = message_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  send_mail('Change password request', message, 'support@vinely.com', [receiver_email])
+
 def send_new_invitation_email(request, verification_code, temp_password, party_invite):
 
   message_template = Template("""
