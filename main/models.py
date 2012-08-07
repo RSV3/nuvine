@@ -28,6 +28,7 @@ class ContactRequest(models.Model):
   last_name = models.CharField(max_length=64, null=True, blank=True)
   sex = models.IntegerField(choices=SEX_CHOICES, default=SEX_CHOICES[0][0])
   email = models.EmailField(verbose_name="E-mail", unique=True)
+  phone = models.CharField(max_length=16, null=True, blank=True)
   message = models.TextField()
   zipcode = models.CharField(max_length=12)
 
@@ -200,13 +201,14 @@ class Order(models.Model):
   order_date = models.DateTimeField(auto_now_add=True)
 
   FULFILL_CHOICES = (
-      ( 0, 'Ordered' ),
-      ( 1, 'Processing' ),
-      ( 2, 'Delayed' ),
-      ( 3, 'Out of Stock'),
-      ( 4, 'Wine Selected'),
-      ( 5, 'Shipped' ),
-      ( 6, 'Received' ),
+      ( 0, 'Not Ordered' ),
+      ( 1, 'Ordered' ),
+      ( 2, 'Processing' ),
+      ( 3, 'Delayed' ),
+      ( 4, 'Out of Stock'),
+      ( 5, 'Wine Selected'),
+      ( 6, 'Shipped' ),
+      ( 7, 'Received' ),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
@@ -220,13 +222,52 @@ class Order(models.Model):
   carrier = models.IntegerField(choices=CARRIER_TYPE, default=0)
   tracking_number = models.CharField(max_length=128, null=True, blank=True)
   ship_date = models.DateTimeField(blank=True, null=True)
+  last_updated = models.DateTimeField(auto_now=True)
 
-class OrderFulfilled(models.Model):
-  """
-    Every time an order is fulfilled it is logged here
-  """
-  order = models.ForeignKey(Order)
-  fulfilled_date = models.DateTimeField(auto_now_add=True)
+  def receiver_personality(self):
+    """
+      return wine personality of receiver
+    """
+    profile = self.receiver.get_profile()
+    if profile.wine_personality:
+      return profile.wine_personality.name
+    else:
+      return "-"
+
+  def quantity_summary(self):
+    items = self.cart.items.filter(price_category__in=[5,6,7,8,9,10])
+    if items.exists():
+      return items[0].quantity_str()
+    else:
+      items = self.cart.items.exclude(price_category__in=[5,6,7,8,9,10])
+      if items.exists():
+        return items[0].quantity
+    return "-"
+
+  def recurring(self):
+    items = self.cart.items.filter(frequency__in=[1,2,3])
+    if items.exists():
+      return "Y"
+    else:
+      return "N"
+
+  def party_state(self):
+    # find the party state by looking at the party that the receiver has participated 
+    latest_parties = PartyInvite.objects.filter(invitee=self.receiver).order_by('-party__event_date')
+    if latest_parties.exists():
+      return latest_parties[0].party.address.state
+    else:
+      # if no party exists, it probably means that the guest is ordering for someone else
+      latest_parties = PartyInvite.objects.filter(invitee=self.ordered_by).order_by('-party__event_date')
+      if latest_parties.exists():
+        return latest_parties[0].party.address.state
+      else:
+        # there is an issue finding out which party this order belongs to
+        return "-"
+
+  def ships_to(self):
+    return self.shipping_address.state
+
 
 class OrderReview(models.Model):
   """
@@ -259,14 +300,16 @@ class CustomizeOrder(models.Model):
       ( 3, 'Send me white wine only')
   )
 
-  wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.")
+  wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.",
+                                  default=MIX_CHOICES[0][0])
 
   SPARKLING_CHOICES = (
-      ( 0, 'No' ),
+      ( 0, 'No thanks' ),
       ( 1, 'Yes' )
   )
 
-  sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?")
+  sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
+                                    default=SPARKLING_CHOICES[1][0])
   timestamp = models.DateTimeField(auto_now_add=True)
 
 class EngagementInterest(models.Model):

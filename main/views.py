@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django import forms
@@ -19,18 +19,31 @@ from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CreditCardForm, PaymentForm, CustomizeInvitationForm
+                        CreditCardForm, PaymentForm, CustomizeInvitationForm, OrderFulfillForm
+
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
-                        distribute_party_invites_email, send_party_invitation_email, UTC
+                        distribute_party_invites_email, send_party_invitation_email, UTC, \
+                        send_contact_request_email, if_supplier
 
 from personality.utils import calculate_wine_personality
 
 import json, uuid
 
 from datetime import date, datetime, timedelta
+
+
+
+
+def suppliers_only(request):
+  """
+    Redirected to this page when one is trying to access only supplier features
+  """
+  data = {}
+  data["message"] = "Only suppliers are allowed to access this page"
+  return render_to_response("403.html", data, context_instance=RequestContext(request))
 
 @login_required
 def home(request):
@@ -55,8 +68,9 @@ def home(request):
     if at_group in u.groups.all():
       data["attendee"] = True
       data["invites"] = PartyInvite.objects.filter(invitee=u) 
-
-    data['party_date'] = date.today() + timedelta(days=10)
+      invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
+      if invites.exists():
+        data['party_date'] = invites[0].party.event_date
 
     profile = u.get_profile()
     if profile.wine_personality:
@@ -115,7 +129,8 @@ def contact_us(request):
   if request.method == "POST":
     form = ContactRequestForm(request.POST)
     if form.is_valid():
-      form.save()
+      contact_request = form.save()
+      send_contact_request_email(request, contact_request)
       return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
   else:
     form = ContactRequestForm()
@@ -340,24 +355,22 @@ def customize_checkout(request):
 
   if u.is_authenticated():
     try:
-      custom = CustomizeOrder.objects.get(user=u) 
-      # customization already happened
-
-      # go to shipping 
-      return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
+      custom = CustomizeOrder.objects.get(user=u)
     except CustomizeOrder.DoesNotExist:
-      # continue to show customization form
-      pass
+      # continue to show customization form which will be filled in with current user's customization initially
+      custom = None
 
-  form = CustomizeOrderForm(request.POST or None)
+  form = CustomizeOrderForm(request.POST or None, instance=custom)
   if form.is_valid():
     custom = form.save(commit=False)
-    if u.is_authenticated():
+    if u.is_authenticated() and custom.user is None:
       custom.user = u
     custom.save()
     return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
       
-  form.initial = {'wine_mix': 0, 'sparkling': 0}
+
+  if custom is None:
+    form.initial = {'wine_mix': 0, 'sparkling': 1}
   data['form'] = form
   return render_to_response("main/customize_checkout.html", data, context_instance=RequestContext(request))
 
@@ -440,6 +453,7 @@ def order_complete(request, order_id):
 
   u = request.user
 
+  # remove session information if it exists
   if 'ordering' in request.session:
     del request.session['ordering']
   if 'order_id' in request.session:
@@ -455,6 +469,7 @@ def order_complete(request, order_id):
     raise Http404
 
   if order.ordered_by == u or order.receiver == u:
+    # only viewable by one who ordered or one who's receiving
 
     data["order"] = order
 
@@ -479,18 +494,6 @@ def order_history(request):
 
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
-@login_required
-def supplier_order_backlog(request):
-  """
-    Orders that the supplier needs to fulfill
-  """
-
-  data = {}
-  u = request.user
-
-  data["orders"] = Order.objects.all()
-
-  return render_to_response("main/supplier_order_backlog.html", data, context_instance=RequestContext(request))
 
 @login_required
 def view_orders(request):
@@ -569,7 +572,7 @@ def record_all_wine_ratings(request, email=None):
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
          
-        if (ps_group in u.groups.all()) or (ps_group in u.groups.all()):
+        if (ps_group in u.groups.all()) or (ph_group in u.groups.all()):
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "specialist"
         elif (att_group in u.groups.all()):
@@ -1027,6 +1030,20 @@ def party_send_invites(request):
   return render_to_response("main/party_send_invites.html", data, context_instance=RequestContext(request))
 
 @login_required
+def party_order_list(request):
+  """
+    Party orders from specialist or host point of view
+  """
+  return render_to_response("main/party_order_list.html", data, context_instance=RequestContext(request))
+
+################################################################################
+#
+# Supplier views
+#
+################################################################################
+
+@login_required
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_party_list(request):
   """
     Shows party list from suppliers point of view
@@ -1035,12 +1052,28 @@ def supplier_party_list(request):
   """
   data = {}
 
+  data["supplier"] = True
   data['parties'] = Party.objects.all()
 
   return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_order_list(request, party_id):
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_party_orders(request, party_id):
+  """
+    Show orders from a particular party for the supplier 
+
+  """
+  data = {}
+
+  data["supplier"] = True
+  data['party'] = Party.objects.get(id=party_id)
+
+  return render_to_response("main/supplier_party_orders.html", data, context_instance=RequestContext(request))
+
+@login_required
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_pending_orders(request):
   """
     Shows party list from suppliers point of view
 
@@ -1048,12 +1081,14 @@ def party_order_list(request, party_id):
   """
   data = {}
 
-  data['parties'] = Party.objects.all()
+  data["supplier"] = True
+  data["orders"] = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
 
-  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/supplier_pending_orders.html", data, context_instance=RequestContext(request))
 
 @login_required
-def pending_orders(request):
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_fulfilled_orders(request):
   """
     Shows party list from suppliers point of view
 
@@ -1061,12 +1096,14 @@ def pending_orders(request):
   """
   data = {}
 
-  data['parties'] = Party.objects.all()
+  data["supplier"] = True
+  data["orders"] = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0])
 
-  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/supplier_fulfilled_orders.html", data, context_instance=RequestContext(request))
 
 @login_required
-def fulfilled_orders(request):
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_all_orders(request):
   """
     Shows party list from suppliers point of view
 
@@ -1074,22 +1111,50 @@ def fulfilled_orders(request):
   """
   data = {}
 
-  data['parties'] = Party.objects.all()
+  data["supplier"] = True
+  data['orders'] = Order.objects.all()
 
-  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
 
 @login_required
-def all_orders(request):
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_edit_order(request, order_id):
   """
-    Shows party list from suppliers point of view
+    Update order status or add tracking number
+  """
 
-    So it displays all parties
-  """
   data = {}
 
-  data['parties'] = Party.objects.all()
+  u = request.user
 
-  return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
+  try:
+    order = Order.objects.get(order_id=order_id)
+  except Order.DoesNotExist:
+    raise Http404
+
+  form = OrderFulfillForm(request.POST or None, instance=order)
+  if form.is_valid():
+    # save the tracking number or fulfill status
+    order = form.save()
+    messages.success(request, "Fulfill status has been updated.")
+      
+  data["order"] = order
+
+  cart = order.cart
+  data["cart"] = cart
+  data["items"] = cart.items.all()
+  data["form"] = form
+  data["order_id"] = order_id
+
+  receiver = order.receiver
+  data["personality"] = receiver.get_profile().wine_personality
+
+  try:
+    data["customization"] = CustomizeOrder.objects.get(user=order.receiver)
+  except CustomizeOrder.DoesNotExist:
+    pass
+
+  return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
 def edit_shipping_address(request):
   """
@@ -1115,8 +1180,17 @@ def edit_shipping_address(request):
     # update the receiver user
     request.session['receiver_id'] = receiver.id
 
+    # check if customization exists, if not we need to assign it from the one who's ordering now
+    try:
+      CustomizeOrder.objects.get(user=receiver)
+    except CustomizeOrder.DoesNotExist:
+      # customization that current user filled out
+      current_customization = CustomizeOrder.objects.get(user=u)
+      new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
+      new_customization.save()
+
     if receiver.is_active is False: 
-      # new receiving user created 
+      # if new receiving user created 
       role = Group.objects.get(name="Attendee")
       receiver.groups.add(Group.objects.get(name=role))
 

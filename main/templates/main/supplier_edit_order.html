@@ -1,0 +1,144 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+{% load thumbnail %}
+
+{% block header %}
+  <h1>Order Details</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <form method="POST" action="{% url supplier_edit_order order_id %}">
+    {% csrf_token %}
+    <section id="order-summary">
+      <div class="row">
+        <div class="span3 well">
+          <p><h3>Order Information</h3></p>
+          <p>Order #: {{ order.order_id}}</p>
+          {{ form.order_id }}
+          <p>Order Date: {{ order.order_date|date}}</p>
+          <p>&nbsp;</p>
+          <p><h3>Shipping Information</h3></p>
+          <address>
+            <p>{{ order.receiver.first_name }} {{ order.receiver.last_name }}</p>
+            <p>{{ order.shipping_address.street1 }}</p>
+            {% if order.shipping_address.street2 %}
+            <p>{{ order.shipping_address.street2 }}</p>
+            {% endif %}
+            <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.zipcode }}</p>
+          </address>
+          <p></p>
+          <p><h3>Billing Information</h3></p>
+          <p></p>
+          <p>Credit card ending in {{ order.credit_card.last_four }}</p>
+          <p>Exp Date: {{ order.credit_card.exp_date }}</p>
+        </div>
+        <div class="span8">
+          <div class="row">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Subscription</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                <tr>
+                  <td>
+                    <div class="cart-item">
+                      <div class="cart-item-image">
+                      {% thumbnail item.product.image "100x100" format="PNG" as im %}
+                        <img src="{{ im.url }}"/>
+                      {% endthumbnail %}
+                      </div>
+                      <div class="cart-item-name">
+                        {{ item.product.name }} (Vinely product ID: {{ item.product.id }})
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ item.get_frequency_display }}</td>
+                  <td>{{ item.quantity_str }}</td>
+                  <td>{{ item.subtotal|currency }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="span6">
+              &nbsp;
+            </div>
+            <div class="span2 pull-right">
+              <p>Subtotal: {{ cart.subtotal|currency }}</p>
+              <p>Shipping: {{ cart.shipping|currency }}</p>
+              <p>Tax: {{ cart.tax|currency }}</p>
+              <p><b>Total: {{ cart.total|currency }}</b></p>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="span3 well">
+              {% if customization %}
+                <p>Customizations: {{ customization.get_wine_mix_display }}</p>
+                <p>Bubbles: {{ customization.get_sparkling_display }}</p>
+                {% if personality %}
+                  <p>Personality: <a href="{% url personality_details order.receiver.id %}">{{ personality.name }}</a></p>
+                {% else %}
+                  <p>Vinely Personality: None yet</p>
+                {% endif %}
+              {% else %}
+                <p>Customizations: Vinely Recommended</p>
+                <p>Bubbles: Yes</p>  
+                {% if personality %}
+                  <p>Personality: <a href="{% url personality_details order.receiver.id %}">{{ personality.name }}</a></p>
+                {% else %}
+                  <p>Vinely Personality: None yet</p>
+                {% endif %}
+              {% endif %}
+            </div>
+            <div class="span4 well">
+              <div class="control-group">
+                <div class="control-label" for="id_carrier">Shipping Method:</div>
+                <div class="controls">
+                  {{ form.carrier }} 
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="control-label" for="id_tracking_number">Tracking #:</div>
+                <div class="controls">
+                  {{ form.tracking_number }} 
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="control-label" for="id_fulfill_status">Status:</div>
+                <div class="controls">
+                  {{ form.fulfill_status }} 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="row">
+      <div class="span12">
+        <div class="form-actions">
+          <div class="pull-right">
+            <input type="submit" class="btn btn-primary" name="update" value="Update">
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</div>
+
+{% endblock %}
+

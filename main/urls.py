@@ -33,11 +33,16 @@ urlpatterns = patterns('main.views',
     url(r'^order/complete/(?P<order_id>[\-\w]+)/$', 'order_complete', name='order_complete'),
     url(r'^order/history/$', 'order_history', name='order_history'),
 
-    url(r'^supplier/party/list/$', 'supplier_party_list', name='supplier_party_list'),
-    url(r'^orders/pending/$', 'pending_orders', name='pending_orders'),
-    url(r'^orders/fulfilled/$', 'fulfilled_orders', name='fulfilled_orders'),
-    url(r'^orders/all/$', 'all_orders', name='all_orders'),
     url(r'^edit/subscription/$', 'edit_subscription', name='edit_subscription'),
     url(r'^edit/credit/$', 'edit_credit_card', name='edit_credit_card'),
     url(r'^edit/shipping/$', 'edit_shipping_address', name='edit_shipping_address'),
+
+    url(r'^supplier/party/list/$', 'supplier_party_list', name='supplier_party_list'),
+    url(r'^supplier/party/orders/(?P<party_id>\d+)/$', 'supplier_party_orders', name='supplier_party_orders'),
+    url(r'^supplier/orders/pending/$', 'supplier_pending_orders', name='supplier_pending_orders'),
+    url(r'^supplier/orders/fulfilled/$', 'supplier_fulfilled_orders', name='supplier_fulfilled_orders'),
+    url(r'^supplier/orders/all/$', 'supplier_all_orders', name='supplier_all_orders'),
+    url(r'^supplier/edit/order/(?P<order_id>[\-\w]+)/$', 'supplier_edit_order', name='supplier_edit_order'),
+
+    url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),
 )

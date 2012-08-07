@@ -1,0 +1,99 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Receiver Wine Personality</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="wine_personality">
+  <div class="row">
+      {% if personality %}
+      <div class="span12">
+        <p>
+        <h2>Customer is a <span class="uppercase">{{ personality.name }}</span></h2>
+        </p>
+      </div>
+          <div class="span12">
+            <p class="lead">
+            {{ personality.description }}
+            </p>
+          </div>
+    {% else %}
+      <div class="span12">
+        Customer has yet to discover their wine personality.
+      </div>
+    {% endif %}
+
+    {% if rating_data %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Features</th>
+            <th>Wine 1</th>
+            <th>Wine 2</th>
+            <th>Wine 3</th>
+            <th>Wine 4</th>
+            <th>Wine 5</th>
+            <th>Wine 6</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Overall</td>
+            <td>{{ rating_data.wine1.overall }}</td>
+            <td>{{ rating_data.wine2.overall }}</td>
+            <td>{{ rating_data.wine3.overall }}</td>
+            <td>{{ rating_data.wine4.overall }}</td>
+            <td>{{ rating_data.wine5.overall }}</td>
+            <td>{{ rating_data.wine6.overall }}</td>
+          </tr>
+          <tr>
+            <td>Sweet</td>
+            <td>{{ rating_data.wine1.sweet }} [{{ rating_data.wine1.get_sweet_dnl_display }}]</td>
+            <td>{{ rating_data.wine2.sweet }} [{{ rating_data.wine2.get_sweet_dnl_display }}]</td>
+            <td>{{ rating_data.wine3.sweet }} [{{ rating_data.wine3.get_sweet_dnl_display }}]</td>
+            <td>{{ rating_data.wine4.sweet }} [{{ rating_data.wine4.get_sweet_dnl_display }}]</td>
+            <td>{{ rating_data.wine5.sweet }} [{{ rating_data.wine5.get_sweet_dnl_display }}]</td>
+            <td>{{ rating_data.wine6.sweet }} [{{ rating_data.wine6.get_sweet_dnl_display }}]</td>
+          </tr>
+          <tr>
+            <td>Weight</td>
+            <td>{{ rating_data.wine1.weight }} [{{ rating_data.wine1.get_weight_dnl_display }}]</td>
+            <td>{{ rating_data.wine2.weight }} [{{ rating_data.wine2.get_weight_dnl_display }}]</td>
+            <td>{{ rating_data.wine3.weight }} [{{ rating_data.wine3.get_weight_dnl_display }}]</td>
+            <td>{{ rating_data.wine4.weight }} [{{ rating_data.wine4.get_weight_dnl_display }}]</td>
+            <td>{{ rating_data.wine5.weight }} [{{ rating_data.wine5.get_weight_dnl_display }}]</td>
+            <td>{{ rating_data.wine6.weight }} [{{ rating_data.wine6.get_weight_dnl_display }}]</td>
+          </tr>
+          <tr>
+            <td>Texture</td>
+            <td>{{ rating_data.wine1.texture }} [{{ rating_data.wine1.get_texture_dnl_display }}]</td>
+            <td>{{ rating_data.wine2.texture }} [{{ rating_data.wine2.get_texture_dnl_display }}]</td>
+            <td>{{ rating_data.wine3.texture }} [{{ rating_data.wine3.get_texture_dnl_display }}]</td>
+            <td>{{ rating_data.wine4.texture }} [{{ rating_data.wine4.get_texture_dnl_display }}]</td>
+            <td>{{ rating_data.wine5.texture }} [{{ rating_data.wine5.get_texture_dnl_display }}]</td>
+            <td>{{ rating_data.wine6.texture }} [{{ rating_data.wine6.get_texture_dnl_display }}]</td>
+          </tr>
+          <tr>
+            <td>Sizzle</td>
+            <td>{{ rating_data.wine1.sizzle }} [{{ rating_data.wine1.get_sizzle_dnl_display }}]</td>
+            <td>{{ rating_data.wine2.sizzle }} [{{ rating_data.wine2.get_sizzle_dnl_display }}]</td>
+            <td>{{ rating_data.wine3.sizzle }} [{{ rating_data.wine3.get_sizzle_dnl_display }}]</td>
+            <td>{{ rating_data.wine4.sizzle }} [{{ rating_data.wine4.get_sizzle_dnl_display }}]</td>
+            <td>{{ rating_data.wine5.sizzle }} [{{ rating_data.wine5.get_sizzle_dnl_display }}]</td>
+            <td>{{ rating_data.wine6.sizzle }} [{{ rating_data.wine6.get_sizzle_dnl_display }}]</td>
+          </tr>
+        </tbody>
+      </table>
+    {% endif %}
+
+
+    </div>
+  </section>
+
+</div>
+
+{% endblock content %}

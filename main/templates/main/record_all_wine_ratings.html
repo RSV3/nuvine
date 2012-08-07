@@ -86,17 +86,6 @@
               <fieldset>
                 <legend>Wine 1 Ratings</legend>
                 {{ form.wine1 }}
-                <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine1_overall">{{ form.wine1_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine1_overall}} 
-                    {% if form.wine1_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine1_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
                 <div class="shaded">
                   <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
                     <div class="control-label" for="id_wine1_sweet">{{ form.wine1_sweet.label }}</div>
@@ -169,6 +158,7 @@
                     </div>
                   </div>
                 </div>
+
                 <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine1_sizzle">{{ form.wine1_sizzle.label }}</div>
                   <div class="controls">
@@ -180,7 +170,6 @@
                     {% endif %}
                   </div>
                 </div>
-
                 <div class="control-group {% if form.wine1_sizzle_dnl.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine1_sizzle_dnl">{{ form.wine1_sizzle_dnl.label }}</div>
                   <div class="controls">
@@ -192,6 +181,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine1_overall">{{ form.wine1_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine1_overall}} 
+                      {% if form.wine1_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine1_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
             </div> <!-- span6 -->
 
@@ -199,18 +203,6 @@
               <fieldset>
                 <legend>Wine 2 Ratings</legend>
                 {{ form.wine2 }}
-                <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine2_overall">{{ form.wine2_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine2_overall}} 
-                    {% if form.wine2_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine2_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-
                 <div class="shaded">
                 <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
                   <div class="control-label" for="id_wine2_sweet">{{ form.wine2_sweet.label }}</div>
@@ -306,6 +298,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine2_overall">{{ form.wine2_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine2_overall}} 
+                      {% if form.wine2_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine2_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
             </div> <!-- span6 -->
 
@@ -316,17 +323,6 @@
               <fieldset>
                 <legend>Wine 3 Ratings</legend>
                 {{ form.wine3 }}
-                <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine3_overall">{{ form.wine3_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine3_overall}} 
-                    {% if form.wine3_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine3_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
 
                 <div class="shaded">
                 <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
@@ -423,6 +419,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine3_overall">{{ form.wine3_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine3_overall}} 
+                      {% if form.wine3_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine3_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
             </div> <!-- span6 -->
 
@@ -430,17 +441,6 @@
               <fieldset>
                 <legend>Wine 4 Ratings</legend>
                 {{ form.wine4 }}
-                <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine4_overall">{{ form.wine4_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine4_overall}} 
-                    {% if form.wine4_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine4_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
 
                 <div class="shaded">
                 <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
@@ -537,6 +537,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine4_overall">{{ form.wine4_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine4_overall}} 
+                      {% if form.wine4_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine4_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
               </div> <!-- span6 -->
 
@@ -548,17 +563,6 @@
               <fieldset>
                 <legend>Wine 5 Ratings</legend>
                 {{ form.wine5 }}
-                <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine5_overall">{{ form.wine5_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine5_overall}} 
-                    {% if form.wine5_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine5_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
 
                 <div class="shaded">
                 <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
@@ -655,6 +659,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine5_overall">{{ form.wine5_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine5_overall}} 
+                      {% if form.wine5_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine5_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
               </div> <!-- span6 -->
 
@@ -662,17 +681,6 @@
               <fieldset>
                 <legend>Wine 6 Ratings</legend>
                 {{ form.wine6 }}
-                <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
-                  <div class="control-label" for="id_wine6_overall">{{ form.wine6_overall.label }}</div>
-                  <div class="controls">
-                    {{ form.wine6_overall}} 
-                    {% if form.wine6_overall.errors %}
-                      <span class="help-inline">
-                        {{ form.wine6_overall.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
 
                 <div class="shaded">
                 <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
@@ -769,6 +777,21 @@
                     {% endif %}
                   </div>
                 </div>
+
+                <div class="shaded">
+                  <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
+                    <div class="control-label" for="id_wine6_overall">{{ form.wine6_overall.label }}</div>
+                    <div class="controls">
+                      {{ form.wine6_overall}} 
+                      {% if form.wine6_overall.errors %}
+                        <span class="help-inline">
+                          {{ form.wine6_overall.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
               </fieldset>
               </div> <!-- span6 -->
             </div><!-- row -->

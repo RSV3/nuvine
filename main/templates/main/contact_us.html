@@ -65,6 +65,18 @@
         </div>
       </div>
 
+      <div class="control-group {% if form.phone.errors %}error{% endif %}">
+        <div class="control-label" for="id_email">{{ form.phone.label }}</div>
+        <div class="controls">
+          {{ form.phone }} 
+          {% if form.phone.errors %}
+            <span class="help-inline">
+              {{ form.phone.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="control-group {% if form.sex.errors %}error{% endif %}">
         <div class="control-label" for="id_sex">{{ form.sex.label }}</div>
         <div class="controls">
@@ -88,7 +100,6 @@
           {% endif %}
         </div>
       </div>
-
 
       <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
         <div class="control-label" for="id_zipcode">{{ form.zipcode.label }}</div>

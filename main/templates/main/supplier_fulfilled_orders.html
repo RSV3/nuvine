@@ -1,0 +1,52 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+
+{% block header %}
+  <h1>Fulfilled Orders</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="order-history">
+  <div class="row">
+    <div class="span12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Ship Date</th>
+            <th>Status</th>
+            <th>Party</th>
+            <th>Ships to</th>
+            <th>Personality</th>
+            <th>Quantity</th>
+            <th>Recurring</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><a href="{% url supplier_edit_order order.order_id %}">{{ order.order_id }}</a></td>
+            <td>{{ order.order_date }}</td>
+            <td>{% if order.ship_date %}{{ order.ship_date }}{% else %}-{% endif %}</td>
+            <td>{{ order.get_fulfill_status_display }}</td>
+            <td>{{ order.party_state }}</td>
+            <td>{{ order.ships_to }}</td>
+            <td>{{ order.receiver_personality }}</td>
+            <td>{{ order.quantity_summary }}</td>
+            <td>{{ order.recurring }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>  
+
+    </div>
+  </div>
+  </section>
+
+</div>
+{% endblock %}

@@ -20,8 +20,9 @@
     <li><a href="{% url start_order %}">Order Wine</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
   {% elif supplier %}
-    <li><a href="{% url supplier_party_list %}">All Parties</a></li>
-    <li><a href="{% url supplier_order_backlog %}">Order Backlog</a></li>
+    <li><a href="{% url supplier_pending_orders %}">Pending Orders</a></li>
+    <li><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></li>
+    <li><a href="{% url supplier_all_orders %}">All Orders</a></li>
   {% elif attendee %}
     <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
     <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
@@ -63,21 +64,22 @@
   <div class="span9">
     You are a {{ wine_personality.name }}!
   </div>
-  {% else %}
+  {% elif party_date %}
   <div class="span9">
     You will find out your wine profile at the party on {{ party_date|date:"n/j" }}!
   </div>
   {% endif %}
 
-
-  {% if questionnaire_completed %}
-    <div class="span9">
-        You have completed your questionnaire and you are ready to rock with Vinely! 
-    </div>
-  {% else %}
-    <div class="span9">
-        Fill out the <a href="{% url pre_questionnaire %}">Questionnaire</a> before attending the party.
-    </div>
+  {% if attendee %}
+    {% if questionnaire_completed %}
+      <div class="span9">
+          You have completed your questionnaire and you are ready to rock with Vinely! 
+      </div>
+    {% else %}
+      <div class="span9">
+          Fill out the <a href="{% url pre_questionnaire %}">Questionnaire</a> before attending the party.
+      </div>
+    {% endif %}
   {% endif %}
 
 {% endblock main_content %}

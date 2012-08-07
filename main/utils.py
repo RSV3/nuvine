@@ -17,6 +17,14 @@ class UTC(tzinfo):
   def dst(self, dt):
     return ZERO
 
+def if_supplier(user):
+  """
+    Used in user_passes_test decorator to check if user is a supplier
+  """
+  if user:
+    return user.groups.filter(name="Supplier").count() > 0
+  return False
+  
 def send_order_confirmation_email(request, order_id):
 
   order = Order.objects.get(order_id=order_id)
@@ -220,4 +228,29 @@ def distribute_party_invites_email(request, invitation_sent):
     recipients.append(guest.email)
 
   send_mail(invitation_sent.custom_subject, message, 'support@vinely.com', recipients)
+
+def send_contact_request_email(request, contact_request):
+  """
+    E-mail sent when someone fills out a contact request
+  """
+  message_template = Template("""
+
+  {% if contact_request.first_name %}{{ contact_request.first_name }} {{ contact_request.last_name }}{% else %}Potential Customer{% endif %}, is interested in Vinely.  Please reach out via
+
+    E-mail: {{ contact_request.email }}
+    Phone: {{ contact_request.phone }}
+
+  Following message was submitted:
+
+    Subject: {{ contact_request.subject }}
+
+    {{ contact_request.message }}
+
+  """)
+
+  c = Context({"contact_request": contact_request})
+  message = message_template.render(c)
+
+  send_mail("URGENT: Request for information", message, contact_request.email, ['sales@vinely.com'])
+
 

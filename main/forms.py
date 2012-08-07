@@ -6,7 +6,8 @@ from django.contrib.localflavor.us import us_states
 from emailusernames.utils import create_user, create_superuser
 from emailusernames.forms import EmailUserCreationForm
 
-from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, InvitationSent
+from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
+                        InvitationSent, Order
 from accounts.models import Address, CreditCard
 from creditcard.fields import *
 
@@ -18,6 +19,7 @@ valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 class ContactRequestForm(forms.ModelForm):
 
   zipcode = us_forms.USZipCodeField()
+  phone = us_forms.USPhoneNumberField()
 
   def __init__(self, *args, **kwargs):
     super(ContactRequestForm, self).__init__(*args, **kwargs)
@@ -406,3 +408,15 @@ class CustomizeInvitationForm(forms.ModelForm):
     self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5})
+
+class OrderFulfillForm(forms.ModelForm):
+
+  class Meta:
+    model = Order
+    exclude = ['ordered_by', 'receiver', 'cart', 'shipping_address', 'credit_card', 'order_date',
+                'ship_date', 'last_updated']
+
+  def __init__(self, *args, **kwargs):
+    super(OrderFulfillForm, self).__init__(*args, **kwargs)
+    self.fields['order_id'].widget = forms.HiddenInput()
+    
