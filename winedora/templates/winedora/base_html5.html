@@ -111,16 +111,20 @@
               <li>
                 <a href="{% url party_list %}">PARTIES</a>
               </li>
-              {% if supplier %}
-              <li>
-                <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
-              </li>
-              <li>
-                <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
-              </li>
-              <li>
-                <a href="{% url supplier_pending_orders %}">PENDING</a>
-              </li>
+              {% if specialist %}
+                <li>
+                  <a href="{% url dashboard %}">DASHBOARD</a>
+                </li>
+              {% elif supplier %}
+                <li>
+                  <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
+                </li>
+                <li>
+                  <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
+                </li>
+                <li>
+                  <a href="{% url supplier_pending_orders %}">PENDING</a>
+                </li>
               {% endif %}
               {% if wine_personality %}
               <li>

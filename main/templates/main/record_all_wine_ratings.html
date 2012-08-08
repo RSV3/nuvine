@@ -33,7 +33,11 @@
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
+      {% if specialist %}
       Please enter attendee information and add their ratings
+      {% else %}
+      Enter your ratings for the tasting kit
+      {% endif %}
     </div>
   </div>
 
@@ -44,6 +48,7 @@
         <form method="POST" action="" class="form-horizontal">
           {% csrf_token %}
 
+          {% if specialist %}
           <fieldset>
             <legend>User Information</legend>
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">
@@ -80,6 +85,11 @@
               </div>
             </div>
           </fieldset>
+          {% else %}
+            <input type="hidden" name="email" value="{{ form.email.value }}">
+            <input type="hidden" name="first_name" value="{{ form.first_name.value }}">
+            <input type="hidden" name="last_name" value="{{ form.last_name.value }}">
+          {% endif %}
 
           <div class="row">
             <div class="span6">

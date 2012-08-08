@@ -25,6 +25,14 @@ def if_supplier(user):
     return user.groups.filter(name="Supplier").count() > 0
   return False
   
+def if_specialist(user):
+  """
+    Used in user_passes_test decorator to check if user is a supplier
+  """
+  if user:
+    return user.groups.filter(name="Party Specialist").count() > 0
+  return False
+  
 def send_order_confirmation_email(request, order_id):
 
   order = Order.objects.get(order_id=order_id)
@@ -60,13 +68,61 @@ def send_order_confirmation_email(request, order_id):
   c = Context({"customer": order.receiver.first_name if order.receiver.first_name else "Valued Customer", 
               "host_name": request.get_host(),
               "order_id": order_id}) 
+
   message = message_template.render(c)
 
   # send out verification e-mail, create a verification code
   send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', recipients)
 
+  # formulate e-mail to the supplier
+  order_request_template = Template("""
+
+  Customer ({{ customer }}) has completed an order
+
+  Please process the order as soon as possible 
+
+  You can check the status of their order at:
+
+    http://{{ host_name }}{% url supplier_edit_order order_id %}
+
+
+  """)
+
+  message = message_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  send_mail('Order ID: %s has been submitted!'%order_id, message, 'support@vinely.com', ['sales@vinely.com'])
+
   order.fulfill_status = 1
   order.save()
+
+def send_order_shipped_email(request, order):
+  message_template = Template("""
+
+  Dear {% if order.receiver.first_name %}{{ order.receiver.first_name }}{% else %}Valued Customer{% endif %},
+
+  Your order has been shipped and you should receive your order in the next 7 days.
+
+  You can check the status of your order at:
+
+    http://{{ host_name }}{% url order_complete order.order_id %}
+
+  """)
+
+  c = Context({"order": order,
+              "host_name": request.get_host()})
+
+  message = message_template.render(c)
+
+  receiver_email = order.receiver.email
+  sender_email = order.ordered_by.email
+
+  recipients = [receiver_email]
+  if sender_email != receiver_email:
+    recipients.append(sender_email)
+
+  send_mail('Order ID: %s has been shipped!'%order.order_id, message, 'sales@vinely.com', recipients)
+
 
 def send_host_vinely_party_email(request, specialist=None):
 

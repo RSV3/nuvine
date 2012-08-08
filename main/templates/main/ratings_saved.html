@@ -2,9 +2,9 @@
 
 {% block header %}
   {% if invitee %}
-  <h1>Ratings for {{ invitee.first_name }} has been saved</h1>
+  <h1>{{ invitee.first_name }}, Here's your Wine Personality</h1>
   {% else %}
-  <h1>Your ratings have been saved</h1>
+  <h1>Here's your Wine Personality</h1>
   {% endif %}
 {% endblock header %}
 
@@ -13,55 +13,52 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   <section id="wine_personality">
-  {% if personality %}
-  <div class="row">
-    <div class="span12">
-      <p>
-      <h2>You are a <span class="uppercase">{{ personality.name }}</span></h2>
-      </p>
-    </div>
-    <div class="span12">
-      <p class="lead">
-      {{ personality.description }}
-      </p>
-    </div>
-  </div>
-  {% else %}
-   <div class="row">
-    <div class="span12">
-      <p>
-      <h2>You are a <span class="uppercase">Complex</span></h2>
-      </p>
-    </div>
-    <div class="span12">
-      <p class="lead">
-      We are unable to classify you into any particular personality.
-      </p>
-    </div>
-  </div>
- 
-  {% endif %}
+    <div class="row">
+      {% if personality %}
+        <div class="span9">
+          <p>
+          <h2>You are a <span class="uppercase">{{ personality.name }}</span></h2>
+          </p>
+          <p class="lead">
+            {{ personality.description }}
+          </p>
+        </div>
+        <div class="span3">
+          <section id="order-personal-wine">
+          <p>
+            Vinely recommends copy & guideline
+          </p>
+          <p>
+            Start ordering wine to enjoy the variety you can enjoy
+          </p>
+          <p>
+            {% if role == "specialist" %}
+              <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
+            {% else %}
+              <a href="{% url start_order user.id %}" class="btn btn-primary">Start your wine order</a>
+            {% endif %}
+          </p>
+          </section>
+        </div>
+      {% else %}
+        <div class="span9">
+          <p>
+            <h2>You do not yet have a Wine Personality.</h2>
+          </p>
+          <p class="lead">
+            Please join one of our parties to find your wine personality.
+          </p>
+        </div>
+      {% endif %}
+    </div> <!-- row -->
   </section>
 
   <section id="continue_order">
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      Do you want to continue entering rating data or add an order for {{ invitee.first_name }} 
+      <a href="{% url party_details party_id %}">&laquo; Back to guest list</a>
     </div>
-  </div>
-
-  <div class="row form-actions">
-    {% if role == "specialist" %}
-    <div class="span12">
-      <a href="{% url record_all_wine_ratings %}" class="btn btn-primary">Enter next attendee data</a>
-      <a href="{% url start_order %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
-    </div>
-    {% else %}
-     <div class="span12">
-      <a href="{% url start_order %}" class="btn btn-primary">Start your wine order</a>
-    </div>
-    {% endif %}
   </div>
   </section>
 

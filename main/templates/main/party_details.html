@@ -39,6 +39,7 @@
       </div>
 
       <div class="span6">
+        {% if not specialist %}
         <p>
           <div class="user-info">
             <div class="user-pic">
@@ -47,22 +48,27 @@
             <div class="user-contact">
               <p><b>Party Specialist:</b></p>
               <div class="user-name">
-                {% if specialist.first_name %}
-                  {{ specialist.first_name }} {{ specialist.last_name }}
+                {% if specialist_user.first_name %}
+                  {{ specialist_user.first_name }} {{ specialist_user.last_name }}
                 {% else %}
                   Valued Customer Name
                 {% endif %}
               </div>
               <div class="user-phone">
-                <i class="icon-user"></i> {% if specialist.get_profile.phone %}{{ specialist.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
+                <i class="icon-user"></i> {% if specialist_user.get_profile.phone %}{{ specialist_user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
               </div>
               <div class="user-email">
-                <a href="mailto:{{ specialist.email }}">{{ specialist.email }}</a>
+                <a href="mailto:{{ specialist_user.email }}">{{ specialist_user.email }}</a>
               </div>
             </div>
           </div>
         </p>
         <p><a href="#">Tips for hosting a successful party</a></p>
+        {% else %}
+        <div class="pull-right">
+          <a href="" class="btn btn-primary btn-large">Print Materials</a>
+        </div>
+        {% endif %}
       </div>
     </div> <!-- .row -->
   </section>
@@ -81,7 +87,9 @@
           <th>E-mail</th>
           <th>Phone</th>
           <th>RSVP</th>
+          {% if specialist %}
           <th>Wine Personality</th>
+          {% endif %}
         </thead>
         <tbody>
         {% for inv in invitees %}
@@ -100,10 +108,12 @@
             <td>-</td>
             {% endif %}
             <td>{{ inv.get_response_display }}</td>
-            {% if inv.invitee.get_profile.wine_personality %}
-            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-            {% else %}
-            <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+            {% if specialist %}
+              {% if inv.invitee.get_profile.wine_personality %}
+              <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+              {% else %}
+              <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+              {% endif %}
             {% endif %}
           </tr>
         {% endfor %}

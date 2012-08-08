@@ -5,6 +5,7 @@ urlpatterns = patterns('main.views',
     url(r'^about/$', 'about', name='about'),
     url(r'^contact/$', 'contact_us', name='contact_us'),
     url(r'^howto/$', 'how_it_works', name='how_it_works'),
+    url(r'^dashboard/$', 'dashboard', name='dashboard'),
 
     url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
 
@@ -23,7 +24,10 @@ urlpatterns = patterns('main.views',
     url(r'^ratings/record/$', 'record_wine_ratings', name='record_wine_ratings'),
     url(r'^ratings/record/all/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
     url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
+    url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
     url(r'^order/start/$', 'start_order', name='start_order'),
+    url(r'^order/start/(?P<receiver_id>\d+)/$', 'start_order', name='start_order'),
+    url(r'^order/start/(?P<receiver_id>\d+)/(?P<party_id>\d+)/$', 'start_order', name='start_order'),
     url(r'^cart/add/wine/(?P<level>\w+)/$', 'cart_add_wine', name='cart_add_wine'),
     url(r'^cart/add/tasting/kit/$', 'cart_add_tasting_kit', name='cart_add_tasting_kit'),
     url(r'^cart/remove/(?P<cart_id>\d+)/(?P<item_id>\d+)/$', 'cart_remove_item', name='cart_remove_item'),
@@ -44,5 +48,7 @@ urlpatterns = patterns('main.views',
     url(r'^supplier/orders/all/$', 'supplier_all_orders', name='supplier_all_orders'),
     url(r'^supplier/edit/order/(?P<order_id>[\-\w]+)/$', 'supplier_edit_order', name='supplier_edit_order'),
 
+    # access error pages
     url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),
+    url(r'^specialists/only/$', 'specialists_only', name='specialists_only'),
 )

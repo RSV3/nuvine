@@ -1,3 +1,6 @@
+Done: Need to send e-mail to the receiver and sender when the fulfill status changes to Shipped.
+Done: Need to e-mail when an order has been submitted
+
 Thank you message after survey completed
 Success for filling out the invitation
 Success for join to become host form

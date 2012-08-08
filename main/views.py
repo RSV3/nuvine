@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, \
-                        CustomizeOrder, Order, EngagementInterest
+                        CustomizeOrder, Order, EngagementInterest, PersonaLog, OrganizedParty
 from personality.models import Wine 
 from accounts.models import VerificationQueue
 
@@ -26,7 +26,7 @@ from personality.forms import WineRatingsForm, AllWineRatingsForm
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
-                        send_contact_request_email, if_supplier
+                        send_contact_request_email, send_order_shipped_email, if_supplier, if_specialist
 
 from personality.utils import calculate_wine_personality
 
@@ -35,14 +35,20 @@ import json, uuid
 from datetime import date, datetime, timedelta
 
 
-
-
 def suppliers_only(request):
   """
-    Redirected to this page when one is trying to access only supplier features
+    Redirected to this page when one is trying to access only supplier only features
   """
   data = {}
   data["message"] = "Only suppliers are allowed to access this page"
+  return render_to_response("403.html", data, context_instance=RequestContext(request))
+
+def specialists_only(request):
+  """
+    Redirected to this page when one is trying to access only specialist only features
+  """
+  data = {}
+  data["message"] = "Only party specialists are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -171,21 +177,34 @@ def how_it_works(request):
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
-def start_order(request):
+def start_order(request, receiver_id=None, party_id=None):
   """
-    Show order page
-  
-    Add items to cart and go to cart view 
+    Show wine order page
+
+    :param receiver_id: the user id of the user who's order is being fulfilled
+                      for example, when a party specialist enters rating data and continues an order
+                      for a guest, the guest user id is the receiver_id
   """
   data = {}
 
   u = request.user
 
+  if receiver_id:
+    # ordering for a particular user
+    request.session['receiver_id'] = int(receiver_id)
+  if party_id:
+    # ordering from a particular party
+    request.session['party_id'] = int(party_id)
+
   data["your_personality"] = "Unidentified"
-  if u.is_authenticated():
+  if receiver_id:
+    receiver = User.objects.get(id=receiver_id)
+    personality = receiver.get_profile().wine_personality
+  elif u.is_authenticated():
+    # ordering for oneself
     personality = u.get_profile().wine_personality
-    if personality:
-      data["your_personality"] = personality.name
+  if personality:
+    data["your_personality"] = personality.name
 
   # filter only wine packages
   products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
@@ -231,6 +250,9 @@ def cart_add_tasting_kit(request):
   u = request.user
 
   # TODO: check user personality and select the level
+  party = None
+  if 'party_id' in request.session:
+    party = Party.objects.get(id=request.session['party_id'])
 
   form = AddTastingKitToCartForm(request.POST or None)
 
@@ -252,6 +274,13 @@ def cart_add_tasting_kit(request):
       cart.items.add(item)
       request.session['cart_id'] = cart.id
 
+    # udpate cart status
+    if party:
+      cart.party = party
+    cart.status = Cart.CART_STATUS_CHOICES[1][0] 
+    cart.adds += 1
+    cart.save()
+
     return HttpResponseRedirect(reverse("cart"))
 
   product = Product.objects.get(category=Product.PRODUCT_TYPE[0][0])
@@ -271,6 +300,10 @@ def cart_add_wine(request, level="good"):
   data = {}
 
   u = request.user
+
+  party = None
+  if 'party_id' in request.session:
+    party = Party.objects.get(id=request.session['party_id'])
 
   # TODO: check user personality and select the frequency recommendation and case size
 
@@ -293,6 +326,13 @@ def cart_add_wine(request, level="good"):
       cart.save()
       cart.items.add(item)
       request.session['cart_id'] = cart.id
+
+    # udpate cart status
+    if party:
+      cart.party = party
+    cart.status = Cart.CART_STATUS_CHOICES[1][0] 
+    cart.adds += 1
+    cart.save()
 
     return HttpResponseRedirect(reverse("cart"))
 
@@ -329,6 +369,8 @@ def cart(request):
 
   cart_id = request.session['cart_id']
   cart = Cart.objects.get(id=cart_id) 
+  cart.views += 1
+  cart.save()
   data["items"] = cart.items.all()
   data["cart"] = cart
 
@@ -346,16 +388,34 @@ def cart_remove_item(request, cart_id, item_id):
   
   cart.items.remove(item)
 
+  # track cart activity
+  cart.removes += 1
+  cart.save()
+
   return HttpResponseRedirect(request.GET.get("next"))
 
 def customize_checkout(request):
+  """
+    Customize checkout to specify the receiver's preferences on wine mix and sparkling
+    The page allows a party specialist to set settings for a guest who's order is being
+    created or if a guest is not assigned, then CustomizeOrder is created for the current
+    logged in user and assigned to the receiver when shipping address is created.
+  """
+
   data = {}
 
   u = request.user
 
+  receiver = None
+  if 'receiver_id' in request.session:
+    receiver = User.objects.get(id=request.session['receiver_id'])
+
   if u.is_authenticated():
     try:
-      custom = CustomizeOrder.objects.get(user=u)
+      if receiver:
+        custom = CustomizeOrder.objects.get(user=receiver)
+      else:
+        custom = CustomizeOrder.objects.get(user=u)
     except CustomizeOrder.DoesNotExist:
       # continue to show customization form which will be filled in with current user's customization initially
       custom = None
@@ -363,12 +423,19 @@ def customize_checkout(request):
   form = CustomizeOrderForm(request.POST or None, instance=custom)
   if form.is_valid():
     custom = form.save(commit=False)
-    if u.is_authenticated() and custom.user is None:
-      custom.user = u
+    if custom.user is None:
+      if receiver:
+        custom.user = receiver
+      else:
+        custom.user = u
     custom.save()
+
+    cart = Cart.objects.get(id=request.session['cart_id']) 
+    cart.status = Cart.CART_STATUS_CHOICES[2][0] 
+    cart.save()
+
     return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
       
-
   if custom is None:
     form.initial = {'wine_mix': 0, 'sparkling': 1}
   data['form'] = form
@@ -379,7 +446,6 @@ def place_order(request):
   """
     This page allows you to review the order and finalize the order
  
-    Credit card will also be charged
   """
   data = {}
   u = request.user
@@ -429,6 +495,9 @@ def place_order(request):
       order.shipping_address = profile.shipping_address
       order.save()
 
+      cart.status = Cart.CART_STATUS_CHOICES[5][0] 
+      cart.save()
+
       # save cart to order
       return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
 
@@ -436,6 +505,10 @@ def place_order(request):
       # review what you have ordered
       data["items"] = cart.items.all()
       data["cart" ] = cart
+
+      # record cart views
+      cart.views += 1
+      cart.save()
 
       data["receiver"] = receiver
       data["credit_card"] = profile.credit_card 
@@ -542,7 +615,7 @@ def record_wine_ratings(request):
     raise Http404 
 
 @login_required
-def record_all_wine_ratings(request, email=None):
+def record_all_wine_ratings(request, email=None, party_id=None):
   """
     Record wine ratings.
     Used by party specialists or attendees themselves.
@@ -556,12 +629,25 @@ def record_all_wine_ratings(request, email=None):
 
   u = request.user
 
+  party = None
+  if party_id:
+    party_id = int(party_id)
+    # used in ratings_saved.html template to go back to party details
+    data["party_id"] = party_id
+    party = Party.objects.get(id=party_id)
+
   ps_group = Group.objects.get(name="Party Specialist")
   ph_group = Group.objects.get(name="Party Host")
-  att_group = Group.objects.get(name="Attendee")
+  at_group = Group.objects.get(name="Attendee")
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
 
-  if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
-    # one can record ratings only if party specialist or attendee
+  if (ps_group in u.groups.all()) or (at_group in u.groups.all()) or (ph_group in u.groups.all()):
+    # one can record ratings only if party specialist or host/attendee
 
     if request.method == "POST":
       form = AllWineRatingsForm(request.POST)
@@ -572,18 +658,37 @@ def record_all_wine_ratings(request, email=None):
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
          
-        if (ps_group in u.groups.all()) or (ph_group in u.groups.all()):
+        if ps_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "specialist"
-        elif (att_group in u.groups.all()):
+          # if personality found in a party, record the event 
+          if party:
+            persona_log, created = PersonaLog.objects.get_or_create(user=results[0])
+            if created:
+              persona_log.party = party
+              persona_log.specialist = u
+              persona_log.save()
+        elif at_group in u.groups.all():
+          data["role"] = "host"
+          if party:
+            persona_log, created = PersonaLog.objects.get_or_create(user=results[0])
+            if persona_log.party is None:
+              # if no previous log has been created, since we only track the first party
+              persona_log.party = party
+              persona_log.save()
+          else:
+            # saved before or without the party
+            PersonaLog.objects.get_or_create(user=results[0])
+        elif ph_group in u.groups.all():
+          # personality was created by an attendee themselves
           # ask if you want order wine
           data["role"] = "attendee"
+          PersonaLog.objects.get_or_create(user=results[0])
 
         return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
 
     else:
       # show forms
-
       initial_data = { 'wine1': Wine.objects.get(number=1, active=True).id,
                         'wine2': Wine.objects.get(number=2, active=True).id,
                         'wine3': Wine.objects.get(number=3, active=True).id,
@@ -597,6 +702,11 @@ def record_all_wine_ratings(request, email=None):
         initial_data['email'] = attendee.email
         initial_data['first_name'] = attendee.first_name
         initial_data['last_name'] = attendee.last_name
+      else:
+        # enter your own information
+        initial_data['email'] = u.email
+        initial_data['first_name'] = u.first_name
+        initial_data['last_name'] = u.last_name
 
       form = AllWineRatingsForm(initial=initial_data)
 
@@ -721,6 +831,7 @@ def party_add(request):
 
       # map host to a specialist
       my_hosts, created = MyHosts.objects.get_or_create(specialist=u, host=new_host)
+      specialisty_parties, created = OrganizedParty.objects.get_or_create(specialist=u, party=new_party)
 
       if not new_host.is_active:
         # new host, so send password and invitation
@@ -818,7 +929,7 @@ def party_details(request, party_id):
 
   # TODO: might have to fix this and set Party to have a particular specialist
   myhosts = MyHosts.objects.filter(host=party.host).order_by("-timestamp")
-  data["specialist"] = myhosts[0].specialist
+  data["specialist_user"] = myhosts[0].specialist
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
 
@@ -1036,6 +1147,14 @@ def party_order_list(request):
   """
   return render_to_response("main/party_order_list.html", data, context_instance=RequestContext(request))
 
+@login_required
+@user_passes_test(if_specialist, login_url="/specialists/only/")
+def dashboard(request):
+  data = {}
+
+
+  return render_to_response("main/dashboard.html", data, context_instance=RequestContext(request))
+
 ################################################################################
 #
 # Supplier views
@@ -1136,6 +1255,9 @@ def supplier_edit_order(request, order_id):
   if form.is_valid():
     # save the tracking number or fulfill status
     order = form.save()
+    if order.fulfill_status == 6:
+      send_order_shipped_email(request, order)
+
     messages.success(request, "Fulfill status has been updated.")
       
   data["order"] = order
@@ -1158,7 +1280,9 @@ def supplier_edit_order(request, order_id):
 
 def edit_shipping_address(request):
   """
-    - Update or add shipping address
+    Update or add shipping address
+    Receiving user is created if she doesn't exist
+    Cart is assigned the current party or the latest party that the receiver participated
 
     pre condition: cart has been created
 
@@ -1169,10 +1293,16 @@ def edit_shipping_address(request):
 
   u = request.user
 
+  receiver = None
   if u.is_anonymous():
     form = ShippingForm(request.POST or None)
   else:
-    form = ShippingForm(request.POST or None, instance=u)
+    if 'receiver_id' in request.session:
+      receiver = User.objects.get(id=request.session['receiver_id'])
+      print "Receiver's email: %s"%receiver.email
+    else:
+      receiver = u
+    form = ShippingForm(request.POST or None, instance=receiver)
 
   if form.is_valid():
     receiver = form.save()
@@ -1190,7 +1320,7 @@ def edit_shipping_address(request):
       new_customization.save()
 
     if receiver.is_active is False: 
-      # if new receiving user created 
+      # if new receiving user created.  happens when receiver never attended a party
       role = Group.objects.get(name="Attendee")
       receiver.groups.add(Group.objects.get(name=role))
 
@@ -1225,19 +1355,40 @@ def edit_shipping_address(request):
       profile.save()
 
     if 'ordering' in request.session and request.session['ordering']:
+      # only happens when user decided to edit the shipping address
       return HttpResponseRedirect(reverse("place_order"))
     else:
+      # update cart status
+      cart = Cart.objects.get(id=request.session['cart_id'])
+      cart.status = Cart.CART_STATUS_CHOICES[3][0]
+      cart.save()
+
+      if cart.party is None:
+        if 'party_id' in request.session:
+          party = Party.objects.get(id=request.session['party_id'])
+        else:
+          # find the party this receiver has participated
+          recent_invites = PartyInvite.objects.filter(invitee=receiver).order_by('-invited_timestamp')
+          if recent_invites.exists():
+            party = recent_invites[0].party
+
+        if party:
+          # assign cart to a party
+          cart.party = party
+          cart.save()
+
       return HttpResponseRedirect(reverse("edit_credit_card"))
 
-  # populate with initial data if user is authenticated
+  # display form: populate with initial data if user is authenticated
   initial_data = {}
-  if u.is_authenticated():
-    initial_data = {'first_name': u.first_name, 'last_name': u.last_name, 'email': u.email, 'phone': u.get_profile().phone}
-    if u.get_profile().shipping_addresses.all().count() > 0:
+  if receiver:
+    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name, 
+                    'email': receiver.email, 'phone': receiver.get_profile().phone}
+    if receiver.get_profile().shipping_addresses.all().count() > 0:
       form.fields['shipping_addresses'] = forms.ChoiceField()
-      form.fields['shipping_addresses'].widget.queryset = u.get_profile().shipping_addresses.all()
+      form.fields['shipping_addresses'].widget.queryset = receiver.get_profile().shipping_addresses.all()
 
-      current_shipping = u.get_profile().shipping_address
+      current_shipping = receiver.get_profile().shipping_address
 
       initial_data['address1'] = current_shipping.street1
       initial_data['address2'] = current_shipping.street2
@@ -1245,7 +1396,7 @@ def edit_shipping_address(request):
       initial_data['city'] = current_shipping.city
       initial_data['state'] = current_shipping.state
       initial_data['zipcode'] = current_shipping.zipcode
-      initial_data['news_optin'] = u.get_profile().news_optin
+      initial_data['news_optin'] = receiver.get_profile().news_optin
 
   form.initial = initial_data
   data['form'] = form
@@ -1282,9 +1433,16 @@ def edit_credit_card(request):
     except:
       # the receiver has not been specified
       raise PermissionDenied 
+
+    # update cart status
+    cart = Cart.objects.get(id=request.session['cart_id'])
+    cart.status = Cart.CART_STATUS_CHOICES[4][0]
+    cart.save()
+
+    # go finalize order
     return HttpResponseRedirect(reverse("place_order"))
 
-  # prepopulate with previous credit card used
+  # display form: prepopulate with previous credit card used
   current_user_profile = u.get_profile()
   if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
     card_info = current_user_profile.credit_card

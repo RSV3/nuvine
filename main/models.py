@@ -85,6 +85,16 @@ class PartyInvite(models.Model):
     self.response_timestamp = datetime.now()
     self.save()
 
+class PersonaLog(models.Model):
+  """
+    First party that a person's personality was saved 
+  """
+  user = models.OneToOneField(User, related_name="personality_found")
+  #: party and specialist are null if user created their own personality
+  party = models.ForeignKey(Party, null=True)
+  specialist = models.ForeignKey(User, null=True, related_name="personality_acquired")
+  timestamp = models.DateTimeField(auto_now_add=True)
+
 class Product(models.Model):
   PRODUCT_TYPE = (
       (0, 'Tasting Kit'),
@@ -154,6 +164,26 @@ class Cart(models.Model):
   user = models.ForeignKey(User, null=True)
   items = models.ManyToManyField(LineItem)
   updated = models.DateTimeField(auto_now=True)
+
+  # to track the parties that resulted in orders
+  party = models.ForeignKey(Party, null=True)
+
+  CART_STATUS_CHOICES = (
+      (0, 'START'),
+      (1, 'ADDED ITEM'),
+      (2, 'CUSTOMIZE CHECKOUT'),
+      (3, 'FILLED SHIPPING'),
+      (4, 'FILLED BILLING'),
+      (5, 'COMPLETE ORDER'),
+  )
+
+  status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
+
+  # tracks activity in the carts
+  adds = models.IntegerField(default=0)
+  removes = models.IntegerField(default=0)
+  # viewing cart
+  views = models.IntegerField(default=0)
 
   def subtotal(self):
     # sum of all line items
@@ -277,6 +307,14 @@ class OrderReview(models.Model):
   user = models.ForeignKey(User)
   order = models.ForeignKey(Order)
   wine_rating = models.ForeignKey(WineRatingData)
+  timestamp = models.DateTimeField(auto_now_add=True)
+
+class OrganizedParty(models.Model):
+  """
+    Recorded when a party is organized by a specialist
+  """
+  specialist = models.ForeignKey(User)
+  party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
 
 class MyHosts(models.Model):
