@@ -133,14 +133,14 @@ textarea {
 }
 body {
   margin: 0;
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: Helvetica, sans-serif;
   font-size: 17px;
   line-height: 1.3em;
-  color: #090000;
+  color: #415A68;
   background-color: #fdfdfa;
 }
 a {
-  color: #9c0001;
+  color: #415A68;
   text-decoration: none;
 }
 a:hover {
@@ -606,13 +606,13 @@ legend {
   margin-bottom: 1.9500000000000002em;
   font-size: 25.5px;
   line-height: 2.6em;
-  color: #333333;
+  color: #415A68;
   border: 0;
   border-bottom: 1px solid #e5e5e5;
 }
 legend small {
   font-size: 0.9750000000000001em;
-  color: #999999;
+  color: #415A68;
 }
 label,
 input,
@@ -627,7 +627,7 @@ input,
 button,
 select,
 textarea {
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: Helvetica, sans-serif;
 }
 label {
   display: block;
@@ -1991,7 +1991,7 @@ table .span24 {
   clear: both;
   font-weight: normal;
   line-height: 1.3em;
-  color: #9c0001;
+  color: #415A68;
   white-space: nowrap;
 }
 .dropdown-menu li > a:hover,
@@ -3006,7 +3006,7 @@ input[type="submit"].btn.btn-mini {
   height: auto;
 }
 .navbar {
-  color: #090000;
+  color: #415A68;
 }
 .navbar .brand:hover {
   text-decoration: none;
@@ -3164,7 +3164,7 @@ input[type="submit"].btn.btn-mini {
   float: none;
   padding: 9px 10px 11px;
   line-height: 19px;
-  color: #9c0001;
+  color: #415A68;
   text-decoration: none;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
@@ -3179,15 +3179,15 @@ input[type="submit"].btn.btn-mini {
   padding: 5px 5px 6px;
 }
 .navbar .nav > li > a:hover {
-  background-color: transparent;
-  color: #c50001;
-  text-decoration: none;
+  background-color: #31BAA2;
+  color: #FFFFFF;
+  text-decoration: underline;
 }
 .navbar .nav .active > a,
 .navbar .nav .active > a:hover {
-  color: #c50001;
-  text-decoration: none;
-  background-color: #fdfdfa;
+  color: #415A68;
+  text-decoration: underline;
+  background-color: #31BAA2;
 }
 .navbar .divider-vertical {
   height: 40px;
@@ -4208,7 +4208,7 @@ h4,
 h5,
 h6 {
   line-height: 2em;
-  color: #090000;
+  color: #415A68;
 }
 h1 {
   font-size: 2em;
@@ -4293,7 +4293,7 @@ footer.footer {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
-  color: #090000;
+  color: #415A68;
   background-color: #ffffff;
 }
 @media (max-width: 980px) {
@@ -4395,7 +4395,7 @@ div.subnav-fixed .nav {
 }
 .nav-tabs li.active > a,
 .nav-tabs li.active > a:hover {
-  color: #090000;
+  color: #415A68;
   background-color: #fdfdfa;
 }
 .nav-tabs.nav-stacked li > a {
@@ -4422,7 +4422,7 @@ div.subnav-fixed .nav {
 }
 .nav-pills li.active > a,
 .nav-pills li.active > a:hover {
-  color: #090000;
+  color: #415A68;
   background-color: #fdfdfa;
 }
 .nav-pills .open .dropdown-toggle {
@@ -4445,7 +4445,7 @@ div.subnav-fixed .nav {
 }
 .nav-list li.active > a,
 .nav-list li.active > a:hover {
-  color: #090000;
+  color: #415A68;
 }
 .nav-list [class^="icon-"] {
   margin-top: 3px;
@@ -4468,7 +4468,7 @@ div.subnav-fixed .nav {
 }
 .pagination li.active > a,
 .pagination li.active > a:hover {
-  color: #090000;
+  color: #415A68;
   background-color: #F5F5F5;
 }
 .pagination li > a,
@@ -4536,12 +4536,12 @@ input,
 button,
 select,
 textarea {
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: Helvetica, sans-serif;
 }
 input,
 textarea,
 select {
-  color: #090000;
+  color: #415A68;
 }
 select,
 input[type="file"] {
@@ -4588,11 +4588,11 @@ input[type="file"] {
   -moz-border-radius: 0;
   border-radius: 0;
   border: 1px solid #D4D4D4;
-  color: #090000;
+  color: #415A68;
   text-shadow: none;
 }
 .alert-heading {
-  color: #090000;
+  color: #415A68;
   text-shadow: none;
 }
 .label,
