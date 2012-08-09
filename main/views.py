@@ -19,7 +19,9 @@ from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CreditCardForm, PaymentForm, CustomizeInvitationForm, OrderFulfillForm
+                        CustomizeInvitationForm, OrderFulfillForm
+
+from accounts.forms import CreditCardForm, PaymentForm
 
 from personality.forms import WineRatingsForm, AllWineRatingsForm
 

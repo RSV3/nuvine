@@ -39,6 +39,7 @@ class CreditCard(models.Model):
   #expiry_date = models.DateField()
   verification_code = models.CharField(max_length=4)
   billing_zipcode = models.CharField(max_length=5, help_text="5 digit zipcode")
+  card_type = models.CharField(max_length=10, default="Unknown")
 
   def last_four(self):
     cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
@@ -65,6 +66,24 @@ class CreditCard(models.Model):
       card_cipher = binascii.unhexlify(number)
     else:
       card_cipher = binascii.unhexlify(self.card_number)
+    pad_number = cipher.decrypt(card_cipher)
+    return string.strip(pad_number, 'X')
+
+  def encrypt_cvv(self, cvv):
+    """
+      encrypts cvv
+    """
+    pad_number = string.ljust(str(cvv), 16, 'X')
+    cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
+    msg = cipher.encrypt(pad_number)
+    self.verification_code = msg.encode('hex')
+
+  def decrypt_cvv(self, cvv=None):
+    cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)
+    if cvv:
+      card_cipher = binascii.unhexlify(cvv)
+    else:
+      card_cipher = binascii.unhexlify(self.verification_code)
     pad_number = cipher.decrypt(card_cipher)
     return string.strip(pad_number, 'X')
 

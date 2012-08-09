@@ -1,3 +1,8 @@
+Invitation preview page
+Need to allow user to update their picture from their My Account
+Be able to update account settings
+Need to be able to get the navigation path displayed
+
 Done: Need to send e-mail to the receiver and sender when the fulfill status changes to Shipped.
 Done: Need to e-mail when an order has been submitted
 
@@ -11,11 +16,7 @@ Done: Should be able to click an order, see details, change tracking number and 
 
 Done: Need to allow Paul to see attendees ratings
 
-Need to allow user to update their picture from their My Account
-
-Invitation preview page
-
-Need to be able to send invitation to bulk of people.
+Done: Need to be able to send invitation to bulk of people.
 
 Done: Need to show all order history (supplier)
 
@@ -27,7 +28,6 @@ Done: Add guest link from the Party Detail page
 Done: Show list of attendees
 Done: Link for "Tips for hosting a successful party"
 Done: Need to able to RSVP and see the rsvp's
-
 
 
 July 31, 2012

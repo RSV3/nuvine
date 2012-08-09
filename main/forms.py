@@ -8,8 +8,7 @@ from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order
-from accounts.models import Address, CreditCard
-from creditcard.fields import *
+from accounts.models import Address 
 
 import uuid
 
@@ -329,75 +328,6 @@ class ShippingForm(forms.ModelForm):
 
     return user
 
-class CreditCardForm(forms.ModelForm):
-  """
-    This form is not used 
-  """
-  card_number = CreditCardField(required=True)
-  expiry_date = ExpiryDateField(required=True)
-  verification_code = VerificationValueField(required=True)
-  billing_zipcode = us_forms.USZipCodeField()
-  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
-
-  class Meta:
-    model = CreditCard
-
-class PaymentForm(forms.ModelForm):
-  """
-    This form is used
-  """
-  card_number = CreditCardField(required = True, label = "Card Number")
-  exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)])
-  exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
-  verification_code = forms.IntegerField(required = True, label = "CVV Number",
-      max_value = 9999, widget = forms.TextInput(attrs={'size': '4'}))
-  billing_zipcode = us_forms.USZipCodeField()
-  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
-
-  class Meta:
-    model = CreditCard
-
-  def __init__(self, *args, **kwargs):
-    self.payment_data = kwargs.pop('payment_data', None)
-    super(PaymentForm, self).__init__(*args, **kwargs)
-    self.fields['verification_code'].widget = forms.PasswordInput()
- 
-  def clean(self):
-    cleaned_data = super(PaymentForm, self).clean()
-
-    exp_month = cleaned_data.get('exp_month')
-    exp_year = cleaned_data.get('exp_year')
-
-    if exp_year in forms.fields.EMPTY_VALUES:
-      #raise forms.ValidationError("You must select a valid Expiration year.")
-      self._errors["exp_year"] = self.error_class(["You must select a valid Expiration year."])
-      del cleaned_data["exp_year"]
-    if exp_month in forms.fields.EMPTY_VALUES:
-      #raise forms.ValidationError("You must select a valid Expiration month.")
-      self._errors["exp_month"] = self.error_class(["You must select a valid Expiration month."])
-      del cleaned_data["exp_month"]
-    year = int(exp_year)
-    month = int(exp_month)
-    # find last day of the month
-    day = monthrange(year, month)[1]
-    expire = date(year, month, day)
- 
-    if date.today() > expire:
-      #raise forms.ValidationError("The expiration date you entered is in the past.")
-      self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
- 
-    return cleaned_data
-
-  def save(self, commit=True, force_insert=False, force_update=False, *args, **kwargs):
-    m = super(PaymentForm, self).save(commit=False, *args, **kwargs)
-
-    # encrypt card number
-    m.encrypt_card_num(self.cleaned_data['card_number'])
-
-    if commit:
-      m.save()
-    return m
-    
 class CustomizeInvitationForm(forms.ModelForm):
 
   class Meta:

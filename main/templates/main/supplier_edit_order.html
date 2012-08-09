@@ -10,7 +10,7 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  <form class="form-horizontal" method="POST" action="{% url supplier_edit_order order_id %}">
+  <form method="POST" action="{% url supplier_edit_order order_id %}">
     {% csrf_token %}
     <section id="order-summary">
       <div class="row">
@@ -32,8 +32,10 @@
           <p></p>
           <p><h3>Billing Information</h3></p>
           <p></p>
-          <p>Credit card ending in {{ order.credit_card.last_four }}</p>
+          <p>{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}</p>
           <p>Exp Date: {{ order.credit_card.exp_date }}</p>
+          <p>CVV: {{ order.credit_card.decrypt_cvv }}</p>
+          <p>Zipcode: {{ order.credit_card.billing_zipcode }}</p>
         </div>
         <div class="span8">
           <div class="row">
@@ -69,8 +71,8 @@
                 {% endfor %}
                 </tbody>
               </table>
-            </div>
-          </div>
+            </div> <!-- .span8 -->
+          </div> <!-- .row -->
           <hr>
           <div class="row">
             <div class="span6">

@@ -6,6 +6,10 @@
 
     $ git pull origin
   
+# Setup so that your staging branch tracks origin/staging (at github)
+
+    $ git branch --set-upstream staging origin/staging
+
 # For checking in code
 
     $ git status (to see which files have changed)
