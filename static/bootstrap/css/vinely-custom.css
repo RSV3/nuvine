@@ -1,0 +1,21 @@
+/* Vinely Custom Bootstrap Styles*/
+body {
+  color: #415A68;
+}
+a {
+  color: #DD4040;
+  text-decoration: none;
+}
+
+a:hover,
+a:active {
+  text-decoration: underline;
+}
+a:active {
+  color: #990000;
+}
+
+a:visited {
+  color: #1A2932;
+  text-decoration: none;
+}
