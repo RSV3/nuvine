@@ -1,3 +1,4 @@
+Need to fix party_send_invite.html to show preview if you do a get
 Invitation preview page
 Need to allow user to update their picture from their My Account
 Be able to update account settings

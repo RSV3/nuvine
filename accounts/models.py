@@ -133,3 +133,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 post_save.connect(create_user_profile, sender=User)
 
+class VinelyProAccount(models.Model):
+  """
+    Need to create this for every specialist account
+    Map wife and husband into one VinelyPro account
+  """
+  users = models.ManyToManyField(User)
+  account_number = models.BigIntegerField()
+  comment = models.CharField(max_length=128)

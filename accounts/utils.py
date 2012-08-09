@@ -1,5 +1,6 @@
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import Context, Template
+from django.template.loader import render_to_string
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
@@ -23,7 +24,13 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   message = message_template.render(c)
 
   # send out verification e-mail, create a verification code
-  send_mail('Welcome to Vinely!', message, 'support@vinely.com', [receiver_email])
+  subject = 'Welcome to Vinely!'
+  recipients = [receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_password_change_email(request, verification_code, temp_password, receiver_email):
 
@@ -48,7 +55,14 @@ def send_password_change_email(request, verification_code, temp_password, receiv
   message = message_template.render(c)
 
   # send out verification e-mail, create a verification code
-  send_mail('Change password request', message, 'support@vinely.com', [receiver_email])
+  subject = 'Change password request'
+  recipients = [receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
 
 def send_new_invitation_email(request, verification_code, temp_password, party_invite):
 
@@ -84,7 +98,14 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   message = message_template.render(c)
 
   # send out verification e-mail, create a verification code
-  send_mail('Join Vinely Party!', message, 'support@vinely.com', [party_invite.invitee.email])
+  subject = 'Join Vinely Party!'
+  recipients = [party_invite.invitee.email]
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
 
 def send_new_party_email(request, verification_code, temp_password, receiver_email):
 
@@ -112,7 +133,12 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
               "temp_password": temp_password})
   message = message_template.render(c)
 
-  # send out verification e-mail, create a verification code
-  send_mail('Welcome to Vinely!', message, 'support@vinely.com', [receiver_email])
+  # send out email approving host 
+  subject = 'Welcome to Vinely!'
+  recipients = [receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 

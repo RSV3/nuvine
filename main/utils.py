@@ -1,5 +1,6 @@
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import Context, Template
+from django.template.loader import render_to_string
 from main.models import Order, EngagementInterest
 from datetime import tzinfo, timedelta
 
@@ -70,9 +71,14 @@ def send_order_confirmation_email(request, order_id):
               "order_id": order_id}) 
 
   message = message_template.render(c)
+  subject = 'Order Confirmation from Vinely!'
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
-  # send out verification e-mail, create a verification code
-  send_mail('Order Confirmation from Vinely!', message, 'support@vinely.com', recipients)
+  # notify the receiver that the order has been received 
+  from_email = 'support@vinely.com'
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
   # formulate e-mail to the supplier
   order_request_template = Template("""
@@ -89,9 +95,15 @@ def send_order_confirmation_email(request, order_id):
   """)
 
   message = message_template.render(c)
+  subject = 'Order ID: %s has been submitted!'%order_id
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
-  # send out verification e-mail, create a verification code
-  send_mail('Order ID: %s has been submitted!'%order_id, message, 'support@vinely.com', ['sales@vinely.com'])
+  # notify the supplier that an order has been received
+  from_email = 'support@vinely.com'
+  recipients = ['sales@vinely.com']
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
   order.fulfill_status = 1
   order.save()
@@ -121,8 +133,12 @@ def send_order_shipped_email(request, order):
   if sender_email != receiver_email:
     recipients.append(sender_email)
 
-  send_mail('Order ID: %s has been shipped!'%order.order_id, message, 'sales@vinely.com', recipients)
+  subject = 'Order ID: %s has been shipped!' % order.order_id
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
+  msg = EmailMultiAlternatives(subject, message, 'sales@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_host_vinely_party_email(request, specialist=None):
 
@@ -160,8 +176,13 @@ def send_host_vinely_party_email(request, specialist=None):
     if specialist:
       recipients.append(specialist.email)
 
-    # notify party specialist or vinely sales 
-    send_mail('I am interested in hosting a Vinely Party!', message, request.user.email, recipients)
+    # notify interest in hosting to party specialist or vinely sales 
+    subject = 'I am interested in hosting a Vinely Party!'
+    html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+    msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+    msg.attach_alternative(html_msg, "text/html")
+    msg.send()
 
   return message
 
@@ -203,10 +224,14 @@ def send_new_party_scheduled_email(request, party):
 
   message = message_template.render(c)
 
+  # notify about scheduled party
   recipients = [party.host.email]
+  subject = 'Your Vinely Party has been Scheduled!'  
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
-  # notify party host that your party has been scheduled 
-  send_mail('Your Vinely Party has been Scheduled!', message, request.user.email, recipients)
+  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_party_invitation_email(request, party_invite):
   """ 
@@ -240,9 +265,14 @@ def send_party_invitation_email(request, party_invite):
               "host_name": request.get_host()})
   message = message_template.render(c)
 
-  # send out verification e-mail, create a verification code
+  # send out party invitation e-mail 
   subject = "You are invited to a Vinely Party!"
-  send_mail(subject, message, 'support@vinely.com', [party_invite.invitee.email])
+  recipients = [party_invite.invitee.email]  
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def distribute_party_invites_email(request, invitation_sent):
 
@@ -283,7 +313,13 @@ def distribute_party_invites_email(request, invitation_sent):
   for guest in invitation_sent.guests.all():
     recipients.append(guest.email)
 
-  send_mail(invitation_sent.custom_subject, message, 'support@vinely.com', recipients)
+  # send out party invitation e-mail 
+  subject = invitation_sent.custom_subject 
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_contact_request_email(request, contact_request):
   """
@@ -307,6 +343,11 @@ def send_contact_request_email(request, contact_request):
   c = Context({"contact_request": contact_request})
   message = message_template.render(c)
 
-  send_mail("URGENT: Request for information", message, contact_request.email, ['sales@vinely.com'])
+  # send e-mail to notify about contact request
+  subject = "URGENT: Request for information"
+  recipients = ['sales@vinely.com']
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
-
+  msg = EmailMultiAlternatives(subject, message, contact_request.email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()

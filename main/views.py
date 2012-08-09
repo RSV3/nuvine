@@ -1031,6 +1031,10 @@ def party_attendee_invite(request, party_id=0):
 
           # send an invitation e-mail, new user created 
           send_new_invitation_email(request, verification_code, temp_password, new_invite)
+          
+        # removed following lines since invitation get sent in a batch from the UI
+        #else:
+        #  send_party_invitation_email(request, new_invite)
 
         messages.success(request, '%s %s (%s) has been invited to the party.' % ( new_invitee.first_name, new_invitee.last_name, new_invitee.email ))
         return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
