@@ -11,7 +11,7 @@ MONTH_FORMAT = getattr(settings, 'MONTH_FORMAT', '%b')
 VERIFICATION_VALUE_RE = r'^([0-9]{3,4})$'
 
 
-class CreditCardField(forms.CharField):
+class SimpleCreditCardField(forms.CharField):
     """
     Form field that validates credit card numbers.
     """

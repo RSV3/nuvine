@@ -19,6 +19,7 @@
         {% csrf_token %}
 
         <fieldset>
+        {{ form.card_type }}
         <div class="control-group{% if form.card_number.errors %} error{% endif %}">
           <div class="control-label" for="id_card_number">{{ form.card_number.label }}</div>
           <div class="controls">
