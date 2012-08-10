@@ -124,7 +124,7 @@ class PaymentForm(forms.ModelForm):
   def clean(self):
     cleaned_data = super(PaymentForm, self).clean()
 
-    cleaned_data['card_type'] = self.card_number.get_cc_type(cleaned_data['card_number'])
+    cleaned_data['card_type'] = self.fields['card_number'].get_cc_type(cleaned_data['card_number'])
     del self._errors['card_type']
 
     exp_month = cleaned_data.get('exp_month')
