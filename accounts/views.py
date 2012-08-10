@@ -14,12 +14,15 @@ from main.models import EngagementInterest
 
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
 
-from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm
+from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
+                            MyInformationForm, UpdateSubscriptionForm
 from accounts.models import VerificationQueue
 from accounts.utils import send_verification_email, send_password_change_email
 
 import uuid
 import logging
+
+from datetime import datetime
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +32,87 @@ def profile(request):
     After user logged in
   """
   return HttpResponseRedirect(reverse('home_page'))
+
+@login_required
+def my_information(request):
+  """
+    Change shipping, billing, payment information
+  """
+
+  data = {}
+
+  u = request.user
+  profile = u.get_profile()
+
+  form = MyInformationForm(request.POST or None, instance=profile)
+  if form.is_valid():
+    form.save()
+    messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
+
+  data['form'] = form
+  data['my_information'] = True
+  return render_to_response("accounts/my_information.html", data,
+                            context_instance=RequestContext(request))
+
+
+@login_required
+def edit_subscription(request):
+  """
+    Update one's subscription's
+
+    - Cancel
+    - Change product
+    - Change frequency
+  """
+
+  u = request.user
+
+  data = {}
+  data['edit_subscription'] = True
+
+  form = UpdateSubscriptionForm(request.POST or None)
+  if form.is_valid():
+    form.save()
+    messages.success(request, "Your subscription will be updated for the next month.")
+
+  ps_group = Group.objects.get(name="Party Specialist")
+  ph_group = Group.objects.get(name="Party Host")
+  sp_group = Group.objects.get(name='Supplier')
+  at_group = Group.objects.get(name='Attendee')
+
+  if ps_group in u.groups.all():
+    data["specialist"] = True
+  if ph_group in u.groups.all():
+    data["host"] = True
+    invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
+    if invitation.exists():
+      data['invited_by'] = invitation[0].party.host
+    else:
+      myspecialists = MyHosts.objects.filter(host=u).order_by('-timestamp')
+      if myspecialists.exists():
+        data['invited_by'] = myspecialists[0].specialist
+        data['specialist_user'] = myspecialists[0].specialist
+        data['specialist_profile'] = myspecialists[0].specialist.get_profile()
+  if sp_group in u.groups.all():
+    data["supplier"] = True
+  if at_group in u.groups.all():
+    data["attendee"] = True
+    # find specialist and host who invited first
+    invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
+    if invitation.exists():
+      data['invited_by'] = invitation[0].party.host
+      myspecialists = MyHosts.objects.filter(host=data['invited_by']).order_by('-timestamp')
+      if myspecialists.exists():
+        data['invited_by'] = myspecialists[0].specialist
+        data['specialist_user'] = myspecialists[0].specialist
+        data['specialist_profile'] = myspecialists[0].specialist.get_profile()
+    else:
+      # no parties, so no specialists
+      pass
+
+  data['form'] = form
+
+  return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
 @login_required
 def change_password(request):
@@ -43,10 +127,11 @@ def change_password(request):
     u.set_password(form.cleaned_data['new_password'])
     u.save()
 
-    messages.success(request, 'Password has been updated')
+    messages.success(request, 'Your password has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
 
   form.initial['email'] = u.email
   data["form"] = form
+  data['change_password'] = True
   return render_to_response("accounts/change_password.html", data, 
                         context_instance=RequestContext(request))
 
@@ -236,13 +321,16 @@ def verify_eligibility(request):
   data = {}
 
   # TODO: Need to make the user enter home address and add that to party address
+  u = request.user
+  profile = u.get_profile()
 
-  form = VerifyEligibilityForm(request.POST or None)
+  form = VerifyEligibilityForm(request.POST or None, instance=profile)
   if form.is_valid():
     form.save()
+    messages.success(request, "Your information has been updated on %s." % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
 
-  form.initial['user'] = request.user
   data["form"] = form
+  data['verify_eligibility'] = True
 
   return render_to_response("accounts/verify_eligibility.html", data,
                                   context_instance=RequestContext(request))

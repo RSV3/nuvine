@@ -4,10 +4,12 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from Crypto.Cipher import AES
 import binascii, string
+from sorl.thumbnail import ImageField
 
 from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
 
+from datetime import date
 
 # Create your models here.
 
@@ -18,7 +20,7 @@ class Address(models.Model):
   street2 = models.CharField(verbose_name="Address 2", max_length=128, null=True, blank=True)
   city = models.CharField(max_length=64)
   state = us_models.USStateField()
-  zipcode = models.CharField(max_length=20)
+  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode")
 
   def __unicode__(self):
     return "%s, %s"%(self.street1, self.zipcode)
@@ -106,13 +108,22 @@ class VerificationQueue(models.Model):
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
+  image = ImageField(upload_to="profiles/", blank=True, null=True)
   dob = models.DateField(verbose_name="Date of Birth", null=True, blank=True)
   # drivers license number
   dl_number = models.CharField(verbose_name="Driver's Licence #", max_length=32, null=True, blank=True)
   phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
-  age = models.IntegerField(default=0)
+
+  GENDER_CHOICES = (
+    (0, 'FEMALE'),
+    (1, 'MALE'),
+    (2, 'N/A'),
+  )
+
+  gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
+  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence") 
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
   wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
   prequestionnaire = models.BooleanField(default=False)
@@ -126,6 +137,11 @@ class UserProfile(models.Model):
   credit_cards = models.ManyToManyField(CreditCard, related_name="owned_by")
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user")
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user")
+
+  def age(self):
+    year = 365
+    age = (date.today() - self.dob).days / year
+    return age
 
 def create_user_profile(sender, instance, created, **kwargs):
   if created:

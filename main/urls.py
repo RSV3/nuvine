@@ -37,7 +37,6 @@ urlpatterns = patterns('main.views',
     url(r'^order/complete/(?P<order_id>[\-\w]+)/$', 'order_complete', name='order_complete'),
     url(r'^order/history/$', 'order_history', name='order_history'),
 
-    url(r'^edit/subscription/$', 'edit_subscription', name='edit_subscription'),
     url(r'^edit/credit/$', 'edit_credit_card', name='edit_credit_card'),
     url(r'^edit/shipping/$', 'edit_shipping_address', name='edit_shipping_address'),
 

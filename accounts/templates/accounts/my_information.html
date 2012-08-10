@@ -1,0 +1,237 @@
+{% extends "accounts/base_my_account.html" %}
+
+{# this is where it lands when a user clicks "Change Password" #}
+
+{% block right_content %}
+  <div class="row">
+    <div class="span9">
+      <form class="form-horizontal well" method="POST" action="{% url my_information %}">
+        {% csrf_token %}
+
+        {% if error %}
+          <div class="alert alert-error">
+            {{ error }}
+          </div>
+        {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-error">
+            {{ form.errors }}
+          </div>
+        {% endif %}
+
+        <fieldset>
+          <legend>Shipping Information</legend>
+          <div class="control-group">
+            <div class="control-label" for="id_first_name">
+            {{ form.first_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.first_name }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_last_name">
+            {{ form.last_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.last_name}}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_street1">
+            {{ form.street1.label }}
+            </div>
+            <div class="controls">
+              {{ form.street1 }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_street2">
+            {{ form.street2.label }}
+            </div>
+            <div class="controls">
+              {{ form.street2 }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_city">
+            {{ form.city.label }}
+            </div>
+            <div class="controls">
+              {{ form.city }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_state">
+            {{ form.state.label }}
+            </div>
+            <div class="controls">
+              {{ form.state }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_phone">
+            {{ form.phone.label }}
+            </div>
+            <div class="controls">
+              {{ form.phone }}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Billing Information</legend>
+          <div class="control-group">
+            <div class="control-label" for="id_first_name">
+            {{ form.first_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.first_name }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_last_name">
+            {{ form.last_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.last_name}}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_street1">
+            {{ form.street1.label }}
+            </div>
+            <div class="controls">
+              {{ form.street1 }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_street2">
+            {{ form.street2.label }}
+            </div>
+            <div class="controls">
+              {{ form.street2 }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_city">
+            {{ form.city.label }}
+            </div>
+            <div class="controls">
+              {{ form.city }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_state">
+            {{ form.state.label }}
+            </div>
+            <div class="controls">
+              {{ form.state }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_phone">
+            {{ form.phone.label }}
+            </div>
+            <div class="controls">
+              {{ form.phone }}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Payment Information</legend>
+          <div class="control-group{% if form.card_number.errors %} error{% endif %}">
+            <div class="control-label" for="id_card_number">{{ form.card_number.label }}</div>
+            <div class="controls">
+              {{ form.card_number}} 
+              {% if form.card_number.errors %}
+                <span class="help-inline">
+                  {{ form.card_number.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="control-group{% if form.exp_month.errors or form.exp_year.errors %} error{% endif %}">
+            <div class="control-label" for="id_exp_month">{{ form.exp_month.label }}</div>
+            <div class="controls">
+              {{ form.exp_month}} {{ form.exp_year }}
+              {% if form.exp_month.errors %}
+                <span class="help-inline">
+                  {{ form.exp_month.errors }}
+                </span>
+              {% endif %}
+              {% if form.exp_year.errors %}
+                <span class="help-inline">
+                  {{ form.exp_year.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!--
+          <div class="control-group{% if form.expiry_date.errors %} error{% endif %}">
+            <div class="control-label" for="id_expiry_date">{{ form.expiry_date.label }}</div>
+            <div class="controls">
+              {{ form.expiry_date}} 
+              {% if form.expiry_date.errors %}
+                <span class="help-inline">
+                  {{ form.expiry_date.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          -->
+
+          <div class="control-group{% if form.verification_code.errors %} error{% endif %}">
+            <div class="control-label" for="id_verification_code">{{ form.verification_code.label }}</div>
+            <div class="controls">
+              {{ form.verification_code}} 
+              {% if form.verification_code.errors %}
+                <span class="help-inline">
+                  {{ form.verification_code.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="control-group{% if form.billing_zipcode.errors %} error{% endif %}">
+            <div class="control-label" for="id_billing_zipcode">{{ form.billing_zipcode.label }}</div>
+            <div class="controls">
+              {{ form.billing_zipcode}} 
+              {% if form.billing_zipcode.errors %}
+                <span class="help-inline">
+                  {{ form.billing_zipcode.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>          
+        </fieldset>
+        
+        <div class="form-actions">
+          <div class="controls">
+            <button type="submit" class="btn btn-primary">Update</button>
+            {{ form.email }}
+          </div>
+        </div>        
+      </form>
+    </div> <!-- span9 -->
+  </div> <!-- row -->
+{% endblock right_content %}

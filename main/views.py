@@ -1469,17 +1469,3 @@ def edit_credit_card(request):
 
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
-@login_required
-def edit_subscription(request):
-  """
-    Update one's subscription's
-
-    - Cancel
-    - Change product
-    - Change frequency
-  """
-  data = {}
-
-  return render_to_response("main/edit_subscription.html", data, context_instance=RequestContext(request))
-
-

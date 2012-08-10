@@ -1,21 +1,4 @@
-{% extends "main/menu_base.html" %}
-
-{% block additional_styles %}
-  <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
-{% endblock %}
-
-
-{% block header %}
-  <h1>My Account</h1>
-{% endblock header %}
-
-
-{% block left_navigation %}
-  <li><a href="{% url change_password %}">Change Password</a></li>
-  <li class="active"><a href="{% url verify_eligibility %}">Verify Eligibility</a></li>
-  <li><a href="{% url edit_subscription %}">Edit Subscription</a></li>
-  <li><a href="{% url update_addresses %}">Update Addresses</a></li>
-{% endblock left_navigation %}
+{% extends "accounts/base_my_account.html" %}
 
 {% block right_content %}
   <div class="row">
@@ -40,6 +23,7 @@
               {{ form.user }}
             </div>
           </div>
+
           <div class="control-group">
             <div class="control-label" for="id_dob">
             {{ form.dob.label }}
@@ -49,11 +33,27 @@
             </div>
           </div>
           <div class="control-group">
+            <div class="control-label" for="id_gender">
+            {{ form.gender.label }}
+            </div>
+            <div class="controls">
+              {{ form.gender }}
+            </div>
+          </div>
+          <div class="control-group">
             <div class="control-label" for="id_dl_number">
             {{ form.dl_number.label }}
             </div>
             <div class="controls">
               {{ form.dl_number }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
             </div>
           </div>
           <div class="control-group">
@@ -93,11 +93,3 @@
   </div> <!-- row -->
 {% endblock right_content %}
 
-{% block additional_scripts %}
-  <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
-  <script type="text/javascript">
-    $(document).ready( function () {
-        $(".datepicker").datepicker();
-    });
-  </script>
-{% endblock %}

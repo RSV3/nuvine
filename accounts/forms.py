@@ -4,6 +4,12 @@ from django.contrib.auth.models import User
 from creditcard.fields import *
 from django.contrib.localflavor.us import forms as us_forms
 
+
+class MyInformationForm(forms.ModelForm):
+
+  class Meta:
+    model = UserProfile
+
 class ChangePasswordForm(forms.Form):
   email = forms.CharField(widget=forms.HiddenInput)
   old_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
@@ -52,6 +58,8 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
+    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address',
+              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses']
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
@@ -152,3 +160,8 @@ class PaymentForm(forms.ModelForm):
     if commit:
       m.save()
     return m
+
+class UpdateSubscriptionForm(forms.Form):
+
+  frequency = forms.ChoiceField()
+  quantity = forms.ChoiceField()

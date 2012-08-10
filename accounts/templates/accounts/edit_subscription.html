@@ -1,0 +1,92 @@
+{% extends "accounts/base_my_account.html" %}
+
+{% load thumbnail %}
+
+{% block right_content %}
+  <div class="row">
+      <form class="form-horizontal well" method="POST" action="{% url edit_subscription %}">
+          {% csrf_token %}
+
+          {% if error %}
+            <div class="alert alert-error">
+              {{ error }}
+            </div>
+          {% endif %}
+          {% if form.errors %}
+            <div class="alert alert-error">
+              {{ form.errors }}
+            </div>
+          {% endif %}
+
+        <fieldset>
+          <legend>Edit Subscription</legend>
+          <div class="control-group">
+            <div class="control-label" for="id_frequency">
+              {{ form.frequency.label }}
+            </div>
+            <div class="controls">
+              {{ form.frequency }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_quantity">
+            {{ form.quantity.label }}
+            </div>
+            <div class="controls">
+              {{ form.quantity }}
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <div class="controls">
+              <input class="btn btn-primary" type="submit" value="Submit" />
+            </div>
+          </div>
+        </fieldset>
+           
+      </form>
+
+    <table class="table">
+      <tr>
+        <td><b>Invited By</b></td>
+        <td>
+          {% if invited_by %}
+            {{ invited_by.first_name }} {{ invited_by.last_name }}
+          {% else %}
+            Self invited
+          {% endif %}
+        </td>
+        <td><a href="">unlink</a></td>
+      </tr>
+      <tr>
+        <td><b>Party Specialist</b></td>
+        <td>
+          {% if specialist %}
+            You are a specialist
+          {% elif specialist_user %}
+           <div class="specialist-info">
+            <div class="specialist-photo">
+              {% thumbnail specialist_profile.image "100x100" format="PNG" as im %}
+                <img src="{{ im.url }}"/>
+              {% endthumbnail %}            
+            </div>
+            <div class="specialist-name">
+              Specialist Name
+            </div>
+            <div class="specialist-bio">
+              Biography~~~
+            </div>
+            <div class="specialist-email">
+              <a href="mailto:">{{ specialist_user.email }}</a>
+            </div>
+            <div class="specialist-phone">
+              <i class="icon-user"></i>{{ specialist_profile.phone }}
+            </div>
+          </div>         
+          {% endif %}
+        </td> 
+        <td><a href="">unlink</a></td>
+      </tr>
+    </table> 
+  </div> <!-- row -->
+{% endblock right_content %}

@@ -6,3 +6,13 @@ https://devcenter.heroku.com/articles/config-vars
 
 heroku config:add AWS_ACCESS_KEY_ID=youraswsaccesskey
 heroku config:add AWS_SECRET_ACCESS_KEY=yourawssecretkey
+
+
+SSL Certificate
+===============
+
+Next add your certificate with: heroku certs:add PEM KEY
+Use `heroku addons:docs ssl:endpoint` to view documentation.
+
+add CNAME www.vinely.com to tokyo-2121.herokussl.com
+https://devcenter.heroku.com/articles/ssl
