@@ -39,7 +39,7 @@ class CreditCard(models.Model):
   exp_month = models.IntegerField()
   exp_year = models.IntegerField()
   #expiry_date = models.DateField()
-  verification_code = models.CharField(max_length=4)
+  verification_code = models.CharField(max_length=32)
   billing_zipcode = models.CharField(max_length=5, help_text="5 digit zipcode")
   card_type = models.CharField(max_length=10, default="Unknown")
 
