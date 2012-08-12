@@ -330,6 +330,9 @@ class ShippingForm(forms.ModelForm):
 
 class CustomizeInvitationForm(forms.ModelForm):
 
+  preview = forms.BooleanField(required=False)
+  send = forms.BooleanField(required=False)
+
   class Meta:
     model = InvitationSent
 

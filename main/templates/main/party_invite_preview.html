@@ -1,18 +1,24 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Customize Invitation</h1>
-  Feel free to add your custom invite message.
+  <h1>Preview Invitation</h1>
+  Please review your invitation
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
+  <section id="invitation-content">
   <form method="POST" action="{% url party_send_invites %}">
     {% csrf_token %}
     {{ form.party }}
-    {{ form.guests }}
+
+    {{ form.errors }}
+    {% for g in guests %}
+      <input type="hidden" value="{{ g }}" name="guests">
+    {% endfor %}
+
     <div class="row">
       <div class="span12">
         <table>
@@ -24,10 +30,11 @@
               <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
             </tr>
             <tr>
-              <td>Subject:</td><td>{{ form.custom_subject }}</td>
+              <td>Subject:</td><td>{{ form.custom_subject.value }}</td>
             </tr>
           </tbody>
         </table>
+        <input type="hidden" name="custom_subject" value="{{ form.custom_subject.value }}">
       </div>
     </div>
 
@@ -45,7 +52,8 @@
 
         <div class="control-group">
           <div class="controls">
-            {{ form.custom_message }}
+            {{ form.custom_message.value }}
+            <input type="hidden" name="custom_message" value="{{ form.custom_message.value }}">
           </div>
       </div>
       </div>
@@ -73,12 +81,19 @@
         </table>
       </div>
       <div class="span6">
-        <button type="submit" class="btn btn-primary">
-          Send Invitation 
-        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="span12">
+        <div class="form-actions">
+          <a class="btn" href="javascript:javascript:history.go(-1)">Edit Invitation</a>
+          <input class="btn btn-primary" type="submit" name="send" value="Send Invitation">
+        </div>
       </div>
     </div>
   </form>
+  </section>
 
 </div>
 

@@ -1124,27 +1124,35 @@ def party_customize_invite(request):
 @login_required
 def party_send_invites(request):
   """
-    Send invitations to those people
+    Preview invitation or send the invites
   """
 
   data = {}
 
   # send invitation 
   form = CustomizeInvitationForm(request.POST or None)
-  if request.method == 'POST':
-    invitation_sent = form.save()
-    party = invitation_sent.party
+  if form.is_valid():
+    if form.cleaned_data['preview']:
+      invitation_sent = form.save(commit=False)
+      party = invitation_sent.party
+      data["preview"] = True
+      data["party"] = party
+      data["guests"] = request.POST.getlist("guests")
+    else:
+      invitation_sent = form.save()
 
-    # send e-mails
-    distribute_party_invites_email(request, invitation_sent)
+      party = invitation_sent.party
 
-    messages.success(request, "Invitations have been sent to your guests.")
+      # send e-mails
+      distribute_party_invites_email(request, invitation_sent)
 
-    return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
+      messages.success(request, "Invitations have been sent to your guests.")
+
+      return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
 
   data["form"] = form
 
-  return render_to_response("main/party_send_invites.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/party_invite_preview.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_order_list(request):

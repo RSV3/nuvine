@@ -8,6 +8,7 @@ latest.dump
 emails
 #sitemedia
 cache
+ssl
 
 # Packages
 *.egg
