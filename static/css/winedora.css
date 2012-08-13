@@ -1,3 +1,8 @@
+body {
+  background: url('../img/site_background_pattern.png');
+}
+
+
 .uppercase {
   text-transform: uppercase;
 }
