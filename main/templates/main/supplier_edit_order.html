@@ -92,7 +92,7 @@
                 <p>Customizations: {{ customization.get_wine_mix_display }}</p>
                 <p>Bubbles: {{ customization.get_sparkling_display }}</p>
                 {% if personality %}
-                  <p>Personality: <a href="{% url personality_details order.receiver.id %}">{{ personality.name }}</a></p>
+                  <p>Personality: <a href="{% url personality_details order.receiver.id order.order_id %}">{{ personality.name }}</a></p>
                 {% else %}
                   <p>Vinely Personality: None yet</p>
                 {% endif %}

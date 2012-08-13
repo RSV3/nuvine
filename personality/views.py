@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, Group
 
 from main.utils import if_supplier
 from personality.models import WineRatingData
+from main.models import Order
 
 @login_required
 def my_wine_personality(request):
@@ -22,12 +23,16 @@ def my_wine_personality(request):
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
-def personality_details(request, user_id):
+def personality_details(request, user_id, order_id=None):
   data = {}
 
   u = request.user
 
-  receiver = User.objects.get(id=user_id)
+  receiver = get_object_or_404(User, pk=user_id)
+
+  if order_id:
+    order = get_object_or_404(Order, order_id=order_id)
+    data["order"] = order
 
   data["personality"] = receiver.get_profile().wine_personality
 

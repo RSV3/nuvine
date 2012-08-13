@@ -10,17 +10,30 @@
 
   <section id="wine_personality">
   <div class="row">
-      {% if personality %}
+    {% if personality %}
       <div class="span12">
+        {% if order %}
+        <p>Order: <a href="{% url supplier_edit_order order.order_id %}">{{ order.order_id }}</a><p>
+
+        <p><h3>Shipping Information</h3></p>
+        <address>
+          <p>{{ order.receiver.first_name }} {{ order.receiver.last_name }}</p>
+          <p>{{ order.shipping_address.street1 }}</p>
+          {% if order.shipping_address.street2 %}
+          <p>{{ order.shipping_address.street2 }}</p>
+          {% endif %}
+          <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.zipcode }}</p>
+        </address>
+        {% endif %}
         <p>
-        <h2>Customer is a <span class="uppercase">{{ personality.name }}</span></h2>
+        <h3>Customer is a <span class="uppercase">{{ personality.name }}</span></h3>
         </p>
       </div>
-          <div class="span12">
-            <p class="lead">
-            {{ personality.description }}
-            </p>
-          </div>
+      <div class="span12">
+        <p class="lead">
+        {{ personality.description }}
+        </p>
+      </div>
     {% else %}
       <div class="span12">
         Customer has yet to discover their wine personality.
@@ -43,12 +56,12 @@
         <tbody>
           <tr>
             <td>Overall</td>
-            <td>{{ rating_data.wine1.overall }}</td>
-            <td>{{ rating_data.wine2.overall }}</td>
-            <td>{{ rating_data.wine3.overall }}</td>
-            <td>{{ rating_data.wine4.overall }}</td>
-            <td>{{ rating_data.wine5.overall }}</td>
-            <td>{{ rating_data.wine6.overall }}</td>
+            <td>{{ rating_data.wine1.overall }} [{{ rating_data.wine1.get_overall_display }}]</td>
+            <td>{{ rating_data.wine2.overall }} [{{ rating_data.wine2.get_overall_display }}]</td>
+            <td>{{ rating_data.wine3.overall }} [{{ rating_data.wine3.get_overall_display }}]</td>
+            <td>{{ rating_data.wine4.overall }} [{{ rating_data.wine4.get_overall_display }}]</td>
+            <td>{{ rating_data.wine5.overall }} [{{ rating_data.wine5.get_overall_display }}]</td>
+            <td>{{ rating_data.wine6.overall }} [{{ rating_data.wine6.get_overall_display }}]</td>
           </tr>
           <tr>
             <td>Sweet</td>

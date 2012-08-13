@@ -36,7 +36,7 @@
             <td>{{ order.get_fulfill_status_display }}</td>
             <td>{{ order.party_state }}</td>
             <td>{{ order.ships_to }}</td>
-            <td><a href="{% url personality_details order.receiver.id %}">{{ order.receiver_personality }}</a></td>
+            <td><a href="{% url personality_details order.receiver.id order.order_id %}">{{ order.receiver_personality }}</a></td>
             <td>{{ order.quantity_summary }}</td>
             <td>{{ order.recurring }}</td>
           </tr>

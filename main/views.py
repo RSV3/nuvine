@@ -251,7 +251,6 @@ def cart_add_tasting_kit(request):
 
   u = request.user
 
-  # TODO: check user personality and select the level
   party = None
   if 'party_id' in request.session:
     party = Party.objects.get(id=request.session['party_id'])
