@@ -1,15 +1,16 @@
-Need to fix party_send_invite.html to show preview if you do a get
-Invitation preview page
 Need to allow user to update their picture from their My Account
 Be able to update account settings
 Need to be able to get the navigation path displayed
+Thank you message after survey completed
+Success for join to become host form (Need to check the zip code and see if in the area or not)
+Need to also fill previous ratings when an e-mail matches an existing rating data
+- Enter ratings from a party page
+  - when typing e-mail, it autocompletes and fills first name and last names also
 
+Done: Need to fix party_send_invite.html to show preview if you do a get
+Done: Invitation preview page
 Done: Need to send e-mail to the receiver and sender when the fulfill status changes to Shipped.
 Done: Need to e-mail when an order has been submitted
-
-Thank you message after survey completed
-Success for filling out the invitation
-Success for join to become host form
 
 Done: Need to be able to see all orders and allow one to change the status
 Done: Need to be able to see pending orders and change their status
@@ -20,10 +21,6 @@ Done: Need to allow Paul to see attendees ratings
 Done: Need to be able to send invitation to bulk of people.
 
 Done: Need to show all order history (supplier)
-
-Need to also fill previous ratings when an e-mail matches an existing rating data
-- Enter ratings from a party page
-  - when typing e-mail, it autocompletes and fills first name and last names also
 
 Done: Add guest link from the Party Detail page
 Done: Show list of attendees
