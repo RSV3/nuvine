@@ -105,24 +105,34 @@
         <div class="navbar-inner">
           <div class="container">
             {% block navbar_menu %}
-            <div class="nav-collapse"> 
-<!--li id="gn-mac"><a href="/mac/" class="" onclick="s_objectID=&quot;http://www.apple.com/mac/_1&quot;;return this.s_oc?this.s_oc(e):true"><span>Mac</span></a></li-->            
-
+            <div class="nav-collapse">           
             {% if user.is_authenticated %} 
               <ul class="nav" id="main_menu">
                 <li id="parties">
                   <a href="{% url party_list %}" class="" alt="parties"></a>
                 </li>
+                <li id="shop">
+                  <a href="{% url start_order %}"></a>
+                </li>
                 <li id="rate_wines">
                   <a href="#" class="" alt="rate_wines"></a>
                 </li>
                 <li id="how_it_works">
-                  <a href="{% url how_it_works %}">How it works</a>
+                  <a href="{% url how_it_works %}"></a>
+                </li>
+                <li id="get_started">
+                  <a href="#"></a>
+                </li>
+                <li id="our_story">
+                  <a href="#"></a>
+                </li>
+                <li id="dashboard">
+                    <a href="{% url dashboard %}"></a>
+                </li>
+                <li id="vinely_u">
+                  <a href="#"></a>
                 </li>
                 {% if specialist %}
-                  <li id="dashboard">
-                    <a href="{% url dashboard %}">dashboard</a>
-                  </li>
                 {% elif supplier %}
                   <li>
                     <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
@@ -135,9 +145,7 @@
                   </li>
                 {% endif %}
                 {% if wine_personality %}
-                <li id="shop">
-                  <a href="{% url start_order %}">SHOP</a>
-                </li>
+                
                 {% endif %}
                 {% if pending_ratings %} 
                 <li id="rate_wines">
@@ -192,11 +200,38 @@
     </div>
 
     <footer>
-      <section id="footer">
-      <div class="">
-        <p>&copy; RSV Opco 3, Inc 2012</p>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <div class="container">
+            <div class="nav-collapse">          
+              <ul class="nav" id="footer">
+                <li>
+                  <a href="#">Home</a>
+                </li>
+                <li>
+                  <a href="#">Shop</a>
+                </li>
+                <li>
+                  <a href="#">Rate Wines</a>
+                </li>
+                <li>
+                  <a href="#">Account</a>
+                </li>
+                <li>
+                  <a href="#">How It Works</a>
+                </li>
+                <li>
+                  <a href="#">Join Us</a>
+                </li>
+                <li>
+                  <a href="#">About</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
-      </section>
+      <div class="span4 offset4">&copy; Vinely Inc All Rights Reserved</div>
     </footer>
 
 

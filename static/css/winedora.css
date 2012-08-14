@@ -51,8 +51,14 @@ body {
 #vinely_u {
   width: 93px;
 }
-#parties a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
-#shop a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
+#parties a:hover { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
+#shop a:hover { background: url('../img/main_nav_sprite.png') no-repeat -83px 0px;}
+#rate_wines a:hover { background: url('../img/main_nav_sprite.png') no-repeat -149px 0px;}
+#how_it_works a:hover { background: url('../img/main_nav_sprite.png') no-repeat -267px 0px;}
+#get_started a:hover { background: url('../img/main_nav_sprite.png') no-repeat -407px 0px;}
+#our_story a:hover { background: url('../img/main_nav_sprite.png') no-repeat -533px 0px;}
+#dashboard a:hover { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
+#vinely_u a:hover { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
 
 .cart-item-image {
   float: left;
