@@ -1,0 +1,328 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    ul {
+      list-style-type:none;
+    }
+
+    li {
+      margin-right: 10px;
+    }
+
+    .radio {
+      display: inline;
+    }
+
+    .shaded {
+      background-color: #EAEAE3;
+    }
+
+    .control-label {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .other {
+      margin-left: 25px;
+    }
+
+    .other .control-label {
+      padding-top: 5px;
+      font-weight: normal;
+      float: left;
+    }
+
+    .wine-characteristic ul {
+      float: left;
+    }
+
+    .wine-characteristic li {
+      float: left;
+    }
+
+    .wine-characteristic .control-label {
+      float: left;
+    }
+  </style>
+{% endblock %}
+
+{% block header %}
+  <h1>Wine Tastes and Preferences</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span12">
+      Note: Your answer to the following questions will not determine the wines recommended to you by Vinely. This is simply one part of an extensive process used to uncover your tastes and assign your Vinely Wine Personality. 
+    </div>
+  </div>
+  <section id="wine-taste-questionnaire">
+  <div class="row">
+    <div class="span12">
+      <form action="{% url pre_questionnaire_wine %}" method="POST">
+        {% csrf_token %}
+        {{ form.user }}
+
+        <div class="control-group{% if form.typically_drink.errors %} error{% endif %}">
+          <div class="control-label" for="id_typically_drink">{{ form.typically_drink.label }}</div>
+          <div class="controls">
+            {{ form.typically_drink}} 
+            {% if form.typically_drink.errors %}
+              <span class="help-inline">
+                {{ form.typically_drink.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+
+        <div class="control-group">
+          <div class="control-label">
+        When selecting a RED wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row.
+          </div>
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.red_body.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_red_body">{{ form.red_body.label }}</div>
+          <div class="controls">
+            {{ form.red_body}} 
+            {% if form.red_body.errors %}
+              <span class="help-inline">
+                {{ form.red_body.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.red_sweetness.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_red_sweetness">{{ form.red_sweetness.label }}</div>
+          <div class="controls">
+            {{ form.red_sweetness}} 
+            {% if form.red_sweetness.errors %}
+              <span class="help-inline">
+                {{ form.red_sweetness.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.red_acidity.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_red_acidity">{{ form.red_acidity.label }}</div>
+          <div class="controls">
+            {{ form.red_acidity}} 
+            {% if form.red_acidity.errors %}
+              <span class="help-inline">
+                {{ form.red_acidity.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.red_color.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_red_color">{{ form.red_color.label }}</div>
+          <div class="controls">
+            {{ form.red_color}} 
+            {% if form.red_color.errors %}
+              <span class="help-inline">
+                {{ form.red_color.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+
+        <div class="control-group{% if form.red_wines_often.errors %} error{% endif %}">
+          <div class="control-label" for="id_red_wines_often">{{ form.red_wines_often.label }}</div>
+          <div class="controls">
+            {{ form.red_wines_often}} 
+            {% if form.red_wines_often.errors %}
+              <span class="help-inline">
+                {{ form.red_wines_often.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="other">
+            <div class="control-label" for="id_red_wines_other">{{ form.red_wines_other.label }}</div>
+            <div class="controls">
+              {{ form.red_wines_other}} 
+              {% if form.red_wines_other.errors %}
+                <span class="help-inline">
+                  {{ form.red_wines_other.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>        
+
+
+        <div class="control-group{% if form.red_wine_dislike.errors %} error{% endif %}">
+          <div class="control-label" for="id_red_wine_dislike">{{ form.red_wine_dislike.label }}</div>
+          <div class="controls">
+            {{ form.red_wine_dislike}} 
+            {% if form.red_wine_dislike.errors %}
+              <span class="help-inline">
+                {{ form.red_wine_dislike.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="other">
+            <div class="control-label" for="id_red_wine_dislike_other">{{ form.red_wine_dislike_other.label }}</div>
+            <div class="controls">
+              {{ form.red_wine_dislike_other}} 
+              {% if form.red_wine_dislike_other.errors %}
+                <span class="help-inline">
+                  {{ form.red_wine_dislike_other.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>        
+        </div>        
+
+        <div class="control-group">
+          <div class="control-label">
+        When selecting a WHITE wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row.
+          </div>
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.white_oak.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_white_oak">{{ form.white_oak.label }}</div>
+          <div class="controls">
+            {{ form.white_oak}} 
+            {% if form.white_oak.errors %}
+              <span class="help-inline">
+                {{ form.white_oak.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.white_sweetness.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_white_sweetness">{{ form.white_sweetness.label }}</div>
+          <div class="controls">
+            {{ form.white_sweetness}} 
+            {% if form.white_sweetness.errors %}
+              <span class="help-inline">
+                {{ form.white_sweetness.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.white_acidity.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_white_acidity">{{ form.white_acidity.label }}</div>
+          <div class="controls">
+            {{ form.white_acidity}} 
+            {% if form.white_acidity.errors %}
+              <span class="help-inline">
+                {{ form.white_acidity.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+
+        <div class="wine-characteristic span12">
+        <div class="control-group{% if form.white_color.errors %} error{% endif %}">
+          <div class="control-label span2" for="id_white_color">{{ form.white_color.label }}</div>
+          <div class="controls">
+            {{ form.white_color}} 
+            {% if form.white_color.errors %}
+              <span class="help-inline">
+                {{ form.white_color.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+
+        <div class="control-group{% if form.white_wines_often.errors %} error{% endif %}">
+          <div class="control-label" for="id_white_wines_often">{{ form.white_wines_often.label }}</div>
+          <div class="controls">
+            {{ form.white_wines_often}} 
+            {% if form.white_wines_often.errors %}
+              <span class="help-inline">
+                {{ form.white_wines_often.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="other">
+            <div class="control-label" for="id_white_wines_other">{{ form.white_wines_other.label }}</div>
+            <div class="controls">
+              {{ form.white_wines_other}} 
+              {% if form.white_wines_other.errors %}
+                <span class="help-inline">
+                  {{ form.white_wines_other.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>        
+        </div>        
+
+
+        <div class="control-group{% if form.white_wine_dislike.errors %} error{% endif %}">
+          <div class="control-label" for="id_white_wine_dislike">{{ form.white_wine_dislike.label }}</div>
+          <div class="controls">
+            {{ form.white_wine_dislike}} 
+            {% if form.white_wine_dislike.errors %}
+              <span class="help-inline">
+                {{ form.white_wine_dislike.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="other">
+            <div class="control-label" for="id_white_wine_dislike_other">{{ form.white_wine_dislike_other.label }}</div>
+            <div class="controls">
+              {{ form.white_wine_dislike_other}} 
+              {% if form.white_wine_dislike_other.errors %}
+                <span class="help-inline">
+                  {{ form.white_wine_dislike_other.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>        
+        
+        <div class="control-group{% if form.other_wines.errors %} error{% endif %}">
+          <div class="control-label" for="id_other_wines">{{ form.other_wines.label }}</div>
+          <div class="controls">
+            {{ form.other_wines}} 
+            {% if form.other_wines.errors %}
+              <span class="help-inline">
+                {{ form.other_wines.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>            
+        
+        <div class="control-group">
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Submit</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+  </section>
+</div>
+
+{% endblock content %}

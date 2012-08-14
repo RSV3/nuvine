@@ -1,76 +1,76 @@
-- pk: 1
+- fields: {active: true, number: 1, name: Domaine De Pellehaut "Harmonie De Gascogne",
+    added: 2012-07-28, deactivated: null, year: 0, price: '0', sip_bits: 'Light, "clean"
+      blend of four regional varietals                             from the Loire
+      Valley (France), predominantly Uni Blanc and Columbard.'}
+  pk: 1
   model: personality.wine
-  fields: {name: Domaine De Pellehaut "Harmonie De Gascogne", added: 2012-07-28, deactivated: null,
-    year: 0, price: '0', sip_bits: 'Light, "clean" blend of four regional varietals                             from
-      the Loire Valley (France), predominantly Uni Blanc and Columbard.', active: true,
-    number: 1}
 - pk: 2
   model: personality.wine
-  fields: {active: true, sip_bits: Classic California chard. Made by respected wine-maker
-      Michael                                 Pozzan.  This wine has limited availability
-      and crated for the                                 restaurant industry., number: 2,
-    name: Contrada Chardonnay, added: 2012-07-28, deactivated: null, year: 0, price: '0'}
+  fields: {price: '0', active: true, sip_bits: Classic California chard. Made by respected
+      wine-maker Michael                                 Pozzan.  This wine has limited
+      availability and crated for the                                 restaurant industry.,
+    number: 2, name: Contrada Chardonnay, added: 2012-07-28, deactivated: null, year: 0}
 - pk: 3
   model: personality.wine
-  fields: {year: 0, price: '0', active: true, sip_bits: 'This wine defines "aromatics
-      on the nose"; "Frizzante" is                             Italian that refers
-      to the slight effervescence, paying homage to this                             varietal''s
+  fields: {deactivated: null, year: 0, price: '0', active: true, sip_bits: 'This wine
+      defines "aromatics on the nose"; "Frizzante" is                             Italian
+      that refers to the slight effervescence, paying homage to this                             varietal''s
       roots, although this wine hails from Oregon.', number: 3, name: Foris Vineyards
-      Muscat Frizzante, added: 2012-07-28, deactivated: null}
-- model: personality.wine
+      Muscat Frizzante, added: 2012-07-28}
+- pk: 4
+  model: personality.wine
   fields: {name: Giuseppe Savine Rondineto "Vino Quotidinao", added: 2012-07-28, deactivated: null,
     year: 0, price: '0', active: true, sip_bits: 'Light bodied Italian red that can
       be served slight chilled (really)                             perfect for people
       just getting into the "world of red";                             translates
       to "wine for everyday"; believe it or not, this is                             mad
       from 100% Merlot!', number: 4}
-  pk: 4
 - pk: 5
   model: personality.wine
-  fields: {number: 5, name: Lange Twins Zinfandel, added: 2012-07-28, deactivated: null,
-    year: 0, price: '0', active: true, sip_bits: 'Small Produced, Classic for the
-      style. Fantastic, respected family-owned                             operation
-      from Lodi, California.'}
-- model: personality.wine
+  fields: {active: true, sip_bits: 'Small Produced, Classic for the style. Fantastic,
+      respected family-owned                             operation from Lodi, California.',
+    number: 5, name: Lange Twins Zinfandel, added: 2012-07-28, deactivated: null,
+    year: 0, price: '0'}
+- pk: 6
+  model: personality.wine
   fields: {year: 0, price: '0', sip_bits: 'Awesome wine from South America. This line
       is special and only 3000                             cases of this wine is produced.
       Bold, dark - might stain your teeth purple                             for a
       while - grab a steak or some Roquefort Bleu!', active: true, number: 6, name: Carlos
       Basso Dos Fincas Cabernet Sauvignon/Merlot, added: 2012-07-28, deactivated: null}
-  pk: 6
-- pk: 1
-  model: personality.winepersonality
+- model: personality.winepersonality
   fields: {name: Easy Going, description: 'You''re "easy going" - even before the                                   wine.
       You''re the type of person that                                   comes home
       after a long day at the                                   office or with the
       kids and reaches for a                                   glass. Your wine is
       happy, light and                                   white - clean, eortless and
       something                                   to unwind with.'}
+  pk: 1
 - pk: 2
   model: personality.winepersonality
-  fields: {name: Moxie, description: 'Bold, confident, outstanding - and we''re                                   talking
+  fields: {description: 'Bold, confident, outstanding - and we''re                                   talking
       about you as much as the wine you drink. You don''t talk, you make a                                   statement
       - and when it''s about wine, it''s "I                                   drink
       red!". Dynamic and charismatic, you                                   could
       spend the night with just these                                   wines and
-      be completely content.'}
-- fields: {name: Whimsical, description: 'You find comfort in the wine you drink -                                   wine
+      be completely content.', name: Moxie}
+- pk: 3
+  model: personality.winepersonality
+  fields: {name: Whimsical, description: 'You find comfort in the wine you drink -                                   wine
       for you is an occasion where you''re                                   often
       the life of the party. Life''s not that                                   complicated,
       nor is your wine. The key                                   for you is FUN.
       Some may consider you                                   a little quirky and
       frequently playful, and                                   that''s what''s in
       your glass.'}
-  pk: 3
+- pk: 4
   model: personality.winepersonality
-- model: personality.winepersonality
   fields: {name: Sensational, description: 'And that you are. You put thought into                                   your
       whole wine experience, thirsting for                                   everything
       in the glass - the history, the                                   depth, the
       pairings - all are appreciated in                                   every sip.
       The wines are exciting,                                   stunning, and entices
       you into exploring                                   even more.'}
-  pk: 4
 - pk: 5
   model: personality.winepersonality
   fields: {name: Exuberant, description: 'Vivacious and cheerful, you''re often the                                   host
@@ -79,15 +79,57 @@
       do not necessarily                                   see it taking center stage.
       Your wine is a                                   lively yet informal addition,
       whose                                   absence would be missed.'}
-- fields: {name: Serendipitous, description: 'When asked do you prefer red or white?                                   You
+- pk: 6
+  model: personality.winepersonality
+  fields: {name: Serendipitous, description: 'When asked do you prefer red or white?                                   You
       say YES! Often welcoming impromptu                                   opportunities
       with a desire for                                   spontaneity, chance and
       discovery of life                                   and wine. Your unconstrained
       nature                                   empowers you to float from one sensual                                   pleasure
       to the next.'}
-  pk: 6
-  model: personality.winepersonality
 - pk: 7
   model: personality.winepersonality
   fields: {name: Complex, description: You have a very complex taste palate. It will
       require more experimentation to understand your tastes.}
+- fields: {color: 0, name: Cabernet Sauvignon}
+  pk: 1
+  model: personality.surveywine
+- model: personality.surveywine
+  fields: {color: 0, name: Malbec}
+  pk: 2
+- pk: 3
+  model: personality.surveywine
+  fields: {color: 0, name: Merlot}
+- fields: {color: 0, name: Syrah/Shiraz}
+  pk: 4
+  model: personality.surveywine
+- pk: 5
+  model: personality.surveywine
+  fields: {color: 0, name: Pinot Noir}
+- pk: 6
+  model: personality.surveywine
+  fields: {color: 0, name: Sweet Red}
+- pk: 7
+  model: personality.surveywine
+  fields: {color: 1, name: Pinot Grigio}
+- model: personality.surveywine
+  fields: {name: Riesling, color: 1}
+  pk: 8
+- pk: 9
+  model: personality.surveywine
+  fields: {color: 1, name: Sauvignon Blanc}
+- pk: 10
+  model: personality.surveywine
+  fields: {color: 1, name: Chardonnay}
+- pk: 11
+  model: personality.surveywine
+  fields: {color: 1, name: Moscato}
+- fields: {color: 2, name: Sparkling wines/champagnes}
+  pk: 12
+  model: personality.surveywine
+- pk: 13
+  model: personality.surveywine
+  fields: {color: 2, name: Rose}
+- pk: 14
+  model: personality.surveywine
+  fields: {color: 2, name: Dessert wines}

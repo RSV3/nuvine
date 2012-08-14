@@ -8,8 +8,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 
 from main.utils import if_supplier
-from personality.models import WineRatingData
+from personality.models import WineRatingData, GeneralTaste, WineTaste
 from main.models import Order
+from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire
 
 @login_required
 def my_wine_personality(request):
@@ -67,3 +68,32 @@ def personality_details(request, user_id, order_id=None):
 
   return render_to_response("personality/personality_details.html", data, context_instance=RequestContext(request))
 
+@login_required
+def pre_questionnaire_general(request):
+  data = {}
+
+  u = request.user
+
+  form = GeneralTasteQuestionnaire(request.POST or None)
+  if form.is_valid():
+    form.save()
+    return HttpResponseRedirect(reverse("pre_questionnaire_wine"))
+
+  data["form"] = form 
+  return render_to_response("personality/pre_questionnaire_general.html", data,
+                                  context_instance=RequestContext(request))
+
+@login_required
+def pre_questionnaire_wine(request):
+  data = {}
+
+  u = request.user
+
+  form = WineTasteQuestionnaire(request.POST or None)
+  if form.is_valid():
+    form.save()
+    return HttpResponseRedirect(reverse("home_page"))
+
+  data["form"] = form 
+  return render_to_response("personality/pre_questionnaire_wine.html", data,
+                                  context_instance=RequestContext(request))

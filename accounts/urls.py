@@ -21,6 +21,5 @@ urlpatterns = patterns('',
   url(r'^verify/(?P<verification_code>[\-\w]{36})/$', 'accounts.views.verify_account', name='verify_account'),
   url(r'^verify/email/(?P<verification_code>[\-\w]{36})/$', 'accounts.views.verify_email', name='verify_email'),
   url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
-  url(r'^questionnaire/pre/$', 'accounts.views.pre_questionnaire', name='pre_questionnaire'),
 )
 
