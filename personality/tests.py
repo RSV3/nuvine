@@ -35,5 +35,5 @@ class SimpleTest(TestCase):
 
     # other wines
     SurveyWine.objects.get_or_create(name='Sparkling wines/champagnes', color=SurveyWine.COLOR_CHOICES[2][0])   
-    SurveyWine.objects.get_or_create(name='Rose', color=SurveyWine.COLOR_CHOICES[2][0])   
+    SurveyWine.objects.get_or_create(name=u'Ros\xE9', color=SurveyWine.COLOR_CHOICES[2][0])   
     SurveyWine.objects.get_or_create(name='Dessert wines', color=SurveyWine.COLOR_CHOICES[2][0])   

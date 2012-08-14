@@ -27,6 +27,10 @@
       margin-bottom: 20px;
     }
 
+    .sub-instruction {
+      margin-left: 25px;
+      font-size: 0.8em;
+    }
 
   </style>
 {% endblock %}
@@ -48,7 +52,7 @@
         {{ form.errors }}
 
         <div class="control-group{% if form.drink_regularly.errors %} error{% endif %}">
-          <div class="control-label" for="id_drink_regularly">{{ form.drink_regularly.label }}</div>
+          <div class="control-label" for="id_drink_regularly">1. {{ form.drink_regularly.label }}</div>
           <div class="controls">
             {{ form.drink_regularly}} 
             {% if form.drink_regularly.errors %}
@@ -57,10 +61,13 @@
               </span>
             {% endif %}
           </div>
+          <div class="sub-instruction">
+          If "Neither", skip to question 5.
+          </div>
         </div>        
 
         <div class="control-group{% if form.coffee_type.errors %} error{% endif %}">
-          <div class="control-label" for="id_coffee_type">{{ form.coffee_type.label }}</div>
+          <div class="control-label" for="id_coffee_type">2. {{ form.coffee_type.label }}</div>
           <div class="controls">
             {{ form.coffee_type}} 
             {% if form.coffee_type.errors %}
@@ -72,7 +79,7 @@
         </div>        
 
         <div class="control-group{% if form.coffee_take.errors %} error{% endif %}">
-          <div class="control-label" for="id_coffee_take">{{ form.coffee_take.label }}</div>
+          <div class="control-label" for="id_coffee_take">3. {{ form.coffee_take.label }}</div>
           <div class="controls">
             {{ form.coffee_take}} 
             {% if form.coffee_take.errors %}
@@ -84,7 +91,7 @@
         </div>
 
         <div class="control-group{% if form.salty_food.errors %} error{% endif %}">
-          <div class="control-label" for="id_salty_food">{{ form.salty_food.label }}</div>
+          <div class="control-label" for="id_salty_food">4. {{ form.salty_food.label }}</div>
           <div class="controls">
             {{ form.salty_food}} 
             {% if form.salty_food.errors %}
@@ -97,7 +104,7 @@
 
 
         <div class="control-group{% if form.citrus.errors %} error{% endif %}">
-          <div class="control-label" for="id_citrus">{{ form.citrus.label }}</div>
+          <div class="control-label" for="id_citrus">5. {{ form.citrus.label }}</div>
           <div class="controls">
             {{ form.citrus}} 
             {% if form.citrus.errors %}
@@ -109,7 +116,7 @@
         </div>
 
         <div class="control-group{% if form.earthy.errors %} error{% endif %}">
-          <div class="control-label" for="id_earthy">{{ form.earthy.label }}</div>
+          <div class="control-label" for="id_earthy">6. {{ form.earthy.label }}</div>
           <div class="controls">
             {{ form.earthy}} 
             {% if form.earthy.errors %}
@@ -121,7 +128,7 @@
         </div>        
 
         <div class="control-group{% if form.berries.errors %} error{% endif %}">
-          <div class="control-label" for="id_berries">{{ form.berries.label }}</div>
+          <div class="control-label" for="id_berries">7. {{ form.berries.label }}</div>
           <div class="controls">
             {{ form.berries}} 
             {% if form.berries.errors %}
@@ -133,7 +140,7 @@
         </div>        
 
         <div class="control-group{% if form.artificial.errors %} error{% endif %}">
-          <div class="control-label" for="id_artificial">{{ form.artificial.label }}</div>
+          <div class="control-label" for="id_artificial">8. {{ form.artificial.label }}</div>
           <div class="controls">
             {{ form.artificial}} 
             {% if form.artificial.errors %}
@@ -145,7 +152,7 @@
         </div>        
 
         <div class="control-group{% if form.new_flavors.errors %} error{% endif %}">
-          <div class="control-label" for="id_new_flavors">{{ form.new_flavors.label }}</div>
+          <div class="control-label" for="id_new_flavors">9. {{ form.new_flavors.label }}</div>
           <div class="controls">
             {{ form.new_flavors}} 
             {% if form.new_flavors.errors %}

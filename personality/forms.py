@@ -180,6 +180,7 @@ class WineTasteQuestionnaire(forms.ModelForm):
 
   class Meta:
     model = WineTaste
+    exclude = ['red_acidity', 'white_acidity']
 
   def __init__(self, *args, **kwargs):
     super(WineTasteQuestionnaire, self).__init__(*args, **kwargs)
@@ -187,20 +188,26 @@ class WineTasteQuestionnaire(forms.ModelForm):
     self.fields['typically_drink'].widget = forms.RadioSelect(choices=WineTaste.TYPICALLY_DRINK_CHOICES) 
     self.fields['red_body'].widget = forms.RadioSelect(attrs={'class': 'horizontal-radio'}, choices=WineTaste.RED_BODY_CHOICES) 
     self.fields['red_sweetness'].widget = forms.RadioSelect(choices=WineTaste.RED_SWEETNESS_CHOICES) 
-    self.fields['red_acidity'].widget = forms.RadioSelect(choices=WineTaste.RED_ACIDITY_CHOICES) 
+    #self.fields['red_acidity'].widget = forms.RadioSelect(choices=WineTaste.RED_ACIDITY_CHOICES) 
     self.fields['red_color'].widget = forms.RadioSelect(choices=WineTaste.RED_COLOR_CHOICES) 
     self.fields['white_oak'].widget = forms.RadioSelect(choices=WineTaste.WHITE_OAK_CHOICES) 
     self.fields['white_sweetness'].widget = forms.RadioSelect(choices=WineTaste.WHITE_SWEETNESS_CHOICES) 
-    self.fields['white_acidity'].widget = forms.RadioSelect(choices=WineTaste.WHITE_ACIDITY_CHOICES) 
+    #self.fields['white_acidity'].widget = forms.RadioSelect(choices=WineTaste.WHITE_ACIDITY_CHOICES) 
     self.fields['white_color'].widget = forms.RadioSelect(choices=WineTaste.WHITE_COLOR_CHOICES) 
 
   def clean(self):
     cleaned_data = super(WineTasteQuestionnaire, self).clean()
 
     wine_id = cleaned_data['red_wine_dislike']
-    cleaned_data['red_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+    if wine_id:
+      cleaned_data['red_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+    else:
+      cleaned_data['red_wine_dislike'] = None
     wine_id = cleaned_data['white_wine_dislike']
-    cleaned_data['white_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+    if wine_id:
+      cleaned_data['white_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+    else:
+      cleaned_data['white_wine_dislike'] = None
 
     return cleaned_data
 

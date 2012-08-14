@@ -87,49 +87,45 @@
       discovery of life                                   and wine. Your unconstrained
       nature                                   empowers you to float from one sensual                                   pleasure
       to the next.'}
-- pk: 7
-  model: personality.winepersonality
-  fields: {name: Complex, description: You have a very complex taste palate. It will
-      require more experimentation to understand your tastes.}
-- fields: {color: 0, name: Cabernet Sauvignon}
-  pk: 1
+- pk: 1
+  model: personality.surveywine
+  fields: {color: 0, name: Cabernet Sauvignon}
+- fields: {color: 0, name: Malbec}
+  pk: 2
   model: personality.surveywine
 - model: personality.surveywine
-  fields: {color: 0, name: Malbec}
-  pk: 2
-- pk: 3
-  model: personality.surveywine
   fields: {color: 0, name: Merlot}
-- fields: {color: 0, name: Syrah/Shiraz}
-  pk: 4
+  pk: 3
+- pk: 4
   model: personality.surveywine
-- pk: 5
+  fields: {color: 0, name: Syrah/Shiraz}
+- fields: {color: 0, name: Pinot Noir}
+  pk: 5
   model: personality.surveywine
-  fields: {color: 0, name: Pinot Noir}
 - pk: 6
   model: personality.surveywine
   fields: {color: 0, name: Sweet Red}
 - pk: 7
   model: personality.surveywine
   fields: {color: 1, name: Pinot Grigio}
-- model: personality.surveywine
-  fields: {name: Riesling, color: 1}
-  pk: 8
-- pk: 9
+- pk: 8
   model: personality.surveywine
-  fields: {color: 1, name: Sauvignon Blanc}
+  fields: {color: 1, name: Riesling}
+- model: personality.surveywine
+  fields: {name: Sauvignon Blanc, color: 1}
+  pk: 9
 - pk: 10
   model: personality.surveywine
   fields: {color: 1, name: Chardonnay}
 - pk: 11
   model: personality.surveywine
   fields: {color: 1, name: Moscato}
-- fields: {color: 2, name: Sparkling wines/champagnes}
-  pk: 12
+- pk: 12
   model: personality.surveywine
-- pk: 13
+  fields: {color: 2, name: Sparkling wines/champagnes}
+- fields: {color: 2, name: "Ros\xE9"}
+  pk: 13
   model: personality.surveywine
-  fields: {color: 2, name: Rose}
 - pk: 14
   model: personality.surveywine
   fields: {color: 2, name: Dessert wines}
