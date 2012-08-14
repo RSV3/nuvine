@@ -7,42 +7,41 @@
 
 {% block content %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-
     <div class="row">
+      <div class="span8">
+        <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
+        <p>Join parties and explore those wines that may give you a new taste to life.</p>
+        <div id="get_started"><a href="{% url sign_up 2 %}"></a></div>
+      </div>
       <div class="span4">
+      sign up here
+      </div>
+    </div>
+    <!--div class="row"-->
+      <!--div class="span4">
         <h2>Host Your Own Parties</h2>
 
         <p>Do you want to host a party at your home?  When you sign up, party specialist in your area will contact you.</p>
 
         <p><a class="btn" href="{% url sign_up 1 %}">Sign Up &raquo;</a></p>
-      </div>
-      <div class="span4">
+      </div-->
+      <!--div class="span4">
         <h2>Order a Tasting Kit</h2>
         <p>Get a tasting kit to understand your wine tastes? Vinely provides a set of wines and educational booklet to discover your wine tastes.</p>
 
         <p><a class="btn" href="{% url sign_up 4 %}">Sign Up &raquo;</a></p>
-      </div>
-      <div class="span4">
+      </div-->
+      <!--div class="span4">
         <h2>Party Specialists</h2>
 
         <p>Party specialists provide and educate about wine during parties.  They also are there to provide you with wine recommendations.</p>
 
         <p><a class="btn" href="{% url sign_up 0 %}">Sign Up &raquo;</a></p>
+      </div-->
+    <!--/div--><!-- row -->
 
-      </div>
-    </div><!-- row -->
-
-    <div class="row">
-      <p>&nbsp;</p>
-    </div>
-    <div class="hero-unit">
-      <h1>Experience Wine!</h1>
-
-      <p>Join parties and explore those wines that may give you a new taste to life.</p>
-      <p><a class="btn btn-primary btn-large" href="{% url sign_up 2 %}">Let me know when Vinely is in town &raquo;</a></p>
-    </div>
-
-</div><!-- container -->
+  </div>
+</div>   
 
 {% endblock content %}
 
