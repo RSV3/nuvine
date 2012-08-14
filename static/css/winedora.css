@@ -65,6 +65,29 @@ body {
   width: 85px;
   height: 85px;
 }
+.box {
+  background-color: #415A68;
+  opacity: 0.2;
+    -moz-opacity:0.2; 
+    -webkit-opacity:0.2;
+  border-radius: 3px;
+  border: 1px solid black;
+}
+.foo {
+  color: #415A68;
+  text-transform: uppercase;
+}
+
+#badges {
+  background: url('../img/badges_sprite.png') no-repeat 0px 0px; 
+  width: 950px;
+  height: 110px;
+  margin: 0;
+  padding: 0
+}
+}
+
+#sl:hover {background: url('../img/badges_sprite.png') no-repeat 20px 50px;}
 
 .cart-item-image {
   float: left;

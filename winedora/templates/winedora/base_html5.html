@@ -169,29 +169,30 @@
         </div>
         </div>
 
-    <header>
-      <div class="message-container">
+          <header>
+          <div class="message-container">
 
-      {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-              {% if "info" in message.tags %}
-                <div class="alert alert-info">{{ message }}</div>
-              {% elif "success" in message.tags %}
-                <div class="alert alert-success">{{ message }}</div>
-              {% elif "error" in message.tags or "warning" in message.tags %}
-                <div class="alert alert-error">{{ message }}</div>
-              {% endif %}
-            {% endfor %}
-        </div>
-      {% endif %}
+          {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                  {% if "info" in message.tags %}
+                    <div class="alert alert-info">{{ message }}</div>
+                  {% elif "success" in message.tags %}
+                    <div class="alert alert-success">{{ message }}</div>
+                  {% elif "error" in message.tags or "warning" in message.tags %}
+                    <div class="alert alert-error">{{ message }}</div>
+                  {% endif %}
+                {% endfor %}
+            </div>
+          {% endif %}
 
-      {% block header %}
+          {% block header %}
 
-      {% endblock header %}
+          {% endblock header %}
+          </div>
+          </header>
       </div>
-    </header>
-
+    </div>
     <div role="main" id="main-content">
         {% block content %}
         

@@ -6,7 +6,7 @@
 
 
 {% block content %}
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+<div data-spy="scroll" data-offset="50" data-target=".subnav">
     <div class="row">
       <div class="span8">
         <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
@@ -14,9 +14,24 @@
         <div id="get_started"><a href="{% url sign_up 2 %}"></a></div>
       </div>
       <div class="span4">
-      sign up here
+        <div class="box">
+          <div class="foo">
+          I've already got personality
+          </div>
+        </div>
       </div>
     </div>
+    <div class="row">
+      <div id="badges" class="navbar">
+        <div class="span2"><div class="pie" id="sl"></div></div>
+        <div class="span2"><div class="pie" id="wm"></div></div>
+        <div class="span2"><div class="pie" id="mx"></div></div>
+        <div class="span2"><div class="pie" id="ex"></div></div>
+        <div class="span2"><div class="pie" id="eg"></div></div>
+        <div class="span2"><div class="pie" id="sp"></div></div>
+      </div>
+    </div>
+
     <!--div class="row"-->
       <!--div class="span4">
         <h2>Host Your Own Parties</h2>
