@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
+from django.contrib import messages
 
 from main.utils import if_supplier
 from personality.models import WineRatingData, GeneralTaste, WineTaste
@@ -74,12 +75,21 @@ def pre_questionnaire_general(request):
 
   u = request.user
 
-  form = GeneralTasteQuestionnaire(request.POST or None)
+  try:
+    general_taste = GeneralTaste.objects.get(user=u)
+  except GeneralTaste.DoesNotExist:
+    general_taste = None
+  
+  form = GeneralTasteQuestionnaire(request.POST or None, instance=general_taste)
   if form.is_valid():
     form.save()
+    messages.success(request, "Your general taste information has been saved.")
     return HttpResponseRedirect(reverse("pre_questionnaire_wine"))
 
+  if general_taste is None:
+    form.initial['user'] = u
   data["form"] = form 
+
   return render_to_response("personality/pre_questionnaire_general.html", data,
                                   context_instance=RequestContext(request))
 
@@ -88,12 +98,26 @@ def pre_questionnaire_wine(request):
   data = {}
 
   u = request.user
+  profile = u.get_profile()
 
-  form = WineTasteQuestionnaire(request.POST or None)
+  try:
+    wine_taste = WineTaste.objects.get(user=u)
+  except WineTaste.DoesNotExist:
+    wine_taste = None
+
+  form = WineTasteQuestionnaire(request.POST or None, instance=wine_taste)
   if form.is_valid():
     form.save()
+    # save information that questionnaire has been filled out
+    if GeneralTaste.objects.filter(user=u).exists():
+      profile.prequestionnaire = True
+      profile.save()
+    messages.success(request, "Your wine taste information has been saved.")
     return HttpResponseRedirect(reverse("home_page"))
 
+  if wine_taste is None:
+    form.initial['user'] = u
   data["form"] = form 
+
   return render_to_response("personality/pre_questionnaire_wine.html", data,
                                   context_instance=RequestContext(request))

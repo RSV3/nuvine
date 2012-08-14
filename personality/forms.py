@@ -193,3 +193,14 @@ class WineTasteQuestionnaire(forms.ModelForm):
     self.fields['white_sweetness'].widget = forms.RadioSelect(choices=WineTaste.WHITE_SWEETNESS_CHOICES) 
     self.fields['white_acidity'].widget = forms.RadioSelect(choices=WineTaste.WHITE_ACIDITY_CHOICES) 
     self.fields['white_color'].widget = forms.RadioSelect(choices=WineTaste.WHITE_COLOR_CHOICES) 
+
+  def clean(self):
+    cleaned_data = super(WineTasteQuestionnaire, self).clean()
+
+    wine_id = cleaned_data['red_wine_dislike']
+    cleaned_data['red_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+    wine_id = cleaned_data['white_wine_dislike']
+    cleaned_data['white_wine_dislike'] = SurveyWine.objects.get(id=wine_id)
+
+    return cleaned_data
+

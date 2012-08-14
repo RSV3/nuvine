@@ -45,6 +45,7 @@
       <form action="{% url pre_questionnaire_general %}" method="POST">
         {% csrf_token %}
         {{ form.user }}
+        {{ form.errors }}
 
         <div class="control-group{% if form.drink_regularly.errors %} error{% endif %}">
           <div class="control-label" for="id_drink_regularly">{{ form.drink_regularly.label }}</div>
