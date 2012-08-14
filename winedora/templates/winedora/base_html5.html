@@ -26,8 +26,6 @@
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
 
   <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
-  <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css">
-  <!--link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/vinely-custom.css"-->
   <link rel="stylesheet" href="{{ STATIC_URL }}css/docs.css">
   <link rel="stylesheet" href="{{ STATIC_URL }}css/winedora.css">
 
@@ -56,26 +54,14 @@
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
-  <div class="container" style="border: 1px solid pink">
+  <div class="container">
     <div class="row">
       <div class="span4 offset4">
         <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" alt="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
-    </div>
-      <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-          <div class="">
-            {% block navbar_menu %}
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </a>
-            
-
-
-            {% if user.is_authenticated %}
-
+      <div id="authentication">
+        <div id="kwan">
+        {% if user.is_authenticated %}
             <div class="btn-group pull-right">
 
               <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -111,16 +97,35 @@
               <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
             </div>
             {% endif %}
+      </div>
+    </div> <!-- kwan-->
+    </div> <!--id authentication-->
+
+      <div class="navbar">
+        <div class="navbar-inner">
+          <div class="container">
+            {% block navbar_menu %}
+            
+<!--li id="gn-mac"><a href="/mac/" class="" onclick="s_objectID=&quot;http://www.apple.com/mac/_1&quot;;return this.s_oc?this.s_oc(e):true"><span>Mac</span></a></li-->            
 
             {% if user.is_authenticated %} 
-            <div class="nav-collapse" id="main-menu">
-              <ul class="nav" id="main-menu-left">
-                <li>
-                  <a href="{% url party_list %}">PARTIES</a>
+              <ul class="nav" id="main_menu">
+                <li id="parties">
+                  <a href="{% url party_list %}" class="" alt="parties"></a>
                 </li>
+                <li id="shop">
+                  <a href="#" class="" alt="shop"></a>
+                </li><li id="rate_wines">
+                  <a href="#" class="" alt="rate_wines"></a>
+                </li>
+                <li id="how_it_works">
+                  <a href="{% url how_it_works %}">How it works</a>
+                </li>
+
+
                 {% if specialist %}
-                  <li>
-                    <a href="{% url dashboard %}">DASHBOARD</a>
+                  <li id="dashboard">
+                    <a href="{% url dashboard %}"></a>
                   </li>
                 {% elif supplier %}
                   <li>
@@ -134,37 +139,34 @@
                   </li>
                 {% endif %}
                 {% if wine_personality %}
-                <li>
+                <li id="shop">
                   <a href="{% url start_order %}">SHOP</a>
                 </li>
                 {% endif %}
                 {% if pending_ratings %} 
-                <li>
+                <li id="rate_wines">
                   <a href="{% url rate_wines %}">RATE_WINES</a>
                 </li>
                 {% endif %}
               </ul>
-            </div>
             {% else %}
             <div class="nav-collapse collapse">
               <ul class="nav">
                 <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
-                <li><a href="{% url how_it_works %}">How it works</a></li>
-                <li><a href="{% url sign_up 4 %}">Join Us</a></li>
-                <li><a href="{% url about %}">About</a></li>
-                <li><a href="{% url contact_us %}">Contact</a></li>
+                <li id="join_us"><a href="{% url sign_up 4 %}">Join Us</a></li>
+                <li id="about"><a href="{% url about %}">About</a></li>
+                <li id="contact"><a href="{% url contact_us %}">Contact</a></li>
               </ul>
             </div><!--/.nav-collapse -->
             {% endif %}
 
             {% endblock navbar_menu %}
-          </div>
         </div>
-      </div>
+        </div>
 
     <header>
 
-      <div class="">
+      <!--div class="message-container">
 
       {% if messages %}
         <div class="messages">
@@ -183,7 +185,7 @@
       {% block header %}
 
       {% endblock header %}
-      </div>
+      </div-->
     </header>
 
     <div role="main" id="main-content">

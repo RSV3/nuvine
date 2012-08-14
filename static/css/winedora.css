@@ -2,14 +2,45 @@ body {
   background: url('../img/site_background_pattern.png');
 }
 
-
-.uppercase {
-  text-transform: uppercase;
+.navbar {
+  border-top: 3px solid #415A68;
+  margin-top: 10px;
 }
 
-.smaller {
-  font-size: 0.8em;
+.navbar .nav#main_menu{
+  background: url('../img/main_nav_sprite.png') no-repeat 0px -50px;
+  width: 950px;
+  height: 77px;
 }
+#main_menu li, #main_menu a {
+    height: 77px;
+    display: block;
+}
+#parties {
+  width: 83px;
+}
+#shop {
+  width: 66px;
+}
+#rate_wines {
+  width: 118px;
+}
+#how_it_works {
+  width: 140px;
+}
+#get_started {
+  width: 126px;
+}
+#our_story {
+  width: 111px;
+}
+#dashboard {
+  width: 119px;
+}
+#vinely_u {
+  width: 93px;
+}
+#parties a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 50px;}
 
 .cart-item-image {
   float: left;
