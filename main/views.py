@@ -188,6 +188,8 @@ def start_order(request, receiver_id=None, party_id=None):
                       for a guest, the guest user id is the receiver_id
   """
   data = {}
+  #: receiver's wine personality, or current user's wine personality
+  personality = None
 
   u = request.user
 

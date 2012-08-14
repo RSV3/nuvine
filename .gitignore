@@ -7,6 +7,7 @@ latest.dump
 .env
 emails
 sitemedia
+sitestatic
 cache
 ssl
 

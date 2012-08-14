@@ -122,10 +122,10 @@
                 <a href="{% url how_it_works %}"></a>
               </li>
               <li id="nav_get_started">
-                <a href="#"></a>
+                <a href="{% url sign_up 2 %}"></a>
               </li>
               <li id="our_story">
-                <a href="#"></a>
+                <a href="{% url about %}"></a>
               </li>
               <li id="dashboard">
                   <a href="{% url dashboard %}"></a>
@@ -210,25 +210,27 @@
             <div class="nav-collapse">          
               <ul class="nav" id="footer">
                 <li>
-                  <a href="#">Home</a>
+                  <a href="{% url home_page %}">Home</a>
                 </li>
                 <li>
-                  <a href="#">Shop</a>
+                  <a href="{% url start_order %}">Shop</a>
                 </li>
+                <!-- for mileston 2 
                 <li>
                   <a href="#">Rate Wines</a>
                 </li>
+                -->
                 <li>
-                  <a href="#">Account</a>
+                  <a href="{% url my_information %}">Account</a>
                 </li>
                 <li>
-                  <a href="#">How It Works</a>
+                  <a href="{% url how_it_works %}">How It Works</a>
                 </li>
                 <li>
-                  <a href="#">Get Started</a>
+                  <a href="{% url sign_up 2 %}">Get Started</a>
                 </li>
                 <li>
-                  <a href="#">Our Story</a>
+                  <a href="{% url about %}">Our Story</a>
                 </li>
               </ul>
             </div>
