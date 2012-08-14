@@ -61,7 +61,7 @@
       </div>
       <div id="authentication">
         <div id="kwan">
-        {% if user.is_authenticated %}
+          {% if user.is_authenticated %}
             <div class="btn-group pull-right">
 
               <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -84,8 +84,8 @@
                   </a>
                   <ul class="dropdown-menu" id="swatch-menu">
                     <li><a href="{% url how_it_works %}">How it works</a></li>
-                    <li><a href="{% url sign_up 4 %}">Join Us</a></li>
-                    <li><a href="{% url about %}">About</a></li>
+                    <li><a href="{% url sign_up 4 %}">Get Started</a></li>
+                    <li><a href="{% url about %}">Our Story</a></li>
                     <li><a href="{% url contact_us %}">Contact</a></li>
                   </ul>
                 </li>
@@ -96,103 +96,107 @@
             <div class="pull-right">
               <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
             </div>
-            {% endif %}
-      </div>
-    </div> <!-- kwan-->
-    </div> <!--id authentication-->
+          {% endif %}
+        </div> <!-- kwan-->
+      </div> <!--id authentication-->
+    </div> <!-- .row -->
 
     <div class="navbar">
-        <div class="navbar-inner">
-          <div class="container">
-            {% block navbar_menu %}
-            <div class="nav-collapse">           
-            {% if user.is_authenticated %} 
-              <ul class="nav" id="main_menu">
-                <li id="parties">
-                  <a href="{% url party_list %}" class="" alt="parties"></a>
+      <div class="navbar-inner">
+        <div class="container">
+          {% block navbar_menu %}
+
+          {% if user.is_authenticated %} 
+          <div class="nav-collapse">           
+            <ul class="nav" id="main_menu">
+              <li id="parties">
+                <a href="{% url party_list %}" class="" alt="parties"></a>
+              </li>
+              <li id="shop">
+                <a href="{% url start_order %}"></a>
+              </li>
+              <li id="rate_wines">
+                <a href="#" class="" alt="rate_wines"></a>
+              </li>
+              <li id="how_it_works">
+                <a href="{% url how_it_works %}"></a>
+              </li>
+              <li id="nav_get_started">
+                <a href="{% url sign_up 2 %}"></a>
+              </li>
+              <li id="our_story">
+                <a href="{% url about %}"></a>
+              </li>
+              <li id="dashboard">
+                  <a href="{% url dashboard %}"></a>
+              </li>
+              <li id="vinely_u">
+                <a href="#"></a>
+              </li>
+              {% if specialist %}
+              {% elif supplier %}
+                <li>
+                  <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
                 </li>
-                <li id="shop">
-                  <a href="{% url start_order %}"></a>
+                <li>
+                  <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
                 </li>
-                <li id="rate_wines">
-                  <a href="#" class="" alt="rate_wines"></a>
+                <li>
+                  <a href="{% url supplier_pending_orders %}">PENDING</a>
                 </li>
-                <li id="how_it_works">
-                  <a href="{% url how_it_works %}"></a>
-                </li>
-                <li id="nav_get_started">
-                  <a href="#"></a>
-                </li>
-                <li id="our_story">
-                  <a href="#"></a>
-                </li>
-                <li id="dashboard">
-                    <a href="{% url dashboard %}"></a>
-                </li>
-                <li id="vinely_u">
-                  <a href="#"></a>
-                </li>
-                {% if specialist %}
-                {% elif supplier %}
-                  <li>
-                    <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
-                  </li>
-                  <li>
-                    <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
-                  </li>
-                  <li>
-                    <a href="{% url supplier_pending_orders %}">PENDING</a>
-                  </li>
-                {% endif %}
-                {% if wine_personality %}
-                
-                {% endif %}
-                {% if pending_ratings %} 
+              {% endif %}
+
+              {% if wine_personality %}
+              
+              {% endif %}
+
+              {% if pending_ratings %} 
                 <li id="rate_wines">
                   <a href="{% url rate_wines %}">RATE_WINES</a>
                 </li>
-                {% endif %}
-              </ul>
-            </div>
-            {% else %}
-            <div class="nav-collapse collapse">
-              <ul class="nav">
-                <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
-                <li id="join_us"><a href="{% url sign_up 4 %}">Join Us</a></li>
-                <li id="about"><a href="{% url about %}">About</a></li>
-                <li id="contact"><a href="{% url contact_us %}">Contact</a></li>
-              </ul>
-            </div><!--/.nav-collapse -->
-            {% endif %}
+              {% endif %}
 
-            {% endblock navbar_menu %}
-        </div>
-        </div>
-
-          <header>
-          <div class="message-container">
-
-          {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                  {% if "info" in message.tags %}
-                    <div class="alert alert-info">{{ message }}</div>
-                  {% elif "success" in message.tags %}
-                    <div class="alert alert-success">{{ message }}</div>
-                  {% elif "error" in message.tags or "warning" in message.tags %}
-                    <div class="alert alert-error">{{ message }}</div>
-                  {% endif %}
-                {% endfor %}
-            </div>
+            </ul><!-- .nave -->
+          </div><!-- .nav-collapse -->
+          {% else %}
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
+              <li id="join_us"><a href="{% url sign_up 4 %}">Get Started</a></li>
+              <li id="about"><a href="{% url about %}">Our Story</a></li>
+              <li id="contact"><a href="{% url contact_us %}">Contact</a></li>
+            </ul>
+          </div><!-- .nav-collapse -->
           {% endif %}
 
-          {% block header %}
+          {% endblock navbar_menu %}
+        </div>
+      </div> <!-- .navbar-inner -->
+    </div> <!-- .navbar -->
 
-          {% endblock header %}
+
+    <header>
+      <div class="message-container">
+
+        {% if messages %}
+          <div class="messages">
+              {% for message in messages %}
+                {% if "info" in message.tags %}
+                  <div class="alert alert-info">{{ message }}</div>
+                {% elif "success" in message.tags %}
+                  <div class="alert alert-success">{{ message }}</div>
+                {% elif "error" in message.tags or "warning" in message.tags %}
+                  <div class="alert alert-error">{{ message }}</div>
+                {% endif %}
+              {% endfor %}
           </div>
-          </header>
-      </div>
-    </div>
+        {% endif %}
+      </div> <!-- .message-container -->
+      {% block header %}
+
+      {% endblock header %}
+    </header>
+
     <div role="main" id="main-content">
         {% block content %}
         
@@ -200,38 +204,44 @@
     </div>
 
     <footer>
-      <div class="navbar">
-        <div class="navbar-inner">
-          <div class="container">
+      <div class="container">
+        <div class="navbar">
+          <div class="navbar-inner">
             <div class="nav-collapse">          
               <ul class="nav" id="footer">
                 <li>
-                  <a href="#">Home</a>
+                  <a href="{% url home_page %}">Home</a>
                 </li>
                 <li>
-                  <a href="#">Shop</a>
+                  {% if user.is_authenticated %}
+                    <a href="{% url start_order %}">Shop</a>
+                  {% else %}
+                    <a href="{% url cart_add_tasting_kit %}">Shop</a>
+                  {% endif %}
                 </li>
+                <!-- for mileston 2 
                 <li>
                   <a href="#">Rate Wines</a>
                 </li>
+                -->
                 <li>
-                  <a href="#">Account</a>
+                  <a href="{% url my_information %}">Account</a>
                 </li>
                 <li>
-                  <a href="#">How It Works</a>
+                  <a href="{% url how_it_works %}">How It Works</a>
                 </li>
                 <li>
-                  <a href="#">Join Us</a>
+                  <a href="{% url sign_up 2 %}">Get Started</a>
                 </li>
                 <li>
-                  <a href="#">About</a>
+                  <a href="{% url about %}">Our Story</a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-      </div>
-      <div class="span4 offset4">&copy; Vinely Inc All Rights Reserved</div>
+        <div class="span4 offset4">&copy; Vinely Inc All Rights Reserved</div>
+      </div> <!-- .container -->
     </footer>
 
 

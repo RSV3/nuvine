@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, \
                         CustomizeOrder, Order, EngagementInterest, PersonaLog, OrganizedParty
-from personality.models import Wine 
+from personality.models import Wine, WineTaste, GeneralTaste
 from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
@@ -86,7 +86,7 @@ def home(request):
     else:
       data['wine_personality'] = False
 
-    data['questionnaire_completed'] = profile.prequestionnaire 
+    data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
 
     # TODO: if there are orders pending
     data['pending_ratings'] = False
@@ -188,6 +188,8 @@ def start_order(request, receiver_id=None, party_id=None):
                       for a guest, the guest user id is the receiver_id
   """
   data = {}
+  #: receiver's wine personality, or current user's wine personality
+  personality = None
 
   u = request.user
 

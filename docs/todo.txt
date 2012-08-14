@@ -1,3 +1,4 @@
+Prequestionnaire survey
 Need to allow user to update their picture from their My Account
 Be able to update account settings
 Need to be able to get the navigation path displayed
@@ -6,6 +7,7 @@ Success for join to become host form (Need to check the zip code and see if in t
 Need to also fill previous ratings when an e-mail matches an existing rating data
 - Enter ratings from a party page
   - when typing e-mail, it autocompletes and fills first name and last names also
+Need to use django-sslify
 
 Done: Need to fix party_send_invite.html to show preview if you do a get
 Done: Invitation preview page

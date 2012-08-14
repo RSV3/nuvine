@@ -1,0 +1,177 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    ul {
+      list-style-type:none;
+    }
+
+    li {
+      margin-right: 10px;
+    }
+
+    .radio {
+      display: inline;
+    }
+
+    .shaded {
+      background-color: #EAEAE3;
+    }
+
+    .control-label {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .sub-instruction {
+      margin-left: 25px;
+      font-size: 0.8em;
+    }
+
+  </style>
+{% endblock %}
+
+{% block header %}
+  <h1>General Tastes and Preferences</h1>
+  Please fill out the following questionnaire before coming to the party
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <section id="general-taste-questionnaire">
+  <div class="row">
+    <div class="span12">
+      <form action="{% url pre_questionnaire_general %}" method="POST">
+        {% csrf_token %}
+        {{ form.user }}
+        {{ form.errors }}
+
+        <div class="control-group{% if form.drink_regularly.errors %} error{% endif %}">
+          <div class="control-label" for="id_drink_regularly">1. {{ form.drink_regularly.label }}</div>
+          <div class="controls">
+            {{ form.drink_regularly}} 
+            {% if form.drink_regularly.errors %}
+              <span class="help-inline">
+                {{ form.drink_regularly.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <div class="sub-instruction">
+          If "Neither", skip to question 5.
+          </div>
+        </div>        
+
+        <div class="control-group{% if form.coffee_type.errors %} error{% endif %}">
+          <div class="control-label" for="id_coffee_type">2. {{ form.coffee_type.label }}</div>
+          <div class="controls">
+            {{ form.coffee_type}} 
+            {% if form.coffee_type.errors %}
+              <span class="help-inline">
+                {{ form.coffee_type.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+
+        <div class="control-group{% if form.coffee_take.errors %} error{% endif %}">
+          <div class="control-label" for="id_coffee_take">3. {{ form.coffee_take.label }}</div>
+          <div class="controls">
+            {{ form.coffee_take}} 
+            {% if form.coffee_take.errors %}
+              <span class="help-inline">
+                {{ form.coffee_take.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.salty_food.errors %} error{% endif %}">
+          <div class="control-label" for="id_salty_food">4. {{ form.salty_food.label }}</div>
+          <div class="controls">
+            {{ form.salty_food}} 
+            {% if form.salty_food.errors %}
+              <span class="help-inline">
+                {{ form.salty_food.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+
+        <div class="control-group{% if form.citrus.errors %} error{% endif %}">
+          <div class="control-label" for="id_citrus">5. {{ form.citrus.label }}</div>
+          <div class="controls">
+            {{ form.citrus}} 
+            {% if form.citrus.errors %}
+              <span class="help-inline">
+                {{ form.citrus.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.earthy.errors %} error{% endif %}">
+          <div class="control-label" for="id_earthy">6. {{ form.earthy.label }}</div>
+          <div class="controls">
+            {{ form.earthy}} 
+            {% if form.earthy.errors %}
+              <span class="help-inline">
+                {{ form.earthy.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+
+        <div class="control-group{% if form.berries.errors %} error{% endif %}">
+          <div class="control-label" for="id_berries">7. {{ form.berries.label }}</div>
+          <div class="controls">
+            {{ form.berries}} 
+            {% if form.berries.errors %}
+              <span class="help-inline">
+                {{ form.berries.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+
+        <div class="control-group{% if form.artificial.errors %} error{% endif %}">
+          <div class="control-label" for="id_artificial">8. {{ form.artificial.label }}</div>
+          <div class="controls">
+            {{ form.artificial}} 
+            {% if form.artificial.errors %}
+              <span class="help-inline">
+                {{ form.artificial.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+
+        <div class="control-group{% if form.new_flavors.errors %} error{% endif %}">
+          <div class="control-label" for="id_new_flavors">9. {{ form.new_flavors.label }}</div>
+          <div class="controls">
+            {{ form.new_flavors}} 
+            {% if form.new_flavors.errors %}
+              <span class="help-inline">
+                {{ form.new_flavors.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>        
+        
+        <div class="control-group">
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  </section>
+</div>
+
+{% endblock content %}
