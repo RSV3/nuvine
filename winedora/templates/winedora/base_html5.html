@@ -105,7 +105,7 @@
         <div class="navbar-inner">
           <div class="container">
             {% block navbar_menu %}
-            
+            <div class="nav-collapse"> 
 <!--li id="gn-mac"><a href="/mac/" class="" onclick="s_objectID=&quot;http://www.apple.com/mac/_1&quot;;return this.s_oc?this.s_oc(e):true"><span>Mac</span></a></li-->            
 
             {% if user.is_authenticated %} 
@@ -113,19 +113,15 @@
                 <li id="parties">
                   <a href="{% url party_list %}" class="" alt="parties"></a>
                 </li>
-                <li id="shop">
-                  <a href="#" class="" alt="shop"></a>
-                </li><li id="rate_wines">
+                <li id="rate_wines">
                   <a href="#" class="" alt="rate_wines"></a>
                 </li>
                 <li id="how_it_works">
                   <a href="{% url how_it_works %}">How it works</a>
                 </li>
-
-
                 {% if specialist %}
                   <li id="dashboard">
-                    <a href="{% url dashboard %}"></a>
+                    <a href="{% url dashboard %}">dashboard</a>
                   </li>
                 {% elif supplier %}
                   <li>
@@ -149,6 +145,7 @@
                 </li>
                 {% endif %}
               </ul>
+            </div>
             {% else %}
             <div class="nav-collapse collapse">
               <ul class="nav">

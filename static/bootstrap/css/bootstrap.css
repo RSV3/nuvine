@@ -2670,7 +2670,7 @@ input[type="submit"].btn.btn-mini {
 }
 .nav {
   margin-left: 0;
-  margin-bottom: 1.3em;
+  margin-bottom: 1.3em; 
   list-style: none;
 }
 .nav > li > a {
@@ -3142,7 +3142,7 @@ input[type="submit"].btn.btn-mini {
 }
 .navbar .nav > li {
   display: block;
-  float: left;
+  float: left; 
 }
 .navbar .nav > li > a {
   float: none;
@@ -4243,8 +4243,8 @@ footer.footer {
   color: #c50001;
 }
 .navbar .nav > li > a {
-  text-shadow: none;
-  padding: 10px;
+  /*text-shadow: none;
+  padding: 10px;*/
 }
 .navbar .nav > li.active > a,
 .navbar .open .dropdown-toggle {

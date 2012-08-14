@@ -7,14 +7,25 @@ body {
   margin-top: 10px;
 }
 
-.navbar .nav#main_menu{
-  background: url('../img/main_nav_sprite.png') no-repeat 0px -50px;
+.navbar ul.nav#main_menu{
+ background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
   width: 950px;
-  height: 77px;
+  height: 50px;
+  margin: 0;
+  padding: 0
 }
-#main_menu li, #main_menu a {
-    height: 77px;
+.navbar ul.nav#main_menu li, .navbar ul.nav#main_menu a {
+    height: 50px;
     display: block;
+}
+.navbar ul.nav#main_menu a { 
+  padding: 0 0 0 0;
+}
+.navbar ul.nav#main_nav li {
+    float: left;
+    list-style: none;
+    display: inline;
+    text-indent: -9999em;
 }
 #parties {
   width: 83px;
@@ -40,7 +51,8 @@ body {
 #vinely_u {
   width: 93px;
 }
-#parties a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 50px;}
+#parties a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
+#shop a:hover{ background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
 
 .cart-item-image {
   float: left;
