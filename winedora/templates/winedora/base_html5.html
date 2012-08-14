@@ -56,199 +56,205 @@
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container-fluid">
-          {% block navbar_menu %}
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="{% url landing_page %}">Vinely</a>
-
-          {% if user.is_authenticated %}
-
-          <div class="btn-group pull-right">
-
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-              <i class="icon-user"></i> {{ user.email }}
-              <span class="caret"></span>
+  <div class="container" style="border: 1px solid pink">
+    <div class="row">
+      <div class="span4 offset4">
+        <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" alt="Vinely" class="default" width="312" height="160"></a></h1>
+      </div>
+    </div>
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="">
+            {% block navbar_menu %}
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
             </a>
+            
 
-            <ul class="dropdown-menu">
-              <li><a href="{% url my_information %}">My Account</a></li>
-              <li class="divider"></li>
-              <li><a href="{% url logout %}">Sign Out</a></li>
-            </ul>
-          </div>
 
-          <div class="nav-collapse" id="sub-menu">
-            <ul class="nav pull-right" id="sub-menu-right">
-              <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                  Help <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu" id="swatch-menu">
-                  <li><a href="{% url how_it_works %}">How it works</a></li>
-                  <li><a href="{% url sign_up 4 %}">Join Us</a></li>
-                  <li><a href="{% url about %}">About</a></li>
-                  <li><a href="{% url contact_us %}">Contact</a></li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-          {% else %}
-          <!-- if not logged in, show login link -->
-          <div class="pull-right">
-            <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
-          </div>
-          {% endif %}
+            {% if user.is_authenticated %}
 
-          {% if user.is_authenticated %} 
-          <div class="nav-collapse" id="main-menu">
-            <ul class="nav" id="main-menu-left">
-              <li>
-                <a href="{% url party_list %}">PARTIES</a>
-              </li>
-              {% if specialist %}
-                <li>
-                  <a href="{% url dashboard %}">DASHBOARD</a>
-                </li>
-              {% elif supplier %}
-                <li>
-                  <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
-                </li>
-                <li>
-                  <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
-                </li>
-                <li>
-                  <a href="{% url supplier_pending_orders %}">PENDING</a>
-                </li>
-              {% endif %}
-              {% if wine_personality %}
-              <li>
-                <a href="{% url start_order %}">SHOP</a>
-              </li>
-              {% endif %}
-              {% if pending_ratings %} 
-              <li>
-                <a href="{% url rate_wines %}">RATE_WINES</a>
-              </li>
-              {% endif %}
-            </ul>
-          </div>
-          {% else %}
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
-              <li><a href="{% url how_it_works %}">How it works</a></li>
-              <li><a href="{% url sign_up 4 %}">Join Us</a></li>
-              <li><a href="{% url about %}">About</a></li>
-              <li><a href="{% url contact_us %}">Contact</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-          {% endif %}
+            <div class="btn-group pull-right">
 
-          {% endblock navbar_menu %}
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="icon-user"></i> {{ user.email }}
+                <span class="caret"></span>
+              </a>
+
+              <ul class="dropdown-menu">
+                <li><a href="{% url my_information %}">My Account</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url logout %}">Sign Out</a></li>
+              </ul>
+            </div>
+
+            <div class="nav-collapse" id="sub-menu">
+              <ul class="nav pull-right" id="sub-menu-right">
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    Help <b class="caret"></b>
+                  </a>
+                  <ul class="dropdown-menu" id="swatch-menu">
+                    <li><a href="{% url how_it_works %}">How it works</a></li>
+                    <li><a href="{% url sign_up 4 %}">Join Us</a></li>
+                    <li><a href="{% url about %}">About</a></li>
+                    <li><a href="{% url contact_us %}">Contact</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            {% else %}
+            <!-- if not logged in, show login link -->
+            <div class="pull-right">
+              <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated %} 
+            <div class="nav-collapse" id="main-menu">
+              <ul class="nav" id="main-menu-left">
+                <li>
+                  <a href="{% url party_list %}">PARTIES</a>
+                </li>
+                {% if specialist %}
+                  <li>
+                    <a href="{% url dashboard %}">DASHBOARD</a>
+                  </li>
+                {% elif supplier %}
+                  <li>
+                    <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
+                  </li>
+                  <li>
+                    <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
+                  </li>
+                  <li>
+                    <a href="{% url supplier_pending_orders %}">PENDING</a>
+                  </li>
+                {% endif %}
+                {% if wine_personality %}
+                <li>
+                  <a href="{% url start_order %}">SHOP</a>
+                </li>
+                {% endif %}
+                {% if pending_ratings %} 
+                <li>
+                  <a href="{% url rate_wines %}">RATE_WINES</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+            {% else %}
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
+                <li><a href="{% url how_it_works %}">How it works</a></li>
+                <li><a href="{% url sign_up 4 %}">Join Us</a></li>
+                <li><a href="{% url about %}">About</a></li>
+                <li><a href="{% url contact_us %}">Contact</a></li>
+              </ul>
+            </div><!--/.nav-collapse -->
+            {% endif %}
+
+            {% endblock navbar_menu %}
+          </div>
         </div>
       </div>
-    </div>
 
-  <header>
+    <header>
 
-    <div class="container">
+      <div class="">
 
-    {% if messages %}
-      <div class="messages">
-          {% for message in messages %}
-            {% if "info" in message.tags %}
-              <div class="alert alert-info">{{ message }}</div>
-            {% elif "success" in message.tags %}
-              <div class="alert alert-success">{{ message }}</div>
-            {% elif "error" in message.tags or "warning" in message.tags %}
-              <div class="alert alert-error">{{ message }}</div>
-            {% endif %}
-          {% endfor %}
+      {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+              {% if "info" in message.tags %}
+                <div class="alert alert-info">{{ message }}</div>
+              {% elif "success" in message.tags %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% elif "error" in message.tags or "warning" in message.tags %}
+                <div class="alert alert-error">{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block header %}
+
+      {% endblock header %}
       </div>
+    </header>
+
+    <div role="main" id="main-content">
+        {% block content %}
+        
+        {% endblock content %}
+    </div>
+
+    <footer>
+      <section id="footer">
+      <div class="">
+        <p>&copy; RSV Opco 3, Inc 2012</p>
+      </div>
+      </section>
+    </footer>
+
+
+    <!-- JavaScript at the bottom for fast page loading -->
+
+    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"><\/script>')</script>
+
+    <!-- scripts concatenated and minified via build script -->
+    <script src="{{ STATIC_URL }}html5/js/plugins.js"></script>
+    <script src="{{ STATIC_URL }}html5/js/script.js"></script>
+    <!-- end scripts -->
+
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alert.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-scrollspy.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tab.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-carousel.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
+    <script src="{{ STATIC_URL }}js/application.js"></script>
+
+    <script type="text/javascript">
+      $(document).ready( function () {
+        $('.dropdown-toggle').dropdown();
+      });
+    </script>
+
+    {% block additional_scripts %}
+    {% endblock additional_scripts %}
+    
+    <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
+         mathiasbynens.be/notes/async-analytics-snippet -->
+
+    {% if not debug %}
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-33499659-1']);
+      _gaq.push(['_setDomainName', 'vinely.com']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
     {% endif %}
-
-    {% block header %}
-
-    {% endblock header %}
-    </div>
-  </header>
-
-  <div role="main" id="main-content">
-      {% block content %}
-      
-      {% endblock content %}
   </div>
-
-  <footer>
-    <section id="footer">
-    <div class="container">
-      <p>&copy; RSV Opco 3, Inc 2012</p>
-    </div>
-    </section>
-  </footer>
-
-
-  <!-- JavaScript at the bottom for fast page loading -->
-
-  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"><\/script>')</script>
-
-  <!-- scripts concatenated and minified via build script -->
-  <script src="{{ STATIC_URL }}html5/js/plugins.js"></script>
-  <script src="{{ STATIC_URL }}html5/js/script.js"></script>
-  <!-- end scripts -->
-
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alert.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-scrollspy.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tab.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-carousel.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
-  <script src="{{ STATIC_URL }}js/application.js"></script>
-
-  <script type="text/javascript">
-    $(document).ready( function () {
-      $('.dropdown-toggle').dropdown();
-    });
-  </script>
-
-  {% block additional_scripts %}
-  {% endblock additional_scripts %}
-  
-  <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
-       mathiasbynens.be/notes/async-analytics-snippet -->
-
-  {% if not debug %}
-  <script type="text/javascript">
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-33499659-1']);
-    _gaq.push(['_setDomainName', 'vinely.com']);
-    _gaq.push(['_setAllowLinker', true]);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-
-  </script>
-  {% endif %}
-
-</body>
+  </body>
 </html>
