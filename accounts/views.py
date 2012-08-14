@@ -10,13 +10,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from main.models import EngagementInterest
+from main.models import EngagementInterest, PartyInvite
 
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             MyInformationForm, UpdateSubscriptionForm
-from accounts.models import VerificationQueue
+from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email
 
 import uuid
@@ -70,7 +70,12 @@ def edit_subscription(request):
   data = {}
   data['edit_subscription'] = True
 
-  form = UpdateSubscriptionForm(request.POST or None)
+  try:
+    user_subscription = SubscriptionInfo.objects.get(user=u)
+  except SubscriptionInfo.DoesNotExist:
+    user_subscription = None
+
+  form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription)
   if form.is_valid():
     form.save()
     messages.success(request, "Your subscription will be updated for the next month.")
@@ -110,6 +115,8 @@ def edit_subscription(request):
       # no parties, so no specialists
       pass
 
+  if user_subscription is None:
+    form.initial['user'] = u
   data['form'] = form
 
   return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
@@ -333,24 +340,6 @@ def verify_eligibility(request):
   data['verify_eligibility'] = True
 
   return render_to_response("accounts/verify_eligibility.html", data,
-                                  context_instance=RequestContext(request))
-
-@login_required
-def update_addresses(request):
-  """
-    Update your addresses 
-  """
-  data = {}
-
-  # TODO: Need to make the user enter home address and add that to party address
-
-  form = UpdateAddressForm(request.POST or None)
-  if form.is_valid():
-    form.save()
-
-  data["form"] = form
-
-  return render_to_response("accounts/update_addresses.html", data,
                                   context_instance=RequestContext(request))
 
 

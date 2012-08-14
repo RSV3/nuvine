@@ -18,6 +18,7 @@ django-debug-toolbar==0.9.4
 #https://github.com/kwantopia/django-email-as-username/zipball/master#egg=django-email-as-username==1.5.2
 #django-email-as-username==1.5.1
 #django-storages==1.1.5
+django-sslify==0.2
 -e hg+https://bitbucket.org/yuchant/django-storages#egg=django-storages
 dot2tex==2.8.7
 feedparser==5.1.2

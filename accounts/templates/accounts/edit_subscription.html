@@ -18,8 +18,57 @@
             </div>
           {% endif %}
 
+        {{ form.user }}
         <fieldset>
           <legend>Edit Subscription</legend>
+
+          <table class="table">
+            <tr>
+              <td><b>Invited By</b></td>
+              <td>
+                {% if invited_by %}
+                  {{ invited_by.first_name }} {{ invited_by.last_name }}
+                {% else %}
+                  Self invited
+                {% endif %}
+              </td>
+              <td><a href="">unlink</a></td>
+            </tr>
+            <tr>
+              <td><b>Party Specialist</b></td>
+              <td>
+                {% if specialist %}
+                  You are a specialist
+                {% elif specialist_user %}
+                 <div class="specialist-info">
+                  <div class="specialist-photo">
+                    {% thumbnail specialist_profile.image "100x100" format="PNG" as im %}
+                      <img src="{{ im.url }}"/>
+                    {% endthumbnail %}            
+                  </div>
+                  <div class="specialist-name">
+                    Specialist Name
+                  </div>
+                  <div class="specialist-bio">
+                    Biography~~~
+                  </div>
+                  <div class="specialist-email">
+                    <a href="mailto:">{{ specialist_user.email }}</a>
+                  </div>
+                  <div class="specialist-phone">
+                    <i class="icon-user"></i>{{ specialist_profile.phone }}
+                  </div>
+                </div>         
+                {% else %}
+                  No specialist assigned
+                {% endif %}
+              </td> 
+              <td><a href="">unlink</a></td>
+            </tr>
+          </table> 
+        </fieldset>
+        <hr>
+        <fieldset>
           <div class="control-group">
             <div class="control-label" for="id_frequency">
               {{ form.frequency.label }}
@@ -44,49 +93,9 @@
           </div>
         </fieldset>
            
+
       </form>
 
-    <table class="table">
-      <tr>
-        <td><b>Invited By</b></td>
-        <td>
-          {% if invited_by %}
-            {{ invited_by.first_name }} {{ invited_by.last_name }}
-          {% else %}
-            Self invited
-          {% endif %}
-        </td>
-        <td><a href="">unlink</a></td>
-      </tr>
-      <tr>
-        <td><b>Party Specialist</b></td>
-        <td>
-          {% if specialist %}
-            You are a specialist
-          {% elif specialist_user %}
-           <div class="specialist-info">
-            <div class="specialist-photo">
-              {% thumbnail specialist_profile.image "100x100" format="PNG" as im %}
-                <img src="{{ im.url }}"/>
-              {% endthumbnail %}            
-            </div>
-            <div class="specialist-name">
-              Specialist Name
-            </div>
-            <div class="specialist-bio">
-              Biography~~~
-            </div>
-            <div class="specialist-email">
-              <a href="mailto:">{{ specialist_user.email }}</a>
-            </div>
-            <div class="specialist-phone">
-              <i class="icon-user"></i>{{ specialist_profile.phone }}
-            </div>
-          </div>         
-          {% endif %}
-        </td> 
-        <td><a href="">unlink</a></td>
-      </tr>
-    </table> 
+
   </div> <!-- row -->
 {% endblock right_content %}

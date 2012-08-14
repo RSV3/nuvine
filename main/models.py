@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from accounts.models import Address, CreditCard
+from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
 from sorl.thumbnail import ImageField
 
@@ -121,26 +121,19 @@ class LineItem(models.Model):
       (2, 'Sales Tax'),
       (3, 'Shipping'),
       (4, 'Discount'),
-      (5, 'Good: 12 bottles'),
-      (6, 'Good: 6 bottles'),
-      (7, 'Better: 12 bottles'),
-      (8, 'Better: 6 bottles'),
-      (9, 'Best: 12 bottles'),
-      (10, 'Best: 6 bottles'),
+      (5, 'Good: Full Case (12 bottles)'),
+      (6, 'Good: Half Case (6 bottles)'),
+      (7, 'Better: Full Case (12 bottles)'),
+      (8, 'Better: Half Case (6 bottles)'),
+      (9, 'Best: Full Case (12 bottles)'),
+      (10, 'Best: Half Case (6 bottles)'),
       (11, 'Host Tasting Kit'),
-  )
-
-  FREQUENCY_CHOICES = (
-      (0, 'One-time purchase'),
-      (1, 'Monthly'),
-      (2, 'Bi-monthly'),
-      (3, 'Quarterly'),
   )
 
   product = models.ForeignKey(Product, null=True)
   price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE[0][0])
   quantity = models.IntegerField(default=1)
-  frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=1)
+  frequency = models.IntegerField(choices=SubscriptionInfo.FREQUENCY_CHOICES, default=1)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
   def subtotal(self):

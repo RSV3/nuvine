@@ -128,7 +128,7 @@ class UserProfile(models.Model):
   wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
   prequestionnaire = models.BooleanField(default=False)
 
-  # for temporary storing during order checkout
+  # for storing default addresses 
   billing_address = models.ForeignKey(Address, null=True, related_name="billed_to")
   shipping_address = models.ForeignKey(Address, null=True, related_name="shipped_to")
   credit_card = models.ForeignKey(CreditCard, null=True, related_name="owner")
@@ -157,3 +157,24 @@ class VinelyProAccount(models.Model):
   users = models.ManyToManyField(User)
   account_number = models.BigIntegerField()
   comment = models.CharField(max_length=128)
+
+class SubscriptionInfo(models.Model):
+  user = models.ForeignKey(User)
+
+  FREQUENCY_CHOICES = (
+    (0, 'One-time purchase'),
+    (1, 'Monthly'),
+    (2, 'Bi-Monthly'),
+    (3, 'Quarterly')
+  )
+  frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
+
+  QUANTITY_CHOICES = (
+    (5, 'Good: Full Case (12 bottles)'),
+    (6, 'Good: Half Case (6 bottles)'),
+    (7, 'Better: Full Case (12 bottles)'),
+    (8, 'Better: Half Case (6 bottles)'),
+    (9, 'Best: Full Case (12 bottles)'),
+    (10, 'Best: Half Case (6 bottles)'),
+  )
+  quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)

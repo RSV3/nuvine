@@ -16,3 +16,13 @@ Use `heroku addons:docs ssl:endpoint` to view documentation.
 
 add CNAME www.vinely.com to tokyo-2121.herokussl.com
 https://devcenter.heroku.com/articles/ssl
+
+gunicorn SSL
+============
+
+https://gist.github.com/1776494
+
+DNS Flush on Mac OS X Lion and Mountain Lion
+============================================
+
+sudo killall -HUP mDNSResponder

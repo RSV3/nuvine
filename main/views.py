@@ -544,6 +544,16 @@ def order_complete(request, order_id):
   except Order.DoesNotExist:
     raise Http404
 
+  if order.fulfill_status == 0:
+    # update subscription information if new order
+    for item in order.cart.items.all():
+      # check if item contains subscription
+      if item.price_type in range(5, 11):
+        subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver)
+        subscription.quantity = item.price_type
+        subscription.frequency = item.frequency 
+        subscription.save()
+
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
 

@@ -1,8 +1,11 @@
 from django import forms
-from accounts.models import Address, UserProfile, CreditCard
 from django.contrib.auth.models import User
-from creditcard.fields import *
 from django.contrib.localflavor.us import forms as us_forms
+
+from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
+from main.models import LineItem
+from creditcard.fields import *
+
 
 
 class MyInformationForm(forms.ModelForm):
@@ -162,7 +165,11 @@ class PaymentForm(forms.ModelForm):
       m.save()
     return m
 
-class UpdateSubscriptionForm(forms.Form):
+class UpdateSubscriptionForm(forms.ModelForm):
 
-  frequency = forms.ChoiceField()
-  quantity = forms.ChoiceField()
+  class Meta:
+    model = SubscriptionInfo
+
+  def __init__(self, *args, **kwargs):
+    super(UpdateSubscriptionForm, self).__init__(*args, **kwargs)
+    self.fields['user'].widget = forms.HiddenInput()
