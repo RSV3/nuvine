@@ -4148,10 +4148,10 @@ a.badge:hover {
 }
 .hero-unit h1 {
   margin-bottom: 0;
-  font-size: 60px;
+  font-size: 58px;
   line-height: 1;
   color: inherit;
-  letter-spacing: -1px;
+  letter-spacing: 10px;
 }
 .hero-unit p {
   font-size: 18px;
@@ -4184,13 +4184,14 @@ h5,
 h6 {
   line-height: 2em;
   color: #415A68;
-  font-family: AlternateGothicNo2BT-Regular;
 }
 h1 {
   font-size: 2em;
+    font-family: "AlternateGothicNo2BT-Regular";
 }
 h2 {
   font-size: 1.5em;
+  font-family: "Alternate Gothic 2"; 
 }
 h3,
 h4,
