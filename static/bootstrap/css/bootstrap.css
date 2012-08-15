@@ -4143,12 +4143,8 @@ a.badge:hover {
   color: #ffffff;
 }
 .hero-unit {
-  padding: 60px;
+  padding: 15px 60px;
   margin-bottom: 30px;
-  background-color: #ffffff;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
 }
 .hero-unit h1 {
   margin-bottom: 0;
@@ -4159,9 +4155,9 @@ a.badge:hover {
 }
 .hero-unit p {
   font-size: 18px;
-  font-weight: 200;
   line-height: 1.9500000000000002em;
-  color: inherit;
+  color: #8A979E;
+  letter-spacing: 0px;
 }
 .pull-right {
   float: right;
@@ -4600,14 +4596,7 @@ input[type="file"] {
 }
 .well,
 .hero-unit {
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  border: 1px solid #D4D4D4;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  background-color: #ffffff;
+  text-align: center;
 }
 blockquote {
   border-left: 6px solid #cdcdcd;
