@@ -12,10 +12,10 @@ from django.core.exceptions import PermissionDenied
 
 from main.models import EngagementInterest, PartyInvite
 
-from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm
+from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
-                            MyInformationForm, UpdateSubscriptionForm
+                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email
 
@@ -44,13 +44,38 @@ def my_information(request):
   u = request.user
   profile = u.get_profile()
 
-  form = MyInformationForm(request.POST or None, instance=profile)
-  if form.is_valid():
-    form.save()
+  user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
+  shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
+  billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
+  payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment')
+  profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
+
+  if user_form.is_valid() and shipping_form.is_valid() and billing_form.is_valid() and payment_form.is_valid():
+    user_form.save()
+
+    shipping_address = shipping_form.save()
+    profile.shipping_address = shipping_address
+
+    billing_address = billing_form.save()
+    profile.billing_address = billing_address
+
+    credit_card = payment_form.save()
+    profile.credit_card = credit_card
+    profile.save()
+
+    new_profile = profile_form.save()
+
     messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
 
-  data['form'] = form
-  data['my_information'] = True
+  data['user_form'] = user_form
+  data['shipping_form'] = shipping_form
+
+  billing_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+  data['billing_form'] = billing_form
+  data['payment_form'] = payment_form
+  data['profile_form'] = profile_form
+  data['profile'] = profile
+
   return render_to_response("accounts/my_information.html", data,
                             context_instance=RequestContext(request))
 

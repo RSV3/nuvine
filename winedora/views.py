@@ -3,12 +3,16 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
+from emailusernames.forms import EmailAuthenticationForm
+
 
 def home(request):
   """
 
   """
   data = {}
+
+  data['form'] = EmailAuthenticationForm()
 
   if request.user.is_authenticated():
     return HttpResponseRedirect(reverse("home_page"))

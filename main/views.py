@@ -1,5 +1,4 @@
 # Create your views here.
-from urlparse import urlparse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -33,7 +32,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
 from personality.utils import calculate_wine_personality
 
 import json, uuid
-
+from urlparse import urlparse
 from datetime import date, datetime, timedelta
 
 

@@ -2,16 +2,25 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
 
+from emailusernames.forms import EmailUserChangeForm
+
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from main.models import LineItem
 from creditcard.fields import *
 
 
 
-class MyInformationForm(forms.ModelForm):
+class UserInfoForm(EmailUserChangeForm):
+
+  class Meta:
+    model = User
+    exclude = ['last_login', 'date_joined']
+
+class ImagePhoneForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
+    fields = ['image', 'phone']
 
 class ChangePasswordForm(forms.Form):
   email = forms.CharField(widget=forms.HiddenInput)
