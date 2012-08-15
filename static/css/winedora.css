@@ -78,6 +78,8 @@ body {
 .box {
   background-color: white;
   border: 1px solid gray;
+  font-family: "Avenir LT W01 85 Heavy";
+  text-transform: uppercase;
   /*opacity: 0.2;
     -moz-opacity:0.2; 
     -webkit-opacity:0.2;

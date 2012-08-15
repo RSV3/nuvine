@@ -20,12 +20,11 @@
       </div>
       <div class="span4">
         <div class="box">
-          <div class="foreground">
-          <p>I've already got personality</p>
-          <form class="form-horizontal well" method="POST" action="{% url login %}">
+          <div class="well">
+          <p>I've already got a personality!</p>
+          <form method="POST" action="{% url login %}">
           {% csrf_token %}
           <fieldset>
-            <legend>Login with e-mail and password</legend>
             {% if form.non_field_errors %}
               <div class="alert alert-error">
                 <strong>Error</strong>{{ form.non_field_errors }}

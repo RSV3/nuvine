@@ -133,7 +133,7 @@ textarea {
 }
 body {
   margin: 0;
-  font-family: Helvetica, sans-serif;
+  font-family: "Avenir LT W01 55 Roman", "Helvetica", "Arial", "sans-serif";
   font-size: 17px;
   line-height: 1.3em;
   color: #415A68;
@@ -4148,10 +4148,11 @@ a.badge:hover {
 }
 .hero-unit h1 {
   margin-bottom: 0;
+  text-transform: uppercase;
   font-size: 58px;
   line-height: 1;
   color: inherit;
-  letter-spacing: 10px;
+  letter-spacing: 2px;
 }
 .hero-unit p {
   font-size: 18px;
