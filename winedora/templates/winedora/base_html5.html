@@ -107,7 +107,7 @@
 
           {% if user.is_authenticated %} 
           <div class="nav-collapse">           
-            <ul class="nav" id="main_menu">
+            <ul class="nav main_menu">
               <li id="parties" class="active">
                 <a href="{% url party_list %}" title="parties"></a>
               </li>
@@ -158,13 +158,17 @@
             </ul><!-- .nave -->
           </div><!-- .nav-collapse -->
           {% else %}
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
-              <li id="join_us"><a href="{% url sign_up 4 %}">Get Started</a></li>
-              <li id="about"><a href="{% url about %}">Our Story</a></li>
-              <li id="contact"><a href="{% url contact_us %}">Contact</a></li>
-            </ul>
+          <div class="nav-collapse">
+            <div class="row">
+              <div class="span3 offset3">
+                <ul class="nav main_menu">
+                  <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
+                  <li id="how_it_works"><a href="{% url sign_up 4 %}" title="how it works"></a></li>
+                  <li id="nav_get_started"><a href="{% url about %}" title="get started"></a></li>
+                  <li id="our_story"><a href="{% url contact_us %}" title="our story"></a></li>
+                </ul>
+              </div>
+            </div>
           </div><!-- .nav-collapse -->
           {% endif %}
 
