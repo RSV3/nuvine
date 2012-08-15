@@ -235,8 +235,8 @@
                 <ul class="nav main_menu">
                   <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
                   <li id="how_it_works"><a href="{% url sign_up 4 %}" title="how it works"></a></li>
-                  <li id="nav_get_started"><a href="{% url about %}" title="get started"></a></li>
-                  <li id="our_story"><a href="{% url contact_us %}" title="our story"></a></li>
+                  <li id="nav_get_started"><a href="{% url contact_us %}" title="get started"></a></li>
+                  <li id="our_story"><a href="{% url about %}" title="our story"></a></li>
                 </ul>
               </div>
             </div>
@@ -282,40 +282,44 @@
       <div class="container">
         <div class="navbar divider">
           <div class="navbar-inner">
-            <div class="nav-collapse">          
-              <ul class="nav" id="footer">
-                <li>
-                  <a href="{% url home_page %}">Home</a>
-                </li>
-                <li>
-                  {% if user.is_authenticated %}
-                    <a href="{% url start_order %}">Shop</a>
-                  {% else %}
-                    <a href="{% url cart_add_tasting_kit %}">Shop</a>
-                  {% endif %}
-                </li>
-                <!-- for mileston 2 
-                <li>
-                  <a href="#">Rate Wines</a>
-                </li>
-                -->
-                <li>
-                  <a href="{% url my_information %}">Account</a>
-                </li>
-                <li>
-                  <a href="{% url how_it_works %}">How It Works</a>
-                </li>
-                <li>
-                  <a href="{% url sign_up 2 %}">Get Started</a>
-                </li>
-                <li>
-                  <a href="{% url about %}">Our Story</a>
-                </li>
-              </ul>
+            <div class="nav-collapse">
+              <div class="row">
+                <div class="span8 offset2">      
+                  <ul class="nav">
+                    <li>
+                      <a href="{% url home_page %}">Home</a>
+                    </li>
+                    <li>
+                      {% if user.is_authenticated %}
+                        <a href="{% url start_order %}">Shop</a>
+                      {% else %}
+                        <a href="{% url cart_add_tasting_kit %}">Shop</a>
+                      {% endif %}
+                    </li>
+                    <!-- for mileston 2 
+                    <li>
+                      <a href="#">Rate Wines</a>
+                    </li>
+                    -->
+                    <li>
+                      <a href="{% url my_information %}">Account</a>
+                    </li>
+                    <li>
+                      <a href="{% url how_it_works %}">How It Works</a>
+                    </li>
+                    <li>
+                      <a href="{% url sign_up 2 %}">Get Started</a>
+                    </li>
+                    <li>
+                      <a href="{% url about %}">Our Story</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="span4 offset4">&copy; Vinely Inc All Rights Reserved</div>
+        <div class="span4 offset4"><p id="copyright">&copy; Vinely Inc All Rights Reserved</p></div>
       </div> <!-- .container -->
     </footer>
 

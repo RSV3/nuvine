@@ -77,7 +77,6 @@ body {
 }
 .box {
   background-color: white;
-  border: 1px solid gray;
   font-family: "Avenir LT W01 85 Heavy";
   text-transform: uppercase;
   /*opacity: 0.2;
@@ -85,24 +84,14 @@ body {
     -webkit-opacity:0.2;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
     filter: alpha(opacity=20);*/
-  border-radius: 3px;
   margin-right: 50px;
-}
-.box .foreground p {
-  background-color: transparent;
-  color: #415A68;
-  /*opacity: 1;
-    -moz-opacity: 1; 
-    -webkit-opacity: 1;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-    filter: alpha(opacity=100);*/
 }
 
 #badges {
   width: 940px;
-  height: 130px;
+  height: 150px;
   margin: 0;
-  padding: 0;
+  padding: 30px 0 0 0;
 }
 .pie a {
     display: block;
@@ -113,40 +102,40 @@ body {
     padding: 0;
 }
 #sl a {
-      background: url('../img/badges_sprite.png') no-repeat 0px 0px; 
+      background-position: 0px 0px; 
 }
 #wm a {
-      background: url('../img/badges_sprite.png') no-repeat -160px 0px; 
+      background-position: -160px 0px; 
 }
 #mx a {
-      background: url('../img/badges_sprite.png') no-repeat -320px 0px; 
+      background-position: -320px 0px; 
 }
 #ex a {
-      background: url('../img/badges_sprite.png') no-repeat -480px 0px; 
+      background-position: -480px 0px; 
 }
 #eg a {
-      background: url('../img/badges_sprite.png') no-repeat -640px 0px; 
+      background-position: -640px 0px; 
 }
 #sp a {
-      background: url('../img/badges_sprite.png') no-repeat -800px 0px; 
+      background-position: -800px 0px; 
 }
 #sl a:hover, #sl.active {
-      background: url('../img/badges_sprite.png') no-repeat 0px -130px; 
+      background-position: 0px -130px; 
 }
 #wm a:hover, #wm.active {
-      background: url('../img/badges_sprite.png') no-repeat -160px -130px; 
+      background-position: -160px -130px; 
 }
 #mx a:hover, #mx.active {
-      background: url('../img/badges_sprite.png') no-repeat -320px -130px; 
+      background-position: -320px -130px; 
 }
 #ex a:hover, #ex.active {
-      background: url('../img/badges_sprite.png') no-repeat -480px -130px; 
+      background-position: -480px -130px; 
 }
 #eg a:hover, #eg.active {
-      background: url('../img/badges_sprite.png') no-repeat -640px -130px; 
+      background-position: -640px -130px; 
 }
 #sp a:hover, #sp.active {
-      background: url('../img/badges_sprite.png') no-repeat -800px -130px; 
+      background-position: -800px -130px; 
 }
 
 .cart-item-image {
@@ -174,3 +163,16 @@ body {
   width: 600px;
 }
 
+footer {
+  font-family: "Avenir LT W01 85 Heavy";
+  text-transform: uppercase;
+  font-size: 13px;
+  margin-top: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 80px;
+}
+
+#copyright {
+  font-size: 10px;
+  letter-spacing: 2px;
+}

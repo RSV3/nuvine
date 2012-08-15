@@ -2031,7 +2031,6 @@ table .span24 {
 .well {
   min-height: 20px;
   padding: 19px;
-  margin-bottom: 20px;
   background-color: #f5f5f5;
   border: 1px solid #eee;
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -2675,10 +2674,6 @@ input[type="submit"].btn.btn-mini {
 }
 .nav > li > a {
   display: block;
-}
-.nav > li > a:hover {
-  text-decoration: none;
-  background-color: #cdcdcd;
 }
 .nav > .pull-right {
   float: right;
@@ -4192,7 +4187,7 @@ h1 {
 }
 h2 {
   font-size: 1.5em;
-  font-family: "Alternate Gothic 2"; 
+  font-family: "AlternateGothicNo2BT-Regular"; 
 }
 h3,
 h4,
@@ -4226,7 +4221,7 @@ footer.footer {
 /*.navbar {
   margin-left: 16px;
 }*/
-.navbar .navbar-inner {
+.navbar .navbar-inner {h
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
