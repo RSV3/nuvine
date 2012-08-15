@@ -20,8 +20,37 @@
       </div>
       <div class="span4">
         <div class="box">
-          <div class="foo">
-          I've already got personality
+          <div class="foreground">
+          <p>I've already got personality</p>
+          <form class="form-horizontal well" method="POST" action="{% url login %}">
+          {% csrf_token %}
+          <fieldset>
+            <legend>Login with e-mail and password</legend>
+            {% if form.non_field_errors %}
+              <div class="alert alert-error">
+                <strong>Error</strong>{{ form.non_field_errors }}
+              </div>
+            {% endif %}
+            <div class="control-group">
+              <label class="control-label" for="id_email">{{ form.email.label }}</label>
+              <div class="controls">
+                {{ form.email }}
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="id_password">{{ form.password.label }}</label>
+              <div class="controls">
+                {{ form.password }}
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input class="btn btn-primary" type="submit" value="login" />
+                <input type="hidden" name="next" value="{{ next }}" />
+              </div>
+            </div>
+          </fieldset>
+        </form>
           </div>
         </div>
       </div>
