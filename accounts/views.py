@@ -71,6 +71,7 @@ def my_information(request):
   data['shipping_form'] = shipping_form
 
   billing_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+  print billing_form.initial['card_number']
   data['billing_form'] = billing_form
   data['payment_form'] = payment_form
   data['profile_form'] = profile_form

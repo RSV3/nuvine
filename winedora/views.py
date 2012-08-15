@@ -12,7 +12,10 @@ def home(request):
   """
   data = {}
 
-  data['form'] = EmailAuthenticationForm()
+  form = EmailAuthenticationForm()
+  form.fields['email'].widget.attrs['placeholder'] = 'E-mail'
+  form.fields['password'].widget.attrs['placeholder'] = 'Password'
+  data['form'] = form 
 
   if request.user.is_authenticated():
     return HttpResponseRedirect(reverse("home_page"))
