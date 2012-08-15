@@ -28,13 +28,6 @@
   <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
   <link rel="stylesheet" href="{{ STATIC_URL }}css/docs.css">
   <link rel="stylesheet" href="{{ STATIC_URL }}css/winedora.css">
-
-
-  <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}html5/img/apple-touch-icon-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}html5/img/apple-touch-icon-114x114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ STATIC_URL }}html5/img/apple-touch-icon-72x72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ STATIC_URL }}html5/img/apple-touch-icon-57x57-precomposed.png">
   <!--
 /* @license
  * MyFonts Webfont Build ID 2341661, 2012-08-09T19:50:22-0400
@@ -56,7 +49,13 @@
  * © 2012 Bitstream Inc
 */
 -->
-<link rel="stylesheet" type="text/css" href="MyFontsWebfontsKit.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}fonts/MyFontsWebfontsKit/MyFontsWebfontsKit.css">
+
+  <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}html5/img/apple-touch-icon-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}html5/img/apple-touch-icon-114x114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ STATIC_URL }}html5/img/apple-touch-icon-72x72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ STATIC_URL }}html5/img/apple-touch-icon-57x57-precomposed.png">
   {% block additional_styles %}
   
   {% endblock %}
