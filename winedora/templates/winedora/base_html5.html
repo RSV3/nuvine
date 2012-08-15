@@ -57,7 +57,7 @@
   <div class="container">
     <div class="row">
       <div class="span4 offset4">
-        <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" alt="Vinely" class="default" width="312" height="160"></a></h1>
+        <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
       <div id="authentication">
         <div id="kwan">
@@ -108,29 +108,29 @@
           {% if user.is_authenticated %} 
           <div class="nav-collapse">           
             <ul class="nav" id="main_menu">
-              <li id="parties">
-                <a href="{% url party_list %}" class="" alt="parties"></a>
+              <li id="parties" class="active">
+                <a href="{% url party_list %}" title="parties"></a>
               </li>
               <li id="shop">
-                <a href="{% url start_order %}" alt="shop"></a>
+                <a href="{% url start_order %}" title="shop"></a>
               </li>
               <li id="rate_wines">
-                <a href="#" class="" alt="rate wines"></a>
+                <a href="#" title="rate wines"></a>
               </li>
               <li id="how_it_works">
-                <a href="{% url how_it_works %}" alt="how it works"></a>
+                <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
               <li id="nav_get_started">
-                <a href="{% url sign_up 2 %}" alt="get started"></a>
+                <a href="{% url sign_up 2 %}" title="get started"></a>
               </li>
               <li id="our_story">
-                <a href="{% url about %}" alt="our story"></a>
+                <a href="{% url about %}" title="our story"></a>
               </li>
               <li id="dashboard">
-                  <a href="{% url dashboard %}" alt="dashboard"></a>
+                  <a href="{% url dashboard %}" title="dashboard"></a>
               </li>
               <li id="vinely_u">
-                <a href="#" alt="vinely u"></a>
+                <a href="#" title="vinely u"></a>
               </li>
               {% if specialist %}
               {% elif supplier %}

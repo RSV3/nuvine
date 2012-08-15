@@ -31,34 +31,41 @@ body {
   width: 83px;
 }
 #shop {
+  background: url('../img/main_nav_sprite.png') no-repeat -83px -50px; 
   width: 66px;
 }
 #rate_wines {
+  background: url('../img/main_nav_sprite.png') no-repeat -149px -50px; 
   width: 118px;
 }
 #how_it_works {
+  background: url('../img/main_nav_sprite.png') no-repeat -267px -50px; 
   width: 140px;
 }
 #nav_get_started {
+  background: url('../img/main_nav_sprite.png') no-repeat -407px -50px; 
   width: 126px;
 }
 #our_story {
+  background: url('../img/main_nav_sprite.png') no-repeat -533px -50px; 
   width: 111px;
 }
 #dashboard {
+  background: url('../img/main_nav_sprite.png') no-repeat -644px -50px; 
   width: 119px;
 }
 #vinely_u {
+  background: url('../img/main_nav_sprite.png') no-repeat -763px -50px; 
   width: 93px;
 }
-#parties a:hover { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
-#shop a:hover { background: url('../img/main_nav_sprite.png') no-repeat -83px 0px;}
-#rate_wines a:hover { background: url('../img/main_nav_sprite.png') no-repeat -149px 0px;}
-#how_it_works a:hover { background: url('../img/main_nav_sprite.png') no-repeat -267px 0px;}
-#nav_get_started a:hover { background: url('../img/main_nav_sprite.png') no-repeat -407px 0px;}
-#our_story a:hover { background: url('../img/main_nav_sprite.png') no-repeat -533px 0px;}
-#dashboard a:hover { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
-#vinely_u a:hover { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
+#parties a:hover, #parties.active { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
+#shop a:hover, #shop.active { background: url('../img/main_nav_sprite.png') no-repeat -83px 0px;}
+#rate_wines a:hover, #rate_wines.active { background: url('../img/main_nav_sprite.png') no-repeat -149px 0px;}
+#how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -267px 0px;}
+#nav_get_started a:hover, #nav_get_started.active { background: url('../img/main_nav_sprite.png') no-repeat -407px 0px;}
+#our_story a:hover, #our_story.active { background: url('../img/main_nav_sprite.png') no-repeat -533px 0px;}
+#dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
+#vinely_u a:hover, #vinely_u.active { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
 
 #get_started {
   background: url('../img/btn_pie_getstarted.png') no-repeat;
