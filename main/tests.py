@@ -210,8 +210,8 @@ class SimpleTest(TestCase):
     f.close()
 
 
-    f = open("data/good.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Good Level Name",
+    f = open("data/SP_basic_prodimg.png", 'r')
+    p, created = Product.objects.get_or_create(name="Basic Vinely Recommendation",
                                   description="Good set of wines for good people",
                                   unit_price=75.00,
                                   category=Product.PRODUCT_TYPE[1][0],
@@ -220,8 +220,8 @@ class SimpleTest(TestCase):
     p.save()
     f.close()
 
-    f = open("data/better.png", 'r')
-    p, created = Product.objects.get_or_create(name="Better Level Name",
+    f = open("data/SP_classic_prodimg.png", 'r')
+    p, created = Product.objects.get_or_create(name="Classic Vinely Recommendation",
                                   description="Better set of wines for better people",
                                   unit_price=120.00,
                                   category=Product.PRODUCT_TYPE[1][0],
@@ -230,8 +230,8 @@ class SimpleTest(TestCase):
     p.save()
     f.close()
 
-    f = open("data/best.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Best Level Name",
+    f = open("data/SP_divine_prodimg.png", 'r')
+    p, created = Product.objects.get_or_create(name="Divine Vinely Recommendation",
                                   description="Best set of wines for best people",
                                   unit_price=225.00,
                                   category=Product.PRODUCT_TYPE[1][0],
