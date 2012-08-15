@@ -1,5 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load thumbnail %}
+
 {% block header %}
   <h1>Party: {{ party.title }} Details</h1>
   Here are your party details.  Invite more attendees to learn about their wine profiles.
@@ -43,7 +45,9 @@
         <p>
           <div class="user-info">
             <div class="user-pic">
-              &nbsp;
+              {% thumbnail specialist_user.get_profile.image "120x120" as im %}
+                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+              {% endthumbnail %}
             </div>
             <div class="user-contact">
               <p><b>Party Specialist:</b></p>
@@ -63,7 +67,9 @@
             </div>
           </div>
         </p>
+        <section id="party-tips">
         <p><a href="#">Tips for hosting a successful party</a></p>
+        </section>
         {% else %}
         <div class="pull-right">
           <a href="" class="btn btn-primary btn-large">Print Materials</a>

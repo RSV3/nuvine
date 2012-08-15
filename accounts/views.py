@@ -43,6 +43,7 @@ def my_information(request):
 
   u = request.user
   profile = u.get_profile()
+  print "original groups", u.groups.all()
 
   user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
@@ -51,7 +52,8 @@ def my_information(request):
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
 
   if user_form.is_valid() and shipping_form.is_valid() and billing_form.is_valid() and payment_form.is_valid():
-    user_form.save()
+    update_user = user_form.save()
+    print update_user.groups.all()
 
     shipping_address = shipping_form.save()
     profile.shipping_address = shipping_address

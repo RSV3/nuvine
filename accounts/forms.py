@@ -14,7 +14,7 @@ class UserInfoForm(EmailUserChangeForm):
 
   class Meta:
     model = User
-    exclude = ['last_login', 'date_joined']
+    exclude = ['last_login', 'groups', 'date_joined', 'is_active', 'is_staff', 'is_superuser']
 
 class ImagePhoneForm(forms.ModelForm):
 

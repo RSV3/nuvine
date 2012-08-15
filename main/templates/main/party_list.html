@@ -1,6 +1,7 @@
 {% extends "main/menu_base_flip.html" %}
 
 {% load currency %}
+{% load thumbnail %}
 
 {% block header %}
 <h1>Parties</h1>
@@ -25,7 +26,13 @@
   <section id="explanation">
     <div class="user-info">
       <div class="user-pic">
-        <img width="120" src="http://i3.squidoocdn.com/resize/squidoo_images/250/draft_lens12465611module112776691photo_1280702420jessica-simpson-drunk.jpg">
+        {% if user.get_profile.image %}
+          {% thumbnail user.get_profile.image "120x120" as im %}
+            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+          {% endthumbnail %}
+        {% else %}
+          <img width="120" src="http://i3.squidoocdn.com/resize/squidoo_images/250/draft_lens12465611module112776691photo_1280702420jessica-simpson-drunk.jpg">
+        {% endif %}
       </div>
       <div class="user-contact">
         <div class="user-name">
