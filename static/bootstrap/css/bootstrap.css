@@ -2675,9 +2675,6 @@ input[type="submit"].btn.btn-mini {
 .nav > li > a {
   display: block;
 }
-.nav > li > a:hover {
-color:#31BAA2 ;
-}
 .nav > .pull-right {
   float: right;
 }
