@@ -90,14 +90,55 @@ body {
 }
 
 #badges {
-  background: url('../img/badges_sprite.png') no-repeat 0px 0px; 
   width: 940px;
   height: 130px;
   margin: 0;
-  padding: 0
+  padding: 0;
 }
-
-#sl:hover {background: url('../img/badges_sprite.png') no-repeat 20px 50px;}
+.pie a {
+    display: block;
+    background: url('../img/badges_sprite.png') no-repeat 0px 0px; 
+    width: 160px;
+    height: 130px;
+    margin: 0;
+    padding: 0;
+}
+#sl a {
+      background: url('../img/badges_sprite.png') no-repeat 0px 0px; 
+}
+#wm a {
+      background: url('../img/badges_sprite.png') no-repeat -160px 0px; 
+}
+#mx a {
+      background: url('../img/badges_sprite.png') no-repeat -320px 0px; 
+}
+#ex a {
+      background: url('../img/badges_sprite.png') no-repeat -480px 0px; 
+}
+#eg a {
+      background: url('../img/badges_sprite.png') no-repeat -640px 0px; 
+}
+#sp a {
+      background: url('../img/badges_sprite.png') no-repeat -800px 0px; 
+}
+#sl a:hover, #sl.active {
+      background: url('../img/badges_sprite.png') no-repeat 0px -130px; 
+}
+#wm a:hover, #wm.active {
+      background: url('../img/badges_sprite.png') no-repeat -160px -130px; 
+}
+#mx a:hover, #mx.active {
+      background: url('../img/badges_sprite.png') no-repeat -320px -130px; 
+}
+#ex a:hover, #ex.active {
+      background: url('../img/badges_sprite.png') no-repeat -480px -130px; 
+}
+#eg a:hover, #eg.active {
+      background: url('../img/badges_sprite.png') no-repeat -640px -130px; 
+}
+#sp a:hover, #sp.active {
+      background: url('../img/badges_sprite.png') no-repeat -800px -130px; 
+}
 
 .cart-item-image {
   float: left;
