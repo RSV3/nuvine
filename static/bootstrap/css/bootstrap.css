@@ -4155,9 +4155,8 @@ a.badge:hover {
 }
 .hero-unit p {
   font-size: 18px;
-  line-height: 1.9500000000000002em;
   color: #8A979E;
-  letter-spacing: 0px;
+  font-family:"Avenir LT W01 55 Roman";
 }
 .pull-right {
   float: right;

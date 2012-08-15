@@ -24,10 +24,6 @@
   <link rel="stylesheet" href="{{ STATIC_URL }}html5/css/style.css">
 
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
-
-  <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/docs.css">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/winedora.css">
   <!--
 /* @license
  * MyFonts Webfont Build ID 2341661, 2012-08-09T19:50:22-0400
@@ -49,7 +45,53 @@
  * © 2012 Bitstream Inc
 */
 -->
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}fonts/MyFontsWebfontsKit/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}fonts/MyFontsWebfontsKit/MyFontsWebfontsKit.css">
+  <style type="text/css">
+    @import url("http://fast.fonts.com/t/1.css?apiType=css&projectid=ca53bad3-87ea-455b-814d-efdfba31e61b");
+    @font-face{
+    font-family:"Avenir LT W01 35 Light";
+    src:url("Fonts/3511a780-31ca-4ee1-9083-89b1b7185748.eot?iefix") format("eot");}
+    @font-face{
+    font-family:"Avenir LT W01 35 Light";
+    src:url("Fonts/3511a780-31ca-4ee1-9083-89b1b7185748.eot?iefix");
+    src:url("Fonts/c4352a95-7a41-48c1-83ce-d8ffd2a3b118.woff") format("woff"),url("Fonts/3e419b5b-c789-488d-84cf-a64009cc308e.ttf") format("truetype"),url("Fonts/ca038835-1be3-4dc5-ba25-be1df6121499.svg#ca038835-1be3-4dc5-ba25-be1df6121499") format("svg");
+    }
+    @font-face{
+    font-family:"Avenir LT W01 45 Book";
+    src:url("Fonts/4f32268f-fd86-4960-b72c-4bb1ba75ec6f.eot?iefix") format("eot");}
+    @font-face{
+    font-family:"Avenir LT W01 45 Book";
+    src:url("Fonts/4f32268f-fd86-4960-b72c-4bb1ba75ec6f.eot?iefix");
+    src:url("Fonts/939cba03-5b40-4d01-9bc5-7589eca863db.woff") format("woff"),url("Fonts/849bc5b9-a2ff-4343-977b-26ba8bd24a60.ttf") format("truetype"),url("Fonts/f67fa3b5-c1d1-488f-8e60-a828b9ad56a4.svg#f67fa3b5-c1d1-488f-8e60-a828b9ad56a4") format("svg");
+    }
+    @font-face{
+    font-family:"Avenir LT W01 55 Roman";
+    src:url("Fonts/2f5a6074-badc-4e08-83f1-ed67fe5c3d7c.eot?iefix") format("eot");}
+    @font-face{
+    font-family:"Avenir LT W01 55 Roman";
+    src:url("Fonts/2f5a6074-badc-4e08-83f1-ed67fe5c3d7c.eot?iefix");
+    src:url("Fonts/b9ebb19d-88c1-4cbd-9baf-cf51972422ec.woff") format("woff"),url("Fonts/5ed4f98e-9044-4810-88ff-74d412c1351f.ttf") format("truetype"),url("Fonts/4cb16859-16ca-4342-b89c-292dc83266af.svg#4cb16859-16ca-4342-b89c-292dc83266af") format("svg");
+    }
+    @font-face{
+    font-family:"Avenir LT W01 65 Medium";
+    src:url("Fonts/212ab03d-5db2-4d6a-b94c-171cc702aa51.eot?iefix") format("eot");}
+    @font-face{
+    font-family:"Avenir LT W01 65 Medium";
+    src:url("Fonts/212ab03d-5db2-4d6a-b94c-171cc702aa51.eot?iefix");
+    src:url("Fonts/2cac77ec-9bc0-4ee7-87e4-27650190744f.woff") format("woff"),url("Fonts/aaf11848-aac2-4d09-9a9c-aac5ff7b8ff4.ttf") format("truetype"),url("Fonts/294099f3-8d00-4676-afc5-5e9d8d43ad69.svg#294099f3-8d00-4676-afc5-5e9d8d43ad69") format("svg");
+    }
+    @font-face{
+    font-family:"Avenir LT W01 85 Heavy";
+    src:url("Fonts/f61bf0f6-c193-4100-b940-12a1a01dcee5.eot?iefix") format("eot");}
+    @font-face{
+    font-family:"Avenir LT W01 85 Heavy";
+    src:url("Fonts/f61bf0f6-c193-4100-b940-12a1a01dcee5.eot?iefix");
+    src:url("Fonts/7147ec3a-8ff8-4ec9-8c5c-bd1571dc6ae6.woff") format("woff"),url("Fonts/d1dc54b2-878d-4693-8d6e-b442e99fef68.ttf") format("truetype"),url("Fonts/731dd4d3-64da-427d-ba61-01575b3cf3f7.svg#731dd4d3-64da-427d-ba61-01575b3cf3f7") format("svg");
+    }
+    </style>
+  <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="{{ STATIC_URL }}css/docs.css">
+  <link rel="stylesheet" href="{{ STATIC_URL }}css/winedora.css">
 
   <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favicon.ico">
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}html5/img/apple-touch-icon-precomposed.png">
@@ -69,6 +111,15 @@
        Modernizr enables HTML5 elements & feature detects for optimal performance.
        Create your own custom Modernizr build: www.modernizr.com/download/ -->
   <script src="{{ STATIC_URL }}html5/js/libs/modernizr-2.5.3.min.js"></script>
+  <script type="text/javascript">
+    window.onload=function() {
+        var mtiTracking = document.createElement('link');
+        mtiTracking.type='text/css';
+        mtiTracking.rel='stylesheet';
+        mtiTracking.href=('https:'==document.location.protocol?'https:':'http:') + '//fast.fonts.com/t/1.css';
+        (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild( mtiTracking );
+    }
+  </script>
 </head>
 <body>
   <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you support IE 6.
