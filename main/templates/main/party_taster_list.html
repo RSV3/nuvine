@@ -1,19 +1,19 @@
 {% extends "main/menu_base_flip.html" %}
 
 {% block header %}
-  <h1>{{ party.title }}: Attendees</h1>
-  Here are your honored guests.  Feel free to invite new attendees.
+  <h1>{{ party.title }}: Tasters</h1>
+  Here are your honored guests.  Feel free to invite new tasters.
 {% endblock header %}
 
 
 {% block side_navigation %}
-  {% if specialist %}
+  {% if pro %}
     <li><a href="{% url party_list %}">Your Parties</a></li>
     <li><a href="{% url party_add %}">Create Party</a></li>
   {% elif host %}
     <li><a href="{% url party_list %}">Your Parties</a></li>
   {% endif %}
-  <li><a href="{% url party_attendee_invite party.id %}">Invite Attendee</a></li>
+  <li><a href="{% url party_taster_invite party.id %}">Invite Attendee</a></li>
 {% endblock side_navigation %}
 
 {% block main_content %}
@@ -31,21 +31,25 @@
         {# create a table of invitees #}
         <tr>
           {% if inv.invitee.first_name or inv.invitee.last_name %}
-          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
           {% else %}
-          <td>Anonymous</td>
+            <td>Anonymous</td>
           {% endif %}
+
           <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
           {% if inv.invitee.get_profile.phone %}
-          <td>{{ inv.invitee.get_profile.phone }}</td>
+            <td>{{ inv.invitee.get_profile.phone }}</td>
           {% else %}
-          <td>-</td>
+            <td>-</td>
           {% endif %}
+
           <td>{{ inv.get_response_display }}</td>
+
           {% if inv.invitee.get_profile.wine_personality %}
-          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
           {% else %}
-          <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+            <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
           {% endif %}
         </tr>
       {% endfor %}

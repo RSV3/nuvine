@@ -27,7 +27,7 @@
               <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}">edit guests</a>)
             </tr>
             <tr>
-              <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
+              <td>From:</td><td>{% if party.socializer.first_name %}{{ party.socializer.first_name }} {{ party.socializer.last_name }}{% else %}Friendly socializer{% endif %} ({{ party.socializer.email }})</td>
             </tr>
             <tr>
               <td>Subject:</td><td>{{ form.custom_subject.value }}</td>

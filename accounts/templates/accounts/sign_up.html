@@ -1,77 +1,90 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  {% if role == "Attendee" %}
-  <h1>Sign up to attend a future Vinely party</h1>
-  {% elif role == "Tasting" %}
-  <h1>Order your own Vinely tasting kit</h1>
+  {% if already_signed_up %}
+    <h1>You are already signed up!</h1>
   {% else %}
-  <h1>Sign up to become a {{ role }}</h1>
+    {% if account_type == 2 %}
+      <h1>Sign up to attend a future Vinely party</h1>
+    {% elif account_type == 4 %}
+      <h1>Order your own Vinely tasting kit</h1>
+    {% else %}
+      <h1>Sign up to become a {{ role }}</h1>
+    {% endif %}
   {% endif %}
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  <div class="row">
-    <div class="span8">
-    It's easy to get started with Vinely!
-    <p>&nbsp;</p>
+  {% if already_signed_up %}
+
+    <div class="row">
+      <div class="span8">
+        Thank you for being an active member of Vinely. Hope you are having a blast with Vinely!
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <form class="form-horizontal well" method="POST" action="{% url sign_up account_type %}">
-      {% csrf_token %}
+  {% else %}
+    <div class="row">
+      <div class="span8">
+      It's easy to get started with Vinely!
+      <p>&nbsp;</p>
+      </div>
+    </div>
+    <div class="row">
+      <form class="form-horizontal well" method="POST" action="{% url sign_up account_type %}">
+        {% csrf_token %}
 
-      {% if error %}
-        <div class="alert alert-error">
-          {{ error }}
-        </div>
-      {% endif %}
-      {% if form.errors %}
-        <div class="alert alert-error">
-          {{ form.errors }}
-        </div>
-      {% endif %}
+        {% if error %}
+          <div class="alert alert-error">
+            {{ error }}
+          </div>
+        {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-error">
+            {{ form.errors }}
+          </div>
+        {% endif %}
 
-      <fieldset>
-        <div class="control-group">
-          <div class="control-label" for="id_first_name">
-          {{ form.first_name.label }}
+        <fieldset>
+          <div class="control-group">
+            <div class="control-label" for="id_first_name">
+            {{ form.first_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.first_name }}
+            </div>
           </div>
-          <div class="controls">
-            {{ form.first_name }}
+          <div class="control-group">
+            <div class="control-label" for="id_last_name">
+            {{ form.last_name.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.last_name }}
+            </div>
           </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label" for="id_last_name">
-          {{ form.last_name.label_tag }}
-          </div>
-          <div class="controls">
-            {{ form.last_name }}
-          </div>
-        </div>
 
-        <div class="control-group">
-          <div class="control-label" for="id_email">
-          {{ form.email.label_tag }}
+          <div class="control-group">
+            <div class="control-label" for="id_email">
+            {{ form.email.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.email }}
+            </div>
           </div>
-          <div class="controls">
-            {{ form.email }}
+              <input type="hidden" name="password1" value="Sign Up" />
+              <input type="hidden" name="password2" value="Sign Up" />
+          <div class="form-actions">
+            <div class="controls">
+              <input class="btn btn-primary" type="submit" value="Sign Up" />
+            </div>
           </div>
-        </div>
-            <input type="hidden" name="password1" value="Sign Up" />
-            <input type="hidden" name="password2" value="Sign Up" />
-        <div class="form-actions">
-          <div class="controls">
-            <input class="btn btn-primary" type="submit" value="Sign Up" />
-          </div>
-        </div>
 
-      </fieldset>
-    </form>
+        </fieldset>
+      </form>
 
-  </div>
+    </div> <!-- .row -->
+  {% endif %}
 </div> <!-- container -->
 
 {% endblock content %}

@@ -97,15 +97,19 @@ class AllWineRatingsForm(forms.Form):
     except User.DoesNotExist:
       # create new user
       user = create_user(email=data['email'].lower(), password='welcome')
-      user.first_name = data['first_name']
-      user.last_name = data['last_name']
-      user.save()
+      user.is_active = False
 
-      if user.groups.all().count() == 0:
-        # add to attendee group
-        attendee_group = Group.objects.get(name="Attendee")
-        user.groups.add(attendee_group)
-        user.save()
+    if data['first_name']:
+      user.first_name = data['first_name']
+    if data['last_name']:
+      user.last_name = data['last_name']
+    user.save()
+
+    if user.groups.all().count() == 0:
+      # add to attendee group
+      taster_group = Group.objects.get(name="Vinely Taster")
+      user.groups.add(taster_group)
+      user.save()
 
     results.append(user)
 

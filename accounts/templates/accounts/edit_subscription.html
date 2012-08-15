@@ -35,32 +35,32 @@
               <td><a href="">unlink</a></td>
             </tr>
             <tr>
-              <td><b>Party Specialist</b></td>
+              <td><b>Vinely Pro</b></td>
               <td>
-                {% if specialist %}
-                  You are a specialist
-                {% elif specialist_user %}
-                 <div class="specialist-info">
-                  <div class="specialist-photo">
-                    {% thumbnail specialist_profile.image "100x100" format="PNG" as im %}
+                {% if pro %}
+                  You are a pro
+                {% elif pro_user %}
+                 <div class="pro-info">
+                  <div class="pro-photo">
+                    {% thumbnail pro_profile.image "100x100" format="PNG" as im %}
                       <img src="{{ im.url }}"/>
                     {% endthumbnail %}            
                   </div>
-                  <div class="specialist-name">
-                    Specialist Name
+                  <div class="pro-name">
+                    Pro Name
                   </div>
-                  <div class="specialist-bio">
+                  <div class="pro-bio">
                     Biography~~~
                   </div>
-                  <div class="specialist-email">
-                    <a href="mailto:">{{ specialist_user.email }}</a>
+                  <div class="pro-email">
+                    <a href="mailto:">{{ pro_user.email }}</a>
                   </div>
-                  <div class="specialist-phone">
-                    <i class="icon-user"></i>{{ specialist_profile.phone }}
+                  <div class="pro-phone">
+                    <i class="icon-user"></i>{{ pro_profile.phone }}
                   </div>
                 </div>         
                 {% else %}
-                  No specialist assigned
+                  No pro assigned
                 {% endif %}
               </td> 
               <td><a href="">unlink</a></td>

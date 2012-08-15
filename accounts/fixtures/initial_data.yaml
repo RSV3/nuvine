@@ -1,17 +1,17 @@
 - pk: 1
   model: auth.group
   fields:
-    name: Party Specialist
+    name: Vinely Pro
     permissions: []
 - pk: 2
   model: auth.group
   fields:
     permissions: []
-    name: Party Host
+    name: Vinely Socializer
 - pk: 3
   model: auth.group
   fields:
-    name: Attendee
+    name: Vinely Taster
     permissions: []
 - pk: 4
   model: auth.group

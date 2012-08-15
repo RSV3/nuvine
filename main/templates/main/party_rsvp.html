@@ -57,7 +57,7 @@
           <tbody>
             <tr>
               <td>Hosted by:</td>
-              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
+              <td><a href="mailto:{{ party.socializer.email }}">{% if party.socializer.first_name %}{{ party.socializer.first_name }} {{ party.socializer.last_name }}{% else %}Friendly Socializer{% endif %}</a></td>
             </tr>
             <tr>
               <td>Date and Time:</td>
@@ -85,7 +85,7 @@
 
   <section id="party-attendees">
     <div class="page-header">
-      Other Guests - You can also <a href="{% url party_attendee_invite party.id %}">invite your friends</a>
+      Other Guests - You can also <a href="{% url party_taster_invite party.id %}">invite your friends</a>
     </div>
     <table class="table table-striped">
       <thead>
@@ -100,21 +100,25 @@
         {# create a table of invitees #}
         <tr>
           {% if inv.invitee.first_name or inv.invitee.last_name %}
-          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
           {% else %}
-          <td>Anonymous</td>
+            <td>Anonymous</td>
           {% endif %}
+
           <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
           {% if inv.invitee.get_profile.phone %}
-          <td>{{ inv.invitee.get_profile.phone }}</td>
+            <td>{{ inv.invitee.get_profile.phone }}</td>
           {% else %}
-          <td>-</td>
+            <td>-</td>
           {% endif %}
+
           <td>{{ inv.get_response_display }}</td>
+
           {% if inv.invitee.get_profile.wine_personality %}
-          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
           {% else %}
-          <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
+            <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
           {% endif %}
         </tr>
       {% endfor %}

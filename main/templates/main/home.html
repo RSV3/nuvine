@@ -5,17 +5,17 @@
 {% endblock header %}
 
 {% block side_navigation %}
-  {% if specialist %}
+  {% if pro %}
     <li><a href="{% url party_list %}">Your Parties</a></li>
     <li><a href="{% url party_add %}">Create Party</a></li>
-    <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+    <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
     <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
     <li><a href="{% url start_order %}">Order Wine</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
-  {% elif host %}
+  {% elif socializer %}
     <li><a href="{% url party_list %}">Your Parties</a></li>
     <li><a href="{% url party_add %}">Create Party</a></li>
-    <li><a href="{% url party_attendee_invite %}">Invite Attendee</a></li>
+    <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
     <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
     <li><a href="{% url start_order %}">Order Wine</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
@@ -23,7 +23,7 @@
     <li><a href="{% url supplier_pending_orders %}">Pending Orders</a></li>
     <li><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></li>
     <li><a href="{% url supplier_all_orders %}">All Orders</a></li>
-  {% elif attendee %}
+  {% elif taster %}
     <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
     <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
     {% if wine_personality %}
@@ -46,14 +46,14 @@
 {% block main_content %}
 
   <div class="span9">
-  {% if specialist %}
-    Welcome {{ user.first_name }}. You are a party specialist.
+  {% if pro %}
+    Welcome {{ user.first_name }}. You are a Vinely Pro.
   {% endif %}
-  {% if host %}
-    Welcome {{ user.first_name }}. You are a party host.
+  {% if socializer %}
+    Welcome {{ user.first_name }}. You are a Vinely Socializer.
   {% endif %}
-  {% if attendee %}
-    Welcome {{ user.first_name }}. You are a party attendee.
+  {% if taster %}
+    Welcome {{ user.first_name }}. You are a Vinely Taster.
   {% endif %}
   {% if supplier %}
     Welcome {{ user.first_name }}. You are a supplier.
@@ -70,7 +70,7 @@
   </div>
   {% endif %}
 
-  {% if attendee %}
+  {% if taster or socializer %}
     {% if questionnaire_completed %}
       <div class="span9">
           You have completed your questionnaire and you are ready to rock with Vinely! 

@@ -13,7 +13,6 @@
 
   <section id="products">
   <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
     {% for product in products %}
     <div class="span4">
       <center>
@@ -21,7 +20,7 @@
           <div class="product-wine">
             <p>
             {% thumbnail product.image "x250" as im %}
-            <img height="250" src="{{ im.url }}"/>
+              <img height="250" src="{{ im.url }}"/>
             {% endthumbnail %}
             </p>
             <p></p>

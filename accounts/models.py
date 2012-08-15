@@ -151,7 +151,7 @@ post_save.connect(create_user_profile, sender=User)
 
 class VinelyProAccount(models.Model):
   """
-    Need to create this for every specialist account
+    Need to create this for every Vinely Pro account
     Map wife and husband into one VinelyPro account
   """
   users = models.ManyToManyField(User)

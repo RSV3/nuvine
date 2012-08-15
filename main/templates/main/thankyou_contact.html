@@ -10,7 +10,11 @@
 
   <div class="row">
     <div class="span12">
-      We will reach out to you soon. In the meanwhile you may order your wine tasting kit or participate in one of our parties. <a href="{% url landing_page %}">Go to home</a>
+      We will reach out to you soon. In the meanwhile you may <a href="{% url cart_add_tasting_kit %}">order your wine tasting kit</a>, <a href="{% url host_vinely_party %}">request to host a Vinely party</a> or participate in one of our parties. 
+    </div>
+    <hr>
+    <div class="span12">
+      <a href="{% url landing_page %}">Go to home page</a>
     </div>
   </div>
 </div>

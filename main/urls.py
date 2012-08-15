@@ -16,10 +16,9 @@ urlpatterns = patterns('main.views',
     url(r'^party/rsvp/(?P<party_id>\d+)/(?P<response>\d+)/$', 'party_rsvp', name='party_rsvp'),
     url(r'^party/customize/invite/$', 'party_customize_invite', name='party_customize_invite'),
     url(r'^party/send/invites/$', 'party_send_invites', name='party_send_invites'),
-    url(r'^party/attendee/list/(?P<party_id>\d+)/$', 'party_attendee_list', name='party_attendee_list'),
-    url(r'^party/attendee/invite/(?P<party_id>\d+)/$', 'party_attendee_invite', name='party_attendee_invite'),
-    url(r'^party/attendee/invite/$', 'party_attendee_invite', name='party_attendee_invite'),
-    url(r'^party/order/list/(?P<party_id>\d+)/$', 'party_order_list', name='party_order_list'),
+    url(r'^party/taster/list/(?P<party_id>\d+)/$', 'party_taster_list', name='party_taster_list'),
+    url(r'^party/taster/invite/(?P<party_id>\d+)/$', 'party_taster_invite', name='party_taster_invite'),
+    url(r'^party/taster/invite/$', 'party_taster_invite', name='party_taster_invite'),
 
     url(r'^ratings/record/$', 'record_wine_ratings', name='record_wine_ratings'),
     url(r'^ratings/record/all/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
@@ -49,5 +48,5 @@ urlpatterns = patterns('main.views',
 
     # access error pages
     url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),
-    url(r'^specialists/only/$', 'specialists_only', name='specialists_only'),
+    url(r'^pros/only/$', 'pros_only', name='pros_only'),
 )

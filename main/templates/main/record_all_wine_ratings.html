@@ -31,12 +31,11 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
-      {% if specialist %}
-      Please enter attendee information and add their ratings
+      {% if pro %}
+        Please enter attendee information and add their ratings
       {% else %}
-      Enter your ratings for the tasting kit
+        Enter your ratings for the tasting kit
       {% endif %}
     </div>
   </div>
@@ -48,7 +47,7 @@
         <form method="POST" action="" class="form-horizontal">
           {% csrf_token %}
 
-          {% if specialist %}
+          {% if pro %}
           <fieldset>
             <legend>User Information</legend>
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">

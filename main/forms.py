@@ -59,8 +59,8 @@ class PartyCreateForm(forms.ModelForm):
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
 
-    if 'host' not in cleaned_data: 
-      # create new host or find existing host 
+    if 'socializer' not in cleaned_data: 
+      # create new socializer or find existing socializer 
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
@@ -70,15 +70,15 @@ class PartyCreateForm(forms.ModelForm):
         user.last_name = cleaned_data['last_name']
         user.save()
 
-      ps_group = Group.objects.get(name="Party Specialist")
+      ps_group = Group.objects.get(name="Vinely Pro")
       if ps_group not in user.groups.all():
-        # add the user to Party Host group if not a party specialist already
-        ph_group = Group.objects.get(name="Party Host")
+        # add the user to Vinely Socializer group if not a Vinely Pro already
+        ph_group = Group.objects.get(name="Vinely Socializer")
         user.groups.add(ph_group)
         user.save()
 
-      cleaned_data['host'] = user 
-      del self._errors['host']
+      cleaned_data['socializer'] = user 
+      del self._errors['socializer']
 
     if 'address' not in cleaned_data:
       # create new address
@@ -97,7 +97,7 @@ class PartyCreateForm(forms.ModelForm):
       del self._errors['address']
 
     if 'title' not in cleaned_data:
-      cleaned_data['title'] = "%s's Party"%cleaned_data['host'].first_name
+      cleaned_data['title'] = "%s's Party"%cleaned_data['socializer'].first_name
       del self._errors['title']
 
     if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
@@ -108,9 +108,9 @@ class PartyCreateForm(forms.ModelForm):
 
     return cleaned_data 
 
-class PartyInviteAttendeeForm(forms.ModelForm):
+class PartyInviteTasterForm(forms.ModelForm):
   """
-    Invite a new attendee
+    Invite a new taster
   """
 
   first_name = forms.CharField(max_length=30, required=False)
@@ -122,15 +122,15 @@ class PartyInviteAttendeeForm(forms.ModelForm):
     exclude = ['response']
 
   def __init__(self, *args, **kwargs):
-    super(PartyInviteAttendeeForm, self).__init__(*args, **kwargs)
-    att_group = Group.objects.get(name="Attendee")
+    super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
+    att_group = Group.objects.get(name="Vinely Taster")
     self.fields['invitee'].choices = [('', '---------')]+[(u.id, u.email) for u in User.objects.filter(groups__in=[att_group]).only('id','email')]
 
   def clean(self):
-    cleaned_data = super(PartyInviteAttendeeForm, self).clean()
+    cleaned_data = super(PartyInviteTasterForm, self).clean()
 
     if 'invitee' not in cleaned_data: 
-      # create new host and return host ID
+      # create new socializer and return socializer ID
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
@@ -141,8 +141,8 @@ class PartyInviteAttendeeForm(forms.ModelForm):
         user.save()
 
       if user.groups.all().count() == 0:
-        # add the user to Party Attendee group
-        att_group = Group.objects.get(name="Attendee")
+        # add the user to Party Taster group
+        att_group = Group.objects.get(name="Vinely Taster")
         user.groups.add(att_group)
         user.save()
 
@@ -156,9 +156,9 @@ class PartyInviteAttendeeForm(forms.ModelForm):
 
     return cleaned_data
 
-class PartySpecialistSignupForm(EmailUserCreationForm):
+class VinelyProSignupForm(EmailUserCreationForm):
   """
-    Create a new party specialist candidate
+    Create a new Vinely Pro candidate
   """
 
   phone = forms.CharField(max_length=16)
@@ -170,7 +170,7 @@ class PartySpecialistSignupForm(EmailUserCreationForm):
   zipcode = us_forms.USZipCodeField(required=False)
 
   def __init__(self, *args, **kwargs):
-    super(PartySpecialistSignupForm, self).__init__(*args, **kwargs)
+    super(VinelyProSignupForm, self).__init__(*args, **kwargs)
 
   def clean_phone(self):
     data = self.cleaned_data['phone']
@@ -182,7 +182,7 @@ class PartySpecialistSignupForm(EmailUserCreationForm):
     return stripped_phone
 
   def save(self, commit=True):
-    instance = super(PartySpecialistSignUpForm, self).save(commit)
+    instance = super(VinelyProSignUpForm, self).save(commit)
 
     try:
       address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
@@ -215,17 +215,17 @@ class AddWineToCartForm(forms.ModelForm):
     cleaned_data = super(AddWineToCartForm, self).clean()
 
     quantity = int(cleaned_data['quantity'])
-    if cleaned_data['level'] == "good":
+    if cleaned_data['level'] == "basic":
       if quantity == 1:
         price_category = 5
       elif quantity == 2:
         price_category = 6
-    elif cleaned_data['level'] == "better":
+    elif cleaned_data['level'] == "classic":
       if quantity == 1:
         price_category = 7
       elif quantity == 2:
         price_category = 8
-    elif cleaned_data['level'] == "best":
+    elif cleaned_data['level'] == "divine":
       if quantity == 1:
         price_category = 9 
       elif quantity == 2:

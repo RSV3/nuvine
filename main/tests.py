@@ -27,72 +27,76 @@ class SimpleTest(TestCase):
     """
       create usable accounts
     """
-    ps_group, created = Group.objects.get_or_create(name="Party Specialist")
-    ph_group, created = Group.objects.get_or_create(name="Party Host")
-    att_group, created = Group.objects.get_or_create(name="Attendee")
+    ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
+    ph_group, created = Group.objects.get_or_create(name="Vinely Socializer")
+    att_group, created = Group.objects.get_or_create(name="Vinely Taster")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
 
-    if not User.objects.filter(email="specialist1@example.com").exists():
 
-      u = create_user("elizabeth@redstar.com", "egoede")
-      u.groups.add(ps_group)
+    u = create_user("elizabeth@redstar.com", "egoede")
+    u.groups.add(ps_group)
 
-      u = create_user("johnstecco@gmail.com", "jstecco")
-      u.groups.add(ps_group)
+    u = create_user("johnstecco@gmail.com", "jstecco")
+    u.groups.add(ps_group)
 
-      u = create_user("specialist1@example.com", "hello")
-      u.groups.add(ps_group)
+    u = create_user("specialist1@example.com", "hello")
+    u.groups.add(ps_group)
 
-      u = create_user("specialist2@example.com", "hello")
-      u.groups.add(ps_group)
+    u = create_user("specialist2@example.com", "hello")
+    u.groups.add(ps_group)
 
-      u = create_user("host1@example.com", "hello")
-      u.groups.add(ph_group)
+    u = create_user("host1@example.com", "hello")
+    u.groups.add(ph_group)
 
-      u = create_user("host2@example.com", "hello")
-      u.groups.add(ph_group)
+    u = create_user("host2@example.com", "hello")
+    u.groups.add(ph_group)
 
-      u = create_user("host3@example.com", "hello")
-      u.groups.add(ph_group)
+    u = create_user("host3@example.com", "hello")
+    u.groups.add(ph_group)
 
-      u = create_user("attendee1@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee1@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee2@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee2@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee3@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee3@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee4@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee4@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee5@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee5@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee6@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee6@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee7@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee7@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee8@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee8@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("attendee9@example.com", "hello")
-      u.groups.add(att_group)
+    u = create_user("attendee9@example.com", "hello")
+    u.groups.add(att_group)
 
-      u = create_user("supplier1@example.com", "hello")
-      u.groups.add(supp_group)
+    u = create_user("supplier1@example.com", "hello")
+    u.groups.add(supp_group)
 
-      u = create_user("supplier2@example.com", "hello")
-      u.groups.add(supp_group)
+    u = create_user("supplier2@example.com", "hello")
+    u.groups.add(supp_group)
 
-      suppliers = User.objects.filter(groups=supp_group)
-      self.assertEqual(suppliers.count(), 2)
+    suppliers = User.objects.filter(groups=supp_group)
+    self.assertEqual(suppliers.count(), 2)
 
-      attendees = User.objects.filter(groups=att_group)
-      self.assertEqual(attendees.count(), 9)
+    tasters = User.objects.filter(groups=att_group)
+    self.assertEqual(tasters.count(), 9)
+
+    for u in User.objects.all():
+      u.is_active = True
+      u.save()
+
 
   def create_wine_personalities(self):
     WinePersonality.objects.get_or_create(name="Easy Going",
@@ -198,54 +202,57 @@ class SimpleTest(TestCase):
     reason = ContactReason.objects.get_or_create(reason="Other")
 
   def create_products(self):
-    f = open("data/tasting-kit.jpg", 'r')
-    p, created = Product.objects.get_or_create(name="Host Tasting Kit",
-                                  description="Host a party or understand your tastes",
-                                  unit_price=125.00,
-                                  category=Product.PRODUCT_TYPE[0][0],
-                                  cart_tag="tasting_kit")
-    self.assertEqual(created, True)
-    p.image = File(f)
-    p.save()
-    f.close()
+    if Product.objects.all().count() < 4:
+      f = open("data/tasting-kit.jpg", 'r')
+      p, created = Product.objects.get_or_create(name="Host Tasting Kit",
+                                    description="Host a party or understand your tastes",
+                                    unit_price=125.00,
+                                    category=Product.PRODUCT_TYPE[0][0],
+                                    cart_tag="tasting_kit")
+      self.assertEqual(created, True)
+      p.image = File(f)
+      p.save()
+      f.close()
 
 
-    f = open("data/SP_basic_prodimg.png", 'r')
-    p, created = Product.objects.get_or_create(name="Basic Vinely Recommendation",
-                                  description="Good set of wines for good people",
-                                  unit_price=75.00,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="good")
-    p.image = File(f)
-    p.save()
-    f.close()
+      f = open("data/SP_basic_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Basic Vinely Recommendation",
+                                    description="Good set of wines for good people",
+                                    unit_price=75.00,
+                                    category=Product.PRODUCT_TYPE[1][0],
+                                    cart_tag="basic")
+      p.image = File(f)
+      p.save()
+      f.close()
 
-    f = open("data/SP_classic_prodimg.png", 'r')
-    p, created = Product.objects.get_or_create(name="Classic Vinely Recommendation",
-                                  description="Better set of wines for better people",
-                                  unit_price=120.00,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="better")
-    p.image = File(f)
-    p.save()
-    f.close()
+      f = open("data/SP_classic_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Classic Vinely Recommendation",
+                                    description="Better set of wines for better people",
+                                    unit_price=120.00,
+                                    category=Product.PRODUCT_TYPE[1][0],
+                                    cart_tag="classic")
+      p.image = File(f)
+      p.save()
+      f.close()
 
-    f = open("data/SP_divine_prodimg.png", 'r')
-    p, created = Product.objects.get_or_create(name="Divine Vinely Recommendation",
-                                  description="Best set of wines for best people",
-                                  unit_price=225.00,
-                                  category=Product.PRODUCT_TYPE[1][0],
-                                  cart_tag="best")
-    p.image = File(f)
-    p.save()
-    f.close()
+      f = open("data/SP_divine_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Divine Vinely Recommendation",
+                                    description="Best set of wines for best people",
+                                    unit_price=225.00,
+                                    category=Product.PRODUCT_TYPE[1][0],
+                                    cart_tag="divine")
+      p.image = File(f)
+      p.save()
+      f.close()
 
   def setUp(self):
     # initial data
-    self.create_contact_reasons()
-    self.create_usable_accounts()
-    self.create_wine_personalities()
-    self.create_wine_samplers()
+    #self.create_contact_reasons()
+
+    # accounts are loaded from account/fixtures/initial_data.yaml
+    #self.create_usable_accounts()
+    #self.create_wine_personalities()
+    #self.create_wine_samplers()
     self.create_products()
 
   def test_contact_us_models(self):
@@ -281,7 +288,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party1 = Party.objects.create(host=host1, title="John's party", description="Wine party on a sizzling hot day",
+    party1 = Party.objects.create(socializer=host1, title="John's party", description="Wine party on a sizzling hot day",
                               address=address1, event_date=datetime.today()+timedelta(days=10))
 
     host2 = User.objects.get(email="host2@example.com")
@@ -292,7 +299,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party2 = Party.objects.create(host=host2, title="Mary's party", description="Wine party in the garden",
+    party2 = Party.objects.create(socializer=host2, title="Mary's party", description="Wine party in the garden",
                               address=address2, event_date=datetime.today()+timedelta(days=15))
 
     # invite people
@@ -324,9 +331,22 @@ class SimpleTest(TestCase):
   def test_rep_adding_ratings(self):
 
     # login with rep
-    self.client.login(email='specialist1@example.com', password='hello')
+    response = self.client.login(email='specialist1@example.com', password='hello')
+
+    #for g in Group.objects.all():
+    #  print g.name
+
+    self.assertEquals(Group.objects.all().count(), 4)
+
+    ps_group = Group.objects.get(name="Vinely Pro")
+    pro = User.objects.get(email='specialist1@example.com')
+    self.assertEquals(ps_group in pro.groups.all(), True)
 
     response = self.client.get(reverse('main.views.record_wine_ratings'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('main.views.record_all_wine_ratings'))
+    self.assertEquals(response.status_code, 200)
 
     # add an attendee information
     # type in the rating information
@@ -335,7 +355,6 @@ class SimpleTest(TestCase):
                                                         'email': 'attendee1@example.com',
                                                         'wine1': 1,
                                                         'wine1_overall': 3,
-                                                        'wine1_dnl': 1,
                                                         'wine1_sweet': 4,
                                                         'wine1_sweet_dnl': 1,
                                                         'wine1_weight': 5,
@@ -346,7 +365,6 @@ class SimpleTest(TestCase):
                                                         'wine1_sizzle_dnl': 3,
                                                         'wine2': 2,
                                                         'wine2_overall': 4,
-                                                        'wine2_dnl': 3,
                                                         'wine2_sweet': 2,
                                                         'wine2_sweet_dnl': 3,
                                                         'wine2_weight': 5,
@@ -357,7 +375,6 @@ class SimpleTest(TestCase):
                                                         'wine2_sizzle_dnl': 1,
                                                         'wine3': 3,
                                                         'wine3_overall': 3,
-                                                        'wine3_dnl': 2,
                                                         'wine3_sweet': 4,
                                                         'wine3_sweet_dnl': 1,
                                                         'wine3_weight': 2,
@@ -368,7 +385,6 @@ class SimpleTest(TestCase):
                                                         'wine3_sizzle_dnl': 1,
                                                         'wine4': 4,
                                                         'wine4_overall': 4,
-                                                        'wine4_dnl': 2,
                                                         'wine4_sweet': 1,
                                                         'wine4_sweet_dnl': 3,
                                                         'wine4_weight': 2,
@@ -379,7 +395,6 @@ class SimpleTest(TestCase):
                                                         'wine4_sizzle_dnl': 3,
                                                         'wine5': 5,
                                                         'wine5_overall': 5,
-                                                        'wine5_dnl': 3,
                                                         'wine5_sweet': 4,
                                                         'wine5_sweet_dnl': 3,
                                                         'wine5_weight': 2,
@@ -390,7 +405,6 @@ class SimpleTest(TestCase):
                                                         'wine5_sizzle_dnl': 2,
                                                         'wine6': 6,
                                                         'wine6_overall': 4,
-                                                        'wine6_dnl': 3,
                                                         'wine6_sweet': 5,
                                                         'wine6_sweet_dnl': 2,
                                                         'wine6_weight': 3,
@@ -401,7 +415,7 @@ class SimpleTest(TestCase):
                                                         'wine6_sizzle_dnl': 1
                                                     })
 
-    self.assertContains(response, "has been saved")
+    self.assertContains(response, "Here's your Wine Personality")
 
     self.client.login(email='attendee1@example.com', password='hello')
 
@@ -423,7 +437,7 @@ class SimpleTest(TestCase):
 
       })
 
-    self.assertContains(response, "have been saved")
+    self.assertContains(response, "Here's your Wine Personality")
 
     # save and move to next attendee, may also order wines instead of going to next attendee
 
@@ -452,10 +466,13 @@ class SimpleTest(TestCase):
   def test_product_ordering(self):
 
     response = self.client.get(reverse("main.views.cart_add_tasting_kit"))
-    self.assertEquals(response.status, 200)
+
+    self.assertEquals(response.status_code, 200)
 
     response = self.client.post(reverse("main.views.cart_add_tasting_kit"), { "product": 1,
                                                                               "quantity": 2,
+                                                                              "price_category": 0,
+                                                                              "frequency": 0,
                                                                               "total_price": 100})
     self.assertRedirects(response, reverse("main.views.cart"))
 

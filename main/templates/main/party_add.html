@@ -14,10 +14,10 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   {% if no_perms %}
-  <section id="reach-specialist">
+  <section id="reach-pro">
   <div class="row">
     <div class="span12">
-      <h2>Please contact your party specialist in order to schedule a party.</h2> 
+      <h2>Please contact your Vinely Pro in order to schedule a party.</h2> 
       <p></p>
       <h2>Go back to your <a href="{% url party_list %}">Party List</a>.</h2>
     </div>
@@ -26,7 +26,6 @@
   {% else %}
 
   <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
       It's time to start a new party!         
     </div>
@@ -102,19 +101,19 @@
           </fieldset>
 
           <fieldset>
-            <legend>Host Information</legend>
-            <div class="control-group {% if form.host.errors %}error{% endif %}">
-              <div class="control-label" for="id_host">{{ form.host.label }}</div>
+            <legend>Socializer Information</legend>
+            <div class="control-group {% if form.socializer.errors %}error{% endif %}">
+              <div class="control-label" for="id_socializer">{{ form.socializer.label }}</div>
               <div class="controls">
-                <select name="host" id="id_host">
+                <select name="socializer" id="id_socializer">
                   <option value selected="selected">----------</option>
-                  {% for value, text in form.host.field.choices %}
+                  {% for value, text in form.socializer.field.choices %}
                     <option value="{{ value }}">{{ text }}</option>
                   {% endfor %}
                 </select>
-                {% if form.host.errors %}
+                {% if form.socializer.errors %}
                   <span class="help-inline">
-                    {{ form.host.errors }}
+                    {{ form.socializer.errors }}
                   </span>
                 {% endif %}
               </div>

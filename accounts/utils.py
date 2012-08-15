@@ -14,7 +14,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   Use this password to verify your account.
 
-  from your Vinely specialists.
+  from your Vinely Pros.
 
   """)
 
@@ -45,7 +45,7 @@ def send_password_change_email(request, verification_code, temp_password, receiv
 
   Use this password to verify your account.
 
-  from your Vinely specialists.
+  from your Vinely Pros.
 
   """)
 
@@ -84,7 +84,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     http://{{ host_name }}{% url party_rsvp party_id %}
 
-  from your Vinely specialists.
+  from your Vinely Pros.
 
   """)
 
@@ -122,7 +122,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   Use this password to verify your account.
 
 
-  from your Vinely Specialists
+  from your Vinely Pros
 
   """)
 

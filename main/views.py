@@ -11,12 +11,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q
 
-from main.models import Party, PartyInvite, MyHosts, Product, LineItem, Cart, \
+from main.models import Party, PartyInvite, MySocializer, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, EngagementInterest, PersonaLog, OrganizedParty
 from personality.models import Wine, WineTaste, GeneralTaste
 from accounts.models import VerificationQueue
 
-from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteAttendeeForm, PartySpecialistSignupForm, \
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, VinelyProSignupForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm
 
@@ -27,7 +27,7 @@ from personality.forms import WineRatingsForm, AllWineRatingsForm
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
-                        send_contact_request_email, send_order_shipped_email, if_supplier, if_specialist
+                        send_contact_request_email, send_order_shipped_email, if_supplier, if_pro
 
 from personality.utils import calculate_wine_personality
 
@@ -44,12 +44,12 @@ def suppliers_only(request):
   data["message"] = "Only suppliers are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
 
-def specialists_only(request):
+def pros_only(request):
   """
-    Redirected to this page when one is trying to access only specialist only features
+    Redirected to this page when one is trying to access only pro only features
   """
   data = {}
-  data["message"] = "Only party specialists are allowed to access this page"
+  data["message"] = "Only Vinely Pros are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -61,19 +61,19 @@ def home(request):
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
-    ps_group = Group.objects.get(name='Party Specialist')
-    ph_group = Group.objects.get(name='Party Host')
+    ps_group = Group.objects.get(name='Vinely Pro')
+    ph_group = Group.objects.get(name='Vinely Socializer')
     sp_group = Group.objects.get(name='Supplier')
-    at_group = Group.objects.get(name='Attendee')
+    at_group = Group.objects.get(name='Vinely Taster')
 
     if ps_group in u.groups.all():
-      data["specialist"] = True
+      data["pro"] = True
     if ph_group in u.groups.all():
-      data["host"] = True
+      data["socializer"] = True
     if sp_group in u.groups.all():
       data["supplier"] = True
     if at_group in u.groups.all():
-      data["attendee"] = True
+      data["taster"] = True
       data["invites"] = PartyInvite.objects.filter(invitee=u) 
       invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
       if invites.exists():
@@ -92,21 +92,21 @@ def home(request):
 
     # go to home page
 
-    # if user is party specialist
+    # if user is Vinely Pro
     # - be able to add new users and send them e-mail 
     # - see users registered at a party
-    # - add a new host
+    # - add a new socializer
     # - be able to order for a user
     # - be able to enter ratings for a user
 
-    # if user is host
+    # if user is socializer
     # - list of parties (aggregate view of orders placed)
-    # - list of attendees in each party (aggregate of what each attendee ordered)
-    # - see orders placed by each attendee in detail 
+    # - list of Vinely Tasters in each party (aggregate of what each Vinely Taster ordered)
+    # - see orders placed by each Vinely Taster in detail 
     # - create party
-    # - invite attendees
+    # - invite Vinely Tasters
 
-    # if user is attendee
+    # if user is Vinely Taster
     # - my wine personality
     # - order wine
 
@@ -162,7 +162,7 @@ def host_vinely_party(request):
   
   data = {}
 
-  # sends a notification to the party specialist so this user can be upgraded to Host
+  # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
   message = send_host_vinely_party_email(request)
 
   data["message"] = message
@@ -183,7 +183,7 @@ def start_order(request, receiver_id=None, party_id=None):
     Show wine order page
 
     :param receiver_id: the user id of the user who's order is being fulfilled
-                      for example, when a party specialist enters rating data and continues an order
+                      for example, when a Vinely Pro enters rating data and continues an order
                       for a guest, the guest user id is the receiver_id
   """
   data = {}
@@ -285,14 +285,14 @@ def cart_add_tasting_kit(request):
 
     return HttpResponseRedirect(reverse("cart"))
 
-  product = Product.objects.get(category=Product.PRODUCT_TYPE[0][0])
+  product = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0])[0]
   data["product"] = product
   form.initial = {'product': product, 'total_price': product.unit_price}
   data["form"] = form
 
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
-def cart_add_wine(request, level="good"):
+def cart_add_wine(request, level="basic"):
   """
     
     Add item to cart
@@ -340,12 +340,12 @@ def cart_add_wine(request, level="good"):
 
   # big image of wine
   # TODO: need to check wine personality and choose the right product
-  if level == "good":
-    product = Product.objects.get(name="Good Level Name")
-  elif level == "better":
-    product = Product.objects.get(name="Better Level Name")
-  elif level == "best":
-    product = Product.objects.get(name="Best Level Name")
+  if level == "basic":
+    product = Product.objects.get(name="Basic Vinely Recommendation")
+  elif level == "classic":
+    product = Product.objects.get(name="Classic Vinely Recommendation")
+  elif level == "divine":
+    product = Product.objects.get(name="Divine Vinely Recommendation")
   elif level == "x":
     # not a valid product
     raise Http404
@@ -399,7 +399,7 @@ def cart_remove_item(request, cart_id, item_id):
 def customize_checkout(request):
   """
     Customize checkout to specify the receiver's preferences on wine mix and sparkling
-    The page allows a party specialist to set settings for a guest who's order is being
+    The page allows a Vinely Pro to set settings for a guest who's order is being
     created or if a guest is not assigned, then CustomizeOrder is created for the current
     logged in user and assigned to the receiver when shipping address is created.
   """
@@ -547,9 +547,9 @@ def order_complete(request, order_id):
     # update subscription information if new order
     for item in order.cart.items.all():
       # check if item contains subscription
-      if item.price_type in range(5, 11):
+      if item.price_category in range(5, 11):
         subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver)
-        subscription.quantity = item.price_type
+        subscription.quantity = item.price_category
         subscription.frequency = item.frequency 
         subscription.save()
 
@@ -579,28 +579,22 @@ def order_history(request):
 
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
-
-@login_required
-def view_orders(request):
-  data = {}
-  return render_to_response("main/view_orders.html", data, context_instance=RequestContext(request))
-
 @login_required
 def record_wine_ratings(request):
   """
     Record wine ratings for a particular wine.
-    Used by party specialists or attendees themselves.
+    Used by Vinely Pros or Vinely Tasters themselves.
   """
 
   data = {}
 
   u = request.user
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  att_group = Group.objects.get(name="Attendee")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  att_group = Group.objects.get(name="Vinely Taster")
 
   if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
-    # one can record ratings only if party specialist or attendee
+    # one can record ratings only if Vinely Pro or Vinely Taster
 
     if request.method == "POST":
       form = WineRatingsForm(request.POST)
@@ -609,11 +603,11 @@ def record_wine_ratings(request):
 
         if (ps_group in u.groups.all()):
           # ask if you want to fill out next customer's ratings or order wine
-          data["role"] = "specialist"
+          data["role"] = "pro"
           
         if (att_group in u.groups.all()):
           # ask if you want order wine
-          data["role"] = "attendee"
+          data["role"] = "taster"
 
         return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
@@ -630,12 +624,12 @@ def record_wine_ratings(request):
 def record_all_wine_ratings(request, email=None, party_id=None):
   """
     Record wine ratings.
-    Used by party specialists or attendees themselves.
+    Used by Vinely Pros or Vinely Tasters themselves.
 
   """
 
-  #TODO: Need to track the party specialist that is adding the ratings so that this attendee is linked
-  #     to the party specialist
+  #TODO: Need to track the Vinely Pro that is adding the ratings so that this Vinely Taster is linked
+  #     to the Vinely Pro
 
   data = {}
 
@@ -648,54 +642,71 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     data["party_id"] = party_id
     party = Party.objects.get(id=party_id)
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
-  at_group = Group.objects.get(name="Attendee")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
+  at_group = Group.objects.get(name="Vinely Taster")
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   if (ps_group in u.groups.all()) or (at_group in u.groups.all()) or (ph_group in u.groups.all()):
-    # one can record ratings only if party specialist or host/attendee
+    # one can record ratings only if Vinely Pro or Vinely Socializer/Vinely Taster
 
     if request.method == "POST":
       form = AllWineRatingsForm(request.POST)
       if form.is_valid():
-        results = form.save() 
-        data["invitee"] = results[0]
+        results = form.save()
+        invitee = results[0]
+        data["invitee"] = invitee 
+
+        if invitee.is_active is False:
+          # new user was created
+          temp_password = User.objects.make_random_password()
+          invitee.set_password(temp_password)
+          invitee.save()
+
+          verification_code = str(uuid.uuid4())
+          vque = VerificationQueue(user=user, verification_code=verification_code)
+          vque.save()
+
+          # send out verification e-mail, create a verification code
+          send_verification_email(request, verification_code, temp_password, invitee.email)
+
 
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
          
         if ps_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
-          data["role"] = "specialist"
+          data["role"] = "pro"
           # if personality found in a party, record the event 
           if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=results[0])
-            if created:
+            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
+            persona_log.pro = u
+            if created or persona_log.party is None:
+              # record first party
               persona_log.party = party
-              persona_log.specialist = u
-              persona_log.save()
+            persona_log.save()
         elif at_group in u.groups.all():
-          data["role"] = "host"
+          # saving your own data
+          data["role"] = "taster"
           if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=results[0])
+            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
             if persona_log.party is None:
               # if no previous log has been created, since we only track the first party
               persona_log.party = party
               persona_log.save()
           else:
             # saved before or without the party
-            PersonaLog.objects.get_or_create(user=results[0])
+            PersonaLog.objects.get_or_create(user=invitee)
         elif ph_group in u.groups.all():
-          # personality was created by an attendee themselves
+          # personality was created by an host herself 
           # ask if you want order wine
-          data["role"] = "attendee"
-          PersonaLog.objects.get_or_create(user=results[0])
+          data["role"] = "socializer"
+          PersonaLog.objects.get_or_create(user=invitee)
 
         return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
 
@@ -710,10 +721,10 @@ def record_all_wine_ratings(request, email=None, party_id=None):
                         }
 
       if email:
-        attendee = User.objects.get(email=email)
-        initial_data['email'] = attendee.email
-        initial_data['first_name'] = attendee.first_name
-        initial_data['last_name'] = attendee.last_name
+        taster = User.objects.get(email=email)
+        initial_data['email'] = taster.email
+        initial_data['first_name'] = taster.first_name
+        initial_data['last_name'] = taster.last_name
       else:
         # enter your own information
         initial_data['email'] = u.email
@@ -727,8 +738,8 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     return render_to_response("main/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
   else:
-    # user needs to be a party specialist or attendee to fill this out
-    # attendee is filling out their own data
+    # user needs to be a Vinely Pro or Vinely Taster to fill this out
+    # Vinely Taster is filling out their own data
     raise Http404 
 
 @login_required
@@ -768,30 +779,30 @@ def party_list(request):
 
   data = {}
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Attendee')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   today = datetime.now(tz=UTC())
 
   if (ps_group in u.groups.all()):
     # need to filter to parties that a particular user manages
-    my_hosts = MyHosts.objects.filter(specialist=u).values_list('host', flat=True)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
+    my_socializers = MySocializer.objects.filter(pro=u).values_list('socializer', flat=True)
+    data['parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__lt=today)
   elif (ph_group in u.groups.all()):
-    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
+    data['parties'] = Party.objects.filter(socializer=u, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(socializer=u, event_date__lt=today)
   elif (at_group in u.groups.all()):
     for inv in PartyInvite.objects.filter(invitee=u):
       data['parties'] = []
@@ -814,23 +825,23 @@ def party_add(request):
 
   u = request.user
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Attendee')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   data["no_perms"] = False
   if ps_group not in u.groups.all():
-    # if not a party specialist, one does not have permissions
+    # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
@@ -839,26 +850,26 @@ def party_add(request):
     if form.is_valid():
 
       new_party = form.save()
-      new_host = new_party.host
+      new_socializer = new_party.socializer
 
-      # map host to a specialist
-      my_hosts, created = MyHosts.objects.get_or_create(specialist=u, host=new_host)
-      specialisty_parties, created = OrganizedParty.objects.get_or_create(specialist=u, party=new_party)
+      # map socializer to a pro
+      my_socializers, created = MySocializer.objects.get_or_create(pro=u, socializer=new_socializer)
+      proy_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
 
-      if not new_host.is_active:
-        # new host, so send password and invitation
+      if not new_socializer.is_active:
+        # new socializer, so send password and invitation
         temp_password = User.objects.make_random_password()
-        new_host.set_password(temp_password)
-        new_host.save()
+        new_socializer.set_password(temp_password)
+        new_socializer.save()
 
         verification_code = str(uuid.uuid4())
-        vque = VerificationQueue(user=new_host, verification_code=verification_code)
+        vque = VerificationQueue(user=new_socializer, verification_code=verification_code)
         vque.save()
 
-        # send an invitation e-mail if new host created 
-        send_new_party_email(request, verification_code, temp_password, new_host.email)
+        # send an invitation e-mail if new socializer created 
+        send_new_party_email(request, verification_code, temp_password, new_socializer.email)
       else:
-        # existing host needs to notified that party has been arranged
+        # existing socializer needs to notified that party has been arranged
         send_new_party_scheduled_email(request, new_party)
 
       messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
@@ -866,30 +877,30 @@ def party_add(request):
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
-    # if the current user is host, display party specialist
-    if "host" in data and data["host"]:
-      specialists = MyHosts.objects.filter(host=u)
-      if specialists.exists():
-        specialist = specialists[0].specialist
-        data["my_specialist"] = specialist 
-        send_host_vinely_party_email(request, specialist)
+    # if the current user is socializer, display Vinely Pro
+    if "socializer" in data and data["socializer"]:
+      pros = MySocializer.objects.filter(socializer=u)
+      if pros.exists():
+        pro = pros[0].pro
+        data["my_pro"] = pro 
+        send_host_vinely_party_email(request, pro)
       else:
         send_host_vinely_party_email(request)
 
-    # if the current user is attendee, display party specialist
-    if "attendee" in data and data["attendee"]:
-      # find the latest party that guest attended and then through the host to find the party specialist
+    # if the current user is Vinely Taster, display Vinely Pro
+    if "taster" in data and data["taster"]:
+      # find the latest party that guest attended and then through the socializer to find the Vinely Pro
       party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
       if party_invites.exists():
         party = party_invites[0].party
-        primary_host = party.host
-        specialists = MyHosts.objects.filter(host=primary_host)
-        if specialists.exists():
-          specialist = specialists[0].specialist
-          data["my_specialist"] = specialist 
-          send_host_vinely_party_email(request, specialist)
+        primary_socializer = party.socializer
+        pros = MySocializer.objects.filter(socializer=primary_socializer)
+        if pros.exists():
+          pro = pros[0].pro
+          data["my_pro"] = pro 
+          send_host_vinely_party_email(request, pro)
         else:
-          # if no specialist found, just e-mail sales
+          # if no pro found, just e-mail sales
           send_host_vinely_party_email(request)
       else:
         # if no previous party found, just e-mail sales
@@ -897,9 +908,9 @@ def party_add(request):
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
-    ph_group = Group.objects.get(name="Party Host")
-    # need to figure out hosts filtered by party specialist
-    form.fields['host'].choices = [(myhost.host.id, myhost.host.email) for myhost in MyHosts.objects.filter(specialist=u)]
+    ph_group = Group.objects.get(name="Vinely Socializer")
+    # need to figure out socializers filtered by Vinely Pro
+    form.fields['socializer'].choices = [(mysocializer.socializer.id, mysocializer.socializer.email) for mysocializer in MySocializer.objects.filter(pro=u)]
 
   data["form"] = form
 
@@ -920,35 +931,35 @@ def party_details(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Attendee')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees
 
-  # TODO: might have to fix this and set Party to have a particular specialist
-  myhosts = MyHosts.objects.filter(host=party.host).order_by("-timestamp")
-  data["specialist_user"] = myhosts[0].specialist
+  # TODO: might have to fix this and set Party to have a particular pro
+  my_socializers = MySocializer.objects.filter(socializer=party.socializer).order_by("-timestamp")
+  data["pro_user"] = my_socializers[0].pro
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_attendee_list(request, party_id):
+def party_taster_list(request, party_id):
   """
-    Show attendees of a party
+    Show Vinely Tasters of a party
   """
 
   data = {}
@@ -959,34 +970,34 @@ def party_attendee_list(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Attendee')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees
 
-  return render_to_response("main/party_attendee_list.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_attendee_invite(request, party_id=0):
+def party_taster_invite(request, party_id=0):
   """
-    Invite a new attendee to a party 
+    Invite a new Vinely Taster to a party 
 
-      - only allow host or party specialist to add
-      - need to track who added and make sure the attendee is linked to that specialist or host
+      - only allow socializer or Vinely Pro to add
+      - need to track who added and make sure the Vinely Taster is linked to that pro or socializer
 
   """
   data = {}
@@ -995,18 +1006,18 @@ def party_attendee_invite(request, party_id=0):
 
   if Party.objects.all().count() == 0:
     data["no_parties"] = True
-    return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
+    return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
 
-  ps_group = Group.objects.get(name='Party Specialist')
-  ph_group = Group.objects.get(name='Party Host')
-  at_group = Group.objects.get(name='Attendee')
+  ps_group = Group.objects.get(name='Vinely Pro')
+  ph_group = Group.objects.get(name='Vinely Socializer')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
+    data["taster"] = True
 
   party = None
   if int(party_id) != 0:
@@ -1014,14 +1025,14 @@ def party_attendee_invite(request, party_id=0):
 
     if at_group in u.groups.all():
       try:
-        # attendee must have been already invited to invite more
+        # Vinely Taster must have been already invited to invite more
         invite = PartyInvite.objects.get(party=party, invitee=u)
       except PartyInvite.DoesNotExist:
         raise PermissionDenied
 
   if ps_group in u.groups.all() or ph_group in u.groups.all() or at_group in u.groups.all(): 
     if request.method == "POST":
-      form = PartyInviteAttendeeForm(request.POST)
+      form = PartyInviteTasterForm(request.POST)
       if form.is_valid():
         new_invite = form.save()
         new_invite.invited_by = u
@@ -1052,11 +1063,11 @@ def party_attendee_invite(request, party_id=0):
       # if request is GET
       if int(party_id) == 0:
         # unspecified party
-        form = PartyInviteAttendeeForm()
+        form = PartyInviteTasterForm()
       else:
         # specified party
         initial_data = {'party': party}
-        form =  PartyInviteAttendeeForm(initial=initial_data)
+        form =  PartyInviteTasterForm(initial=initial_data)
 
     if at_group in u.groups.all():
       today = datetime.now(tz=UTC())
@@ -1066,20 +1077,20 @@ def party_attendee_invite(request, party_id=0):
       form.fields['party'].choices = parties 
     elif ph_group in u.groups.all():
       today = datetime.now(tz=UTC())
-      parties = Party.objects.filter(host=u, event_date__gt=today)
+      parties = Party.objects.filter(socializer=u, event_date__gt=today)
       form.fields['party'].queryset = parties 
     elif ps_group in u.groups.all():
-      my_hosts = MyHosts.objects.filter(specialist=u)
-      my_host_list = []
-      for my_host in my_hosts:
-        my_host_list.append(my_host.host)
-      parties = Party.objects.filter(host__in=my_host_list)
+      my_socializers = MySocializer.objects.filter(pro=u)
+      my_socializer_list = []
+      for my_socializer in my_socializers:
+        my_socializer_list.append(my_socializer.socializer)
+      parties = Party.objects.filter(socializer__in=my_socializer_list)
       form.fields['party'].queryset = parties
 
     data["form"] = form
     data["party"] = party
 
-    return render_to_response("main/party_attendee_invite.html", data, context_instance=RequestContext(request))
+    return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
   else:
     raise PermissionDenied 
 
@@ -1165,14 +1176,7 @@ def party_send_invites(request):
   return render_to_response("main/party_invite_preview.html", data, context_instance=RequestContext(request))
 
 @login_required
-def party_order_list(request):
-  """
-    Party orders from specialist or host point of view
-  """
-  return render_to_response("main/party_order_list.html", data, context_instance=RequestContext(request))
-
-@login_required
-@user_passes_test(if_specialist, login_url="/specialists/only/")
+@user_passes_test(if_pro, login_url="/pros/only/")
 def dashboard(request):
   data = {}
 
@@ -1345,7 +1349,7 @@ def edit_shipping_address(request):
 
     if receiver.is_active is False: 
       # if new receiving user created.  happens when receiver never attended a party
-      role = Group.objects.get(name="Attendee")
+      role = Group.objects.get(name="Vinely Taster")
       receiver.groups.add(Group.objects.get(name=role))
 
       temp_password = User.objects.make_random_password()

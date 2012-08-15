@@ -1,3 +1,12 @@
+Refactor 
+- guest
+- socializer
+- pro
+- supplier
+- admin (is_staff)
+
+- basic, classic, divine
+
 Need to be able to get the navigation path displayed
 
 Thank you message after survey completed

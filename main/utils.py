@@ -26,12 +26,12 @@ def if_supplier(user):
     return user.groups.filter(name="Supplier").count() > 0
   return False
   
-def if_specialist(user):
+def if_pro(user):
   """
     Used in user_passes_test decorator to check if user is a supplier
   """
   if user:
-    return user.groups.filter(name="Party Specialist").count() > 0
+    return user.groups.filter(name="Vinely Pro").count() > 0
   return False
   
 def send_order_confirmation_email(request, order_id):
@@ -49,7 +49,7 @@ def send_order_confirmation_email(request, order_id):
   if sender_email != receiver_email:
     recipients.append(sender_email)
 
-  # TODO: if the order contains a tasting kit, notify the party specialist
+  # TODO: if the order contains a tasting kit, notify the party pro
 
   message_template = Template("""
 
@@ -140,7 +140,7 @@ def send_order_shipped_email(request, order):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_host_vinely_party_email(request, specialist=None):
+def send_host_vinely_party_email(request, pro=None):
 
   message_template = Template("""
 
@@ -148,9 +148,9 @@ def send_host_vinely_party_email(request, specialist=None):
 
   I ({{ first_name }} {{ last_name }}) would like to host a Vinely party.
 
-  Could you please connect me to a party specialist that may help me with this arrangement?
+  Could you please connect me to a Vinely Pro that may help me with this arrangement?
 
-  Please let me know via e-mail at: {{ email }} or call me at {{ phone }}.
+  Please let me know via e-mail at: {{ email }}{% if phone %} or call me at {{ phone }}{% endif %}.
 
   Look forward to hearing from you soon!
 
@@ -173,10 +173,10 @@ def send_host_vinely_party_email(request, specialist=None):
   else:
     # new engagement interest
     recipients = ['sales@vinely.com']
-    if specialist:
-      recipients.append(specialist.email)
+    if pro:
+      recipients.append(pro.email)
 
-    # notify interest in hosting to party specialist or vinely sales 
+    # notify interest in hosting to Vinely Pro or vinely sales 
     subject = 'I am interested in hosting a Vinely Party!'
     html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
@@ -190,7 +190,7 @@ def send_new_party_scheduled_email(request, party):
 
   message_template = Template("""
 
-  Dear {{ host_first_name }},
+  Dear {{ socializer_first_name }},
 
   The following party has been scheduled:
 
@@ -202,30 +202,30 @@ def send_new_party_scheduled_email(request, party):
 
   You can start inviting guests to your party at:
 
-    http://{{ host_name }}{% url party_attendee_invite party.id %}
+    http://{{ host_name }}{% url party_taster_invite party.id %}
   
-  If you have any questions, please contact me via e-mail: {{ specialist_email }} {% if specialist_phone %}or via phone: {{ specialist_phone }}{% endif %} 
+  If you have any questions, please contact me via e-mail: {{ pro_email }} {% if pro_phone %}or via phone: {{ pro_phone }}{% endif %} 
 
   Look forward to seeing you soon!
 
-  Your party specialist {{ specialist_first_name }} {{ specialist_last_name }}
+  Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
   """)
 
   profile = request.user.get_profile()
 
-  c = Context({"host_first_name": party.host.first_name if party.host.first_name else "Superb Host", 
-              "specialist_email": request.user.email,
-              "specialist_phone": profile.phone,
-              "specialist_first_name": request.user.first_name,
-              "specialist_last_name": request.user.last_name,
+  c = Context({"socializer_first_name": party.socializer.first_name if party.socializer.first_name else "Superb Socializer", 
+              "pro_email": request.user.email,
+              "pro_phone": profile.phone,
+              "pro_first_name": request.user.first_name,
+              "pro_last_name": request.user.last_name,
               "party": party,
               "host_name": request.get_host()})
 
   message = message_template.render(c)
 
   # notify about scheduled party
-  recipients = [party.host.email]
+  recipients = [party.socializer.email]
   subject = 'Your Vinely Party has been Scheduled!'  
   html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
@@ -240,7 +240,7 @@ def send_party_invitation_email(request, party_invite):
 
   message_template = Template("""
 
-  You have been invited to a Vinely Party by {{ invite_host_name }} ({{ invite_host_email }}).
+  You have been invited to a Vinely Party by {{ invite_socializer_name }} ({{ invite_socializer_email }}).
 
     Party: "{{ party.title }}"
     {% if party.description %}{{ party.description }}{% endif %}
@@ -255,13 +255,13 @@ def send_party_invitation_email(request, party_invite):
 
   Thank you!
 
-  from your Vinely Specialists
+  from your Vinely pros
 
   """)
 
   c = Context({"party": party_invite.party,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
-              "invite_host_email": request.user.email,
+              "invite_socializer_name": "%s %s"%(request.user.first_name, request.user.last_name),
+              "invite_socializer_email": request.user.email,
               "host_name": request.get_host()})
   message = message_template.render(c)
 
@@ -278,7 +278,7 @@ def distribute_party_invites_email(request, invitation_sent):
 
   message_template = Template("""
 
-  You have been invited to a Vinely Party by {{ invite_host_name }} ({{ invite_host_email }}).
+  You have been invited to a Vinely Party by {{ invite_socializer_name }} ({{ invite_socializer_email }}).
 
     Party: "{{ party.title }}"
     {% if party.description %}{{ party.description }}{% endif %}
@@ -298,14 +298,14 @@ def distribute_party_invites_email(request, invitation_sent):
 
   Thank you!
 
-  from your Vinely Specialists
+  from your Vinely pros
 
   """)
 
   c = Context({"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
-              "invite_host_email": request.user.email,
+              "invite_socializer_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Socializer",
+              "invite_socializer_email": request.user.email,
               "host_name": request.get_host()})
   message = message_template.render(c)
 

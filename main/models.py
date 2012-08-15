@@ -34,8 +34,8 @@ class ContactRequest(models.Model):
 
 class Party(models.Model):
 
-  # default to the name of the host
-  host = models.ForeignKey(User)
+  # default to the name of the socializer
+  socializer = models.ForeignKey(User)
   title = models.CharField(max_length=128)
   description = models.TextField(verbose_name="Special Instructions")
   address = models.ForeignKey(Address)
@@ -74,7 +74,7 @@ class PartyInvite(models.Model):
 
   party = models.ForeignKey(Party)
   invitee = models.ForeignKey(User, related_name="my_invites")
-  # if other than the host
+  # if other than the socializer
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
   invited_timestamp = models.DateTimeField(auto_now_add=True)
@@ -90,9 +90,9 @@ class PersonaLog(models.Model):
     First party that a person's personality was saved 
   """
   user = models.OneToOneField(User, related_name="personality_found")
-  #: party and specialist are null if user created their own personality
+  #: party and Pro's are null if user created their own personality
   party = models.ForeignKey(Party, null=True)
-  specialist = models.ForeignKey(User, null=True, related_name="personality_acquired")
+  pro = models.ForeignKey(User, null=True, related_name="personality_acquired")
   timestamp = models.DateTimeField(auto_now_add=True)
 
 class Product(models.Model):
@@ -121,12 +121,12 @@ class LineItem(models.Model):
       (2, 'Sales Tax'),
       (3, 'Shipping'),
       (4, 'Discount'),
-      (5, 'Good: Full Case (12 bottles)'),
-      (6, 'Good: Half Case (6 bottles)'),
-      (7, 'Better: Full Case (12 bottles)'),
-      (8, 'Better: Half Case (6 bottles)'),
-      (9, 'Best: Full Case (12 bottles)'),
-      (10, 'Best: Half Case (6 bottles)'),
+      (5, 'Basic: Full Case (12 bottles)'),
+      (6, 'Basic: Half Case (6 bottles)'),
+      (7, 'Classic: Full Case (12 bottles)'),
+      (8, 'Classic: Half Case (6 bottles)'),
+      (9, 'Divine: Full Case (12 bottles)'),
+      (10, 'Divine: Half Case (6 bottles)'),
       (11, 'Host Tasting Kit'),
   )
 
@@ -304,22 +304,22 @@ class OrderReview(models.Model):
 
 class OrganizedParty(models.Model):
   """
-    Recorded when a party is organized by a specialist
+    Recorded when a party is organized by a pro 
   """
-  specialist = models.ForeignKey(User)
+  pro = models.ForeignKey(User)
   party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
 
-class MyHosts(models.Model):
+class MySocializer(models.Model):
   """
-    Shows the hosts that are assigned to a party specialist
+    Shows the socializers that are assigned to a party pro
   """
-  specialist = models.ForeignKey(User, related_name="my_hosts")
-  host = models.ForeignKey(User, related_name="my_specialist")
+  pro = models.ForeignKey(User, related_name="my_socializer")
+  socializer = models.ForeignKey(User, related_name="my_pro")
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __unicode__(self):
-    return "%s - %s"%(specialist, host)
+    return "%s - %s"%(self.pro, self.socializer)
 
 class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
@@ -345,13 +345,13 @@ class CustomizeOrder(models.Model):
 
 class EngagementInterest(models.Model):
   """
-    Interest in becoming party specialist or party host or attending party
+    Interest in becoming party pro or socializers or tasters attending party
   """
 
   ENGAGEMENT_CHOICES = (
-    (0, 'Party Host'),
-    (1, 'Party Specialist'),
-    (2, 'Attending Party'),
+    (0, 'Vinely Socializer'),
+    (1, 'Vinely Pro'),
+    (2, 'Vinely Taster'),
     (3, 'Tasting Kit'),
   )
 

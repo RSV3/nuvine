@@ -108,39 +108,39 @@ def edit_subscription(request):
     form.save()
     messages.success(request, "Your subscription will be updated for the next month.")
 
-  ps_group = Group.objects.get(name="Party Specialist")
-  ph_group = Group.objects.get(name="Party Host")
+  ps_group = Group.objects.get(name="Vinely Pro")
+  ph_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Attendee')
+  at_group = Group.objects.get(name='Vinely Taster')
 
   if ps_group in u.groups.all():
-    data["specialist"] = True
+    data["pro"] = True
   if ph_group in u.groups.all():
-    data["host"] = True
+    data["socializer"] = True
     invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
     if invitation.exists():
-      data['invited_by'] = invitation[0].party.host
+      data['invited_by'] = invitation[0].party.socializer
     else:
-      myspecialists = MyHosts.objects.filter(host=u).order_by('-timestamp')
-      if myspecialists.exists():
-        data['invited_by'] = myspecialists[0].specialist
-        data['specialist_user'] = myspecialists[0].specialist
-        data['specialist_profile'] = myspecialists[0].specialist.get_profile()
+      mypros = MySocializer.objects.filter(socializer=u).order_by('-timestamp')
+      if mypros.exists():
+        data['invited_by'] = mypros[0].pro
+        data['pro_user'] = mypros[0].pro
+        data['pro_profile'] = mypros[0].pro.get_profile()
   if sp_group in u.groups.all():
     data["supplier"] = True
   if at_group in u.groups.all():
-    data["attendee"] = True
-    # find specialist and host who invited first
+    data["taster"] = True
+    # find pro and socializer who invited first
     invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
     if invitation.exists():
-      data['invited_by'] = invitation[0].party.host
-      myspecialists = MyHosts.objects.filter(host=data['invited_by']).order_by('-timestamp')
-      if myspecialists.exists():
-        data['invited_by'] = myspecialists[0].specialist
-        data['specialist_user'] = myspecialists[0].specialist
-        data['specialist_profile'] = myspecialists[0].specialist.get_profile()
+      data['invited_by'] = invitation[0].party.socializer
+      mypros = MySocializer.objects.filter(socializer=data['invited_by']).order_by('-timestamp')
+      if mypros.exists():
+        data['invited_by'] = mypros[0].pro
+        data['pro_user'] = mypros[0].pro
+        data['pro_profile'] = mypros[0].pro.get_profile()
     else:
-      # no parties, so no specialists
+      # no parties, so no pros
       pass
 
   if user_subscription is None:
@@ -197,28 +197,34 @@ def forgot_password(request):
 
 def sign_up(request, account_type):
   """
-    :param account_type: 0 - party specialist
-                          1 - party host
-                          2 - party attendees
-                          3 - supplier
-                          4 - tasting lead
+    :param account_type: 0 - Vinely Pro 
+                          1 - Vinely Socializer 
+                          2 - Vinely Taster 
+                          3 - Supplier 
+                          4 - Vinely Tasting Lead 
   """
 
   data = {}
   role = ""
 
+  u = request.user
+
+  if u.is_authenticated():
+    data["already_signed_up"] = True
+    return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+
   account_type = int(account_type)
   if account_type == 0:
-    role = "Party Specialist"
+    role = "Vinely Pro"
   elif account_type == 1:
-    role = "Party Host"
+    role = "Vinely Socializer"
   elif account_type == 2:
-    role = "Attendee"
+    role = "Vinely Taster"
   elif account_type == 3:
     role = "Supplier"
   elif account_type == 4:
     # people who order wine tasting kit
-    role = "Attendee"
+    role = "Vinely Taster"
 
   if not role:
     raise Http404

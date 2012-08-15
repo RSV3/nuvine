@@ -2,9 +2,9 @@
 
 {% block header %}
   {% if invitee %}
-  <h1>{{ invitee.first_name }}, Here's your Wine Personality</h1>
+    <h1>{{ invitee.first_name }}, Here's your Wine Personality</h1>
   {% else %}
-  <h1>Here's your Wine Personality</h1>
+    <h1>Here's your Wine Personality</h1>
   {% endif %}
 {% endblock header %}
 
@@ -32,7 +32,7 @@
             Start ordering wine to enjoy the variety you can enjoy
           </p>
           <p>
-            {% if role == "specialist" %}
+            {% if role == "pro" %}
               <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
             {% else %}
               <a href="{% url start_order user.id %}" class="btn btn-primary">Start your wine order</a>
@@ -56,9 +56,15 @@
   <section id="continue_order">
   <div class="row">
     {# Need to check for permissions whether this is a party specialist #}
-    <div class="span12">
-      <a href="{% url party_details party_id %}">&laquo; Back to guest list</a>
-    </div>
+    {% if party_id %}
+      <div class="span12">
+        <a href="{% url party_details party_id %}">&laquo; Back to guest list</a>
+      </div>
+    {% else %}
+      <div class="span12">
+        <a href="{% url home_page %}">&laquo; Back to Home Page</a>
+      </div>    
+    {% endif %}
   </div>
   </section>
 
