@@ -1,16 +1,17 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Welcome to Vinely</h1>
+  <!--h1>Welcome to Vinely</h1-->
 {% endblock header %}
-
 
 {% block content %}
 <div class="container">
     <div class="row">
       <div class="span8">
-        <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
-        <p>Join parties and explore those wines that may give you a new taste to life.</p>
+        <div class="hero-unit">
+          <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
+            <p>Join parties and explore those wines that may give you a new taste to life.</p>
+        </div>
         <div id="get_started"><a href="{% url sign_up 2 %}"></a></div>
       </div>
       <div class="span4">
@@ -21,8 +22,8 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div id="badges" class="pie-container">
+    <div id="badges" class="pie-container divider">
+      <div class="row">
         <div class="span2"><div class="pie" id="sl"></div></div>
         <div class="span2"><div class="pie" id="wm"></div></div>
         <div class="span2"><div class="pie" id="mx"></div></div>
