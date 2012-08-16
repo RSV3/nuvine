@@ -4583,7 +4583,9 @@ input[type="file"] {
 .label-info:hover {
   background-color: #d9edf7;
 }
-.well,
+.well {
+  text-align: left;
+}
 .hero-unit {
   text-align: center;
 }
