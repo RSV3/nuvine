@@ -10,27 +10,29 @@
     <li><a href="{% url party_add %}">Create Party</a></li>
     <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
     <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
-    <li><a href="{% url start_order %}">Order Wine</a></li>
+    <li><a href="{% url start_order %}">Place an Order</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
   {% elif socializer %}
     <li><a href="{% url party_list %}">Your Parties</a></li>
     <li><a href="{% url party_add %}">Create Party</a></li>
     <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
     <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-    <li><a href="{% url start_order %}">Order Wine</a></li>
+    <li><a href="{% url start_order %}">Place an Order</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
   {% elif supplier %}
     <li><a href="{% url supplier_pending_orders %}">Pending Orders</a></li>
     <li><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></li>
     <li><a href="{% url supplier_all_orders %}">All Orders</a></li>
   {% elif taster %}
-    <li><a href="{% url my_wine_personality %}">My Wine Personality</a></li>
-    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
+    <li><a href="">Your Invite</a></li>
     {% if wine_personality %}
-      <li><a href="{% url start_order %}">Order Wine</a></li>
+      <li><a href="{% url start_order %}">Place an Order</a></li>
       <li><a href="{% url order_history %}">Order History</a></li>
     {% endif %}
-    <li><a href="{% url host_vinely_party %}">Host your own Vinely party</a></li>
+    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
+    <li><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></li>
+    <li><a href="">Learn More about Vinely</a></li>
+    <li><a href="">Become a Vinely Pro</a></li>
   {% endif %}
 
 
