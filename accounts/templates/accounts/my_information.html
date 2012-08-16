@@ -14,8 +14,6 @@
 {# this is where it lands when a user clicks "My Account" #}
 
 {% block right_content %}
-  <div class="row">
-    <div class="span9">
       <form enctype="multipart/form-data" class="form-horizontal well" method="POST" action="{% url my_information %}">
         {% csrf_token %}
 
@@ -236,6 +234,4 @@
           </div>
         </div>        
       </form>
-    </div> <!-- span9 -->
-  </div> <!-- row -->
 {% endblock right_content %}
