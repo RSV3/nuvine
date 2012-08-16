@@ -157,6 +157,7 @@ class SimpleTest(TestCase):
                                                                           'temp_password': temp_password,
                                                                           'new_password': 'hello',
                                                                           'retype_password': 'hello'})
+    # user logged in
     self.assertRedirects(response, reverse("home_page"))
 
     verify = VerificationQueue.objects.get(verification_code=verification_code)
@@ -165,14 +166,16 @@ class SimpleTest(TestCase):
     self.assertEquals(user.is_active, True)
 
 
-
+    # existing member of Vinely signing up as attendee
     response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
-                                                                'last_name': 'Doe3',
-                                                                'email': 'john.doe3@example.com',
+                                                                'last_name': 'Doe2',
+                                                                'email': 'john.doe2@example.com',
                                                                 'password1': 'Sign Up',
                                                                 'password2': 'Sign Up'})
 
     self.assertContains(response, "active member of Vinely")
+
+    self.client.logout()
 
     # create a supplier
     response = self.client.post(reverse("sign_up", args=[3]), {'first_name': 'John',
@@ -266,9 +269,10 @@ class SimpleTest(TestCase):
   
     # modify only payment
     response = self.client.post(reverse("my_information"), {
-                                                  'payment-card_number': '41111111111111111',
+                                                  'payment-card_type': 'Unknown',
+                                                  'payment-card_number': '4111111111111111',
                                                   'payment-exp_month': '7', 
-                                                  'payment-exp_year': '13',
+                                                  'payment-exp_year': '2013',
                                                   'payment-verification_code': '555',
                                                   'payment-billing_zipcode': '48105'
                                                 })
@@ -278,7 +282,7 @@ class SimpleTest(TestCase):
     response = self.client.post(reverse("my_information"), {
                                                   'payment-card_number': '4111111111111111111',
                                                   'payment-exp_month': '8', 
-                                                  'payment-exp_year': '15',
+                                                  'payment-exp_year': '2015',
                                                   'payment-billing_zipcode': '48105'
                                                 })
 
@@ -286,14 +290,17 @@ class SimpleTest(TestCase):
 
 
     response = self.client.post(reverse("my_information"), {
-                                                  'payment-card_number': '4111111111111111111',
+                                                  'payment-card_type': 'Visa',
+                                                  'payment-card_number': '4111111111111111',
                                                   'payment-exp_month': '8', 
-                                                  'payment-exp_year': '15',
+                                                  'payment-exp_year': '2015',
                                                   'payment-verification_code': '342',
                                                   'payment-billing_zipcode': '48105'
                                                 })
 
     self.assertContains(response, "Your information has been updated")   
+
+    print "Information update test all work"
 
   def test_basic_addition(self):
     """

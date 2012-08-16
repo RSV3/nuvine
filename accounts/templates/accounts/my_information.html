@@ -19,39 +19,42 @@
       <form enctype="multipart/form-data" class="form-horizontal well" method="POST" action="{% url my_information %}">
         {% csrf_token %}
 
-        {% if error %}
-          <div class="alert alert-error">
-            {{ error }}
-          </div>
-        {% endif %}
-        {% if user_form.errors %}
-          <div class="alert alert-error">
-            {{ user_form.errors }}
-          </div>
-        {% endif %}
 
-        {% if profile_form.errors %}
-          <div class="alert alert-error">
-            {{ profile_form.errors }}
-          </div>
-        {% endif %}
+        {% if not updated %}
+          {% if error %}
+            <div class="alert alert-error">
+              {{ error }}
+            </div>
+          {% endif %}
+          {% if user_form.errors %}
+            <div class="alert alert-error">
+              {{ user_form.errors }}
+            </div>
+          {% endif %}
 
-        {% if shipping_form.errors %}
-          <div class="alert alert-error">
-            {{ shipping_form.errors }}
-          </div>
-        {% endif %}
+          {% if profile_form.errors %}
+            <div class="alert alert-error">
+              {{ profile_form.errors }}
+            </div>
+          {% endif %}
 
-        {% if billing_form.errors %}
-          <div class="alert alert-error">
-            {{ billing_form.errors }}
-          </div>
-        {% endif %}
+          {% if shipping_form.errors %}
+            <div class="alert alert-error">
+              {{ shipping_form.errors }}
+            </div>
+          {% endif %}
 
-        {% if payment_form.errors %}
-          <div class="alert alert-error">
-            {{ payment_form.errors }}
-          </div>
+          {% if billing_form.errors %}
+            <div class="alert alert-error">
+              {{ billing_form.errors }}
+            </div>
+          {% endif %}
+
+          {% if payment_form.errors %}
+            <div class="alert alert-error">
+              {{ payment_form.errors }}
+            </div>
+          {% endif %}
         {% endif %}
 
         <fieldset>
@@ -196,56 +199,31 @@
           <div class="payment-form">
             {{ payment_form.card_type }}
 
-            <div class="control-group{% if payment_form.card_number.errors %} error{% endif %}">
+            <div class="control-group">
               <div class="control-label" for="id_payment-card_number">{{ payment_form.card_number.label }}</div>
               <div class="controls">
                 {{ payment_form.card_number}} 
-                {% if payment_form.card_number.errors %}
-                  <span class="help-inline">
-                    {{ payment_form.card_number.errors }}
-                  </span>
-                {% endif %}
               </div>
             </div>
 
-            <div class="control-group{% if payment_form.exp_month.errors or payment_form.exp_year.errors %} error{% endif %}">
+            <div class="control-group">
               <div class="control-label" for="id_payment-exp_month">{{ payment_form.exp_month.label }}</div>
               <div class="controls">
                 {{ payment_form.exp_month}} {{ payment_form.exp_year }}
-                {% if payment_form.exp_month.errors %}
-                  <span class="help-inline">
-                    {{ payment_form.exp_month.errors }}
-                  </span>
-                {% endif %}
-                {% if payment_form.exp_year.errors %}
-                  <span class="help-inline">
-                    {{ payment_form.exp_year.errors }}
-                  </span>
-                {% endif %}
               </div>
             </div>
 
-            <div class="control-group{% if payment_form.verification_code.errors %} error{% endif %}">
+            <div class="control-group">
               <div class="control-label" for="id_payment-verification_code">{{ payment_form.verification_code.label }}</div>
               <div class="controls">
                 {{ payment_form.verification_code}} 
-                {% if payment_form.verification_code.errors %}
-                  <span class="help-inline">
-                    {{ payment_form.verification_code.errors }}
-                  </span>
-                {% endif %}
               </div>
             </div>
 
-            <div class="control-group{% if payment_form.billing_zipcode.errors %} error{% endif %}">
+            <div class="control-group">
               <div class="control-label" for="id_payment-billing_zipcode">{{ payment_form.billing_zipcode.label }}</div>
               <div class="controls">
                 {{ payment_form.billing_zipcode}} 
-                {% if payment_form.billing_zipcode.errors %}
-                  <span class="help-inline">
-                    {{ payment_form.billing_zipcode.errors }}
-                  </span>
-                {% endif %}
               </div>
             </div>          
           </div>

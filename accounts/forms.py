@@ -164,6 +164,8 @@ class PaymentForm(forms.ModelForm):
       if date.today() > expire:
         #raise forms.ValidationError("The expiration date you entered is in the past.")
         self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
+    else:
+        self._errors["exp_year"] = self.error_class(["Is it full 4-digit year you specified?"])
    
     return cleaned_data
 

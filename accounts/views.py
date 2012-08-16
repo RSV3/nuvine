@@ -50,40 +50,45 @@ def my_information(request):
   payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
 
-  updated = False
+  user_updated = False
+  shipping_updated = False
+  billing_updated = False
+  payment_updated = False
+  profile_updated = False
+
   if user_form.is_valid(): 
     update_user = user_form.save()
-    updated = True 
+    user_updated = True 
 
   if shipping_form.is_valid(): 
     shipping_address = shipping_form.save()
     profile.shipping_address = shipping_address
-    updated = True 
+    shipping_updated = True 
 
   if billing_form.is_valid(): 
     billing_address = billing_form.save()
     profile.billing_address = billing_address
-    updated = True 
+    billing_updated = True 
 
   if payment_form.is_valid():
     credit_card = payment_form.save()
     profile.credit_card = credit_card
     profile.save()
-    updated = True 
+    payment_updated = True 
 
   if profile_form.is_valid():
     new_profile = profile_form.save()
-    updated = True 
 
-  if updated:
+  if user_updated or shipping_updated or billing_updated or payment_updated:
     messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
+    data['updated'] = True
 
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
 
-  if profile.credit_card:
+  if profile.credit_card and request.method == "GET":
     payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
-    
+
   data['billing_form'] = billing_form
   data['payment_form'] = payment_form
   data['profile_form'] = profile_form
