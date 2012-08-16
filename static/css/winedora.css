@@ -69,6 +69,10 @@ body {
 #dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
 #vinely_u a:hover, #vinely_u.active { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
 
+#get_started {
+  margin-left: 50px;
+}
+
 #get_started, #get_started a {
   background: url('../img/btn_pie_getstarted.png') no-repeat;
   width: 85px;
