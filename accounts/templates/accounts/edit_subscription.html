@@ -3,7 +3,6 @@
 {% load thumbnail %}
 
 {% block right_content %}
-  <div class="row">
       <form class="form-horizontal well" method="POST" action="{% url edit_subscription %}">
           {% csrf_token %}
 
@@ -97,5 +96,4 @@
       </form>
 
 
-  </div> <!-- row -->
 {% endblock right_content %}
