@@ -101,6 +101,7 @@ body {
   text-transform: uppercase;
   font-size: 20px;
   letter-spacing: 1px;
+   text-align: center;
 }
 .side_nav {
   list-style: none;
@@ -112,10 +113,12 @@ body {
 .sidebar-nav li a {
   padding: 7px 9px 7px 9px;
 }
+.sidebar-nav li:hover {
+}
 .sidebar-nav li a:hover {
-  padding-right: 20px;
-  background: url('../img/btn_chevronrt_bkgd.png') #31BAA2 no-repeat right center;
   text-decoration: none;
+  background: url('../img/btn_chevronrt_bkgd.png') #31BAA2 no-repeat 100% 50%;
+;
   color: #FFFFFF;
 }
 #badges {
