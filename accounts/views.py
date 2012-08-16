@@ -43,7 +43,6 @@ def my_information(request):
 
   u = request.user
   profile = u.get_profile()
-  print "original groups", u.groups.all()
 
   user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
@@ -51,22 +50,32 @@ def my_information(request):
   payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
 
-  if user_form.is_valid() and shipping_form.is_valid() and billing_form.is_valid() and payment_form.is_valid():
+  updated = False
+  if user_form.is_valid(): 
     update_user = user_form.save()
-    print update_user.groups.all()
+    updated = True 
 
+  if shipping_form.is_valid(): 
     shipping_address = shipping_form.save()
     profile.shipping_address = shipping_address
+    updated = True 
 
+  if billing_form.is_valid(): 
     billing_address = billing_form.save()
     profile.billing_address = billing_address
+    updated = True 
 
+  if payment_form.is_valid():
     credit_card = payment_form.save()
     profile.credit_card = credit_card
     profile.save()
+    updated = True 
 
+  if profile_form.is_valid():
     new_profile = profile_form.save()
+    updated = True 
 
+  if updated:
     messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
 
   data['user_form'] = user_form
@@ -74,6 +83,7 @@ def my_information(request):
 
   if profile.credit_card:
     payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+    
   data['billing_form'] = billing_form
   data['payment_form'] = payment_form
   data['profile_form'] = profile_form

@@ -13,7 +13,6 @@
     <h3>Enter Credit Card Information</h3>
   </div>
   <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
     <div class="span12">
       <form class="form-horizontal" method="POST" action="{% url edit_credit_card %}">
         {% csrf_token %}

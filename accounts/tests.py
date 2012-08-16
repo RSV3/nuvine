@@ -22,9 +22,9 @@ class SimpleTest(TestCase):
     """
       create usable accounts
     """
-    ps_group, created = Group.objects.get_or_create(name="Party Specialist")
-    ph_group, created = Group.objects.get_or_create(name="Party Host")
-    att_group, created = Group.objects.get_or_create(name="Attendee")
+    ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
+    ph_group, created = Group.objects.get_or_create(name="Vinely Socializer")
+    att_group, created = Group.objects.get_or_create(name="Vinely Taster")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
     if not User.objects.filter(email="specialist1@example.com").exists():
       u = create_user("specialist1@example.com", "hello")
@@ -91,13 +91,13 @@ class SimpleTest(TestCase):
   def test_user_creation(self):
 
     response = self.client.get(reverse("sign_up", args=[0]))
-    self.assertContains(response, "Party Specialist")
+    self.assertContains(response, "Vinely Pro")
 
     response = self.client.get(reverse("sign_up", args=[1]))
-    self.assertContains(response, "Party Host")
+    self.assertContains(response, "Vinely Socializer")
 
     response = self.client.get(reverse("sign_up", args=[2]))
-    self.assertContains(response, "Attendee")
+    self.assertContains(response, "future Vinely party")
 
     response = self.client.get(reverse("sign_up", args=[3]))
     self.assertContains(response, "Supplier")
@@ -164,13 +164,136 @@ class SimpleTest(TestCase):
     self.assertEquals(verify.verified, True)
     self.assertEquals(user.is_active, True)
 
-    # create a supplier
+
+
     response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
                                                                 'last_name': 'Doe3',
                                                                 'email': 'john.doe3@example.com',
                                                                 'password1': 'Sign Up',
                                                                 'password2': 'Sign Up'})
-    self.assertContains(response, "Verification Sent")
+
+    self.assertContains(response, "active member of Vinely")
+
+    # create a supplier
+    response = self.client.post(reverse("sign_up", args=[3]), {'first_name': 'John',
+                                                                'last_name': 'Doe4',
+                                                                'email': 'john.doe4@example.com',
+                                                                'password1': 'Sign Up',
+                                                                'password2': 'Sign Up'})
+
+    self.assertContains(response, "e-mail to verify your e-mail address")
+
+  def test_my_information_update(self):
+    response = self.client.login(email="attendee2@example.com", password="hello")
+    self.assertEquals(response, True)
+
+    # modify only basic info
+    response = self.client.get(reverse("my_information"))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'user-first_name': 'Jane',
+                                                  'user-last_name': 'Doe', 
+                                                  'user-email': 'attendee2@example.com'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    # change e-mail address
+    response = self.client.post(reverse("my_information"), {
+                                                  'user-first_name': 'Jane',
+                                                  'user-last_name': 'Doe', 
+                                                  'user-email': 'john.doe@example.com'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'profile-phone': '617-234-2524',
+                                                  'user-last_name': 'Doe', 
+                                                  'user-email': 'john.doe@example.com'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    # modify only shipping
+    response = self.client.post(reverse("my_information"), {
+                                                  'shipping-street1': '55 Memorial Dr.',
+                                                  'shipping-street2': '#14', 
+                                                  'shipping-city': 'North Haven',
+                                                  'shipping-state': 'CT',
+                                                  'shipping-zipcode': '48105'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'shipping-street1': '55 Memorial Dr.',
+                                                  'shipping-city': 'North Haven',
+                                                  'shipping-state': 'CT',
+                                                  'shipping-zipcode': '48105'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+  
+    # modify only billing
+    response = self.client.post(reverse("my_information"), {
+                                                  'billing-street1': '140 Columbia St.',
+                                                  'billing-street2': '#2', 
+                                                  'billing-city': 'Cambridge',
+                                                  'billing-state': 'MA',
+                                                  'billing-zipcode': '02139'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+  
+    response = self.client.post(reverse("my_information"), {
+                                                  'billing-street1': '140 Columbia St.',
+                                                  'billing-city': 'Detroit',
+                                                  'billing-state': 'MI',
+                                                  'billing-zipcode': '48115'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'billing-city': 'Detroit',
+                                                  'billing-state': 'MI',
+                                                  'billing-zipcode': '48115'
+                                                })
+
+    self.assertContains(response, "This field is required")   
+  
+    # modify only payment
+    response = self.client.post(reverse("my_information"), {
+                                                  'payment-card_number': '41111111111111111',
+                                                  'payment-exp_month': '7', 
+                                                  'payment-exp_year': '13',
+                                                  'payment-verification_code': '555',
+                                                  'payment-billing_zipcode': '48105'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'payment-card_number': '4111111111111111111',
+                                                  'payment-exp_month': '8', 
+                                                  'payment-exp_year': '15',
+                                                  'payment-billing_zipcode': '48105'
+                                                })
+
+    self.assertContains(response, "This field is required")
+
+
+    response = self.client.post(reverse("my_information"), {
+                                                  'payment-card_number': '4111111111111111111',
+                                                  'payment-exp_month': '8', 
+                                                  'payment-exp_year': '15',
+                                                  'payment-verification_code': '342',
+                                                  'payment-billing_zipcode': '48105'
+                                                })
+
+    self.assertContains(response, "Your information has been updated")   
 
   def test_basic_addition(self):
     """

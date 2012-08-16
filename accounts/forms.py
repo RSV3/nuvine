@@ -146,21 +146,25 @@ class PaymentForm(forms.ModelForm):
     if exp_year in forms.fields.EMPTY_VALUES:
       #raise forms.ValidationError("You must select a valid Expiration year.")
       self._errors["exp_year"] = self.error_class(["You must select a valid Expiration year."])
-      del cleaned_data["exp_year"]
+      if exp_year:
+        del cleaned_data["exp_year"]
     if exp_month in forms.fields.EMPTY_VALUES:
       #raise forms.ValidationError("You must select a valid Expiration month.")
       self._errors["exp_month"] = self.error_class(["You must select a valid Expiration month."])
-      del cleaned_data["exp_month"]
-    year = int(exp_year)
-    month = int(exp_month)
-    # find last day of the month
-    day = monthrange(year, month)[1]
-    expire = date(year, month, day)
- 
-    if date.today() > expire:
-      #raise forms.ValidationError("The expiration date you entered is in the past.")
-      self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
- 
+      if exp_month:
+        del cleaned_data["exp_month"]
+
+    if exp_year and exp_month:    
+      year = int(exp_year)
+      month = int(exp_month)
+      # find last day of the month
+      day = monthrange(year, month)[1]
+      expire = date(year, month, day)
+   
+      if date.today() > expire:
+        #raise forms.ValidationError("The expiration date you entered is in the past.")
+        self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
+   
     return cleaned_data
 
   def save(self, commit=True, force_insert=False, force_update=False, *args, **kwargs):
