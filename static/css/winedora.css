@@ -2,6 +2,29 @@ body {
   background: url('../img/site_background_pattern.png');
 }
 
+/* home page */
+.personality-badge-detail {
+  margin-top: 25px;
+}
+
+.home-header {
+  text-align: center;
+}
+
+.role-welcome {
+  text-align: center;
+}
+
+.sub-welcome {
+  text-align: center;
+}
+
+.actions-welcome {
+  text-align: center;
+}
+
+/* nav bar */
+
 .navbar {
   margin-top: 10px;
 }

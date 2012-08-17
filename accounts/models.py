@@ -125,7 +125,8 @@ class UserProfile(models.Model):
   gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
   zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence") 
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
-  wine_personality = models.ForeignKey(WinePersonality, null=True, blank=True)
+
+  wine_personality = models.ForeignKey(WinePersonality, default=7)
   prequestionnaire = models.BooleanField(default=False)
 
   # for storing default addresses 

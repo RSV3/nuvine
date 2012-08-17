@@ -15,15 +15,13 @@
   <section id="wine_personality">
     <div class="row">
       {% if personality %}
-        <div class="span9">
+        <div class="span8">
+          {# Need to put the personality graphics #}
           <p>
-          <h2>You are a <span class="uppercase">{{ personality.name }}</span></h2>
-          </p>
-          <p class="lead">
-            {{ personality.description }}
+            <img src="{{ STATIC_URL }}img/homepage_badge_{{ personality.suffix }}.png">
           </p>
         </div>
-        <div class="span3">
+        <div class="span4">
           <section id="order-personal-wine">
           <h2>Vinely Order Recommendation</h2> 
           <p>
@@ -37,7 +35,11 @@
           </p>
           <p>
             {% if role == "pro" %}
-              <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+              {% if party_id %}
+                <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+              {% else %}
+                <a href="{% url start_order invitee.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+              {% endif %}
             {% else %}
               <a href="{% url start_order user.id %}" class="btn btn-primary">Get Wine</a>
             {% endif %}

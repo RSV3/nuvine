@@ -102,6 +102,7 @@ class WinePersonality(models.Model):
   """
   name = models.CharField(max_length=32)
   headline = models.CharField(max_length=64)
+  suffix = models.CharField(max_length=16)
   description = models.TextField()
 
   def __unicode__(self):

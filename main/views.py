@@ -136,7 +136,7 @@ def get_started(request):
   data = {}
 
   u = request.user
-  
+
   pro_group = Group.objects.get(name="Vinely Pro")
   soc_group = Group.objects.get(name="Vinely Socializer")
   if u.is_authenticated():
@@ -168,6 +168,16 @@ def contact_us(request):
   data["form"] = form
 
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
+
+@login_required
+def become_vip(request):
+  """
+    TODO: what is to become VIP
+  """
+
+  data = {}
+
+  return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
 
 @login_required
 def rate_wines(request):

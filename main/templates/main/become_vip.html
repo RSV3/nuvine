@@ -1,0 +1,28 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>Become Vinely VIP</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <section id="how-it-works">
+  <div class="row">
+    <div class="span12">
+      <h3>What does it mean to become VIP?</h3>
+
+      <div class="form-actions">
+        <div class="controls">
+          <a class="btn btn-primary" href="{% url sign_up 1 %}">Become VIP</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+</div>
+
+{% endblock content %}
+

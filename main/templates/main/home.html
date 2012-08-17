@@ -1,7 +1,9 @@
 {% extends "main/menu_base_flip.html" %}
 
 {% block header %}
-  <h1>Welcome Back to Vinely</h1>
+  <div class="span8">
+    <h1 class="home-header">Welcome {% if user.first_name %}{{ first_name }}{% else %}to Vinely{% endif %}</h1>
+  </div>
 {% endblock header %}
 
 {% block side_navigation %}
@@ -47,38 +49,51 @@
 
 {% block main_content %}
 
-  <div class="span9">
-  {% if pro %}
-    Welcome {{ user.first_name }}. You are a Vinely Pro.
-  {% endif %}
-  {% if socializer %}
-    Welcome {{ user.first_name }}. You are a Vinely Socializer.
-  {% endif %}
-  {% if taster %}
-    Welcome {{ user.first_name }}. You are a Vinely Taster.
-  {% endif %}
-  {% if supplier %}
-    Welcome {{ user.first_name }}. You are a supplier.
-  {% endif %}
+  <div class="span8">
+    <div class="role-welcome">
+      {% if pro %}
+        You are a Vinely Pro.
+      {% endif %}
+      {% if socializer %}
+        You are a Vinely Socializer.
+      {% endif %}
+      {% if taster %}
+        You are a Vinely Taster.
+      {% endif %}
+      {% if supplier %}
+        You are a supplier.
+      {% endif %}
+    </div>
+    <div class="sub-welcome">
+      We hope that you and your wine personality are getting along great!
+    </div>
+    <div class="actions-welcome">
+      <a href="{% url start_order %}">Place an Order</a> or <a href="{% url become_vip %}">become a VIP</a>
+    </div>
   </div>
 
   {% if wine_personality %}
-  <div class="span9">
-    You are a {{ wine_personality.name }}!
+  <div class="span8">
+    <div class="personality-badge-detail">
+      <img src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png">
+    </div>
   </div>
   {% elif party_date %}
-  <div class="span9">
+  <div class="span8">
+    <div class="personality-badge-detail">
+      <img src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png">
+    </div>
     You will find out your wine profile at the party on {{ party_date|date:"n/j" }}!
   </div>
   {% endif %}
 
   {% if taster or socializer %}
     {% if questionnaire_completed %}
-      <div class="span9">
+      <div class="span8">
           You have completed your questionnaire and you are ready to rock with Vinely! 
       </div>
     {% else %}
-      <div class="span9">
+      <div class="span8">
           Fill out the <a href="{% url pre_questionnaire_general %}">Questionnaire</a> before attending the party.
       </div>
     {% endif %}
