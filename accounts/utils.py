@@ -32,30 +32,44 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_password_change_email(request, verification_code, temp_password, receiver_email):
+def send_password_change_email(request, verification_code, temp_password, user):
 
   message_template = Template("""
 
-  You have requested for your password to be reset, please use the temporary password 
-  and update your account with a new password at:
+  Hey {% if first_name %}{{ first_name }}{% else %}Taster{% endif %}!
 
-  http://{{ host_name }}{% url verify_account verification_code %}
+  We heard you lost your password. (No prob.  Happens all the time.)
 
-  Your temporary password is: {{ temp_password }} 
+  Here's your temporary password: {{ temp_password }} 
 
-  Use this password to verify your account.
+  Please update your account with a new password at:
 
-  from your Vinely Pros.
+    http://{{ host_name }}{% url verify_account verification_code %}
+
+  Use this password to verify your account and change your password.
+
+  If you don't know why you're receiving this email, click <a href="">here</a>.
+
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+  Your Tasteful Friends,
+
+  - The Vinely Team 
 
   """)
 
-  c = Context({"host_name": request.get_host(),
+  receiver_email = user.email
+
+  c = Context({
+              "first_name": user.first_name,
+              "host_name": request.get_host(),
               "verification_code": verification_code,
               "temp_password": temp_password})
   message = message_template.render(c)
 
   # send out verification e-mail, create a verification code
-  subject = 'Change password request'
+  subject = 'Your new password, courtesy of Vinely'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 

@@ -100,60 +100,46 @@ class SimpleTest(TestCase):
 
   def create_wine_personalities(self):
     WinePersonality.objects.get_or_create(name="Easy Going",
-                                  description="You're \"easy going\" - even before the \
-                                  wine. You're the type of person that \
-                                  comes home after a long day at the \
-                                  office or with the kids and reaches for a \
-                                  glass. Your wine is happy, light and \
-                                  white - clean, eortless and something \
-                                  to unwind with.")
+                                  headline="You're \"easygoing,\" even before the wine.",
+                                  description="You're the type of person who comes home after a long day and reaches \
+                                   for a glass. Your wine is happy, light, and white - clean, effortless, and something \
+                                   to unwind with. It's easy for you to relax and escape, especially with a glass in hand.")
 
     WinePersonality.objects.get_or_create(name="Moxie",
-                                  description="Bold, confident, outstanding - and we're \
-                                  talking about you as much as the wine you drink. You don't talk, you make a \
-                                  statement - and when it's about wine, it's \"I \
-                                  drink red!\". Dynamic and charismatic, you \
-                                  could spend the night with just these \
-                                  wines and be completely content.")
+                                  headline="Bold, confident, outstanding.",
+                                  description="We're talking about you as much as the wine you drink. You don't talk, \
+                                    you make a statement - and when it's about wine, it's \"I drink red!\" Dynamic \
+                                    and charismatic, you could spend the night with just these wines and be completely content.")
 
     WinePersonality.objects.get_or_create(name="Whimsical",
-                                  description="You find comfort in the wine you drink - \
-                                  wine for you is an occasion where you're \
-                                  often the life of the party. Life's not that \
-                                  complicated, nor is your wine. The key \
-                                  for you is FUN. Some may consider you \
-                                  a little quirky and frequently playful, and \
-                                  that's what's in your glass.")
+                                  headline="You find comfort in the wine you drink.",
+                                  description="Wine for you is an occasion where you're often the life of the party. \
+                                   Life's not that complicated, nor is your wine. The key for you is FUN. Some may \
+                                   consider you a little quirky and frequently playful, and that's what's in your glass.")
 
     WinePersonality.objects.get_or_create(name="Sensational",
-                                  description="And that you are. You put thought into \
-                                  your whole wine experience, thirsting for \
-                                  everything in the glass - the history, the \
-                                  depth, the pairings - all are appreciated in \
-                                  every sip. The wines are exciting, \
-                                  stunning, and entices you into exploring \
-                                  even more.")
+                                  headline="And that you are.",
+                                  description="You put thought into your whole wine experience, thirsting for everything in the glass \
+                                    - the history, the depth, the pairings - all are appreciated in every sip. The wines are exciting, \
+                                    stunning, and entice you into exploring even more.")
 
     WinePersonality.objects.get_or_create(name="Exuberant",
-                                  description="Vivacious and cheerful, you're often the \
-                                  host of the party. You see your wine as \
-                                  an accompaniment both for the evening \
-                                  or the food. But you do not necessarily \
-                                  see it taking center stage. Your wine is a \
-                                  lively yet informal addition, whose \
-                                  absence would be missed.")
+                                  headline="Vivacious and cheerful, you're often the host.",
+                                  description="You see your wine as an accompaniment - for the evening or the food. \
+                                    But you do not necessarily see it taking center stage. Your wine is a lively yet \
+                                    informal addition, one whose absence would be missed.")
 
     WinePersonality.objects.get_or_create(name="Serendipitous",
-                                  description="When asked do you prefer red or white? \
-                                  You say YES! Often welcoming impromptu \
-                                  opportunities with a desire for \
-                                  spontaneity, chance and discovery of life \
-                                  and wine. Your unconstrained nature \
-                                  empowers you to float from one sensual \
-                                  pleasure to the next.")
+                                  headline="When asked if you prefer red or white, you say, \"YES!\"",
+                                  description="You welcome impromptu opportunities with open arms. Your greatest joy is \
+                                  making surprising discoveries in your life - and your wine. Your unconstrained nature \
+                                  empowers you to float from one sensual pleasure to the next.")
 
-    WinePersonality.objects.get_or_create(name="Complex",
-                                  description="You have a very complex taste palate. It will require more experimentation to understand your tastes.")
+    WinePersonality.objects.get_or_create(name="Mystery",
+                                  headline="You follow every clue.",
+                                  description="You're full of personality. So which one is it? Are you Whimsical? Serendipitous? \
+                                  Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing? As soon as you find out, \
+                                  great things will be there for the tasting!")
 
   def create_wine_samplers(self):
 

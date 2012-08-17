@@ -2,7 +2,7 @@
 
 {% block header %}
   {% if invitee %}
-    <h1>{{ invitee.first_name }}, Here's your Wine Personality</h1>
+    <h1>{{ invitee.first_name }}, you are a {{ personality.name }}</h1>
   {% else %}
     <h1>Here's your Wine Personality</h1>
   {% endif %}
@@ -25,17 +25,21 @@
         </div>
         <div class="span3">
           <section id="order-personal-wine">
+          <h2>Vinely Order Recommendation</h2> 
           <p>
-            Vinely recommends copy & guideline
+            Monthly: If you drink 3 bottles/week 
           </p>
           <p>
-            Start ordering wine to enjoy the variety you can enjoy
+            Bi-Monthly: If you drink 1-2 bottles/week
+          </p>
+          <p>
+            Quarterly: If you drink less than one bottle/week
           </p>
           <p>
             {% if role == "pro" %}
-              <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Order wine for {{ invitee.first_name }}</a>
+              <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
             {% else %}
-              <a href="{% url start_order user.id %}" class="btn btn-primary">Start your wine order</a>
+              <a href="{% url start_order user.id %}" class="btn btn-primary">Get Wine</a>
             {% endif %}
           </p>
           </section>

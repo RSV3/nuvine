@@ -50,32 +50,45 @@ def send_order_confirmation_email(request, order_id):
     recipients.append(sender_email)
 
   # TODO: if the order contains a tasting kit, notify the party pro
+  # Need to add these info
+  #[Order Summary] 
+
+  #[Shipping and Billing Info]
 
   message_template = Template("""
 
-  Dear {{ customer }},
+  Hey {{ customer }},
 
-  Thank you for ordering at Vinely. 
 
-  We will soon be processing your order and you should receive your orders in 7 days. 
+  Thank you for choosing Vinely! 
+
+  Your order {{ order_id }} has been received and 
+  you should expect your delicious surprise in 7 - 10 business days. 
+  Remember, someone 21 years or older must be available to receive your order.
+
+
+  Keep an eye on your inbox over the next few days, as we will be sending further shipping information.
 
   You can check the status of your order at:
 
     http://{{ host_name }}{% url order_complete order_id %}
 
+  Happy Tasting!
+
+  The Vinely Team
 
   """)
 
-  c = Context({"customer": order.receiver.first_name if order.receiver.first_name else "Valued Customer", 
+  c = Context({"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan", 
               "host_name": request.get_host(),
               "order_id": order_id}) 
 
   message = message_template.render(c)
-  subject = 'Order Confirmation from Vinely!'
+  subject = 'Your Vinely order was placed successfully!'
   html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
   # notify the receiver that the order has been received 
-  from_email = 'support@vinely.com'
+  from_email = 'sales@vinely.com'
   msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
@@ -107,6 +120,8 @@ def send_order_confirmation_email(request, order_id):
 
   order.fulfill_status = 1
   order.save()
+
+  return msg
 
 def send_order_shipped_email(request, order):
   message_template = Template("""
@@ -140,28 +155,42 @@ def send_order_shipped_email(request, order):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+  return msg
+
 def send_host_vinely_party_email(request, pro=None):
 
   message_template = Template("""
 
-  Dear Vinely,
+  Hey {{ pro_first_name }}!
 
-  I ({{ first_name }} {{ last_name }}) would like to host a Vinely party.
+  Guess what? (Drumroll, please.) Someone in your area would like to be a Socializer 
+  at a Vinely Taste Party! Please follow up ASAP to help set up an event date, 
+  make recommendations, and answer any possible questions.
 
-  Could you please connect me to a Vinely Pro that may help me with this arrangement?
+  Name: {{ first_name }} {{ last_name }}
 
-  Please let me know via e-mail at: {{ email }}{% if phone %} or call me at {{ phone }}{% endif %}.
+  Email Address: {{ email }} 
 
-  Look forward to hearing from you soon!
+  {% if phone %}
+  Phone: {{ phone }}
+  {% endif %}
 
+  If you have any questions, please contact a Vinely Care Specialist at 
+  (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+ 
   """)
 
   profile = request.user.get_profile()
 
-  c = Context({"first_name": request.user.first_name if request.user.first_name else "Unknown", 
-              "last_name": request.user.last_name if request.user.last_name else "Name",
+  c = Context({"first_name": request.user.first_name if request.user.first_name else "Vinely", 
+              "last_name": request.user.last_name if request.user.last_name else "Fan",
               "email": request.user.email,
-              "phone": profile.phone ,
+              "pro_first_name": pro.first_name if pro else "Care Specialist",
+              "phone": profile.phone,
               "host_name": request.get_host()})
 
   message = message_template.render(c)
@@ -177,14 +206,86 @@ def send_host_vinely_party_email(request, pro=None):
       recipients.append(pro.email)
 
     # notify interest in hosting to Vinely Pro or vinely sales 
-    subject = 'I am interested in hosting a Vinely Party!'
+    subject = 'A Vinely Taste Party is ready to be scheduled'
     html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
 
     msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
-  return message
+  return msg
+
+def send_know_pro_party_email(request):
+
+  message_template = Template("""
+
+  Hey {{ socializer_first_name }}!
+
+  We're thrilled about your interest in hosting a Vinely Taste Party!  
+
+  Since you already have a Vinely Pro in mind, they will soon be in contact to set a date and time.
+
+  If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at:
+
+    (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
+  """)
+
+  c = Context({"socializer_first_name": request.user.first_name if request.user.first_name else "Vinely Socializer"})
+
+  message = message_template.reander(c)
+
+  subject = 'Get the party started with Vinely'
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+  return msg
+
+def send_not_in_area_party_email(request):
+
+  message_template = Template("""
+
+  Hey {{ socializer_first_name }}!
+
+  We have some good news and some bad news.
+
+  The Bad News: Vinely does not currently operate in your area. (Bummer, right?)
+
+  The Good News: Your interest in Vinely is super important to us! So much, in fact, 
+  that when we do expand to your area, you'll be the very first to know.
+
+  If you have any questions, please contact a Vinely Care Specialist at: 
+
+    (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
+  """)
+
+  c = Context({"socializer_first_name": request.user.first_name if request.user.first_name else "Vinely Socializer"})
+
+  message = message_template.reander(c)
+
+  subject = 'Thanks for your interest in becoming a Vinely Socializer!'
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
+  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+  return msg
+
 
 def send_new_party_scheduled_email(request, party):
 
@@ -233,6 +334,8 @@ def send_new_party_scheduled_email(request, party):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+  return msg
+
 def send_party_invitation_email(request, party_invite):
   """ 
     individual invitation e-mail
@@ -240,22 +343,33 @@ def send_party_invitation_email(request, party_invite):
 
   message_template = Template("""
 
-  You have been invited to a Vinely Party by {{ invite_socializer_name }} ({{ invite_socializer_email }}).
+  What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
+  Part personality test.  And part... well... party.
+
+  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy 
+  and the ones you could do without. After sipping, savoring, and rating each wine, we'll 
+  assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly 
+  paired to your taste - right to your doorstep.
 
     Party: "{{ party.title }}"
     {% if party.description %}{{ party.description }}{% endif %}
     Date: {{ party.event_date|date:"F j, o" }}
     Time: {{ party.event_date|date:"g:i A" }}
+    Location: {{ party.address.full_text }}
 
-  You need RSVP to your party invitation at:
 
-    http://{{ host_name }}{% url party_rsvp party.id %}
+  Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-  Please do this as soon as possible.  
+  <div class="email-rsvp-button">
+    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
+  </div>
 
-  Thank you!
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+  Your Tasteful Friends,
 
-  from your Vinely pros
+  - The Vinely Team
 
   """)
 
@@ -266,19 +380,29 @@ def send_party_invitation_email(request, party_invite):
   message = message_template.render(c)
 
   # send out party invitation e-mail 
-  subject = "You are invited to a Vinely Party!"
+  subject = "%s has invited you to a Vinely Taste Party!" % party_invite.party.host.first_name if party_invite.party.host.first_name else "Your Favorite Socializer"
+
   recipients = [party_invite.invitee.email]  
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'header': 'Good wine and good times await', 
+                                                            'message': message})
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+  return msg
+
 def distribute_party_invites_email(request, invitation_sent):
 
   message_template = Template("""
 
-  You have been invited to a Vinely Party by {{ invite_socializer_name }} ({{ invite_socializer_email }}).
+  What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
+  Part personality test.  And part... well... party.
+
+  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy 
+  and the ones you could do without. After sipping, savoring, and rating each wine, we'll 
+  assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly 
+  paired to your taste - right to your doorstep.
 
     Party: "{{ party.title }}"
     {% if party.description %}{{ party.description }}{% endif %}
@@ -290,15 +414,19 @@ def distribute_party_invites_email(request, invitation_sent):
   {{ custom_message }}
   {% endif %}
 
-  You need RSVP to your party invitation at:
+  Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-    http://{{ host_name }}{% url party_rsvp party.id %}
+  <div class="email-rsvp-button">
+    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
+  </div>
 
-  Please do this as soon as possible.  
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+  Your Tasteful Friends,
 
-  Thank you!
+  - The Vinely Team
 
-  from your Vinely pros
 
   """)
 
@@ -315,11 +443,14 @@ def distribute_party_invites_email(request, invitation_sent):
 
   # send out party invitation e-mail 
   subject = invitation_sent.custom_subject 
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'header': 'Good wine and good times await', 
+                                                            'message': message})
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
+
+  return msg
 
 def send_contact_request_email(request, contact_request):
   """

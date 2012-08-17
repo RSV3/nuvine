@@ -142,11 +142,13 @@
 
               <ul class="dropdown-menu">
                 <li><a href="{% url my_information %}">My Account</a></li>
+                <li><a href="{% url cart %}">My Cart</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url logout %}">Sign Out</a></li>
               </ul>
             </div>
 
+            <!-- no need for this drop down any more 
             <div class="nav-collapse" id="sub-menu">
               <ul class="nav pull-right" id="sub-menu-right">
                 <li class="dropdown">
@@ -155,13 +157,15 @@
                   </a>
                   <ul class="dropdown-menu" id="swatch-menu">
                     <li><a href="{% url how_it_works %}">How it works</a></li>
-                    <li><a href="{% url sign_up 4 %}">Get Started</a></li>
-                    <li><a href="{% url about %}">Our Story</a></li>
+                    <li><a href="{% url get_started %}">Get Started</a></li>
+                    <li><a href="{% url our_story %}">Our Story</a></li>
                     <li><a href="{% url contact_us %}">Contact</a></li>
                   </ul>
                 </li>
               </ul>
             </div>
+            -->
+
             {% else %}
             <!-- if not logged in, show login link -->
             <div class="pull-right">
@@ -179,31 +183,35 @@
           {% if user.is_authenticated %} 
           <div class="nav-collapse">           
             <ul class="nav main_menu">
-              <li id="parties" class="active">
+              <li id="parties"{% if parties_menu %} class="active"{% endif %}>
                 <a href="{% url party_list %}" title="parties"></a>
               </li>
-              <li id="shop">
+              <li id="shop"{% if shop_menu %} class="active"{% endif %}>
                 <a href="{% url start_order %}" title="shop"></a>
               </li>
-              <li id="rate_wines">
+              <li id="rate_wines"{% if rate_menu %} class="active"{% endif %}>
                 <a href="#" title="rate wines"></a>
               </li>
-              <li id="how_it_works">
+              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
                 <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
-              <li id="nav_get_started">
-                <a href="{% url sign_up 2 %}" title="get started"></a>
+              <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}>
+                <a href="{% url get_started %}" title="get started"></a>
               </li>
-              <li id="our_story">
-                <a href="{% url about %}" title="our story"></a>
+              <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
+                <a href="{% url our_story %}" title="our story"></a>
               </li>
+              {% if pro %}
               <li id="dashboard">
                   <a href="{% url dashboard %}" title="dashboard"></a>
               </li>
+              {% endif %}
+              <!--
               <li id="vinely_u">
                 <a href="#" title="vinely u"></a>
               </li>
-              {% if specialist %}
+              -->
+              {% if pro %}
               {% elif supplier %}
                 <li>
                   <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
@@ -235,8 +243,8 @@
                 <ul class="nav main_menu">
                   <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
                   <li id="how_it_works"><a href="{% url sign_up 4 %}" title="how it works"></a></li>
-                  <li id="nav_get_started"><a href="{% url contact_us %}" title="get started"></a></li>
-                  <li id="our_story"><a href="{% url about %}" title="our story"></a></li>
+                  <li id="nav_get_started"><a href="{% url get_started %}" title="get started"></a></li>
+                  <li id="our_story"><a href="{% url our_story %}" title="our story"></a></li>
                 </ul>
               </div>
             </div>
@@ -279,12 +287,13 @@
     </div>
 
     <footer>
+      <section id="footer">
       <div class="container">
         <div class="navbar divider">
           <div class="navbar-inner">
             <div class="nav-collapse">
               <div class="row">
-                <div class="span8 offset2">      
+                <div class="span10 offset1">      
                   <ul class="nav">
                     <li>
                       <a href="{% url home_page %}">Home</a>
@@ -296,7 +305,7 @@
                         <a href="{% url cart_add_tasting_kit %}">Shop</a>
                       {% endif %}
                     </li>
-                    <!-- for mileston 2 
+                    <!-- for milestone 2 
                     <li>
                       <a href="#">Rate Wines</a>
                     </li>
@@ -308,10 +317,13 @@
                       <a href="{% url how_it_works %}">How It Works</a>
                     </li>
                     <li>
-                      <a href="{% url sign_up 2 %}">Get Started</a>
+                      <a href="{% url get_started %}">Get Started</a>
                     </li>
                     <li>
-                      <a href="{% url about %}">Our Story</a>
+                      <a href="{% url our_story %}">Our Story</a>
+                    </li>
+                    <li>
+                      <a href="{% url contact_us %}">Contact Us</a>
                     </li>
                   </ul>
                 </div>
@@ -321,6 +333,7 @@
         </div>
         <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
       </div> <!-- .container -->
+      </section>
     </footer>
 
 

@@ -349,10 +349,10 @@ class EngagementInterest(models.Model):
   """
 
   ENGAGEMENT_CHOICES = (
-    (0, 'Vinely Socializer'),
     (1, 'Vinely Pro'),
-    (2, 'Vinely Taster'),
-    (3, 'Tasting Kit'),
+    (2, 'Vinely Socializer'),
+    (3, 'Vinely Taster'),
+    (5, 'Tasting Kit'),
   )
 
   user = models.ForeignKey(User)

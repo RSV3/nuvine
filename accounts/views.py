@@ -202,7 +202,7 @@ def forgot_password(request):
     vque.save()
 
     # send an e-mail with random password
-    send_password_change_email(request, verification_code, temp_password, user.email)
+    send_password_change_email(request, verification_code, temp_password, user)
     data["changed_password"] = True      
     data["email"] = form.cleaned_data['email']
 
@@ -212,36 +212,47 @@ def forgot_password(request):
 
 def sign_up(request, account_type):
   """
-    :param account_type: 0 - Vinely Pro 
-                          1 - Vinely Socializer 
-                          2 - Vinely Taster 
-                          3 - Supplier 
-                          4 - Vinely Tasting Lead 
+    :param account_type: 1 - Vinely Pro 
+                          2 - Vinely Socializer 
+                          3 - Vinely Taster 
+                          4 - Supplier 
+                          5 - Vinely Tasting Lead 
   """
 
   data = {}
   role = ""
 
   u = request.user
-
-  if u.is_authenticated():
-    data["already_signed_up"] = True
-    return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
-
   account_type = int(account_type)
-  if account_type == 0:
-    role = "Vinely Pro"
-  elif account_type == 1:
-    role = "Vinely Socializer"
-  elif account_type == 2:
-    role = "Vinely Taster"
-  elif account_type == 3:
-    role = "Supplier"
-  elif account_type == 4:
+
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
+  tas_group = Group.objects.get(name="Vinely Taster")
+  if u.is_authenticated():
+    if pro_group in u.groups.all():
+      data["already_signed_up"] = True
+      data["get_started_menu"] = True
+      return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+    elif soc_group in u.groups.all():
+      # can only be pro
+      if account_type > 1:
+        data["already_signed_up"] = True
+        data["get_started_menu"] = True
+        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))        
+    elif tas_group in u.groups.all():
+      if account_type > 2:
+        data["already_signed_up"] = True
+        data["get_started_menu"] = True
+        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))               
+
+  if account_type == 5:
     # people who order wine tasting kit
-    role = "Vinely Taster"
+    role = Group.objects.get(id=3).name
+  elif account_type in [1,2,3]:
+    role = Group.objects.get(id=account_type).name
 
   if not role:
+    # currently suppliers cannot sign up
     raise Http404
 
   # create users and send e-mail notifications
@@ -258,15 +269,7 @@ def sign_up(request, account_type):
     user.save()
 
     # save engagement type
-    engagement_type = 2
-    if account_type == 1:
-      engagemnt_type = 0
-    elif account_type == 0:
-      engagement_type = 1
-    elif account_type == 2:
-      engagement_type = 2
-    elif account_type == 4:
-      engagement_type = 3
+    engagement_type = account_type 
 
     interest, created = EngagementInterest.objects.get_or_create(user=user, 
                                                       engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[engagement_type][0])
@@ -284,11 +287,13 @@ def sign_up(request, account_type):
     if account_type == 1:
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
+    data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 
   data['form'] = form
   data['role'] = role
   data['account_type'] = account_type
+  data["get_started_menu"] = True
 
   return render_to_response("accounts/sign_up.html", data,
                         context_instance=RequestContext(request))

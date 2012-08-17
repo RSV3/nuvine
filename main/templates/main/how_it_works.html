@@ -1,27 +1,38 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>How it Works</h1>
+  <h1>Vinely is a personality test disguised as a wine tasting</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
+  <section id="how-it-works">
   <div class="row">
     <div class="span12">
-      Here's what Vinely is all about
-    </div>
-  </div>
+      <h3>Are you Whimsical? Serendipitous? Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing?</h3>
 
-  <div class="row">
-    <div class="span12">
-      Info graphic
-    </div>
-    <div class="span12">
-        <p><a class="btn btn-primary" href="{% url sign_up 4 %}">Sign Up &raquo;</a></p>
+      <h2>What does Vinely do?</h2>
+      <p>By finding your personality, Vinely identifies wines perfectly paired to your taste. After all, when it comes to choosing wines you love, who wants to play the guessing game? At a Vinely Taste Party you’ll sip, savor, and rate different flavors with your friends. Using those ratings, your Vinely Pro will reveal your inner personality. From there, it’s hello to happier tastes.</p>
+
+      <h2>How do I order?</h4>
+      <p>Once you and your wine personality have had some time to bond, you can easily place an order. Then, wines from near and far will show up at your doorstep. The best part? No guesswork. No research. And no intimidating wall of wines. Not even a trip to the store. Just exceptional wines, delivered right to your home - conveniently, quickly, and best of all, deliciously.</p>
+
+      <h2>Great! Then what?</h2>
+      <p>And since you’ll love every wine, every time, we give you a variety of ways to keep fully stocked. Become a VIP and receive your personalized Vinely Collection monthly, bi-monthly or quarterly. Or simply place a single order. No matter what works for you, we’re shipping to wherever you’re sipping. All you have to do is ask.</p>
+
+      <h2>Where's the party?</h2>
+      <p>If you haven’t been invited to a Vinely Taste Party, become a Socializer and have your own.</p>
+
+      <div class="form-actions">
+        <div class="controls">
+          <a class="btn btn-primary" href="{% url sign_up 2 %}">Get Started</a>
+        </div>
+      </div>
     </div>
   </div>
+  </section>
 
 </div>
 

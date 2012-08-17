@@ -101,6 +101,7 @@ class WinePersonality(models.Model):
     Existing wine personalities
   """
   name = models.CharField(max_length=32)
+  headline = models.CharField(max_length=64)
   description = models.TextField()
 
   def __unicode__(self):

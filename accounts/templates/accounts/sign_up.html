@@ -4,9 +4,11 @@
   {% if already_signed_up %}
     <h1>You are already signed up!</h1>
   {% else %}
-    {% if account_type == 2 %}
+    {% if account_type == 3 %}
+      {# taster #}
       <h1>Sign up to attend a future Vinely party</h1>
-    {% elif account_type == 4 %}
+    {% elif account_type == 5 %}
+      {# interested in tasting kit #}
       <h1>Order your own Vinely tasting kit</h1>
     {% else %}
       <h1>Sign up to become a {{ role }}</h1>

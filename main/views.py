@@ -61,18 +61,18 @@ def home(request):
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
-    ps_group = Group.objects.get(name='Vinely Pro')
-    ph_group = Group.objects.get(name='Vinely Socializer')
+    pro_group = Group.objects.get(name='Vinely Pro')
+    soc_group = Group.objects.get(name='Vinely Socializer')
     sp_group = Group.objects.get(name='Supplier')
-    at_group = Group.objects.get(name='Vinely Taster')
+    tas_group = Group.objects.get(name='Vinely Taster')
 
-    if ps_group in u.groups.all():
+    if pro_group in u.groups.all():
       data["pro"] = True
-    if ph_group in u.groups.all():
+    if soc_group in u.groups.all():
       data["socializer"] = True
     if sp_group in u.groups.all():
       data["supplier"] = True
-    if at_group in u.groups.all():
+    if tas_group in u.groups.all():
       data["taster"] = True
       data["invites"] = PartyInvite.objects.filter(invitee=u) 
       invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
@@ -117,14 +117,37 @@ def home(request):
 
   return render_to_response("main/home.html", data, context_instance=RequestContext(request))
 
-def about(request):
+def our_story(request):
   """
 
   """
 
   data = {}
 
-  return render_to_response("main/about.html", data, context_instance=RequestContext(request))
+  data['our_story_menu'] = True
+
+  return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
+
+def get_started(request):
+  """
+    Get started
+  """
+
+  data = {}
+
+  u = request.user
+  
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
+  if u.is_authenticated():
+    if pro_group in u.groups.all(): 
+      data["already_pro"] = True
+    if soc_group in u.groups.all():
+      data["already_socializer"] = True
+
+  data['get_started_menu'] = True
+
+  return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 def contact_us(request):
   """
@@ -152,6 +175,8 @@ def rate_wines(request):
     Rate wines
   """
   data = {}
+
+  data['rate_wines_menu'] = True
   return render_to_response("main/rate_wines.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -175,6 +200,8 @@ def how_it_works(request):
   """
 
   data = {}
+
+  data["how_it_works_menu"] = True
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
@@ -213,6 +240,7 @@ def start_order(request, receiver_id=None, party_id=None):
   products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
 
   data["products"] = products
+  data["shop_menu"] = True
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
 
@@ -238,6 +266,7 @@ def order_tasting_kit(request):
         'item_price': tasting_kit.price
       }
   data["form"] = form
+  data["shop_menu"] = True
   return render_to_response("main/order_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
@@ -289,6 +318,7 @@ def cart_add_tasting_kit(request):
   data["product"] = product
   form.initial = {'product': product, 'total_price': product.unit_price}
   data["form"] = form
+  data["shop_menu"] = True
 
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
@@ -336,6 +366,7 @@ def cart_add_wine(request, level="basic"):
     cart.adds += 1
     cart.save()
 
+    data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))
 
   # big image of wine
@@ -358,6 +389,7 @@ def cart_add_wine(request, level="basic"):
   data["form"] = form
   data["level"] = level
 
+  data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
 def cart(request):
@@ -369,12 +401,18 @@ def cart(request):
   """
   data = {}
 
-  cart_id = request.session['cart_id']
-  cart = Cart.objects.get(id=cart_id) 
-  cart.views += 1
-  cart.save()
-  data["items"] = cart.items.all()
-  data["cart"] = cart
+  try:
+    cart_id = request.session['cart_id']
+    cart = Cart.objects.get(id=cart_id) 
+    cart.views += 1
+    cart.save()
+    data["items"] = cart.items.all()
+    data["cart"] = cart
+  except KeyError:
+    # cart is empty
+    data["items"] = []
+
+  data["shop_menu"] = True
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
@@ -393,6 +431,8 @@ def cart_remove_item(request, cart_id, item_id):
   # track cart activity
   cart.removes += 1
   cart.save()
+
+  data["shop_menu"] = True
 
   return HttpResponseRedirect(request.GET.get("next"))
 
@@ -436,11 +476,15 @@ def customize_checkout(request):
     cart.status = Cart.CART_STATUS_CHOICES[2][0] 
     cart.save()
 
+    data["shop_menu"] = True
+
     return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
       
   if custom is None:
     form.initial = {'wine_mix': 0, 'sparkling': 1}
   data['form'] = form
+  data["shop_menu"] = True
+
   return render_to_response("main/customize_checkout.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -501,6 +545,7 @@ def place_order(request):
       cart.save()
 
       # save cart to order
+      data["shop_menu"] = True
       return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
 
     else:
@@ -516,9 +561,11 @@ def place_order(request):
       data["credit_card"] = profile.credit_card 
       data["shipping_address"] = profile.shipping_address
 
+      data["shop_menu"] = True
       return render_to_response("main/place_order.html", data, context_instance=RequestContext(request))
   else:
     messages.error(request, 'Your session expired, please start ordering again.')
+    data["shop_menu"] = True
     return HttpResponseRedirect(reverse("start_order"))
 
 @login_required
@@ -565,6 +612,7 @@ def order_complete(request, order_id):
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
 
+    data["shop_menu"] = True
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
     raise PermissionDenied
@@ -577,6 +625,7 @@ def order_history(request):
 
   data["orders"] = Order.objects.filter( Q( ordered_by=u ) | Q( receiver=u ) )
 
+  data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
 @login_required
@@ -590,10 +639,10 @@ def record_wine_ratings(request):
 
   u = request.user
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  att_group = Group.objects.get(name="Vinely Taster")
+  pro_group = Group.objects.get(name="Vinely Pro")
+  tas_group = Group.objects.get(name="Vinely Taster")
 
-  if (ps_group in u.groups.all()) or (att_group in u.groups.all()):
+  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()):
     # one can record ratings only if Vinely Pro or Vinely Taster
 
     if request.method == "POST":
@@ -601,11 +650,11 @@ def record_wine_ratings(request):
       if form.is_valid():
         form.save()      
 
-        if (ps_group in u.groups.all()):
+        if (pro_group in u.groups.all()):
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
           
-        if (att_group in u.groups.all()):
+        if (tas_group in u.groups.all()):
           # ask if you want order wine
           data["role"] = "taster"
 
@@ -642,17 +691,17 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     data["party_id"] = party_id
     party = Party.objects.get(id=party_id)
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
-  at_group = Group.objects.get(name="Vinely Taster")
-  if ps_group in u.groups.all():
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
+  tas_group = Group.objects.get(name="Vinely Taster")
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
-  if (ps_group in u.groups.all()) or (at_group in u.groups.all()) or (ph_group in u.groups.all()):
+  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (soc_group in u.groups.all()):
     # one can record ratings only if Vinely Pro or Vinely Socializer/Vinely Taster
 
     if request.method == "POST":
@@ -675,11 +724,10 @@ def record_all_wine_ratings(request, email=None, party_id=None):
           # send out verification e-mail, create a verification code
           send_verification_email(request, verification_code, temp_password, invitee.email)
 
-
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
          
-        if ps_group in u.groups.all():
+        if pro_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
           # if personality found in a party, record the event 
@@ -690,7 +738,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
               # record first party
               persona_log.party = party
             persona_log.save()
-        elif at_group in u.groups.all():
+        elif tas_group in u.groups.all():
           # saving your own data
           data["role"] = "taster"
           if party:
@@ -702,7 +750,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
           else:
             # saved before or without the party
             PersonaLog.objects.get_or_create(user=invitee)
-        elif ph_group in u.groups.all():
+        elif soc_group in u.groups.all():
           # personality was created by an host herself 
           # ask if you want order wine
           data["role"] = "socializer"
@@ -779,31 +827,31 @@ def party_list(request):
 
   data = {}
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Vinely Taster')
+  tas_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
   today = datetime.now(tz=UTC())
 
-  if (ps_group in u.groups.all()):
+  if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
     my_socializers = MySocializer.objects.filter(pro=u).values_list('socializer', flat=True)
     data['parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__lt=today)
-  elif (ph_group in u.groups.all()):
+  elif (soc_group in u.groups.all()):
     data['parties'] = Party.objects.filter(socializer=u, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(socializer=u, event_date__lt=today)
-  elif (at_group in u.groups.all()):
+  elif (tas_group in u.groups.all()):
     for inv in PartyInvite.objects.filter(invitee=u):
       data['parties'] = []
       data['past_parties'] = []
@@ -813,6 +861,8 @@ def party_list(request):
         data['parties'].append(inv.party)
   else:
     raise PermissionDenied 
+
+  data["parties_menu"] = True
 
   return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
 
@@ -825,22 +875,22 @@ def party_add(request):
 
   u = request.user
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Vinely Taster')
+  tas_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
   data["no_perms"] = False
-  if ps_group not in u.groups.all():
+  if pro_group not in u.groups.all():
     # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
@@ -874,6 +924,7 @@ def party_add(request):
 
       messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
 
+      data["parties_menu"] = True
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
@@ -908,11 +959,12 @@ def party_add(request):
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
-    ph_group = Group.objects.get(name="Vinely Socializer")
+    soc_group = Group.objects.get(name="Vinely Socializer")
     # need to figure out socializers filtered by Vinely Pro
     form.fields['socializer'].choices = [(mysocializer.socializer.id, mysocializer.socializer.email) for mysocializer in MySocializer.objects.filter(pro=u)]
 
   data["form"] = form
+  data["parties_menu"] = True
 
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
@@ -931,18 +983,18 @@ def party_details(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Vinely Taster')
+  tas_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
   invitees = PartyInvite.objects.filter(party=party)
@@ -953,6 +1005,7 @@ def party_details(request, party_id):
   # TODO: might have to fix this and set Party to have a particular pro
   my_socializers = MySocializer.objects.filter(socializer=party.socializer).order_by("-timestamp")
   data["pro_user"] = my_socializers[0].pro
+  data["parties_menu"] = True
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
 
@@ -970,24 +1023,25 @@ def party_taster_list(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
+  pro_group = Group.objects.get(name="Vinely Pro")
+  soc_group = Group.objects.get(name="Vinely Socializer")
   sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Vinely Taster')
+  tas_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees
+  data["parties_menu"] = True
 
   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
@@ -1008,29 +1062,29 @@ def party_taster_invite(request, party_id=0):
     data["no_parties"] = True
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
 
-  ps_group = Group.objects.get(name='Vinely Pro')
-  ph_group = Group.objects.get(name='Vinely Socializer')
-  at_group = Group.objects.get(name='Vinely Taster')
+  pro_group = Group.objects.get(name='Vinely Pro')
+  soc_group = Group.objects.get(name='Vinely Socializer')
+  tas_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
+  if pro_group in u.groups.all():
     data["pro"] = True
-  if ph_group in u.groups.all():
+  if soc_group in u.groups.all():
     data["socializer"] = True
-  if at_group in u.groups.all():
+  if tas_group in u.groups.all():
     data["taster"] = True
 
   party = None
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-    if at_group in u.groups.all():
+    if tas_group in u.groups.all():
       try:
         # Vinely Taster must have been already invited to invite more
         invite = PartyInvite.objects.get(party=party, invitee=u)
       except PartyInvite.DoesNotExist:
         raise PermissionDenied
 
-  if ps_group in u.groups.all() or ph_group in u.groups.all() or at_group in u.groups.all(): 
+  if pro_group in u.groups.all() or soc_group in u.groups.all() or tas_group in u.groups.all(): 
     if request.method == "POST":
       form = PartyInviteTasterForm(request.POST)
       if form.is_valid():
@@ -1058,6 +1112,9 @@ def party_taster_invite(request, party_id=0):
         #  send_party_invitation_email(request, new_invite)
 
         messages.success(request, '%s %s (%s) has been invited to the party.' % ( new_invitee.first_name, new_invitee.last_name, new_invitee.email ))
+
+
+        data["parties_menu"] = True
         return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
     else:
       # if request is GET
@@ -1069,17 +1126,17 @@ def party_taster_invite(request, party_id=0):
         initial_data = {'party': party}
         form =  PartyInviteTasterForm(initial=initial_data)
 
-    if at_group in u.groups.all():
+    if tas_group in u.groups.all():
       today = datetime.now(tz=UTC())
       parties = []
       for inv in PartyInvite.objects.filter(invitee=u, party__event_date__gt=today):
         parties.append((inv.party.id, inv.party.title))
       form.fields['party'].choices = parties 
-    elif ph_group in u.groups.all():
+    elif soc_group in u.groups.all():
       today = datetime.now(tz=UTC())
       parties = Party.objects.filter(socializer=u, event_date__gt=today)
       form.fields['party'].queryset = parties 
-    elif ps_group in u.groups.all():
+    elif pro_group in u.groups.all():
       my_socializers = MySocializer.objects.filter(pro=u)
       my_socializer_list = []
       for my_socializer in my_socializers:
@@ -1089,6 +1146,7 @@ def party_taster_invite(request, party_id=0):
 
     data["form"] = form
     data["party"] = party
+    data["parties_menu"] = True
 
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
   else:
@@ -1114,6 +1172,7 @@ def party_rsvp(request, party_id, response=None):
   data["party"] = party
   data["invitees"] = invitees
   data["invite"] = invite
+  data["parties_menu"] = True
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
@@ -1137,6 +1196,7 @@ def party_customize_invite(request):
     data["guests"] = guests 
     data["form"] = form
     data["guest_count"] = len(guests)
+    data["parties_menu"] = True
 
     return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
   else:
@@ -1168,10 +1228,12 @@ def party_send_invites(request):
       distribute_party_invites_email(request, invitation_sent)
 
       messages.success(request, "Invitations have been sent to your guests.")
+      data["parties_menu"] = True
 
       return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
 
   data["form"] = form
+  data["parties_menu"] = True
 
   return render_to_response("main/party_invite_preview.html", data, context_instance=RequestContext(request))
 
@@ -1180,6 +1242,7 @@ def party_send_invites(request):
 def dashboard(request):
   data = {}
 
+  data["dashboard_menu"] = True
 
   return render_to_response("main/dashboard.html", data, context_instance=RequestContext(request))
 
@@ -1384,6 +1447,7 @@ def edit_shipping_address(request):
 
     if 'ordering' in request.session and request.session['ordering']:
       # only happens when user decided to edit the shipping address
+      data["shop_menu"] = True
       return HttpResponseRedirect(reverse("place_order"))
     else:
       # update cart status
@@ -1405,6 +1469,7 @@ def edit_shipping_address(request):
           cart.party = party
           cart.save()
 
+      data["shop_menu"] = True
       return HttpResponseRedirect(reverse("edit_credit_card"))
 
   # display form: populate with initial data if user is authenticated
@@ -1433,6 +1498,7 @@ def edit_shipping_address(request):
     # display different set of buttons if currently in address update stage
     data['update'] = True
 
+  data["shop_menu"] = True
   return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
 
@@ -1468,6 +1534,7 @@ def edit_credit_card(request):
     cart.save()
 
     # go finalize order
+    data["shop_menu"] = True
     return HttpResponseRedirect(reverse("place_order"))
 
   # display form: prepopulate with previous credit card used
@@ -1489,5 +1556,6 @@ def edit_credit_card(request):
     # display different set of buttons if currently in address update stage
     data['update'] = True
 
+  data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
