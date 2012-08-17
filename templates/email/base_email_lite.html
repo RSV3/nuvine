@@ -189,9 +189,12 @@ body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; 
                         <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
                             <tbody><tr>
                                 <td class="w580" width="580">
-                                    <p align="left" class="article-title"><singleline label="Title">Add a title</singleline></p>
+                                    <p align="left" class="article-title"><singleline label="Title">{{ title }}</singleline></p>
+                                    {% if headline %}
+                                    <p align="left" class="article-title"><singleline label="Title">{{ headline }}</singleline></p>
+                                    {% endif %}
                                     <div align="left" class="article-content">
-                                        <multiline label="Description">Enter your description <a href="#">link colour</a></multiline>
+                                        <multiline label="Description">{{ message }}</multiline>
                                     </div>
                                 </td>
                             </tr>
@@ -199,7 +202,7 @@ body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; 
                         </tbody></table>
                     </layout>
                                         
-                    
+                   <!-- 
                     <layout label="Text with full-width image">
                         <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
                             <tbody><tr>
@@ -358,7 +361,8 @@ body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; 
                                 </td>
                             </tr>
                         </tbody></table>
-                    </layout>
+                    </layout> -->
+
                 </repeater>
             </td>
             <td class="w30" width="30"></td>

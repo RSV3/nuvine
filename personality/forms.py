@@ -15,7 +15,7 @@ class AllWineRatingsForm(forms.Form):
   email = forms.EmailField()
 
   wine1 = forms.IntegerField(widget=forms.HiddenInput())
-  wine1_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect(attrs={"class":"radio"}), choices=WineRatingData.LIKENESS_CHOICES)
+  wine1_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect(attrs={"class":"radio"}), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine1_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine1_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine1_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
@@ -27,7 +27,7 @@ class AllWineRatingsForm(forms.Form):
   wine1_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
 
   wine2 = forms.IntegerField(widget=forms.HiddenInput())
-  wine2_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
+  wine2_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine2_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine2_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine2_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
@@ -40,7 +40,7 @@ class AllWineRatingsForm(forms.Form):
 
 
   wine3 = forms.IntegerField(widget=forms.HiddenInput())
-  wine3_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
+  wine3_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine3_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine3_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine3_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
@@ -52,7 +52,7 @@ class AllWineRatingsForm(forms.Form):
   wine3_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
 
   wine4 = forms.IntegerField(widget=forms.HiddenInput())
-  wine4_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
+  wine4_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine4_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine4_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine4_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
@@ -64,7 +64,7 @@ class AllWineRatingsForm(forms.Form):
   wine4_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
 
   wine5 = forms.IntegerField(widget=forms.HiddenInput())
-  wine5_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
+  wine5_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine5_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine5_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine5_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
@@ -76,7 +76,7 @@ class AllWineRatingsForm(forms.Form):
   wine5_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
 
   wine6 = forms.IntegerField(widget=forms.HiddenInput())
-  wine6_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES)
+  wine6_overall = forms.ChoiceField(label="Feeling Factor", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine6_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
   wine6_sweet = forms.ChoiceField(label="Sweetness Factor", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
   wine6_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)

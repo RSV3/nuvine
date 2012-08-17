@@ -22,10 +22,7 @@ urlpatterns = patterns('main.views',
     url(r'^party/taster/invite/(?P<party_id>\d+)/$', 'party_taster_invite', name='party_taster_invite'),
     url(r'^party/taster/invite/$', 'party_taster_invite', name='party_taster_invite'),
 
-    url(r'^ratings/record/$', 'record_wine_ratings', name='record_wine_ratings'),
-    url(r'^ratings/record/all/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
-    url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
-    url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
+
     url(r'^order/start/$', 'start_order', name='start_order'),
     url(r'^order/start/(?P<receiver_id>\d+)/$', 'start_order', name='start_order'),
     url(r'^order/start/(?P<receiver_id>\d+)/(?P<party_id>\d+)/$', 'start_order', name='start_order'),

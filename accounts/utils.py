@@ -1,5 +1,5 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template import Context, Template
+from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
@@ -18,7 +18,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   """)
 
-  c = Context({"host_name": request.get_host(),
+  c = RequestContext( request, {"host_name": request.get_host(),
               "verification_code": verification_code,
               "temp_password": temp_password})
   message = message_template.render(c)
@@ -26,7 +26,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   # send out verification e-mail, create a verification code
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
@@ -61,7 +61,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   receiver_email = user.email
 
-  c = Context({
+  c = RequestContext( request,  request, {
               "first_name": user.first_name,
               "host_name": request.get_host(),
               "verification_code": verification_code,
@@ -71,7 +71,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
   # send out verification e-mail, create a verification code
   subject = 'Your new password, courtesy of Vinely'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
@@ -102,7 +102,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
   """)
 
-  c = Context({"party_name": party_invite.party.title, 
+  c = RequestContext( request, {"party_name": party_invite.party.title, 
               "party_id": party_invite.party.id,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
               "invite_host_email": request.user.email,
@@ -114,7 +114,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   # send out verification e-mail, create a verification code
   subject = 'Join Vinely Party!'
   recipients = [party_invite.invitee.email]
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
@@ -140,7 +140,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   """)
 
-  c = Context({"invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
+  c = RequestContext( request, {"invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
               "invite_host_email": request.user.email,
               "host_name": request.get_host(),
               "verification_code": verification_code,
@@ -150,7 +150,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   # send out email approving host 
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")

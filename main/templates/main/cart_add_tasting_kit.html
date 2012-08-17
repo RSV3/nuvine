@@ -12,6 +12,7 @@
 <div class="container">
 
   <section id="product-item-info">
+    {% if product %}
     <div class="row">
 
       <div class="span6">
@@ -58,8 +59,15 @@
       </div>
 
     </div>
+    {% else %}
+      No tasting kit product exists yet.
+    {% endif %}
   </section>    
 
+  <div class="span12">
+    <div class="vertical-space">
+    </div>
+  </div>
 </div>
 {% endblock %}
 

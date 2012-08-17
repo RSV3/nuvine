@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from main.models import Party, PartyInvite, MySocializer, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, EngagementInterest, PersonaLog, OrganizedParty
+                        CustomizeOrder, Order, EngagementInterest, OrganizedParty
 from personality.models import Wine, WineTaste, GeneralTaste
 from accounts.models import VerificationQueue
 
@@ -22,14 +22,11 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
 
 from accounts.forms import CreditCardForm, PaymentForm
 
-from personality.forms import WineRatingsForm, AllWineRatingsForm
-
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro
 
-from personality.utils import calculate_wine_personality
 
 import json, uuid
 from urlparse import urlparse
@@ -324,10 +321,12 @@ def cart_add_tasting_kit(request):
 
     return HttpResponseRedirect(reverse("cart"))
 
-  product = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0])[0]
-  data["product"] = product
-  form.initial = {'product': product, 'total_price': product.unit_price}
-  data["form"] = form
+  if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
+    product = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0])[0]
+    data["product"] = product
+    form.initial = {'product': product, 'total_price': product.unit_price}
+    data["form"] = form
+    
   data["shop_menu"] = True
 
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
@@ -638,167 +637,7 @@ def order_history(request):
   data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
-@login_required
-def record_wine_ratings(request):
-  """
-    Record wine ratings for a particular wine.
-    Used by Vinely Pros or Vinely Tasters themselves.
-  """
 
-  data = {}
-
-  u = request.user
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  tas_group = Group.objects.get(name="Vinely Taster")
-
-  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()):
-    # one can record ratings only if Vinely Pro or Vinely Taster
-
-    if request.method == "POST":
-      form = WineRatingsForm(request.POST)
-      if form.is_valid():
-        form.save()      
-
-        if (pro_group in u.groups.all()):
-          # ask if you want to fill out next customer's ratings or order wine
-          data["role"] = "pro"
-          
-        if (tas_group in u.groups.all()):
-          # ask if you want order wine
-          data["role"] = "taster"
-
-        return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
-    else:
-      # show forms
-      form = WineRatingsForm()
-
-    data["form"] = form
-
-    return render_to_response("main/record_wine_ratings.html", data, context_instance=RequestContext(request))
-  else:
-    raise Http404 
-
-@login_required
-def record_all_wine_ratings(request, email=None, party_id=None):
-  """
-    Record wine ratings.
-    Used by Vinely Pros or Vinely Tasters themselves.
-
-  """
-
-  #TODO: Need to track the Vinely Pro that is adding the ratings so that this Vinely Taster is linked
-  #     to the Vinely Pro
-
-  data = {}
-
-  u = request.user
-
-  party = None
-  if party_id:
-    party_id = int(party_id)
-    # used in ratings_saved.html template to go back to party details
-    data["party_id"] = party_id
-    party = Party.objects.get(id=party_id)
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
-  tas_group = Group.objects.get(name="Vinely Taster")
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
-
-  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (soc_group in u.groups.all()):
-    # one can record ratings only if Vinely Pro or Vinely Socializer/Vinely Taster
-
-    if request.method == "POST":
-      form = AllWineRatingsForm(request.POST)
-      if form.is_valid():
-        results = form.save()
-        invitee = results[0]
-        data["invitee"] = invitee 
-
-        if invitee.is_active is False:
-          # new user was created
-          temp_password = User.objects.make_random_password()
-          invitee.set_password(temp_password)
-          invitee.save()
-
-          verification_code = str(uuid.uuid4())
-          vque = VerificationQueue(user=user, verification_code=verification_code)
-          vque.save()
-
-          # send out verification e-mail, create a verification code
-          send_verification_email(request, verification_code, temp_password, invitee.email)
-
-        personality = calculate_wine_personality(*results)
-        data["personality"] = personality
-         
-        if pro_group in u.groups.all():
-          # ask if you want to fill out next customer's ratings or order wine
-          data["role"] = "pro"
-          # if personality found in a party, record the event 
-          if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
-            persona_log.pro = u
-            if created or persona_log.party is None:
-              # record first party
-              persona_log.party = party
-            persona_log.save()
-        elif tas_group in u.groups.all():
-          # saving your own data
-          data["role"] = "taster"
-          if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
-            if persona_log.party is None:
-              # if no previous log has been created, since we only track the first party
-              persona_log.party = party
-              persona_log.save()
-          else:
-            # saved before or without the party
-            PersonaLog.objects.get_or_create(user=invitee)
-        elif soc_group in u.groups.all():
-          # personality was created by an host herself 
-          # ask if you want order wine
-          data["role"] = "socializer"
-          PersonaLog.objects.get_or_create(user=invitee)
-
-        return render_to_response("main/ratings_saved.html", data, context_instance=RequestContext(request))
-
-    else:
-      # show forms
-      initial_data = { 'wine1': Wine.objects.get(number=1, active=True).id,
-                        'wine2': Wine.objects.get(number=2, active=True).id,
-                        'wine3': Wine.objects.get(number=3, active=True).id,
-                        'wine4': Wine.objects.get(number=4, active=True).id,
-                        'wine5': Wine.objects.get(number=5, active=True).id,
-                        'wine6': Wine.objects.get(number=6, active=True).id
-                        }
-
-      if email:
-        taster = User.objects.get(email=email)
-        initial_data['email'] = taster.email
-        initial_data['first_name'] = taster.first_name
-        initial_data['last_name'] = taster.last_name
-      else:
-        # enter your own information
-        initial_data['email'] = u.email
-        initial_data['first_name'] = u.first_name
-        initial_data['last_name'] = u.last_name
-
-      form = AllWineRatingsForm(initial=initial_data)
-
-    data["form"] = form
-
-    return render_to_response("main/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
-
-  else:
-    # user needs to be a Vinely Pro or Vinely Taster to fill this out
-    # Vinely Taster is filling out their own data
-    raise Http404 
 
 @login_required
 def parties(request):
@@ -1179,10 +1018,14 @@ def party_rsvp(request, party_id, response=None):
     invite.save()
 
   invitees = PartyInvite.objects.filter(party=party).exclude(invitee=u)
+  data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
   data["party"] = party
   data["invitees"] = invitees
   data["invite"] = invite
   data["parties_menu"] = True
+  invitations = party.invitationsent_set.all().order_by("-timestamp")
+  if invitations.exists():
+    data["custom_message"] = invitations[0].custom_message
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 

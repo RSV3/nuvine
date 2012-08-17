@@ -12,7 +12,7 @@
     <div class="row">
       <div class="span12">
         <blockquote>
-        This season we celebrate the great wines of Italy to understand your tastes.  Please join us.
+          {{ custom_message }}
         </blockquote>
       </div>
     </div>
@@ -45,9 +45,11 @@
             We look forward to seeing you there! 
           </p>
           <p>&nbsp;</p>
+          {% if not questionnaire_completed %}
           <p>
-            <a href="{% url pre_questionnaire %}" class="btn btn-primary btn-large">Fill out Questionaire</a>
+            <a href="{% url pre_questionnaire_general %}" class="btn btn-primary btn-large">Fill out Questionaire</a>
           </p>
+          {% endif %}
         {% endif %}
       </div>
 

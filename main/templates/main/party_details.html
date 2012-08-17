@@ -115,10 +115,10 @@
             {% endif %}
             <td>{{ inv.get_response_display }}</td>
             {% if pro %}
-              {% if inv.invitee.get_profile.wine_personality %}
-                <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-              {% else %}
+              {% if inv.invitee.get_profile.wine_personality.name == "Mystery" %}
                 <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+              {% else %}
+                <td>{{ inv.invitee.get_profile.wine_personality }}</td>
               {% endif %}
             {% endif %}
           </tr>

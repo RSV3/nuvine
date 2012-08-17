@@ -99,6 +99,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
@@ -176,6 +177,7 @@ INSTALLED_APPS = (
     'storages',
     'gunicorn',
     's3_folder_storage',
+    'compressor',
 )
 
 
