@@ -2,9 +2,15 @@ body {
   background: url('../img/site_background_pattern.png');
 }
 
+/* utilities */
+.vertical-space {
+  margin-bottom: 25px;
+}
+
 /* home page */
 .personality-badge-detail {
   margin-top: 25px;
+  margin-bottom: 25px;
 }
 
 .home-header {
@@ -20,6 +26,10 @@ body {
 }
 
 .actions-welcome {
+  text-align: center;
+}
+
+.questionnaire-welcome {
   text-align: center;
 }
 

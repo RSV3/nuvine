@@ -90,11 +90,15 @@
   {% if taster or socializer %}
     {% if questionnaire_completed %}
       <div class="span8">
+        <div class="questionnaire-welcome">
           You have completed your questionnaire and you are ready to rock with Vinely! 
+        </div>
       </div>
     {% else %}
       <div class="span8">
+        <div class="questionnaire-welcome">
           Fill out the <a href="{% url pre_questionnaire_general %}">Questionnaire</a> before attending the party.
+        </div>
       </div>
     {% endif %}
   {% endif %}

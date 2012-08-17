@@ -254,10 +254,11 @@
           {% endblock navbar_menu %}
       </div> <!-- .navbar-inner -->
     </div> <!-- .navbar -->
-  </div>
+  </div> <!-- .container (do we want this here?) -->
 
   <header>
     <div class="container">
+
       <div class="message-container">
 
         {% if messages %}
@@ -274,123 +275,122 @@
           </div>
         {% endif %}
       </div> <!-- .message-container -->
+
       {% block header %}
 
       {% endblock header %}
-    </div>
+    </div> <!-- .container for head -->
   </header>
 
-    <div role="main" id="main-content">
-        {% block content %}
-        
-        {% endblock content %}
-    </div>
+  <div role="main" id="main-content">
+    {% block content %}
+      
+    {% endblock content %}
+  </div>
 
-    <footer>
-      <section id="footer">
-      <div class="container">
-        <div class="navbar divider">
-          <div class="navbar-inner">
-            <div class="nav-collapse">
-              <div class="row">
-                <div class="span10 offset1">      
-                  <ul class="nav">
-                    <li>
-                      <a href="{% url home_page %}">Home</a>
-                    </li>
-                    <li>
-                      {% if user.is_authenticated %}
-                        <a href="{% url start_order %}">Shop</a>
-                      {% else %}
-                        <a href="{% url cart_add_tasting_kit %}">Shop</a>
-                      {% endif %}
-                    </li>
-                    <!-- for milestone 2 
-                    <li>
-                      <a href="#">Rate Wines</a>
-                    </li>
-                    -->
-                    <li>
-                      <a href="{% url my_information %}">Account</a>
-                    </li>
-                    <li>
-                      <a href="{% url how_it_works %}">How It Works</a>
-                    </li>
-                    <li>
-                      <a href="{% url get_started %}">Get Started</a>
-                    </li>
-                    <li>
-                      <a href="{% url our_story %}">Our Story</a>
-                    </li>
-                    <li>
-                      <a href="{% url contact_us %}">Contact Us</a>
-                    </li>
-                  </ul>
-                </div>
+  <footer>
+    <div class="container">
+      <div class="navbar divider">
+        <div class="navbar-inner">
+          <div class="nav-collapse">
+            <div class="row">
+              <div class="span10 offset1">      
+                <ul class="nav">
+                  <li>
+                    <a href="{% url home_page %}">Home</a>
+                  </li>
+                  <li>
+                    {% if user.is_authenticated %}
+                      <a href="{% url start_order %}">Shop</a>
+                    {% else %}
+                      <a href="{% url cart_add_tasting_kit %}">Shop</a>
+                    {% endif %}
+                  </li>
+                  <!-- for milestone 2 
+                  <li>
+                    <a href="#">Rate Wines</a>
+                  </li>
+                  -->
+                  <li>
+                    <a href="{% url my_information %}">Account</a>
+                  </li>
+                  <li>
+                    <a href="{% url how_it_works %}">How It Works</a>
+                  </li>
+                  <li>
+                    <a href="{% url get_started %}">Get Started</a>
+                  </li>
+                  <li>
+                    <a href="{% url our_story %}">Our Story</a>
+                  </li>
+                  <li>
+                    <a href="{% url contact_us %}">Contact Us</a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
-        <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
-      </div> <!-- .container -->
-      </section>
-    </footer>
+      </div>
+      <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
+    </div> <!-- .container -->
+  </footer>
 
 
-    <!-- JavaScript at the bottom for fast page loading -->
+  <!-- JavaScript at the bottom for fast page loading -->
 
-    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"><\/script>')</script>
+  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"><\/script>')</script>
 
-    <!-- scripts concatenated and minified via build script -->
-    <script src="{{ STATIC_URL }}html5/js/plugins.js"></script>
-    <script src="{{ STATIC_URL }}html5/js/script.js"></script>
-    <!-- end scripts -->
+  <!-- scripts concatenated and minified via build script -->
+  <script src="{{ STATIC_URL }}html5/js/plugins.js"></script>
+  <script src="{{ STATIC_URL }}html5/js/script.js"></script>
+  <!-- end scripts -->
 
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alert.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-scrollspy.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tab.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-carousel.js"></script>
-    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
-    <script src="{{ STATIC_URL }}js/application.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alert.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-scrollspy.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tab.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-carousel.js"></script>
+  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
+  <script src="{{ STATIC_URL }}js/application.js"></script>
 
-    <script type="text/javascript">
-      $(document).ready( function () {
-        $('.dropdown-toggle').dropdown();
-      });
-    </script>
+  <script type="text/javascript">
+    $(document).ready( function () {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
 
-    {% block additional_scripts %}
-    {% endblock additional_scripts %}
-    
-    <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
-         mathiasbynens.be/notes/async-analytics-snippet -->
+  {% block additional_scripts %}
+  {% endblock additional_scripts %}
+  
+  <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
+       mathiasbynens.be/notes/async-analytics-snippet -->
 
-    {% if not debug %}
-    <script type="text/javascript">
+  {% if not debug %}
+  <script type="text/javascript">
 
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-33499659-1']);
-      _gaq.push(['_setDomainName', 'vinely.com']);
-      _gaq.push(['_setAllowLinker', true]);
-      _gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33499659-1']);
+    _gaq.push(['_setDomainName', 'vinely.com']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_trackPageview']);
 
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
-    </script>
-    {% endif %}
-  </div>
-  </body>
+  </script>
+  {% endif %}
+
+</body>
 </html>
