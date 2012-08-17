@@ -121,8 +121,6 @@ def send_order_confirmation_email(request, order_id):
   order.fulfill_status = 1
   order.save()
 
-  return msg
-
 def send_order_shipped_email(request, order):
   message_template = Template("""
 
@@ -154,8 +152,6 @@ def send_order_shipped_email(request, order):
   msg = EmailMultiAlternatives(subject, message, 'sales@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  return msg
 
 def send_host_vinely_party_email(request, pro=None):
 
@@ -195,25 +191,26 @@ def send_host_vinely_party_email(request, pro=None):
 
   message = message_template.render(c)
 
+  # new engagement interest
+  recipients = ['sales@vinely.com']
+  if pro:
+    recipients.append(pro.email)
+
+  # notify interest in hosting to Vinely Pro or vinely sales 
+  subject = 'A Vinely Taste Party is ready to be scheduled'
+  html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
+
   # update our DB that there was repeated interest
   interest, created = EngagementInterest.objects.get_or_create(user=request.user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
   if not created:
     interest.update_time()
   else:
-    # new engagement interest
-    recipients = ['sales@vinely.com']
-    if pro:
-      recipients.append(pro.email)
-
-    # notify interest in hosting to Vinely Pro or vinely sales 
-    subject = 'A Vinely Taste Party is ready to be scheduled'
-    html_msg = render_to_string("email/base_email_lite.html", {'title': subject, 'message': message})
-
     msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
-  return msg
+  # return text message for display
+  return message 
 
 def send_know_pro_party_email(request):
 
@@ -246,8 +243,6 @@ def send_know_pro_party_email(request):
   msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  return msg
 
 def send_not_in_area_party_email(request):
 
@@ -283,8 +278,6 @@ def send_not_in_area_party_email(request):
   msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  return msg
 
 
 def send_new_party_scheduled_email(request, party):
@@ -333,8 +326,6 @@ def send_new_party_scheduled_email(request, party):
   msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  return msg
 
 def send_party_invitation_email(request, party_invite):
   """ 
@@ -389,8 +380,6 @@ def send_party_invitation_email(request, party_invite):
   msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  return msg
 
 def distribute_party_invites_email(request, invitation_sent):
 
@@ -451,7 +440,6 @@ def distribute_party_invites_email(request, invitation_sent):
   msg.send()
 
   return msg
-
 def send_contact_request_email(request, contact_request):
   """
     E-mail sent when someone fills out a contact request

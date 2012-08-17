@@ -198,9 +198,9 @@ def host_vinely_party(request):
   data = {}
 
   # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
-  message = send_host_vinely_party_email(request)
+  message_body = send_host_vinely_party_email(request)
 
-  data["message"] = message
+  data["message"] = message_body
 
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
