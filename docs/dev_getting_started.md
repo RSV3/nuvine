@@ -31,12 +31,12 @@
     $ git pull origin staging
 
 # To runserver you need to be in the virtual environment and in the project root directory
-  # The virtual environment is currently in nuvine-env inside the project directory
-  # You should probably have an alias to activate the virtual environment, but if not
+  * The virtual environment is currently in nuvine-env inside the project directory
+  * You should probably have an alias to activate the virtual environment, but if not
 
     $ source nuvine-env/bin/activate
 
-  # run server which will be accessible from http://localhost:8000
+  * run server which will be accessible from http://localhost:8000
 
     $ python manage.py runserver
 
