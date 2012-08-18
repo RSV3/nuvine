@@ -19,36 +19,35 @@
         </div>
       </div>
       <div class="span4">
-        <div class="box" id="home-sign-in">
-          <div class="well">
+        <div class="box-content" id="home-sign-in">
           <p>I've already got a personality!</p>
-          <form method="POST" action="{% url login %}">
-          {% csrf_token %}
-          <fieldset>
-            {% if form.non_field_errors %}
-              <div class="alert alert-error">
-                <strong>Error</strong>{{ form.non_field_errors }}
-              </div>
-            {% endif %}
-            <div class="control-group">
-              <div class="controls">
-                {{ form.email }}
-              </div>
-            </div>
-            <div class="control-group">
-              <div class="controls">
-                {{ form.password }}
-              </div>
-            </div>
-            <div class="control-group">
-              <div class="controls">
-                <input class="btn btn-primary" type="submit" value="login" />
-                <input type="hidden" name="next" value="{{ next }}" />
-              </div>
-            </div>
-          </fieldset>
-        </form>
-          </div>
+             <form method="POST" action="{% url login %}">
+              {% csrf_token %}
+              <fieldset>
+                {% if form.non_field_errors %}
+                  <div class="alert alert-error">
+                    <strong>Error</strong>{{ form.non_field_errors }}
+                  </div>
+                {% endif %}
+                <div class="control-group">
+                  <div class="controls">
+                    {{ form.email }}
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    {{ form.password }}
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    <input class="btn btn-primary" type="submit" value="login" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+            <div class="box-bg"></div>
         </div>
       </div>
     </div>
