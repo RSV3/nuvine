@@ -46,31 +46,51 @@ body {
   text-align: center;
   padding-top: 20px;
 }
-/*.navbar ul.nav.main_menu, .navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
+
+.menu_wrap ul.nav li {
+  display: inline;
+  margin-right: 20px;
+}
+
+.menu_wrap.main {
+  padding-top: 0;
+}
+
+.menu_wrap.main ul.nav, .menu_wrap.main ul.nav li {
     height: 50px;
     margin: 0;
     padding: 0;
 }
 
-.navbar ul.nav.main_menu a { 
-  display: block;
-} */
-.menu_wrap ul.nav li {
-  display: inline;
-  margin-right: 20px;
+.menu_wrap.main ul.nav li { 
+  display: inline-block;
+}
+
+.menu_wrap.main ul.nav li a { 
+  padding: 1px 20px 20px 20px;
+  margin-top: -2px;
 }
 
 #parties {
   background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
   width: 83px;
 }
+#parties a {
+  padding: 1px 40px 30px 43px;
+}
 #shop {
   background: url('../img/main_nav_sprite.png') no-repeat -83px -50px; 
   width: 66px;
 }
+#shop a {
+  padding: 1px 30px 30px 36px;
+}
 #rate_wines {
   background: url('../img/main_nav_sprite.png') no-repeat -149px -50px; 
   width: 118px;
+}
+#rate_wines a {
+  padding: 1px 59px 30px 59px;
 }
 #how_it_works {
   background: url('../img/main_nav_sprite.png') no-repeat -267px -50px; 

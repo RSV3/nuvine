@@ -181,8 +181,8 @@
           {% block navbar_menu %}
 
           {% if user.is_authenticated %} 
-          <div class="main_menu_wrap">           
-            <ul class="nav main_menu">
+          <div class="menu_wrap main">           
+            <ul class="nav">
               <li id="parties"{% if parties_menu %} class="active"{% endif %}>
                 <a href="{% url party_list %}" title="parties"></a>
               </li>
