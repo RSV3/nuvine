@@ -1,0 +1,30 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="span12">
+          <table class="table">
+            <thead>
+              <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Recipients</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for email in emails %}
+            <tr>
+              <td><a href="{% url view_email email.id %}">{{ email.id }}</a></td>
+              <td><a href="{% url view_email email.id %}">{{ email.subject }}</a></td>
+              <td>{{ email.recipients }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

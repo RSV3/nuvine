@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     'sorl.thumbnail',
     #'storages',
     'gunicorn',
+    'support',
+    'compressor',
 )
 
 TEMPLATE_DIRS = (

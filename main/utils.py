@@ -86,9 +86,12 @@ def send_order_confirmation_email(request, order_id):
   message = message_template.render(c)
   subject = 'Your Vinely order was placed successfully!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'sales@vinely.com'
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
 
   # notify the receiver that the order has been received 
-  from_email = 'sales@vinely.com'
   msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
@@ -111,9 +114,13 @@ def send_order_confirmation_email(request, order_id):
   subject = 'Order ID: %s has been submitted!'%order_id
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
-  # notify the supplier that an order has been received
   from_email = 'support@vinely.com'
   recipients = ['sales@vinely.com']
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  # notify the supplier that an order has been received
   msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
@@ -148,8 +155,12 @@ def send_order_shipped_email(request, order):
 
   subject = 'Order ID: %s has been shipped!' % order.order_id
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'sales@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'sales@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -199,13 +210,17 @@ def send_host_vinely_party_email(request, pro=None):
   # notify interest in hosting to Vinely Pro or vinely sales 
   subject = 'A Vinely Taste Party is ready to be scheduled'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = request.user.email
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
 
   # update our DB that there was repeated interest
   interest, created = EngagementInterest.objects.get_or_create(user=request.user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
   if not created:
     interest.update_time()
   else:
-    msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+    msg = EmailMultiAlternatives(subject, message, from_email, recipients)
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -239,8 +254,12 @@ def send_know_pro_party_email(request):
 
   subject = 'Get the party started with Vinely'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = request.user.email
 
-  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -274,8 +293,12 @@ def send_not_in_area_party_email(request):
 
   subject = 'Thanks for your interest in becoming a Vinely Socializer!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = request.user.email
 
-  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -322,8 +345,12 @@ def send_new_party_scheduled_email(request, party):
   recipients = [party.socializer.email]
   subject = 'Your Vinely Party has been Scheduled!'  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = request.user.email
 
-  msg = EmailMultiAlternatives(subject, message, request.user.email, recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -376,8 +403,11 @@ def send_party_invitation_email(request, party_invite):
   recipients = [party_invite.invitee.email]  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'header': 'Good wine and good times await', 
                                                             'message': message}))
+  from_email = 'support@vinely.com'
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -434,8 +464,12 @@ def distribute_party_invites_email(request, invitation_sent):
   subject = invitation_sent.custom_subject 
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
                                                             'message': message}))
+  from_email = 'support@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -466,7 +500,11 @@ def send_contact_request_email(request, contact_request):
   subject = "URGENT: Request for information"
   recipients = ['sales@vinely.com']
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = contact_request.email
 
-  msg = EmailMultiAlternatives(subject, message, contact_request.email, recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()

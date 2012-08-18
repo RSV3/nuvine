@@ -2,6 +2,8 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 
+from support.models import Email
+
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
   message_template = Template("""
@@ -27,8 +29,12 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -72,8 +78,12 @@ def send_password_change_email(request, verification_code, temp_password, user):
   subject = 'Your new password, courtesy of Vinely'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -115,8 +125,12 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   subject = 'Join Vinely Party!'
   recipients = [party_invite.invitee.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -151,8 +165,12 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
 
-  msg = EmailMultiAlternatives(subject, message, 'support@vinely.com', recipients)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
