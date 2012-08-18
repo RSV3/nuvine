@@ -8,41 +8,41 @@
 
 {% block side_navigation %}
   {% if pro %}
-    <li><a href="{% url party_list %}">Your Parties</a><span class="chev"> </span></li>
-    <li><a href="{% url party_add %}">Create Party</a><span class="chev"> </span></li>
-    <li><a href="{% url party_taster_invite %}">Invite Taster</a><span class="chev"> </span></li>
-    <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
-    <li><a href="{% url start_order %}">Place an Order</a></li>
-    <li><a href="{% url order_history %}">Order History</a></li>
+    <li><div class="chev active"><a href="{% url party_list %}">Your Parties</a></div></li>
+    <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
+    <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li>
+    <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
+    <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+    <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif socializer %}
-    <li><a href="{% url party_list %}">Your Parties</a><span class="chev"> </span></li>
-    <li><a href="{% url party_add %}">Create Party</a><span class="chev"> </span></li>
-    <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
-    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-    <li><a href="{% url start_order %}">Place an Order</a></li>
-    <li><a href="{% url order_history %}">Order History</a></li>
+    <li><div class="chev active"><a href="{% url party_list %}">Your Parties</a></div></li>
+    <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
+    <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li>
+    <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></div></li>
+    <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+    <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif supplier %}
-    <li><a href="{% url supplier_pending_orders %}">Pending Orders</a></li>
-    <li><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></li>
-    <li><a href="{% url supplier_all_orders %}">All Orders</a></li>
+    <li><div class="chev"><a href="{% url supplier_pending_orders %}">Pending Orders</a></div></li>
+    <li><div class="chev"><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></div></li>
+    <li><div class="chev"><a href="{% url supplier_all_orders %}">All Orders</a></div></li>
   {% elif taster %}
-    <li><a href="">Your Invite</a></li>
+    <li><div class="chev"><a href="">Your Invite</a></li>
     {% if wine_personality %}
-      <li><a href="{% url start_order %}">Place an Order</a></li>
-      <li><a href="{% url order_history %}">Order History</a></li>
+      <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+      <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
     {% endif %}
-    <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
-    <li><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></li>
-    <li><a href="{% url how_it_works %}">Learn More about Vinely</a></li>
-    <li><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></li>
+    <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></div></li>
+    <li><div class="chev"><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></div></li>
+    <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
+    <li><div class="chev"><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></div></li>
   {% endif %}
 
 
   {% if invites %}
-    <li class="nav-header">Alerts</li>
+    <li class="nav-header"><div class="chev">Alerts</div></li>
   {% endif %}
   {% for invite in invites %}
-    <li><a href="{% url party_rsvp invite.party.id %}">RSVP to {{ invite.party.title }}</a>
+    <li><div class="chev"><a href="{% url party_rsvp invite.party.id %}">RSVP to {{ invite.party.title }}</a></div></li>
   {% endfor %}
 
 {% endblock side_navigation %}
