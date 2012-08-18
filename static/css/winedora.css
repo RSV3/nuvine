@@ -42,22 +42,15 @@ body {
 .divider {
     border-top: 3px solid #415A68;
 }
-.navbar ul.nav.main_menu{
-  width: 950px;
-  height: 50px;
-  margin: 0;
-  padding: 0
-}
-.navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
+.navbar ul.nav.main_menu, .navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
     height: 50px;
-    display: block;
+    margin: 0;
+    padding: 0;
 }
 .navbar ul.nav.main_menu a { 
-  padding: 0 0 0 0;
+  display: block;
 }
 .navbar ul.nav.main_menu li {
-    float: left;
-    list-style: none;
     display: inline;
     text-indent: -9999em;
 }
