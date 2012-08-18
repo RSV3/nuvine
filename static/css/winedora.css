@@ -47,12 +47,11 @@ body {
     margin: 0;
     padding: 0;
 }
+.navbar  ul.nav li {
+    display: inline;
+}
 .navbar ul.nav.main_menu a { 
   display: block;
-}
-.navbar ul.nav.main_menu li {
-    display: inline;
-    text-indent: -9999em;
 }
 #parties {
   background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
