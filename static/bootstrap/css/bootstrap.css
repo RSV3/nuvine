@@ -2672,9 +2672,9 @@ input[type="submit"].btn.btn-mini {
   margin-bottom: 1.3em; 
   list-style: none;
 }
-.nav > li > a {
+/*.nav > li > a {
   display: block;
-}
+} */
 .nav > .pull-right {
   float: right;
 }

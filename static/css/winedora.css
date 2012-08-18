@@ -42,7 +42,7 @@ body {
 .divider {
     border-top: 3px solid #415A68;
 }
-.main_menu_wrap {
+.menu_wrap {
   text-align: center;
 }
 /*.navbar ul.nav.main_menu, .navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
@@ -50,12 +50,14 @@ body {
     margin: 0;
     padding: 0;
 }
-.navbar  ul.nav li {
-    display: inline;
-}
+
 .navbar ul.nav.main_menu a { 
   display: block;
 } */
+.menu_wrap ul.nav li {
+  display: inline;
+}
+
 #parties {
   background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
   width: 83px;
