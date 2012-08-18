@@ -96,22 +96,38 @@ body {
   background: url('../img/main_nav_sprite.png') no-repeat -267px -50px; 
   width: 140px;
 }
+#how_it_works a {
+  padding: 1px 70px 30px 70px;
+}
 #nav_get_started {
   background: url('../img/main_nav_sprite.png') no-repeat -407px -50px; 
   width: 126px;
+}
+#nav_get_started a {
+  padding: 1px 63px 30px 63px;
 }
 #our_story {
   background: url('../img/main_nav_sprite.png') no-repeat -533px -50px; 
   width: 111px;
 }
+#our_story a {
+  padding: 1px 55px 30px 56px;
+}
 #dashboard {
   background: url('../img/main_nav_sprite.png') no-repeat -644px -50px; 
   width: 119px;
+}
+#dashboard a {
+  padding: 1px 59px 30px 60px;
 }
 #vinely_u {
   background: url('../img/main_nav_sprite.png') no-repeat -763px -50px; 
   width: 93px;
 }
+#vinely_u a {
+  padding: 1px 83px 30px 10px;
+}
+
 #parties a:hover, #parties.active { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
 #shop a:hover, #shop.active { background: url('../img/main_nav_sprite.png') no-repeat -83px 0px;}
 #rate_wines a:hover, #rate_wines.active { background: url('../img/main_nav_sprite.png') no-repeat -149px 0px;}
