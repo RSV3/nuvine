@@ -3125,6 +3125,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-fixed-bottom {
   bottom: 0;
 }
+/*
 .navbar .nav {
   position: relative;
   left: 0;
@@ -3163,7 +3164,8 @@ input[type="submit"].btn.btn-mini {
  /* color: #415A68;
   text-decoration: underline;
   background-color: #31BAA2;*/
-}
+} */
+
 .navbar .divider-vertical {
   height: 40px;
   width: 1px;
@@ -4213,7 +4215,7 @@ body {
   padding-bottom: 1em;
   border-bottom: 2px solid #cdcdcd;
 }
-.navbar .navbar-inner {h
+/*.navbar .navbar-inner {h
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
@@ -4226,7 +4228,7 @@ body {
 }
 .navbar .brand:hover {
   color: #c50001;
-}
+}*/
 .navbar .nav > li > a {
   /*text-shadow: none;
   padding: 10px;*/
