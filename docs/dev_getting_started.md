@@ -47,6 +47,7 @@
 # The following are series of commands that should be executed if you want to start with fresh db 
 
     $ git pull origin staging
+    $ pip install -r requirements.txt
     $ rm winedora.test.db
     $ python manage.py syncdb (make sure you say NO to admin user) 
     $ python manage.py refresh_products

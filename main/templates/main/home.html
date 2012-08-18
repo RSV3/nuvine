@@ -8,14 +8,14 @@
 
 {% block side_navigation %}
   {% if pro %}
-    <li><div class="chev active"><a href="{% url party_list %}">Your Parties</a></div></li>
+    <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li>
     <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif socializer %}
-    <li><div class="chev active"><a href="{% url party_list %}">Your Parties</a></div></li>
+    <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li>
     <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></div></li>
@@ -106,3 +106,17 @@
 {% endblock main_content %}
 
 
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(".side-nav li").hover(
+      function () {
+        $(this).children(".chev").addClass("active");
+        $(this).find("a").addClass("hovered");
+      },
+      function () {
+        $(this).children(".chev").removeClass("active");
+        $(this).find("a").removeClass("hovered");
+      }
+    );
+  </script>
+{% endblock additional_scripts %}
