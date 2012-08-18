@@ -178,6 +178,7 @@ INSTALLED_APPS = (
     'gunicorn',
     's3_folder_storage',
     'compressor',
+    'support',
 )
 
 

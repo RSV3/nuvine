@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 
 from support.models import Email
 
-@login_required
+@staff_member_required
 def list_emails(request):
 
   data = {}
@@ -19,7 +20,7 @@ def list_emails(request):
 
   return render_to_response("support/list_emails.html", data, context_instance=RequestContext(request))
 
-@login_required
+@staff_member_required
 def view_email(request, email_id):
 
   email = get_object_or_404(Email, pk=email_id)

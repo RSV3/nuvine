@@ -29,7 +29,7 @@
     is_superuser: false
     date_joined: 2012-07-29 03:39:24.769662
     first_name: ''
-    is_staff: false
+    is_staff: true 
     last_name: ''
     password: pbkdf2_sha256$10000$rbiex54vjen6$XBLHxuObRu9D/rVbd/w74oTI0NpQwyMwlBHz4pzcZMU=
     last_login: 2012-07-29 03:39:24.769662
