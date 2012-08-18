@@ -8,15 +8,15 @@
 
 {% block side_navigation %}
   {% if pro %}
-    <li><a href="{% url party_list %}">Your Parties</a></li>
-    <li><a href="{% url party_add %}">Create Party</a></li>
-    <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
+    <li><a href="{% url party_list %}">Your Parties</a><span class="chev"> </span></li>
+    <li><a href="{% url party_add %}">Create Party</a><span class="chev"> </span></li>
+    <li><a href="{% url party_taster_invite %}">Invite Taster</a><span class="chev"> </span></li>
     <li><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></li>
     <li><a href="{% url start_order %}">Place an Order</a></li>
     <li><a href="{% url order_history %}">Order History</a></li>
   {% elif socializer %}
-    <li><a href="{% url party_list %}">Your Parties</a></li>
-    <li><a href="{% url party_add %}">Create Party</a></li>
+    <li><a href="{% url party_list %}">Your Parties</a><span class="chev"> </span></li>
+    <li><a href="{% url party_add %}">Create Party</a><span class="chev"> </span></li>
     <li><a href="{% url party_taster_invite %}">Invite Taster</a></li>
     <li><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></li>
     <li><a href="{% url start_order %}">Place an Order</a></li>

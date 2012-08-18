@@ -124,6 +124,7 @@ body {
   font-family: "Avenir LT W01 85 Heavy";
   text-transform: uppercase;
   margin-right: 50px;
+  text-align: center;
 }
 .sidebar-nav-container {
   margin-right: 20px;
@@ -150,10 +151,15 @@ body {
 }
 .sidebar-nav li a:hover {
   text-decoration: none;
-  /*background: url('../img/btn_chevronrt_bkgd.png') #31BAA2 no-repeat 100% 50%;*/
   background: #31BAA2;
-;
   color: #FFFFFF;
+}
+.sidebar-nav li span.chev {
+  width: 12px;
+  height: 30px;
+  display: inline-block;
+  background: url('../img/btn_chevronrt_bkgd.png') no-repeat 50% 50%
+
 }
 #badges {
   width: 940px;
