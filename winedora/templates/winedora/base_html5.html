@@ -127,53 +127,28 @@
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
   <div class="container">
     <div class="row">
-      <div class="span4 offset4">
+      <div class="span5 offset4">
         <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
-      <div id="authentication">
-        <div id="kwan">
-          {% if user.is_authenticated %}
-            <div class="btn-group pull-right">
-
-              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="icon-user"></i> {{ user.email }}
-                <span class="caret"></span>
-              </a>
-
-              <ul class="dropdown-menu">
-                <li><a href="{% url my_information %}">My Account</a></li>
-                <li><a href="{% url cart %}">My Cart</a></li>
-                <li class="divider"></li>
-                <li><a href="{% url logout %}">Sign Out</a></li>
-              </ul>
-            </div>
-
-            <!-- no need for this drop down any more 
-            <div class="main_menu_wrap" id="sub-menu">
-              <ul class="nav pull-right" id="sub-menu-right">
-                <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Help <b class="caret"></b>
-                  </a>
-                  <ul class="dropdown-menu" id="swatch-menu">
-                    <li><a href="{% url how_it_works %}">How it works</a></li>
-                    <li><a href="{% url get_started %}">Get Started</a></li>
-                    <li><a href="{% url our_story %}">Our Story</a></li>
-                    <li><a href="{% url contact_us %}">Contact</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            -->
-
-            {% else %}
-            <!-- if not logged in, show login link -->
-            <div class="pull-right">
-              <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
-            </div>
-          {% endif %}
-        </div> <!-- kwan-->
-      </div> <!--id authentication-->
+      <div class="span3">
+        <div class="box-container">
+        <div class="box-content authentication">
+            {% if user.is_authenticated %}
+                <a href="{% url logout %}">Log Out</a>
+                <a href="{% url my_information %}">
+                  my account
+                </a>
+                <a href="{% url cart %}">Cart 0 items</a>
+              {% else %}
+              <!-- if not logged in, show login link -->
+              <div class="login-forgot">
+                <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
+              </div>
+            {% endif %}
+          </div> <!-- id auth-->
+          <div class="box-bg"></div>
+        </div><!--box-container-->
+      </div> <!--span4-->
     </div> <!-- .row -->
 
     <div class="navbar divider">

@@ -216,7 +216,16 @@ body {
 .box-content.landing {
   font-family: "Avenir LT W01 85 Heavy";
   text-transform: uppercase;
+  font-size: 12px;
+}
+.box-content.authentication {
+  padding: 5px 0px 5px 0px;
+  font-family: "AlternateGothicNo2BT-Regular";
+  text-transform: uppercase;
   font-size: 14px;
+}
+.authentication a {
+  margin-right: 5px;
 }
 #badges {
   width: 940px;
