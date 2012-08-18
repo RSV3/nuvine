@@ -42,7 +42,10 @@ body {
 .divider {
     border-top: 3px solid #415A68;
 }
-.navbar ul.nav.main_menu, .navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
+.main_menu_wrap {
+  text-align: center;
+}
+/*.navbar ul.nav.main_menu, .navbar ul.nav.main_menu li, .navbar ul.nav.main_menu a {
     height: 50px;
     margin: 0;
     padding: 0;
@@ -52,7 +55,7 @@ body {
 }
 .navbar ul.nav.main_menu a { 
   display: block;
-}
+} */
 #parties {
   background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
   width: 83px;
