@@ -148,6 +148,11 @@ body {
 .sidebar-nav li a {
   padding: 4px 6px 4px 9px;
 }
+.sidebar-nav li div.chev {
+  display: inline;
+  background: url('../img/btn_chevronrt_transparent_bkgd.png') no-repeat center right;
+  padding: 7px 12px 7px 0;
+}
 .sidebar-nav li div.chev.active {
   display: inline;
   background: url('../img/btn_chevronrt_bkgd.png') no-repeat center right;

@@ -149,7 +149,7 @@
             </div>
 
             <!-- no need for this drop down any more 
-            <div class="nav-collapse" id="sub-menu">
+            <div class="main_menu_wrap" id="sub-menu">
               <ul class="nav pull-right" id="sub-menu-right">
                 <li class="dropdown">
                   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -181,7 +181,7 @@
           {% block navbar_menu %}
 
           {% if user.is_authenticated %} 
-          <div class="nav-collapse">           
+          <div class="main_menu_wrap">           
             <ul class="nav main_menu">
               <li id="parties"{% if parties_menu %} class="active"{% endif %}>
                 <a href="{% url party_list %}" title="parties"></a>
@@ -235,16 +235,16 @@
               {% endif %}
 
             </ul><!-- .nave -->
-          </div><!-- .nav-collapse -->
+          </div><!-- .main_menu_wrap -->
           {% else %}
-          <div class="nav-collapse">
+          <div class="main_menu_wrap">
                 <ul class="nav main_menu">
                   <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
                   <li id="how_it_works"><a href="{% url sign_up 4 %}" title="how it works"></a></li>
                   <li id="nav_get_started"><a href="{% url get_started %}" title="get started"></a></li>
                   <li id="our_story"><a href="{% url our_story %}" title="our story"></a></li>
                 </ul>
-          </div><!-- .nav-collapse -->
+          </div><!-- .main_menu_wrap -->
           {% endif %}
 
           {% endblock navbar_menu %}
@@ -288,7 +288,7 @@
     <div class="container">
       <div class="navbar divider">
         <div class="navbar-inner">
-          <div class="nav-collapse">
+          <div class="main_menu_wrap">
             <div class="row">
               <div class="span10 offset1">      
                 <ul class="nav">
