@@ -4455,20 +4455,25 @@ div.subnav-fixed .nav {
   border-radius: 0;
 }
 .btn-primary {
-  background-color: #bb0001;
-  background-image: -moz-linear-gradient(top, #cf0001, #9c0001);
-  background-image: -ms-linear-gradient(top, #cf0001, #9c0001);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#cf0001), to(#9c0001));
-  background-image: -webkit-linear-gradient(top, #cf0001, #9c0001);
-  background-image: -o-linear-gradient(top, #cf0001, #9c0001);
-  background-image: linear-gradient(top, #cf0001, #9c0001);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cf0001', endColorstr='#9c0001', GradientType=0);
-  border-color: #9c0001 #9c0001 #500001;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  *background-color: #9c0001;
-  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
+  background-color: #415A68;
+  background-image: linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+background-image: -o-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+background-image: -moz-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+background-image: -webkit-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+background-image: -ms-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
 
+background-image: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0.46, rgb(51,51,51)),
+  color-stop(0.01, rgb(65,90,104)),
+  color-stop(0.86, rgb(65,90,104))
+);
+  background-image: url('../../img/btn_gradient_bkgd.png');
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#415A68', endColorstr='#1A1A1A', GradientType=0);
+  /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
 .btn-primary:hover,
@@ -4482,7 +4487,8 @@ div.subnav-fixed .nav {
 .btn-primary:active,
 .btn-primary.active {
   background-color: #690001 \9;
-}
+} 
+
 .btn [class^="icon-"],
 .btn [class*=" icon-"] {
   margin-top: 4px;
