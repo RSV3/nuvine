@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Vinely's Story</h1>
+  <h1 class="headline">Vinely's Story</h1>
 {% endblock header %}
 
 {% block content %}
@@ -10,6 +10,7 @@
 
   <div class="row">
     <div class="span12">
+      <section id="great-tastes">
       <h2>Great tastes are hard to come by</h2>
 
       <p>Our question was simple: Why? Why can’t finding tastes you love be easy, social, and fun? Now they are, with Vinely.</p>
@@ -21,7 +22,7 @@
       <p>We're not out to change the things you enjoy. Fact is, we’re here to help you embrace them even more! And with a Vinely Personality, there's nothing stopping you from finding wines that entice, excite, and encourage you to taste Your Personality every chance you get.</p>
 
       <p>What are you waiting for?</p>
-
+      </section>
       <div class="form-actions">
         <div class="controls">
           <a class="btn btn-primary" href="{% url sign_up 2 %}">Get Started</a>

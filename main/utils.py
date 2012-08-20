@@ -2,6 +2,8 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext,   Context, Template
 from django.template.loader import render_to_string
 from main.models import Order, EngagementInterest
+from support.models import Email
+
 from datetime import tzinfo, timedelta
 
 ZERO = timedelta(0)

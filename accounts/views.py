@@ -282,6 +282,7 @@ def sign_up(request, account_type):
     send_verification_email(request, verification_code, temp_password, user.email)
 
     data["email"] = user.email
+    data["first_name"] = user.first_name
 
     data["account_type"] = account_type 
     if account_type == 1:

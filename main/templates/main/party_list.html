@@ -4,18 +4,15 @@
 {% load thumbnail %}
 
 {% block header %}
-<h1>Parties</h1>
-  {% if socializer %}
-    <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
-  {% elif pro %}
-    Parties you are managing
-  {% elif taster %}
-    Parties you are attending
-  {% endif %}
+<div class="row">
+  <div class="span8">
+    <h1 class="headline">Your Vinely Taste Parties</h1>
+  </div>
+</div>
 {% endblock header %}
 
 {% block side_navigation %}
-  {% if specialist %}
+  {% if pro %}
     <li><a href="{% url party_add %}">Create Party</a></li>
   {% endif %}
 
@@ -28,7 +25,21 @@
 
 {% block main_content %}
 
-  <section id="explanation">
+  <section id="sub-heading">
+    <div class="row">
+      <div class="span8">
+        {% if socializer %}
+          <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
+        {% elif pro %}
+          Parties you are managing
+        {% elif taster %}
+          Parties you are attending
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  <section id="socializer-info">
+
     <div class="user-info">
       <div class="user-pic">
         {% if user.get_profile.image %}
@@ -44,7 +55,7 @@
           {% if user.first_name %}
             {{ user.first_name }} {{ user.last_name }}
           {% else %}
-            Valued User Name 
+            Vinely Host 
           {% endif %}
         </div>
         <div class="user-phone">
@@ -63,12 +74,12 @@
   </div>
   <table class="table table-striped">
     <thead>
-      <th>Date</th>
+      <th>Date/Time</th>
       <th>Host</th>
       <th>Title</th>
       <th>Contact Phone</th>
-      <th>Address</th>
-      <th>Guests</th>
+      <th>Location</th>
+      <th>Tasters</th>
     </thead>
     <tbody>
     {% for party in parties %}
@@ -92,12 +103,12 @@
   </div>
   <table class="table table-striped">
     <thead>
-      <th>Date</th>
+      <th>Date/Time</th>
       <th>Host</th>
       <th>Title</th>
       <th>Contact Phone</th>
-      <th>Address</th>
-      <th>Guests</th>
+      <th>Location</th>
+      <th>Tasters</th>
       <th>My Credit</th>
     </thead>
     <tbody>
