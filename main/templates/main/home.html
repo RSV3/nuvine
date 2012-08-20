@@ -1,9 +1,7 @@
 {% extends "main/menu_base_flip.html" %}
 
 {% block header %}
-  <div class="span8">
-    <h1 class="headline">Welcome, {% if user.first_name %}{{ first_name }}{% else %}to Vinely{% endif %}</h1>
-  </div>
+
 {% endblock header %}
 
 {% block side_navigation %}
@@ -48,6 +46,10 @@
 {% endblock side_navigation %}
 
 {% block main_content %}
+
+  <div class="span8">
+    <h1 class="headline">Welcome {% if user.first_name %}{{ first_name }}{% else %}to Vinely{% endif %}</h1>
+  </div>
 
   <div class="span8">
     <div class="role-welcome">

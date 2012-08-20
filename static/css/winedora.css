@@ -60,6 +60,12 @@ body {
   padding-top: 0;
 }
 
+/* shop */
+
+.product-description {
+  font-size: 0.8em;
+}
+
 .menu_wrap.main ul.nav, .menu_wrap.main ul.nav li {
     height: 50px;
     margin: 0;

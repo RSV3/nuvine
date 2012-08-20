@@ -190,8 +190,10 @@ class SimpleTest(TestCase):
   def create_products(self):
     if Product.objects.all().count() < 4:
       f = open("data/tasting-kit.jpg", 'r')
-      p, created = Product.objects.get_or_create(name="Host Tasting Kit",
-                                    description="Host a party or understand your tastes",
+      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit",
+                                    description="This is the official Vinely First Taste Kit. \
+                                    It comes with six wines that will help Vinely Tasters discover \
+                                    their true wine personality.",
                                     unit_price=125.00,
                                     category=Product.PRODUCT_TYPE[0][0],
                                     cart_tag="tasting_kit")
@@ -202,8 +204,11 @@ class SimpleTest(TestCase):
 
 
       f = open("data/SP_basic_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Basic Vinely Recommendation",
-                                    description="Good set of wines for good people",
+      p, created = Product.objects.get_or_create(name="Basic Collection",
+                                    description="The {{ personality }} Basic Collection is lively, yet \
+                                    laid-back - just like life should be. It offers a dynamic medley \
+                                    of flavors you won't be able to resist. For those new to the world \
+                                    of wine, it provides great taste without requiring a great investment.",
                                     unit_price=75.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="basic")
@@ -212,8 +217,13 @@ class SimpleTest(TestCase):
       f.close()
 
       f = open("data/SP_classic_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Classic Vinely Recommendation",
-                                    description="Better set of wines for better people",
+      p, created = Product.objects.get_or_create(name="Classic Collection",
+                                    description="As its name might suggest, this collection is \
+                                    full of class. Great for enjoying alone or with friends, each \
+                                    bottle is filled with the potential to take your wine experience \
+                                    to exciting new places. The {{personality}} Classic Collection \
+                                    is the perfect choice for those with a passion for wine and its \
+                                    ability to enhance any mood or setting.",
                                     unit_price=120.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="classic")
@@ -222,8 +232,12 @@ class SimpleTest(TestCase):
       f.close()
 
       f = open("data/SP_divine_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Divine Vinely Recommendation",
-                                    description="Best set of wines for best people",
+      p, created = Product.objects.get_or_create(name="Divine Collection",
+                                    description="Captivating. Balanced. Brilliant. You're full \
+                                    of depth and so is the {{personality}} Divine Collection. \
+                                    Excite your senses each and every time you pour a glass. \
+                                    The unmatched experience each bottle provides will have you \
+                                    appreciating every sip, every scent, and every penny paid.",
                                     unit_price=225.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="divine")

@@ -72,8 +72,8 @@ class PartyInvite(models.Model):
       (3, 'Yes')
   )
 
-  party = models.ForeignKey(Party)
-  invitee = models.ForeignKey(User, related_name="my_invites")
+  party = models.ForeignKey(Party, verbose_name="Taste Party")
+  invitee = models.ForeignKey(User, related_name="my_invites", verbose_name="Select Taster")
   # if other than the socializer
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])

@@ -27,11 +27,11 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro
 
-
 import json, uuid
 from urlparse import urlparse
 from datetime import date, datetime, timedelta
-
+from django.template.loader import render_to_string
+from django.template import Context, Template
 
 def suppliers_only(request):
   """
@@ -246,6 +246,9 @@ def start_order(request, receiver_id=None, party_id=None):
   # filter only wine packages
   products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
 
+  for p in products:
+    description_template = Template(p.description)
+    p.description = description_template.render(Context({'personality': personality.name }))
   data["products"] = products
   data["shop_menu"] = True
 

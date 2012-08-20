@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1 class="headline">Invite People {% if party %}to {{ party.title }}{% endif %}</h1>
+  <h1 class="headline">Invite Tasters</h1>
 {% endblock header %}
 
 {% block content %}
@@ -28,7 +28,7 @@
 
           {{ form.errors }}
           <fieldset>
-            <legend>Please enter attendee information</legend>
+            <legend>Invite tasters{% if party %} to {{ party.title }}{% endif %}</legend>
             
             {% if form.non_field_errors %}
               <div class="alert alert-error">
@@ -42,7 +42,7 @@
                 {{ form.party}}
               </div>
             </div>
-            {% if not attendee %}
+            {% if not taster %}
             <div class="control-group">
               <label class="control-label" for="id_invitee">{{ form.invitee.label }}</label>
               <div class="controls">
@@ -50,6 +50,11 @@
               </div>
             </div>
             {% endif %}
+            <div class="control-group">
+              <div class="controls">
+                or enter new taster
+              </div>
+            </div>
             <div class="control-group">
               <label class="control-label" for="id_first_name">{{ form.first_name.label }}</label>
               <div class="controls">
@@ -71,7 +76,7 @@
 
             <div class="control-group">
               <div class="controls">
-                <button type="submit" class="btn btn-primary">Invite</button>
+                <button type="submit" class="btn btn-primary">Invite Taster</button>
               </div>
             </div>
           </fieldset>

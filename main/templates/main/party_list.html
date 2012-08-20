@@ -4,27 +4,28 @@
 {% load thumbnail %}
 
 {% block header %}
-<div class="row">
-  <div class="span8">
-    <h1 class="headline">Your Vinely Taste Parties</h1>
-  </div>
-</div>
+
 {% endblock header %}
 
 {% block side_navigation %}
   {% if pro %}
-    <li><a href="{% url party_add %}">Create Party</a></li>
+    <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
   {% endif %}
 
-  <li><a href="{% url party_taster_invite %}">Invite Attendee</a></li>
+  <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Attendee</a></div></li>
 
   {% if taster %}
-    <li><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></li>
+    <li><div class="chev"><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></div></li>
   {% endif %}
 {% endblock side_navigation %}
 
 {% block main_content %}
 
+  <div class="row">
+    <div class="span8">
+      <h1 class="headline">Your Vinely Taste Parties</h1>
+    </div>
+  </div>
   <section id="sub-heading">
     <div class="row">
       <div class="span8">
@@ -129,3 +130,18 @@
   </section>
 
 {% endblock main_content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(".side-nav li").hover(
+      function () {
+        $(this).children(".chev").addClass("active");
+        $(this).find("a").addClass("hovered");
+      },
+      function () {
+        $(this).children(".chev").removeClass("active");
+        $(this).find("a").removeClass("hovered");
+      }
+    );
+  </script>
+{% endblock additional_scripts %}

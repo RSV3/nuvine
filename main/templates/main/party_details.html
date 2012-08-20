@@ -3,8 +3,8 @@
 {% load thumbnail %}
 
 {% block header %}
-  <h1>Party Details for {{ party.title }}</h1>
-  Here are your party details.  Invite more attendees to learn about their wine profiles.
+  <h1>Taste Party: {{ party.title }}</h1>
+  Here are your party details.  Invite more tasters to learn about their wine profiles.
 {% endblock header %}
 
 {% block content %}
@@ -30,50 +30,59 @@
             </tr>
             <tr>
               <td>Guests Attending:</td>
-              <td>{{ party.invitees }}</td>
+              <td>{% if party.invitees %}{{ party.invitees }}{% else %}Nobody invited yet{% endif %}</td>
             </tr>
             <tr>
               <td>Special Instructions:</td>
               <td>{{ party.description }}</td>
             </tr>
+            <tr>
+              <td>
+              </td>
+              <td>
+                <a class="btn btn-primary" href="{% url cart_add_tasting_kit %}">Order Host Kit</a>
+              </td>
+            </td>
           </tbody>
         </table>
       </div>
 
       <div class="span6">
         {% if not pro %}
-        <p>
-          <div class="user-info">
-            <div class="user-pic">
-              {% thumbnail pro_user.get_profile.image "120x120" as im %}
-                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-              {% endthumbnail %}
+          {# for hosts #}
+          <p>
+            <div class="user-info">
+              <div class="user-pic">
+                {% thumbnail pro_user.get_profile.image "120x120" as im %}
+                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% endthumbnail %}
+              </div>
+              <div class="user-contact">
+                <p><b>Vinely Pro:</b></p>
+                <div class="user-name">
+                  {% if pro_user.first_name %}
+                    {{ pro_user.first_name }} {{ pro_user.last_name }}
+                  {% else %}
+                    Valued Customer Name
+                  {% endif %}
+                </div>
+                <div class="user-phone">
+                  <i class="icon-user"></i> {% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
+                </div>
+                <div class="user-email">
+                  <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
+                </div>
+              </div>
             </div>
-            <div class="user-contact">
-              <p><b>Vinely Pro:</b></p>
-              <div class="user-name">
-                {% if pro_user.first_name %}
-                  {{ pro_user.first_name }} {{ pro_user.last_name }}
-                {% else %}
-                  Valued Customer Name
-                {% endif %}
-              </div>
-              <div class="user-phone">
-                <i class="icon-user"></i> {% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
-              </div>
-              <div class="user-email">
-                <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
-              </div>
-            </div>
-          </div>
-        </p>
-        <section id="party-tips">
-        <p><a href="#">Tips for hosting a successful party</a></p>
-        </section>
+          </p>
+          <section id="party-tips">
+          <p class="pull-right"><a href="#">Download the Taste Party To-Do List</a></p>
+          </section>
         {% else %}
-        <div class="pull-right">
-          <a href="" class="btn btn-primary btn-large">Print Materials</a>
-        </div>
+          {# for pros #}
+          <div class="pull-right">
+            <a href="" class="btn btn-primary btn-large">Print Materials</a>
+          </div>
         {% endif %}
       </div>
     </div> <!-- .row -->
@@ -81,7 +90,7 @@
 
   <section id="party-tasters">
     <div class="page-header">
-      Guests - <a href="{% url party_taster_invite party.id %}">+ Add Guests</a>
+      Tasters Attending - <a href="{% url party_taster_invite party.id %}">Invite Tasters<i class="icon-plus"></i></a>
     </div>
     <form method="POST" action="{% url party_customize_invite %}">
       {% csrf_token %}

@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from main.models import EngagementInterest, PartyInvite
+from main.models import EngagementInterest, PartyInvite, MySocializer
 
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
 

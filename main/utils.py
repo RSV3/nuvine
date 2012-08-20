@@ -476,6 +476,46 @@ def distribute_party_invites_email(request, invitation_sent):
   msg.send()
 
   return msg
+
+def send_rsvp_thank_you_email(request):
+
+  message_template = Template("""
+
+    Hey, {{ first_name }}!
+
+    Guess what? (Drumroll, please.) Your RSVP was received successfully! 
+    Now you can prepare to be paired with a Vinely Personality.
+
+    Please fill out our quick 11-question survey. It will give us a glimpse into your personal taste. 
+    No pressure here. There's no right or wrong answer.
+
+    <a class="brand-btn" ref="{% url pre_questionnaire_general %}">Take the First Step</a>
+
+    Happy Tasting!
+
+    - The Vinely Team
+
+  """)
+
+  c = RequestContext( request, {"first_name": request.user.first_name} )
+  message = message_template.render(c)
+
+  recipients = [ request.user.email ]
+
+  # send out party invitation e-mail 
+  subject = 'Thanks for the RSVP!'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
+                                                            'message': message}))
+  from_email = 'support@vinely.com'
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+  return msg
+   
 def send_contact_request_email(request, contact_request):
   """
     E-mail sent when someone fills out a contact request

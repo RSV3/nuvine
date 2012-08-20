@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>You have been invited to {{ party.title }}!</h1>
+  <h1 class="headline">You have been invited to a Vinely Taste Party!</h1>
 {% endblock header %}
 
 {% block content %}
@@ -11,6 +11,9 @@
   <section id="party-message">
     <div class="row">
       <div class="span12">
+        <p>What’s a Vinely Taste Party? Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
+
+        <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
         <blockquote>
           {{ custom_message }}
         </blockquote>
@@ -21,11 +24,11 @@
   <section id="party-information">
     <div class="row">
       <div class="span6">
-        <p><b>Will you attend?</b></p>
+        <p><b>Will you attend? You know you want to! (You can always come back and change your response later.)</b></p>
         <p>
         <a class="btn btn-success btn-large" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
         <a class="btn btn-primary btn-large" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
-        <a class="btn btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign"> </i>Maybe</a>
+        <a class="btn btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign"></i> Maybe</a>
         </p>
         {% if invite.response %}
         <p>
@@ -58,6 +61,10 @@
         <table>
           <tbody>
             <tr>
+              <td>Special Instructions:</td>
+              <td>{{ party.description }}</td>
+            </tr>           
+            <tr>
               <td>Hosted by:</td>
               <td><a href="mailto:{{ party.socializer.email }}">{% if party.socializer.first_name %}{{ party.socializer.first_name }} {{ party.socializer.last_name }}{% else %}Friendly Socializer{% endif %}</a></td>
             </tr>
@@ -73,15 +80,9 @@
                 {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }} [<a href="https://maps.google.com/maps?q={{party.address.google_maps_address}}">map</a>]<br>
               </td>
             </tr>
-            <tr>
-              <td>Special Instructions:</td>
-              <td>{{ party.description }}</td>
-            </tr>
           </tbody>
         </table>
       </div>
-
-
     </div> <!-- .row -->
   </section>
 

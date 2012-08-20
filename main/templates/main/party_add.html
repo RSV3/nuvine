@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block header %}
-  <h1>Create a New Party</h1>
+  <h1 class="headline">Create a New Party</h1>
 {% endblock header %}
 
 {% block content %}
@@ -19,7 +19,10 @@
     <div class="span12">
       <h2>Please contact your Vinely Pro in order to schedule a party.</h2> 
       <p></p>
-      <h2>Go back to your <a href="{% url party_list %}">Party List</a>.</h2>
+      <p>&laquo; Go back to your <a href="{% url party_list %}">Party List</a>.</p>
+      
+      <div class="vertical-space">
+      </div>
     </div>
   </div>
   </section>

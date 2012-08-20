@@ -5,23 +5,35 @@
 {% endblock %}
 
 {% block header %}
-  <h1>My Account</h1>
+  <h1 class="headline">My Account</h1>
 {% endblock header %}
 
 {# this is where it lands when a user clicks "My Account" #}
 
 {% block left_navigation %}
-  <li{% if my_information %} class="active"{% endif %}><a href="{% url my_information %}">My Information</a></li>
-  <li{% if change_password %} class="active"{% endif %}><a href="{% url change_password %}">Change Password</a></li>
-  <li{% if verify_eligibility %} class="active"{% endif %}><a href="{% url verify_eligibility %}">Verify Eligibility</a></li>
-  <li{% if edit_subscription %} class="active"{% endif %}><a href="{% url edit_subscription %}">Edit Subscription</a></li>
-  <li{% if order_history %} class="active"{% endif %}><a href="{% url order_history %}">Order History</a></li>
+  <li{% if my_information %} class="active"{% endif %}><div class="chev"><a href="{% url my_information %}">My Information</a></div></li>
+  <li{% if change_password %} class="active"{% endif %}><div class="chev"><a href="{% url change_password %}">Change Password</a></div></li>
+  <li{% if verify_eligibility %} class="active"{% endif %}><div class="chev"><a href="{% url verify_eligibility %}">Verify Eligibility</a></div></li>
+  <li{% if edit_subscription %} class="active"{% endif %}><div class="chev"><a href="{% url edit_subscription %}">Edit Subscription</a></div></li>
+  <li{% if order_history %} class="active"{% endif %}><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
 {% endblock left_navigation %}
 
 {% block right_content %}
 {% endblock right_content %}
 
 {% block additional_scripts %}
+  <script type="text/javascript">
+    $(".side-nav li").hover(
+      function () {
+        $(this).children(".chev").addClass("active");
+        $(this).find("a").addClass("hovered");
+      },
+      function () {
+        $(this).children(".chev").removeClass("active");
+        $(this).find("a").removeClass("hovered");
+      }
+    );
+  </script>
   <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
   <script type="text/javascript">
     $(document).ready( function () {
