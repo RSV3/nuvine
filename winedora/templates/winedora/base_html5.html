@@ -135,9 +135,7 @@
         <div class="box-content authentication">
             {% if user.is_authenticated %}
                 <a href="{% url logout %}">Log Out</a>
-                <a href="{% url my_information %}">
-                  my account
-                </a>
+                <a href="{% url my_information %}">my account</a>
                 <a href="{% url cart %}">Cart 0 items</a>
               {% else %}
               <!-- if not logged in, show login link -->
