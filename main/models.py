@@ -105,7 +105,7 @@ class Product(models.Model):
   name = models.CharField(max_length=128)
   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
-  description = models.CharField(max_length=512)
+  description = models.CharField(max_length=1024)
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
   image = ImageField(upload_to="products/")
   cart_tag = models.CharField(max_length=64, default="x")
