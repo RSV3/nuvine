@@ -360,10 +360,11 @@ h4,
 h5,
 h6 {
   margin: 0;
-  font-family: inherit;
+  font-family: "AlternateGothicNo2BT-Regular";
   font-weight: bold;
-  color: inherit;
+  color: #415A68;
   text-rendering: optimizelegibility;
+  text-transform: uppercase;
 }
 h1 small,
 h2 small,
@@ -4143,21 +4144,24 @@ h4,
 h5,
 h6 {
   line-height: 2em;
+  font-family: "AlternateGothicNo2BT-Regular";
+  font-weight: bold;
   color: #415A68;
+  text-rendering: optimizelegibility;
+  text-transform: uppercase;
 }
 h1 {
-  font-size: 2em;
-    font-family: "AlternateGothicNo2BT-Regular";
+  font-size: 26px;
 }
 h2 {
-  font-size: 1.5em;
-  font-family: "AlternateGothicNo2BT-Regular"; 
+  font-size: 24px;
 }
 h3,
 h4,
 h5,
 h6 {
-  font-size: 1em;
+  font-family:"Avenir LT W01 55 Roman";
+  font-size: 14px;
   text-transform: none;
 }
 small {
