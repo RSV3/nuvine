@@ -316,7 +316,43 @@ body {
 #id_custom_message {
   width: 600px;
 }
-
+.product-container {
+  position:relative;
+  width: 340px;
+  height: auto;
+  overflow: auto;
+}
+.product-img {
+  position:relative;
+  z-index:1;
+  margin-top: 20px;
+  width: 300px;
+  height: 325px;
+}
+.product-img img {
+  border: 1px solid #8a979e;
+}
+.product-badge {
+   position:absolute;
+   top:0px;
+   left:0px;
+   width: 320px;
+   height:100%;
+   z-index:5;
+ }
+ .product-badge.from-75 {
+    background: url('../img/btn_pie_from75.png') no-repeat right top;
+ }
+ .product-badge.from-125 {
+    background: url('../img/btn_pie_from125.png') no-repeat right top;
+ }
+ .product-badge.from-220 {
+    background: url('../img/btn_pie_from220.png') no-repeat right top;
+ }
+ .product-description {
+  width: 300px;
+  margin-top: 15px;
+ }
 footer {
   font-family: "Avenir LT W01 85 Heavy";
   text-transform: uppercase;
