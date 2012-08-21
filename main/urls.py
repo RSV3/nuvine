@@ -8,6 +8,7 @@ urlpatterns = patterns('main.views',
     url(r'^howto/$', 'how_it_works', name='how_it_works'),
     url(r'^become/vip/$', 'become_vip', name='become_vip'),
     url(r'^dashboard/$', 'dashboard', name='dashboard'),
+    url(r'^rate/wines/$', 'rate_wines', name='rate_wines'),
 
     url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
 

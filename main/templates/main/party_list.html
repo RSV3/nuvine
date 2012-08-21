@@ -1,4 +1,4 @@
-{% extends "main/menu_base_flip.html" %}
+{% extends "winedora/base_html5.html" %}
 
 {% load currency %}
 {% load thumbnail %}
@@ -7,38 +7,25 @@
 
 {% endblock header %}
 
-{% block side_navigation %}
-  {% if pro %}
-    <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
-  {% endif %}
-
-  <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Attendee</a></div></li>
-
-  {% if taster %}
-    <li><div class="chev"><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></div></li>
-  {% endif %}
-{% endblock side_navigation %}
-
-{% block main_content %}
-
+{% block content %}
+<div class="container">
   <div class="row">
-    <div class="span8">
+    <div class="span12">
       <h1 class="headline">Your Vinely Taste Parties</h1>
     </div>
   </div>
-  <section id="sub-heading">
-    <div class="row">
-      <div class="span8">
-        {% if socializer %}
-          <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
-        {% elif pro %}
-          Parties you are managing
-        {% elif taster %}
-          Parties you are attending
-        {% endif %}
-      </div>
+  <div class="row">
+    <div id="sub-heading" class="span12 center">
+      {% if socializer %}
+        <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
+      {% elif pro %}
+        Parties you are managing
+      {% elif taster %}
+        Parties you are attending
+      {% endif %}
     </div>
-  </section>
+  </div>
+
   <section id="socializer-info">
 
     <div class="user-info">
@@ -56,7 +43,11 @@
           {% if user.first_name %}
             {{ user.first_name }} {{ user.last_name }}
           {% else %}
-            Vinely Host 
+            {% if pro %}
+              Vinely Pro 
+            {% elif socializer %}
+              Vinely Socializer
+            {% endif %}
           {% endif %}
         </div>
         <div class="user-phone">
@@ -67,6 +58,22 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <section id="party-actions">
+    <div class="vertical-space">
+      &nbsp;
+    </div>
+    <div class="row">
+      <div class="span12">
+        {% if pro %}
+          <a class="btn" href="{% url party_add %}">Create Party</a>
+        {% endif %}
+          <a class="btn" href="{% url party_taster_invite %}">Invite Attendee</a>
+        {% if taster %}
+          <a class="btn" href="{% url host_vinely_party %}">Host a Vinely Taste Party</a>
+        {% endif %}
+      </div>
   </section>
 
   <section id="upcoming-parties">
@@ -129,7 +136,11 @@
   </table>
   </section>
 
-{% endblock main_content %}
+  <div class="vertical-space-bottom span12">
+    &nbsp;
+  </div>
+</div>
+{% endblock content %}
 
 {% block additional_scripts %}
   <script type="text/javascript">

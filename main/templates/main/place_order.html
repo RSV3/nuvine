@@ -4,7 +4,7 @@
 {% load thumbnail %}
 
 {% block header %}
-  <h1>Checkout: Place Order</h1>
+  <h1 class="headline">Check it out!</h1>
 {% endblock header %}
 
 {% block content %}
@@ -17,6 +17,7 @@
         <thead>
           <tr>
             <th>Item</th>
+            <th>Frequency</th>
             <th>Quantity</th>
             <th>Total</th>
             <th>Remove</th>
@@ -37,6 +38,7 @@
                 </div>
               </div>
             </td>
+            <td>{{ item.get_frequency_display }}</td>
             <td>{{ item.quantity_str }}</td>
             <td>{{ item.subtotal|currency }}</td>
             <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url place_order %}"><i class="icon-trash"></i></a></td> 

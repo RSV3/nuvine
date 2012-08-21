@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Order Wine: Shipping</h1>
+  <h1 class="headline">Where do you want it?</h1>
 {% endblock header %}
 
 {% block content %}
@@ -11,13 +11,14 @@
   <section id="shipping-information">
   <div class="page-header">
     <h4>Enter Shipping Address</h4>
+    <p>You have to be 21 to drink it, so you have to be 21 to receive it. Make sure wherever you ship will have someone 21 or older available to sign.</a>
   </div>
   <div class="row">
     <div class="span12">
       <form class="form-horizontal" method="POST" action="{% url edit_shipping_address %}">
         {% csrf_token %}
 
-        {{ form.errors }}
+        <!-- {{ form.errors }}-->
         <fieldset>
         <div class="control-group{% if form.first_name.errors %} error{% endif %}">
           <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>

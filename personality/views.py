@@ -201,6 +201,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     # used in ratings_saved.html template to go back to party details
     data["party_id"] = party_id
     party = Party.objects.get(id=party_id)
+    data["party"] = party
 
   pro_group = Group.objects.get(name="Vinely Pro")
   soc_group = Group.objects.get(name="Vinely Socializer")

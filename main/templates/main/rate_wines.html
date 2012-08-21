@@ -1,28 +1,53 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1>Rate Your Wines</h1>
+  <h1 class="headline">Whoops! Our apologies.  You can't rate wines on this page quite yet.</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  <div class="row">
-    <div class="span12">
-      If you have received and tasted your wine, you will see links here to rate
+  <section id="rate-instructions">
+    <div class="row">
+      <div class="span12">
+        <p id="sub-heading">
+        If you received a Vinely shipment and need to submit your rating card (it's still important that you do), here's three ways to do so:
+        </p>
+      </div>
     </div>
-  </div>
+  </section>
 
   <div class="row">
-    <div class="span12">
-      Info graphic
+    <div class="span4">
+      <div class="page-header">
+        Email
+      </div>
+      <p>Take a picture or scan it and email it to <a href="ratings@vinely.com">ratings@vinely.com</a></p>
     </div>
-    <div class="span12">
-        <p><a class="btn btn-primary" href="{% url sign_up 4 %}">Sign Up &raquo;</a></p>
+    <div class="span4">
+      <div class="page-header">
+        Snail mail   
+      </div>
+        <address>
+        Vinely<br>
+        One Kendall Square Building 400, B4202<br>
+        Cambridge, MA 02139<br>
+        </address>
+      </p>
     </div>
-  </div>
 
+    <div class="span4">
+      <div class="page-header">
+      Call
+      </div> 
+      Talk to one of our Vinely Care Specialists at (888) 294-1128 ext. 1 or <a href="care@vinely.com">email</a> us. 
+    </div>
+
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
 </div>
 
 {% endblock content %}

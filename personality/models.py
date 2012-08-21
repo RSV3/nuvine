@@ -32,11 +32,11 @@ class WineRatingData(models.Model):
 
   LIKENESS_CHOICES = (
       (0, 'Not Answered'),
-      (1, 'Hated'),
-      (2, 'Disliked'),
+      (1, 'Hate'),
+      (2, 'Dislike'),
       (3, 'Neutral'),
-      (4, 'Liked'),
-      (5, 'Loved'),
+      (4, 'Like'),
+      (5, 'Love'),
   )
 
   DNL_CHOICES = (

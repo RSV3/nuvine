@@ -1090,8 +1090,8 @@ def party_send_invites(request):
 
       # send e-mails
       distribute_party_invites_email(request, invitation_sent)
-
-      messages.success(request, "Invitations have been sent to your guests.")
+      num_guests = len(request.POST.getlist("guests"))
+      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
       return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))

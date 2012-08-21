@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block header %}
-  <h1 class="headline">Create a New Party</h1>
+  <h1 class="headline">Get the Party Started</h1>
 {% endblock header %}
 
 {% block content %}
@@ -29,7 +29,7 @@
   {% else %}
 
   <div class="row">
-    <div class="span12">
+    <div class="span12 center">
       It's time to start a new party!         
     </div>
   </div>
@@ -104,7 +104,7 @@
           </fieldset>
 
           <fieldset>
-            <legend>Socializer Information</legend>
+            <legend>Select Socializer</legend>
             <div class="control-group {% if form.socializer.errors %}error{% endif %}">
               <div class="control-label" for="id_socializer">{{ form.socializer.label }}</div>
               <div class="controls">
@@ -121,6 +121,12 @@
                 {% endif %}
               </div>
             </div>
+            <div class="control-group">
+              <div class="controls">
+                OR Enter New Socializer
+              </div>
+            </div>
+
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">
               <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
               <div class="controls">
@@ -156,7 +162,7 @@
             </div>
           </fieldset>
           <fieldset>
-            <legend>Party Address</legend>
+            <legend>Party Location</legend>
             <div class="control-group {% if form.address.errors %}error{% endif %}">
               <div class="control-label" for="id_address">{{ form.address.label }}</div>
               <div class="controls">
@@ -227,7 +233,7 @@
           <fieldset>
             <div class="control-group">
               <div class="controls">
-                <button type="submit" class="btn btn-primary">Create Party</button>
+                <button type="submit" class="btn btn-primary">Add Taste Party</button>
               </div>
             </div>
           </fieldset>

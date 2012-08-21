@@ -2,7 +2,6 @@
 
 {% block header %}
   <h1 class="headline">Preview Invitation</h1>
-  Please review your invitation
 {% endblock header %}
 
 {% block content %}
@@ -10,6 +9,11 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   <section id="invitation-content">
+    <div class="row">
+      <div class="span12">
+        <p>Please review your invitation</p>
+      </div>
+    </div>
   <form method="POST" action="{% url party_send_invites %}">
     {% csrf_token %}
     {{ form.party }}
@@ -40,11 +44,13 @@
 
     <hr>
 
+    <!--
     <div class="span12">
       <center>
         <img src="http://www.winepartiesbydesign.com/_images/banner_1.png">
       </center>
     </div>
+    -->
 
     <div class="row">
       <div class="span12">
@@ -59,35 +65,40 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="span6">
-        <p><h3>Party Details</h3></p>
-        <p>&nbsp;</p>
-        <table>
-          <tbody>
-            <tr>
-              <td>Date and Time:</td>
-              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-            </tr>
-            <tr>
-              <td>Location:</td>
-              <td>
-                {{ party.address.street1 }}<br>
-                {% if party.address.street2 %}{{ party.address.street2 }}<br>{% endif %}
-                {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <section id="custom-message-body">
+      <div class="row">
+        <div class="span6">
+          <p><h3>Party Details</h3></p>
+          <table cellpadding="5">
+            <tbody>
+              <tr>
+                <td>Date and Time:</td>
+                <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+              </tr>
+              <tr>
+                <td>Party Type:</td>
+                <td>{{ party.title }}</td>
+              </tr>
+              <tr>
+                <td>Location:</td>
+                <td>
+                  {{ party.address.street1 }}<br>
+                  {% if party.address.street2 %}{{ party.address.street2 }}<br>{% endif %}
+                  {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="span6">
+        </div>
       </div>
-      <div class="span6">
-      </div>
-    </div>
+    </section>
 
     <div class="row">
       <div class="span12">
         <div class="form-actions">
-          <a class="btn" href="javascript:javascript:history.go(-1)">Edit Invitation</a>
+          <a class="btn btn-warning" href="javascript:javascript:history.go(-1)">Edit Invitation</a>
           <input class="btn btn-primary" type="submit" name="send" value="Send Invitation">
         </div>
       </div>

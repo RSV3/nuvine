@@ -40,8 +40,8 @@ class PartyCreateForm(forms.ModelForm):
   state = us_forms.USStateField(required=False)
   zipcode = us_forms.USZipCodeField(required=False)
 
-  event_day = forms.DateField(label="Event date")
-  event_time = forms.TimeField(input_formats=valid_time_formats)
+  event_day = forms.DateField(label="Taste Party Date")
+  event_time = forms.TimeField(input_formats=valid_time_formats, label="Taste Party Time")
 
   # replace form field for Party.phone
   phone = us_forms.USPhoneNumberField()
@@ -55,6 +55,7 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
     self.fields['description'].required = False
+    self.fields['title'].initial = 'First Taste Party'
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()

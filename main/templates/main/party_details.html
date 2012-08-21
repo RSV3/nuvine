@@ -21,6 +21,10 @@
               <td><a href="mailto:{{ party.socializer.email }}">{% if party.socializer.first_name %}{{ party.socializer.first_name }} {{ party.socializer.last_name }}{% else %}Friendly Socializer{% endif %}</a></td>
             </tr>
             <tr>
+              <td>Party Type:</td>
+              <td>{{ party.title }}</td>
+            </tr>
+            <tr>
               <td>Date and Time:</td>
               <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
             </tr>
@@ -38,9 +42,9 @@
             </tr>
             <tr>
               <td>
+                <a class="btn btn-primary" href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a>
               </td>
               <td>
-                <a class="btn btn-primary" href="{% url cart_add_tasting_kit %}">Order Host Kit</a>
               </td>
             </td>
           </tbody>
@@ -81,7 +85,7 @@
         {% else %}
           {# for pros #}
           <div class="pull-right">
-            <a href="" class="btn btn-primary btn-large">Print Materials</a>
+            <a href="" class="btn btn-primary btn-large">Print Rating Cards</a>
           </div>
         {% endif %}
       </div>
@@ -90,7 +94,7 @@
 
   <section id="party-tasters">
     <div class="page-header">
-      Tasters Attending - <a href="{% url party_taster_invite party.id %}">Invite Tasters<i class="icon-plus"></i></a>
+      Tasters Attending - <a href="{% url party_taster_invite party.id %}">Invite Tasters <i class="icon-plus"></i></a>
     </div>
     <form method="POST" action="{% url party_customize_invite %}">
       {% csrf_token %}

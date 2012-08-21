@@ -7,6 +7,11 @@ body {
   margin-bottom: 25px;
 }
 
+.vertical-space-bottom {
+  margin-bottom: 100px;
+}
+
+
 /* home page */
 .personality-badge-detail {
   margin-top: 25px;
@@ -37,10 +42,26 @@ body {
   text-align: center;
 }
 
+/* below the headline */
+#sub-heading {
+  font-size: 18px;
+}
+
 /* nav bar */
 
 .navbar {
   margin-top: 10px;
+}
+
+/* for forms */
+
+legend {
+  font-size: 18px;
+}
+
+/* for table */
+.page-header {
+  font-size: 18px;
 }
 
 /* side navigation */
@@ -356,7 +377,8 @@ body {
  .product-description {
   width: 300px;
   margin-top: 15px;
- }
+}
+
 footer {
   font-family: "Avenir LT W01 85 Heavy";
   text-transform: uppercase;
@@ -373,4 +395,10 @@ footer a, footer a:visited {
 }
 footer .container .navbar {
   margin-bottom: 0px;
+}
+
+/* party pages */
+
+#party-tasters .icon-plus {
+  margin-top: 4px;
 }

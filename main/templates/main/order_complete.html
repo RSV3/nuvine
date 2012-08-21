@@ -4,7 +4,7 @@
 {% load thumbnail %}
 
 {% block header %}
-  <h1>Your Order has been Submitted</h1>
+  <h1 class="headline">Your order was placed successfully!</h1>
 {% endblock header %}
 
 {% block content %}
@@ -12,8 +12,9 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   <div class="row">
-    <div class="span12">
-      Your order can be tracked in <a href="{% url order_history %}">Order History</a>
+    <div class="span12 center">
+      <p>Success! Your delicious surprise will soon be on its way.</p>
+      <p>A copy of your order will be sent to your email and can be referenced any time in <a href="{% url order_history %}">My Account</a></p>
     </div>
   </div>
 
@@ -46,8 +47,8 @@
             <thead>
               <tr>
                 <th>Item</th>
-                <th>Subscription</th>
                 <th>Quantity</th>
+                <th>Frequency</th>
                 <th>Total</th>
               </tr>
             </thead>
@@ -66,8 +67,8 @@
                   </div>
                 </div>
               </td>
-              <td>{{ item.get_frequency_display }}</td>
               <td>{{ item.quantity_str }}</td>
+              <td>{{ item.get_frequency_display }}</td>
               <td>{{ item.subtotal|currency }}</td>
             </tr>
             {% endfor %}
