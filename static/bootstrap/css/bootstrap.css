@@ -134,7 +134,7 @@ textarea {
 body {
   margin: 0;
   font-family: "Avenir LT W01 55 Roman", "Helvetica", "Arial", "sans-serif";
-  font-size: 17px;
+  font-size: 14px;
   line-height: 1.3em;
   color: #415A68;
 }
@@ -457,32 +457,38 @@ ol.unstyled {
   margin-left: 0;
   list-style: none;
 }
+
 dl {
-  margin-bottom: 1.3em;
+  margin-bottom: 20px;
 }
+
 dt,
 dd {
-  line-height: 1.3em;
+  line-height: 20px;
 }
+
 dt {
   font-weight: bold;
-  line-height: 0.30000000000000004em;
 }
+
 dd {
-  margin-left: 0.65em;
+  margin-left: 10px;
 }
+
 .dl-horizontal dt {
   float: left;
   width: 120px;
+  overflow: hidden;
   clear: left;
   text-align: right;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .dl-horizontal dd {
   margin-left: 130px;
 }
+
 hr {
   margin: 1.3em 0;
   border: 0;
@@ -613,7 +619,7 @@ legend {
   width: 100%;
   padding: 0;
   margin-bottom: 1.9500000000000002em;
-  font-size: 25.5px;
+  font-size: 14px;
   line-height: 2.6em;
   color: #415A68;
   border: 0;
@@ -663,7 +669,7 @@ input[type="color"],
   height: 1.3em;
   padding: 4px;
   margin-bottom: 9px;
-  font-size: 17px;
+  font-size: 14px;
   line-height: 1.3em;
   color: #777777;
 }
@@ -4443,6 +4449,7 @@ div.subnav-fixed .nav {
   font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
   text-transform: uppercase;
   font-size: 11px;
+  color: #FFFFFF;
   padding: 7px 20px 5px 20px;
   background-color: #415A68;
   background-image: linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
@@ -4467,29 +4474,31 @@ background-image: -webkit-gradient(
 }
 .btn-primary:hover,
 .btn-primary:active,
+.btn-primary:visited,
 .btn-primary.active {
- background-color: #415A68;
+  color: #FFFFFF;
+  background-color: #415A68;
   background-image: linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
-background-image: -o-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
-background-image: -moz-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
-background-image: -webkit-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
-background-image: -ms-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+  background-image: -o-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+  background-image: -moz-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+  background-image: -webkit-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
+  background-image: -ms-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
 
-background-image: -webkit-gradient(
+  background-image: -webkit-gradient(
   linear,
   left bottom,
   left top,
   color-stop(0.46, rgb(51,51,51)),
   color-stop(0.01, rgb(65,90,104)),
   color-stop(0.86, rgb(65,90,104))
-);
+  );
   background-image: url('../../img/btn_gradient_bkgd.png');
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#415A68', endColorstr='#1A1A1A', GradientType=0);
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
-}
+
 
 .btn-primary:active,
 .btn-primary.active {
