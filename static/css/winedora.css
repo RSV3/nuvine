@@ -178,6 +178,10 @@ body {
 }
 .sidebar-nav li a {
   padding: 4px 6px 4px 9px;
+  color: #415A68;
+}
+.sidebar-nav li a:visited {
+  color: #415A68;
 }
 .sidebar-nav li div.chev {
   display: inline;
