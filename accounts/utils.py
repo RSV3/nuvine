@@ -67,7 +67,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   receiver_email = user.email
 
-  c = RequestContext( request,  request, {
+  c = RequestContext( request, {
               "first_name": user.first_name,
               "host_name": request.get_host(),
               "verification_code": verification_code,
