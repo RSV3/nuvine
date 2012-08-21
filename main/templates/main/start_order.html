@@ -11,6 +11,13 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  {% if your_personality == "Mystery" %}
+   <div class="row">
+    <div class="offset2 span8 center">
+      You need to first participate in a tasting party to find out your wine personality.
+    </div>
+  </div> 
+  {% else %}
   <div class="row">
     <div class="offset2 span8 center">
         Select your desired Vinely Collection and we'll have your personality matches delivered conveniently, quickly, and best of all, deliciously.
@@ -24,9 +31,12 @@
           <div class="product-wine">
             <center>
             <p>
+            <!-- 
             {% thumbnail product.image "x250" as im %}
               <img height="250" src="{{ im.url }}"/>
             {% endthumbnail %}
+            -->
+            <img heigh="250" src="{{ STATIC_URL }}img/{{ product.img_file_name }}">
             </p>
             </center>
             <p></p>
@@ -42,6 +52,7 @@
     {% endfor %}
   </div>
   </section>
+  {% endif %}
 
   <div class="row download">
     <p>&nbsp;</p>

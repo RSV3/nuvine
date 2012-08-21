@@ -2,9 +2,9 @@
 
 {% block header %}
   {% if invitee %}
-    <h1>{{ invitee.first_name }}, you are a {{ personality.name }}</h1>
+    <h1 class="headline">{{ invitee.first_name }}, you are a {{ personality.name }}</h1>
   {% else %}
-    <h1>Here's your Wine Personality</h1>
+    <h1 class="headline">Here's your Wine Personality</h1>
   {% endif %}
 {% endblock header %}
 

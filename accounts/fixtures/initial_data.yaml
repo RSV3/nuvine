@@ -1,290 +1,668 @@
 - pk: 1
-  model: auth.group
   fields:
     name: Vinely Pro
     permissions: []
+  model: auth.group
 - pk: 2
   model: auth.group
   fields:
     permissions: []
     name: Vinely Socializer
-- pk: 3
-  model: auth.group
-  fields:
+- fields:
     name: Vinely Taster
     permissions: []
-- pk: 4
+  pk: 3
   model: auth.group
+- model: auth.group
   fields:
     name: Supplier
     permissions: []
+  pk: 4
 - pk: 1
   model: auth.user
   fields:
     is_active: true
+    user_permissions: []
     email: elizabeth@redstar.com
     groups: [1]
     username: vVAUSQMUmPrN2yi7ddoZZJfCyfW2-J
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:24.769662
-    first_name: ''
-    is_staff: true 
-    last_name: ''
     password: pbkdf2_sha256$10000$rbiex54vjen6$XBLHxuObRu9D/rVbd/w74oTI0NpQwyMwlBHz4pzcZMU=
-    last_login: 2012-07-29 03:39:24.769662
+    first_name: ''
+    is_staff: true
+    last_name: ''
+    date_joined: 2012-07-29 07:39:24.769662
+    last_login: 2012-08-20 23:55:50.074938
 - pk: 2
   model: auth.user
   fields:
-    is_superuser: false
-    date_joined: 2012-07-29 03:39:24.925099
+    user_permissions: []
+    date_joined: 2012-07-29 07:39:24.925099
     first_name: ''
+    password: pbkdf2_sha256$10000$s5Qg6nSdpWEw$6EB8JmzGmhgvJkG25zyRw30SSrPsJ9IR1mAQ+e6cDIY=
     is_staff: false
     last_name: ''
-    password: pbkdf2_sha256$10000$s5Qg6nSdpWEw$6EB8JmzGmhgvJkG25zyRw30SSrPsJ9IR1mAQ+e6cDIY=
-    last_login: 2012-07-29 03:39:24.925099
+    last_login: 2012-07-29 07:39:24.925099
     is_active: true
+    groups: [1]
     username: onoG7UIZmDzWfPJn9Gj8XRquX36Ncy
     email: johnstecco@gmail.com
-    groups: [1]
-    user_permissions: []
+    is_superuser: false
 - pk: 3
   model: auth.user
   fields:
+    last_login: 2012-07-29 07:39:25.75905
     password: pbkdf2_sha256$10000$7vR6cSBMbYGQ$BWj4xQcaNX3lUY46U1eTou2HTpT0d3us0KlXAhNnwxc=
-    last_login: 2012-07-29 03:39:25.075905
     is_active: true
-    email: specialist1@example.com
     groups: [1]
     username: VXsUUJOOQHstHL7OwcUPCankLt2M2c
-    user_permissions: []
+    email: specialist1@example.com
     is_superuser: false
-    date_joined: 2012-07-29 03:39:25.075905
     first_name: ''
+    date_joined: 2012-07-29 07:39:25.75905
     is_staff: false
+    user_permissions: []
     last_name: ''
 - pk: 4
   model: auth.user
   fields:
-    username: PtHaEEZNZx7h3lPDaxcsjq9laQh_Mp
-    user_permissions: []
+    password: pbkdf2_sha256$10000$54BooQ9Li8kV$78rOcRrB5dVbtd1pZCbL5jmc7ba8d/AqN0FgEVGZrMY=
     is_superuser: false
-    date_joined: 2012-07-29 03:39:25.227554
+    date_joined: 2012-07-29 07:39:25.227554
     first_name: ''
     is_staff: false
-    last_name: ''
-    password: pbkdf2_sha256$10000$54BooQ9Li8kV$78rOcRrB5dVbtd1pZCbL5jmc7ba8d/AqN0FgEVGZrMY=
-    last_login: 2012-07-29 03:39:25.227554
-    is_active: true
     email: specialist2@example.com
+    last_name: ''
+    user_permissions: []
+    last_login: 2012-07-29 07:39:25.227554
+    is_active: true
     groups: [1]
+    username: PtHaEEZNZx7h3lPDaxcsjq9laQh_Mp
 - pk: 5
   model: auth.user
   fields:
     last_name: ''
-    last_login: 2012-07-29 03:39:25.389074
-    password: pbkdf2_sha256$10000$1odyUlEKFQe6$D7+8BIUx7o4XxXSrYicU/mwR/eNBlwTHiBZkYuKwDd8=
+    date_joined: 2012-07-29 07:39:25.389074
+    last_login: 2012-07-29 07:39:25.389074
     is_active: true
-    groups: [2]
+    password: pbkdf2_sha256$10000$1odyUlEKFQe6$D7+8BIUx7o4XxXSrYicU/mwR/eNBlwTHiBZkYuKwDd8=
     username: wUH1yZnfx7bE8xka1isL7yFSQjf0Rh
-    email: host1@example.com
-    user_permissions: []
+    groups: [2]
     is_superuser: false
+    user_permissions: []
     first_name: ''
-    date_joined: 2012-07-29 03:39:25.389074
+    email: host1@example.com
     is_staff: false
 - pk: 6
   model: auth.user
   fields:
-    email: host2@example.com
     groups: [2]
     username: 3ylOeWStVim2mLHi8xfr3Xwu3RJD6W
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:25.545881
+    user_permissions: []
     first_name: ''
+    email: host2@example.com
+    date_joined: 2012-07-29 07:39:25.545881
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$1R52Swpc4R6J$JeuKz9FpnD5/lcQTf2gPGtWuAm0ZheZwlHqb1AO/whQ=
-    last_login: 2012-07-29 03:39:25.545881
+    last_login: 2012-07-29 07:39:25.545881
     is_active: true
 - pk: 7
   model: auth.user
   fields:
+    user_permissions: []
     is_staff: false
+    email: host3@example.com
     last_name: ''
+    last_login: 2012-07-29 07:39:25.69878
     password: pbkdf2_sha256$10000$CTQm6XYgG9Lm$R6C0vbMdPphwQjWuMLIg7qejT5DXOITviivwd0aU11E=
-    last_login: 2012-07-29 03:39:25.69878
     is_active: true
     username: dRC9fZMMhaY0pU82FlkX1Ib-t6g0QV
-    email: host3@example.com
     groups: [2]
     is_superuser: false
-    user_permissions: []
     first_name: ''
-    date_joined: 2012-07-29 03:39:25.69878
+    date_joined: 2012-07-29 07:39:25.69878
 - pk: 8
   model: auth.user
   fields:
     is_active: true
+    user_permissions: []
     email: attendee1@example.com
     groups: [3]
     username: LmLFKSXinCaaMy0P17EAHTG_X4Gne1
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:25.853096
-    first_name: ''
-    is_staff: false
-    last_name: ''
     password: pbkdf2_sha256$10000$3tBsjyVa9s5k$uwrWk98k6uAOu7svbQaCmsNFUVVeQgaurrO38YK/xCE=
-    last_login: 2012-07-29 03:39:25.853096
+    first_name: Attendee
+    is_staff: false
+    last_name: One
+    date_joined: 2012-07-29 07:39:25.853096
+    last_login: 2012-07-29 07:39:25.853096
 - pk: 9
   model: auth.user
   fields:
-    is_superuser: false
-    date_joined: 2012-07-29 03:39:26.004333
-    first_name: ''
-    is_staff: false
-    last_name: ''
+    date_joined: 2012-07-29 07:39:26.4333
+    first_name: Attendee
+    user_permissions: []
     password: pbkdf2_sha256$10000$aWluC7ZKuIoj$HIyDS3B+4Kk5AhIyIfWBcfCRNJWrhJ0JG8kDfH70pXw=
-    last_login: 2012-07-29 03:39:26.004333
+    is_staff: false
+    last_name: Two
+    last_login: 2012-07-29 07:39:26.4333
     is_active: true
+    groups: [3]
     username: moFTaTrmMxRGXxCLbvv1lSNB0llY4e
     email: attendee2@example.com
-    groups: [3]
-    user_permissions: []
+    is_superuser: false
 - pk: 10
   model: auth.user
   fields:
+    last_login: 2012-07-29 07:39:26.161393
     password: pbkdf2_sha256$10000$VHU0BvQD2gKs$HsuGcUmvvBiEapVd9T99+VcqsNdAVut23NfF2s8eKI4=
-    last_login: 2012-07-29 03:39:26.161393
     is_active: true
-    email: attendee3@example.com
     groups: [3]
     username: VlXZ7hSJI-9xcZYLBitQI9CB8G_tjX
-    user_permissions: []
+    email: attendee3@example.com
     is_superuser: false
-    date_joined: 2012-07-29 03:39:26.161393
     first_name: ''
+    date_joined: 2012-07-29 07:39:26.161393
     is_staff: false
+    user_permissions: []
     last_name: ''
 - pk: 11
   model: auth.user
   fields:
-    username: 8GEScG56OPuOAgSOCyaSGQU8vj9Jqi
-    user_permissions: []
+    password: pbkdf2_sha256$10000$EhE1M2aqd0Aa$AfpnJN7ySaS3C31fXmXvzbJ8zQEvQWJ0iYYteQ/nSXI=
     is_superuser: false
-    date_joined: 2012-07-29 03:39:26.319364
+    date_joined: 2012-07-29 07:39:26.319364
     first_name: ''
     is_staff: false
-    last_name: ''
-    password: pbkdf2_sha256$10000$EhE1M2aqd0Aa$AfpnJN7ySaS3C31fXmXvzbJ8zQEvQWJ0iYYteQ/nSXI=
-    last_login: 2012-07-29 03:39:26.319364
-    is_active: true
     email: attendee4@example.com
+    last_name: ''
+    user_permissions: []
+    last_login: 2012-07-29 07:39:26.319364
+    is_active: true
     groups: [3]
+    username: 8GEScG56OPuOAgSOCyaSGQU8vj9Jqi
 - pk: 12
   model: auth.user
   fields:
     last_name: ''
-    last_login: 2012-07-29 03:39:26.471056
-    password: pbkdf2_sha256$10000$SIV99MwjMgYd$TzzpXtxjG0RbiZWPvFCI7YKhIQTjiNLZ/vWQG5uhbgo=
+    last_login: 2012-07-29 07:39:26.471056
     is_active: true
-    groups: [3]
-    username: 2X64pLkMvmQItP2_qw3NPb_gs7wOwo
     email: attendee5@example.com
-    user_permissions: []
+    username: 2X64pLkMvmQItP2_qw3NPb_gs7wOwo
+    groups: [3]
     is_superuser: false
+    user_permissions: []
     first_name: ''
-    date_joined: 2012-07-29 03:39:26.471056
+    date_joined: 2012-07-29 07:39:26.471056
     is_staff: false
+    password: pbkdf2_sha256$10000$SIV99MwjMgYd$TzzpXtxjG0RbiZWPvFCI7YKhIQTjiNLZ/vWQG5uhbgo=
 - pk: 13
   model: auth.user
   fields:
-    email: attendee6@example.com
     groups: [3]
     username: niqg7wLEmphrEPPtEf9EF4Pk9Qyrcj
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:26.631175
+    user_permissions: []
     first_name: ''
+    email: attendee6@example.com
     is_staff: false
     last_name: ''
     password: pbkdf2_sha256$10000$tjkDeo3CdkZq$pZXy/L5PEwOL9rZpvWE5JcPOx9sDynhjt4x4FRxUktc=
-    last_login: 2012-07-29 03:39:26.631175
+    last_login: 2012-07-29 07:39:26.631175
+    date_joined: 2012-07-29 07:39:26.631175
     is_active: true
 - pk: 14
   model: auth.user
   fields:
+    user_permissions: []
     is_staff: false
+    email: attendee7@example.com
     last_name: ''
+    last_login: 2012-07-29 07:39:26.783896
     password: pbkdf2_sha256$10000$jqfSMeOFPNBo$l8IiK4sHr57qImBaDT5TOdgGdRs8j/qb8GslkmMGk2A=
-    last_login: 2012-07-29 03:39:26.783896
     is_active: true
     username: GtOs8KqT3GmjR46U7IHBkN7n2ZC1pQ
-    email: attendee7@example.com
     groups: [3]
     is_superuser: false
-    user_permissions: []
     first_name: ''
-    date_joined: 2012-07-29 03:39:26.783896
+    date_joined: 2012-07-29 07:39:26.783896
 - pk: 15
   model: auth.user
   fields:
     is_active: true
+    user_permissions: []
     email: attendee8@example.com
     groups: [3]
     username: ZyvyoK0cV-5mjvyC6sWtCUMTyH_e2q
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:26.937299
+    password: pbkdf2_sha256$10000$mWSmRQ83YKke$Ut8EcjcC/FsBLvQqsgmMUoDkMu9uIc/+IR7e8M79e1s=
     first_name: ''
     is_staff: false
     last_name: ''
-    password: pbkdf2_sha256$10000$mWSmRQ83YKke$Ut8EcjcC/FsBLvQqsgmMUoDkMu9uIc/+IR7e8M79e1s=
-    last_login: 2012-07-29 03:39:26.937299
+    date_joined: 2012-07-29 07:39:26.937299
+    last_login: 2012-07-29 07:39:26.937299
 - pk: 16
   model: auth.user
   fields:
-    is_superuser: false
-    date_joined: 2012-07-29 03:39:27.090534
+    date_joined: 2012-07-29 07:39:27.90534
     first_name: ''
-    is_staff: false
-    last_name: ''
     password: pbkdf2_sha256$10000$6a9Dwk3ZoawH$htWL+w8rCD2/1n6qTD3RRHA87VM1y9l5EQldWZ5E0PA=
-    last_login: 2012-07-29 03:39:27.090534
+    is_staff: false
+    user_permissions: []
+    last_name: ''
+    last_login: 2012-07-29 07:39:27.90534
     is_active: true
+    groups: [3]
     username: gmqzSvqMfrlMPzeWqdr4o8zvGSVIFx
     email: attendee9@example.com
-    groups: [3]
-    user_permissions: []
+    is_superuser: false
 - pk: 17
   model: auth.user
   fields:
+    last_login: 2012-07-29 07:39:27.250196
     password: pbkdf2_sha256$10000$mhbyrHEbvVQ0$hyuD+i0iza+7ffWBxV24zmQlvlMYnBjO6WALNc1OKFs=
-    last_login: 2012-07-29 03:39:27.250196
     is_active: true
-    email: supplier1@example.com
     groups: [4]
     username: 1yWeeG7vG1sTiN6nr6qgRKsWk7aVOd
-    user_permissions: []
+    email: supplier1@example.com
     is_superuser: false
-    date_joined: 2012-07-29 03:39:27.250196
     first_name: ''
+    date_joined: 2012-07-29 07:39:27.250196
     is_staff: false
+    user_permissions: []
     last_name: ''
 - pk: 18
   model: auth.user
   fields:
-    username: j4AtiqPjvI4vodn2sVBAX9GgNSSZ-N
-    user_permissions: []
     is_superuser: false
-    date_joined: 2012-07-29 03:39:27.41117
+    date_joined: 2012-07-29 07:39:27.41117
     first_name: ''
     is_staff: false
-    last_name: ''
     password: pbkdf2_sha256$10000$q1ljThJjBt3Y$J2uzOhWfjv2u7Lvrk0TvKLHgSAyZOfz5Re4a6Ldibrk=
-    last_login: 2012-07-29 03:39:27.41117
+    last_name: ''
+    user_permissions: []
+    last_login: 2012-07-29 07:39:27.41117
     is_active: true
     email: supplier2@example.com
     groups: [4]
+    username: j4AtiqPjvI4vodn2sVBAX9GgNSSZ-N
+- pk: 1
+  model: accounts.userprofile
+  fields:
+    dob: null
+    news_optin: true
+    party_addresses: []
+    above_21: false
+    zipcode: ''
+    gender: 0
+    wine_personality: 7
+    credit_cards: []
+    billing_address: null
+    prequestionnaire: false
+    accepted_tos: false
+    image: ''
+    user: 1
+    phone: null
+    credit_card: null
+    dl_number: null
+    shipping_addresses: []
+    shipping_address: null
+- fields:
+    credit_card: null
+    shipping_addresses: []
+    shipping_address: null
+    party_addresses: []
+    dob: null
+    news_optin: true
+    zipcode: ''
+    above_21: false
+    credit_cards: []
+    gender: 0
+    wine_personality: 7
+    accepted_tos: false
+    billing_address: null
+    prequestionnaire: false
+    user: 2
+    image: ''
+    dl_number: null
+    phone: null
+  pk: 2
+  model: accounts.userprofile
+- pk: 3
+  model: accounts.userprofile
+  fields:
+    credit_card: null
+    dl_number: null
+    phone: null
+    shipping_address: null
+    shipping_addresses: []
+    news_optin: true
+    party_addresses: []
+    dob: null
+    above_21: false
+    zipcode: ''
+    wine_personality: 7
+    credit_cards: []
+    gender: 0
+    prequestionnaire: false
+    accepted_tos: false
+    billing_address: null
+    user: 3
+    image: ''
+- pk: 4
+  model: accounts.userprofile
+  fields:
+    billing_address: null
+    user: 4
+    image: ''
+    credit_card: null
+    dl_number: null
+    phone: null
+    shipping_address: null
+    shipping_addresses: []
+    news_optin: true
+    party_addresses: []
+    dob: null
+    above_21: false
+    zipcode: ''
+    wine_personality: 7
+    credit_cards: []
+    gender: 0
+    prequestionnaire: false
+    accepted_tos: false
+- pk: 5
+  model: accounts.userprofile
+  fields:
+    billing_address: null
+    prequestionnaire: false
+    accepted_tos: false
+    user: 5
+    image: ''
+    phone: null
+    credit_card: null
+    dl_number: null
+    shipping_address: null
+    shipping_addresses: []
+    dob: null
+    news_optin: true
+    party_addresses: []
+    above_21: false
+    zipcode: ''
+    gender: 0
+    wine_personality: 7
+    credit_cards: []
+- pk: 6
+  model: accounts.userprofile
+  fields:
+    above_21: false
+    gender: 0
+    wine_personality: 7
+    credit_cards: []
+    accepted_tos: false
+    billing_address: null
+    prequestionnaire: false
+    image: ''
+    user: 6
+    dl_number: null
+    phone: null
+    credit_card: null
+    shipping_addresses: []
+    shipping_address: null
+    party_addresses: []
+    dob: null
+    news_optin: true
+    zipcode: ''
+- fields:
+    above_21: false
+    zipcode: ''
+    credit_cards: []
+    gender: 0
+    wine_personality: 7
+    prequestionnaire: false
+    accepted_tos: false
+    billing_address: null
+    user: 7
+    image: ''
+    credit_card: null
+    dl_number: null
+    phone: null
+    shipping_address: null
+    shipping_addresses: []
+    news_optin: true
+    party_addresses: []
+    dob: null
+  pk: 7
+  model: accounts.userprofile
+- pk: 8
+  model: accounts.userprofile
+  fields:
+    news_optin: true
+    party_addresses: []
+    dob: null
+    above_21: false
+    zipcode: ''
+    wine_personality: 6
+    credit_cards: []
+    gender: 0
+    prequestionnaire: false
+    accepted_tos: false
+    billing_address: null
+    user: 8
+    image: ''
+    credit_card: null
+    dl_number: null
+    phone: null
+    shipping_address: null
+    shipping_addresses: []
+- pk: 9
+  model: accounts.userprofile
+  fields:
+    shipping_address: null
+    shipping_addresses: []
+    news_optin: true
+    party_addresses: []
+    dob: null
+    above_21: false
+    zipcode: ''
+    wine_personality: 3
+    credit_cards: []
+    gender: 0
+    billing_address: null
+    prequestionnaire: false
+    accepted_tos: false
+    user: 9
+    image: ''
+    phone: null
+    credit_card: null
+    dl_number: null
+- pk: 10
+  model: accounts.userprofile
+  fields:
+    user: 10
+    phone: null
+    credit_card: null
+    dl_number: null
+    shipping_addresses: []
+    shipping_address: null
+    dob: null
+    news_optin: true
+    party_addresses: []
+    zipcode: ''
+    above_21: false
+    gender: 0
+    wine_personality: 7
+    credit_cards: []
+    accepted_tos: false
+    billing_address: null
+    prequestionnaire: false
+    image: ''
+- pk: 11
+  model: accounts.userprofile
+  fields:
+    news_optin: true
+    credit_cards: []
+    image: ''
+    dl_number: null
+    above_21: false
+    phone: null
+    credit_card: null
+    wine_personality: 7
+    shipping_addresses: []
+    accepted_tos: false
+    prequestionnaire: false
+    user: 11
+    dob: null
+    party_addresses: []
+    zipcode: ''
+    shipping_address: null
+    gender: 0
+    billing_address: null
+- pk: 12
+  model: accounts.userprofile
+  fields:
+    user: 12
+    dob: null
+    credit_card: null
+    party_addresses: []
+    zipcode: ''
+    shipping_address: null
+    gender: 0
+    news_optin: true
+    billing_address: null
+    credit_cards: []
+    image: ''
+    wine_personality: 7
+    above_21: false
+    phone: null
+    dl_number: null
+    prequestionnaire: false
+    shipping_addresses: []
+    accepted_tos: false
+- fields:
+    news_optin: true
+    wine_personality: 7
+    billing_address: null
+    shipping_address: null
+    dl_number: null
+    image: ''
+    credit_cards: []
+    phone: null
+    prequestionnaire: false
+    shipping_addresses: []
+    above_21: false
+    user: 13
+    dob: null
+    credit_card: null
+    party_addresses: []
+    zipcode: ''
+    accepted_tos: false
+    gender: 0
+  pk: 13
+  model: accounts.userprofile
+- pk: 14
+  model: accounts.userprofile
+  fields:
+    accepted_tos: false
+    shipping_addresses: []
+    user: 14
+    dob: null
+    prequestionnaire: false
+    zipcode: ''
+    credit_card: null
+    party_addresses: []
+    shipping_address: null
+    gender: 0
+    billing_address: null
+    news_optin: true
+    dl_number: null
+    credit_cards: []
+    image: ''
+    phone: null
+    above_21: false
+    wine_personality: 7
+- pk: 15
+  model: accounts.userprofile
+  fields:
+    party_addresses: []
+    gender: 0
+    shipping_address: null
+    zipcode: ''
+    billing_address: null
+    news_optin: true
+    image: ''
+    credit_cards: []
+    accepted_tos: false
+    phone: null
+    wine_personality: 7
+    shipping_addresses: []
+    prequestionnaire: false
+    dl_number: null
+    dob: null
+    user: 15
+    above_21: false
+    credit_card: null
+- pk: 16
+  model: accounts.userprofile
+  fields:
+    above_21: false
+    phone: null
+    news_optin: true
+    wine_personality: 7
+    dl_number: null
+    shipping_addresses: []
+    prequestionnaire: false
+    dob: null
+    zipcode: ''
+    accepted_tos: false
+    credit_card: null
+    gender: 0
+    user: 16
+    shipping_address: null
+    billing_address: null
+    party_addresses: []
+    credit_cards: []
+    image: ''
+- fields:
+    accepted_tos: false
+    party_addresses: []
+    credit_card: null
+    shipping_address: null
+    gender: 0
+    wine_personality: 7
+    zipcode: ''
+    billing_address: null
+    news_optin: true
+    credit_cards: []
+    image: ''
+    phone: null
+    dl_number: null
+    prequestionnaire: false
+    shipping_addresses: []
+    above_21: false
+    user: 17
+    dob: null
+  pk: 17
+  model: accounts.userprofile
+- pk: 18
+  model: accounts.userprofile
+  fields:
+    credit_cards: []
+    image: ''
+    wine_personality: 7
+    phone: null
+    dl_number: null
+    prequestionnaire: false
+    shipping_addresses: []
+    above_21: false
+    news_optin: true
+    user: 18
+    dob: null
+    accepted_tos: false
+    credit_card: null
+    party_addresses: []
+    shipping_address: null
+    gender: 0
+    zipcode: ''
+    billing_address: null

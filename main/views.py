@@ -233,7 +233,7 @@ def start_order(request, receiver_id=None, party_id=None):
     # ordering from a particular party
     request.session['party_id'] = int(party_id)
 
-  data["your_personality"] = "Unidentified"
+  data["your_personality"] = "Mystery"
   if receiver_id:
     receiver = User.objects.get(id=receiver_id)
     personality = receiver.get_profile().wine_personality
@@ -249,6 +249,7 @@ def start_order(request, receiver_id=None, party_id=None):
   for p in products:
     description_template = Template(p.description)
     p.description = description_template.render(Context({'personality': personality.name }))
+    p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag) 
   data["products"] = products
   data["shop_menu"] = True
 
@@ -350,7 +351,10 @@ def cart_add_wine(request, level="basic"):
     party = Party.objects.get(id=request.session['party_id'])
 
   # TODO: check user personality and select the frequency recommendation and case size
-
+  if 'receiver_id' in request.session:
+    personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
+  else:
+    personality = u.get_profile().wine_personality
   form = AddWineToCartForm(request.POST or None)
 
   if form.is_valid():
@@ -384,16 +388,20 @@ def cart_add_wine(request, level="basic"):
   # big image of wine
   # TODO: need to check wine personality and choose the right product
   if level == "basic":
-    product = Product.objects.get(name="Basic Vinely Recommendation")
+    product = Product.objects.get(name="Basic Collection")
   elif level == "classic":
-    product = Product.objects.get(name="Classic Vinely Recommendation")
+    product = Product.objects.get(name="Classic Collection")
   elif level == "divine":
-    product = Product.objects.get(name="Divine Vinely Recommendation")
+    product = Product.objects.get(name="Divine Collection")
   elif level == "x":
     # not a valid product
     raise Http404
 
+  description_template = Template(product.description)
+  product.description = description_template.render(Context({'personality': personality.name }))
+  product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag) 
   data["product"] = product
+  data["personality"] = personality
 
   form.initial = {'level': level, 
                 'total_price': product.unit_price,
