@@ -360,7 +360,9 @@ footer {
   letter-spacing: 1px;
   margin-bottom: 80px;
 }
-
+footer a, footer a:visited {
+  color: #415A68;
+}
 #copyright {
   font-size: 10px;
   letter-spacing: 2px;
