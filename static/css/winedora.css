@@ -82,56 +82,56 @@ body {
   width: 83px;
 }
 #parties a {
-  padding: 1px 40px 30px 43px;
+  padding: 0px 40px 31px 43px;
 }
 #shop {
   background: url('../img/main_nav_sprite.png') no-repeat -83px -50px; 
   width: 66px;
 }
 #shop a {
-  padding: 1px 30px 30px 36px;
+  padding: 0px 30px 31px 36px;
 }
 #rate_wines {
   background: url('../img/main_nav_sprite.png') no-repeat -149px -50px; 
   width: 118px;
 }
 #rate_wines a {
-  padding: 1px 59px 30px 59px;
+  padding: 0px 59px 31px 59px;
 }
 #how_it_works {
   background: url('../img/main_nav_sprite.png') no-repeat -267px -50px; 
   width: 140px;
 }
 #how_it_works a {
-  padding: 1px 70px 30px 70px;
+  padding: 0px 70px 31px 70px;
 }
 #nav_get_started {
   background: url('../img/main_nav_sprite.png') no-repeat -407px -50px; 
   width: 126px;
 }
 #nav_get_started a {
-  padding: 1px 63px 30px 63px;
+  padding: 0px 63px 31px 63px;
 }
 #our_story {
   background: url('../img/main_nav_sprite.png') no-repeat -533px -50px; 
   width: 111px;
 }
 #our_story a {
-  padding: 1px 55px 30px 56px;
+  padding: 0px 55px 31px 56px;
 }
 #dashboard {
   background: url('../img/main_nav_sprite.png') no-repeat -644px -50px; 
   width: 119px;
 }
 #dashboard a {
-  padding: 1px 59px 30px 60px;
+  padding: 0px 59px 31px 60px;
 }
 #vinely_u {
   background: url('../img/main_nav_sprite.png') no-repeat -763px -50px; 
   width: 93px;
 }
 #vinely_u a {
-  padding: 1px 83px 30px 10px;
+  padding: 0px 83px 31px 10px;
 }
 
 #parties a:hover, #parties.active { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
