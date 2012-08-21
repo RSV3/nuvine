@@ -1,6 +1,7 @@
 {% extends "accounts/base_my_account.html" %}
 
 {% load thumbnail %}
+{% load static from staticfiles %}
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
@@ -58,9 +59,13 @@
         <fieldset>
           <div class="control-group">
             <div class="controls">
-              {% thumbnail profile.image "150x150" as im %}
-                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-              {% endthumbnail %}
+              {% if profile.image %}
+                {% thumbnail profile.image "120x120" as im %}
+                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% endthumbnail %}
+              {% else %}
+                <img src="{{ STATIC_URL }}img/noprofilephoto_img.png" height="120">
+              {% endif %}
             </div>
             <div class="control-label" for="id_profile-image">
             {{ profile_form.image.label }}
