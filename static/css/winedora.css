@@ -236,6 +236,10 @@ body {
 }
 .authentication a {
   margin-right: 5px;
+  color: #415A68;
+}
+.authentication a:visited {
+  color: #415A68;
 }
 #badges {
   width: 940px;

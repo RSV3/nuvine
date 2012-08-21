@@ -139,12 +139,19 @@ body {
   color: #415A68;
 }
 a {
-  color: #415A68;
+  color: #DD4040;
   text-decoration: none;
 }
-a:hover {
-  color: #c50001;
+a:hover,
+a:active {
   text-decoration: underline;
+}
+a:active {
+  color: #990000;
+}
+a:visited {
+  color: #999999;
+  text-decoration: none;
 }
 .row {
   margin-left: -20px;
