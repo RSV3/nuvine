@@ -37,7 +37,7 @@
 
 
   {% if invites %}
-    <li class="nav-header"><div class="chev">Alerts</div></li>
+    <li class="nav-header">Alerts</li>
   {% endif %}
   {% for invite in invites %}
     <li><div class="chev"><a href="{% url party_rsvp invite.party.id %}">RSVP to {{ invite.party.title }}</a></div></li>

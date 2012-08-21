@@ -43,6 +43,12 @@ body {
   margin-top: 10px;
 }
 
+/* side navigation */
+.nav-header {
+  margin-top: 20px;
+  color: #999;
+}
+
 .divider {
     border-top: 3px solid #415A68;
 }
