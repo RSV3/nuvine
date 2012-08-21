@@ -224,7 +224,7 @@ class SimpleTest(TestCase):
                                     to exciting new places. The {{personality}} Classic Collection \
                                     is the perfect choice for those with a passion for wine and its \
                                     ability to enhance any mood or setting.",
-                                    unit_price=120.00,
+                                    unit_price=125.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="classic")
       p.image = File(f)
@@ -238,7 +238,7 @@ class SimpleTest(TestCase):
                                     Excite your senses each and every time you pour a glass. \
                                     The unmatched experience each bottle provides will have you \
                                     appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=225.00,
+                                    unit_price=220.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="divine")
       p.image = File(f)

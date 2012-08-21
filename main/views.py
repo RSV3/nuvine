@@ -244,7 +244,7 @@ def start_order(request, receiver_id=None, party_id=None):
     data["your_personality"] = personality.name
 
   # filter only wine packages
-  products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0])
+  products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0]).order_by('unit_price')
 
   for p in products:
     description_template = Template(p.description)
