@@ -136,7 +136,7 @@
             {% if user.is_authenticated %}
                 <a href="{% url logout %}">Log Out</a>
                 <a href="{% url my_information %}">my account</a>
-                <a href="{% url cart %}">Cart 0 items</a>
+                <a href="{% url cart %}">Cart {{ cart_item_count }} items</a>
               {% else %}
               <!-- if not logged in, show login link -->
               <div class="login-forgot">

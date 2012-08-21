@@ -19,6 +19,14 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
+
+import django.conf.global_settings as DEFAULT_SETTINGS
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+  "main.context_processors.vinely_user_info",
+)
+
+
 MANAGERS = ADMINS
 
 import dj_database_url
