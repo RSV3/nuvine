@@ -134,13 +134,13 @@
         <div class="box-container">
         <div class="box-content authentication">
             {% if user.is_authenticated %}
-                <a href="{% url logout %}">Log Out</a>
-                <a href="{% url my_information %}">my account</a>
-                <a href="{% url cart %}">Cart {{ cart_item_count }} items</a>
+                <a href="{% url logout %}">Sign Out</a>
+                <a href="{% url my_information %}">My Account</a>
+                <a href="{% url cart %}">Cart {{ cart_item_count }} Items</a>
               {% else %}
               <!-- if not logged in, show login link -->
               <div class="login-forgot">
-                <a href="{% url login %}">Login</a> | <a href="{% url forgot_password %}">Forgot Password</a>
+                <a href="{% url login %}">Sign In</a> | <a href="{% url forgot_password %}">Forgot Password</a>
               </div>
             {% endif %}
           </div> <!-- id auth-->

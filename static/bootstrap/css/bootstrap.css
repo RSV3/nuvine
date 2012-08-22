@@ -134,7 +134,8 @@ textarea {
 body {
   margin: 0;
   font-family: "Avenir LT W01 55 Roman", "Helvetica", "Arial", "sans-serif";
-  font-size: 14px;
+  font-size: 15px;
+  letter-spacing:1px;
   line-height: 1.3em;
   color: #415A68;
 }
@@ -585,9 +586,9 @@ code {
 }
 pre {
   display: block;
-  padding: 0.15000000000000002em;
+  padding: 0.15em;
   margin: 0 0 0.65em;
-  font-size: 15.725000000000001px;
+  font-size: 15.725px;
   line-height: 1.3em;
   word-break: break-all;
   word-wrap: break-word;
@@ -4146,6 +4147,7 @@ a.badge:hover {
 }
 .hero-unit p {
   font-size: 18px;
+  letter-spacing: 1px;
   color: #8A979E;
   font-family:"Avenir LT W01 55 Roman";
 }
@@ -4467,6 +4469,7 @@ div.subnav-fixed .nav {
   text-transform: uppercase;
   font-size: 11px;
   color: #FFFFFF;
+  letter-spacing: 1px;
   padding: 7px 20px 5px 20px;
   background-color: #415A68;
   background-image: linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
