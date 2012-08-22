@@ -40,9 +40,13 @@
             <td>
               <div class="cart-item">
                 <div class="cart-item-image">
-                {% thumbnail item.product.image "100x100" format="PNG" as im %}
-                  <img src="{{ im.url }}"/>
-                {% endthumbnail %}
+                  {% if item.product.image %}
+                    {% thumbnail item.product.image "100x100" format="PNG" as im %}
+                      <img src="{{ im.url }}"/>
+                    {% endthumbnail %}
+                  {% else %}
+                      <img src="{{ STATIC_URL }}img/firsthostkit_prodimg.png" width="100">
+                  {% endif %}
                 </div>
                 <div class="cart-item-name">
                   {{ item.product.name }} (Vinely product ID: {{ item.product.id }})

@@ -113,6 +113,9 @@ class Product(models.Model):
   # when it was last added 
   timestamp = models.DateTimeField(auto_now_add=True)
 
+  def __unicode__(self):
+    return "%s - $ %s" % (self.name, self.unit_price)
+
 class LineItem(models.Model):
 
   PRICE_TYPE = (
@@ -149,6 +152,7 @@ class LineItem(models.Model):
       return "Full Case" if self.quantity == 1 else "Half Case"
     else:
       return str(self.quantity)
+
 
 class Cart(models.Model):
   """

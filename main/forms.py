@@ -7,7 +7,7 @@ from emailusernames.utils import create_user, create_superuser
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order
+                        InvitationSent, Order, Product
 from accounts.models import Address 
 
 import uuid
@@ -238,15 +238,16 @@ class AddWineToCartForm(forms.ModelForm):
     return cleaned_data
 
 class AddTastingKitToCartForm(forms.ModelForm):
+  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]))
 
   def __init__(self, *args, **kwargs):
     super(AddTastingKitToCartForm, self).__init__(*args, **kwargs)
-    self.fields['product'].widget = forms.HiddenInput()
     self.fields['total_price'].widget = forms.HiddenInput()
     self.fields['frequency'].widget = forms.HiddenInput()
     self.fields['price_category'].widget = forms.HiddenInput()
-    self.fields['quantity'].widget = forms.Select() 
-    self.fields['quantity'].widget.choices = [(1, 1), (2, 2), (3, 3)] 
+    self.fields['quantity'].widget = forms.HiddenInput()
+    #self.fields['quantity'].widget = forms.Select() 
+    #self.fields['quantity'].widget.choices = [(1, 1), (2, 2), (3, 3)] 
 
   class Meta:
     model = LineItem 

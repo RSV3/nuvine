@@ -28,29 +28,29 @@
         <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
-          {{ form.product }}
           <p><h3>{{ product.name }}</h3></p>
           <p>{{ product.description }}</p>
           <div class="control-group {% if form.quantity.errors %}error{% endif %}">
-            <div class="control-label" for="id_quantity">{{ form.quantity.label }}</div>
+            <div class="control-label" for="id_quantity">{{ form.product.label }}</div>
             <div class="controls">
-              {{ form.quantity }} 
-              {% if form.quantity.errors %}
+              {{ form.product}} 
+              {% if form.product.errors %}
                 <span class="help-inline">
-                  {{ form.quantity.errors }}
+                  {{ form.product.errors }}
                 </span>
               {% endif %}
             </div>
           </div>
           <p></p>
           <p>
+          {{ form.quantity }}
           {{ form.frequency }}
           {{ form.price_category }}
           </p>
           <p>&nbsp;</p>
           <div class="download">
           </div>
-          <p><b>Unit Price:</b> {{ product.unit_price|currency }}</p>
+          <p><b>From:</b> {{ product.unit_price|currency }}</p>
           {{ form.total_price }}
           <div class="form-actions">
             <div class="controls">
