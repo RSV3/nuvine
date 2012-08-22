@@ -207,10 +207,17 @@ if not DEPLOY:
   EMAIL_HOST_PASSWORD = 'hi2winedora'
   EMAIL_USE_TLS = True
 else:
-  EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER')
-  EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT')  # 587
-  EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
-  EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
+  # MAILGUN
+  #EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER')
+  #EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT')  # 587
+  #EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
+  #EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
+
+  # SENDGRID
+  EMAIL_HOST = 'smtp.sendgrid.net'
+  EMAIL_PORT = '587'
+  EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME')
+  EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
   EMAIL_USE_TLS = True
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
