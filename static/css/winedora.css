@@ -180,6 +180,17 @@ legend {
   height: 85px;
   display: block;
 }
+
+#tellmemore {
+  margin-left: 50px;
+}
+
+#tellmemore, #tellmemore a {
+  background: url('../img/btn_pie_tellmemore.png') no-repeat;
+  width: 85px;
+  height: 85px;
+  display: block;
+}
 .sidebar-nav-container {
   margin-right: 20px;
  
