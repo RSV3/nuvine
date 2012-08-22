@@ -368,9 +368,11 @@ h5,
 h6 {
   margin: 0;
   font-family: "AlternateGothicNo2BT-Regular";
+  font-weight: normal;
   color: #415A68;
   text-rendering: optimizelegibility;
   text-transform: uppercase;
+  
 }
 h1 small,
 h2 small,
@@ -384,23 +386,29 @@ h6 small {
 h1 {
   font-size: 30px;
   line-height: 2.6em;
+  font-weight: normal;
 }
 h1 small {
   font-size: 18px;
+  font-weight: normal;
 }
 h2 {
   font-size: 24px;
+  font-weight: normal;
   line-height: 2.6em;
 }
 h2 small {
   font-size: 18px;
+  font-weight: normal;
 }
 h3 {
   font-size: 18px;
-  line-height: 1.9500000000000002em;
+  font-weight: normal;
+  line-height: 1.95em;
 }
 h3 small {
   font-size: 14px;
+  font-weight: normal;
 }
 h4,
 h5,
@@ -4167,16 +4175,18 @@ h5,
 h6 {
   line-height: 2em;
   font-family: "AlternateGothicNo2BT-Regular";
-  font-weight: bold;
+  font-weight: normal;
   color: #415A68;
   text-rendering: optimizelegibility;
   text-transform: uppercase;
 }
 h1 {
   font-size: 26px;
+  font-weight: normal;
 }
 h2 {
   font-size: 24px;
+  font-weight: normal;
 }
 h3,
 h4,
