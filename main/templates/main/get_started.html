@@ -29,8 +29,8 @@
       </p>
       {% else %}
         <div class="form-actions">
-          <div class="controls">
-            <a class="btn btn-primary" href="{% url sign_up 2 %}">Socialize Me</a>
+          <div class="controls center">
+            <a href="{% url sign_up 2 %}"><img src="{{ STATIC_URL }}img/btn_pie_socializeme.png"></a>
           </div>
         </div>
       {% endif %}
@@ -51,8 +51,8 @@
       </p>
       {% else %}
         <div class="form-actions">
-          <div class="controls">
-            <a class="btn btn-primary" href="{% url sign_up 1 %}">Make Me a Pro</a>
+          <div class="controls center">
+            <a href="{% url sign_up 1 %}"><img src="{{ STATIC_URL }}img/btn_pie_makemeapro.png"></a>
           </div>
         </div>
       {% endif %}

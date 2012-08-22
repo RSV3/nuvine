@@ -189,7 +189,7 @@ class SimpleTest(TestCase):
 
   def create_products(self):
     if Product.objects.all().count() < 4:
-      f = open("data/tasting-kit.jpg", 'r')
+      f = open("data/firsthostkit_prodimg.png", 'r')
       p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit",
                                     description="This is the official Vinely First Taste Kit. \
                                     It comes with six wines that will help Vinely Tasters discover \

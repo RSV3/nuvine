@@ -398,4 +398,38 @@ def verify_eligibility(request):
                                   context_instance=RequestContext(request))
 
 
+def terms(request):
 
+  data = {}
+
+  return render_to_response("accounts/terms.html", data,
+                                  context_instance=RequestContext(request))
+
+
+def privacy(request):
+
+  data = {}
+
+  return render_to_response("accounts/privacy.html", data,
+                                  context_instance=RequestContext(request))
+
+@login_required
+def socializer_unlink(request):
+
+  data = {}
+
+  u = request.user
+  # unlink current user's socializer 
+
+  return HttpResponseRedirect(reverse("edit_subscription")) 
+
+
+@login_required
+def pro_unlink(request):
+
+  data = {}
+
+  u = request.user
+  # unlink current user's pro 
+
+  return HttpResponseRedirect(reverse("edit_subscription")) 

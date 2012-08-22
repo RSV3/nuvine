@@ -42,7 +42,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   message_template = Template("""
 
-  Hey {% if first_name %}{{ first_name }}{% else %}Taster{% endif %}!
+  Hey {% if first_name %}{{ first_name }}{% else %}{{ role.name }}{% endif %}!
 
   We heard you lost your password. (No prob.  Happens all the time.)
 
@@ -69,6 +69,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   c = RequestContext( request, {
               "first_name": user.first_name,
+              "role": user.groups.all()[0],
               "host_name": request.get_host(),
               "verification_code": verification_code,
               "temp_password": temp_password})
