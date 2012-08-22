@@ -28,7 +28,7 @@
         <blockquote>You are already a Vinely Socializer<blockquote>
       </p>
       {% else %}
-        <div class="form-actions">
+        <div class="control-group">
           <div class="controls center">
             <a href="{% url sign_up 2 %}"><img src="{{ STATIC_URL }}img/btn_pie_socializeme.png"></a>
           </div>
@@ -50,14 +50,16 @@
         <blockquote>You are already a Vinely Pro<blockquote>
       </p>
       {% else %}
-        <div class="form-actions">
+        <div class="control-group">
           <div class="controls center">
             <a href="{% url sign_up 1 %}"><img src="{{ STATIC_URL }}img/btn_pie_makemeapro.png"></a>
           </div>
         </div>
       {% endif %}
       </section>
-
+      <div class="vertical-space">
+        &nbsp;
+      </div>
     </div>
   </div>
   </section>

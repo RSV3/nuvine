@@ -165,7 +165,11 @@
               <li id="rate_wines"{% if rate_menu %} class="active"{% endif %}>
                 <a href="{% url rate_wines %}" title="rate wines"></a>
               </li>
-              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
+              {% if pro %}
+              <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
+                  <a href="{% url dashboard %}" title="dashboard"></a>
+              </li>
+              {% endif %}              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
                 <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
               <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}>
@@ -175,11 +179,7 @@
                 <a href="{% url our_story %}" title="our story"></a>
               </li>
 
-              {% if pro %}
-              <li id="dashboard">
-                  <a href="{% url dashboard %}" title="dashboard"></a>
-              </li>
-              {% endif %}
+
               <!--
               <li id="vinely_u">
                 <a href="#" title="vinely u"></a>
