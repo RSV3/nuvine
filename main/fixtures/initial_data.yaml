@@ -7,7 +7,7 @@
 - pk: 3
   model: main.contactreason
   fields: {reason: Interested in attending a party in my local area}
-- fields: {reason: Interested in finding more about Winedora}
+- fields: {reason: Interested in finding more about Vinely}
   pk: 4
   model: main.contactreason
 - pk: 5
