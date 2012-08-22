@@ -9,7 +9,7 @@
           {% csrf_token %}
 
           <fieldset>
-            <legend>Login with e-mail and password</legend>
+            <legend>Sign in with your e-mail and password</legend>
             
             {% if form.non_field_errors %}
               <div class="alert alert-error">
@@ -31,7 +31,7 @@
             </div>
             <div class="control-group">
               <div class="controls">
-                <input class="btn btn-primary" type="submit" value="login" />
+                <input class="btn btn-primary" type="submit" value="Sign In" />
                 <input type="hidden" name="next" value="{{ next }}" />
               </div>
             </div>
