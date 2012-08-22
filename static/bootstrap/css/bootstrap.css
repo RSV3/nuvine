@@ -368,7 +368,6 @@ h5,
 h6 {
   margin: 0;
   font-family: "AlternateGothicNo2BT-Regular";
-  font-weight: bold;
   color: #415A68;
   text-rendering: optimizelegibility;
   text-transform: uppercase;
@@ -1002,7 +1001,7 @@ select:focus:required:invalid:focus {
   box-shadow: 0 0 6px #f8b9b7;
 }
 .form-actions {
-  padding: 0.30000000000000004em 20px 1.3em;
+  padding: 0.30em 20px 1.3em;
   margin-top: 1.3em;
   margin-bottom: 1.3em;
   background-color: transparent;
@@ -4546,7 +4545,7 @@ input[type="file"] {
   line-height: normal;
 }
 .form-actions {
-  border-top: 1px solid #D4D4D4;
+ 
   padding-top: 2em;
 }
 .table-bordered {
