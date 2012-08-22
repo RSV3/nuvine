@@ -326,9 +326,9 @@ def cart_add_tasting_kit(request):
     return HttpResponseRedirect(reverse("cart"))
 
   if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
-    product = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0])[0]
-    data["product"] = product
-    form.initial = {'product': product, 'total_price': product.unit_price}
+    products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).order_by('unit_price')
+    data["product"] = products[0]
+    form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
     data["form"] = form
     
   data["shop_menu"] = True

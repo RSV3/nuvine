@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from accounts.models import Address
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, LineItem
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user, create_superuser
 
@@ -188,7 +188,7 @@ class SimpleTest(TestCase):
     reason = ContactReason.objects.get_or_create(reason="Other")
 
   def create_products(self):
-    if Product.objects.all().count() < 4:
+    if Product.objects.all().count() < 6:
       f = open("data/firsthostkit_prodimg.png", 'r')
       p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit",
                                     description="This is the official Vinely First Taste Kit. \
@@ -201,6 +201,32 @@ class SimpleTest(TestCase):
       p.image = File(f)
       p.save()
       f.close()
+
+      #f = open("data/firsthostkit_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Vinely's Classic Taste Kit",
+                                    description="This is the official Vinely First Taste Kit. \
+                                    It comes with six wines that will help Vinely Tasters discover \
+                                    their true wine personality.",
+                                    unit_price=175.00,
+                                    category=Product.PRODUCT_TYPE[0][0],
+                                    cart_tag="tasting_kit")
+      self.assertEqual(created, True)
+      #p.image = File(f)
+      p.save()
+      #f.close()
+
+      #f = open("data/firsthostkit_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Vinely's Divine Taste Kit",
+                                    description="This is the official Vinely First Taste Kit. \
+                                    It comes with six wines that will help Vinely Tasters discover \
+                                    their true wine personality.",
+                                    unit_price=225.00,
+                                    category=Product.PRODUCT_TYPE[0][0],
+                                    cart_tag="tasting_kit")
+      self.assertEqual(created, True)
+      #p.image = File(f)
+      p.save()
+      #f.close()
 
 
       f = open("data/SP_basic_prodimg.png", 'r')
