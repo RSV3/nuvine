@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'compressor',
     'support',
+    'social',
 )
 
 

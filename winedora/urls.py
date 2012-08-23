@@ -23,4 +23,5 @@ urlpatterns = patterns('',
     url(r'^personality/', include('personality.urls')),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^support/', include('support.urls')),
+    url(r'^social/', include('social.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + staticfiles_urlpatterns() 
