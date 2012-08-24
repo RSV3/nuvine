@@ -2,7 +2,9 @@
 from social import xoauth
 from social.forms import XOAuthForm
 from django.http import HttpResponse 
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def get_xoauth_gmail( request ):
 
   form = XOAuthForm(request.POST or None)

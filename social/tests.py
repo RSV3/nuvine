@@ -22,3 +22,4 @@ class SimpleTest(TestCase):
         })
 
       print response.content 
+      print response.status_code
