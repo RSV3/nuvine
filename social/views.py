@@ -22,5 +22,7 @@ def get_xoauth_gmail( request ):
 
     xoauth_token = xoauth.get_xoauth_token_min( user_email, oauth_token, oauth_secret )
     return HttpResponse(xoauth_token)
+  else:
+    return HttpResponse("Form parameters are not valid.")
 
   return HttpResponse("Please POST")
