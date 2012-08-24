@@ -1,13 +1,15 @@
 # Create your views here.
 from social import xoauth
+from social.forms import XOAuthForm
 from django.http import HttpResponse 
 
 def get_xoauth_gmail( request ):
 
-  if request.method == "POST":
-    user_email = request.POST.get('user') 
-    oauth_token = request.POST.get('token')
-    oauth_secret = request.POST.get('secret')
+  form = XOAuthForm(request.POST or None)
+  if form.is_valid():
+    user_email = form.cleaned_data['user'].encode('ascii')
+    oauth_token = form.cleaned_data['token'].encode('ascii')
+    oauth_secret = form.cleaned_data['secret'].encode('ascii')
 
     if user_email is None:
       return HttpResponse("Missing user parameter")
@@ -18,5 +20,5 @@ def get_xoauth_gmail( request ):
 
     xoauth_token = xoauth.get_xoauth_token_min( user_email, oauth_token, oauth_secret )
     return HttpResponse(xoauth_token)
-  else:
-    return HttpResponse("Please POST")
+
+  return HttpResponse("Please POST")
