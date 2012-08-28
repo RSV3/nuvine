@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'gunicorn',
     'support',
     'compressor',
+    'social',
 )
 
 TEMPLATE_DIRS = (
