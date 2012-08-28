@@ -133,15 +133,6 @@ def get_started(request):
   data = {}
 
   u = request.user
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
-  if u.is_authenticated():
-    if pro_group in u.groups.all(): 
-      data["already_pro"] = True
-    if soc_group in u.groups.all():
-      data["already_socializer"] = True
-
   data['get_started_menu'] = True
 
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
