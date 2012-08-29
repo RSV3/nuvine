@@ -59,9 +59,9 @@
 
 # In order to deploy static files
 
-  * Edit winedora/settings_local.py and set DEBUG = False
+  * Edit winedora/settings_debug.py and set DEBUG = False
   * Run the following to sync static files with Amazon s3:
     
     $ python manage.py collectstatic
 
-  * Reset winedora/settings_local.py and set DEBUG = True to continue with local development
+  * Reset winedora/settings_debug.py and set DEBUG = True to continue with local development
