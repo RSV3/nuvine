@@ -731,6 +731,8 @@ def party_add(request):
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
+  pending_pro = Group.objects.get(name="Pending Vinely Pro")
+
   if pro_group in u.groups.all():
     data["pro"] = True
   if soc_group in u.groups.all():
@@ -744,6 +746,7 @@ def party_add(request):
   if pro_group not in u.groups.all():
     # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
+    data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   if request.method == "POST":

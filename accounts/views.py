@@ -220,7 +220,7 @@ def sign_up(request, account_type):
   """
 
   data = {}
-  role = ""
+  role = None 
 
   u = request.user
   account_type = int(account_type)
@@ -228,6 +228,9 @@ def sign_up(request, account_type):
   pro_group = Group.objects.get(name="Vinely Pro")
   soc_group = Group.objects.get(name="Vinely Socializer")
   tas_group = Group.objects.get(name="Vinely Taster")
+
+  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
+
   if u.is_authenticated():
     if pro_group in u.groups.all():
       data["already_signed_up"] = True
@@ -247,9 +250,9 @@ def sign_up(request, account_type):
 
   if account_type == 5:
     # people who order wine tasting kit
-    role = Group.objects.get(id=3).name
+    role = Group.objects.get(id=3)
   elif account_type in [1,2,3]:
-    role = Group.objects.get(id=account_type).name
+    role = Group.objects.get(id=account_type)
 
   if not role:
     # currently suppliers cannot sign up
@@ -261,7 +264,10 @@ def sign_up(request, account_type):
   if form.is_valid():
     user = form.save()
 
-    user.groups.add(Group.objects.get(name=role))
+    if role == pro_group:
+      user.groups.add(pro_pending_group)
+    else:
+      user.groups.add(role)
 
     user.is_active = False
     temp_password = User.objects.make_random_password()
@@ -286,13 +292,15 @@ def sign_up(request, account_type):
 
     data["account_type"] = account_type 
     if account_type == 1:
+      messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+    elif account_type == 2:
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 
   data['form'] = form
-  data['role'] = role
+  data['role'] = role.name
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
