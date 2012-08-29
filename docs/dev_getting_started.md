@@ -51,3 +51,17 @@
     $ rm winedora.test.db
     $ python manage.py syncdb (make sure you say NO to admin user) 
     $ python manage.py refresh_products
+
+# In order to manage fixtures and database syncing on heroku
+
+    $ heroku run python manage.py syncdb --app winedora-staging
+    $ heroku run python manage.py migrate --app winedora-staging
+
+# In order to deploy static files
+
+  * Edit winedora/settings_local.py and set DEBUG = False
+  * Run the following to sync static files with Amazon s3:
+    
+    $ python manage.py collectstatic
+
+  * Reset winedora/settings_local.py and set DEBUG = True to continue with local development
