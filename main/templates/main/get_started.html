@@ -27,8 +27,7 @@
         <br>
         <blockquote>You are already a Vinely Socializer<blockquote>
       </p>
-      {% else %}
-      {% if pro %}
+      {% elif pro %}
       <p>
         <br>
         <blockquote>You are already a Vinely Pro<blockquote>
@@ -39,7 +38,6 @@
             <a href="{% url sign_up 2 %}"><img src="{{ STATIC_URL }}img/btn_pie_socializeme.png"></a>
           </div>
         </div>
-	{% endif %}
       {% endif %}
       </section>
 
