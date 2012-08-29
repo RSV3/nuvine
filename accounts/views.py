@@ -17,7 +17,7 @@ from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationF
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm
 from accounts.models import VerificationQueue, SubscriptionInfo
-from accounts.utils import send_verification_email, send_password_change_email
+from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email
 
 import uuid
 import logging
@@ -228,7 +228,6 @@ def sign_up(request, account_type):
   pro_group = Group.objects.get(name="Vinely Pro")
   soc_group = Group.objects.get(name="Vinely Socializer")
   tas_group = Group.objects.get(name="Vinely Taster")
-
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
   if u.is_authenticated():
@@ -241,7 +240,11 @@ def sign_up(request, account_type):
       if account_type > 1:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
-        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))        
+      elif account_type == 1:
+        EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        send_pro_request_email(request, u)
+        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif tas_group in u.groups.all():
       if account_type > 2:
         data["already_signed_up"] = True
@@ -292,6 +295,7 @@ def sign_up(request, account_type):
 
     data["account_type"] = account_type 
     if account_type == 1:
+      send_pro_request_email(request, user.email)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
     elif account_type == 2:
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")

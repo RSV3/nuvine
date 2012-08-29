@@ -175,3 +175,37 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+def send_pro_request_email(request, receiver_email):
+
+  message_template = Template("""
+
+  Hey, we have received your request to become a Vinely Pro and conduct Taste parties.
+
+  We will review this and get back to you within the next 48hrs.
+
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+  Your Tasteful Friends,
+
+  - The Vinely Team 
+
+  """)
+
+  c = RequestContext( request, {"invite_host_name": receiver_email,
+              "invite_host_email": 'sales@vinely.com',
+              "host_name": request.get_host()})
+  message = message_template.render(c)
+  
+  # send out email request to sales@vinely.com 
+  subject = 'Vinely Pro Request!'
+  recipients = ['sales@vinely.com', receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
+  
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
