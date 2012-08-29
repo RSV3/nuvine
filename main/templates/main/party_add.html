@@ -17,7 +17,11 @@
   <section id="reach-pro">
   <div class="row">
     <div class="span12">
-      <h2>Please <a href="{% url host_vinely_party %}">contact your Vinely Pro</a> in order to schedule a party.</h2> 
+      {% if pending_pro %}
+        <h2>Your Vinely Pro application is still under review.  You will be notified as soon as your application is approved.</h2>
+      {% else %}
+        <h2>Please <a href="{% url host_vinely_party %}">contact your Vinely Pro</a> in order to schedule a party.</h2> 
+      {% endif %}
       <p></p>
       <p>&laquo; Go back to your <a href="{% url party_list %}">Party List</a>.</p>
       

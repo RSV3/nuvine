@@ -18,6 +18,11 @@
     name: Supplier
     permissions: []
   pk: 4
+- model: auth.group
+  fields:
+    name: Pending Vinely Pro 
+    permissions: []
+  pk: 5
 - pk: 1
   model: auth.user
   fields:
@@ -26,7 +31,7 @@
     email: elizabeth@redstar.com
     groups: [1]
     username: vVAUSQMUmPrN2yi7ddoZZJfCyfW2-J
-    is_superuser: false
+    is_superuser: true 
     password: pbkdf2_sha256$10000$rbiex54vjen6$XBLHxuObRu9D/rVbd/w74oTI0NpQwyMwlBHz4pzcZMU=
     first_name: ''
     is_staff: true
