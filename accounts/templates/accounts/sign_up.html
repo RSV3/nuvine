@@ -65,13 +65,20 @@
               {{ form.last_name }}
             </div>
           </div>
-
           <div class="control-group">
             <div class="control-label" for="id_email">
             {{ form.email.label_tag }}
             </div>
             <div class="controls">
               {{ form.email }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_mentor">
+            {{ form.mentor.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.mentor }} <span>(Just leave this blank if you dont know what it is)<span>
             </div>
           </div>
               <input type="hidden" name="password1" value="Sign Up" />

@@ -15,7 +15,7 @@ from main.models import EngagementInterest, PartyInvite, MySocializer
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
-                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm
+                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email
 
@@ -262,11 +262,21 @@ def sign_up(request, account_type):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserCreationForm(request.POST or None) 
-
+  form = NameEmailUserMentorCreationForm(request.POST or None) 
+  
   if form.is_valid():
     user = form.save()
-
+    profile = user.get_profile()
+    try:
+      #make sure the email exists
+      mentor = User.objects.get(email = request.POST.get('mentor'))
+      #make sure selected mentor is a pro
+      if pro_group in mentor.groups.all():
+        profile.mentor = mentor
+        profile.save()
+    except Exception, e:
+      pass #leave mentor as default
+    
     if role == pro_group:
       user.groups.add(pro_pending_group)
     else:
@@ -281,7 +291,7 @@ def sign_up(request, account_type):
     engagement_type = account_type 
 
     interest, created = EngagementInterest.objects.get_or_create(user=user, 
-                                                      engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[engagement_type][0])
+                                                      engagement_type=engagement_type)
 
     verification_code = str(uuid.uuid4())
     vque = VerificationQueue(user=user, verification_code=verification_code)
