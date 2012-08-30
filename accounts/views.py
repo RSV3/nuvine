@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from main.models import EngagementInterest, PartyInvite, MySocializer
+from main.models import EngagementInterest, PartyInvite, MyHost
 
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
 
@@ -124,32 +124,26 @@ def edit_subscription(request):
     messages.success(request, "Your subscription will be updated for the next month.")
 
   ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Socializer")
+  ph_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   at_group = Group.objects.get(name='Vinely Taster')
 
-  if ps_group in u.groups.all():
-    data["pro"] = True
   if ph_group in u.groups.all():
-    data["socializer"] = True
     invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
     if invitation.exists():
-      data['invited_by'] = invitation[0].party.socializer
+      data['invited_by'] = invitation[0].party.host
     else:
-      mypros = MySocializer.objects.filter(socializer=u).order_by('-timestamp')
+      mypros = MyHost.objects.filter(host=u).order_by('-timestamp')
       if mypros.exists():
         data['invited_by'] = mypros[0].pro
         data['pro_user'] = mypros[0].pro
         data['pro_profile'] = mypros[0].pro.get_profile()
-  if sp_group in u.groups.all():
-    data["supplier"] = True
   if at_group in u.groups.all():
-    data["taster"] = True
-    # find pro and socializer who invited first
+    # find pro and host who invited first
     invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
     if invitation.exists():
-      data['invited_by'] = invitation[0].party.socializer
-      mypros = MySocializer.objects.filter(socializer=data['invited_by']).order_by('-timestamp')
+      data['invited_by'] = invitation[0].party.host
+      mypros = MyHost.objects.filter(host=data['invited_by']).order_by('-timestamp')
       if mypros.exists():
         data['invited_by'] = mypros[0].pro
         data['pro_user'] = mypros[0].pro
@@ -213,7 +207,7 @@ def forgot_password(request):
 def sign_up(request, account_type):
   """
     :param account_type: 1 - Vinely Pro 
-                          2 - Vinely Socializer 
+                          2 - Vinely Host 
                           3 - Vinely Taster 
                           4 - Supplier 
                           5 - Vinely Tasting Lead 
@@ -226,7 +220,7 @@ def sign_up(request, account_type):
   account_type = int(account_type)
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
@@ -235,7 +229,7 @@ def sign_up(request, account_type):
       data["already_signed_up"] = True
       data["get_started_menu"] = True
       return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
-    elif soc_group in u.groups.all():
+    elif hos_group in u.groups.all():
       # can only be pro
       if account_type > 1:
         data["already_signed_up"] = True
@@ -436,12 +430,12 @@ def privacy(request):
                                   context_instance=RequestContext(request))
 
 @login_required
-def socializer_unlink(request):
+def host_unlink(request):
 
   data = {}
 
   u = request.user
-  # unlink current user's socializer 
+  # unlink current user's host 
 
   return HttpResponseRedirect(reverse("edit_subscription")) 
 

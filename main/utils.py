@@ -172,7 +172,7 @@ def send_host_vinely_party_email(request, pro=None):
 
   Hey {{ pro_first_name }}!
 
-  Guess what? (Drumroll, please.) Someone in your area would like to be a Socializer 
+  Guess what? (Drumroll, please.) Someone in your area would like to be a host
   at a Vinely Taste Party! Please follow up ASAP to help set up an event date, 
   make recommendations, and answer any possible questions.
 
@@ -233,7 +233,7 @@ def send_know_pro_party_email(request):
 
   message_template = Template("""
 
-  Hey {{ socializer_first_name }}!
+  Hey {{ host_first_name }}!
 
   We're thrilled about your interest in hosting a Vinely Taste Party!  
 
@@ -250,7 +250,7 @@ def send_know_pro_party_email(request):
 
   """)
 
-  c = RequestContext( request, {"socializer_first_name": request.user.first_name if request.user.first_name else "Vinely Socializer"})
+  c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
 
   message = message_template.reander(c)
 
@@ -269,7 +269,7 @@ def send_not_in_area_party_email(request):
 
   message_template = Template("""
 
-  Hey {{ socializer_first_name }}!
+  Hey {{ host_first_name }}!
 
   We have some good news and some bad news.
 
@@ -289,11 +289,11 @@ def send_not_in_area_party_email(request):
 
   """)
 
-  c = RequestContext( request, {"socializer_first_name": request.user.first_name if request.user.first_name else "Vinely Socializer"})
+  c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
 
   message = message_template.reander(c)
 
-  subject = 'Thanks for your interest in becoming a Vinely Socializer!'
+  subject = 'Thanks for your interest in becoming a Vinely Host!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = request.user.email
 
@@ -309,7 +309,7 @@ def send_new_party_scheduled_email(request, party):
 
   message_template = Template("""
 
-  Dear {{ socializer_first_name }},
+  Dear {{ host_first_name }},
 
   The following party has been scheduled:
 
@@ -333,7 +333,7 @@ def send_new_party_scheduled_email(request, party):
 
   profile = request.user.get_profile()
 
-  c = RequestContext( request, {"socializer_first_name": party.socializer.first_name if party.socializer.first_name else "Superb Socializer", 
+  c = RequestContext( request, {"host_first_name": party.host.first_name if party.host.first_name else "Superb Host", 
               "pro_email": request.user.email,
               "pro_phone": profile.phone,
               "pro_first_name": request.user.first_name,
@@ -344,7 +344,7 @@ def send_new_party_scheduled_email(request, party):
   message = message_template.render(c)
 
   # notify about scheduled party
-  recipients = [party.socializer.email]
+  recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = request.user.email
@@ -394,13 +394,13 @@ def send_party_invitation_email(request, party_invite):
   """)
 
   c = RequestContext( request, {"party": party_invite.party,
-              "invite_socializer_name": "%s %s"%(request.user.first_name, request.user.last_name),
-              "invite_socializer_email": request.user.email,
+              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
+              "invite_host_email": request.user.email,
               "host_name": request.get_host()})
   message = message_template.render(c)
 
   # send out party invitation e-mail 
-  subject = "%s has invited you to a Vinely Taste Party!" % party_invite.party.host.first_name if party_invite.party.host.first_name else "Your Favorite Socializer"
+  subject = "%s has invited you to a Vinely Taste Party!" % party_invite.party.host.first_name if party_invite.party.host.first_name else "Your Favorite Host"
 
   recipients = [party_invite.invitee.email]  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'header': 'Good wine and good times await', 
@@ -453,8 +453,8 @@ def distribute_party_invites_email(request, invitation_sent):
 
   c = RequestContext( request, {"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
-              "invite_socializer_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Socializer",
-              "invite_socializer_email": request.user.email,
+              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
+              "invite_host_email": request.user.email,
               "host_name": request.get_host()})
   message = message_template.render(c)
 

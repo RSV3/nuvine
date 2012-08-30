@@ -78,7 +78,7 @@ MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'https://s3.amazonaws.com/cdn.vinely.com/media/'
+MEDIA_URL = 'http://s3.amazonaws.com/cdn.vinely.com/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -88,7 +88,7 @@ STATIC_ROOT = PROJECT_ROOT+'/sitestatic/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = 'https://s3.amazonaws.com/cdn.vinely.com/static/'
+STATIC_URL = 'http://s3.amazonaws.com/cdn.vinely.com/static/'
 #STATIC_URL = '/static/'
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
@@ -126,9 +126,9 @@ if DEBUG is False:
   STATIC_S3_PATH = 'static'
 
   MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
-  MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+  MEDIA_URL = 'http://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
   STATIC_ROOT = '/%s/' % STATIC_S3_PATH
-  STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
+  STATIC_URL = 'http://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
   ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Make this unique, and don't share it with anybody.

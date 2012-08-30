@@ -23,7 +23,7 @@ class SimpleTest(TestCase):
       create usable accounts
     """
     ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
-    ph_group, created = Group.objects.get_or_create(name="Vinely Socializer")
+    ph_group, created = Group.objects.get_or_create(name="Vinely Host")
     att_group, created = Group.objects.get_or_create(name="Vinely Taster")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
     if not User.objects.filter(email="specialist1@example.com").exists():
@@ -94,7 +94,7 @@ class SimpleTest(TestCase):
     self.assertContains(response, "Vinely Pro")
 
     response = self.client.get(reverse("sign_up", args=[1]))
-    self.assertContains(response, "Vinely Socializer")
+    self.assertContains(response, "Vinely Host")
 
     response = self.client.get(reverse("sign_up", args=[2]))
     self.assertContains(response, "future Vinely party")

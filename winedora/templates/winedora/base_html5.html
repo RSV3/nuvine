@@ -135,14 +135,15 @@
               <li id="shop"{% if shop_menu %} class="active"{% endif %}>
                 <a href="{% url start_order %}" title="shop"></a>
               </li>
-              <li id="rate_wines"{% if rate_menu %} class="active"{% endif %}>
+              <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
                 <a href="{% url rate_wines %}" title="rate wines"></a>
               </li>
               {% if pro %}
               <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
                   <a href="{% url dashboard %}" title="dashboard"></a>
               </li>
-              {% endif %}              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
+              {% endif %}              
+              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
                 <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
               <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}>
@@ -187,9 +188,9 @@
           <div class="menu_wrap main">
                 <ul class="nav">
                   <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
-                  <li id="how_it_works"><a href="{% url how_it_works %}" title="how it works"></a></li>
-                  <li id="nav_get_started"><a href="{% url get_started %}" title="get started"></a></li>
-                  <li id="our_story"><a href="{% url our_story %}" title="our story"></a></li>
+                  <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="how it works"></a></li>
+                  <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}><a href="{% url get_started %}" title="get started"></a></li>
+                  <li id="our_story"{% if our_story_menu %} class="active"{% endif %}><a href="{% url our_story %}" title="our story"></a></li>
                 </ul>
           </div><!-- .main_menu_wrap -->
           {% endif %}

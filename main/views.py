@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q
 
-from main.models import Party, PartyInvite, MySocializer, Product, LineItem, Cart, SubscriptionInfo, \
+from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty
 from personality.models import Wine, WineTaste, GeneralTaste
 from accounts.models import VerificationQueue
@@ -59,18 +59,11 @@ def home(request):
     data["output"] = "User is authenticated"
 
     pro_group = Group.objects.get(name='Vinely Pro')
-    soc_group = Group.objects.get(name='Vinely Socializer')
+    hos_group = Group.objects.get(name='Vinely Host')
     sp_group = Group.objects.get(name='Supplier')
     tas_group = Group.objects.get(name='Vinely Taster')
 
-    if pro_group in u.groups.all():
-      data["pro"] = True
-    if soc_group in u.groups.all():
-      data["socializer"] = True
-    if sp_group in u.groups.all():
-      data["supplier"] = True
     if tas_group in u.groups.all():
-      data["taster"] = True
       data["invites"] = PartyInvite.objects.filter(invitee=u) 
       invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
       if invites.exists():
@@ -92,11 +85,11 @@ def home(request):
     # if user is Vinely Pro
     # - be able to add new users and send them e-mail 
     # - see users registered at a party
-    # - add a new socializer
+    # - add a new host
     # - be able to order for a user
     # - be able to enter ratings for a user
 
-    # if user is socializer
+    # if user is host
     # - list of parties (aggregate view of orders placed)
     # - list of Vinely Tasters in each party (aggregate of what each Vinely Taster ordered)
     # - see orders placed by each Vinely Taster in detail 
@@ -189,7 +182,7 @@ def host_vinely_party(request):
   message_body = send_host_vinely_party_email(request)
 
   data["message"] = message_body
-
+ 
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 def how_it_works(request):
@@ -679,29 +672,20 @@ def party_list(request):
   data = {}
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
-
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
-  if sp_group in u.groups.all():
-    data["supplier"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
 
   today = datetime.now(tz=UTC())
 
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
-    my_socializers = MySocializer.objects.filter(pro=u).values_list('socializer', flat=True)
-    data['parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(socializer__in=my_socializers, event_date__lt=today)
-  elif (soc_group in u.groups.all()):
-    data['parties'] = Party.objects.filter(socializer=u, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(socializer=u, event_date__lt=today)
+    my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
+    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
+  elif (hos_group in u.groups.all()):
+    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
+    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
   elif (tas_group in u.groups.all()):
     for inv in PartyInvite.objects.filter(invitee=u):
       data['parties'] = []
@@ -727,7 +711,7 @@ def party_add(request):
   u = request.user
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
@@ -735,8 +719,8 @@ def party_add(request):
 
   if pro_group in u.groups.all():
     data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
+  if hos_group in u.groups.all():
+    data["host"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if tas_group in u.groups.all():
@@ -754,31 +738,31 @@ def party_add(request):
     if form.is_valid():
 
       new_party = form.save()
-      new_socializer = new_party.socializer
+      new_host = new_party.host
 
-      # map socializer to a pro
-      my_socializers, created = MySocializer.objects.get_or_create(pro=u, socializer=new_socializer)
+      # map host to a pro
+      my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
       proy_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
       
-      # make the pro a mentor to the socializer
-      socializer_profile = new_socializer.get_profile()
-      socializer_profile.mentor = u
-      socializer_profile.save()
+      # make the pro a mentor to the host
+      host_profile = new_host.get_profile()
+      host_profile.mentor = u
+      host_profile.save()
       
-      if not new_socializer.is_active:
-        # new socializer, so send password and invitation
+      if not new_host.is_active:
+        # new host, so send password and invitation
         temp_password = User.objects.make_random_password()
-        new_socializer.set_password(temp_password)
-        new_socializer.save()
+        new_host.set_password(temp_password)
+        new_host.save()
 
         verification_code = str(uuid.uuid4())
-        vque = VerificationQueue(user=new_socializer, verification_code=verification_code)
+        vque = VerificationQueue(user=new_host, verification_code=verification_code)
         vque.save()
 
-        # send an invitation e-mail if new socializer created 
-        send_new_party_email(request, verification_code, temp_password, new_socializer.email)
+        # send an invitation e-mail if new host created 
+        send_new_party_email(request, verification_code, temp_password, new_host.email)
       else:
-        # existing socializer needs to notified that party has been arranged
+        # existing host needs to notified that party has been arranged
         send_new_party_scheduled_email(request, new_party)
 
       messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
@@ -787,9 +771,9 @@ def party_add(request):
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
-    # if the current user is socializer, display Vinely Pro
-    if "socializer" in data and data["socializer"]:
-      pros = MySocializer.objects.filter(socializer=u)
+    # if the current user is host, display Vinely Pro
+    if "host" in data and data["host"]:
+      pros = MyHost.objects.filter(host=u)
       if pros.exists():
         pro = pros[0].pro
         data["my_pro"] = pro 
@@ -799,12 +783,12 @@ def party_add(request):
 
     # if the current user is Vinely Taster, display Vinely Pro
     if "taster" in data and data["taster"]:
-      # find the latest party that guest attended and then through the socializer to find the Vinely Pro
+      # find the latest party that guest attended and then through the host to find the Vinely Pro
       party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
       if party_invites.exists():
         party = party_invites[0].party
-        primary_socializer = party.socializer
-        pros = MySocializer.objects.filter(socializer=primary_socializer)
+        primary_host = party.host
+        pros = MyHost.objects.filter(host=primary_host)
         if pros.exists():
           pro = pros[0].pro
           data["my_pro"] = pro 
@@ -818,9 +802,9 @@ def party_add(request):
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
-    soc_group = Group.objects.get(name="Vinely Socializer")
-    # need to figure out socializers filtered by Vinely Pro
-    form.fields['socializer'].choices = [(mysocializer.socializer.id, mysocializer.socializer.email) for mysocializer in MySocializer.objects.filter(pro=u)]
+    hos_group = Group.objects.get(name="Vinely Host")
+    # need to figure out hosts filtered by Vinely Pro
+    form.fields['host'].choices = [(MyHost.host.id, MyHost.host.email) for MyHost in MyHost.objects.filter(pro=u)]
 
   data["form"] = form
   data["parties_menu"] = True
@@ -843,14 +827,14 @@ def party_details(request, party_id):
     party = get_object_or_404(Party, pk=party_id)
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
   if pro_group in u.groups.all():
     data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
+  if hos_group in u.groups.all():
+    data["host"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if tas_group in u.groups.all():
@@ -862,8 +846,8 @@ def party_details(request, party_id):
   data["invitees"] = invitees
 
   # TODO: might have to fix this and set Party to have a particular pro
-  my_socializers = MySocializer.objects.filter(socializer=party.socializer).order_by("-timestamp")
-  data["pro_user"] = my_socializers[0].pro
+  my_hosts = MyHost.objects.filter(host=party.host).order_by("-timestamp")
+  data["pro_user"] = my_hosts[0].pro
   data["parties_menu"] = True
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
@@ -883,14 +867,14 @@ def party_taster_list(request, party_id):
     party = get_object_or_404(Party, pk=party_id)
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
   if pro_group in u.groups.all():
     data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
+  if hos_group in u.groups.all():
+    data["host"] = True
   if sp_group in u.groups.all():
     data["supplier"] = True
   if tas_group in u.groups.all():
@@ -909,8 +893,8 @@ def party_taster_invite(request, party_id=0):
   """
     Invite a new Vinely Taster to a party 
 
-      - only allow socializer or Vinely Pro to add
-      - need to track who added and make sure the Vinely Taster is linked to that pro or socializer
+      - only allow host or Vinely Pro to add
+      - need to track who added and make sure the Vinely Taster is linked to that pro or host
 
   """
   data = {}
@@ -922,15 +906,8 @@ def party_taster_invite(request, party_id=0):
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
 
   pro_group = Group.objects.get(name='Vinely Pro')
-  soc_group = Group.objects.get(name='Vinely Socializer')
+  hos_group = Group.objects.get(name='Vinely Host')
   tas_group = Group.objects.get(name='Vinely Taster')
-
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
 
   party = None
   if int(party_id) != 0:
@@ -943,7 +920,7 @@ def party_taster_invite(request, party_id=0):
       except PartyInvite.DoesNotExist:
         raise PermissionDenied
 
-  if pro_group in u.groups.all() or soc_group in u.groups.all() or tas_group in u.groups.all(): 
+  if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all(): 
     if request.method == "POST":
       form = PartyInviteTasterForm(request.POST)
       if form.is_valid():
@@ -991,16 +968,16 @@ def party_taster_invite(request, party_id=0):
       for inv in PartyInvite.objects.filter(invitee=u, party__event_date__gt=today):
         parties.append((inv.party.id, inv.party.title))
       form.fields['party'].choices = parties 
-    elif soc_group in u.groups.all():
+    elif hos_group in u.groups.all():
       today = datetime.now(tz=UTC())
-      parties = Party.objects.filter(socializer=u, event_date__gt=today)
+      parties = Party.objects.filter(host=u, event_date__gt=today)
       form.fields['party'].queryset = parties 
     elif pro_group in u.groups.all():
-      my_socializers = MySocializer.objects.filter(pro=u)
-      my_socializer_list = []
-      for my_socializer in my_socializers:
-        my_socializer_list.append(my_socializer.socializer)
-      parties = Party.objects.filter(socializer__in=my_socializer_list)
+      my_hosts = MyHost.objects.filter(pro=u)
+      my_host_list = []
+      for my_host in my_hosts:
+        my_host_list.append(my_host.host)
+      parties = Party.objects.filter(host__in=my_host_list)
       form.fields['party'].queryset = parties
 
     data["form"] = form

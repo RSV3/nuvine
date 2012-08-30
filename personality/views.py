@@ -204,17 +204,17 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     data["party"] = party
 
   pro_group = Group.objects.get(name="Vinely Pro")
-  soc_group = Group.objects.get(name="Vinely Socializer")
+  hos_group = Group.objects.get(name="Vinely Host")
   tas_group = Group.objects.get(name="Vinely Taster")
   if pro_group in u.groups.all():
     data["pro"] = True
-  if soc_group in u.groups.all():
-    data["socializer"] = True
+  if hos_group in u.groups.all():
+    data["host"] = True
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (soc_group in u.groups.all()):
-    # one can record ratings only if Vinely Pro or Vinely Socializer/Vinely Taster
+  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
+    # one can record ratings only if Vinely Pro or Vinely Host/Vinely Taster
 
     form = AllWineRatingsForm(request.POST or None)
     if form.is_valid():
@@ -265,10 +265,10 @@ def record_all_wine_ratings(request, email=None, party_id=None):
           else:
             # saved before or without the party
             PersonaLog.objects.get_or_create(user=invitee)
-        elif soc_group in u.groups.all():
+        elif hos_group in u.groups.all():
           # personality was created by an host herself 
           # ask if you want order wine
-          data["role"] = "socializer"
+          data["role"] = "host"
           PersonaLog.objects.get_or_create(user=invitee)
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
@@ -386,12 +386,13 @@ def record_all_wine_ratings(request, email=None, party_id=None):
 
     form = AllWineRatingsForm(initial=initial_data)
 
+    data["rate_wines_menu"] = True
     data["form"] = form
 
     return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
   else:
-    #else of - if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (soc_group in u.groups.all()):
+    #else of - if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
 
     # user needs to be a Vinely Pro or Vinely Taster to fill this out
     # Vinely Taster is filling out their own data

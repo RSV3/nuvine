@@ -60,8 +60,8 @@ class PartyCreateForm(forms.ModelForm):
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
 
-    if 'socializer' not in cleaned_data: 
-      # create new socializer or find existing socializer 
+    if 'host' not in cleaned_data: 
+      # create new host or find existing host 
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:
@@ -73,13 +73,13 @@ class PartyCreateForm(forms.ModelForm):
 
       ps_group = Group.objects.get(name="Vinely Pro")
       if ps_group not in user.groups.all():
-        # add the user to Vinely Socializer group if not a Vinely Pro already
-        ph_group = Group.objects.get(name="Vinely Socializer")
+        # add the user to Vinely Host group if not a Vinely Pro already
+        ph_group = Group.objects.get(name="Vinely Host")
         user.groups.add(ph_group)
         user.save()
 
-      cleaned_data['socializer'] = user 
-      del self._errors['socializer']
+      cleaned_data['host'] = user 
+      del self._errors['host']
 
     if 'address' not in cleaned_data:
       # create new address
@@ -98,7 +98,7 @@ class PartyCreateForm(forms.ModelForm):
       del self._errors['address']
 
     if 'title' not in cleaned_data:
-      cleaned_data['title'] = "%s's Party"%cleaned_data['socializer'].first_name
+      cleaned_data['title'] = "%s's Party"%cleaned_data['host'].first_name
       del self._errors['title']
 
     if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
@@ -131,7 +131,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     cleaned_data = super(PartyInviteTasterForm, self).clean()
 
     if 'invitee' not in cleaned_data: 
-      # create new socializer and return socializer ID
+      # create new host and return host ID
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
       except User.DoesNotExist:

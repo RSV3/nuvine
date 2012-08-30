@@ -7,7 +7,7 @@
   model: auth.group
   fields:
     permissions: []
-    name: Vinely Socializer
+    name: Vinely Host 
 - fields:
     name: Vinely Taster
     permissions: []
@@ -33,9 +33,9 @@
     username: vVAUSQMUmPrN2yi7ddoZZJfCyfW2-J
     is_superuser: true 
     password: pbkdf2_sha256$10000$rbiex54vjen6$XBLHxuObRu9D/rVbd/w74oTI0NpQwyMwlBHz4pzcZMU=
-    first_name: ''
+    first_name: 'Elizabeth'
     is_staff: true
-    last_name: ''
+    last_name: 'Goede'
     date_joined: 2012-07-29 07:39:24.769662
     last_login: 2012-08-20 23:55:50.074938
 - pk: 2

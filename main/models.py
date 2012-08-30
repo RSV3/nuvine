@@ -34,8 +34,8 @@ class ContactRequest(models.Model):
 
 class Party(models.Model):
 
-  # default to the name of the socializer
-  socializer = models.ForeignKey(User)
+  # default to the name of the host
+  host = models.ForeignKey(User)
   title = models.CharField(max_length=128)
   description = models.TextField(verbose_name="Special Instructions")
   address = models.ForeignKey(Address)
@@ -74,7 +74,7 @@ class PartyInvite(models.Model):
 
   party = models.ForeignKey(Party, verbose_name="Taste Party")
   invitee = models.ForeignKey(User, related_name="my_invites", verbose_name="Select Taster")
-  # if other than the socializer
+  # if other than the host
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
   invited_timestamp = models.DateTimeField(auto_now_add=True)
@@ -314,16 +314,16 @@ class OrganizedParty(models.Model):
   party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
 
-class MySocializer(models.Model):
+class MyHost(models.Model):
   """
-    Shows the socializers that are assigned to a party pro
+    Shows the hosts that are assigned to a party pro
   """
-  pro = models.ForeignKey(User, related_name="my_socializer")
-  socializer = models.ForeignKey(User, related_name="my_pro")
+  pro = models.ForeignKey(User, related_name="my_host")
+  host = models.ForeignKey(User, related_name="my_pro")
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __unicode__(self):
-    return "%s - %s"%(self.pro, self.socializer)
+    return "%s - %s"%(self.pro, self.host)
 
 class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
@@ -349,12 +349,12 @@ class CustomizeOrder(models.Model):
 
 class EngagementInterest(models.Model):
   """
-    Interest in becoming party pro or socializers or tasters attending party
+    Interest in becoming party pro or hosts or tasters attending party
   """
 
   ENGAGEMENT_CHOICES = (
     (1, 'Vinely Pro'),
-    (2, 'Vinely Socializer'),
+    (2, 'Vinely Host'),
     (3, 'Vinely Taster'),
     (5, 'Tasting Kit'),
   )

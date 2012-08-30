@@ -108,26 +108,26 @@
           </fieldset>
 
           <fieldset>
-            <legend>Select Socializer</legend>
-            <div class="control-group {% if form.socializer.errors %}error{% endif %}">
-              <div class="control-label" for="id_socializer">{{ form.socializer.label }}</div>
+            <legend>Select Host</legend>
+            <div class="control-group {% if form.host.errors %}error{% endif %}">
+              <div class="control-label" for="id_host">{{ form.host.label }}</div>
               <div class="controls">
-                <select name="socializer" id="id_socializer">
+                <select name="host" id="id_host">
                   <option value selected="selected">----------</option>
-                  {% for value, text in form.socializer.field.choices %}
+                  {% for value, text in form.host.field.choices %}
                     <option value="{{ value }}">{{ text }}</option>
                   {% endfor %}
                 </select>
-                {% if form.socializer.errors %}
+                {% if form.host.errors %}
                   <span class="help-inline">
-                    {{ form.socializer.errors }}
+                    {{ form.host.errors }}
                   </span>
                 {% endif %}
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                OR Enter New Socializer
+                OR Enter New Host
               </div>
             </div>
 

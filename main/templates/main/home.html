@@ -12,7 +12,7 @@
     <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
-  {% elif socializer %}
+  {% elif host %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li>
@@ -56,8 +56,8 @@
       {% if pro %}
         You are a Vinely Pro.
       {% endif %}
-      {% if socializer %}
-        You are a Vinely Socializer.
+      {% if host %}
+        You are a Vinely Host.
       {% endif %}
       {% if taster %}
         You are a Vinely Taster.
@@ -89,7 +89,7 @@
   </div>
   {% endif %}
 
-  {% if taster or socializer %}
+  {% if taster or host %}
     {% if questionnaire_completed %}
       <div class="span8">
         <div class="questionnaire-welcome">

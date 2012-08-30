@@ -28,7 +28,7 @@ class SimpleTest(TestCase):
       create usable accounts
     """
     ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
-    ph_group, created = Group.objects.get_or_create(name="Vinely Socializer")
+    ph_group, created = Group.objects.get_or_create(name="Vinely Host")
     att_group, created = Group.objects.get_or_create(name="Vinely Taster")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
 
@@ -314,7 +314,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party1 = Party.objects.create(socializer=host1, title="John's party", description="Wine party on a sizzling hot day",
+    party1 = Party.objects.create(host=host1, title="John's party", description="Wine party on a sizzling hot day",
                               address=address1, event_date=datetime.today()+timedelta(days=10))
 
     host2 = User.objects.get(email="host2@example.com")
@@ -325,7 +325,7 @@ class SimpleTest(TestCase):
                                       zipcode="42524-2342"
                                       )
 
-    party2 = Party.objects.create(socializer=host2, title="Mary's party", description="Wine party in the garden",
+    party2 = Party.objects.create(host=host2, title="Mary's party", description="Wine party in the garden",
                               address=address2, event_date=datetime.today()+timedelta(days=15))
 
     # invite people
