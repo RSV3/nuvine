@@ -260,7 +260,7 @@ class WineTaste(models.Model):
   red_wines_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Other (please specify):")
   
   # question 4
-  red_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What RED wine, if any, do you particularly DISLIKE? (select one, optional)', null=True, blank=True, related_name='survey_red_dislike') 
+  red_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What RED wine, if any, do you particularly DISLIKE?', null=True, blank=True, related_name='survey_red_dislike') 
   red_wine_dislike_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Other (please specify):")
   
   # question 5
@@ -297,7 +297,7 @@ class WineTaste(models.Model):
   white_wines_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Specify other wine:")
 
   # question 7
-  white_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What WHITE wine, if any, do you particularly DISLIKE? (select one, optional)', null=True, blank=True, related_name='survey_white_dislike')
+  white_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What WHITE wine, if any, do you particularly DISLIKE?', null=True, blank=True, related_name='survey_white_dislike')
   white_wine_dislike_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Specify other wine:")
 
   # question 8
