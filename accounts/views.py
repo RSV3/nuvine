@@ -15,9 +15,9 @@ from main.models import EngagementInterest, PartyInvite, MySocializer
 from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
-                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm
+                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
 from accounts.models import VerificationQueue, SubscriptionInfo
-from accounts.utils import send_verification_email, send_password_change_email
+from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email
 
 import uuid
 import logging
@@ -228,7 +228,6 @@ def sign_up(request, account_type):
   pro_group = Group.objects.get(name="Vinely Pro")
   soc_group = Group.objects.get(name="Vinely Socializer")
   tas_group = Group.objects.get(name="Vinely Taster")
-
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
   if u.is_authenticated():
@@ -241,7 +240,11 @@ def sign_up(request, account_type):
       if account_type > 1:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
-        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))        
+      elif account_type == 1:
+        EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        send_pro_request_email(request, u)
+        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif tas_group in u.groups.all():
       if account_type > 2:
         data["already_signed_up"] = True
@@ -259,11 +262,21 @@ def sign_up(request, account_type):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserCreationForm(request.POST or None) 
-
+  form = NameEmailUserMentorCreationForm(request.POST or None) 
+  
   if form.is_valid():
     user = form.save()
-
+    profile = user.get_profile()
+    try:
+      #make sure the email exists
+      mentor = User.objects.get(email = request.POST.get('mentor'))
+      #make sure selected mentor is a pro
+      if pro_group in mentor.groups.all():
+        profile.mentor = mentor
+        profile.save()
+    except Exception, e:
+      pass #leave mentor as default
+    
     if role == pro_group:
       user.groups.add(pro_pending_group)
     else:
@@ -278,7 +291,7 @@ def sign_up(request, account_type):
     engagement_type = account_type 
 
     interest, created = EngagementInterest.objects.get_or_create(user=user, 
-                                                      engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[engagement_type][0])
+                                                      engagement_type=engagement_type)
 
     verification_code = str(uuid.uuid4())
     vque = VerificationQueue(user=user, verification_code=verification_code)
@@ -292,6 +305,7 @@ def sign_up(request, account_type):
 
     data["account_type"] = account_type 
     if account_type == 1:
+      send_pro_request_email(request, user.email)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
     elif account_type == 2:
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")

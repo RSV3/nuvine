@@ -188,3 +188,9 @@ class UpdateSubscriptionForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(UpdateSubscriptionForm, self).__init__(*args, **kwargs)
     self.fields['user'].widget = forms.HiddenInput()
+
+
+from emailusernames.forms import NameEmailUserCreationForm
+class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
+  mentor = forms.EmailField(required=False, label="Vinely Pro Mentor")
+    

@@ -759,7 +759,12 @@ def party_add(request):
       # map socializer to a pro
       my_socializers, created = MySocializer.objects.get_or_create(pro=u, socializer=new_socializer)
       proy_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
-
+      
+      # make the pro a mentor to the socializer
+      socializer_profile = new_socializer.get_profile()
+      socializer_profile.mentor = u
+      socializer_profile.save()
+      
       if not new_socializer.is_active:
         # new socializer, so send password and invitation
         temp_password = User.objects.make_random_password()
