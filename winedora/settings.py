@@ -5,7 +5,7 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = True 
+DEBUG = False 
 
 try:
   from winedora.settings_debug import *
@@ -114,6 +114,7 @@ AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 AWS_PRELOAD_METADATA = True
+AWS_S3_SECURE_URLS = False
 
 if DEBUG is False:
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
