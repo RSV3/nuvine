@@ -1,10 +1,10 @@
 {% extends "accounts/base_my_account.html" %}
 
 {% load thumbnail %}
-{% load static from staticfiles %}
+{% load staticfiles %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
   <style type="text/css">
     .payment-form select {
       width: 110px;
@@ -64,7 +64,7 @@
                   <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                 {% endthumbnail %}
               {% else %}
-                <img src="{{ STATIC_URL }}img/noprofilephoto_img.png" height="120">
+                <img src="{% static "img/noprofilephoto_img.png" %}" height="120">
               {% endif %}
             </div>
             <div class="control-label" for="id_profile-image">

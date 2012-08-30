@@ -126,9 +126,9 @@ if DEBUG is False:
   STATIC_S3_PATH = 'static'
 
   MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
-  MEDIA_URL = 'http://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+  MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
   STATIC_ROOT = '/%s/' % STATIC_S3_PATH
-  STATIC_URL = 'http://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
+  STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
   ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Make this unique, and don't share it with anybody.
@@ -193,7 +193,6 @@ INSTALLED_APPS = (
     'winedora',
     'south',
     'emailusernames',
-    'storages',
     'gunicorn',
     's3_folder_storage',
     'compressor',

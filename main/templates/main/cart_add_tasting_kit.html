@@ -2,6 +2,7 @@
  
 {% load currency %}
 {% load thumbnail %}
+{% load staticfiles %}
 
 {% block header %}
   <h1 class="headline">Order Your First Taste Kit</h1>
@@ -16,7 +17,7 @@
     <div class="row">
 
       <div class="span6">
-        <img src="{{ STATIC_URL }}img/firsthostkit_prodimg.png" height="400">
+        <img src="{% static "img/firsthostkit_prodimg.png" %}" height="400">
         <!--
         {% thumbnail product.image "400" as im %}
           <img height="400" src="{{ im.url }}" /> 

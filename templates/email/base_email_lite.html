@@ -1,4 +1,6 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><title></title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><style type="text/css">
+﻿{% load staticfiles %}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><title></title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><style type="text/css">
 /* Mobile-specific Styles */
 @media only screen and (max-device-width: 480px) { 
 table[class=w0], td[class=w0] { width: 0 !important; }
@@ -170,11 +172,11 @@ body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; 
     <div align="center" style="text-align: center">
         <div id ="brand-logo" class="brand-id">
             <a href="http://www.vinely.com/">
-            <img id="customHeaderImage" label="Header Image" editable="true" width="156" src="{{ STATIC_URL }}img/email/vinely_logo_email.png" class="w640" border="0" align="top" style="display: inline">
+            <img id="customHeaderImage" label="Header Image" editable="true" width="156" src="{% static "img/email/vinely_logo_email.png" %}" class="w640" border="0" align="top" style="display: inline">
             </a>
         </div>
         <div id="badges" class="brand-id">
-            <img id="badgesImg" label="Badges Image" editable="true" width="640" src="{{ STATIC_URL }}img/email/email_badges.png" class="w640" border="0" align="top" style="display: inline">
+            <img id="badgesImg" label="Badges Image" editable="true" width="640" src="{% static "img/email/email_badges.png" %}" class="w640" border="0" align="top" style="display: inline">
         </div>
     </div>
     

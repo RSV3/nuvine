@@ -1,7 +1,7 @@
 {% extends "main/menu_base.html" %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
 {% endblock %}
 
 {% block header %}
@@ -34,7 +34,7 @@
       }
     );
   </script>
-  <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript">
     $(document).ready( function () {
         $(".datepicker").datepicker();

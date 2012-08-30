@@ -1,5 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load staticfiles %}
+
 {% block header %}
   {% if invitee %}
     <h1 class="headline">{{ invitee.first_name }}, you are a {{ personality.name }}</h1>
@@ -18,7 +20,7 @@
         <div class="span8">
           {# Need to put the personality graphics #}
           <p>
-            <img src="{{ STATIC_URL }}img/homepage_badge_{{ personality.suffix }}.png">
+            <img src="{% static "img/homepage_badge_{{ personality.suffix }}.png" %}">
           </p>
         </div>
         <div class="span4">

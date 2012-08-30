@@ -1,5 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load staticfiles %}
+
 {% block header %}
   <h1 class="headline">Where’s the party? Your place!</h1>
 {% endblock header %}
@@ -35,7 +37,7 @@
       {% else %}
         <div class="control-group">
           <div class="controls center">
-            <a href="{% url sign_up 2 %}"><img src="{{ STATIC_URL }}img/btn_pie_socializeme.png"></a>
+            <a href="{% url sign_up 2 %}"><img src="{% static "img/btn_pie_socializeme.png" %}"></a>
           </div>
         </div>
       {% endif %}
@@ -57,7 +59,7 @@
       {% else %}
         <div class="control-group">
           <div class="controls center">
-            <a href="{% url sign_up 1 %}"><img src="{{ STATIC_URL }}img/btn_pie_makemeapro.png"></a>
+            <a href="{% url sign_up 1 %}"><img src="{% static "img/btn_pie_makemeapro.png" %}"></a>
           </div>
         </div>
       {% endif %}

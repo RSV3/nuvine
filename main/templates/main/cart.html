@@ -2,6 +2,7 @@
 
 {% load currency %}
 {% load thumbnail %}
+{% load staticfiles %}
 
 {% block header %}
   <h1 class="headline">Your Cart</h1>
@@ -45,7 +46,7 @@
                       <img src="{{ im.url }}"/>
                     {% endthumbnail %}
                   {% else %}
-                      <img src="{{ STATIC_URL }}img/firsthostkit_prodimg.png" width="100">
+                      <img src="{% static "img/firsthostkit_prodimg.png" %}" width="100">
                   {% endif %}
                 </div>
                 <div class="cart-item-name">
