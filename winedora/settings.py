@@ -115,6 +115,9 @@ AWS_SECRET_ACCESS_KEY = '5zHNLNf8D/x2cDG+6JpgqgM75VzrFd5fQdsCEviV'
 AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 AWS_PRELOAD_METADATA = True
 AWS_S3_SECURE_URLS = False
+# from boto.s3.connection import S3Connection, OrdinaryCallingFormat 
+# AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
+# AWS_S3_CUSTOM_DOMAIN = 'our own cname for the s3 bucket'
 
 if DEBUG is False:
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
