@@ -22,7 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
-  <script src="{{ STATIC_URL }}js/less.js"></script>
+  <script src="{% static "js/less.js" %}"></script>
 
   <link rel="stylesheet" href="{% static "html5/css/style.css" %}">
 
@@ -58,19 +58,19 @@
   <script type="text/javascript">
     var myfont_webfont_test = true;
     var woffEnabled = true;
-    var customPath = "{{ STATIC_URL }}fonts";
+    var customPath = "{% static "fonts" %}";
   </script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/AlternateGothicOrderM3947119.js"></script>
+  <script type="text/javascript" src="{% static "js/AlternateGothicOrderM3947119.js" %}"></script>
   -->
   <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.css" %}">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/docs.css">
-  <link rel="stylesheet" href="{{ STATIC_URL }}css/winedora.css">
+  <link rel="stylesheet" href="{% static "css/docs.css" %}">
+  <link rel="stylesheet" href="{% static "css/winedora.css" %}">
 
-  <link rel="shortcut icon" href="{{ STATIC_URL }}ico/favico.png">
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ STATIC_URL }}html5/img/apple-touch-icon-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ STATIC_URL }}html5/img/apple-touch-icon-114x114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ STATIC_URL }}html5/img/apple-touch-icon-72x72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{ STATIC_URL }}html5/img/apple-touch-icon-57x57-precomposed.png">
+  <link rel="shortcut icon" href="{% static "ico/favico.png" %}">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static "html5/img/apple-touch-icon-precomposed.png" %}">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static "html5/img/apple-touch-icon-114x114-precomposed.png" %}">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static "html5/img/apple-touch-icon-72x72-precomposed.png" %}">
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static "html5/img/apple-touch-icon-57x57-precomposed.png" %}">
   {% block additional_styles %}
   
   {% endblock %}
@@ -83,7 +83,7 @@
   <!-- All JavaScript at the bottom, except this Modernizr build.
        Modernizr enables HTML5 elements & feature detects for optimal performance.
        Create your own custom Modernizr build: www.modernizr.com/download/ -->
-  <script src="{{ STATIC_URL }}html5/js/libs/modernizr-2.5.3.min.js"></script>
+  <script src="{% static "html5/js/libs/modernizr-2.5.3.min.js" %}"></script>
   <script type="text/javascript">
     window.onload=function() {
         var mtiTracking = document.createElement('link');
@@ -101,7 +101,7 @@
   <div class="container">
     <div class="row">
       <div class="span5 offset4">
-        <h1><a class="brand" href="{% url landing_page %}"><img src="{{ STATIC_URL }}img/vinely_logo_notag.png" title="Vinely" class="default" width="312" height="160"></a></h1>
+        <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
       <div class="span3">
         <div class="box-container">
@@ -291,26 +291,26 @@
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}js/jquery-1.7.2.min.js"><\/script>')</script>
+  <script>window.jQuery || document.write('<script src="{% static "js/jquery-1.7.2.min.js" %}"><\/script>')</script>
 
   <!-- scripts concatenated and minified via build script -->
-  <script src="{{ STATIC_URL }}html5/js/plugins.js"></script>
-  <script src="{{ STATIC_URL }}html5/js/script.js"></script>
+  <script src="{% static "html5/js/plugins.js" %}"></script>
+  <script src="{% static "html5/js/script.js" %}"></script>
   <!-- end scripts -->
 
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alert.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-scrollspy.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tab.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-carousel.js"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
-  <script src="{{ STATIC_URL }}js/application.js"></script>
+  <script src="{% static "bootstrap/js/bootstrap-transition.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-alert.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-modal.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-dropdown.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-scrollspy.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-tab.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-tooltip.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-popover.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-button.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-collapse.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-carousel.js" %}"></script>
+  <script src="{% static "bootstrap/js/bootstrap-typeahead.js" %}"></script>
+  <script src="{% static "js/application.js" %}"></script>
 
   <script type="text/javascript">
     $(document).ready( function () {

@@ -1,6 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load thumbnail %}
+{% load staticfiles %}
 
 {% block header %}
   <h1>Taste Party: {{ party.title }}</h1>
@@ -62,7 +63,7 @@
                     <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                   {% endthumbnail %}
                 {% else %}
-                  <img src="{{ STATIC_URL }}img/noprofilephoto_img.png" width="120">
+                  <img src="{% static "img/noprofilephoto_img.png" %}" width="120">
                 {% endif %}
               </div>
               <div class="user-contact">
@@ -89,7 +90,7 @@
         {% else %}
           {# for pros #}
           <div class="pull-right">
-            <a href="{{ STATIC_URL }}doc/PDF_vinely_experience_card_Editable_a.pdf" class="btn btn-primary btn-large">Print Rating Cards</a>
+            <a href="{% static "doc/PDF_vinely_experience_card_Editable_a.pdf" %}" class="btn btn-primary btn-large">Print Rating Cards</a>
           </div>
         {% endif %}
       </div>

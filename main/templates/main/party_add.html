@@ -1,8 +1,10 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load staticfiles %}
+
 {% block additional_styles %}
-  <link rel="stylesheet" href="{{ STATIC_URL }}datepicker/css/datepicker.css"> 
-  <link rel="stylesheet" href="{{ STATIC_URL }}timepicker/css/timepicker.css"> 
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "timepicker/css/timepicker.css" %}"> 
 {% endblock %}
 
 {% block header %}
@@ -255,8 +257,8 @@
 {% endblock content %}
 
 {% block additional_scripts %}
-  <script type="text/javascript" src="{{ STATIC_URL }}datepicker/js/bootstrap-datepicker.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}timepicker/js/bootstrap-timepicker.js"></script>
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script type="text/javascript" src="{% static "timepicker/js/bootstrap-timepicker.js" %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.datepicker').datepicker();

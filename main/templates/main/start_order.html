@@ -2,6 +2,7 @@
 
 {% load currency %}
 {% load thumbnail %}
+{% load staticfiles %}
 
 {% block header %}
   <h1 class="headline">What would you like?</h1>
@@ -42,7 +43,7 @@
               <img height="250" src="{{ im.url }}"/>
             {% endthumbnail %}
             -->
-             <div class="product-img"><img heigh="250" src="{{ STATIC_URL }}img/{{ product.img_file_name }}"/></div>
+             <div class="product-img"><img heigh="250" src="{% static "img/{{ product.img_file_name }}" %}"/></div>
             <div class="product-description">
               <h4>{{ your_personality }} {{ product.name }}</h4>
               <p>{{ product.description }}</p>
