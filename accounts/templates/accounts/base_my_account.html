@@ -1,5 +1,7 @@
 {% extends "main/menu_base.html" %}
 
+{% load static %}
+
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
 {% endblock %}
@@ -14,7 +16,7 @@
   <li{% if my_information %} class="active"{% endif %}><div class="chev"><a href="{% url my_information %}">My Information</a></div></li>
   <li{% if change_password %} class="active"{% endif %}><div class="chev"><a href="{% url change_password %}">Change Password</a></div></li>
   <li{% if verify_eligibility %} class="active"{% endif %}><div class="chev"><a href="{% url verify_eligibility %}">Verify Eligibility</a></div></li>
-  <li{% if edit_subscription %} class="active"{% endif %}><div class="chev"><a href="{% url edit_subscription %}">Edit Subscription</a></div></li>
+  <li{% if edit_subscription %} class="active"{% endif %}><div class="chev"><a href="{% url edit_subscription %}">Edit Order</a></div></li>
   <li{% if order_history %} class="active"{% endif %}><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
 {% endblock left_navigation %}
 
