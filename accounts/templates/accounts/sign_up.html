@@ -73,6 +73,7 @@
               {{ form.email }}
             </div>
           </div>
+	  {% if account_type == 1 %}
           <div class="control-group">
             <div class="control-label" for="id_mentor">
             {{ form.mentor.label_tag }}
@@ -81,6 +82,7 @@
               {{ form.mentor }} <span>(Just leave this blank if you dont know what it is)<span>
             </div>
           </div>
+	  {% endif %}
               <input type="hidden" name="password1" value="Sign Up" />
               <input type="hidden" name="password2" value="Sign Up" />
           <div class="form-actions">
