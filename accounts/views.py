@@ -261,15 +261,17 @@ def sign_up(request, account_type):
   if form.is_valid():
     user = form.save()
     profile = user.get_profile()
+    profile.zipcode = request.POST.get('zipcode')
     try:
       #make sure the email exists
       mentor = User.objects.get(email = request.POST.get('mentor'))
       #make sure selected mentor is a pro
       if pro_group in mentor.groups.all():
         profile.mentor = mentor
-        profile.save()
     except Exception, e:
       pass #leave mentor as default
+    
+    profile.save()
     
     if role == pro_group:
       user.groups.add(pro_pending_group)

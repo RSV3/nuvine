@@ -73,6 +73,14 @@
               {{ form.email }}
             </div>
           </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
+            </div>
+          </div>
 	  {% if account_type == 1 %}
           <div class="control-group">
             <div class="control-label" for="id_mentor">
