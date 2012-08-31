@@ -5,7 +5,7 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = False 
+DEBUG = True 
 
 try:
   from winedora.settings_debug import *
@@ -13,7 +13,7 @@ except Exception as e:
   print e
 
 TEMPLATE_DEBUG = DEBUG
-DEPLOY = False # only True if production (for mail settings)
+DEPLOY =  True # only True if production (for mail settings)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -114,9 +114,15 @@ AWS_ACCESS_KEY_ID = 'AKIAIA5QIVHATQ54TYBQ'
 AWS_SECRET_ACCESS_KEY = '5zHNLNf8D/x2cDG+6JpgqgM75VzrFd5fQdsCEviV'
 AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 AWS_PRELOAD_METADATA = True
-AWS_S3_SECURE_URLS = False
-# from boto.s3.connection import S3Connection, OrdinaryCallingFormat 
-# AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
+
+if DEPLOY:
+  # for handling https static file serving
+  from boto.s3.connection import OrdinaryCallingFormat 
+  AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
+else:
+  # for static files to serve from http 
+  AWS_S3_SECURE_URLS = False
+
 # AWS_S3_CUSTOM_DOMAIN = 'our own cname for the s3 bucket'
 
 if DEBUG is False:
