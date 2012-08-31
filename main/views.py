@@ -177,9 +177,13 @@ def host_vinely_party(request):
   """
   
   data = {}
-
+  # check for pro
+  pro = None
+  pros = MyHost.objects.filter(host=request.user)
+  if pros.exists():
+    pro = pros[0].pro
   # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
-  message_body = send_host_vinely_party_email(request)
+  message_body = send_host_vinely_party_email(request, request.user, pro)
 
   data["message"] = message_body
  
@@ -777,9 +781,9 @@ def party_add(request):
       if pros.exists():
         pro = pros[0].pro
         data["my_pro"] = pro 
-        send_host_vinely_party_email(request, pro)
+        send_host_vinely_party_email(request, u, pro)
       else:
-        send_host_vinely_party_email(request)
+        send_host_vinely_party_email(request, u)
 
     # if the current user is Vinely Taster, display Vinely Pro
     if "taster" in data and data["taster"]:
@@ -792,13 +796,13 @@ def party_add(request):
         if pros.exists():
           pro = pros[0].pro
           data["my_pro"] = pro 
-          send_host_vinely_party_email(request, pro)
+          send_host_vinely_party_email(request, u, pro)
         else:
           # if no pro found, just e-mail sales
-          send_host_vinely_party_email(request)
+          send_host_vinely_party_email(request, u)
       else:
         # if no previous party found, just e-mail sales
-        send_host_vinely_party_email(request)
+        send_host_vinely_party_email(request, u)
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)

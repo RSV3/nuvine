@@ -166,8 +166,8 @@ def send_order_shipped_email(request, order):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_host_vinely_party_email(request, pro=None):
-
+def send_host_vinely_party_email(request, user, pro=None):
+  # needs user param for when not logged in e.g. brand new host signing up
   message_template = Template("""
 
   Hey {{ pro_first_name }}!
@@ -193,11 +193,11 @@ def send_host_vinely_party_email(request, pro=None):
  
   """)
 
-  profile = request.user.get_profile()
+  profile = user.get_profile()
 
-  c = RequestContext( request, {"first_name": request.user.first_name if request.user.first_name else "Vinely", 
-              "last_name": request.user.last_name if request.user.last_name else "Fan",
-              "email": request.user.email,
+  c = RequestContext( request, {"first_name": user.first_name if user.first_name else "Vinely", 
+              "last_name": user.last_name if user.last_name else "Fan",
+              "email": user.email,
               "pro_first_name": pro.first_name if pro else "Care Specialist",
               "phone": profile.phone,
               "host_name": request.get_host()})
@@ -212,13 +212,13 @@ def send_host_vinely_party_email(request, pro=None):
   # notify interest in hosting to Vinely Pro or vinely sales 
   subject = 'A Vinely Taste Party is ready to be scheduled'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
-  from_email = request.user.email
+  from_email = user.email
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
   # update our DB that there was repeated interest
-  interest, created = EngagementInterest.objects.get_or_create(user=request.user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
+  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
   if not created:
     interest.update_time()
   else:
