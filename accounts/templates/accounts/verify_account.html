@@ -61,6 +61,15 @@
               {{ form.retype_password }}
             </div>
           </div>
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox inline">
+              {{ form.accepted_tos }}
+              {{ form.accepted_tos.label }}
+              [<a href="{% url terms %}">Terms</a>]
+              </label>
+            </div>
+          </div>
           <div class="form-actions">
             <div class="controls">
               <button type="submit" class="btn btn-primary">Verify</button>

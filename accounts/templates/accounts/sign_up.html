@@ -74,6 +74,15 @@
             </div>
           </div>
           <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
+            </div>
+          </div>
+	  {% if account_type == 1 %}
+          <div class="control-group">
             <div class="control-label" for="id_mentor">
             {{ form.mentor.label_tag }}
             </div>
@@ -81,6 +90,16 @@
               {{ form.mentor }} <span>(Just leave this blank if you dont know what it is)<span>
             </div>
           </div>
+	  {% elif account_type == 2 %}
+	  <div class="control-group">
+            <div class="control-label" for="id_mentor">
+              <label>Your Vinely Pro</label>
+            </div>
+            <div class="controls">
+              {{ form.mentor }} <span>(Just leave this blank if you dont know what it is)<span>
+            </div>
+          </div>
+	  {% endif %}
               <input type="hidden" name="password1" value="Sign Up" />
               <input type="hidden" name="password2" value="Sign Up" />
           <div class="form-actions">

@@ -31,7 +31,11 @@
                   Self invited
                 {% endif %}
               </td>
-              <td><a href="">unlink</a></td>
+              <td>
+		{% if invited_by %}
+		<a href="">unlink</a>
+		{% endif %}
+	      </td>
             </tr>
             <tr>
               <td><b>Vinely Pro</b></td>
@@ -62,7 +66,11 @@
                   No pro assigned (email <a href="mailto:care@vinely.com">care@vinely.com</a>)
                 {% endif %}
               </td> 
-              <td><a href="">unlink</a></td>
+              <td>
+		{% if not pro and pro_user %}
+		<a href="">unlink</a>
+		{% endif %}
+	      </td>
             </tr>
           </table> 
         </fieldset>

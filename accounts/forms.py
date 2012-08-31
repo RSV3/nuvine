@@ -48,10 +48,10 @@ class VerifyAccountForm(forms.Form):
   temp_password = forms.CharField(label="Temporary Password", max_length=64, widget=forms.PasswordInput)
   new_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   retype_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
-
+  accepted_tos = forms.BooleanField(label="I accept the terms of service")
   def clean(self):
     cleaned_data = super(VerifyAccountForm, self).clean()
-
+    
     try:
       # need to first check the temporary password
       u = User.objects.get(email=cleaned_data['email'])
@@ -193,4 +193,10 @@ class UpdateSubscriptionForm(forms.ModelForm):
 from emailusernames.forms import NameEmailUserCreationForm
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor")
+  zipcode = forms.CharField(max_length=20)
+  
+  def __init__(self, *args, **kwargs):
+    super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].required = True
+    self.fields['last_name'].required = True
     
