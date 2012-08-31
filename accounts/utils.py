@@ -192,14 +192,45 @@ def send_pro_request_email(request, receiver_email):
 
   """)
 
-  c = RequestContext( request, {"invite_host_name": receiver_email,
-              "invite_host_email": 'sales@vinely.com',
-              "host_name": request.get_host()})
+  c = RequestContext( request, {})
   message = message_template.render(c)
   
   # send out email request to sales@vinely.com 
   subject = 'Vinely Pro Request!'
   recipients = ['sales@vinely.com', receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'support@vinely.com'
+  
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+def send_unknown_pro_email(request, user):
+
+  message_template = Template("""
+
+  Customer {{ customer }} would like to be a host at a Vinely Taste Party but is not linked to a Vinely Pro.
+
+  Please link them up with a Pro in their area as soon as possible.
+
+  Their full details:
+
+  Full name: {{ user_full_name }}
+  Email Address: {{ email }} 
+  Zipcode: {{ zipcode }}
+
+  """)
+
+  c = RequestContext( request, {"customer": user.first_name, "user_full_name": user.get_full_name(),
+                                "email": user.email, "zipcode": user.get_profile().zipcode} )
+  message = message_template.render(c)
+  
+  # send out email request to sales@vinely.com 
+  subject = 'A Vinely Taste Party host needs be linked to a Vinely Pro'
+  recipients = ['sales@vinely.com']
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = 'support@vinely.com'
   

@@ -229,7 +229,7 @@ def send_host_vinely_party_email(request, pro=None):
   # return text message for display
   return message 
 
-def send_know_pro_party_email(request):
+def send_know_pro_party_email(request, user, pro_email):
 
   message_template = Template("""
 
@@ -250,14 +250,14 @@ def send_know_pro_party_email(request):
 
   """)
 
-  c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
+  c = RequestContext( request, {"host_first_name": user.first_name if user.first_name else "Vinely Host"})
 
-  message = message_template.reander(c)
+  message = message_template.render(c)
 
   subject = 'Get the party started with Vinely'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
-  from_email = request.user.email
-
+  from_email = "sales@vinely.com"
+  recipients = [pro_email]
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 

@@ -17,8 +17,9 @@ from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationF
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
 from accounts.models import VerificationQueue, SubscriptionInfo
-from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email
+from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email
 
+from main.utils import send_know_pro_party_email
 import uuid
 import logging
 
@@ -262,15 +263,19 @@ def sign_up(request, account_type):
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = request.POST.get('zipcode')
-    try:
-      #make sure the email exists
-      mentor = User.objects.get(email = request.POST.get('mentor'))
-      #make sure selected mentor is a pro
-      if pro_group in mentor.groups.all():
-        profile.mentor = mentor
-    except Exception, e:
-      pass #leave mentor as default
-    
+    # if pro, then mentor IS mento 
+    if account_type == 1:
+      try:
+        # make sure the email exists
+        mentor = User.objects.get(email = request.POST.get('mentor'))
+        # make sure selected mentor is a pro
+        if pro_group in mentor.groups.all():
+          profile.mentor = mentor
+      except Exception, e:
+        pass # leave mentor as default
+    elif account_type == 2:
+      # if host then mentor becomes their pro
+      pass
     profile.save()
     
     if role == pro_group:
@@ -304,8 +309,13 @@ def sign_up(request, account_type):
       send_pro_request_email(request, user.email)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
     elif account_type == 2:
+      # send mail to sales@vinely if no specialist
+      specialist = request.POST.get('mentor')
+      if not specialist:
+        send_unknown_pro_email(request, user)
+      else:
+        send_know_pro_party_email(request, user, specialist)
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 
