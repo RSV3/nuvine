@@ -133,6 +133,7 @@ def edit_subscription(request):
     if invitation.exists():
       data['invited_by'] = invitation[0].party.host
     else:
+      # TODO: need to update this part so we assign the currently active Pro
       mypros = MyHost.objects.filter(host=u).order_by('-timestamp')
       if mypros.exists():
         data['invited_by'] = mypros[0].pro
@@ -143,6 +144,7 @@ def edit_subscription(request):
     invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
     if invitation.exists():
       data['invited_by'] = invitation[0].party.host
+      # TODO: need to update this part so we assign the currently active Pro
       mypros = MyHost.objects.filter(host=data['invited_by']).order_by('-timestamp')
       if mypros.exists():
         data['invited_by'] = mypros[0].pro
