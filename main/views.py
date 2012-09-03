@@ -469,7 +469,11 @@ def customize_checkout(request):
     except CustomizeOrder.DoesNotExist:
       # continue to show customization form which will be filled in with current user's customization initially
       custom = None
-
+  
+  if 'cart_id' not in request.session:
+    messages.error(request, 'Your cart is empty. Please add something to the cart first.')
+    return HttpResponseRedirect(reverse("cart"))
+  
   form = CustomizeOrderForm(request.POST or None, instance=custom)
   if form.is_valid():
     custom = form.save(commit=False)
