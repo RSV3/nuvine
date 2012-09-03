@@ -26,3 +26,8 @@ DNS Flush on Mac OS X Lion and Mountain Lion
 ============================================
 
 sudo killall -HUP mDNSResponder
+
+For downloading pgbackup
+========================
+
+curl -o latest.dump `heroku pgbackups:url a051 --app winedora`
