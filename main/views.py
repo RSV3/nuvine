@@ -388,6 +388,7 @@ def cart_add_wine(request, level="basic"):
   description_template = Template(product.description)
   product.description = description_template.render(Context({'personality': personality.name }))
   product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag) 
+  product.unit_price = product.unit_price * 2
   data["product"] = product
   data["personality"] = personality
 
@@ -1416,4 +1417,26 @@ def cart_kit_detail(request, kit_id):
   data['description'] = kit.description
   data['price'] = "$%s" % kit.unit_price #TODO: is there a better way to serialize currency
   data['product'] = kit.name
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
+@login_required
+def cart_quantity(request, level, quantity):
+  '''
+  Quantity:
+  1 = full case
+  2 = half case
+  '''
+  
+  if level == "basic":
+    product = Product.objects.get(name="Basic Collection")
+  elif level == "classic":
+    product = Product.objects.get(name="Classic Collection")
+  elif level == "divine":
+    product = Product.objects.get(name="Divine Collection")
+  elif level == "x":
+    # not a valid product
+    raise Http404
+  data = {}
+  data['price'] = "$%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
+
   return HttpResponse(json.dumps(data), mimetype="application/json")

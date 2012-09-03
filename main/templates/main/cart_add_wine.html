@@ -70,7 +70,7 @@
         <p>&nbsp;</p>
         <div class="download">
         </div>
-        <p><b>Unit Price:</b> {{ product.unit_price|currency }}</p>
+        <p><b>Unit Price:</b> <span id="unit_price">{{ product.unit_price|currency }}</span></p>
         {{ form.total_price }}
         <div class="form-actions">
           <div class="controls">
@@ -86,3 +86,25 @@
 </div>
 {% endblock %}
 
+{% block additional_scripts %}
+<script>
+$(document).ready(function(){
+    $('#id_quantity').change(function(e) {
+	var val = $('#id_quantity option:selected').val();
+	var url = "{% url cart_quantity level 1 %}".replace(1, parseInt(val));
+        $.ajax({
+	    url: url,
+	    cache: true,
+	    dataType: "json",
+	    success: function(json, textStatus) {
+		$('#unit_price').text(json.price);
+	    },
+	    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("error: " + errorThrown);
+	    }
+        });
+        return false;
+    });
+});
+</script>
+{% endblock additional_scripts %}
