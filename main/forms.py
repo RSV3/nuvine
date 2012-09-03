@@ -272,13 +272,13 @@ class CustomizeOrderForm(forms.ModelForm):
 
 class ShippingForm(forms.ModelForm):
 
-  first_name = forms.CharField(max_length=30, required=False)
-  last_name = forms.CharField(max_length=30, required=False)
+  first_name = forms.CharField(max_length=30)
+  last_name = forms.CharField(max_length=30)
 
   address1 = forms.CharField(label="Address 1", max_length=128)
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
-  city = forms.CharField(label="City", max_length=64, required=False)
+  city = forms.CharField(label="City", max_length=64)
   state = us_forms.USStateField() #choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
