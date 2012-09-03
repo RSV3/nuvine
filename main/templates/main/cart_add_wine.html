@@ -21,7 +21,7 @@
         <img height="500" src="{{ im.url }}" /> 
       {% endthumbnail %}
       -->
-      <img height="500" src="{% static "img/{{ product.img_file_name }}" %}">
+      <img height="500" src="{{ STATIC_URL }}img/{{ product.img_file_name }}">
     </div>
 
     <div class="span6">
