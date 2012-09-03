@@ -85,12 +85,12 @@
             </div>
           </p>
           <section id="party-tips">
-          <p class="pull-right"><a href="{% static doc/PDF_SocialPartyToDoList.pdf" %}">Download the Taste Party To-Do List</a></p>
+          <p class="pull-right"><a href="{{ STATIC_URL }}doc/PDF_SocialPartyToDoList.pdf">Download the Taste Party To-Do List</a></p>
           </section>
         {% else %}
           {# for pros #}
           <div class="pull-right">
-            <a href="{% static "doc/PDF_vinely_experience_card_Editable_a.pdf" %}" class="btn btn-primary btn-large">Print Rating Cards</a>
+            <a href="{% {{ STATIC_URL }}doc/PDF_vinely_experience_card_Editable_a.pdf" class="btn btn-primary btn-large">Print Rating Cards</a>
           </div>
         {% endif %}
       </div>
