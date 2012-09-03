@@ -1298,8 +1298,9 @@ def edit_shipping_address(request):
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.status = Cart.CART_STATUS_CHOICES[3][0]
       cart.save()
-
+      
       if cart.party is None:
+        party = None
         if 'party_id' in request.session:
           party = Party.objects.get(id=request.session['party_id'])
         else:
