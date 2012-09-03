@@ -1408,3 +1408,12 @@ def edit_credit_card(request):
   data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
+import json
+@login_required
+def cart_kit_detail(request, kit_id):
+  kit = Product.objects.get(id=int(kit_id))
+  data = {}
+  data['description'] = kit.description
+  data['price'] = "$%s" % kit.unit_price #TODO: is there a better way to serialize currency
+  data['product'] = kit.name
+  return HttpResponse(json.dumps(data), mimetype="application/json")

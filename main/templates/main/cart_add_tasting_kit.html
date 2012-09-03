@@ -29,8 +29,8 @@
         <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
-          <p><h3>{{ product.name }}</h3></p>
-          <p>{{ product.description }}</p>
+          <p><h3 id="product_name">{{ product.name }}</h3></p>
+          <p id="product_description">{{ product.description }}</p>
           <div class="control-group {% if form.quantity.errors %}error{% endif %}">
             <div class="control-label" for="id_quantity">{{ form.product.label }}</div>
             <div class="controls">
@@ -51,7 +51,7 @@
           <p>&nbsp;</p>
           <div class="download">
           </div>
-          <p><b>From:</b> {{ product.unit_price|currency }}</p>
+          <p><b>From:</b> <span id="unit_price">{{ product.unit_price|currency }}</span></p>
           {{ form.total_price }}
           <div class="form-actions">
             <div class="controls">
@@ -73,4 +73,32 @@
   </div>
 </div>
 {% endblock %}
+{% block additional_scripts %}
+<script>
+$(document).ready(function(){
+    $('#id_product').change(function(e) {
+	var val = $('#id_product option:selected').val();
+	var url = "{% url cart_kit_detail 1 %}".replace(1, parseInt(val));
+        $.ajax({
+	    url: url,
+	    cache: true,
+	    dataType: "json",
+	    success: function(json, textStatus) {
+		$('#product_name').text(json.product);
+		$('#product_description').text(json.description);
+		$('#unit_price').text(json.price);
+	    },
+	    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("error: " + errorThrown);
+	    }
+        });
+        return false;
+    });
 
+    $('#id_product').change(function(e) {
+	var option = $('#id_product option:selected').text();
+	//alert(option);
+    });
+});
+</script>
+{% endblock additional_scripts %}
