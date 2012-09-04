@@ -5,7 +5,10 @@ import os
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
-DEBUG = True 
+if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
+  DEBUG = True 
+else:
+  DEBUG = False
 
 try:
   from winedora.settings_debug import *
@@ -13,7 +16,11 @@ except Exception as e:
   print e
 
 TEMPLATE_DEBUG = DEBUG
-DEPLOY =  False # only True if production (for mail settings)
+
+if 'DEPLOY' in os.environ and os.environ['DEPLOY'] == 'true':
+  DEPLOY = True # only True if production (for mail settings and https)
+else:
+  DEPLOY =  False 
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
