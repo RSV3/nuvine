@@ -50,13 +50,15 @@ def my_information(request):
   billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
   payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
+  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, prefix='eligibility')
 
   user_updated = False
   shipping_updated = False
   billing_updated = False
   payment_updated = False
   profile_updated = False
-
+  eligibility_updated = False
+    
   if user_form.is_valid(): 
     update_user = user_form.save()
     user_updated = True 
@@ -77,10 +79,14 @@ def my_information(request):
     profile.save()
     payment_updated = True 
 
+  if eligibility_form.is_valid():
+    eligible_profile = eligibility_form.save()
+    eligibility_updated = True
+
   if profile_form.is_valid():
     new_profile = profile_form.save()
 
-  if user_updated or shipping_updated or billing_updated or payment_updated:
+  if user_updated or shipping_updated or billing_updated or payment_updated or eligibility_updated:
     messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
     data['updated'] = True
 
@@ -93,6 +99,7 @@ def my_information(request):
   data['billing_form'] = billing_form
   data['payment_form'] = payment_form
   data['profile_form'] = profile_form
+  data['eligibility_form'] = eligibility_form
   data['profile'] = profile
 
   return render_to_response("accounts/my_information.html", data,

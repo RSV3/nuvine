@@ -76,6 +76,7 @@ class VerifyEligibilityForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
     self.fields['dob'].widget.attrs['class'] = 'datepicker'
+    self.fields['dob'].widget.attrs['placeholder'] = 'yyyy-mm-dd'
     self.fields['user'].widget = forms.HiddenInput()
 
 class UpdateAddressForm(forms.ModelForm):
