@@ -13,7 +13,7 @@ except Exception as e:
   print e
 
 TEMPLATE_DEBUG = DEBUG
-DEPLOY =  True # only True if production (for mail settings)
+DEPLOY =  False # only True if production (for mail settings)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
