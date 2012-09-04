@@ -19,7 +19,8 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email
 
-from main.utils import send_know_pro_party_email
+
+from main.utils import send_know_pro_party_email, send_host_vinely_party_email
 import uuid
 import logging
 
@@ -338,7 +339,7 @@ def sign_up(request, account_type):
         
         if pro_group in specialist.groups.all():
           send_know_pro_party_email(request, user, specialist) # to host
-      except Exception, e:
+      except User.DoesNotExist, e:
         # mail sales
         # send_unknown_pro_email(request, user) # to vinely
         pass
