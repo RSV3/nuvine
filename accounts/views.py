@@ -19,7 +19,8 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email
 
-from main.utils import send_know_pro_party_email
+
+from main.utils import send_know_pro_party_email, send_host_vinely_party_email
 import uuid
 import logging
 
@@ -234,6 +235,7 @@ def sign_up(request, account_type):
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
+  ### Handle people who are already signed up 
   if u.is_authenticated():
     if pro_group in u.groups.all():
       data["already_signed_up"] = True
@@ -255,9 +257,10 @@ def sign_up(request, account_type):
         data["get_started_menu"] = True
         return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))               
 
+  ### Handle people who are signing up fresh
   if account_type == 5:
     # people who order wine tasting kit
-    role = Group.objects.get(id=3)
+    role = tas_group 
   elif account_type in [1,2,3]:
     role = Group.objects.get(id=account_type)
 
@@ -296,6 +299,7 @@ def sign_up(request, account_type):
     profile.save()
     
     if role == pro_group:
+      # if requesting to be pro, put them in pending pro group
       user.groups.add(pro_pending_group)
     else:
       user.groups.add(role)
@@ -325,20 +329,21 @@ def sign_up(request, account_type):
     if account_type == 1:
       send_pro_request_email(request, user.email)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:
-      # send mail to sales@vinely if no specialist
-      specialist = None
+      # send mail to sales@vinely if no mentor
+      mentor_pro = None
       try:
-        # make sure selected specialist is a pro
-        specialist = User.objects.get(email = request.POST.get('mentor'))
+        # make sure selected mentor is a pro
+        mentor_pro = User.objects.get(email = request.POST.get('mentor'))
         
-        if pro_group in specialist.groups.all():
-          send_know_pro_party_email(request, user, specialist) # to host
-      except Exception, e:
+        if pro_group in mentor_pro.groups.all():
+          send_know_pro_party_email(request, user, mentor_pro) # to host
+      except User.DoesNotExist, e:
         # mail sales
         # send_unknown_pro_email(request, user) # to vinely
         pass
-      send_host_vinely_party_email(request, user, specialist) # to pro or vinely
+      send_host_vinely_party_email(request, user, mentor_pro) # to pro or vinely
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))

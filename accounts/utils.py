@@ -181,7 +181,10 @@ def send_pro_request_email(request, receiver_email):
 
   Hey, we have received your request to become a Vinely Pro and conduct Taste parties.
 
-  We will review this and get back to you within the next 48hrs.
+  We will review your application soon and get back to you within the next 48hrs.
+
+  <p>If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
+  (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.</p>
 
   <div class="signature">
     <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
@@ -233,6 +236,46 @@ def send_unknown_pro_email(request, user):
   recipients = ['sales@vinely.com']
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = 'support@vinely.com'
+  
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+def send_pro_approved_email(request, applicant):
+
+  message_template = Template("""
+
+  Hey {{ applicant.first_name }},<br>
+
+  <p>
+  Your application to become Vinely Pro has been approved.  You may now login to your account
+  and start recruiting hosts for your taste parties!
+  </p>
+
+  <p>
+  Go have some fun wine parties!
+  </p>
+
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+  Your Tasteful Friends,
+
+  - The Vinely Team 
+
+  """)
+
+  c = RequestContext( request, {"applicant": applicant})
+  message = message_template.render(c)
+  
+  # send out email request to sales@vinely.com 
+  subject = 'Vinely Pro Approved!'
+  recipients = ['sales@vinely.com', applicant.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'welcome@vinely.com'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()

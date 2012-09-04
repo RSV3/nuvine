@@ -413,8 +413,8 @@ def cart_add_wine(request, level="basic"):
   # TODO: need to check wine personality and choose the right product
   if level == "basic":
     product = Product.objects.get(name="Basic Collection")
-  elif level == "classic":
-    product = Product.objects.get(name="Classic Collection")
+  elif level == "superior":
+    product = Product.objects.get(name="Superior Collection")
   elif level == "divine":
     product = Product.objects.get(name="Divine Collection")
   elif level == "x":
@@ -1465,8 +1465,8 @@ def cart_quantity(request, level, quantity):
   
   if level == "basic":
     product = Product.objects.get(name="Basic Collection")
-  elif level == "classic":
-    product = Product.objects.get(name="Classic Collection")
+  elif level == "superior":
+    product = Product.objects.get(name="Superior Collection")
   elif level == "divine":
     product = Product.objects.get(name="Divine Collection")
   elif level == "x":

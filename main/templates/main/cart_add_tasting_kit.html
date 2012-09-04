@@ -30,7 +30,11 @@
           {% csrf_token %}
           {{ form.errors }}
           <p><h3 id="product_name">{{ product.name }}</h3></p>
-          <p id="product_description">{{ product.description }}</p>
+          <p id="product_description">
+            {% autoescape off %}
+            {{ product.description }}
+            {% endautoescape %}
+          </p>
           <div class="control-group {% if form.quantity.errors %}error{% endif %}">
             <div class="control-label" for="id_quantity">{{ form.product.label }}</div>
             <div class="controls">

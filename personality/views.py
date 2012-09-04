@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 
 from main.utils import if_supplier
-from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste
+from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog
 from accounts.models import VerificationQueue
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm
@@ -17,9 +17,33 @@ from personality.utils import calculate_wine_personality
 from accounts.utils import send_verification_email
 
 import numpy as np
-import uuid
+import uuid, json, re
 from urlparse import urlparse
 
+
+@login_required
+def check_personality_exists(request):
+  data = {}
+
+  data["result"] = 0
+  email = request.POST.get('email', None)
+  if email:
+    email_re = re.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", flags=re.IGNORECASE)
+    if email_re.search(email):
+      try:
+        guest = User.objects.get(email=email)
+        mystery = WinePersonality.objects.get(name="Mystery")
+        if guest.get_profile().wine_personality != mystery :
+          data["result"] = 1
+          return HttpResponse(json.dumps(data), mimetype="application/json")
+      except User.DoesNotExist:
+        pass
+    else:
+      # invalid e-mail
+      data["result"] = -1
+      return HttpResponse(json.dumps(data), mimetype="application/json")
+
+  return HttpResponse(json.dumps(data), mimetype="application/json")
 
 @login_required
 def my_wine_personality(request):
@@ -292,97 +316,107 @@ def record_all_wine_ratings(request, email=None, party_id=None):
                       }
 
     if email:
-      taster = User.objects.get(email=email)
+      try:
+        taster = User.objects.get(email=email)
+        data['personality_exists'] = True
+      except User.DoesNotExist:
+        data['personality_exists'] = False
+        taster = None
     else:
       # enter your own information
       taster = u
-    initial_data['email'] = taster.email
-    initial_data['first_name'] = taster.first_name
-    initial_data['last_name'] = taster.last_name
 
-    try:
-      wine1_rating = WineRatingData.objects.get(user=taster, wine=wine1)
-      initial_data['wine1_overall'] = wine1_rating.overall
-      initial_data['wine1_sweet'] = wine1_rating.sweet
-      initial_data['wine1_sweet_dnl'] = wine1_rating.sweet_dnl
-      initial_data['wine1_weight'] = wine1_rating.weight
-      initial_data['wine1_weight_dnl'] = wine1_rating.weight_dnl
-      initial_data['wine1_texture'] = wine1_rating.texture
-      initial_data['wine1_texture_dnl'] = wine1_rating.texture_dnl
-      initial_data['wine1_sizzle'] = wine1_rating.sizzle
-      initial_data['wine1_sizzle_dnl'] = wine1_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass
+    if taster:
+      initial_data['email'] = taster.email
+      initial_data['first_name'] = taster.first_name
+      initial_data['last_name'] = taster.last_name
 
-    try:
-      wine2_rating = WineRatingData.objects.get(user=taster, wine=wine2)
-      initial_data['wine2_overall'] = wine2_rating.overall
-      initial_data['wine2_sweet'] = wine2_rating.sweet
-      initial_data['wine2_sweet_dnl'] = wine2_rating.sweet_dnl
-      initial_data['wine2_weight'] = wine2_rating.weight
-      initial_data['wine2_weight_dnl'] = wine2_rating.weight_dnl
-      initial_data['wine2_texture'] = wine2_rating.texture
-      initial_data['wine2_texture_dnl'] = wine2_rating.texture_dnl
-      initial_data['wine2_sizzle'] = wine2_rating.sizzle
-      initial_data['wine2_sizzle_dnl'] = wine2_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass
+      try:
+        wine1_rating = WineRatingData.objects.get(user=taster, wine=wine1)
+        initial_data['wine1_overall'] = wine1_rating.overall
+        initial_data['wine1_sweet'] = wine1_rating.sweet
+        initial_data['wine1_sweet_dnl'] = wine1_rating.sweet_dnl
+        initial_data['wine1_weight'] = wine1_rating.weight
+        initial_data['wine1_weight_dnl'] = wine1_rating.weight_dnl
+        initial_data['wine1_texture'] = wine1_rating.texture
+        initial_data['wine1_texture_dnl'] = wine1_rating.texture_dnl
+        initial_data['wine1_sizzle'] = wine1_rating.sizzle
+        initial_data['wine1_sizzle_dnl'] = wine1_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass
 
-    try:
-      wine3_rating = WineRatingData.objects.get(user=taster, wine=wine3)
-      initial_data['wine3_overall'] = wine3_rating.overall
-      initial_data['wine3_sweet'] = wine3_rating.sweet
-      initial_data['wine3_sweet_dnl'] = wine3_rating.sweet_dnl
-      initial_data['wine3_weight'] = wine3_rating.weight
-      initial_data['wine3_weight_dnl'] = wine3_rating.weight_dnl
-      initial_data['wine3_texture'] = wine3_rating.texture
-      initial_data['wine3_texture_dnl'] = wine3_rating.texture_dnl
-      initial_data['wine3_sizzle'] = wine3_rating.sizzle
-      initial_data['wine3_sizzle_dnl'] = wine3_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass
+      try:
+        wine2_rating = WineRatingData.objects.get(user=taster, wine=wine2)
+        initial_data['wine2_overall'] = wine2_rating.overall
+        initial_data['wine2_sweet'] = wine2_rating.sweet
+        initial_data['wine2_sweet_dnl'] = wine2_rating.sweet_dnl
+        initial_data['wine2_weight'] = wine2_rating.weight
+        initial_data['wine2_weight_dnl'] = wine2_rating.weight_dnl
+        initial_data['wine2_texture'] = wine2_rating.texture
+        initial_data['wine2_texture_dnl'] = wine2_rating.texture_dnl
+        initial_data['wine2_sizzle'] = wine2_rating.sizzle
+        initial_data['wine2_sizzle_dnl'] = wine2_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass
 
-    try:
-      wine4_rating = WineRatingData.objects.get(user=taster, wine=wine4)
-      initial_data['wine4_overall'] = wine4_rating.overall
-      initial_data['wine4_sweet'] = wine4_rating.sweet
-      initial_data['wine4_sweet_dnl'] = wine4_rating.sweet_dnl
-      initial_data['wine4_weight'] = wine4_rating.weight
-      initial_data['wine4_weight_dnl'] = wine4_rating.weight_dnl
-      initial_data['wine4_texture'] = wine4_rating.texture
-      initial_data['wine4_texture_dnl'] = wine4_rating.texture_dnl
-      initial_data['wine4_sizzle'] = wine4_rating.sizzle
-      initial_data['wine4_sizzle_dnl'] = wine4_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass     
+      try:
+        wine3_rating = WineRatingData.objects.get(user=taster, wine=wine3)
+        initial_data['wine3_overall'] = wine3_rating.overall
+        initial_data['wine3_sweet'] = wine3_rating.sweet
+        initial_data['wine3_sweet_dnl'] = wine3_rating.sweet_dnl
+        initial_data['wine3_weight'] = wine3_rating.weight
+        initial_data['wine3_weight_dnl'] = wine3_rating.weight_dnl
+        initial_data['wine3_texture'] = wine3_rating.texture
+        initial_data['wine3_texture_dnl'] = wine3_rating.texture_dnl
+        initial_data['wine3_sizzle'] = wine3_rating.sizzle
+        initial_data['wine3_sizzle_dnl'] = wine3_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass
 
-    try:
-      wine5_rating = WineRatingData.objects.get(user=taster, wine=wine5)
-      initial_data['wine5_overall'] = wine5_rating.overall
-      initial_data['wine5_sweet'] = wine5_rating.sweet
-      initial_data['wine5_sweet_dnl'] = wine5_rating.sweet_dnl
-      initial_data['wine5_weight'] = wine5_rating.weight
-      initial_data['wine5_weight_dnl'] = wine5_rating.weight_dnl
-      initial_data['wine5_texture'] = wine5_rating.texture
-      initial_data['wine5_texture_dnl'] = wine5_rating.texture_dnl
-      initial_data['wine5_sizzle'] = wine5_rating.sizzle
-      initial_data['wine5_sizzle_dnl'] = wine5_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass           
+      try:
+        wine4_rating = WineRatingData.objects.get(user=taster, wine=wine4)
+        initial_data['wine4_overall'] = wine4_rating.overall
+        initial_data['wine4_sweet'] = wine4_rating.sweet
+        initial_data['wine4_sweet_dnl'] = wine4_rating.sweet_dnl
+        initial_data['wine4_weight'] = wine4_rating.weight
+        initial_data['wine4_weight_dnl'] = wine4_rating.weight_dnl
+        initial_data['wine4_texture'] = wine4_rating.texture
+        initial_data['wine4_texture_dnl'] = wine4_rating.texture_dnl
+        initial_data['wine4_sizzle'] = wine4_rating.sizzle
+        initial_data['wine4_sizzle_dnl'] = wine4_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass     
 
-    try:
-      wine6_rating = WineRatingData.objects.get(user=taster, wine=wine6)
-      initial_data['wine6_overall'] = wine6_rating.overall
-      initial_data['wine6_sweet'] = wine6_rating.sweet
-      initial_data['wine6_sweet_dnl'] = wine6_rating.sweet_dnl
-      initial_data['wine6_weight'] = wine6_rating.weight
-      initial_data['wine6_weight_dnl'] = wine6_rating.weight_dnl
-      initial_data['wine6_texture'] = wine6_rating.texture
-      initial_data['wine6_texture_dnl'] = wine6_rating.texture_dnl
-      initial_data['wine6_sizzle'] = wine6_rating.sizzle
-      initial_data['wine6_sizzle_dnl'] = wine6_rating.sizzle_dnl
-    except WineRatingData.DoesNotExist:
-      pass          
+      try:
+        wine5_rating = WineRatingData.objects.get(user=taster, wine=wine5)
+        initial_data['wine5_overall'] = wine5_rating.overall
+        initial_data['wine5_sweet'] = wine5_rating.sweet
+        initial_data['wine5_sweet_dnl'] = wine5_rating.sweet_dnl
+        initial_data['wine5_weight'] = wine5_rating.weight
+        initial_data['wine5_weight_dnl'] = wine5_rating.weight_dnl
+        initial_data['wine5_texture'] = wine5_rating.texture
+        initial_data['wine5_texture_dnl'] = wine5_rating.texture_dnl
+        initial_data['wine5_sizzle'] = wine5_rating.sizzle
+        initial_data['wine5_sizzle_dnl'] = wine5_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass           
+
+      try:
+        wine6_rating = WineRatingData.objects.get(user=taster, wine=wine6)
+        initial_data['wine6_overall'] = wine6_rating.overall
+        initial_data['wine6_sweet'] = wine6_rating.sweet
+        initial_data['wine6_sweet_dnl'] = wine6_rating.sweet_dnl
+        initial_data['wine6_weight'] = wine6_rating.weight
+        initial_data['wine6_weight_dnl'] = wine6_rating.weight_dnl
+        initial_data['wine6_texture'] = wine6_rating.texture
+        initial_data['wine6_texture_dnl'] = wine6_rating.texture_dnl
+        initial_data['wine6_sizzle'] = wine6_rating.sizzle
+        initial_data['wine6_sizzle_dnl'] = wine6_rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        pass          
+
+    else:
+      initial_data['email'] = email
 
     form = AllWineRatingsForm(initial=initial_data)
 
