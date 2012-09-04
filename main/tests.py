@@ -180,10 +180,10 @@ class SimpleTest(TestCase):
                         active=True)
 
   def create_contact_reasons(self):
-    reason = ContactReason.objects.get_or_create(reason="Interested in holding a party")
-    reason = ContactReason.objects.get_or_create(reason="Interested in becoming a party specialist")
+    reason = ContactReason.objects.get_or_create(reason="Interested in hosting a party in my local area")
+    reason = ContactReason.objects.get_or_create(reason="Interested in becoming a Vinely Pro")
     reason = ContactReason.objects.get_or_create(reason="Interested in attending a party in my local area")
-    reason = ContactReason.objects.get_or_create(reason="Interested in finding more about Winedora")
+    reason = ContactReason.objects.get_or_create(reason="Interested in finding more about Vinely")
     reason = ContactReason.objects.get_or_create(reason="Send me any new updates")
     reason = ContactReason.objects.get_or_create(reason="Other")
 
@@ -191,10 +191,15 @@ class SimpleTest(TestCase):
     if Product.objects.all().count() < 6:
       f = open("data/firsthostkit_prodimg.png", 'r')
       p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit",
-                                    description="This is the official Vinely First Taste Kit. \
-                                    It comes with six wines that will help Vinely Tasters discover \
-                                    their true wine personality.",
-                                    unit_price=125.00,
+                                    description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
+                                        discover their true wine personality. Included are six carefully-selected wines, offered \
+                                        in three unique tasting experiences.</p>\
+                                        <p>Choose the Basic First Taste Kit ($75) and get great tastes without a great investment. \
+                                            Take your Tasters to exciting new places with the Superior First Taste Kit ($120). Or, \
+                                            provide an unmatched, unforgettable experience with the Divine First Taste Kit ($225).</p>\
+                                        <p>Each kit will reveal each Taster's personality. The only difference is in the quality of wine.\
+                                            You know who you invited! Select based on their taste or yours.</p>",
+                                    unit_price=75.00,
                                     category=Product.PRODUCT_TYPE[0][0],
                                     cart_tag="tasting_kit")
       self.assertEqual(created, True)
@@ -203,11 +208,16 @@ class SimpleTest(TestCase):
       f.close()
 
       #f = open("data/firsthostkit_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Vinely's Classic Taste Kit",
-                                    description="This is the official Vinely First Taste Kit. \
-                                    It comes with six wines that will help Vinely Tasters discover \
-                                    their true wine personality.",
-                                    unit_price=175.00,
+      p, created = Product.objects.get_or_create(name="Vinely's Superior Taste Kit",
+                                    description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
+                                        discover their true wine personality. Included are six carefully-selected wines, offered \
+                                        in three unique tasting experiences.</p>\
+                                        <p>Choose the Basic First Taste Kit ($75) and get great tastes without a great investment. \
+                                            Take your Tasters to exciting new places with the Superior First Taste Kit ($120). Or, \
+                                            provide an unmatched, unforgettable experience with the Divine First Taste Kit ($225).</p>\
+                                        <p>Each kit will reveal each Taster's personality. The only difference is in the quality of wine.\
+                                            You know who you invited! Select based on their taste or yours.</p>",
+                                    unit_price=120.00,
                                     category=Product.PRODUCT_TYPE[0][0],
                                     cart_tag="tasting_kit")
       self.assertEqual(created, True)
@@ -217,9 +227,14 @@ class SimpleTest(TestCase):
 
       #f = open("data/firsthostkit_prodimg.png", 'r')
       p, created = Product.objects.get_or_create(name="Vinely's Divine Taste Kit",
-                                    description="This is the official Vinely First Taste Kit. \
-                                    It comes with six wines that will help Vinely Tasters discover \
-                                    their true wine personality.",
+                                    description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
+                                        discover their true wine personality. Included are six carefully-selected wines, offered \
+                                        in three unique tasting experiences.</p>\
+                                        <p>Choose the Basic First Taste Kit ($75) and get great tastes without a great investment. \
+                                            Take your Tasters to exciting new places with the Superior First Taste Kit ($120). Or, \
+                                            provide an unmatched, unforgettable experience with the Divine First Taste Kit ($225).</p>\
+                                        <p>Each kit will reveal each Taster's personality. The only difference is in the quality of wine.\
+                                            You know who you invited! Select based on their taste or yours.</p>",
                                     unit_price=225.00,
                                     category=Product.PRODUCT_TYPE[0][0],
                                     cart_tag="tasting_kit")
@@ -242,17 +257,17 @@ class SimpleTest(TestCase):
       p.save()
       f.close()
 
-      f = open("data/SP_classic_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Classic Collection",
+      f = open("data/SP_superior_prodimg.png", 'r')
+      p, created = Product.objects.get_or_create(name="Superior Collection",
                                     description="As its name might suggest, this collection is \
                                     full of class. Great for enjoying alone or with friends, each \
                                     bottle is filled with the potential to take your wine experience \
-                                    to exciting new places. The {{personality}} Classic Collection \
+                                    to exciting new places. The {{personality}} Superior Collection \
                                     is the perfect choice for those with a passion for wine and its \
                                     ability to enhance any mood or setting.",
                                     unit_price=125.00,
                                     category=Product.PRODUCT_TYPE[1][0],
-                                    cart_tag="classic")
+                                    cart_tag="superior")
       p.image = File(f)
       p.save()
       f.close()

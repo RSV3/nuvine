@@ -1,15 +1,15 @@
 - pk: 1
   model: main.contactreason
-  fields: {reason: Interested in holding a party}
+  fields: {reason: Interested in hosting a party in my local area}
 - pk: 2
   model: main.contactreason
-  fields: {reason: Interested in becoming a party specialist}
+  fields: {reason: Interested in becoming a Vinely Pro}
 - pk: 3
   model: main.contactreason
   fields: {reason: Interested in attending a party in my local area}
-- fields: {reason: Interested in finding more about Vinely}
-  pk: 4
+- pk: 4
   model: main.contactreason
+  fields: {reason: Interested in finding more about Vinely}
 - pk: 5
   model: main.contactreason
   fields: {reason: Send me any new updates}
