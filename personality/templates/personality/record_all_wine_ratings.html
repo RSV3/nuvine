@@ -1,5 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load static %}
+
 {% block additional_styles %}
   <style type="text/css">
     ul {
@@ -18,6 +20,18 @@
 
     .shaded {
       background-color: #EAEAE3;
+    }
+
+    #personality-exists-error {
+      {% if not personality_exists %}
+      display: none;
+      {% endif %}
+      color: #F00;
+    }
+
+    #email-invalid-error {
+      display: none;
+      color: #F00;
     }
   </style>
 {% endblock %}
@@ -50,6 +64,23 @@
           {% if pro %}
           <fieldset>
             <legend>Taster Information</legend>
+            <div class="control-group {% if form.email.errors %}error{% endif %}">
+              <div class="control-label" for="id_email">{{ form.email.label }}</div>
+              <div class="controls">
+                {{ form.email }} 
+                {% if form.email.errors %}
+                  <span class="help-inline">
+                    {{ form.email.errors }}
+                  </span>
+                {% endif %}
+                <span id="personality-exists-error">
+                  Wine Personality already exists for this user!
+                </span>
+                <span id="email-invalid-error">
+                  E-mail address is invalid 
+                </span>              
+              </div>
+            </div>
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">
               <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
               <div class="controls">
@@ -68,17 +99,6 @@
                 {% if form.last_name.errors %}
                   <span class="help-inline">
                     {{ form.last_name.errors }}
-                  </span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="control-group {% if form.email.errors %}error{% endif %}">
-              <div class="control-label" for="id_email">{{ form.email.label }}</div>
-              <div class="controls">
-                {{ form.email }} 
-                {% if form.email.errors %}
-                  <span class="help-inline">
-                    {{ form.email.errors }}
                   </span>
                 {% endif %}
               </div>
@@ -810,7 +830,7 @@
                 <fieldset>
                   <div class="form-actions">
                     <center>
-                      <button type="submit" class="pull-right btn btn-primary">Save Ratings</button>
+                      <button {% if personality_exists %}disabled="disabled" {% endif %}type="submit" class="pull-right btn btn-primary">Save Ratings</button>
                     </center>
                   </div>
                 </fieldset>
@@ -826,3 +846,47 @@
 </div>
 
 {% endblock content %}
+
+{% block additional_scripts %}
+
+<script src="{% static "js/jquery.cookie.js" %}"></script>
+<script type="text/javascript">
+  var csrftoken = $.cookie('csrftoken');
+
+  function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+
+  $.ajaxSetup({
+      crossDomain: false, // obviates need for sameOrigin test
+      beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type)) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+      }
+  });
+
+  $('#id_email').change(function() {
+    $.ajax({
+      type: "POST",
+      url: "{% url check_personality_exists %}",
+      data: { email: $(this).val(),  },
+      success: function(data) {
+        $('#personality-exists-error').hide();
+        $('#email-invalid-error').hide();
+        if ( data["result"] == 1 ) {
+          $('#personality-exists-error').show();
+          $('button[type="submit"]').attr('disabled', 'disabled');
+        } else if (data["result"] == 0 ) {
+          $('button[type="submit"]').removeAttr('disabled');
+        } else if (data["result"] == -1 ) {
+          $('#email-invalid-error').show();
+          $('button[type="submit"]').attr('disabled', 'disabled');         
+        }
+      }
+    })
+    /*alert('E-mail has changed to ' + $(this).val());*/
+  });
+</script>
+{% endblock additional_scripts %}
