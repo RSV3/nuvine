@@ -62,15 +62,45 @@ def home(request):
     hos_group = Group.objects.get(name='Vinely Host')
     sp_group = Group.objects.get(name='Supplier')
     tas_group = Group.objects.get(name='Vinely Taster')
-
+    
+    today = datetime.now(tz=UTC())
+    
     if tas_group in u.groups.all():
       data["invites"] = PartyInvite.objects.filter(invitee=u) 
       invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
       if invites.exists():
-        data['party_date'] = invites[0].party.event_date
-
+        event_date = invites[0].party.event_date
+        if event_date > today:
+          data['party_date'] = invites[0].party.event_date
+    
+    if hos_group in u.groups.all():
+      parties = Party.objects.filter(host=u).order_by('-event_date')
+      if parties.exists():
+        party_date = parties[0].event_date
+        if today > party_date:
+          # set if the party was hosted in the past
+          data['party_date'] = party_date
+        else:
+          # set if this is an upcoming party
+          data['party_scheduled'] = True
+          data['party'] = parties[0]
+          
+    if pro_group in u.groups.all():
+      parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
+      if parties.exists():
+        party_date = parties[0].party.event_date
+        if today > party_date:
+          # set if the party was hosted in the past
+          data['party_date'] = party_date
+          #data['earnings'] = 
+        else:
+          # set if this is an upcoming party
+          data['party_scheduled'] = True
+          data['party'] = parties[0].party
+          
     profile = u.get_profile()
-    if profile.wine_personality:
+    
+    if profile.wine_personality and profile.wine_personality.name != 'Mystery':
       data['wine_personality'] = profile.wine_personality 
     else:
       data['wine_personality'] = False
@@ -80,6 +110,7 @@ def home(request):
     # TODO: if there are orders pending
     data['pending_ratings'] = False
 
+    data['has_orders'] = Order.objects.filter(ordered_by = u).exists()
     # go to home page
 
     # if user is Vinely Pro
@@ -269,7 +300,7 @@ def order_tasting_kit(request):
   return render_to_response("main/order_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
-def cart_add_tasting_kit(request):
+def cart_add_tasting_kit(request, party_id=0):
   """
     
     Add tasting kit to cart
@@ -281,11 +312,16 @@ def cart_add_tasting_kit(request):
   u = request.user
 
   party = None
-  if 'party_id' in request.session:
-    party = Party.objects.get(id=request.session['party_id'])
+  #if 'party_id' in request.session:
+    #party = Party.objects.get(id=request.session['party_id'])
+  if party_id != 0:
+    try:
+      party = Party.objects.get(id=party_id)
+    except Party.DoesNotExist:
+      raise Http404
 
   form = AddTastingKitToCartForm(request.POST or None)
-
+  
   if form.is_valid():
     # add line item to cart
     item = form.save()
