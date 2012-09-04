@@ -229,7 +229,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   # return text message for display
   return message 
 
-def send_know_pro_party_email(request, user, pro_email):
+def send_know_pro_party_email(request, user, mentor_pro):
 
   message_template = Template("""
 
@@ -257,7 +257,7 @@ def send_know_pro_party_email(request, user, pro_email):
   subject = 'Get the party started with Vinely'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = "sales@vinely.com"
-  recipients = [pro_email]
+  recipients = [mentor_pro.email]
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 

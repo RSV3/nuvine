@@ -331,19 +331,19 @@ def sign_up(request, account_type):
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
       return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:
-      # send mail to sales@vinely if no specialist
-      specialist = None
+      # send mail to sales@vinely if no mentor
+      mentor_pro = None
       try:
-        # make sure selected specialist is a pro
-        specialist = User.objects.get(email = request.POST.get('mentor'))
+        # make sure selected mentor is a pro
+        mentor_pro = User.objects.get(email = request.POST.get('mentor'))
         
-        if pro_group in specialist.groups.all():
-          send_know_pro_party_email(request, user, specialist) # to host
+        if pro_group in mentor_pro.groups.all():
+          send_know_pro_party_email(request, user, mentor_pro) # to host
       except User.DoesNotExist, e:
         # mail sales
         # send_unknown_pro_email(request, user) # to vinely
         pass
-      send_host_vinely_party_email(request, user, specialist) # to pro or vinely
+      send_host_vinely_party_email(request, user, mentor_pro) # to pro or vinely
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
