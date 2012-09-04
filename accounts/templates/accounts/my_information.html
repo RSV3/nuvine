@@ -107,7 +107,69 @@
             </div>
           </div>         
         </fieldset>
+	
+	<!-- eligibility -->
+        <fieldset>
+          <legend>Verify Eligibility</legend>
+          <div class="control-group">
+            <div class="controls">
+              {{ eligibility_form.user }}
+            </div>
+          </div>
 
+          <div class="control-group">
+            <div class="control-label" for="id_dob">
+            {{ eligibility_form.dob.label }}
+            </div>
+            <div class="controls">
+              {{ eligibility_form.dob }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_gender">
+            {{ eligibility_form.gender.label }}
+            </div>
+            <div class="controls">
+              {{ eligibility_form.gender }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_dl_number">
+            {{ eligibility_form.dl_number.label }}
+            </div>
+            <div class="controls">
+              {{ eligibility_form.dl_number }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ eligibility_form.zipcode.label }}
+            </div>
+            <div class="controls">
+              {{ eligibility_form.zipcode }}
+            </div>
+          </div>
+          <!-- TODO: need to put terms of service -->
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox inline">
+              {{ eligibility_form.accepted_tos }}
+              {{ eligibility_form.accepted_tos.label }}
+              [<a href="{% url terms %}">Terms</a>]
+              </label>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox inline">
+              {{ eligibility_form.above_21 }}
+              {{ eligibility_form.above_21.label }}
+              </label>
+            </div>
+          </div>
+        </fieldset>
+	<!-- /eligibility -->
+	     
         <fieldset>
           <legend>Shipping Information</legend>
 
