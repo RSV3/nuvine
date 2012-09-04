@@ -50,12 +50,22 @@
     $ pip install -r requirements.txt
     $ rm winedora.test.db
     $ python manage.py syncdb (make sure you say NO to admin user) 
+    $ python manage.py migrate
     $ python manage.py refresh_products
+
+# To try sample tasters with personality load sample rating data
+
+    $ python manage.py loaddata personality/fixtures/sample_rating_data.yaml 
+
+  * On staging server
+
+    $ heroku run python manage.py loaddata personality/fixtures/sample_rating_data.yaml --app winedora-staging
 
 # In order to manage fixtures and database syncing on heroku
 
     $ heroku run python manage.py syncdb --app winedora-staging
     $ heroku run python manage.py migrate --app winedora-staging
+    $ heroku run python manage.py refresh_products --app winedora-staging
 
 # In order to deploy static files
 

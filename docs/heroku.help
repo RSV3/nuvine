@@ -1,5 +1,12 @@
-heroku plugins:install git://github.com/ddollar/heroku-config.git
-heroku config:pull --overwrite --interactive
+For DEPLOY and DEBUG environment variables on heroku
+====================================================
+
+    $ heroku config:add DEPLOY=true --app winedora
+    $ heroku config:add DEBUG=true --app winedora-staging
+
+
+    $ heroku plugins:install git://github.com/ddollar/heroku-config.git
+    $ heroku config:pull --overwrite --interactive
 
 http://offbytwo.com/2012/01/18/deploying-django-to-heroku.html
 https://devcenter.heroku.com/articles/config-vars
