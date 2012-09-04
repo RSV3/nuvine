@@ -234,6 +234,7 @@ def sign_up(request, account_type):
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
+  ### Handle people who are already signed up 
   if u.is_authenticated():
     if pro_group in u.groups.all():
       data["already_signed_up"] = True
@@ -255,9 +256,10 @@ def sign_up(request, account_type):
         data["get_started_menu"] = True
         return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))               
 
+  ### Handle people who are signing up fresh
   if account_type == 5:
     # people who order wine tasting kit
-    role = Group.objects.get(id=3)
+    role = tas_group 
   elif account_type in [1,2,3]:
     role = Group.objects.get(id=account_type)
 
@@ -296,6 +298,7 @@ def sign_up(request, account_type):
     profile.save()
     
     if role == pro_group:
+      # if requesting to be pro, put them in pending pro group
       user.groups.add(pro_pending_group)
     else:
       user.groups.add(role)
@@ -325,6 +328,7 @@ def sign_up(request, account_type):
     if account_type == 1:
       send_pro_request_email(request, user.email)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:
       # send mail to sales@vinely if no specialist
       specialist = None

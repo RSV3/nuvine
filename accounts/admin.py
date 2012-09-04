@@ -1,7 +1,8 @@
 from django.contrib import admin
-from accounts.models import UserProfile
 from django.contrib.auth.models import Group
 
+from accounts.models import UserProfile
+from accounts.utils import send_pro_approved_email
 
 def approve_pro(modeladmin, request, queryset):
   for obj in queryset:
@@ -10,6 +11,7 @@ def approve_pro(modeladmin, request, queryset):
     pro_group = Group.objects.get(name="Vinely Pro")
     user.groups.add(pro_group)
     # TODO: need to send out e-mail to the user
+    send_pro_approved_email(request, user)
 
 approve_pro.short_description = "Approve selected users as Vinely Pro"
 
@@ -24,7 +26,7 @@ defer_pro_privileges.short_description = "Defer selected users Vinely Pro permis
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'is_pro')
+  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type')
   list_filter = ('user__groups',)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', )
@@ -45,9 +47,9 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def groups(self, instance):
     return instance.user.groups.all()
 
-  def is_pro(self, instance):
-    pro = Group.objects.get(name="Vinely Pro")
-    return pro in instance.user.groups.all()
+  def user_type(self, instance):
+    group = instance.user.groups.all()[0]
+    return group.name
 
 
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
