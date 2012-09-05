@@ -238,19 +238,25 @@ def generate_pro_account_number():
   '''
   Generate a new account number for a pro in the format VP#####A
   '''
+  #TODO: avoid race condition
   max = 99999
   latest = VinelyProAccount.objects.all().order_by('-id')[:1]
   if latest.exists():
     prefix = 'VP' # latest[:2]
     account = latest[0].account_number
-    suffix = ord(account[-1]) # int value of last letter
+    suffix = account[7:] # last chars(s) after number
     num = int(re.findall('\d+', account)[0])
     if num == max:
-      num = 0
-      suffix += 1
+      last = suffix[-1]
+      if last == 'Z':
+	suffix += 'A'
+	num = 1
+      else:
+      	num = 1
+      	suffix = suffix[:-1] + chr(ord(last)+1)
     else:
       num += 1
-    acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), chr(suffix))
+    acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), suffix)
   else:
     acc_num = 'VP00100A'
   return acc_num
