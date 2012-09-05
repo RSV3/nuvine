@@ -1,6 +1,7 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
+from accounts.models import Zipcode, SUPPORTED_STATES
 
 from support.models import Email
 
@@ -317,3 +318,16 @@ def send_not_in_area_party_email(request, user):
   msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
+
+def check_zipcode(request, user, zipcode=None):
+  '''
+  Check provided zipcode against existing ones to verify if vinely operates in the area
+  '''
+  try:
+    if not zipcode:
+      zipcode = user.get_profile().zipcode
+    code = Zipcode.objects.get(code = zipcode, state__in = SUPPORTED_STATES)
+    return True
+  except Zipcode.DoesNotExist:
+    send_not_in_area_party_email(request, user)
+    return False

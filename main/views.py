@@ -22,7 +22,7 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
 
 from accounts.forms import CreditCardForm, PaymentForm
 
-from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email
+from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro
@@ -1276,19 +1276,26 @@ def edit_shipping_address(request):
   else:
     if 'receiver_id' in request.session:
       receiver = User.objects.get(id=request.session['receiver_id'])
-      print "Receiver's email: %s"%receiver.email
     else:
       receiver = u
     form = ShippingForm(request.POST or None, instance=receiver)
 
   # confirm that user is over 21
-    if request.method == 'POST':
-      dob = u.get_profile().dob
-      today = datetime.date(datetime.now(tz=UTC()))
-      if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
-        messages.error(request, 'You MUST be over 21 to make an order.')
-        return HttpResponseRedirect('.')
-  
+  if request.method == 'POST':
+    dob = u.get_profile().dob
+    today = datetime.date(datetime.now(tz=UTC()))
+    if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
+      messages.error(request, 'You MUST be over 21 to make an order.')
+      return HttpResponseRedirect('.')
+      
+  # check zipcode is ok
+  if request.method == 'POST':
+    zipcode = request.POST.get('zipcode')
+    ok = check_zipcode(request, u, zipcode)
+    if not ok:
+      messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')      
+      return HttpResponseRedirect('.')
+    
   if form.is_valid():
     receiver = form.save()
 

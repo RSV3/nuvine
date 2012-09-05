@@ -16,9 +16,9 @@ from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationF
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
-from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount, Zipcode, SUPPORTED_STATES
+from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-    send_not_in_area_party_email
+    send_not_in_area_party_email, check_zipcode
 
 
 from main.utils import send_know_pro_party_email, send_host_vinely_party_email
@@ -262,16 +262,6 @@ def generate_pro_account_number():
     acc_num = 'VP00100A'
   return acc_num
 
-def check_zipcode(request, user):
-  '''
-  Check provided zipcode against existing ones to verify if vinely operates in the area
-  '''
-  try:
-    code = Zipcode.objects.get(code = user.get_profile().zipcode, state__in = SUPPORTED_STATES)
-  except Zipcode.DoesNotExist:
-    messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-    send_not_in_area_party_email(request, user)
-
 def sign_up(request, account_type):
   """
     :param account_type: 1 - Vinely Pro 
@@ -304,11 +294,16 @@ def sign_up(request, account_type):
       if account_type > 1:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
-        check_zipcode(request, u)
+        ok = check_zipcode(request, u)
+        if not ok:
+          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         
       elif account_type == 1:
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
-        check_zipcode(request, u)
+        ok = check_zipcode(request, u)
+        if not ok:
+          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+          
         # if not already in pro_pending_group, add them
         if not pro_group in u.groups.all():
           u.groups.add(pro_pending_group)
@@ -324,7 +319,9 @@ def sign_up(request, account_type):
     elif tas_group in u.groups.all():
       if account_type == 1 or account_type == 2:
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
-        check_zipcode(request, u)
+        ok = check_zipcode(request, u)
+        if not ok:
+          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         
       if account_type == 1:
         send_pro_request_email(request, u.email)
@@ -363,7 +360,9 @@ def sign_up(request, account_type):
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = request.POST.get('zipcode')
-    check_zipcode(request, user)
+    ok = check_zipcode(request, user)
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       
     # if pro, then mentor IS mentor
     if account_type == 1:
