@@ -1254,6 +1254,7 @@ def supplier_edit_order(request, order_id):
 
   return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
+import math
 def edit_shipping_address(request):
   """
     Update or add shipping address
@@ -1280,6 +1281,14 @@ def edit_shipping_address(request):
       receiver = u
     form = ShippingForm(request.POST or None, instance=receiver)
 
+  # confirm that user is over 21
+    if request.method == 'POST':
+      dob = u.get_profile().dob
+      today = datetime.date(datetime.now(tz=UTC()))
+      if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
+        messages.error(request, 'You MUST be over 21 to make an order.')
+        return HttpResponseRedirect('.')
+  
   if form.is_valid():
     receiver = form.save()
 
