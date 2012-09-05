@@ -185,7 +185,7 @@ class Zipcode(models.Model):
   '''
   List of all zipcodes in US
   '''
-  code = models.IntegerField()
+  code = models.CharField(max_length = 5)
   country = models.CharField(max_length = 2)
   city = models.CharField(max_length = 32)
   state = models.CharField(max_length = 2)

@@ -33,7 +33,7 @@
     <li><div class="chev"><a href="{% url supplier_all_orders %}">All Orders</a></div></li>
   {% elif taster %}
     {% if party_date %}
-      <li><div class="chev"><a href="">Your Invited</a></li>
+      <li><div class="chev"><a href="">Your Invite</a></li>
     {% endif %}
     {% if not wine_personality and not questionnaire_completed %}
       <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started With Our Taste Survey</a></div></li>
