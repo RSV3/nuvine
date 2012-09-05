@@ -16,8 +16,9 @@ from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationF
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
-from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
-from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email
+from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount, Zipcode, SUPPORTED_STATES
+from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
+    send_not_in_area_party_email
 
 
 from main.utils import send_know_pro_party_email, send_host_vinely_party_email
@@ -326,6 +327,12 @@ def sign_up(request, account_type):
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = request.POST.get('zipcode')
+    try:
+      code = Zipcode.objects.get(code = profile.zipcode, state__in = SUPPORTED_STATES)
+    except Zipcode.DoesNotExist:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user)
+      
     # if pro, then mentor IS mentor
     if account_type == 1:
       try:

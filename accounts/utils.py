@@ -283,3 +283,37 @@ def send_pro_approved_email(request, applicant):
   msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
+
+def send_not_in_area_party_email(request, user):
+  message_template = Template("""
+
+    Hey, {{ first_name }}!
+
+    We have some good news and some bad news.
+
+    The Bad News: Vinely does not currently operate in your area. (Bummer, right?)
+
+    The Good News: Your interest in Vinely is super important to us! So much, in fact, that when we do expand to your area, you'll be the very first to know.
+
+    If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+  """)
+
+  c = RequestContext( request, {"first_name": user.first_name})
+  message = message_template.render(c)
+  
+  subject = 'Thanks for your interest in becoming a Vinely Host!'
+  recipients = [user.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  from_email = 'welcome@vinely.com'
+  
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()

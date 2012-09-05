@@ -180,3 +180,16 @@ class SubscriptionInfo(models.Model):
     (10, 'Best: Half Case (6 bottles)'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
+
+class Zipcode(models.Model):
+  '''
+  List of all zipcodes in US
+  '''
+  code = models.IntegerField()
+  country = models.CharField(max_length = 2)
+  city = models.CharField(max_length = 32)
+  state = models.CharField(max_length = 2)
+  latitude = models.CharField(max_length = 20)
+  longitude = models.CharField(max_length = 20)
+
+SUPPORTED_STATES = ['MI', 'CA']
