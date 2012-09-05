@@ -1,0 +1,75 @@
+{# main.utils.send_order_confirmation_email #}
+
+{% if text %}
+
+    Hey {{ customer }},
+
+
+    Thank you for choosing Vinely!
+
+    Your order {{ order_id }} has been received and 
+    you should expect your delicious surprise in 7 - 10 business days. 
+    Remember, someone 21 years or older must be available to receive your order.
+
+    Keep an eye on your inbox over the next few days, as we will be sending further shipping information.
+
+    You can check the status of your order at:
+
+      http://{{ host_name }}{% url order_complete order_id %}
+
+    Happy Tasting!
+
+    - The Vinely Team  
+
+{% else %}
+  {% extends "email/base_email_lite.html" %}
+
+  {% block title_txt %}
+    {{ title }}
+  {% endblock title_txt %}
+
+  {% block headline_txt %}
+    {{ headline }}
+  {% endblock headline_txt %}
+
+  {% block message_txt %}
+
+    <p>Hey {{ customer }},</p>
+
+
+    <p>Thank you for choosing Vinely!</p>
+
+    <p>
+    Your order {{ order_id }} has been received and 
+    you should expect your delicious surprise in 7 - 10 business days. 
+    Remember, someone 21 years or older must be available to receive your order.
+    </p>
+
+
+    <p>
+    Keep an eye on your inbox over the next few days, as we will be sending further shipping information.
+    </p>
+
+    <p>
+    You can check the status of your order at:
+    </p>
+
+    <p>
+      http://{{ host_name }}{% url order_complete order_id %}
+    </p>
+
+    <p>
+    Happy Tasting!
+    </p>
+
+    <div class="signature">
+      <img src="{% static "img/vinely_logo_signature.png" %}">
+    </div>
+
+    <p>
+    - The Vinely Team  
+    </p>
+
+  {% endblock message_txt %}
+
+{% endif %}

@@ -196,12 +196,23 @@ body, td { font-family: 'Helvetica Neue', Arial, Helvetica, Geneva, sans-serif; 
                         <table class="w580" width="580" cellpadding="0" cellspacing="0" border="0">
                             <tbody><tr>
                                 <td class="w580" width="580">
-                                    <p align="left" class="article-title"><singleline label="Title">{{ title }}</singleline></p>
-                                    {% if headline %}
-                                    <p align="left" class="article-title"><singleline label="Title">{{ headline }}</singleline></p>
-                                    {% endif %}
+                                    <p align="left" class="article-title">
+                                        <singleline label="Title">
+                                            {% block title_txt %}
+                                            {% endblock title_txt %}
+                                        </singleline>
+                                    </p>
+                                    <p align="left" class="article-title">
+                                        <singleline label="Title">
+                                            {% block headline_txt %}
+                                            {% endblock headline_txt %}
+                                        </singleline>
+                                    </p>
                                     <div align="left" class="article-content">
-                                        <multiline label="Description">{{ message }}</multiline>
+                                        <multiline label="Description">
+                                            {% block message_txt %}
+                                            {% endblock message_txt %}
+                                        </multiline>
                                     </div>
                                 </td>
                             </tr>

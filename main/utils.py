@@ -57,40 +57,20 @@ def send_order_confirmation_email(request, order_id):
 
   #[Shipping and Billing Info]
 
-  message_template = Template("""
-
-  Hey {{ customer }},
-
-
-  Thank you for choosing Vinely! 
-
-  Your order {{ order_id }} has been received and 
-  you should expect your delicious surprise in 7 - 10 business days. 
-  Remember, someone 21 years or older must be available to receive your order.
-
-
-  Keep an eye on your inbox over the next few days, as we will be sending further shipping information.
-
-  You can check the status of your order at:
-
-    http://{{ host_name }}{% url order_complete order_id %}
-
-  Happy Tasting!
-
-  The Vinely Team
-
-  """)
-
-  c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan", 
-              "host_name": request.get_host(),
-              "order_id": order_id}) 
-
-  message = message_template.render(c)
   subject = 'Your Vinely order was placed successfully!'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  data = {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan", 
+              "host_name": request.get_host(),
+              "order_id": order_id,
+              "title": subject}
+
+  data["text"] = True
+  txt_msg = render_to_string("email/order_confirmation.html", RequestContext( request, data ) )
+  data["text"] = False
+  html_msg = render_to_string("email/order_confirmation.html", RequestContext( request, data ) ) 
+
   from_email = 'sales@vinely.com'
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_msg, html=html_msg)
   email_log.save()
 
   # notify the receiver that the order has been received 
