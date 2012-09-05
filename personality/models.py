@@ -161,6 +161,7 @@ class GeneralTaste(models.Model):
       (3, 'If it\'s not there, I don\'t even notice.'),
       (4, 'Don\'t care for it.'),
       (5, 'Hate salt altogether.'),
+      (6, "None. I'll Drink them all"),
   )
   salty_food = models.IntegerField(choices=SALTY_FOOD_CHOICES, default=0, verbose_name='Do you enjoy salty food/snacks?', blank=True, null=True)
 
@@ -190,7 +191,8 @@ class GeneralTaste(models.Model):
       (2, 'I like them in a dessert.'),
       (3, 'They\'re great.  But I\'d rather eat them as a jelly or jam.'),
       (4, 'They\'re OK.'),
-      (5, 'Berries? Ick.')
+      (5, 'Berries? Ick.'),
+      (6, "None. I'll Drink them all")
   )
   berries = models.IntegerField(choices=BERRIES_CHOICES, default=0, verbose_name='How do you feel about berries?')
 
