@@ -35,6 +35,9 @@ def profile(request):
   """
   return HttpResponseRedirect(reverse('home_page'))
 
+from main.utils import UTC
+from datetime import datetime, timedelta
+import math
 @login_required
 def my_information(request):
   """
@@ -59,7 +62,22 @@ def my_information(request):
   payment_updated = False
   profile_updated = False
   eligibility_updated = False
+  
+  
+  if request.method == 'POST':
+    today = datetime.date(datetime.now(tz=UTC()))
+    dob = today
+    try:
+      dob = datetime.strptime(request.POST.get('eligibility-dob'), '%Y-%m-%d').date()
+    except Exception, e:
+      pass
     
+    datediff = today - dob
+    if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and request.POST.get('eligibility-above_21') == 'on') or \
+          (not dob and request.POST.get('eligibility-above_21') == 'on'):
+      messages.error(request, 'The Date of Birth shows that you are not over 21')
+      return HttpResponseRedirect('.')
+      
   if user_form.is_valid(): 
     update_user = user_form.save()
     user_updated = True 
