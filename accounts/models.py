@@ -157,7 +157,7 @@ class VinelyProAccount(models.Model):
     Map wife and husband into one VinelyPro account
   """
   users = models.ManyToManyField(User)
-  account_number = models.BigIntegerField()
+  account_number = models.CharField(max_length = 8)
   comment = models.CharField(max_length=128)
 
 class SubscriptionInfo(models.Model):

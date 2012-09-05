@@ -16,7 +16,7 @@ from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationF
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
-from accounts.models import VerificationQueue, SubscriptionInfo
+from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email
 
 
@@ -233,6 +233,29 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data, 
                         context_instance=RequestContext(request))
 
+import re
+def generate_pro_account_number():
+  '''
+  Generate a new account number for a pro in the format VP#####A
+  '''
+  max = 99999
+  latest = VinelyProAccount.objects.all().order_by('-id')[:1]
+  if latest.exists():
+    prefix = 'VP' # latest[:2]
+    account = latest[0].account_number
+    suffix = ord(account[-1]) # int value of last letter
+    num = int(re.findall('\d+', account)[0])
+    if num == max:
+      num = 0
+      suffix += 1
+    else:
+      num += 1
+    acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), chr(suffix))
+  else:
+    acc_num = 'VP00100A'
+  return acc_num
+
+  
 def sign_up(request, account_type):
   """
     :param account_type: 1 - Vinely Pro 
@@ -266,7 +289,11 @@ def sign_up(request, account_type):
         data["get_started_menu"] = True
       elif account_type == 1:
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
-        send_pro_request_email(request, u)
+        if not VinelyProAccount.objects.filter(users__in = [u]).exists():
+          pro_account_number = generate_pro_account_number()
+          account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
+          account.users.add(u)
+        send_pro_request_email(request, u.email)
         messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
       return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif tas_group in u.groups.all():
