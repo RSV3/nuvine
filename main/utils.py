@@ -96,7 +96,7 @@ def send_order_confirmation_email(request, order_id):
   subject = 'Order ID: %s has been submitted!'%order_id
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
 
-  from_email = 'support@vinely.com'
+  from_email = 'welcome@vinely.com'
   recipients = ['sales@vinely.com']
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -385,7 +385,7 @@ def send_party_invitation_email(request, party_invite):
   recipients = [party_invite.invitee.email]  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'header': 'Good wine and good times await', 
                                                             'message': message}))
-  from_email = 'support@vinely.com'
+  from_email = 'welcome@vinely.com'
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
@@ -446,7 +446,7 @@ def distribute_party_invites_email(request, invitation_sent):
   subject = invitation_sent.custom_subject 
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
                                                             'message': message}))
-  from_email = 'support@vinely.com'
+  from_email = 'welcome@vinely.com'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
@@ -486,7 +486,7 @@ def send_rsvp_thank_you_email(request):
   subject = 'Thanks for the RSVP!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
                                                             'message': message}))
-  from_email = 'support@vinely.com'
+  from_email = 'welcome@vinely.com'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
