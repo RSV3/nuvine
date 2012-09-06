@@ -7,7 +7,7 @@ from support.models import Email
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
-  message_template = Template("""
+  content = """
 
   Please verify your e-mail address and create a new password by going to:
 
@@ -19,23 +19,27 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   from your Vinely Pros.
 
-  """)
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
 
   c = RequestContext( request, {"host_name": request.get_host(),
               "verification_code": verification_code,
               "temp_password": temp_password})
-  message = message_template.render(c)
+  txt_message = txt_template.render(c)
+  html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
   from_email = 'support@vinely.com'
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
