@@ -221,7 +221,7 @@ class AddWineToCartForm(forms.ModelForm):
         price_category = 5
       elif quantity == 2:
         price_category = 6
-    elif cleaned_data['level'] == "classic":
+    elif cleaned_data['level'] == "superior":
       if quantity == 1:
         price_category = 7
       elif quantity == 2:
