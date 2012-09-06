@@ -11,6 +11,7 @@ def vinely_user_info(request):
   soc_group = Group.objects.get(name='Vinely Host')
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
+  pending_pro = Group.objects.get(name='Pending Vinely Pro')
 
   if pro_group in u.groups.all():
     data["pro"] = True
@@ -20,6 +21,8 @@ def vinely_user_info(request):
     data["supplier"] = True
   if tas_group in u.groups.all():
     data["taster"] = True 
+  if pending_pro in u.groups.all():
+    data["pending_pro"] = True
 
   data['cart_item_count'] = 0
   if 'cart_id' in request.session:

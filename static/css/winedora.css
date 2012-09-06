@@ -352,6 +352,13 @@ legend {
 #id_custom_message {
   width: 600px;
 }
+
+/* shopping */
+
+.price-label {
+  font-size: 1.4em;
+}
+
 .product-container {
   position:relative;
   width: 340px;

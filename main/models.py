@@ -317,8 +317,10 @@ class OrganizedParty(models.Model):
 class MyHost(models.Model):
   """
     Shows the hosts that are assigned to a party pro
+    Currently logs all historicall assignment and uses the latest
+    assignment
   """
-  pro = models.ForeignKey(User, related_name="my_host")
+  pro = models.ForeignKey(User, related_name="my_host", null=True, blank=True, verbose_name="Select Pro")
   host = models.ForeignKey(User, related_name="my_pro")
   timestamp = models.DateTimeField(auto_now_add=True)
 

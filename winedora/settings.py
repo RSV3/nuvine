@@ -159,6 +159,7 @@ TEMPLATE_LOADERS = (
 )
 
 if DEPLOY:
+  # enable SSL
   MIDDLEWARE_CLASSES = (
       'sslify.middleware.SSLifyMiddleware',
       'django.middleware.common.CommonMiddleware',
@@ -228,24 +229,23 @@ AUTHENTICATION_BACKENDS = (
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-if not DEPLOY:
-  EMAIL_HOST = 'smtp.gmail.com'
-  EMAIL_PORT = 587 
-  EMAIL_HOST_USER = 'support@vinely.com'
-  EMAIL_HOST_PASSWORD = 'hi2winedora'
-  EMAIL_USE_TLS = True
-else:
-  # MAILGUN
-  #EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER')
-  #EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT')  # 587
-  #EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
-  #EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
-
+if DEPLOY:
   # SENDGRID
   EMAIL_HOST = 'smtp.sendgrid.net'
   EMAIL_PORT = '587'
   EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME')
   EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
+  EMAIL_USE_TLS = True
+  # MAILGUN
+  #EMAIL_HOST = os.environ.get('MAILGUN_SMTP_SERVER')
+  #EMAIL_PORT = os.environ.get('MAILGUN_SMTP_PORT')  # 587
+  #EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
+  #EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
+else:
+  EMAIL_HOST = 'smtp.gmail.com'
+  EMAIL_PORT = 587 
+  EMAIL_HOST_USER = 'support@vinely.com'
+  EMAIL_HOST_PASSWORD = 'hi2winedora'
   EMAIL_USE_TLS = True
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"

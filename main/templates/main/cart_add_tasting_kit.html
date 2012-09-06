@@ -29,11 +29,8 @@
         <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
-          <p><h3 id="product_name">{{ product.name }}</h3></p>
-          <p id="product_description">
-            {% autoescape off %}
-            {{ product.description }}
-            {% endautoescape %}
+          <p><h3 id="product-name">{{ product.name }}</h3></p>
+          <p id="product-description">
           </p>
           <div class="control-group {% if form.quantity.errors %}error{% endif %}">
             <div class="control-label" for="id_quantity">{{ form.product.label }}</div>
@@ -55,7 +52,7 @@
           <p>&nbsp;</p>
           <div class="download">
           </div>
-          <p><b>From:</b> <span id="unit_price">{{ product.unit_price|currency }}</span></p>
+          <p class="price-label"><b>From:</b> <span id="unit-price">{{ product.unit_price|currency }}</span></p>
           {{ form.total_price }}
           <div class="form-actions">
             <div class="controls">
@@ -77,32 +74,49 @@
   </div>
 </div>
 {% endblock %}
+
 {% block additional_scripts %}
-<script>
-$(document).ready(function(){
-    $('#id_product').change(function(e) {
-	var val = $('#id_product option:selected').val();
-	var url = "{% url cart_kit_detail 1 %}".replace(1, parseInt(val));
-        $.ajax({
-	    url: url,
-	    cache: true,
-	    dataType: "json",
-	    success: function(json, textStatus) {
-		$('#product_name').text(json.product);
-		$('#product_description').text(json.description);
-		$('#unit_price').text(json.price);
-	    },
-	    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert("error: " + errorThrown);
-	    }
-        });
-        return false;
+<script type="text/javascript">
+  $(document).ready(function(){
+    /* load first kit information */
+    var url = "{% url cart_kit_detail 1 %}";
+    $.ajax({
+      url: url,
+      cache: true,
+      dataType: "json",
+      success: function(json, textStatus) {
+        $('#product-name').text(json.product);
+        $('#product-description').html(json.description);
+        $('#unit-price').text(json.price);
+      },
+      error: function (XMLHttpRequest, textStatus, errorThrown) {
+        alert("error: " + errorThrown);
+      }
     });
 
-    $('#id_product').change(function(e) {
-	var option = $('#id_product option:selected').text();
-	//alert(option);
+    $('#id-product').change(function(e) {
+    	var val = $('#id-product option:selected').val();
+      var url = "{% url cart_kit_detail 1 %}".replace(1, parseInt(val));
+      $.ajax({
+  	    url: url,
+  	    cache: true,
+  	    dataType: "json",
+  	    success: function(json, textStatus) {
+      		$('#product-name').text(json.product);
+      		$('#product-description').html(json.description);
+      		$('#unit-price').text(json.price);
+  	    },
+  	    error: function (XMLHttpRequest, textStatus, errorThrown) {
+          alert("error: " + errorThrown);
+  	    }
+      });
+      return false;
     });
-});
+
+    $('#id-product').change(function(e) {
+    	var option = $('#id-product option:selected').text();
+    	//alert(option);
+    });
+  });
 </script>
 {% endblock additional_scripts %}

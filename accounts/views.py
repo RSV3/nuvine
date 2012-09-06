@@ -306,6 +306,7 @@ def sign_up(request, account_type):
           
         # if not already in pro_pending_group, add them
         if not pro_group in u.groups.all():
+          u.groups.clear()
           u.groups.add(pro_pending_group)
         
         if not VinelyProAccount.objects.filter(users__in = [u]).exists():
@@ -319,6 +320,8 @@ def sign_up(request, account_type):
     elif tas_group in u.groups.all():
       if account_type == 1 or account_type == 2:
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=u)
+
         ok = check_zipcode(request, u)
         if not ok:
           messages.info(request, 'Please note that Vinely does not currently operate in your area.')
@@ -327,12 +330,14 @@ def sign_up(request, account_type):
         send_pro_request_email(request, u.email)
         # if not already in pro_pending_group, add them
         if not pro_group in u.groups.all():
+          u.groups.clear()
           u.groups.add(pro_pending_group)
         messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
         return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
       
       elif account_type == 2:
         send_host_vinely_party_email(request, u) # to vinely
+        u.groups.clear()
         u.groups.add(hos_group)
         messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
         return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
@@ -382,6 +387,8 @@ def sign_up(request, account_type):
         if pro_group in pro.groups.all():
           # map host to a pro
           my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
+        else:
+          my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
       except Exception, e:
         pass 
       

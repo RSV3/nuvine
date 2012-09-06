@@ -53,14 +53,3 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
-
-# need to create a place where Elizabeth can see all the Vinely Pro's
-# and need to be able to approve
-
-# Done: need to assign to pro_pending
-
-# Done: pro_pending cannot create parties
-
-# then have a drop down to assign as pro
-# trigger an e-mail that you have been approved
-

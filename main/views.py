@@ -65,13 +65,12 @@ def home(request):
     
     today = datetime.now(tz=UTC())
     
-    if tas_group in u.groups.all():
-      data["invites"] = PartyInvite.objects.filter(invitee=u) 
-      invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
-      if invites.exists():
-        event_date = invites[0].party.event_date
-        if event_date > today:
-          data['party_date'] = invites[0].party.event_date
+    data["invites"] = PartyInvite.objects.filter(invitee=u) 
+    invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
+    if invites.exists():
+      event_date = invites[0].party.event_date
+      if event_date > today:
+        data['party_date'] = invites[0].party.event_date
     
     if hos_group in u.groups.all():
       parties = Party.objects.filter(host=u).order_by('-event_date')
@@ -740,7 +739,7 @@ def party_list(request):
       else:
         data['parties'].append(inv.party)
   else:
-    raise PermissionDenied 
+    messages.success(request, "You will soon be able to create parties as soon as we approve you as a pro.")
 
   data["parties_menu"] = True
 
@@ -786,7 +785,13 @@ def party_add(request):
       new_host = new_party.host
 
       # map host to a pro
-      my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
+      no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
+      if no_applicable_pro.exists():
+        my_hosts = no_applicable_pro[0]
+        my_hosts.pro = u
+        my_hosts.save()
+      else:
+        my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
       proy_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
       
       # make the pro a mentor to the host

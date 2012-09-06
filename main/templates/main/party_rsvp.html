@@ -27,8 +27,8 @@
         <p><b>Will you attend? You know you want to! (You can always come back and change your response later.)</b></p>
         <p>
         <a class="btn btn-success btn-large" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
-        <a class="btn btn-primary btn-large" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
-        <a class="btn btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign"></i> Maybe</a>
+        <a class="btn btn-inverse btn-large" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+        <a class="btn btn-warning btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
         </p>
         {% if invite.response %}
         <p>

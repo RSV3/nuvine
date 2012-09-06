@@ -14,6 +14,10 @@ https://devcenter.heroku.com/articles/config-vars
 heroku config:add AWS_ACCESS_KEY_ID=youraswsaccesskey
 heroku config:add AWS_SECRET_ACCESS_KEY=yourawssecretkey
 
+Database Access
+===============
+heroku pg:psql HEROKU_POSTGRESQL_GOLD -a winedora-staging
+
 
 SSL Certificate
 ===============

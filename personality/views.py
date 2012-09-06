@@ -318,7 +318,10 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     if email:
       try:
         taster = User.objects.get(email=email)
-        data['personality_exists'] = True
+        if taster.get_profile().wine_personality.name == "Mystery":
+          data['personality_exists'] = False 
+        else:
+          data['personality_exists'] = True 
       except User.DoesNotExist:
         data['personality_exists'] = False
         taster = None

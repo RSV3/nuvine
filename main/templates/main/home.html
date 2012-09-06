@@ -12,7 +12,7 @@
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     {# <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li> #}
     <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
-    <li><div class="chev"><a href="{{ STATIC_URL }}doc/PDF_SocialPartyToDoList.pdf">Party To-Do List</a></div></li>
+    <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
     {# <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li> #}
@@ -23,7 +23,7 @@
       <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Guests</a></div></li>
       {# <li><div class="chev"><a href="{% url party_rsvp party.id %}">Your RSVPs</a></div></li> #}
       <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order A Taste Kit</a></div></li>
-      <li><div class="chev"><a href="{{ STATIC_URL }}doc/PDF_SocialPartyToDoList.pdf">Party To-Do List</a></div></li>
+      <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     {% endif %}
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
@@ -45,6 +45,10 @@
     <li><div class="chev"><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></div></li>
     <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
     <li><div class="chev"><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></div></li>
+  {% elif pending_pro %}
+    <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
+    <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+    <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>  
   {% endif %}
 
 
@@ -77,9 +81,14 @@
       {% if supplier %}
         You are a supplier.
       {% endif %}
+
     </div>
     <div class="sub-welcome">
+      {% if wine_personality %}
       We hope that you and your wine personality are getting along great!
+      {% else %}
+      You don't have a Vinely wine personality quite yet, but we can't wait until you do!
+      {% endif %}
     </div>
   </div>
   {% if wine_personality %}
@@ -91,7 +100,7 @@
   {% else %}
     <div class="span8">
       <div class="personality-badge-detail">
-	<img src="{{ STATIC_URL }}img/homepage_badge_mystery.png">
+	<img src="{% static "img/homepage_badge_mystery.png" %}">
       </div>
     </div>
   {% endif %}
@@ -154,24 +163,26 @@
 
       {# pro actions #}
       {% if pro %}
-	{% if wine_personality %}
-	  {% if party_scheduled %}
-	    We hope you're having fun on the party scene! Don't be a stranger to your Hosts. 
-	    Make sure they're up to date with their Party To-Do List.
-	  {% else %}
-	    You do not have any upcoming parties. <br /><br />
-	    <a href="{% url party_add %}" class="btn btn-primary">Get The Party Started!</a>
-	  {% endif %}
-	{% else %}
-	  {% if party_scheduled %}
-	    We hope you're having fun on the party scene! Don't be a stranger to your Hosts. 
-	    Make sure they're up to date with their Party To-Do List.
-	  {% else %}
-	    You do not have any upcoming parties. <br /><br />
-	    <a href="{% url party_add %}" class="btn btn-primary">Get The Party Started!</a>
-	  {% endif %}
-	{% endif %}
+      	{% if wine_personality %}
+      	  {% if party_scheduled %}
+      	    We hope you're having fun on the party scene! Don't be a stranger to your Hosts. 
+      	    Make sure they're up to date with their Party To-Do List.
+      	  {% else %}
+      	    You do not have any upcoming parties. <br /><br />
+      	    <a href="{% url party_add %}" class="btn btn-primary">Get The Party Started!</a>
+      	  {% endif %}
+      	{% else %}
+      	  {% if party_scheduled %}
+      	    We hope you're having fun on the party scene! Don't be a stranger to your Hosts. 
+      	    Make sure they're up to date with their Party To-Do List.
+      	  {% else %}
+      	    You do not have any upcoming parties. <br /><br />
+      	    <a href="{% url party_add %}" class="btn btn-primary">Get The Party Started!</a>
+      	  {% endif %}
+      	{% endif %}
       {% endif %}
+
+
     </div>
   </div>
 
@@ -196,23 +207,30 @@
   </div>
   {% endif %}
 
-  {% if taster or host %}
-    {% if questionnaire_completed %}
-      <div class="span8">
-        <div class="questionnaire-welcome">
-          You have completed your questionnaire and you are ready to rock with Vinely! 
-        </div>
+  {% if questionnaire_completed %}
+    <div class="span8">
+      <div class="questionnaire-welcome">
+        You have completed your questionnaire and you are ready to rock with Vinely! 
       </div>
-    {% else %}
-      <div class="span8">
-        <div class="questionnaire-welcome">
-          Fill out the <a href="{% url pre_questionnaire_general %}">Questionnaire</a> before attending the party.
-        </div>
+    </div>
+  {% else %}
+    <div class="span8">
+      <div class="questionnaire-welcome">
+        Fill out the <a href="{% url pre_questionnaire_general %}">Questionnaire</a> before attending the party.
       </div>
-    {% endif %}
+    </div>
   {% endif %}
 
 {% endcomment %}
+
+{% if pending_pro %}
+  <div class="span8">
+    <div class="questionnaire-welcome"> 
+      Your Vinely Pro application is still pending.  You will soon hear from Vinely!
+    </div>
+  </div>
+{% endif %}
+
 {% endblock main_content %}
 
 

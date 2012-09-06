@@ -85,11 +85,12 @@ class VerifyEligibilityForm(forms.ModelForm):
   def clean(self):
     data = super(VerifyEligibilityForm, self).clean()
     dob = data['dob']
-    
-    today = datetime.date(datetime.now(tz=UTC()))
-    datediff = today - dob
-    if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and data['above_21']) or (not dob and data['above_21']):
-      raise forms.ValidationError('The Date of Birth shows that you are not over 21')
+
+    if dob:
+      today = datetime.date(datetime.now(tz=UTC()))
+      datediff = today - dob
+      if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and data['above_21']) or (not dob and data['above_21']):
+        raise forms.ValidationError('The Date of Birth shows that you are not over 21')
     return data
 
 class UpdateAddressForm(forms.ModelForm):
