@@ -1,5 +1,5 @@
 BEGIN;
-INSERT INTO "main_zipcode" (code, country, city, state, latitude, longitude) VALUES
+INSERT INTO "accounts_zipcode" (code, country, city, state, latitude, longitude) VALUES
 ('82051', 'US', 'Bosler', 'WY', '41.573500', '-105.611200'),
 ('82052', 'US', 'Buford', 'WY', '41.110100', '-105.325700'),
 ('82055', 'US', 'Centennial', 'WY', '41.339100', '-105.994500'),
