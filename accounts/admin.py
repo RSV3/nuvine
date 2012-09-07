@@ -1,8 +1,10 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 
 from accounts.models import UserProfile
 from accounts.utils import send_pro_approved_email
+
+from emailusernames.admin import EmailUserAdmin
 
 def approve_pro(modeladmin, request, queryset):
   for obj in queryset:
@@ -31,7 +33,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', )
   model = UserProfile
-  actions = [approve_pro, defer_pro_privileges]
+  actions = [approve_pro, remove_pro_privileges]
   
   def news_optin_flag(self, instance):
     return instance.news_optin
@@ -44,12 +46,25 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
 
-  def groups(self, instance):
-    return instance.user.groups.all()
-
   def user_type(self, instance):
     group = instance.user.groups.all()[0]
     return group.name
 
 
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
+admin.site.unregister(User)
+
+class VinelyUserAdmin(EmailUserAdmin):
+
+  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode') 
+  list_filter = ('groups', 'is_active' )
+
+  def user_type(self, instance):
+    group = instance.groups.all()[0]
+    return group.name
+
+  def zipcode(self, instance):
+    zipcode_str = instance.get_profile().zipcode 
+    return zipcode_str
+
+admin.site.register(User, VinelyUserAdmin)
