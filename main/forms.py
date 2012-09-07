@@ -57,6 +57,20 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['description'].required = False
     self.fields['title'].initial = 'First Taste Party'
 
+  def clean_email(self):
+    host_email = self.cleaned_data['email']
+    try:
+      user = User.objects.get(email=host_email)
+        # check if host is not a pro
+      pro_group = Group.objects.get(name="Vinely Pro") 
+      if pro_group in user.groups.all():
+        self._errors['email'] = "The host e-mail specified is associated with a Vinely Pro and cannot host a party."
+    except User.DoesNotExist:
+      # user with this new e-mail will be created in clean 
+      pass
+      
+    return host_email
+
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
 
@@ -71,10 +85,11 @@ class PartyCreateForm(forms.ModelForm):
         user.last_name = cleaned_data['last_name']
         user.save()
 
-      ps_group = Group.objects.get(name="Vinely Pro")
-      if ps_group not in user.groups.all():
+      pro_group = Group.objects.get(name="Vinely Pro") 
+      ph_group = Group.objects.get(name="Vinely Host")
+      if ph_group not in user.groups.all() and pro_group not in user.groups.all():
         # add the user to Vinely Host group if not a Vinely Pro already
-        ph_group = Group.objects.get(name="Vinely Host")
+        user.groups.clear()
         user.groups.add(ph_group)
         user.save()
 

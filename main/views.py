@@ -792,7 +792,7 @@ def party_add(request):
         my_hosts.save()
       else:
         my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
-      proy_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
+      pro_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
       
       # make the pro a mentor to the host
       host_profile = new_host.get_profile()
