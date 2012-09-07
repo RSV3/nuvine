@@ -8,7 +8,8 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.execute_many(open('data/postalcodes_us.sql').read())
+        import winedora.settings as settings
+        db.execute_many(open(settings.PROJECT_ROOT + '/data/postalcodes_us.sql').read())
 
     def backwards(self, orm):
         db.execute('truncate accounts_zipcode;')
