@@ -19,7 +19,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   Use this password to verify your account.
   
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   from your Vinely Pros.
 
@@ -69,7 +69,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -127,7 +127,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     http://{{ host_name }}{% url party_rsvp party_id %}
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   from your Vinely Pros.
 
@@ -178,7 +178,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   Use this password to verify your account.
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   from your Vinely Pros
 
@@ -224,7 +224,7 @@ def send_pro_request_email(request, receiver):
   If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   Your Tasteful Friends,
 
@@ -323,7 +323,7 @@ def send_unknown_pro_email(request, user):
 
     If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -366,7 +366,7 @@ def send_pro_approved_email(request, applicant):
 
   Go have some fun wine parties!
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   Your Tasteful Friends,
 
@@ -412,7 +412,7 @@ def send_not_in_area_party_email(request, user, account_type):
 
     If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Your Tasteful Friends,
 

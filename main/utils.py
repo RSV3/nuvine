@@ -90,7 +90,7 @@ def send_order_confirmation_email(request, order_id):
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
 
   """)
@@ -126,7 +126,7 @@ def send_order_shipped_email(request, order):
 
     http://{{ host_name }}{% url order_complete order.order_id %}
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   """)
 
@@ -176,7 +176,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   If you have any questions, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -237,7 +237,7 @@ def send_know_pro_party_email(request, user, mentor_pro):
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -280,7 +280,7 @@ def send_not_in_area_party_email(request):
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -328,7 +328,7 @@ def send_new_party_scheduled_email(request, party):
 
   Look forward to seeing you soon!
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
@@ -391,7 +391,7 @@ def send_party_invitation_email(request, party_invite):
 
   {% if sig %}
   <div class="signature">
-    <img src="http:{% static "img/vinely_logo_signature.png" %}">
+    <img src="{% static "img/vinely_logo_signature.png" %}">
   </div>
   {% endif %}
 
@@ -453,7 +453,7 @@ def distribute_party_invites_email(request, invitation_sent):
 
   {% if sig %}
   <div class="signature">
-    <img src="http:{% static "img/vinely_logo_signature.png" %}">
+    <img src="{% static "img/vinely_logo_signature.png" %}">
   </div>
   {% endif %}
 
@@ -506,7 +506,7 @@ def send_rsvp_thank_you_email(request):
 
     <a class="brand-btn" ref="{% url pre_questionnaire_general %}">Take the First Step</a>
 
-    {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Happy Tasting!
 
@@ -552,7 +552,7 @@ def send_contact_request_email(request, contact_request):
 
     {{ contact_request.message }}
 
-  {% if sig %}<div class="signature"><img src="http:{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   """)
 
