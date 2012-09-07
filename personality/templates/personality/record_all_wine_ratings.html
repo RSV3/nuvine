@@ -868,25 +868,27 @@
   });
 
   $('#id_email').change(function() {
+
+    /* for now do not disable the submit button even though personality exists */
+
     $.ajax({
       type: "POST",
       url: "{% url check_personality_exists %}",
-      data: { email: $(this).val(),  },
+      data: { email: $(this).val() },
       success: function(data) {
         $('#personality-exists-error').hide();
         $('#email-invalid-error').hide();
         if ( data["result"] == 1 ) {
           $('#personality-exists-error').show();
-          $('button[type="submit"]').attr('disabled', 'disabled');
+          /*$('button[type="submit"]').attr('disabled', 'disabled');*/
         } else if (data["result"] == 0 ) {
-          $('button[type="submit"]').removeAttr('disabled');
+          /*$('button[type="submit"]').removeAttr('disabled'); */
         } else if (data["result"] == -1 ) {
           $('#email-invalid-error').show();
-          $('button[type="submit"]').attr('disabled', 'disabled');         
+          /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
         }
       }
     })
-    /*alert('E-mail has changed to ' + $(this).val());*/
   });
 </script>
 {% endblock additional_scripts %}
