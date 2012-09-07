@@ -215,7 +215,7 @@ def send_host_vinely_party_email(request, user, pro=None):
     msg.send()
 
   # return text message for display
-  return message 
+  return txt_message 
 
 def send_know_pro_party_email(request, user, mentor_pro):
 
