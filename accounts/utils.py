@@ -435,6 +435,5 @@ def check_zipcode(request, user, account_type, zipcode=None):
     return True
   except Zipcode.DoesNotExist:
     # application for pro/host?
-    
     send_not_in_area_party_email(request, user, account_type)
     return False
