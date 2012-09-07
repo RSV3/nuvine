@@ -1,5 +1,7 @@
 {# main.utils.send_order_confirmation_email #}
 
+{% load static %}
+
 {% if text %}
 
     Hey {{ customer }},
@@ -63,7 +65,7 @@
     </p>
 
     <div class="signature">
-      <img src="{% static "img/vinely_logo_signature.png" %}">
+      <img src="http:{% static "img/vinely_logo_signature.png" %}">
     </div>
 
     <p>

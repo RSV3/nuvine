@@ -64,11 +64,11 @@ class PartyCreateForm(forms.ModelForm):
         # check if host is not a pro
       pro_group = Group.objects.get(name="Vinely Pro") 
       if pro_group in user.groups.all():
-        self._errors['email'] = "The host e-mail specified is associated with a Vinely Pro and cannot host a party."
+        self._errors['email'] = "The host e-mail is associated with a Vinely Pro and cannot host a party."
     except User.DoesNotExist:
       # user with this new e-mail will be created in clean 
       pass
-      
+
     return host_email
 
   def clean(self):
