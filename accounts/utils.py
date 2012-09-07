@@ -2,7 +2,6 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 from accounts.models import Zipcode, SUPPORTED_STATES
-from main.models import EngagementInterest
 
 from support.models import Email
 
@@ -384,7 +383,7 @@ def send_pro_approved_email(request, applicant):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_not_in_area_party_email(request, user):
+def send_not_in_area_party_email(request, user, account_type):
   content = """
 
     Hey, {{ first_name }}!
@@ -412,8 +411,8 @@ def send_not_in_area_party_email(request, user):
   
   c.update({'sig':True})
   html_message = html_template.render(c)
-  
-  subject = 'Thanks for your interest in becoming a Vinely Host!'
+  print 'account ', account_type, type(account_type)
+  subject = 'Thanks for your interest in becoming a Vinely %s!' % ('Pro' if account_type == 1  else 'Host')
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
   from_email = 'welcome@vinely.com'
@@ -425,7 +424,7 @@ def send_not_in_area_party_email(request, user):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def check_zipcode(request, user, zipcode=None):
+def check_zipcode(request, user, account_type, zipcode=None):
   '''
   Check provided zipcode against existing ones to verify if vinely operates in the area
   '''
@@ -435,5 +434,7 @@ def check_zipcode(request, user, zipcode=None):
     code = Zipcode.objects.get(code = zipcode, state__in = SUPPORTED_STATES)
     return True
   except Zipcode.DoesNotExist:
-    send_not_in_area_party_email(request, user)
+    # application for pro/host?
+    
+    send_not_in_area_party_email(request, user, account_type)
     return False
