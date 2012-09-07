@@ -97,7 +97,7 @@ def send_order_confirmation_email(request, order_id):
 
   message = message_template.render(c)
   subject = 'Order ID: %s has been submitted!'%order_id
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
 
   from_email = 'welcome@vinely.com'
   recipients = ['sales@vinely.com']
@@ -143,7 +143,7 @@ def send_order_shipped_email(request, order):
     recipients.append(sender_email)
 
   subject = 'Order ID: %s has been shipped!' % order.order_id
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = 'sales@vinely.com'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -202,7 +202,7 @@ def send_host_vinely_party_email(request, user, pro=None):
 
   # notify interest in hosting to Vinely Pro or vinely sales 
   subject = 'A Vinely Taste Party is ready to be scheduled'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = user.email
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -250,7 +250,7 @@ def send_know_pro_party_email(request, user, mentor_pro):
   message = message_template.render(c)
 
   subject = 'Get the party started with Vinely'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = "sales@vinely.com"
   recipients = [mentor_pro.email]
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -293,7 +293,7 @@ def send_not_in_area_party_email(request):
   message = message_template.reander(c)
 
   subject = 'Thanks for your interest in becoming a Vinely Host!'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = request.user.email
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -349,7 +349,7 @@ def send_new_party_scheduled_email(request, party):
   # notify about scheduled party
   recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'  
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = request.user.email
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
@@ -562,7 +562,7 @@ def send_contact_request_email(request, contact_request):
   # send e-mail to notify about contact request
   subject = "URGENT: Request for information"
   recipients = ['sales@vinely.com']
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message, 'host_name': request.get_host()}))
   from_email = contact_request.email
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
