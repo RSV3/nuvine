@@ -2,6 +2,7 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 from accounts.models import Zipcode, SUPPORTED_STATES
+from main.models import EngagementInterest
 
 from support.models import Email
 
@@ -231,9 +232,8 @@ def send_pro_request_email(request, receiver):
   c.update({'sig':True})
   html_message = html_template.render(c)
   
-  # send out email request to sales@vinely.com 
   subject = 'Vinely Pro Request!'
-  recipients = ['sales@vinely.com', receiver_email]
+  recipients = [receiver.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
   from_email = 'welcome@vinely.com'
   
@@ -263,11 +263,11 @@ def send_pro_review_email(request, user):
 
   Email Address: {{ email }} 
 
+  Zipcode: {{ zipcode }}
+
   {% if phone %}
   Phone: {{ phone }}
   {% endif %}
-
-  Zipcode: {{ zipcode }}
 
   """
   
@@ -290,19 +290,15 @@ def send_pro_review_email(request, user):
   # notify interest in hosting to Vinely Pro or vinely sales 
   subject = 'Vinely Pro Request'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
-  from_email = user.email
+  from_email = 'welcome@vinely.com'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
   # update our DB that there was repeated interest
-  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
-  if not created:
-    interest.update_time()
-  else:
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
-    msg.attach_alternative(html_msg, "text/html")
-    msg.send()
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_unknown_pro_email(request, user):
 
