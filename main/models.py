@@ -61,7 +61,7 @@ class Party(models.Model):
 
   def credit(self):
     # TODO: determines the dollar amount purchased at the party
-    return 54.99
+    return 0.00
 
 class PartyInvite(models.Model):
 

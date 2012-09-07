@@ -15,14 +15,14 @@ def approve_pro(modeladmin, request, queryset):
 
 approve_pro.short_description = "Approve selected users as Vinely Pro"
 
-def defer_pro_privileges(modeladmin, request, queryset):
+def remove_pro_privileges(modeladmin, request, queryset):
   for obj in queryset:
     user = obj.user
     user.groups.clear()
     pro_group = Group.objects.get(name="Pending Vinely Pro")
     user.groups.add(pro_group)
 
-defer_pro_privileges.short_description = "Defer selected users Vinely Pro permissions"
+remove_pro_privileges.short_description = "Remove Vinely Pro permissions for selected users"
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
