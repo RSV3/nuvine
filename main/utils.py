@@ -80,6 +80,7 @@ def send_order_confirmation_email(request, order_id):
 
   # formulate e-mail to the supplier
   order_request_template = Template("""
+  {% load static %}
 
   Customer ({{ customer }}) has completed an order
 
@@ -88,6 +89,8 @@ def send_order_confirmation_email(request, order_id):
   You can check the status of their order at:
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
+
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
 
   """)
@@ -111,7 +114,9 @@ def send_order_confirmation_email(request, order_id):
   order.save()
 
 def send_order_shipped_email(request, order):
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
   Dear {% if order.receiver.first_name %}{{ order.receiver.first_name }}{% else %}Valued Customer{% endif %},
 
@@ -121,19 +126,14 @@ def send_order_shipped_email(request, order):
 
     http://{{ host_name }}{% url order_complete order.order_id %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
-  """
-  
-  txt_template = Template()
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"order": order,
               "host_name": request.get_host()})
-  txt_message = txt_template.render(c)
 
-  c.update({'sig':True})
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   receiver_email = order.receiver.email
   sender_email = order.ordered_by.email
@@ -143,19 +143,21 @@ def send_order_shipped_email(request, order):
     recipients.append(sender_email)
 
   subject = 'Order ID: %s has been shipped!' % order.order_id
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = 'sales@vinely.com'
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
 def send_host_vinely_party_email(request, user, pro=None):
   # needs user param for when not logged in e.g. brand new host signing up
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
   Hey {{ pro_first_name }}!
 
@@ -171,36 +173,27 @@ def send_host_vinely_party_email(request, user, pro=None):
   Phone: {{ phone }}
   {% endif %}
 
-  Zipcode: {{ zipcode }}
-
   If you have any questions, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
   - The Vinely Team
  
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
-  
+  """)
+
   profile = user.get_profile()
 
   c = RequestContext( request, {"first_name": user.first_name if user.first_name else "Vinely", 
-                                "last_name": user.last_name if user.last_name else "Fan",
-                                "email": user.email,
-                                "pro_first_name": pro.first_name if pro else "Care Specialist",
-                                "phone": profile.phone,
-                                "host_name": request.get_host(),
-                                "zipcode":user.get_profile().zipcode})
+              "last_name": user.last_name if user.last_name else "Fan",
+              "email": user.email,
+              "pro_first_name": pro.first_name if pro else "Care Specialist",
+              "phone": profile.phone,
+              "host_name": request.get_host()})
 
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   # new engagement interest
   recipients = ['sales@vinely.com']
@@ -209,10 +202,10 @@ def send_host_vinely_party_email(request, user, pro=None):
 
   # notify interest in hosting to Vinely Pro or vinely sales 
   subject = 'A Vinely Taste Party is ready to be scheduled'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = user.email
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
   # update our DB that there was repeated interest
@@ -220,16 +213,18 @@ def send_host_vinely_party_email(request, user, pro=None):
   if not created:
     interest.update_time()
   else:
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg = EmailMultiAlternatives(subject, message, from_email, recipients)
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
   # return text message for display
-  return txt_message 
+  return message 
 
 def send_know_pro_party_email(request, user, mentor_pro):
 
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
   Hey {{ host_first_name }}!
 
@@ -241,38 +236,35 @@ def send_know_pro_party_email(request, user, mentor_pro):
 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
   - The Vinely Team
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"host_first_name": user.first_name if user.first_name else "Vinely Host"})
 
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   subject = 'Get the party started with Vinely'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = "sales@vinely.com"
   recipients = [mentor_pro.email]
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
 def send_not_in_area_party_email(request):
 
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
   Hey {{ host_first_name }}!
 
@@ -287,39 +279,36 @@ def send_not_in_area_party_email(request):
 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
   - The Vinely Team
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
 
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
+  message = message_template.reander(c)
 
   subject = 'Thanks for your interest in becoming a Vinely Host!'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = request.user.email
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
 
 def send_new_party_scheduled_email(request, party):
 
-  """
+  message_template = Template("""
+
+  {% load static %}
 
   Dear {{ host_first_name }},
 
@@ -339,12 +328,11 @@ def send_new_party_scheduled_email(request, party):
 
   Look forward to seeing you soon!
 
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
   Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x])) #Template("<pre>%s</pre>" % content)
+  """)
 
   profile = request.user.get_profile()
 
@@ -356,19 +344,18 @@ def send_new_party_scheduled_email(request, party):
               "party": party,
               "host_name": request.get_host()})
 
-  txt_message = txt_template.render(c)
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   # notify about scheduled party
   recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'  
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = request.user.email
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -376,7 +363,10 @@ def send_party_invitation_email(request, party_invite):
   """ 
     individual invitation e-mail
   """
-  content = """
+
+  message_template = Template("""
+
+  {% load static %}
 
   What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
   Part personality test.  And part... well... party.
@@ -395,48 +385,47 @@ def send_party_invitation_email(request, party_invite):
 
   Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-  {% if plain %}
-  Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
-  {% else %}
-  <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
-  {% endif %}
+  <div class="email-rsvp-button">
+    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
+  </div>
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}
+  <div class="signature">
+    <img src="{% static "img/vinely_logo_signature.png" %}">
+  </div>
+  {% endif %}
 
   Your Tasteful Friends,
 
   - The Vinely Team
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"party": party_invite.party,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
               "invite_host_email": request.user.email,
-              "host_name": request.get_host(), "plain":True})
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
-  
+              "host_name": request.get_host()})
+  message = message_template.render(c)
+
   # send out party invitation e-mail 
   subject = "%s has invited you to a Vinely Taste Party!" % party_invite.party.host.first_name if party_invite.party.host.first_name else "Your Favorite Host"
 
   recipients = [party_invite.invitee.email]  
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'header': 'Good wine and good times await', 
-                                                            'message': html_message}))
+                                                            'message': message}))
   from_email = 'welcome@vinely.com'
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
 def distribute_party_invites_email(request, invitation_sent):
-  content = """
+
+  message_template = Template("""
+
+  {% load static %}
 
   What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
   Part personality test.  And part... well... party.
@@ -458,32 +447,29 @@ def distribute_party_invites_email(request, invitation_sent):
 
   Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-  {% if plain %}
-  Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
-  {% else %}
-  <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
-  {% endif %}
+  <div class="email-rsvp-button">
+    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
+  </div>
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}
+  <div class="signature">
+    <img src="{% static "img/vinely_logo_signature.png" %}">
+  </div>
+  {% endif %}
 
   Your Tasteful Friends,
 
   - The Vinely Team
 
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               "invite_host_email": request.user.email,
-              "host_name": request.get_host(), "plain":True})
-  txt_message = txt_template.render(c)
-  c.update({'sig':True})
-  html_message = html_template.render(c)
+              "host_name": request.get_host()})
+  message = message_template.render(c)
 
   recipients = []
   for guest in invitation_sent.guests.all():
@@ -492,13 +478,13 @@ def distribute_party_invites_email(request, invitation_sent):
   # send out party invitation e-mail 
   subject = invitation_sent.custom_subject 
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
-                                                            'message': html_message}))
+                                                            'message': message}))
   from_email = 'welcome@vinely.com'
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -506,7 +492,9 @@ def distribute_party_invites_email(request, invitation_sent):
 
 def send_rsvp_thank_you_email(request):
 
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
     Hey, {{ first_name }}!
 
@@ -516,39 +504,31 @@ def send_rsvp_thank_you_email(request):
     Please fill out our quick 11-question survey. It will give us a glimpse into your personal taste. 
     No pressure here. There's no right or wrong answer.
 
-    {% if plain %}
-    Click on this link to fill out the questionnaire: http://{{ host_name }}{% url pre_questionnaire_general %}
-    {% else %}
-    <a class="brand-btn" ref="http://{{ host_name }}{% url pre_questionnaire_general %}">Take the First Step</a>
-    {% endif %}
+    <a class="brand-btn" ref="{% url pre_questionnaire_general %}">Take the First Step</a>
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
-
     - The Vinely Team
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  """)
 
   c = RequestContext( request, {"first_name": request.user.first_name} )
-  txt_message = txt_template.render(c)
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   recipients = [ request.user.email ]
 
   # send out party invitation e-mail 
   subject = 'Thanks for the RSVP!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
-                                                            'message': html_message}))
+                                                            'message': message}))
   from_email = 'welcome@vinely.com'
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
   return msg
@@ -557,7 +537,9 @@ def send_contact_request_email(request, contact_request):
   """
     E-mail sent when someone fills out a contact request
   """
-  content = """
+  message_template = Template("""
+
+  {% load static %}
 
   {% if contact_request.first_name %}{{ contact_request.first_name }} {{ contact_request.last_name }}{% else %}Potential Customer{% endif %}, is interested in Vinely.  Please reach out via
 
@@ -570,24 +552,22 @@ def send_contact_request_email(request, contact_request):
 
     {{ contact_request.message }}
 
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+  """)
 
   c = RequestContext( request, {"contact_request": contact_request})
-  txt_message = txt_template.render(c)
-  html_message = html_template.render(c)
+  message = message_template.render(c)
 
   # send e-mail to notify about contact request
   subject = "URGENT: Request for information"
   recipients = ['sales@vinely.com']
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': message}))
   from_email = contact_request.email
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()

@@ -390,10 +390,8 @@ def sign_up(request, account_type):
         if pro_group in pro.groups.all():
           # map host to a pro
           my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
-        else:
-          my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
       except Exception, e:
-        pass 
+        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
       
     profile.save()
     

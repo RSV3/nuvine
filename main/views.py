@@ -1078,7 +1078,7 @@ def party_customize_invite(request):
   if request.method == 'POST':
     guests = request.POST.getlist('guests')
     party = Party.objects.get(id=request.POST.get('party'))
-    print "Selected guests:", guests
+    #print "Selected guests:", guests
 
     form = CustomizeInvitationForm()
     form.initial = {'party': party}

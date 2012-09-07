@@ -9,6 +9,8 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   content = """
 
+  {% load static %}
+
   Please verify your e-mail address and create a new password by going to:
 
   http://{{ host_name }}{% url verify_account verification_code %}
@@ -17,7 +19,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   Use this password to verify your account.
   
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   from your Vinely Pros.
 
@@ -51,6 +53,8 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 def send_password_change_email(request, verification_code, temp_password, user):
   content = """
 
+  {% load static %}
+
   Hey {% if first_name %}{{ first_name }}{% else %}{{ role.name }}{% endif %}!
 
   We heard you lost your password. (No prob.  Happens all the time.)
@@ -65,7 +69,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -105,6 +109,8 @@ def send_password_change_email(request, verification_code, temp_password, user):
 def send_new_invitation_email(request, verification_code, temp_password, party_invite):
   content = """
 
+  {% load static %}
+
   You have been invited to a Vinely Party [{{ party_name }}] by {{ invite_host_name }} ({{ invite_host_email }}).
   We have automatically created a new account for you.
 
@@ -121,7 +127,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     http://{{ host_name }}{% url party_rsvp party_id %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   from your Vinely Pros.
 
@@ -160,6 +166,8 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   content = """
 
+  {% load static %}
+
   You have been approved to host a new Vinely party by {{ invite_host_name }} ({{ invite_host_email }}).
 
   Please verify your e-mail address and create a new password by going to:
@@ -170,7 +178,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   Use this password to verify your account.
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   from your Vinely Pros
 
@@ -205,6 +213,8 @@ def send_pro_request_email(request, receiver):
 
   content = """
 
+  {% load static %}
+
   Hey, {{ first_name }}!
 
   We're thrilled about your interest in becoming a Vinely Pro.
@@ -214,7 +224,7 @@ def send_pro_request_email(request, receiver):
   If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   Your Tasteful Friends,
 
@@ -303,6 +313,8 @@ def send_unknown_pro_email(request, user):
 
   content = """
 
+  {% load static %}
+
     Hey, {{ first_name }}!
 
     We're thrilled about your interest in hosting a Vinely Taste Party!
@@ -311,7 +323,7 @@ def send_unknown_pro_email(request, user):
 
     If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -345,6 +357,8 @@ def send_pro_approved_email(request, applicant):
 
   content = """
 
+  {% load static %}
+
   Hey {{ applicant.first_name }},<br>
 
   Your application to become Vinely Pro has been approved.  You may now login to your account
@@ -352,7 +366,7 @@ def send_pro_approved_email(request, applicant):
 
   Go have some fun wine parties!
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
   
   Your Tasteful Friends,
 
@@ -386,6 +400,8 @@ def send_pro_approved_email(request, applicant):
 def send_not_in_area_party_email(request, user, account_type):
   content = """
 
+  {% load static %}
+
     Hey, {{ first_name }}!
 
     We have some good news and some bad news.
@@ -396,7 +412,7 @@ def send_not_in_area_party_email(request, user, account_type):
 
     If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -411,7 +427,7 @@ def send_not_in_area_party_email(request, user, account_type):
   
   c.update({'sig':True})
   html_message = html_template.render(c)
-  print 'account ', account_type, type(account_type)
+  #print 'account ', account_type, type(account_type)
   subject = 'Thanks for your interest in becoming a Vinely %s!' % ('Pro' if account_type == 1  else 'Host')
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))

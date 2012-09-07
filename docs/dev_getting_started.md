@@ -75,3 +75,7 @@
     $ python manage.py collectstatic
 
   * Reset winedora/settings_debug.py and set DEBUG = True to continue with local development
+
+# For creating super admins
+
+    $ manage.py createsuperuser --username=joe --email=joe@example.com
