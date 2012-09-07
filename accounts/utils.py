@@ -5,6 +5,11 @@ from accounts.models import Zipcode, SUPPORTED_STATES
 
 from support.models import Email
 
+SIGNATURE = '''
+  <div class="signature">
+    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
+  </div>
+'''
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
   content = """
@@ -17,6 +22,8 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
   Use this password to verify your account.
 
+  {{ signature }}
+  
   from your Vinely Pros.
 
   """
@@ -25,8 +32,10 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
 
   c = RequestContext( request, {"host_name": request.get_host(),
-              "verification_code": verification_code,
-              "temp_password": temp_password})
+                                "verification_code": verification_code,
+                                "temp_password": temp_password,
+                                "signature": SIGNATURE,
+                                })
   txt_message = txt_template.render(c)
   html_message = html_template.render(c)
 
