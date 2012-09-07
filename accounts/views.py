@@ -437,8 +437,8 @@ def sign_up(request, account_type):
           send_know_pro_party_email(request, user, mentor_pro) # to host
       except User.DoesNotExist, e:
         # mail sales
-        # send_unknown_pro_email(request, user) # to vinely
-        pass
+        send_unknown_pro_email(request, user) # to host
+        
       send_host_vinely_party_email(request, user, mentor_pro) # to pro or vinely
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
     data["get_started_menu"] = True

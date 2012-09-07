@@ -25,21 +25,21 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
-  data = {"host_name": request.get_host(),
-          "verification_code": verification_code,
-          "temp_password": temp_password,
-          }
-  c = RequestContext( request, data)
+  
+  c = RequestContext( request, {"host_name": request.get_host(),
+                                "verification_code": verification_code,
+                                "temp_password": temp_password,
+                                })
   txt_message = txt_template.render(c)
-  data.update({'sig':True})
-  c = RequestContext( request, data)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Get Started <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -65,9 +65,8 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
 
-  <div class="signature">
-    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
-  </div>
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
   Your Tasteful Friends,
 
   - The Vinely Team 
@@ -78,14 +77,15 @@ def send_password_change_email(request, verification_code, temp_password, user):
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
   
   receiver_email = user.email
-
-  c = RequestContext( request, {
-              "first_name": user.first_name,
-              "role": user.groups.all()[0],
-              "host_name": request.get_host(),
-              "verification_code": verification_code,
-              "temp_password": temp_password})
+  
+  c = RequestContext( request, {"first_name": user.first_name,
+                                "role": user.groups.all()[0],
+                                "host_name": request.get_host(),
+                                "verification_code": verification_code,
+                                "temp_password": temp_password})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out verification e-mail, create a verification code
@@ -121,6 +121,8 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
     http://{{ host_name }}{% url party_rsvp party_id %}
 
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  
   from your Vinely Pros.
 
   """
@@ -129,13 +131,15 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
   
   c = RequestContext( request, {"party_name": party_invite.party.title, 
-              "party_id": party_invite.party.id,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
-              "invite_host_email": request.user.email,
-              "host_name": request.get_host(),
-              "verification_code": verification_code,
-              "temp_password": temp_password})
+                                "party_id": party_invite.party.id,
+                                "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
+                                "invite_host_email": request.user.email,
+                                "host_name": request.get_host(),
+                                "verification_code": verification_code,
+                                "temp_password": temp_password})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
@@ -166,19 +170,22 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   Use this password to verify your account.
 
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   from your Vinely Pros
 
   """
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
-
+  
   c = RequestContext( request, {"invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
-              "invite_host_email": request.user.email,
-              "host_name": request.get_host(),
-              "verification_code": verification_code,
-              "temp_password": temp_password})
+                                "invite_host_email": request.user.email,
+                                "host_name": request.get_host(),
+                                "verification_code": verification_code,
+                                "temp_password": temp_password})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out email approving host 
@@ -205,9 +212,8 @@ def send_pro_request_email(request, receiver_email):
   If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.
 
-  <div class="signature">
-    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
-  </div>
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  
   Your Tasteful Friends,
 
   - The Vinely Team 
@@ -219,6 +225,8 @@ def send_pro_request_email(request, receiver_email):
 
   c = RequestContext( request, {})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out email request to sales@vinely.com 
@@ -238,29 +246,34 @@ def send_unknown_pro_email(request, user):
 
   content = """
 
-  Customer {{ customer }} would like to be a host at a Vinely Taste Party but is not linked to a Vinely Pro.
+    Hey, {{ first_name }}!
 
-  Please link them up with a Pro in their area as soon as possible.
+    We're thrilled about your interest in hosting a Vinely Taste Party!
 
-  Their full details:
+    To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro. They'll be reaching out soon.
 
-  Full name: {{ user_full_name }}
-  Email Address: {{ email }} 
-  Zipcode: {{ zipcode }}
+    If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
 
   """
   
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
 
-  c = RequestContext( request, {"customer": user.first_name, "user_full_name": user.get_full_name(),
-                                "email": user.email, "zipcode": user.get_profile().zipcode} )
+  c = RequestContext( request, {"first_name": user.first_name} )
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out email request to sales@vinely.com 
-  subject = 'A Vinely Taste Party host needs be linked to a Vinely Pro'
-  recipients = ['sales@vinely.com']
+  subject = 'Get the party started with Vinely'
+  recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
   from_email = 'welcome@vinely.com'
   
@@ -282,9 +295,8 @@ def send_pro_approved_email(request, applicant):
 
   Go have some fun wine parties!
 
-  <div class="signature">
-    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
-  </div>
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  
   Your Tasteful Friends,
 
   - The Vinely Team 
@@ -293,9 +305,12 @@ def send_pro_approved_email(request, applicant):
   
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
-
-  c = RequestContext( request, {"applicant": applicant})
+  
+  data = {"applicant": applicant}
+  c = RequestContext( request, data)
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out email request to sales@vinely.com 
@@ -324,6 +339,8 @@ def send_not_in_area_party_email(request, user):
 
     If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
+    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
     Your Tasteful Friends,
 
     - The Vinely Team
@@ -334,6 +351,8 @@ def send_not_in_area_party_email(request, user):
 
   c = RequestContext( request, {"first_name": user.first_name})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   subject = 'Thanks for your interest in becoming a Vinely Host!'

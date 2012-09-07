@@ -121,6 +121,8 @@ def send_order_shipped_email(request, order):
 
     http://{{ host_name }}{% url order_complete order.order_id %}
 
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
   """
   
   txt_template = Template()
@@ -128,8 +130,9 @@ def send_order_shipped_email(request, order):
 
   c = RequestContext( request, {"order": order,
               "host_name": request.get_host()})
-
   txt_message = txt_template.render(c)
+
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   receiver_email = order.receiver.email
@@ -168,8 +171,12 @@ def send_host_vinely_party_email(request, user, pro=None):
   Phone: {{ phone }}
   {% endif %}
 
+  Zipcode: {{ zipcode }}
+
   If you have any questions, please contact a Vinely Care Specialist at 
   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -183,13 +190,16 @@ def send_host_vinely_party_email(request, user, pro=None):
   profile = user.get_profile()
 
   c = RequestContext( request, {"first_name": user.first_name if user.first_name else "Vinely", 
-              "last_name": user.last_name if user.last_name else "Fan",
-              "email": user.email,
-              "pro_first_name": pro.first_name if pro else "Care Specialist",
-              "phone": profile.phone,
-              "host_name": request.get_host()})
+                                "last_name": user.last_name if user.last_name else "Fan",
+                                "email": user.email,
+                                "pro_first_name": pro.first_name if pro else "Care Specialist",
+                                "phone": profile.phone,
+                                "host_name": request.get_host(),
+                                "zipcode":user.get_profile().zipcode})
 
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   # new engagement interest
@@ -231,6 +241,7 @@ def send_know_pro_party_email(request, user, mentor_pro):
 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -244,6 +255,8 @@ def send_know_pro_party_email(request, user, mentor_pro):
   c = RequestContext( request, {"host_first_name": user.first_name if user.first_name else "Vinely Host"})
 
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   subject = 'Get the party started with Vinely'
@@ -274,6 +287,7 @@ def send_not_in_area_party_email(request):
 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -287,6 +301,8 @@ def send_not_in_area_party_email(request):
   c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
 
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   subject = 'Thanks for your interest in becoming a Vinely Host!'
@@ -379,13 +395,14 @@ def send_party_invitation_email(request, party_invite):
 
   Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-  <div class="email-rsvp-button">
-    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
-  </div>
+  {% if plain %}
+  Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
+  {% else %}
+  <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
+  {% endif %}
 
-  <div class="signature">
-    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
-  </div>
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
   Your Tasteful Friends,
 
   - The Vinely Team
@@ -398,8 +415,10 @@ def send_party_invitation_email(request, party_invite):
   c = RequestContext( request, {"party": party_invite.party,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
               "invite_host_email": request.user.email,
-              "host_name": request.get_host()})
+              "host_name": request.get_host(), "plain":True})
   txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
   html_message = html_template.render(c)
   
   # send out party invitation e-mail 
@@ -439,13 +458,14 @@ def distribute_party_invites_email(request, invitation_sent):
 
   Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
 
-  <div class="email-rsvp-button">
-    <a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a>
-  </div>
+  {% if plain %}
+  Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
+  {% else %}
+  <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
+  {% endif %}
 
-  <div class="signature">
-    <img src="{{ STATIC_URL }}img/vinely_logo_signature.png">
-  </div>
+  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
   Your Tasteful Friends,
 
   - The Vinely Team
@@ -460,8 +480,9 @@ def distribute_party_invites_email(request, invitation_sent):
               "custom_message": invitation_sent.custom_message,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               "invite_host_email": request.user.email,
-              "host_name": request.get_host()})
+              "host_name": request.get_host(), "plain":True})
   txt_message = txt_template.render(c)
+  c.update({'sig':True})
   html_message = html_template.render(c)
 
   recipients = []
@@ -495,9 +516,15 @@ def send_rsvp_thank_you_email(request):
     Please fill out our quick 11-question survey. It will give us a glimpse into your personal taste. 
     No pressure here. There's no right or wrong answer.
 
-    <a class="brand-btn" ref="{% url pre_questionnaire_general %}">Take the First Step</a>
+    {% if plain %}
+    Click on this link to fill out the questionnaire: http://{{ host_name }}{% url pre_questionnaire_general %}
+    {% else %}
+    <a class="brand-btn" ref="http://{{ host_name }}{% url pre_questionnaire_general %}">Take the First Step</a>
+    {% endif %}
 
     Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     - The Vinely Team
 
