@@ -313,7 +313,7 @@ def sign_up(request, account_type):
           pro_account_number = generate_pro_account_number()
           account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
           account.users.add(u)
-        send_pro_request_email(request, u.email)
+        send_pro_request_email(request, u)
         messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
       return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     
@@ -327,7 +327,7 @@ def sign_up(request, account_type):
           messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         
       if account_type == 1:
-        send_pro_request_email(request, u.email)
+        send_pro_request_email(request, u)
         # if not already in pro_pending_group, add them
         if not pro_group in u.groups.all():
           u.groups.clear()
@@ -423,7 +423,7 @@ def sign_up(request, account_type):
 
     data["account_type"] = account_type 
     if account_type == 1:
-      send_pro_request_email(request, user.email)
+      send_pro_request_email(request, user)
       messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
       return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:

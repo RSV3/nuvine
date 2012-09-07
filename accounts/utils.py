@@ -201,11 +201,13 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_pro_request_email(request, receiver_email):
+def send_pro_request_email(request, receiver):
 
   content = """
 
-  Hey, we have received your request to become a Vinely Pro and conduct Taste parties.
+  Hey, {{ first_name }}!
+
+  We're thrilled about your interest in becoming a Vinely Pro.
 
   We will review your application soon and get back to you within the next 48hrs.
 
@@ -223,7 +225,7 @@ def send_pro_request_email(request, receiver_email):
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
 
-  c = RequestContext( request, {})
+  c = RequestContext( request, {"first_name":receiver.first_name})
   txt_message = txt_template.render(c)
   
   c.update({'sig':True})
@@ -241,6 +243,66 @@ def send_pro_request_email(request, receiver_email):
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
+  
+  # send mail to vinely for pro approval
+  send_pro_review_email(request, receiver)
+
+def send_pro_review_email(request, user):
+  '''
+  Sent to sales@vinely.com to review and approve request to be a pro
+  '''
+  
+  content = """
+
+  Hey Care Specialist,
+
+  Someone has sent a request to be a Vinely Pro!
+  Please follow up ASAP to help set them up and answer any possible questions.
+
+  Name: {{ first_name }} {{ last_name }}
+
+  Email Address: {{ email }} 
+
+  {% if phone %}
+  Phone: {{ phone }}
+  {% endif %}
+
+  Zipcode: {{ zipcode }}
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  
+  profile = user.get_profile()
+
+  c = RequestContext( request, {"first_name": user.first_name if user.first_name else "Vinely", 
+                                "last_name": user.last_name if user.last_name else "Fan",
+                                "email": user.email,
+                                "phone": profile.phone,
+                                "zipcode":user.get_profile().zipcode})
+
+  txt_message = txt_template.render(c)
+  html_message = html_template.render(c)
+
+  recipients = ['sales@vinely.com']
+
+  # notify interest in hosting to Vinely Pro or vinely sales 
+  subject = 'Vinely Pro Request'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message}))
+  from_email = user.email
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  # update our DB that there was repeated interest
+  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
+  if not created:
+    interest.update_time()
+  else:
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg.attach_alternative(html_msg, "text/html")
+    msg.send()
 
 def send_unknown_pro_email(request, user):
 
