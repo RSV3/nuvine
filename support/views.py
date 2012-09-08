@@ -112,8 +112,12 @@ def download_orders(request):
   response = HttpResponse(mimetype='text/csv') 
   response['Content-Disposition'] = 'attachment; filename=vinely_orders.csv'
 
-  fieldnames = ['ID', 'Order ID', 'Ordered By', 'Receiver', 'Items', 'Total Price', 
+  fieldnames = ['ID', 'Order ID', 'Ordered By', 'Receiver', 'Wine Personality', 'Items', 'Total Price', 
                         'Shipping Address', 'Order Date']
+
+  writer = csv.DictWriter(response, fieldnames)
+
+  writer.writeheader()
 
   # most recent orders first
   for order in Order.objects.all().order_by('-order_date'):
@@ -121,7 +125,8 @@ def download_orders(request):
     data['ID'] = order.id
     data['Order ID'] = order.order_id
     data['Ordered By'] = "%s %s (%s)" % (order.ordered_by.first_name, order.ordered_by.last_name, order.ordered_by.email)
-    data['Receiver'] = "%s %s (%s)" % (order.ordered_by.first_name, order.ordered_by.last_name, order.ordered_by.email)
+    data['Receiver'] = "%s %s (%s)" % (order.receiver.first_name, order.receiver.last_name, order.receiver.email)
+    data['Wine Personality'] = order.receiver.get_profile().wine_personality
     data['Items'] = order.cart.items_str() 
     data['Total Price'] = order.cart.total()
     data['Shipping Address'] = order.shipping_address 

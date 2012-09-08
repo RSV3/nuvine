@@ -215,7 +215,7 @@ class Cart(models.Model):
 
   def items_str(self):
     output = [] 
-    for item in items.all():
+    for item in self.items.all():
       output.append(item.product)
 
     return str(output)
