@@ -96,6 +96,8 @@ class PersonaLog(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
 class Product(models.Model):
+
+  # NOTE: If you change product type, please update main/views.py cart()
   PRODUCT_TYPE = (
       (0, 'Tasting Kit'),
       (1, 'Wine Package'),
@@ -152,7 +154,6 @@ class LineItem(models.Model):
       return "Full Case" if self.quantity == 1 else "Half Case"
     else:
       return str(self.quantity)
-
 
 class Cart(models.Model):
   """
@@ -211,6 +212,13 @@ class Cart(models.Model):
   def total(self):
     # TODO: total everything including shipping and tax
     return self.shipping() + self.tax() + self.subtotal() 
+
+  def items_str(self):
+    output = [] 
+    for item in items.all():
+      output.append(item.product)
+
+    return str(output)
 
 class Order(models.Model):
   """

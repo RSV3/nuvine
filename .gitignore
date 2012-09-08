@@ -10,6 +10,7 @@ sitemedia
 sitestatic
 cache
 ssl
+*.old
 
 .DS_Store
 *~

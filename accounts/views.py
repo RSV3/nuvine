@@ -21,7 +21,7 @@ from accounts.utils import send_verification_email, send_password_change_email, 
     check_zipcode
 
 
-from main.utils import send_know_pro_party_email, send_host_vinely_party_email
+from main.utils import send_know_pro_party_email, send_host_vinely_party_email, my_host, my_pro
 import uuid
 import logging
 
@@ -39,6 +39,7 @@ def profile(request):
 from main.utils import UTC
 from datetime import datetime, timedelta
 import math
+
 @login_required
 def my_information(request):
   """
@@ -151,36 +152,8 @@ def edit_subscription(request):
     form.save()
     messages.success(request, "Your subscription will be updated for the next month.")
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Host")
-  sp_group = Group.objects.get(name='Supplier')
-  at_group = Group.objects.get(name='Vinely Taster')
-
-  if ph_group in u.groups.all():
-    invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
-    if invitation.exists():
-      data['invited_by'] = invitation[0].party.host
-    else:
-      # TODO: need to update this part so we assign the currently active Pro
-      mypros = MyHost.objects.filter(host=u).order_by('-timestamp')
-      if mypros.exists():
-        data['invited_by'] = mypros[0].pro
-        data['pro_user'] = mypros[0].pro
-        data['pro_profile'] = mypros[0].pro.get_profile()
-  if at_group in u.groups.all():
-    # find pro and host who invited first
-    invitation = PartyInvite.objects.filter(invitee=u).order_by('-invited_timestamp')
-    if invitation.exists():
-      data['invited_by'] = invitation[0].party.host
-      # TODO: need to update this part so we assign the currently active Pro
-      mypros = MyHost.objects.filter(host=data['invited_by']).order_by('-timestamp')
-      if mypros.exists():
-        data['invited_by'] = mypros[0].pro
-        data['pro_user'] = mypros[0].pro
-        data['pro_profile'] = mypros[0].pro.get_profile()
-    else:
-      # no parties, so no pros
-      pass
+  data['invited_by'] = my_host(u)
+  data['pro_user'], data['pro_profile'] = my_pro(u)
 
   if user_subscription is None:
     form.initial['user'] = u

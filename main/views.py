@@ -443,6 +443,8 @@ def cart(request):
 
     submit goes to checkout
   """
+  u = request.user
+
   data = {}
 
   try:
@@ -450,7 +452,19 @@ def cart(request):
     cart = Cart.objects.get(id=cart_id) 
     cart.views += 1
     cart.save()
-    data["items"] = cart.items.all()
+
+    if 'receiver_id' in request.session:
+      personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
+    else:
+      personality = u.get_profile().wine_personality 
+
+    data['items'] = []
+    for item in cart.items.all():
+      if item.product.category == 1:
+        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+        print item.img_file_name
+      data['items'].append(item)
+
     data["cart"] = cart
   except KeyError:
     # cart is empty
@@ -598,7 +612,19 @@ def place_order(request):
 
     else:
       # review what you have ordered
-      data["items"] = cart.items.all()
+
+      if 'receiver_id' in request.session:
+        personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
+      else:
+        personality = u.get_profile().wine_personality 
+
+      data['items'] = []
+      for item in cart.items.all():
+        if item.product.category == 1:
+          item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+          print item.img_file_name
+        data['items'].append(item)
+
       data["cart" ] = cart
 
       # record cart views
@@ -655,7 +681,15 @@ def order_complete(request, order_id):
 
     cart = order.cart
     data["cart"] = cart
-    data["items"] = cart.items.all()
+
+    personality = order.receiver.get_profile().wine_personality
+
+    data['items'] = []
+    for item in cart.items.all():
+      if item.product.category == 1:
+        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+        print item.img_file_name
+      data['items'].append(item)
 
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
@@ -1245,7 +1279,16 @@ def supplier_edit_order(request, order_id):
 
   cart = order.cart
   data["cart"] = cart
-  data["items"] = cart.items.all()
+
+ 
+  personality = order.receiver.get_profile().wine_personality
+
+  data['items'] = []
+  for item in cart.items.all():
+    if item.product.category == 1:
+      item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+      print item.img_file_name
+    data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
 
