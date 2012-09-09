@@ -26,7 +26,11 @@ def vinely_user_info(request):
 
   data['cart_item_count'] = 0
   if 'cart_id' in request.session:
-    cart = Cart.objects.get(id=request.session['cart_id'])    
-    data['cart_item_count'] = cart.items.all().count()
+    try:
+      cart = Cart.objects.get(id=request.session['cart_id'])    
+      data['cart_item_count'] = cart.items.all().count()
+    except Cart.DoesNotExist:
+      # clear session since db messed up (db must have got cleared) 
+      del request.session['cart_id']
 
   return data

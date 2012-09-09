@@ -160,18 +160,6 @@
                 <a href="#" title="vinely u"></a>
               </li>
               -->
-              {% if pro %}
-              {% elif supplier %}
-                <li>
-                  <a href="{% url supplier_all_orders %}">ALL ORDERS</a>
-                </li>
-                <li>
-                  <a href="{% url supplier_fulfilled_orders %}">FULFILLED</a>
-                </li>
-                <li>
-                  <a href="{% url supplier_pending_orders %}">PENDING</a>
-                </li>
-              {% endif %}
 
               {% if wine_personality %}
               
