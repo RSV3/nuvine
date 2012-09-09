@@ -26,7 +26,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   c = RequestContext( request, {"host_name": request.get_host(),
                                 "verification_code": verification_code,
@@ -78,7 +78,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   receiver_email = user.email
   
@@ -134,7 +134,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   """
 
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   c = RequestContext( request, {"party_name": party_invite.party.title, 
                                 "party_id": party_invite.party.id,
@@ -184,7 +184,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
 
   """
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   c = RequestContext( request, {"invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
                                 "invite_host_email": request.user.email,
@@ -233,7 +233,7 @@ def send_pro_request_email(request, receiver):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"first_name":receiver.first_name})
   txt_message = txt_template.render(c)
@@ -281,7 +281,7 @@ def send_pro_review_email(request, user):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   profile = user.get_profile()
 
@@ -332,7 +332,7 @@ def send_unknown_pro_email(request, user):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"first_name": user.first_name} )
   txt_message = txt_template.render(c)
@@ -375,7 +375,7 @@ def send_pro_approved_email(request, applicant):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   data = {"applicant": applicant}
   c = RequestContext( request, data)
@@ -420,7 +420,7 @@ def send_not_in_area_party_email(request, user, account_type):
 
   """
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"first_name": user.first_name})
   txt_message = txt_template.render(c)
