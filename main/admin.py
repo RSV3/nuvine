@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 
-from main.models import MyHost 
+from main.models import MyHost
+from main.utils import send_pro_assigned_notification_email
 
 class ProAssignedFilter(SimpleListFilter):
 
@@ -35,5 +37,12 @@ class MyHostAdmin(admin.ModelAdmin):
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
+  def save_model(self, request, obj, form, change):
+    if obj.pro and obj.host:
+      # new pro was assigned, so send e-mail to the host
+      send_pro_assigned_notification_email(request, obj.pro, obj.host)
+      messages.info(request, "New pro has been successfully assigned.")
+    super(MyHostAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(MyHost, MyHostAdmin)

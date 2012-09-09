@@ -608,6 +608,9 @@ def send_contact_request_email(request, contact_request):
 
     {{ contact_request.message }}
 
+    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    - The Vinely Web Site
   """
   
   txt_template = Template(content)
@@ -630,6 +633,52 @@ def send_contact_request_email(request, contact_request):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+def send_pro_assigned_notification_email(request, pro, host):
+  content = """
+
+    Dear {% if host_user.first_name %}{{ host_user.first_name }} {{ host_user.last_name }}{% else %}Friendly Host{% endif %},
+
+    A new Vinely Pro has been assigned to you and now you may request to host Vinely parties! Here's your Vinely Pro contact information:
+
+    Name: {{ pro_user.first_name }} {{ pro_user.last_name }}
+    E-mail: {{ pro_user.email }}
+    Phone: {{ pro_user.get_profile.phone }} 
+
+    Please reach out to your Pro and start your Vinely parties!
+
+    Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    - The Vinely Team
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+
+  c = RequestContext( request, {"host_user": host, "pro_user": pro})
+  txt_message = txt_template.render(c)
+  c.update({'sig':True})
+  html_message = html_template.render(c)
+
+  # send e-mail to notify about contact request
+  subject = "Congratulations! Vinely Pro has been assigned to you."
+  recipients = [host.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = "Vinely Update <care@vinely.com>"
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()  
+
+
+##############################################################################
+# Utility methods for finding out user relations and party relations
+##############################################################################
 
 def first_party(user):
   """
