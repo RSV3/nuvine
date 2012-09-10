@@ -444,6 +444,10 @@ def cart(request):
       data['items'].append(item)
 
     data["cart"] = cart
+    data['allow_customize'] = True
+    # skip customizing if only ordering tasting kit
+    check_cart = cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0])
+    data['allow_customize'] = check_cart.exists()
   except KeyError:
     # cart is empty
     data["items"] = []
