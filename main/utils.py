@@ -81,7 +81,7 @@ def send_order_confirmation_email(request, order_id):
   """
 
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   subject = 'Your Vinely order was placed successfully!'
   from_email = 'Vinely Sales <sales@vinely.com>'
@@ -126,7 +126,7 @@ def send_order_confirmation_email(request, order_id):
   """
 
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   txt_message = txt_template.render(c)
   c.update({'sig': True})
@@ -168,7 +168,7 @@ def send_order_shipped_email(request, order):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"order": order,
               "host_name": request.get_host()})
@@ -225,7 +225,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
   
   profile = user.get_profile()
 
@@ -286,7 +286,7 @@ def send_know_pro_party_email(request, user, mentor_pro):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"host_first_name": user.first_name if user.first_name else "Vinely Host"})
 
@@ -332,7 +332,7 @@ def send_not_in_area_party_email(request):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
 
@@ -382,7 +382,7 @@ def send_new_party_scheduled_email(request, party):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x])) #Template("<pre>%s</pre>" % content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x])) #Template("<pre>%s</pre>" % content)
 
   profile = request.user.get_profile()
 
@@ -449,7 +449,7 @@ def send_party_invitation_email(request, party_invite):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"party": party_invite.party,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
@@ -513,7 +513,7 @@ def distribute_party_invites_email(request, invitation_sent):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
@@ -568,7 +568,7 @@ def send_rsvp_thank_you_email(request):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"first_name": request.user.first_name} )
   txt_message = txt_template.render(c)
@@ -611,7 +611,7 @@ def send_contact_request_email(request, contact_request):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"contact_request": contact_request})
   txt_message = txt_template.render(c)
