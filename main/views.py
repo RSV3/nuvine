@@ -293,6 +293,9 @@ def cart_add_tasting_kit(request, party_id=0):
   party = None
   try:
     party = Party.objects.get(id=party_id, host = u)
+    if party_id:
+      # ordering from a particular party
+      request.session['party_id'] = int(party_id)
   except Party.DoesNotExist:
     raise Http404
   
