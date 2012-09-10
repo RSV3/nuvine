@@ -1,0 +1,56 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+{% load static %}
+
+{% block header %}
+
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="span12">
+      <h1 class="headline">Your Vinely Taste Parties</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div id="sub-heading" class="span12 center">
+      {% if host %}
+        <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
+      {% elif pro %}
+        Parties you are managing
+      {% endif %}
+    </div>
+  </div>
+
+  <section id="upcoming-parties">
+  <div class="page-header">
+    Upcoming Parties
+  </div>
+  <table class="table table-striped">
+    <thead>
+      <th>Date/Time</th>
+      <th>Host</th>
+      <th>Title</th>
+      <th>Kit Action</th>
+    </thead>
+    <tbody>
+    {% for party in parties %}
+      {# create a table of party and party information #}
+      <tr>
+        <td>{{ party.event_date|date:"M d, Y" }}</td>
+        <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
+        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+        <td><a href="{% url cart_add_tasting_kit party.id %}" class="btn btn-inverse">Make order</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </section>
+
+  <div class="vertical-space-bottom span12">
+    &nbsp;
+  </div>
+</div>
+{% endblock content %}
