@@ -104,6 +104,10 @@ class Product(models.Model):
       (2, 'Wine Bottle'),
   )
 
+  BASIC = "basic"
+  SUPERIOR = "superior"
+  DIVINE = "divine"
+
   name = models.CharField(max_length=128)
   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
@@ -128,8 +132,8 @@ class LineItem(models.Model):
       (4, 'Discount'),
       (5, 'Basic: Full Case (12 bottles)'),
       (6, 'Basic: Half Case (6 bottles)'),
-      (7, 'Classic: Full Case (12 bottles)'),
-      (8, 'Classic: Half Case (6 bottles)'),
+      (7, 'Superior: Full Case (12 bottles)'),
+      (8, 'Superior: Half Case (6 bottles)'),
       (9, 'Divine: Full Case (12 bottles)'),
       (10, 'Divine: Half Case (6 bottles)'),
       (11, 'Host Tasting Kit'),

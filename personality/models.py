@@ -100,6 +100,9 @@ class WinePersonality(models.Model):
   """
     Existing wine personalities
   """
+
+  MYSTERY = "Mystery"
+
   name = models.CharField(max_length=32)
   headline = models.CharField(max_length=64)
   suffix = models.CharField(max_length=16)

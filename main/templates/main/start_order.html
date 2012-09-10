@@ -12,7 +12,7 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  {% if your_personality == "Mystery" %}
+  {% if your_personality == MYSTERY_PERSONALITY %}
    <div class="row">
     <div id="sub-heading" class="offset2 span8 center">
       You need to first participate in a tasting party to find out your wine personality.
@@ -30,11 +30,11 @@
     {% for product in products %}
     <div class="span4">
       <div class="product-container">
-        {% if product.cart_tag == "basic" %}
+        {% if product.cart_tag == product_levels.0 %}
           <div class="product-badge from-75"></div>
-        {% elif product.cart_tag == "superior" %}
+        {% elif product.cart_tag == product_levels.1 %}
           <div class="product-badge from-125"></div>
-        {% elif product.cart_tag == "divine" %}
+        {% elif product.cart_tag == product_levels.2 %}
           <div class="product-badge from-220"></div>
         {% endif %}
           <div class="product-wine">

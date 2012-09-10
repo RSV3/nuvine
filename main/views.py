@@ -13,7 +13,7 @@ from django.db.models import Q
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty
-from personality.models import Wine, WineTaste, GeneralTaste
+from personality.models import Wine, WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, VinelyProSignupForm, \
@@ -104,7 +104,7 @@ def home(request):
           
     profile = u.get_profile()
     
-    if profile.wine_personality and profile.wine_personality.name != 'Mystery':
+    if profile.wine_personality and profile.wine_personality.name != WinePersonality.MYSTERY:
       data['wine_personality'] = profile.wine_personality 
     else:
       data['wine_personality'] = False
@@ -256,7 +256,7 @@ def start_order(request, receiver_id=None, party_id=None):
     # ordering from a particular party
     request.session['party_id'] = int(party_id)
 
-  data["your_personality"] = "Mystery"
+  data["your_personality"] = WinePersonality.MYSTERY
   if receiver_id:
     receiver = User.objects.get(id=receiver_id)
     personality = receiver.get_profile().wine_personality
@@ -266,6 +266,8 @@ def start_order(request, receiver_id=None, party_id=None):
   if personality:
     data["your_personality"] = personality.name
 
+  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
+
   # filter only wine packages
   products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0]).order_by('unit_price')
 
@@ -274,6 +276,7 @@ def start_order(request, receiver_id=None, party_id=None):
     p.description = description_template.render(Context({'personality': personality.name }))
     p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag) 
   data["products"] = products
+  data["product_levels"] = [Product.BASIC, Product.SUPERIOR, Product.DIVINE]
   data["shop_menu"] = True
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
@@ -338,7 +341,7 @@ def cart_add_tasting_kit(request, party_id=0):
 
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
-def cart_add_wine(request, level="basic"):
+def cart_add_wine(request, level="x"):
   """
     
     Add item to cart
@@ -390,13 +393,9 @@ def cart_add_wine(request, level="basic"):
 
   # big image of wine
   # TODO: need to check wine personality and choose the right product
-  if level == "basic":
-    product = Product.objects.get(name="Basic Collection")
-  elif level == "superior":
-    product = Product.objects.get(name="Superior Collection")
-  elif level == "divine":
-    product = Product.objects.get(name="Divine Collection")
-  elif level == "x":
+  try:
+    product = Product.objects.get(cart_tag=level)
+  except Product.DoesNotExist:
     # not a valid product
     raise Http404
 
@@ -917,6 +916,7 @@ def party_details(request, party_id):
   my_hosts = MyHost.objects.filter(host=party.host).order_by("-timestamp")
   data["pro_user"] = my_hosts[0].pro
   data["parties_menu"] = True
+  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
 
@@ -1513,13 +1513,9 @@ def cart_quantity(request, level, quantity):
   2 = half case
   '''
   
-  if level == "basic":
-    product = Product.objects.get(name="Basic Collection")
-  elif level == "superior":
-    product = Product.objects.get(name="Superior Collection")
-  elif level == "divine":
-    product = Product.objects.get(name="Divine Collection")
-  elif level == "x":
+  try:
+    product = Product.objects.get(cart_tag=level)
+  except Product.DoesNotExist:
     # not a valid product
     raise Http404
   data = {}

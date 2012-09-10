@@ -32,7 +32,7 @@ def check_personality_exists(request):
     if email_re.search(email):
       try:
         guest = User.objects.get(email=email)
-        mystery = WinePersonality.objects.get(name="Mystery")
+        mystery = WinePersonality.objects.get(name=WinePersonality.MYSTERY)
         if guest.get_profile().wine_personality != mystery :
           data["result"] = 1
           return HttpResponse(json.dumps(data), mimetype="application/json")
