@@ -2,6 +2,7 @@
 
 {% load currency %}
 {% load thumbnail %}
+{% load static %}
 
 {% block header %}
   <h1 class="headline">Check it out!</h1>
@@ -29,7 +30,11 @@
             <td>
               <div class="cart-item">
                 <div class="cart-item-image">
-                  <img src="{{ STATIC_URL }}img/{{ item.img_file_name }}" width="100" height="100">
+                  {% if item.img_file_name %}
+                    <img src="{{ STATIC_URL }}img/{{ item.img_file_name }}" width="100" height="100">
+                  {% else %}
+                      <img src="{% static "img/firsthostkit_prodimg.png" %}" width="100">
+                  {% endif %}
                 </div>
                 <div class="cart-item-name">
                   {{ item.product.name }} {# (Vinely product ID: {{ item.product.id }}) #}
