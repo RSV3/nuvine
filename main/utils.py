@@ -59,6 +59,7 @@ def send_order_confirmation_email(request, order_id):
 
   #[Shipping and Billing Info]
   content = """
+    {% load static %}
     Hey {{ customer }},
 
 
@@ -72,7 +73,7 @@ def send_order_confirmation_email(request, order_id):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Your Tasteful Friends,
   
@@ -110,14 +111,14 @@ def send_order_confirmation_email(request, order_id):
 
   # formulate e-mail to the supplier
   content = """
-
+  {% load static %}
   Dear Supplier,
 
   Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the status of their order at:
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
   
@@ -152,14 +153,14 @@ def send_order_confirmation_email(request, order_id):
 
 def send_order_shipped_email(request, order):
   content = """
-
+  {% load static %}
   Dear {% if order.receiver.first_name %}{{ order.receiver.first_name }}{% else %}Valued Customer{% endif %},
 
   Your order has been shipped and you should receive your order in the next 7 days.  You can check the status of your order at:
 
     http://{{ host_name }}{% url order_complete order.order_id %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -199,7 +200,7 @@ def send_order_shipped_email(request, order):
 def send_host_vinely_party_email(request, user, pro=None):
   # needs user param for when not logged in e.g. brand new host signing up
   content = """
-
+  {% load static %}
   Hey {{ pro_first_name }}!
 
   Guess what? (Drumroll, please.) Someone in your area would like to be a host at a Vinely Taste Party! Please follow up ASAP to help set up an event date, make recommendations, and answer any possible questions.
@@ -216,7 +217,7 @@ def send_host_vinely_party_email(request, user, pro=None):
 
   If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -270,14 +271,14 @@ def send_host_vinely_party_email(request, user, pro=None):
 def send_know_pro_party_email(request, user, mentor_pro):
 
   content = """
-
+  {% load static %}
   Hey {{ host_first_name }}!
 
   We're thrilled about your interest in hosting a Vinely Taste Party!  Since you already have a Vinely Pro in mind, they will soon be in contact to set a date and time.  If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at:
 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -306,10 +307,57 @@ def send_know_pro_party_email(request, user, mentor_pro):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+def send_not_in_area_party_email(request):
+
+  content = """
+  {% load static %}
+  Hey {{ host_first_name }}!
+
+  We have some good news and some bad news.
+
+  The Bad News: Vinely does not currently operate in your area. (Bummer, right?)
+
+  The Good News: Your interest in Vinely is super important to us! So much, in fact, 
+  that when we do expand to your area, you'll be the very first to know.
+
+  If you have any questions, please contact a Vinely Care Specialist at: 
+
+    (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+
+  c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
+
+  txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
+  html_message = html_template.render(c)
+
+  subject = 'Thanks for your interest in becoming a Vinely Host!'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = request.user.email
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+
 def send_new_party_scheduled_email(request, party):
 
   content = """
-
+  {% load static %}
   Dear {{ host_first_name }},
 
   The following party has been scheduled:
@@ -328,7 +376,7 @@ def send_new_party_scheduled_email(request, party):
 
   Look forward to seeing you soon!
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
@@ -369,7 +417,7 @@ def send_party_invitation_email(request, party_invite):
     individual invitation e-mail
   """
   content = """
-
+  {% load static %}
   What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
   Part personality test.  And part... well... party.
 
@@ -393,7 +441,7 @@ def send_party_invitation_email(request, party_invite):
   <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
   {% endif %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -429,7 +477,7 @@ def send_party_invitation_email(request, party_invite):
 
 def distribute_party_invites_email(request, invitation_sent):
   content = """
-
+  {% load static %}
   What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
   Part personality test.  And part... well... party.
 
@@ -456,7 +504,7 @@ def distribute_party_invites_email(request, invitation_sent):
   <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
   {% endif %}
 
-  {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -499,7 +547,7 @@ def distribute_party_invites_email(request, invitation_sent):
 def send_rsvp_thank_you_email(request):
 
   content = """
-
+  {% load static %}
     Hey, {{ first_name }}!
 
     Guess what? (Drumroll, please.) Your RSVP was received successfully! Now you can prepare to be paired with a Vinely Personality.
@@ -514,7 +562,7 @@ def send_rsvp_thank_you_email(request):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     - The Vinely Team
 
@@ -549,7 +597,7 @@ def send_contact_request_email(request, contact_request):
     E-mail sent when someone fills out a contact request
   """
   content = """
-
+  {% load static %}
   {% if contact_request.first_name %}{{ contact_request.first_name }} {{ contact_request.last_name }}{% else %}Potential Customer{% endif %}, is interested in Vinely.  Please reach out via
 
     E-mail: {{ contact_request.email }}
@@ -561,7 +609,7 @@ def send_contact_request_email(request, contact_request):
 
     {{ contact_request.message }}
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     - The Vinely Web Site
   """
@@ -588,7 +636,7 @@ def send_contact_request_email(request, contact_request):
 
 def send_pro_assigned_notification_email(request, pro, host):
   content = """
-
+  {% load static %}
     Dear {% if host_user.first_name %}{{ host_user.first_name }} {{ host_user.last_name }}{% else %}Friendly Host{% endif %},
 
     A new Vinely Pro has been assigned to you and now you may request to host Vinely parties! Here's your Vinely Pro contact information:
@@ -601,7 +649,7 @@ def send_pro_assigned_notification_email(request, pro, host):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{{ STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     - The Vinely Team
 
