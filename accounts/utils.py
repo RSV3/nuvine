@@ -123,7 +123,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   Use this password to verify your account.
 
 
-  You need to also RSVP to your party invitation at:
+  You will receive an invitation soon, but you can go ahead and RSVP to above party invitation at:
 
     http://{{ host_name }}{% url party_rsvp party_id %}
 
