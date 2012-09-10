@@ -1303,6 +1303,7 @@ def supplier_edit_order(request, order_id):
   return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
 import math
+from django.utils.safestring import mark_safe
 def edit_shipping_address(request):
   """
     Update or add shipping address
@@ -1333,16 +1334,17 @@ def edit_shipping_address(request):
     dob = u.get_profile().dob
     today = datetime.date(datetime.now(tz=UTC()))
     if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
-      messages.error(request, 'You MUST be over 21 to make an order.')
-      return HttpResponseRedirect('.')
+      msg = 'You MUST be over 21 to make an order. If you are over 21 then <a href="%s">update your account</a> to reflect this.' % reverse('my_information')
+      messages.error(request, mark_safe(msg))
+      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
       
   # check zipcode is ok
   if request.method == 'POST':
     zipcode = request.POST.get('zipcode')
-    ok = check_zipcode(request, u, zipcode)
+    ok = check_zipcode(zipcode)
     if not ok:
       messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')      
-      return HttpResponseRedirect('.')
+      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
     
   if form.is_valid():
     receiver = form.save()

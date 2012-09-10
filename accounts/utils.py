@@ -440,16 +440,13 @@ def send_not_in_area_party_email(request, user, account_type):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def check_zipcode(request, user, account_type, zipcode=None):
+def check_zipcode(zipcode):
   '''
   Check provided zipcode against existing ones to verify if vinely operates in the area
   '''
   try:
-    if not zipcode:
-      zipcode = user.get_profile().zipcode
     code = Zipcode.objects.get(code = zipcode, state__in = SUPPORTED_STATES)
     return True
   except Zipcode.DoesNotExist:
     # application for pro/host?
-    send_not_in_area_party_email(request, user, account_type)
     return False
