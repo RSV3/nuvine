@@ -41,7 +41,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Get Started <welcome@vinely.com>'
+  from_email = 'Vinely Get Started <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -152,7 +152,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   subject = 'Join Vinely Party!'
   recipients = [party_invite.invitee.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Parties <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -200,7 +200,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Get Started <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -244,7 +244,7 @@ def send_pro_request_email(request, receiver):
   subject = 'Vinely Pro Request!'
   recipients = [receiver.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Parties <welcome@vinely.com>'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -344,7 +344,7 @@ def send_unknown_pro_email(request, user):
   subject = 'Get the party started with Vinely'
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Parties <welcome@vinely.com>'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -388,7 +388,7 @@ def send_pro_approved_email(request, applicant):
   subject = 'Vinely Pro Approved!'
   recipients = ['sales@vinely.com', applicant.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Update <care@vinely.com>'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -427,11 +427,11 @@ def send_not_in_area_party_email(request, user, account_type):
   
   c.update({'sig':True})
   html_message = html_template.render(c)
-  #print 'account ', account_type, type(account_type)
+  
   subject = 'Thanks for your interest in becoming a Vinely %s!' % ('Pro' if account_type == 1  else 'Host')
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'welcome@vinely.com'
+  from_email = 'Vinely Parties <welcome@vinely.com>'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
