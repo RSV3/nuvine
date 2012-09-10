@@ -83,7 +83,7 @@
         <div class="pull-right">
           <a class="btn btn-primary" href="{% url start_order %}">
             <i class="icon-plus-sign icon-white"></i> Continue Shopping</a>
-          <a class="btn btn-success" href="{% url customize_checkout %}">
+          <a class="btn btn-success" href="{% if allow_customize %}{% url customize_checkout %} {% else %} {% url edit_shipping_address %} {% endif %}">
             <i class="icon-shopping-cart icon-white"></i> Checkout</a>
         </div>
       </div>

@@ -70,7 +70,7 @@
         <p>&nbsp;</p>
         <div class="download">
         </div>
-        <p class="price-label"><b>Unit Price:</b> <span id="unit-price">{{ product.unit_price|currency }}</span></p>
+        <p class="price-label"><b>Unit Price:</b> <span id="unit_price">{{ product.unit_price|currency }}</span></p>
         {{ form.total_price }}
         <div class="form-actions">
           <div class="controls">
@@ -97,7 +97,7 @@ $(document).ready(function(){
 	    cache: true,
 	    dataType: "json",
 	    success: function(json, textStatus) {
-		$('#unit-price').text(json.price);
+		$('#unit_price').text("$" + json.price);
 	    },
 	    error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert("error: " + errorThrown);

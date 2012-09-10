@@ -26,33 +26,40 @@
       </div>
 
       <div class="span6">
-        <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
+        <form class="form-horizontal" action="{{ app_path }}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
-          <p><h3 id="product-name">{{ product.name }}</h3></p>
+          <p><h3 id="product_name">{{ product.name }}</h3></p>
           <p id="product-description"> {{ product.description|safe }}
           </p>
           <div class="control-group {% if form.quantity.errors %}error{% endif %}">
-            <div class="control-label" for="id_quantity">{{ form.product.label }}</div>
+            <div class="control-label" for="id_product">{{ form.product.label }}</div>
             <div class="controls">
-              {{ form.product}} 
+              {{ form.product }} 
               {% if form.product.errors %}
                 <span class="help-inline">
                   {{ form.product.errors }}
                 </span>
               {% endif %}
             </div>
+	    <p></p>
+            <div class="control-label" for="id_quantity">{{ form.quantity.label }}</div>
+            <div class="controls">
+              {{ form.quantity }} 
+              {% if form.quantity.errors %}
+                <span class="help-inline">
+                  {{ form.quantity.errors }}
+                </span>
+              {% endif %}
+            </div>
           </div>
           <p></p>
           <p>
-          {{ form.quantity }}
           {{ form.frequency }}
           {{ form.price_category }}
           </p>
           <p>&nbsp;</p>
-          <div class="download">
-          </div>
-          <p class="price-label"><b>From:</b> <span id="unit-price">{{ product.unit_price|currency }}</span></p>
+          <p class="price-label"><b>From:</b> <span id="unit_price" data-price="{{ product.unit_price }}">{{ product.unit_price|currency }}</span></p>
           {{ form.total_price }}
           <div class="form-actions">
             <div class="controls">
@@ -80,19 +87,29 @@
   $(document).ready(function(){
     $('#id_product').change(function(e) {
       var val = $('#id_product option:selected').val();
+      var qty = parseInt($('#id_quantity option:selected').val());
       var url = "{% url cart_kit_detail 1 %}".replace(1, parseInt(val));
       $.ajax({
   	    url: url,
   	    cache: true,
   	    dataType: "json",
   	    success: function(json, textStatus) {
-      		$('#product-name').text(json.product);
-      		$('#unit-price').text(json.price);
+      		$('#product_name').text(json.product);
+      		var price = parseInt(json.price);
+      		$('#unit_price').text("$" + (price * qty).toFixed(2));
+      		$('#unit_price').data('price', json.price);
   	    },
   	    error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert("error: " + errorThrown);
   	    }
       });
+      return false;
+    });
+ 
+    $('#id_quantity').change(function(e) {
+      var price = parseInt($('#unit_price').data('price'));
+      var qty = parseInt($('#id_quantity option:selected').val());
+      $('#unit_price').text("$" + (price * qty).toFixed(2));
       return false;
     });
   });

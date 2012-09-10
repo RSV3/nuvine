@@ -289,14 +289,13 @@ def cart_add_tasting_kit(request, party_id=0):
   data = {}
 
   u = request.user
-
+  
   party = None
-  if party_id != 0:
-    try:
-      party = Party.objects.get(id=party_id)
-    except Party.DoesNotExist:
-      raise Http404
-
+  try:
+    party = Party.objects.get(id=party_id, host = u)
+  except Party.DoesNotExist:
+    raise Http404
+  
   form = AddTastingKitToCartForm(request.POST or None)
   
   if form.is_valid():
@@ -316,7 +315,7 @@ def cart_add_tasting_kit(request, party_id=0):
       cart.save()
       cart.items.add(item)
       request.session['cart_id'] = cart.id
-
+    
     # udpate cart status
     if party:
       cart.party = party
@@ -444,6 +443,10 @@ def cart(request):
       data['items'].append(item)
 
     data["cart"] = cart
+    data['allow_customize'] = True
+    # skip customizing if only ordering tasting kit
+    check_cart = cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0])
+    data['allow_customize'] = check_cart.exists()
   except KeyError:
     # cart is empty
     data["items"] = []
@@ -1495,7 +1498,7 @@ def cart_kit_detail(request, kit_id):
   kit = Product.objects.get(id=int(kit_id))
   data = {}
   #data['description'] = kit.description
-  data['price'] = "$%s" % kit.unit_price #TODO: is there a better way to serialize currency
+  data['price'] = "%s" % kit.unit_price #TODO: is there a better way to serialize currency
   data['product'] = kit.name
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
@@ -1517,7 +1520,7 @@ def cart_quantity(request, level, quantity):
     # not a valid product
     raise Http404
   data = {}
-  data['price'] = "$%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
+  data['price'] = "%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
