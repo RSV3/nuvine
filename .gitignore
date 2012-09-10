@@ -5,6 +5,7 @@ settings_debug.py
 winedora.test.db
 latest.dump
 .env
+*.backup
 emails
 sitemedia
 sitestatic
