@@ -5,7 +5,7 @@ from django.db import models
 class Email(models.Model):
 
   subject = models.CharField(max_length=128)
-  sender = models.CharField(max_length=32)
+  sender = models.CharField(max_length=64)
   recipients = models.CharField(max_length=512) 
   text = models.TextField()
   html = models.TextField()

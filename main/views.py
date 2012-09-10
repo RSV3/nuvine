@@ -97,6 +97,7 @@ def home(request):
           data['party_scheduled'] = True
           data['party'] = parties[0].party
           
+          
     profile = u.get_profile()
     
     if profile.wine_personality and profile.wine_personality.name != 'Mystery':
@@ -311,8 +312,6 @@ def cart_add_tasting_kit(request, party_id=0):
   u = request.user
 
   party = None
-  #if 'party_id' in request.session:
-    #party = Party.objects.get(id=request.session['party_id'])
   if party_id != 0:
     try:
       party = Party.objects.get(id=party_id)
@@ -1542,3 +1541,29 @@ def cart_quantity(request, level, quantity):
   data['price'] = "$%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
+@login_required
+def party_select(request):
+  """
+    Show upcoming parties
+  """
+
+  u = request.user
+
+  data = {}
+
+  pro_group = Group.objects.get(name="Vinely Pro")
+  hos_group = Group.objects.get(name="Vinely Host")
+
+  today = datetime.now(tz=UTC())
+
+  if (pro_group in u.groups.all()):
+    # need to filter to parties that a particular user manages
+    my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
+    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
+  elif (hos_group in u.groups.all()):
+    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
+
+  data["parties_menu"] = True
+
+  return render_to_response("main/party_select.html", data, context_instance=RequestContext(request))
