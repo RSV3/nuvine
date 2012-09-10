@@ -1495,7 +1495,7 @@ def cart_kit_detail(request, kit_id):
   kit = Product.objects.get(id=int(kit_id))
   data = {}
   #data['description'] = kit.description
-  data['price'] = "$%s" % kit.unit_price #TODO: is there a better way to serialize currency
+  data['price'] = "%s" % kit.unit_price #TODO: is there a better way to serialize currency
   data['product'] = kit.name
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
@@ -1517,7 +1517,7 @@ def cart_quantity(request, level, quantity):
     # not a valid product
     raise Http404
   data = {}
-  data['price'] = "$%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
+  data['price'] = "%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
