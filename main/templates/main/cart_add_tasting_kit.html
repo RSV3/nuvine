@@ -26,7 +26,7 @@
       </div>
 
       <div class="span6">
-        <form class="form-horizontal" action="{% url cart_add_tasting_kit %}" method="POST">
+        <form class="form-horizontal" action="{{ app_path }}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
           <p><h3 id="product_name">{{ product.name }}</h3></p>

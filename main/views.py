@@ -289,14 +289,13 @@ def cart_add_tasting_kit(request, party_id=0):
   data = {}
 
   u = request.user
-
+  
   party = None
-  if party_id != 0:
-    try:
-      party = Party.objects.get(id=party_id)
-    except Party.DoesNotExist:
-      raise Http404
-
+  try:
+    party = Party.objects.get(id=party_id, host = u)
+  except Party.DoesNotExist:
+    raise Http404
+  
   form = AddTastingKitToCartForm(request.POST or None)
   
   if form.is_valid():
@@ -316,7 +315,7 @@ def cart_add_tasting_kit(request, party_id=0):
       cart.save()
       cart.items.add(item)
       request.session['cart_id'] = cart.id
-
+    
     # udpate cart status
     if party:
       cart.party = party
