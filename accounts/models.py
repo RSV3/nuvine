@@ -172,12 +172,12 @@ class SubscriptionInfo(models.Model):
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
 
   QUANTITY_CHOICES = (
-    (5, 'Good: Full Case (12 bottles)'),
-    (6, 'Good: Half Case (6 bottles)'),
-    (7, 'Better: Full Case (12 bottles)'),
-    (8, 'Better: Half Case (6 bottles)'),
-    (9, 'Best: Full Case (12 bottles)'),
-    (10, 'Best: Half Case (6 bottles)'),
+    (5, 'Classic: Full Case (12 bottles)'),
+    (6, 'Classic: Half Case (6 bottles)'),
+    (7, 'Superior: Full Case (12 bottles)'),
+    (8, 'Superior: Half Case (6 bottles)'),
+    (9, 'Divine: Full Case (12 bottles)'),
+    (10, 'Divine: Half Case (6 bottles)'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
 
