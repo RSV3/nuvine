@@ -81,8 +81,13 @@ def home(request):
           data['party_date'] = party_date
         else:
           # set if this is an upcoming party
+          parties = parties.filter(event_date__gte = today)
           data['party_scheduled'] = True
           data['party'] = parties[0]
+          # check if there's a party that has not ordered a kit, exclude completed orders
+          cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
+          parties = parties.exclude(id__in = [x.party.id for x in cart])
+          data['can_order_kit'] = parties.exists()
           
     if pro_group in u.groups.all():
       parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
@@ -273,31 +278,6 @@ def start_order(request, receiver_id=None, party_id=None):
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
 
-@login_required
-def order_tasting_kit(request):
-  """
-
-    Order tasting kit
-
-  """
-  data = {}
-
-  form = SimpleItemOrderForm(request.POST or None)
-  if form.is_valid():
-    # need to be able to add item to cart
-    item = form.save()
-    return HttpResponseRedirect(reverse("main.views.cart"))
-
-  tasting_kits = Product.objects.filter(category="Tasting Kit")
-  data = {
-        'item_name': tasting_kit.name,
-        'item_description': tasting_kit.description,
-        'item_price': tasting_kit.price
-      }
-  data["form"] = form
-  data["shop_menu"] = True
-  return render_to_response("main/order_tasting_kit.html", data, context_instance=RequestContext(request))
-
 
 def cart_add_tasting_kit(request, party_id=0):
   """
@@ -311,8 +291,6 @@ def cart_add_tasting_kit(request, party_id=0):
   u = request.user
 
   party = None
-  #if 'party_id' in request.session:
-    #party = Party.objects.get(id=request.session['party_id'])
   if party_id != 0:
     try:
       party = Party.objects.get(id=party_id)
@@ -1303,6 +1281,7 @@ def supplier_edit_order(request, order_id):
   return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
 import math
+from django.utils.safestring import mark_safe
 def edit_shipping_address(request):
   """
     Update or add shipping address
@@ -1333,16 +1312,17 @@ def edit_shipping_address(request):
     dob = u.get_profile().dob
     today = datetime.date(datetime.now(tz=UTC()))
     if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
-      messages.error(request, 'You MUST be over 21 to make an order.')
-      return HttpResponseRedirect('.')
+      msg = 'You MUST be over 21 to make an order. If you are over 21 then <a href="%s">update your account</a> to reflect this.' % reverse('my_information')
+      messages.error(request, mark_safe(msg))
+      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
       
   # check zipcode is ok
   if request.method == 'POST':
     zipcode = request.POST.get('zipcode')
-    ok = check_zipcode(request, u, zipcode)
+    ok = check_zipcode(zipcode)
     if not ok:
       messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')      
-      return HttpResponseRedirect('.')
+      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
     
   if form.is_valid():
     receiver = form.save()
@@ -1514,7 +1494,7 @@ import json
 def cart_kit_detail(request, kit_id):
   kit = Product.objects.get(id=int(kit_id))
   data = {}
-  data['description'] = kit.description
+  #data['description'] = kit.description
   data['price'] = "$%s" % kit.unit_price #TODO: is there a better way to serialize currency
   data['product'] = kit.name
   return HttpResponse(json.dumps(data), mimetype="application/json")
@@ -1540,3 +1520,26 @@ def cart_quantity(request, level, quantity):
   data['price'] = "$%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
+@login_required
+def party_select(request):
+  """
+    Show upcoming parties
+  """
+
+  u = request.user
+
+  data = {}
+
+  hos_group = Group.objects.get(name="Vinely Host")
+
+  today = datetime.now(tz=UTC())
+  
+  # check if there's a party that has not ordered a kit, exclude completed orders
+  parties = Party.objects.filter(host=u, event_date__gte=today)
+  cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
+  parties = parties.exclude(id__in = [x.party.id for x in cart])
+  data['parties'] = parties
+  data["parties_menu"] = True
+
+  return render_to_response("main/party_select.html", data, context_instance=RequestContext(request))

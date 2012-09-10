@@ -10,19 +10,18 @@
   {% if pro %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
-    {# <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Taster</a></div></li> #}
     <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
     <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
-    {# <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li> #}
   {% elif host %}
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
-    {# <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li> #}
     {% if party_scheduled %}
       <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Guests</a></div></li>
       {# <li><div class="chev"><a href="{% url party_rsvp party.id %}">Your RSVPs</a></div></li> #}
-      <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order A Taste Kit</a></div></li>
+      {% if can_order_kit %}
+        <li><div class="chev"><a href="{% url party_select %}">Order A Taste Kit</a></div></li>
+      {% endif %}
       <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     {% endif %}
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
@@ -41,7 +40,6 @@
       <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
       <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
     {% endif %}
-    {# <li><div class="chev"><a href="{% url cart_add_tasting_kit %}">Order Tasting Kit</a></div></li> #}
     <li><div class="chev"><a href="{% url host_vinely_party %}">Host a Vinely Taste Party</a></div></li>
     <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
     <li><div class="chev"><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></div></li>
