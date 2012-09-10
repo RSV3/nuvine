@@ -655,7 +655,7 @@ def send_pro_assigned_notification_email(request, pro, host):
   """
   
   txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   c = RequestContext( request, {"host_user": host, "pro_user": pro})
   txt_message = txt_template.render(c)
