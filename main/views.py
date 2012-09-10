@@ -81,8 +81,13 @@ def home(request):
           data['party_date'] = party_date
         else:
           # set if this is an upcoming party
+          parties = parties.filter(event_date__gte = today)
           data['party_scheduled'] = True
           data['party'] = parties[0]
+          # check if there's a party that has not ordered a kit, exclude completed orders
+          cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
+          parties = parties.exclude(id__in = [x.party.id for x in cart])
+          data['can_order_kit'] = parties.exists()
           
     if pro_group in u.groups.all():
       parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
@@ -96,7 +101,6 @@ def home(request):
           # set if this is an upcoming party
           data['party_scheduled'] = True
           data['party'] = parties[0].party
-          
           
     profile = u.get_profile()
     
@@ -273,31 +277,6 @@ def start_order(request, receiver_id=None, party_id=None):
   data["shop_menu"] = True
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
-
-@login_required
-def order_tasting_kit(request):
-  """
-
-    Order tasting kit
-
-  """
-  data = {}
-
-  form = SimpleItemOrderForm(request.POST or None)
-  if form.is_valid():
-    # need to be able to add item to cart
-    item = form.save()
-    return HttpResponseRedirect(reverse("main.views.cart"))
-
-  tasting_kits = Product.objects.filter(category="Tasting Kit")
-  data = {
-        'item_name': tasting_kit.name,
-        'item_description': tasting_kit.description,
-        'item_price': tasting_kit.price
-      }
-  data["form"] = form
-  data["shop_menu"] = True
-  return render_to_response("main/order_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
 def cart_add_tasting_kit(request, party_id=0):
@@ -1552,18 +1531,15 @@ def party_select(request):
 
   data = {}
 
-  pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
 
   today = datetime.now(tz=UTC())
-
-  if (pro_group in u.groups.all()):
-    # need to filter to parties that a particular user manages
-    my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
-  elif (hos_group in u.groups.all()):
-    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
-
+  
+  # check if there's a party that has not ordered a kit, exclude completed orders
+  parties = Party.objects.filter(host=u, event_date__gte=today)
+  cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
+  parties = parties.exclude(id__in = [x.party.id for x in cart])
+  data['parties'] = parties
   data["parties_menu"] = True
 
   return render_to_response("main/party_select.html", data, context_instance=RequestContext(request))
