@@ -357,6 +357,7 @@ class CustomizeOrder(models.Model):
                                     default=SPARKLING_CHOICES[1][0])
   timestamp = models.DateTimeField(auto_now_add=True)
 
+
 class EngagementInterest(models.Model):
   """
     Interest in becoming party pro or hosts or tasters attending party
