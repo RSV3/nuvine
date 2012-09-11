@@ -118,7 +118,7 @@
       <th>Contact Phone</th>
       <th>Location</th>
       <th>Tasters</th>
-      <th>My Credit</th>
+      <!--<th>My Credit</th>-->
     </thead>
     <tbody>
     {% for party in past_parties %}
@@ -130,7 +130,7 @@
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>
         <td>{{ party.invitees }}</td>
-        <td>{{ party.credit|currency }}</td>
+        <!--<td>{{ party.credit|currency }}</td>-->
       </tr>
     {% endfor %}
     </tbody>

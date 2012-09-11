@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
 from main.models import MyHost
-from main.utils import send_pro_assigned_notification_email
+from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 class ProAssignedFilter(SimpleListFilter):
 
@@ -42,6 +42,7 @@ class MyHostAdmin(admin.ModelAdmin):
     if obj.pro and obj.host:
       # new pro was assigned, so send e-mail to the host
       send_pro_assigned_notification_email(request, obj.pro, obj.host)
+      send_host_vinely_party_email(request, obj.host, obj.pro)
       messages.info(request, "New pro has been successfully assigned.")
     super(MyHostAdmin, self).save_model(request, obj, form, change)
 

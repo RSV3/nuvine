@@ -140,7 +140,7 @@ class PartyInviteTasterForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
     att_group = Group.objects.get(name="Vinely Taster")
-    self.fields['invitee'].choices = [('', '---------')]+[(u.id, u.email) for u in User.objects.filter(groups__in=[att_group]).only('id','email')]
+    self.fields['invitee'].choices = [('', '---------')]+[(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in User.objects.filter(groups__in=[att_group]).only('id','email')]
 
   def clean(self):
     cleaned_data = super(PartyInviteTasterForm, self).clean()
