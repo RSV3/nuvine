@@ -66,7 +66,7 @@ def home(request):
     
     today = datetime.now(tz=UTC())
     
-    data["invites"] = PartyInvite.objects.filter(invitee=u) 
+    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte = today) 
     invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
     if invites.exists():
       event_date = invites[0].party.event_date
