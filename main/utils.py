@@ -298,54 +298,8 @@ def send_know_pro_party_email(request, user, mentor_pro):
 
   subject = 'Get the party started with Vinely'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = "Vinely Sales <sales@vinely.com>"
+  from_email = "Vinely Parties <welcome@vinely.com>"
   recipients = [mentor_pro.email]
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
-  email_log.save()
-
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
-  msg.attach_alternative(html_msg, "text/html")
-  msg.send()
-
-def send_not_in_area_party_email(request):
-
-  content = """
-  {% load static %}
-  Hey {{ host_first_name }}!
-
-  We have some good news and some bad news.
-
-  The Bad News: Vinely does not currently operate in your area. (Bummer, right?)
-
-  The Good News: Your interest in Vinely is super important to us! So much, in fact, 
-  that when we do expand to your area, you'll be the very first to know.
-
-  If you have any questions, please contact a Vinely Care Specialist at: 
-
-    (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
-
-  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  Your Tasteful Friends,
-
-  - The Vinely Team
-
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n') if x]))
-
-  c = RequestContext( request, {"host_first_name": request.user.first_name if request.user.first_name else "Vinely Host"})
-
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
-
-  subject = 'Thanks for your interest in becoming a Vinely Host!'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = request.user.email
-
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -734,3 +688,49 @@ def my_pro(user):
 
   # no parties, so no pros
   return None, None
+
+from django.db.models import Sum
+from main.models import *
+from datetime import timedelta
+def calculate_host_credit(host):
+  # get all parties hosted by host
+  host_parties = Party.objects.filter(host = host)
+  
+  # only calculate credit if they have hosted a party
+  if host_parties.count() == 0:
+    return 0
+  
+  total_orders = 0
+  for party in host_parties:
+    # get orders made <= 7 days after party
+    party_window = party.event_date + timedelta(days=7)
+    
+    orders = Order.objects.filter(cart__party = party, order_date__lte = party_window)
+    # exclude orders made by host
+    orders = orders.exclude(ordered_by = host)
+    # should not be tasting kit
+    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
+    #print 'party date', party.event_date, 'window', party_window
+    #print 'order date', [(party_window - x.order_date) for x in orders]
+    #print 'order date', [(x.ordered_by.email, x.cart.party.event_date) for x in orders]
+    aggregate = orders.aggregate(total = Sum('cart__items__total_price'))
+    total_orders += aggregate['total'] if aggregate['total'] else 0
+  
+  # sales < 399 = 0 credit
+  # 400 - 599 = 40
+  # 600 - 799 = 60
+  # 800 - 999 = 90
+  # 1000-1199 = 120
+  # 1200-1399 = 150
+  credit = 20 * host_parties.count()
+  
+  total = int(total_orders + 1)
+  for cost in range(400, total, 200):
+    if cost == 400:
+      credit += 40
+    elif cost > 800:
+      credit += 30
+    else:
+      credit += 20
+  
+  return credit

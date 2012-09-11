@@ -25,7 +25,8 @@ from accounts.forms import CreditCardForm, PaymentForm
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, send_party_invitation_email, UTC, \
-                        send_contact_request_email, send_order_shipped_email, if_supplier, if_pro
+                        send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
+                        calculate_host_credit
 
 import json, uuid
 from urlparse import urlparse
@@ -731,7 +732,8 @@ def party_list(request):
   u = request.user
 
   data = {}
-
+  
+  
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
@@ -745,12 +747,13 @@ def party_list(request):
     data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
   elif (hos_group in u.groups.all()):
+    data['host_credit'] = calculate_host_credit(u)
     data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
   elif (tas_group in u.groups.all()):
+    data['parties'] = []
+    data['past_parties'] = []
     for inv in PartyInvite.objects.filter(invitee=u):
-      data['parties'] = []
-      data['past_parties'] = []
       if inv.party.event_date < today:
         data['past_parties'].append(inv.party)
       else:
