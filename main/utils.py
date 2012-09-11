@@ -691,10 +691,11 @@ def my_pro(user):
 
 from django.db.models import Sum
 from main.models import *
-from datetime import timedelta
+from datetime import timedelta, datetime
 def calculate_host_credit(host):
-  # get all parties hosted by host
-  host_parties = Party.objects.filter(host = host)
+  # get all past parties hosted by host
+  today = datetime.now(tz=UTC())
+  host_parties = Party.objects.filter(host = host, event_date__lt = today)
   
   # only calculate credit if they have hosted a party
   if host_parties.count() == 0:

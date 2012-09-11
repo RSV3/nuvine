@@ -747,7 +747,7 @@ def party_list(request):
     data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
   elif (hos_group in u.groups.all()):
-    data['host_credit'] = calculate_host_credit(u)
+    data['host_credits'] = calculate_host_credit(u)
     data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
     data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
   elif (tas_group in u.groups.all()):

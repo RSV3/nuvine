@@ -57,6 +57,12 @@
         <div class="user-email">
           <a href="mailto:{{ user.email }}">{{ user.email }}</a>
         </div>
+	{% if host %}
+          <div class="user-credits">
+	    <p></p>
+            {{ host_credits }} Vinely Credits
+          </div>
+	{% endif %}
       </div>
     </div>
   </section>
