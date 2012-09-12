@@ -32,6 +32,8 @@ class ContactRequest(models.Model):
   message = models.TextField()
   zipcode = models.CharField(max_length=12)
 
+from django.db.models import Sum
+from datetime import timedelta, datetime
 class Party(models.Model):
 
   # default to the name of the host
@@ -60,8 +62,34 @@ class Party(models.Model):
     return "%d [%d]"%(5, 4) 
 
   def credit(self):
-    # TODO: determines the dollar amount purchased at the party
-    return 0.00
+    order_window = self.event_date + timedelta(days=7)
+    total_orders = 0
+    orders = Order.objects.filter(cart__party = self, order_date__lte = order_window)
+    # exclude orders made by host
+    orders = orders.exclude(ordered_by = self.host)
+    # should not be tasting kit
+    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total = Sum('cart__items__total_price'))
+    total_orders += aggregate['total'] if aggregate['total'] else 0
+
+    # sales < 399 = 0 credit
+    # 400 - 599 = 40
+    # 600 - 799 = 60
+    # 800 - 999 = 90
+    # 1000-1199 = 120
+    # 1200-1399 = 150
+    credit = 20
+    
+    total = int(total_orders + 1)
+    for cost in range(400, total, 200):
+      if cost == 400:
+        credit += 40
+      elif cost > 800:
+        credit += 30
+      else:
+        credit += 20
+        
+    return credit
 
 class PartyInvite(models.Model):
 
