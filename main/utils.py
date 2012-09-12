@@ -366,68 +366,6 @@ def send_new_party_scheduled_email(request, party):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-def send_party_invitation_email(request, party_invite):
-  """ 
-    individual invitation e-mail
-  """
-  content = """
-  {% load static %}
-  What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
-  Part personality test.  And part... well... party.
-
-  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy 
-  and the ones you could do without. After sipping, savoring, and rating each wine, we'll 
-  assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly 
-  paired to your taste - right to your doorstep.
-
-    Party: "{{ party.title }}"
-    {% if party.description %}{{ party.description }}{% endif %}
-    Date: {{ party.event_date|date:"F j, o" }}
-    Time: {{ party.event_date|date:"g:i A" }}
-    Location: {{ party.address.full_text }}
-
-
-  Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
-
-  {% if plain %}
-  Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
-  {% else %}
-  <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
-  {% endif %}
-
-  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  Your Tasteful Friends,
-
-  - The Vinely Team
-
-  """
-  
-  txt_template = Template(content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
-
-  c = RequestContext( request, {"party": party_invite.party,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
-              "invite_host_email": request.user.email,
-              "host_name": request.get_host(), "plain":True})
-  txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
-  html_message = html_template.render(c)
-  
-  # send out party invitation e-mail 
-  subject = "%s has invited you to a Vinely Taste Party!" % party_invite.party.host.first_name if party_invite.party.host.first_name else "Your Favorite Host"
-
-  recipients = [party_invite.invitee.email]  
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'header': 'Good wine and good times await', 
-                                                            'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Vinely Parties <welcome@vinely.com>'
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
-  email_log.save()
-
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
-  msg.attach_alternative(html_msg, "text/html")
-  msg.send()
 
 def distribute_party_invites_email(request, invitation_sent):
   content = """

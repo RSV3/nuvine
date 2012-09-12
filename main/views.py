@@ -24,7 +24,7 @@ from accounts.forms import CreditCardForm, PaymentForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
-                        distribute_party_invites_email, send_party_invitation_email, UTC, \
+                        distribute_party_invites_email, UTC, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit
 
@@ -422,7 +422,7 @@ def cart_add_wine(request, level="x"):
   description_template = Template(product.description)
   product.description = description_template.render(Context({'personality': personality.name }))
   product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag) 
-  product.unit_price = product.full_case_price()#.unit_price * 2
+  product.unit_price = product.full_case_price
   data["product"] = product
   data["personality"] = personality
 
@@ -1542,10 +1542,7 @@ def cart_quantity(request, level, quantity):
     # not a valid product
     raise Http404
   data = {}
-
-  data['price'] = "%.2f" % (product.full_case_price() if int(quantity) == 1 else product.unit_price)
-  #item = LineItem.objects.get(product__cart_tag = level)
-  #data['price'] = item.subtotal()
+  data['price'] = "%.2f" % (product.full_case_price if int(quantity) == 1 else product.unit_price)
   
   return HttpResponse(json.dumps(data), mimetype="application/json")
 

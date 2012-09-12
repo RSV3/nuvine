@@ -251,6 +251,7 @@ class SimpleTest(TestCase):
                                     of flavors you won't be able to resist. For those new to the world \
                                     of wine, it provides great taste without requiring a great investment.",
                                     unit_price=75.00,
+                                    full_case_price=140.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="basic")
       p.image = File(f)
@@ -266,6 +267,7 @@ class SimpleTest(TestCase):
                                     is the perfect choice for those with a passion for wine and its \
                                     ability to enhance any mood or setting.",
                                     unit_price=125.00,
+                                    full_case_price=220.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="superior")
       p.image = File(f)
@@ -280,6 +282,7 @@ class SimpleTest(TestCase):
                                     The unmatched experience each bottle provides will have you \
                                     appreciating every sip, every scent, and every penny paid.",
                                     unit_price=220.00,
+                                    full_case_price=420.00,
                                     category=Product.PRODUCT_TYPE[1][0],
                                     cart_tag="divine")
       p.image = File(f)

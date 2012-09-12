@@ -41,7 +41,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Vinely Get Started <welcome@vinely.com>'
+  from_email = 'Vinely Welcome <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -96,7 +96,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
   subject = 'Your new password, courtesy of Vinely'
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'support@vinely.com'
+  from_email = 'Vinely Support <support@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -107,6 +107,9 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
 
 def send_new_invitation_email(request, verification_code, temp_password, party_invite):
+  '''
+  New account invitation - sent when host invites new taster
+  '''
   content = """
 
   {% load static %}
@@ -152,7 +155,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   subject = 'Join Vinely Party!'
   recipients = [party_invite.invitee.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Vinely Parties <welcome@vinely.com>'
+  from_email = 'Vinely Party Invite <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -163,7 +166,10 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
 
 
 def send_new_party_email(request, verification_code, temp_password, receiver_email):
-
+  '''
+  Sent when Pro creates new Host for a party
+  '''
+  
   content = """
 
   {% load static %}
@@ -210,7 +216,10 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   msg.send()
 
 def send_pro_request_email(request, receiver):
-
+  '''
+  Sent when user requests to be a Pro
+  '''
+  
   content = """
 
   {% load static %}
@@ -244,7 +253,7 @@ def send_pro_request_email(request, receiver):
   subject = 'Vinely Pro Request!'
   recipients = [receiver.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Vinely Parties <welcome@vinely.com>'
+  from_email = 'Vinely Get Started <welcome@vinely.com>'
   
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()

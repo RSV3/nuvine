@@ -146,10 +146,11 @@ class Product(models.Model):
   active = models.BooleanField(default=True)
   # when it was last added 
   timestamp = models.DateTimeField(auto_now_add=True)
-
+  full_case_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
-
+'''
   def full_case_price(self):
     # discount approx 1 bottle
     # rounding to the nearest 10
@@ -159,7 +160,7 @@ class Product(models.Model):
       discount_coeff = 100
     # hopefully no bottle is > 1000 USD
     return (self.unit_price * 2) - (unit_price/discount_coeff * discount_coeff)
-
+'''
 class LineItem(models.Model):
 
   PRICE_TYPE = (
