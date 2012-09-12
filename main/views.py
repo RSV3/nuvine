@@ -310,10 +310,11 @@ def cart_add_tasting_kit(request, party_id=0):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
-        messages.error(request, 'You can\'t order anything else when ordering a taste kit. Either clear your cart or checkout the existing order first.')
+        messages.error(request, 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="{% url cart %}">cart</a> or checkout the existing <a href="{% url cart %}">cart</a> first.')
         return HttpResponseRedirect('.')
       
       if cart.party and cart.party != party:
+        # if cart.party is None, no party has been assigned in previous orders
         messages.error(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
         return HttpResponseRedirect('.')
     
