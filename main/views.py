@@ -28,9 +28,11 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit
 
-import json, uuid
+import json, uuid, math
 from urlparse import urlparse
 from datetime import date, datetime, timedelta
+
+from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.template import Context, Template
 
@@ -310,7 +312,7 @@ def cart_add_tasting_kit(request, party_id=0):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
-        messages.error(request, 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="{% url cart %}">cart</a> or checkout the existing <a href="{% url cart %}">cart</a> first.')
+        messages.error(request, mark_safe('You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % reverse("cart")))
         return HttpResponseRedirect('.')
       
       if cart.party and cart.party != party:
@@ -381,7 +383,7 @@ def cart_add_wine(request, level="x"):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0]).exists():
-        messages.error(request, 'A tasting kit is already in your cart.  Either clear it from your cart or checkout that order first.')
+        messages.error(request, mark_safe('A tasting kit is already in your cart.  Either clear it from your <a href="%s">cart</a> or checkout that order first.' % reverse("cart")))
         return HttpResponseRedirect('.')
         #return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
       
@@ -1310,8 +1312,6 @@ def supplier_edit_order(request, order_id):
 
   return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
-import math
-from django.utils.safestring import mark_safe
 def edit_shipping_address(request):
   """
     Update or add shipping address
