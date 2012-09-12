@@ -403,7 +403,7 @@ def cart_add_wine(request, level="x"):
   description_template = Template(product.description)
   product.description = description_template.render(Context({'personality': personality.name }))
   product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag) 
-  product.unit_price = product.unit_price * 2
+  product.unit_price = product.full_case_price()#.unit_price * 2
   data["product"] = product
   data["personality"] = personality
 
@@ -1522,8 +1522,11 @@ def cart_quantity(request, level, quantity):
     # not a valid product
     raise Http404
   data = {}
-  data['price'] = "%s" % (str(product.unit_price * 2) if int(quantity) == 1 else str(product.unit_price))
 
+  data['price'] = "%.2f" % (product.full_case_price() if int(quantity) == 1 else product.unit_price)
+  #item = LineItem.objects.get(product__cart_tag = level)
+  #data['price'] = item.subtotal()
+  
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
 @login_required

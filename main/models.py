@@ -150,6 +150,16 @@ class Product(models.Model):
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
 
+  def full_case_price(self):
+    # discount approx 1 bottle
+    # rounding to the nearest 10
+    unit_price = int(self.unit_price/6)
+    discount_coeff = 10
+    if unit_price > 100:
+      discount_coeff = 100
+    # hopefully no bottle is > 1000 USD
+    return (self.unit_price * 2) - (unit_price/discount_coeff * discount_coeff)
+
 class LineItem(models.Model):
 
   PRICE_TYPE = (
@@ -175,7 +185,8 @@ class LineItem(models.Model):
 
   def subtotal(self):
     if self.price_category in [5,7,9]:
-      return 2*float(self.product.unit_price)
+      #return 2*float(self.product.unit_price)
+      return self.product.full_case_price()
     elif self.price_category in [6,8,10]:
       return self.product.unit_price
     else:
