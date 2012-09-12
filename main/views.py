@@ -312,7 +312,8 @@ def cart_add_tasting_kit(request, party_id=0):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
-        messages.error(request, mark_safe('You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % reverse("cart")))
+        cart_url = reverse("cart")
+        messages.error(request, mark_safe('You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url))
         return HttpResponseRedirect('.')
       
       if cart.party and cart.party != party:
