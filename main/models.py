@@ -187,7 +187,7 @@ class LineItem(models.Model):
   def subtotal(self):
     if self.price_category in [5,7,9]:
       #return 2*float(self.product.unit_price)
-      return self.product.full_case_price()
+      return self.product.full_case_price
     elif self.price_category in [6,8,10]:
       return self.product.unit_price
     else:
