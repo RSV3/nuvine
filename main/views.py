@@ -306,6 +306,17 @@ def cart_add_tasting_kit(request, party_id=0):
   form = AddTastingKitToCartForm(request.POST or None)
   
   if form.is_valid():
+    # if ordering tasting kit make sure thats the only thing in the cart
+    if 'cart_id' in request.session:
+      cart = Cart.objects.get(id=request.session['cart_id'])
+      if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
+        messages.error(request, 'You can\'t order anything else when ordering a taste kit. Either clear your cart or checkout the existing order first.')
+        return HttpResponseRedirect('.')
+      
+      if cart.party != party:
+        messages.error(request, 'Looks like you\'d already started ordering a taste kit for another party. You can only order the taste kits for one party at a time.')
+        return HttpResponseRedirect('.')
+    
     # add line item to cart
     item = form.save()
     if 'cart_id' in request.session:
@@ -365,6 +376,14 @@ def cart_add_wine(request, level="x"):
   form = AddWineToCartForm(request.POST or None)
 
   if form.is_valid():
+    # if ordering tasting kit make sure thats the only thing in the cart
+    if 'cart_id' in request.session:
+      cart = Cart.objects.get(id=request.session['cart_id'])
+      if cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0]).exists():
+        messages.error(request, 'Looks like you had started ordering a taste kit. Either clear it from your cart or checkout that order first.')
+        return HttpResponseRedirect('.')
+        #return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
+      
     # add line item to cart
     item = form.save()
     if 'cart_id' in request.session:
@@ -448,8 +467,9 @@ def cart(request):
     data["cart"] = cart
     data['allow_customize'] = True
     # skip customizing if only ordering tasting kit
-    check_cart = cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0])
-    data['allow_customize'] = check_cart.exists()
+    check_cart = cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0])
+    if check_cart.exists():
+      data['allow_customize'] = False
   except KeyError:
     # cart is empty
     data["items"] = []
