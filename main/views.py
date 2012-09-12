@@ -313,7 +313,7 @@ def cart_add_tasting_kit(request, party_id=0):
         messages.error(request, 'You can\'t order anything else when ordering a taste kit. Either clear your cart or checkout the existing order first.')
         return HttpResponseRedirect('.')
       
-      if cart.party != party:
+      if cart.party and cart.party != party:
         messages.error(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
         return HttpResponseRedirect('.')
     

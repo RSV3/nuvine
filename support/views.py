@@ -21,7 +21,7 @@ def list_emails(request):
 
   data = {}
 
-  emails = Email.objects.all()
+  emails = Email.objects.all().order_by('-timestamp')
 
   data["emails"] = emails
 

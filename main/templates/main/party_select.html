@@ -37,7 +37,7 @@
 	<tr>
           <td>{{ party.event_date|date:"M d, Y" }}</td>
           <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
-          <td><a href="{% url cart_add_tasting_kit party.id %}" class="btn btn-inverse">Make order</a></td>
+          <td><a href="{% url cart_add_tasting_kit party.id %}" class="btn btn-inverse">Select Taste Kit</a></td>
 	</tr>
 	{% endfor %}
       </tbody>
