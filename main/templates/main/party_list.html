@@ -124,7 +124,9 @@
       <th>Contact Phone</th>
       <th>Location</th>
       <th>Tasters</th>
-      <th>My Credit</th>
+      {% if host %}
+        <th>My Credit</th>
+      {% endif %}
     </thead>
     <tbody>
     {% for party in past_parties %}
@@ -136,7 +138,9 @@
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>
         <td>{{ party.invitees }}</td>
+	{% if host %}
         <td>{{ party.credit|currency }}</td>
+	{% endif %}
       </tr>
     {% endfor %}
     </tbody>
