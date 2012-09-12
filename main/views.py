@@ -313,7 +313,8 @@ def cart_add_tasting_kit(request, party_id=0):
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
         cart_url = reverse("cart")
-        messages.error(request, mark_safe('You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url)))
+        alert_msg = 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url)
+        messages.error(request, mark_safe(alert_msg))
         return HttpResponseRedirect('.')
       
       if cart.party and cart.party != party:
@@ -384,7 +385,8 @@ def cart_add_wine(request, level="x"):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       if cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0]).exists():
-        messages.error(request, mark_safe('A tasting kit is already in your cart.  Either clear it from your <a href="%s">cart</a> or checkout that order first.' % reverse("cart")))
+        alert_msg = 'A tasting kit is already in your cart.  Either clear it from your <a href="%s">cart</a> or checkout that order first.' % reverse("cart")
+        messages.error(request, mark_safe(alert_msg))
         return HttpResponseRedirect('.')
         #return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
       
