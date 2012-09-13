@@ -18,7 +18,15 @@
             <tr>
               <td><a href="{% url view_email email.id %}">{{ email.id }}</a></td>
               <td><a href="{% url view_email email.id %}">{{ email.subject }}</a></td>
-              <td>{{ email.recipients }}</td>
+              <td>
+                {% for address in email.recipients_list %}
+                  {% if forloop.last %}
+                    {{ address }}
+                  {% else %}
+                    {{ address }},
+                  {% endif %}
+                {% endfor %}
+              </td>
             </tr>
             {% endfor %}
             </tbody>

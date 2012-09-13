@@ -14,3 +14,5 @@ class Email(models.Model):
   def __unicode__(self):
     return "%s TO %s" % (subject, recipients)
 
+  def recipients_list(self):
+    return eval(self.recipients)
