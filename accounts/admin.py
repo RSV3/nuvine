@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
+from django.contrib.admin import SimpleListFilter
+from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import UserProfile
 from accounts.utils import send_pro_approved_email
@@ -26,12 +28,32 @@ def remove_pro_privileges(modeladmin, request, queryset):
 
 remove_pro_privileges.short_description = "Remove Vinely Pro permissions for selected users"
 
+
+class MentorAssignedFilter(SimpleListFilter):
+
+  title = _('mentor assigned')
+
+  parameter_name = 'mentor_assigned'
+
+  def lookups(self, request, model_admin):
+    return (
+        ( 'Yes', 'Mentor Assigned'),
+        ( 'No', 'No Mentor Assigned'),
+      )
+
+  def queryset(self, request, queryset):
+    mentor_assigned = self.value()
+    if mentor_assigned == 'Yes':
+      return queryset.exclude(mentor__isnull=True)
+    if mentor_assigned == 'No':
+      return queryset.filter(mentor__isnull=True)
+
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type')
-  list_filter = ('user__groups',)
+  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email')
+  list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
-  raw_id_fields = ('user', )
+  raw_id_fields = ('user', 'mentor')
   model = UserProfile
   actions = [approve_pro, remove_pro_privileges]
   
@@ -42,6 +64,9 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
 
   def email(self, instance):
     return instance.user.email
+
+  def mentor_email(self, instance):
+    return instance.mentor.email
 
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
