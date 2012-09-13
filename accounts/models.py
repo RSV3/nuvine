@@ -124,21 +124,21 @@ class UserProfile(models.Model):
   )
 
   gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
-  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence") 
+  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence", null=True, blank=True) 
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
 
   wine_personality = models.ForeignKey(WinePersonality, default=7)
   prequestionnaire = models.BooleanField(default=False)
 
   # for storing default addresses 
-  billing_address = models.ForeignKey(Address, null=True, related_name="billed_to")
-  shipping_address = models.ForeignKey(Address, null=True, related_name="shipped_to")
-  credit_card = models.ForeignKey(CreditCard, null=True, related_name="owner")
+  billing_address = models.ForeignKey(Address, related_name="billed_to", null=True, blank=True)
+  shipping_address = models.ForeignKey(Address, related_name="shipped_to", null=True, blank=True)
+  credit_card = models.ForeignKey(CreditCard, related_name="owner", null=True, blank=True)
 
   # for permanently storing for future
-  credit_cards = models.ManyToManyField(CreditCard, related_name="owned_by")
-  party_addresses = models.ManyToManyField(Address, related_name="hosting_user")
-  shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user")
+  credit_cards = models.ManyToManyField(CreditCard, related_name="owned_by", null=True, blank=True)
+  party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
+  shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
   def age(self):
     year = 365

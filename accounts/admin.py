@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
+from django.contrib import messages
+
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import UserProfile
 from accounts.utils import send_pro_approved_email
+from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email
 
 from emailusernames.admin import EmailUserAdmin
 
@@ -75,6 +78,14 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
     group = instance.user.groups.all()[0]
     return group.name
 
+  def save_model(self, request, obj, form, change):
+    old_profile = UserProfile.objects.get(id=obj.pk)
+    if obj.mentor != old_profile.mentor: 
+      # new pro was assigned, so send e-mail to the host
+      send_mentor_assigned_notification_email(request, obj.user, obj.mentor)
+      send_mentee_assigned_notification_email(request, obj.mentor, obj.user)
+      messages.info(request, "New mentor has been successfully assigned.")
+    super(VinelyUserProfileAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
 admin.site.unregister(User)

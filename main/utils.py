@@ -194,7 +194,7 @@ def send_order_shipped_email(request, order):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc='fulfillment@vinely.com')
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['fulfillment@vinely.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -525,10 +525,93 @@ def send_pro_assigned_notification_email(request, pro, host):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc='care@vinely.com')
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()  
 
+def send_mentor_assigned_notification_email(request, mentee, mentor):
+  content = """
+  {% load static %}
+    Dear {% if mentee.first_name %}{{ mentee.first_name }} {{ mentee.last_name }}{% else %}Friend{% endif %},
+
+    A new Vinely Mentor has been assigned to you so if you need any help reach out to the Mentor! Here's your Vinely Mentor contact information:
+
+    Name: {{ mentor.first_name }} {{ mentor.last_name }}
+    E-mail: {{ mentor.email }}
+    Phone: {{ mentor.get_profile.phone }} 
+
+    Please reach out to your Mentor if you need help! 
+
+    Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    - The Vinely Team
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+
+  c = RequestContext( request, {"mentee": mentee, "mentor": mentor})
+  txt_message = txt_template.render(c)
+  c.update({'sig':True})
+  html_message = html_template.render(c)
+
+  # send e-mail to notify about contact request
+  subject = "Congratulations! Vinely Mentor has been assigned to you."
+  recipients = [mentee.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = "Vinely Update <care@vinely.com>"
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send() 
+
+def send_mentee_assigned_notification_email(request, mentor, mentee):
+  content = """
+  {% load static %}
+    Dear {% if mentor.first_name %}{{ mentor.first_name }} {{ mentor.last_name }}{% else %}Friend{% endif %},
+
+    A new Vinely Mentee has been assigned to you so please help them when needed! Here's your Vinely Mentee contact information:
+
+    Name: {{ mentee.first_name }} {{ mentee.last_name }}
+    E-mail: {{ mentee.email }}
+    Phone: {{ mentee.get_profile.phone }} 
+
+    Please reach out to your Mentee to share your wisdom! 
+
+    Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    - The Vinely Team
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+
+  c = RequestContext( request, {"mentor": mentor, "mentee": mentee})
+  txt_message = txt_template.render(c)
+  c.update({'sig':True})
+  html_message = html_template.render(c)
+
+  # send e-mail to notify about contact request
+  subject = "Congratulations! Vinely Mentee has been assigned to you."
+  recipients = [mentor.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = "Vinely Update <care@vinely.com>"
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send() 
 
 ##############################################################################
 # Utility methods for finding out user relations and party relations
