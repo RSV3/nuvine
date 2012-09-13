@@ -18,10 +18,10 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
 from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-    check_zipcode, send_not_in_area_party_email
+    check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
 
 
-from main.utils import send_know_pro_party_email, send_host_vinely_party_email, my_host, my_pro
+from main.utils import send_host_vinely_party_email, my_host, my_pro
 import uuid
 import logging
 
@@ -412,7 +412,7 @@ def sign_up(request, account_type):
         mentor_pro = User.objects.get(email = request.POST.get('mentor'))
         
         if pro_group in mentor_pro.groups.all():
-          send_know_pro_party_email(request, user, mentor_pro) # to host
+          send_know_pro_party_email(request, user) # to host
       except User.DoesNotExist, e:
         # mail sales
         send_unknown_pro_email(request, user) # to host
