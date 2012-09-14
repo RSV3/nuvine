@@ -35,38 +35,38 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
 
   white = 0
   red = 0
-  if np.sum(white_vec >= 3) == 0:
+  if np.sum(white_vec > 3) == 0:
     white = 0
-  elif np.sum((white_vec >= 3) == [True, False, False]) == 3:
+  elif np.sum((white_vec > 3) == [True, False, False]) == 3:
     white = 1
-  elif np.sum((white_vec >= 3) == [True, True, False]) == 3:
+  elif np.sum((white_vec > 3) == [True, True, False]) == 3:
     white = 2
-  elif np.sum((white_vec >= 3) == [False, True, False]) == 3:
+  elif np.sum((white_vec > 3) == [False, True, False]) == 3:
     white = 3
-  elif np.sum((white_vec >= 3) == [False, True, True]) == 3:
+  elif np.sum((white_vec > 3) == [False, True, True]) == 3:
     white = 4
-  elif np.sum((white_vec >= 3) == [False, False, True]) == 3:
+  elif np.sum((white_vec > 3) == [False, False, True]) == 3:
     white = 5
-  elif np.sum((white_vec >= 3) == [True, False, True]) == 3:
+  elif np.sum((white_vec > 3) == [True, False, True]) == 3:
     white = 6
-  elif np.sum((white_vec >= 3) == [True, True, True]) == 3:
+  elif np.sum((white_vec > 3) == [True, True, True]) == 3:
     white = 7
 
-  if np.sum(red_vec >= 3) == 0:
+  if np.sum(red_vec > 3) == 0:
     red = 0
-  elif np.sum((red_vec >= 3) == [True, False, False]) == 3:
+  elif np.sum((red_vec > 3) == [True, False, False]) == 3:
     red = 1
-  elif np.sum((red_vec >= 3) == [True, True, False]) == 3:
+  elif np.sum((red_vec > 3) == [True, True, False]) == 3:
     red = 2
-  elif np.sum((red_vec >= 3) == [False, True, False]) == 3:
+  elif np.sum((red_vec > 3) == [False, True, False]) == 3:
     red = 3
-  elif np.sum((red_vec >= 3) == [False, True, True]) == 3:
+  elif np.sum((red_vec > 3) == [False, True, True]) == 3:
     red = 4
-  elif np.sum((red_vec >= 3) == [False, False, True]) == 3:
+  elif np.sum((red_vec > 3) == [False, False, True]) == 3:
     red = 5
-  elif np.sum((red_vec >= 3) == [True, False, True]) == 3:
+  elif np.sum((red_vec > 3) == [True, False, True]) == 3:
     red = 6
-  elif np.sum((red_vec >= 3) == [True, True, True]) == 3:
+  elif np.sum((red_vec > 3) == [True, True, True]) == 3:
     red = 7
 
   profile = user.get_profile()
