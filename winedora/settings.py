@@ -216,6 +216,7 @@ INSTALLED_APPS = (
     'compressor',
     'support',
     'social',
+    'cms',
 )
 
 
