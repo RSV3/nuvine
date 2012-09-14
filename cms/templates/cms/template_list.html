@@ -1,0 +1,35 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>System Templates</h1>
+{% endblock header %}
+
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="span12">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Last Modified</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for template in templates %}
+                <tr>
+                  <td><a href="{% url edit_template template.key %}">{{ template.key }}</a></td>
+                  <td>{{ template.get_category_display }}</td>
+                  <td></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

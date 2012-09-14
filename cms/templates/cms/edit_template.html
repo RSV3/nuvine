@@ -1,0 +1,62 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <!-- <h1>Edit {% if template.category == 0 %} Email {% else %} Web {% endif %}Template</h1> -->
+  <h1>Edit - {{ template.key }}</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+ <section id="template-variables">
+    <div class="row">
+      <div class="span12">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+            <th>Key</th>
+            <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for variable in template.variables_legend.all %}
+              <tr>
+                <td>{{ variable.var }}</td>
+                <td>{{ variable.description }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div> 
+  </section>
+  <section id="template-content">
+    <div class="row">
+      <div class="span12">
+        <form class="form-horizontal" method="POST" action="{{ app_path }}">
+          {% csrf_token %}
+
+          <fieldset>
+            <div class="control-group{% if form.content.errors %} error{% endif %}">
+              <div class="control-label" for="id_content">{{ form.content.label }}</div>
+              <div class="controls">
+                {{ form.content}} 
+                {% if form.content.errors %}
+                  <span class="help-inline">
+                    {{ form.content.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-actions">
+              <a href="{% url template_list %}" class="btn">Cancel</a>  
+              <input class="btn btn-primary" type="submit" value="Update">
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock %}
