@@ -58,7 +58,7 @@ class MentorAssignedFilter(SimpleListFilter):
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email')
+  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email', 'account_number')
   list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
@@ -82,6 +82,10 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def user_type(self, instance):
     group = instance.user.groups.all()[0]
     return group.name
+
+  def account_number(self, instance):
+    acc = instance.user.vinelyproaccount_set.all()
+    return "".join([u.account_number for u in acc])
 
   def save_model(self, request, obj, form, change):
     old_profile = UserProfile.objects.get(id=obj.pk)

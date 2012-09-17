@@ -26,7 +26,7 @@ class ProAssignedFilter(SimpleListFilter):
       return queryset.filter(pro__isnull=True)
 
 class MyHostAdmin(admin.ModelAdmin):
-  list_display = ('id', 'pro', 'pro_info', 'host_info')
+  list_display = ('id', 'pro', 'pro_info', 'pro_account', 'host_info', )
   raw_id_fields = ['pro', 'host']
   list_filter = (ProAssignedFilter, )
   list_display_links = ('id', )
@@ -37,6 +37,10 @@ class MyHostAdmin(admin.ModelAdmin):
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
+  def pro_account(self, instance):
+    acc = instance.pro.vinelyproaccount_set.all()
+    return "".join([u.account_number for u in acc])
 
   def save_model(self, request, obj, form, change):
     if obj.pro and obj.host:
