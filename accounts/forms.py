@@ -207,7 +207,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 from emailusernames.forms import NameEmailUserCreationForm
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
-  mentor = forms.EmailField(required=False, label="Vinely Pro Mentor")
+  mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = forms.CharField(max_length=20)
   
   def __init__(self, *args, **kwargs):
