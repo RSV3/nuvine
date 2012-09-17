@@ -84,6 +84,8 @@
   - refer to: https://devcenter.heroku.com/articles/pgbackups
 
     $ curl -o latest.dump \`heroku pgbackups:url a065 -a winedora-staging\`
+    
+    
     $ pg_restore --verbose --clean --no-acl --no-owner -h myhost -U myuser -d mydb latest.dump
 
 # For transferring production DB to staging to test
@@ -94,6 +96,8 @@
   * Find the backup tag that should be used to transfer and switch a065 below with that tag
 
     $ heroku pgbackups:restore DATABASE \`heroku pgbackups:url a065 -a winedora\` -a winedora-staging
+    
+    
     $ heroku run python manage migrate -a winedora-staging
 
   * Following should be done only if you are going to refresh and replace existing content:
