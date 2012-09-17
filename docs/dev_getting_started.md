@@ -79,3 +79,16 @@
 # For creating super admins
 
     $ manage.py createsuperuser --username=joe --email=joe@example.com
+
+# For transferring production DB to staging to test
+  - refer to: https://devcenter.heroku.com/articles/pgbackups
+
+    $ heroku pgbackups -a winedora
+    
+  * Find the backup tag that should be used to transfer and switch a065 below with that tag
+
+    $ heroku pgbackups:restore DATABASE `heroku pgbackups:url a065 -a winedora` -a winedora-staging
+    $ heroku run python manage migrate -a winedora-staging
+
+  * Following should be done only if you are going to refresh and replace existing content:
+    * Run any django commands that populate content (i.e. refresh_products, create_templates)
