@@ -5,9 +5,9 @@ from django.contrib import messages
 
 from django.utils.translation import ugettext_lazy as _
 
-from accounts.models import UserProfile
+from accounts.models import UserProfile, VinelyProAccount
 from accounts.utils import send_pro_approved_email
-from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email
+from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
 
 from emailusernames.admin import EmailUserAdmin
 
@@ -17,6 +17,11 @@ def approve_pro(modeladmin, request, queryset):
     user.groups.clear()
     pro_group = Group.objects.get(name="Vinely Pro")
     user.groups.add(pro_group)
+    if not VinelyProAccount.objects.filter(users__in = [user]).exists():
+      pro_account_number = generate_pro_account_number()
+      account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
+      account.users.add(user)
+      
     # TODO: need to send out e-mail to the user
     send_pro_approved_email(request, user)
 
