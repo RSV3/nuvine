@@ -80,6 +80,11 @@
 
     $ manage.py createsuperuser --username=joe --email=joe@example.com
 
+# For transferring production or staging DB to local to test
+  - refer to: https://devcenter.heroku.com/articles/pgbackups
+    $ curl -o latest.dump `heroku pgbackups:url a065 -a winedora-staging`
+    $ pg_restore --verbose --clean --no-acl --no-owner -h myhost -U myuser -d mydb latest.dump
+
 # For transferring production DB to staging to test
   - refer to: https://devcenter.heroku.com/articles/pgbackups
 
