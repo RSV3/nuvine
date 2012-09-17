@@ -207,33 +207,6 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data, 
                         context_instance=RequestContext(request))
 
-import re
-def generate_pro_account_number():
-  '''
-  Generate a new account number for a pro in the format VP#####A
-  '''
-  #TODO: avoid race condition
-  max = 99999
-  latest = VinelyProAccount.objects.all().order_by('-id')[:1]
-  if latest.exists():
-    prefix = 'VP' # latest[:2]
-    account = latest[0].account_number
-    suffix = account[7:] # last chars(s) after number
-    num = int(re.findall('\d+', account)[0])
-    if num == max:
-      last = suffix[-1]
-      if last == 'Z':
-	suffix += 'A'
-	num = 1
-      else:
-      	num = 1
-      	suffix = suffix[:-1] + chr(ord(last)+1)
-    else:
-      num += 1
-    acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), suffix)
-  else:
-    acc_num = 'VP00100A'
-  return acc_num
 
 def sign_up(request, account_type):
   """
@@ -285,10 +258,6 @@ def sign_up(request, account_type):
           u.groups.add(pro_pending_group)
           # u.groups.remove(hos_group)
         
-        if not VinelyProAccount.objects.filter(users__in = [u]).exists():
-          pro_account_number = generate_pro_account_number()
-          account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
-          account.users.add(u)
         send_pro_request_email(request, u)
         messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
       return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
