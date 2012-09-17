@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 
 from main.models import Order, EngagementInterest, MyHost, PartyInvite
 from support.models import Email
-
+from accounts.models import VinelyProAccount
 from datetime import tzinfo, timedelta
 
 ZERO = timedelta(0)
@@ -717,3 +717,31 @@ def calculate_host_credit(host):
       credit += 20
   
   return credit
+
+import re
+def generate_pro_account_number():
+  '''
+  Generate a new account number for a pro in the format VP#####A
+  '''
+  #TODO: avoid race condition
+  max = 99999
+  latest = VinelyProAccount.objects.all().order_by('-id')[:1]
+  if latest.exists():
+    prefix = 'VP' # latest[:2]
+    account = latest[0].account_number
+    suffix = account[7:] # last chars(s) after number
+    num = int(re.findall('\d+', account)[0])
+    if num == max:
+      last = suffix[-1]
+      if last == 'Z':
+        suffix += 'A'
+        num = 1
+      else:
+        num = 1
+        suffix = suffix[:-1] + chr(ord(last)+1)
+    else:
+      num += 1
+    acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), suffix)
+  else:
+    acc_num = 'VP00100A'
+  return acc_num
