@@ -408,10 +408,13 @@ def send_pro_approved_email(request, applicant):
 
   {% load static %}
 
-  Hey {{ applicant.first_name }},<br>
+  Hey {{ applicant.first_name }},
 
-  Your application to become Vinely Pro has been approved.  You may now login to your account
-  and start recruiting hosts for your taste parties!
+  Your application to become Vinely Pro has been approved.  
+
+  Your Pro account number is {{ pro_account_number }}. Please keep that for future reference.
+  
+  You may now login to your account and start recruiting hosts for your taste parties!
 
   Go have some fun wine parties!
 
@@ -425,8 +428,10 @@ def send_pro_approved_email(request, applicant):
   
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
-  
-  data = {"applicant": applicant}
+  account_number = ''
+  if applicant.vinelyproaccount_set.all().exists():
+    account_number = applicant.vinelyproaccount_set.all()[0].account_number
+  data = {"applicant": applicant, "pro_account_number": account_number}
   c = RequestContext( request, data)
   txt_message = txt_template.render(c)
   
@@ -442,7 +447,7 @@ def send_pro_approved_email(request, applicant):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc='sales@vinely.com')
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['sales@vinely.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
