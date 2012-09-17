@@ -31,6 +31,17 @@
             {% endfor %}
             </tbody>
           </table>
+
+          <div class="row">
+            <div class="span12">
+              <a href=".">First</a> | 
+              <a href="{% if page.has_previous %}./?p={{ page.previous_page_number }}{% else %}#{% endif %}">Previous</a> |
+              <span>{{ page }}</span> | 
+              <a href="{% if page.has_next %}./?p={{ page.next_page_number }}{% else %}#{% endif %}">Next</a> | 
+              <a href="{% if page.has_other_pages %}./?p={{ page_count }}{% else %}#{% endif %}">Last</a>
+              <p></p>
+            </div>
+          </div>
       </div>
     </div>
   </div>

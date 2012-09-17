@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 
 from support.models import Email
 from main.models import Party, PartyInvite, Order, MyHost
@@ -23,7 +24,16 @@ def list_emails(request):
 
   emails = Email.objects.all().order_by('-timestamp')
 
-  data["emails"] = emails
+  page_num = request.GET.get('p', 0)
+  paginator = Paginator(emails, 10)
+  try:
+    page = paginator.page(page_num)
+  except:
+    page= paginator.page(1)
+
+  data['page_count'] = paginator.num_pages
+  data['page'] = page
+  data['emails'] = page.object_list
 
   return render_to_response("support/list_emails.html", data, context_instance=RequestContext(request))
 
