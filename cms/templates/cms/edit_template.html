@@ -7,29 +7,28 @@
 
 {% block content %}
 
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
- <section id="template-variables">
-    <div class="row">
-      <div class="span12">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-            <th>Key</th>
-            <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for variable in template.variables_legend.all %}
-              <tr>
-                <td>{{ variable.var }}</td>
-                <td>{{ variable.description }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div> 
-  </section>
+<div class="container">
+ 
+    <div class="page-header">
+      These items should always be present in the template content
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+        <th>Item</th>
+        <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for variable in template.variables_legend.all %}
+          <tr>
+            <td>{{ variable.var }}</td>
+            <td>{{ variable.description }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  
   <section id="template-content">
     <div class="row">
       <div class="span12">
@@ -39,6 +38,7 @@
           <fieldset>
             <div class="control-group{% if form.content.errors %} error{% endif %}">
               <div class="control-label" for="id_content">{{ form.content.label }}</div>
+              <p></p>
               <div class="controls">
                 {{ form.content}} 
                 {% if form.content.errors %}
@@ -49,7 +49,7 @@
               </div>
             </div>
             <div class="form-actions">
-              <a href="{% url template_list %}" class="btn">Cancel</a>  
+              <a href="{% url template_list %}" class="btn btn-inverse">Back to templates list</a>  
               <input class="btn btn-primary" type="submit" value="Update">
             </div>
           </fieldset>

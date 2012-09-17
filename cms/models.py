@@ -16,3 +16,4 @@ class ContentTemplate(models.Model):
 	content = models.TextField()
 	category = models.IntegerField(choices=TEMPLATE_TYPE)
 	variables_legend = models.ManyToManyField(Variable)  
+	last_modified = models.DateTimeField(auto_now=True)
