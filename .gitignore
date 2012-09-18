@@ -12,6 +12,7 @@ sitestatic
 cache
 ssl
 *.old
+*.xlsx
 
 .DS_Store
 *~
