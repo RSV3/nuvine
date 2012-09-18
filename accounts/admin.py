@@ -101,9 +101,12 @@ class VinelyUserAdmin(EmailUserAdmin):
   list_filter = ('groups', 'is_active' )
 
   def user_type(self, instance):
-    group = instance.groups.all()[0]
-    return group.name
-
+    if instance.groups.all().count() > 0:
+      group = instance.groups.all()[0]
+      return group.name
+    else:
+      return "No group"
+      
   def zipcode(self, instance):
     zipcode_str = instance.get_profile().zipcode 
     return zipcode_str
