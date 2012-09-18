@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="row">
-      <form class="form-horizontal well" method="POST" action="{% url sign_up account_type %}">
+      <form class="form-horizontal well" method="POST" action="{{ app_path }}">
         {% csrf_token %}
 
         {% if error %}

@@ -307,7 +307,7 @@ def sign_up(request, account_type):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None) 
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type':account_type}) 
   
   if form.is_valid():
     user = form.save()

@@ -205,6 +205,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
     self.fields['user'].widget = forms.HiddenInput()
 
 
+from django.contrib.auth.models import Group
 from emailusernames.forms import NameEmailUserCreationForm
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
@@ -214,4 +215,25 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
     self.fields['first_name'].required = True
     self.fields['last_name'].required = True
+    self.initial = kwargs['initial']
+
+  def clean(self):
+    cleaned = super(NameEmailUserMentorCreationForm, self).clean()
+    pro_group = Group.objects.get(name="Vinely Pro")
+
+    if self.initial['account_type'] == 1 and self.cleaned_data['mentor']: # pro -> mentor field
+      try:
+        # make sure the pro exists
+        pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
+      except User.DoesNotExist:    
+        raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave blank and a mentor will be assigned to you")
+
+    if self.initial['account_type'] == 2 and self.cleaned_data['mentor']: # host -> pro field
+      try:
+        # make sure the pro exists
+        pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
+      except User.DoesNotExist:    
+        raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave blank and a Pro will be assigned to you")
+
+    return cleaned
     
