@@ -226,14 +226,14 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
         # make sure the pro exists
         pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
       except User.DoesNotExist:    
-        raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave blank and a mentor will be assigned to you")
+        raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you")
 
     if self.initial['account_type'] == 2 and self.cleaned_data['mentor']: # host -> pro field
       try:
         # make sure the pro exists
         pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
       except User.DoesNotExist:    
-        raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave blank and a Pro will be assigned to you")
+        raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
     return cleaned
     

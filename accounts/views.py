@@ -322,9 +322,9 @@ def sign_up(request, account_type):
     if account_type == 1:
       try:
         # make sure the pro exists
-        pro = User.objects.get(email = request.POST.get('mentor'))
-        if pro_group in pro.groups.all():
-          profile.mentor = pro
+        pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
+        # if pro_group in pro.groups.all():
+        profile.mentor = pro
       except Exception, e:
         pass # leave mentor as default
       
@@ -332,10 +332,11 @@ def sign_up(request, account_type):
       # if host, then set mentor to be the host's pro
       try:
         # make sure the pro exists
-        pro = User.objects.get(email = request.POST.get('mentor'))
-        if pro_group in pro.groups.all():
+        pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
+        print "Pro found", pro
+        # if pro_group in pro.groups.all():
           # map host to a pro
-          my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
+        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
       except Exception, e:
         my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
       
