@@ -15,7 +15,6 @@ from accounts.models import SubscriptionInfo
 from main.utils import my_pro
 from datetime import datetime
 import csv
-#import xlwt
 
 @staff_member_required
 def list_emails(request):

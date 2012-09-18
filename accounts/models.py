@@ -108,11 +108,14 @@ class VerificationQueue(models.Model):
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
+  vinely_customer_id = models.CharField(max_length=16, blank=True, null=True)
+
   image = ImageField(upload_to="profiles/", blank=True, null=True)
   dob = models.DateField(verbose_name="Date of Birth", null=True, blank=True)
   # drivers license number
   dl_number = models.CharField(verbose_name="Driver's Licence #", max_length=32, null=True, blank=True)
   phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)
+  work_phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
   mentor = models.ForeignKey(User, default = 1, verbose_name='Vinely Pro Mentor', related_name='mentor')
@@ -167,11 +170,13 @@ class SubscriptionInfo(models.Model):
     (0, 'One-time purchase'),
     (1, 'Monthly'),
     (2, 'Bi-Monthly'),
-    (3, 'Quarterly')
+    (3, 'Quarterly'),
+    (9, 'No Subscription'),
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
 
   QUANTITY_CHOICES = (
+    (0, 'No Subscription'),
     (5, 'Basic: Full Case (12 bottles)'),
     (6, 'Basic: Half Case (6 bottles)'),
     (7, 'Superior: Full Case (12 bottles)'),

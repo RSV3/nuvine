@@ -12,7 +12,7 @@ from django.core.exceptions import PermissionDenied
 
 from main.models import EngagementInterest, PartyInvite, MyHost
 
-from emailusernames.forms import EmailAuthenticationForm, NameEmailUserCreationForm, EmailUserChangeForm
+from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
