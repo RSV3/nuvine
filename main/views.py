@@ -26,7 +26,7 @@ from accounts.utils import send_verification_email, send_new_invitation_email, s
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit
+                        calculate_host_credit, calculate_pro_commission
 
 import json, uuid, math
 from urlparse import urlparse
@@ -392,6 +392,8 @@ def cart_add_wine(request, level="x"):
       
     # add line item to cart
     item = form.save()
+    item.total_price = item.subtotal()
+    item.save()
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.items.add(item)
@@ -770,16 +772,20 @@ def party_list(request):
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
     my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today)
+    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today).order_by('event_date')
+    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today).order_by('-event_date')
+    pro_comm, mentee_comm = calculate_pro_commission(u)
+    data['pro_commission'] = pro_comm
+    data['mentee_commission'] = mentee_comm
+    data['total_commission'] = pro_comm + mentee_comm
   elif (hos_group in u.groups.all()):
     data['host_credits'] = calculate_host_credit(u)
-    data['parties'] = Party.objects.filter(host=u, event_date__gte=today)
-    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today)
+    data['parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
   elif (tas_group in u.groups.all()):
     data['parties'] = []
     data['past_parties'] = []
-    for inv in PartyInvite.objects.filter(invitee=u):
+    for inv in PartyInvite.objects.filter(invitee=u).order_by('party__event_date'):
       if inv.party.event_date < today:
         data['past_parties'].append(inv.party)
       else:

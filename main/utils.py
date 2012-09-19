@@ -721,6 +721,9 @@ def calculate_host_credit(host):
 from accounts.models import SubscriptionInfo
 from main.models import OrganizedParty
 def calculate_pro_commission(pro):
+  '''
+  returns tuple (<pro_commission from own parties>, <commission from mentee parties>)
+  '''
   # TODO: How to exclude orders made using vinely host credits
   # 10% for one-time purchase basic level
   # 12.5% for subscription, superior, divine
@@ -765,7 +768,10 @@ def calculate_pro_commission(pro):
     aggr = orders.aggregate(total = Sum('cart__items__total_price'))
     mentee_total += aggr['total'] if aggr['total'] else 0
 
-  return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total)) + (0.05 * float(mentee_total))
+  # returns tuple (<pro_commission from own parties>, <commission from mentee parties>)
+  return ((0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total)), # pro commissions
+           (0.05 * float(mentee_total)) # mentee commissions
+          ) 
 
 import re
 def generate_pro_account_number():

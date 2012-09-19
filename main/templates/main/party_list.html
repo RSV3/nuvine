@@ -65,8 +65,11 @@
         {% endif %}
         {% if pro %}
           <div class="pro-commission">
-            <p></p>
-            Total Commissions: {{ pro_commission|currency }}
+            <br />
+            <h3>Commission Earned:</h3>
+            <p>My Parties: {{ pro_commission|currency }}</p>
+            <p>Mentee Parties: {{ mentee_commission|currency }}</p>
+            <p>Total: <strong>{{ total_commission|currency }}</strong></p>
           </div>
         {% endif %}
       </div>
