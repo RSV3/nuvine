@@ -101,7 +101,7 @@ admin.site.unregister(User)
 
 class VinelyUserAdmin(EmailUserAdmin):
 
-  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode') 
+  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'account_number') 
   list_filter = ('groups', 'is_active' )
 
   def user_type(self, instance):
@@ -111,5 +111,9 @@ class VinelyUserAdmin(EmailUserAdmin):
   def zipcode(self, instance):
     zipcode_str = instance.get_profile().zipcode 
     return zipcode_str
+
+  def account_number(self, instance):
+    acc = instance.vinelyproaccount_set.all()
+    return "".join([u.account_number for u in acc])    
 
 admin.site.register(User, VinelyUserAdmin)
