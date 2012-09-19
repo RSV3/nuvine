@@ -38,37 +38,68 @@ class Migration(DataMigration):
         "Write your forwards methods here."
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
         # Generate pro account number for sys admins separate from other pros
+        # get pros with account number
+        pros_with_acc = orm.VinelyProAccount.objects.all()
+
+        # get pros with no account number
+        pro_group = orm['auth.group'].objects.get(name="Vinely Pro")        
+        pros_no_acc = orm['auth.user'].objects.filter(groups__in = [pro_group]).exclude(vinelyproaccount__in = pros_with_acc)
+
         try:
             admin = orm['auth.user'].objects.get(email = 'elizabeth@redstar.com')
-            obj = orm.VinelyProAccount.objects.create(account_number = 'VP00090A')
-            obj.users.add(admin)
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00090A')
+                obj.users.add(admin)
+        except Exception, e:
+            pass
+
+        try:
+            admin = orm['auth.user'].objects.get(email = 'john@vinely.com')
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00091A')
+                obj.users.add(admin)
+        except Exception, e:
+            pass
+        try:
+            admin = orm['auth.user'].objects.get(email = 'johnstecco@gmail.com')
+            if admin in pros_no_acc:            
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00092A')
+                obj.users.add(admin)
+        except Exception, e:
+            pass
+
+        try:
+            admin = orm['auth.user'].objects.get(email = 'pmfaba@gmail.com')
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00093A')
+                obj.users.add(admin)
         except Exception, e:
             pass
 
         try:
             admin = orm['auth.user'].objects.get(email = 'specialist1@example.com')
-            obj = orm.VinelyProAccount.objects.create(account_number = 'VP00091A')
-            obj.users.add(admin)
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00094A')
+                obj.users.add(admin)
         except Exception, e:
             pass
 
         try:
             admin = orm['auth.user'].objects.get(email = 'specialist2@example.com')
-            obj = orm.VinelyProAccount.objects.create(account_number = 'VP00092A')
-            obj.users.add(admin)
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00095A')
+                obj.users.add(admin)
         except Exception, e:
             pass
 
         try:
             admin = orm['auth.user'].objects.get(email = 'specialist3@example.com')
-            obj = orm.VinelyProAccount.objects.create(account_number = 'VP00093A')
-            obj.users.add(admin)
+            if admin in pros_no_acc:
+                obj = orm.VinelyProAccount.objects.create(account_number = 'VP00096A')
+                obj.users.add(admin)
         except Exception, e:
             pass
 
-        pros_with_acc = orm.VinelyProAccount.objects.all()
-        pro_group = orm['auth.group'].objects.get(name="Vinely Pro")        
-        # get pros with account number
         pros_no_acc = orm['auth.user'].objects.filter(groups__in = [pro_group]).exclude(vinelyproaccount__in = pros_with_acc)
         for user in pros_no_acc:
             acc_number = generate_pro_account_number(orm)
