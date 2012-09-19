@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
-
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import UserProfile, VinelyProAccount
@@ -58,13 +58,20 @@ class MentorAssignedFilter(SimpleListFilter):
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email', 'account_number')
+  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email', 'pro_number')
   list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
   actions = [approve_pro, remove_pro_privileges]
   
+  def user_image(self, instance):
+    if instance.image:
+      return '<img src="%s%s" height="75"/>' % (settings.MEDIA_URL, instance.image)
+    else:
+      return 'No Image'
+  user_image.allow_tags = True
+
   def news_optin_flag(self, instance):
     return instance.news_optin
   news_optin_flag.short_description = 'Newsletter Optin'
@@ -83,7 +90,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
     group = instance.user.groups.all()[0]
     return group.name
 
-  def account_number(self, instance):
+  def pro_number(self, instance):
     acc = instance.user.vinelyproaccount_set.all()
     return "".join([u.account_number for u in acc])
 
@@ -101,7 +108,7 @@ admin.site.unregister(User)
 
 class VinelyUserAdmin(EmailUserAdmin):
 
-  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'account_number') 
+  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number') 
   list_filter = ('groups', 'is_active' )
 
   def user_type(self, instance):
@@ -115,7 +122,7 @@ class VinelyUserAdmin(EmailUserAdmin):
     zipcode_str = instance.get_profile().zipcode 
     return zipcode_str
 
-  def account_number(self, instance):
+  def pro_number(self, instance):
     acc = instance.vinelyproaccount_set.all()
     return "".join([u.account_number for u in acc])    
 
