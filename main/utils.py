@@ -718,6 +718,55 @@ def calculate_host_credit(host):
   
   return credit
 
+from accounts.models import SubscriptionInfo
+from main.models import OrganizedParty
+def calculate_pro_commission(pro):
+  # TODO: How to exclude orders made using vinely host credits
+  # 10% for one-time purchase basic level
+  # 12.5% for subscription, superior, divine
+
+  # 1. Calculate for pro's parties
+  org_parties = OrganizedParty.objects.filter(pro = pro)
+  parties = [p.party for p in org_parties]
+  basic_total = other_total = freq_total = mentee_total = 0
+  for party in parties:
+    orders = Order.objects.filter(cart__party = party)
+    # exclude taste kits
+    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
+    
+    # get one-time basic orders
+    one_time_basic = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [5, 6])
+    # get one-time divine, superior
+    one_time_other = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [7, 8, 9, 10])
+    # get frequency buys
+    freq_orders = orders.filter(cart__items__frequency__in = [1,2,3])
+
+    basic_aggr = one_time_basic.aggregate(total=Sum('cart__items__total_price'))
+    basic_total += basic_aggr['total'] if basic_aggr['total'] else 0
+
+    other_aggr = one_time_other.aggregate(total = Sum('cart__items__total_price'))
+    other_total += other_aggr['total'] if other_aggr['total'] else 0
+
+    freq_aggr = freq_orders.aggregate(total = Sum('cart__items__total_price'))
+    freq_total += freq_aggr['total'] if freq_aggr['total'] else 0
+
+  # 2. calculate for mentee's parties
+  # 5% of mentee's retail sales if within 120 days of party
+  mentees = User.objects.filter(userprofile__mentor = pro)  
+  org_parties = OrganizedParty.objects.filter(pro__in = mentees)
+  parties = [p.party for p in org_parties]
+
+  for party in parties:
+    # get orders made within 120 days after party
+    party_window = party.event_date + timedelta(days=120)
+    orders = Order.objects.filter(order_date__lte = party_window, cart__party = party)
+    # exclude taste kits
+    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
+    aggr = orders.aggregate(total = Sum('cart__items__total_price'))
+    mentee_total += aggr['total'] if aggr['total'] else 0
+
+  return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total)) + (0.05 * float(mentee_total))
+
 import re
 def generate_pro_account_number():
   '''

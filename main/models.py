@@ -91,6 +91,31 @@ class Party(models.Model):
         
     return credit
 
+  def pro_commission(self):
+    orders = Order.objects.filter(cart__party = self)
+    # exclude taste kits
+    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
+    
+    # get one-time basic orders
+    one_time_basic = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [5, 6])
+    # get one-time divine, superior
+    one_time_other = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [7, 8, 9, 10])
+    # get frequency buys
+    freq_orders = orders.filter(cart__items__frequency__in = [1,2,3])
+
+    basic_total = other_total = freq_total = 0
+    basic_aggr = one_time_basic.aggregate(total=Sum('cart__items__total_price'))
+    basic_total += basic_aggr['total'] if basic_aggr['total'] else 0
+    print "basic", basic_aggr
+    other_aggr = one_time_other.aggregate(total = Sum('cart__items__total_price'))
+    other_total += other_aggr['total'] if other_aggr['total'] else 0
+    print "other", other_aggr
+    freq_aggr = freq_orders.aggregate(total = Sum('cart__items__total_price'))
+    freq_total += freq_aggr['total'] if freq_aggr['total'] else 0
+    print "freq", freq_aggr
+    return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total))
+
+
 class PartyInvite(models.Model):
 
   RESPONSE_CHOICES = (
@@ -150,17 +175,7 @@ class Product(models.Model):
   
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
-'''
-  def full_case_price(self):
-    # discount approx 1 bottle
-    # rounding to the nearest 10
-    unit_price = int(self.unit_price/6)
-    discount_coeff = 10
-    if unit_price > 100:
-      discount_coeff = 100
-    # hopefully no bottle is > 1000 USD
-    return (self.unit_price * 2) - (unit_price/discount_coeff * discount_coeff)
-'''
+
 class LineItem(models.Model):
 
   PRICE_TYPE = (

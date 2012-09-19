@@ -57,12 +57,18 @@
         <div class="user-email">
           <a href="mailto:{{ user.email }}">{{ user.email }}</a>
         </div>
-	{% if host %}
+        {% if host %}
           <div class="user-credits">
-	    <p></p>
+            <p></p>
             My Vinely Credits: {{ host_credits|currency }}
           </div>
-	{% endif %}
+        {% endif %}
+        {% if pro %}
+          <div class="pro-commission">
+            <p></p>
+            Total Commissions: {{ pro_commission|currency }}
+          </div>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -127,6 +133,9 @@
       {% if host %}
         <th>My Credit</th>
       {% endif %}
+      {% if pro %}
+        <th>My Commission</th>
+      {% endif %}      
     </thead>
     <tbody>
     {% for party in past_parties %}
@@ -138,9 +147,12 @@
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>
         <td>{{ party.invitees }}</td>
-	{% if host %}
-        <td>{{ party.credit|currency }}</td>
-	{% endif %}
+        {% if host %}
+          <td>{{ party.credit|currency }}</td>
+        {% endif %}
+        {% if pro %}
+          <td>{{ party.pro_commission|currency }}</td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>
