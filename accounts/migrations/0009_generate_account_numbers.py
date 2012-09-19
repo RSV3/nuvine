@@ -11,7 +11,8 @@ def generate_pro_account_number(orm):
   '''
   #TODO: avoid race condition
   max = 99999
-  latest = orm.VinelyProAccount.objects.all().order_by('-account_number')[:1]
+  accounts_to_ignore = ['VP00090A', 'VP00091A', 'VP00092A', 'VP00093A', 'VP00094A', 'VP00095A', 'VP00096A', 'VP00097A', 'VP00098A', 'VP00099A']
+  latest = orm.VinelyProAccount.objects.exclude(account_number__in = accounts_to_ignore).order_by('-account_number')[:1]
   if latest.exists():
     prefix = 'VP' # latest[:2]
     account = latest[0].account_number
