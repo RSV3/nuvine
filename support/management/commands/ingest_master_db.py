@@ -174,7 +174,7 @@ class Command(BaseCommand):
 
         profile = user.get_profile()
         customer_id = str(int(row[CUSTOMER_ID]))
-        profile.customer_id = customer_id.rjust(6, '0') 
+        profile.vinely_customer_id = customer_id.rjust(6, '0') 
 
         shipping_address = Address(nick_name="Shipping",
                 company_co=row[RECIPIENT_COMPANY],

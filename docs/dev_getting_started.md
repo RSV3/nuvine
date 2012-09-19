@@ -4,6 +4,12 @@
   * main/templates/main contains most of the templates
   * accounts/templates/accounts/base_my_account.html also is the template that user account related templates inherit
 
+# Setting up staging and production
+  * Refer to: http://suitmymind.com/blog/2009/06/02/deploying-multiple-environments-on-heroku-while-still-hosting-code-on-github/
+
+    $ heroku git:remote -a winedora-staging -r heroku-staging (staging remote)
+    $ heroku git:remote -a winedora (production remote)
+
 # Code update from github
 
     $ git pull origin
