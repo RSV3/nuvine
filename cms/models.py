@@ -30,7 +30,7 @@ class Section(models.Model):
 	)
 	category = models.IntegerField(choices=SECTION_TYPE, default=0)
 	content = models.TextField()
-	template = models.ForeignKey(ContentTemplate)
+	template = models.ForeignKey(ContentTemplate, related_name='sections')
 
 	def __unicode__(self):
 		return self.get_category_display()

@@ -31,7 +31,7 @@ def edit_template(request, key):
 	data = {}
 
 	if request.method == 'GET':
-		section = template.section_set.all()[0]
+		section = template.sections.all()[0]
 		form = EditSectionForm(instance=section)
 	else:
 		if request.POST.get('section_select'):

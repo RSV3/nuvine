@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from emailusernames.forms import EmailAuthenticationForm
 
+from cms.models import ContentTemplate
 
 def home(request):
   """
@@ -16,7 +17,7 @@ def home(request):
   form.fields['email'].widget.attrs['placeholder'] = 'E-mail'
   form.fields['password'].widget.attrs['placeholder'] = 'Password'
   data['form'] = form 
-
+  data['general_section'] = ContentTemplate.objects.get(key='home_unauthenticated').sections.all()[0].content
   if request.user.is_authenticated():
     return HttpResponseRedirect(reverse("home_page"))
 
