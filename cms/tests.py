@@ -758,7 +758,7 @@ class SimpleTest(TestCase):
       <p>Discover your wine personality with friends at a Vinely Taste Party. We'll use that personality to select perfectly paired wine and ship wherever you sip. Interested? </p>
 
     """
-    template = ContentTemplate.objects.create(key="home_unauthenticated", category=1)
+    template = ContentTemplate.objects.create(key="landing_page", category=1)
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
 
   def our_story_template(self):

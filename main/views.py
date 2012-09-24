@@ -36,6 +36,8 @@ from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.template import Context, Template
 
+from cms.models import ContentTemplate
+
 def suppliers_only(request):
   """
     Redirected to this page when one is trying to access only supplier only features
@@ -153,7 +155,7 @@ def our_story(request):
   data = {}
 
   data['our_story_menu'] = True
-
+  data['our_story'] = ContentTemplate.objects.get(key='our_story').sections.all()[0].content
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 def get_started(request):
@@ -165,7 +167,11 @@ def get_started(request):
 
   u = request.user
   data['get_started_menu'] = True
-
+  sections = ContentTemplate.objects.get(key='get_started').sections.all()
+  print 'sections', [x.category for x in sections]
+  data['get_started_general'] = sections.get(category = 0).content
+  data['get_started_host'] = sections.get(category = 2).content
+  data['get_started_pro'] = sections.get(category = 3).content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 def contact_us(request):
@@ -235,7 +241,7 @@ def how_it_works(request):
   data = {}
 
   data["how_it_works_menu"] = True
-
+  data['how_it_works'] = ContentTemplate.objects.get(key='how_it_works').sections.all()[0].content
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
 def start_order(request, receiver_id=None, party_id=None):
