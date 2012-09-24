@@ -6,18 +6,21 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from cms.models import ContentTemplate, Variable
+from cms.models import ContentTemplate, Variable, Section
 
 class SimpleTest(TestCase):
   def runTest(self):
     pass
 
   def create_web_templates(self):
-    pass
+    self.home_template()
+    self.get_started_template()
+    self.our_story_template()
+    self.how_it_works_template()
 
   def create_all_templates(self):
-      self.create_web_templates()
-      self.create_email_templates()
+    self.create_web_templates()
+    self.create_email_templates()
 
   def create_email_templates(self):
     self.create_verification_email_template()
@@ -61,9 +64,9 @@ class SimpleTest(TestCase):
 
     """
 
-    template = ContentTemplate(key="verification_email", content=content, category=0)
+    template = ContentTemplate(key="verification_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="Account verification link")
@@ -96,8 +99,9 @@ class SimpleTest(TestCase):
 
     """
     
-    template = ContentTemplate(key="password_change_email", content=content, category=0)
+    template = ContentTemplate(key="password_change_email", category=0)
     template.save()
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
 
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="User's first name")
     template.variables_legend.add(variable)
@@ -135,9 +139,9 @@ class SimpleTest(TestCase):
 
     """
     
-    template = ContentTemplate(key="new_invitation_email", content=content, category=0)
+    template = ContentTemplate(key="new_invitation_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party_name }}", description="Name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
@@ -172,9 +176,9 @@ class SimpleTest(TestCase):
 
     """
 
-    template = ContentTemplate(key="new_party_email", content=content, category=0)
+    template = ContentTemplate(key="new_party_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
@@ -203,9 +207,9 @@ class SimpleTest(TestCase):
     - The Vinely Team 
 
     """
-    template = ContentTemplate(key="pro_request_email", content=content, category=0)
+    template = ContentTemplate(key="pro_request_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="First name")
     template.variables_legend.add(variable)
 
@@ -229,9 +233,9 @@ class SimpleTest(TestCase):
 
     """
 
-    template = ContentTemplate(key="pro_review_email", content=content, category=0)
+    template = ContentTemplate(key="pro_review_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Pro's First name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ last_name }}", description="Pro's Last name")
@@ -264,9 +268,9 @@ class SimpleTest(TestCase):
 
     """
 
-    template = ContentTemplate(key="know_pro_party_email", content=content, category=0)
+    template = ContentTemplate(key="know_pro_party_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's First name")
     template.variables_legend.add(variable)
 
@@ -292,9 +296,9 @@ class SimpleTest(TestCase):
 
     """
 
-    template = ContentTemplate(key="unknown_pro_party_email", content=content, category=0)
+    template = ContentTemplate(key="unknown_pro_party_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Host's First name")
     template.variables_legend.add(variable)
 
@@ -321,9 +325,9 @@ class SimpleTest(TestCase):
     - The Vinely Team 
 
     """
-    template = ContentTemplate(key="pro_approved_email", content=content, category=0)
+    template = ContentTemplate(key="pro_approved_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ applicant.first_name }}", description="The first name of the approved pro")
     template.variables_legend.add(variable)
 
@@ -349,9 +353,9 @@ class SimpleTest(TestCase):
       - The Vinely Team
 
     """
-    template = ContentTemplate(key="not_in_area_party_email", content=content, category=0)
+    template = ContentTemplate(key="not_in_area_party_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="The host's first name")
     template.variables_legend.add(variable)
 
@@ -378,9 +382,9 @@ class SimpleTest(TestCase):
       - The Vinely Team
 
     """
-    template = ContentTemplate(key="order_confirmation_email", content=content, category=0)
+    template = ContentTemplate(key="order_confirmation_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ customer }}", description="First name of the customer")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID")
@@ -407,9 +411,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="order_shipped_email", content=content, category=0)
+    template = ContentTemplate(key="order_shipped_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ order.receiver.first_name }}", description="First name of the customer")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID")
@@ -446,9 +450,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
    
     """
-    template = ContentTemplate(key="host_vinely_party_email", content=content, category=0)
+    template = ContentTemplate(key="host_vinely_party_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ pro_first_name }}", description="First name of the Vinely Pro")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Host's first name")
@@ -490,9 +494,9 @@ class SimpleTest(TestCase):
     Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
     """
-    template = ContentTemplate(key="new_party_scheduled_email", content=content, category=0)
+    template = ContentTemplate(key="new_party_scheduled_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
@@ -546,9 +550,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="distribute_party_invites_email", content=content, category=0)
+    template = ContentTemplate(key="distribute_party_invites_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.description }}", description="Description of the party. Only shown if exists")
@@ -586,9 +590,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="rsvp_thank_you_email", content=content, category=0)
+    template = ContentTemplate(key="rsvp_thank_you_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="The invitee's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url pre_questionnaire_general %}", description="Link to the tasting questionnaire")
@@ -614,9 +618,9 @@ class SimpleTest(TestCase):
 
       - The Vinely Web Site
     """
-    template = ContentTemplate(key="contact_request_email", content=content, category=0)
+    template = ContentTemplate(key="contact_request_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ contact_request.first_name }}", description="First name of the user (Optional)")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ contact_request.last_name }}", description="Last name of the user (Optional)")
@@ -652,9 +656,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="pro_assigned_notification_email", content=content, category=0)
+    template = ContentTemplate(key="pro_assigned_notification_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_user.first_name }}", description="Host's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ host_user.last_name }}", description="Host's last name")
@@ -688,9 +692,9 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="mentor_assigned_notification_email", content=content, category=0)
+    template = ContentTemplate(key="mentor_assigned_notification_email", category=0)
     template.save()
-
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.first_name }}", description="Mentee's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.last_name }}", description="Mentee's last name")
@@ -726,9 +730,11 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="mentee_assigned_notification_email", content=content, category=0)
+    template = ContentTemplate(key="mentee_assigned_notification_email", category=0)
     template.save()
-
+    section = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    section.save()
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.first_name }}", description="Mentor's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.last_name }}", description="Mentor's last name")
@@ -741,3 +747,104 @@ class SimpleTest(TestCase):
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.get_profile.phone }}", description="Mentee's phone number")
     template.variables_legend.add(variable)
+
+
+  ######################################
+  # Web Templates
+  ######################################
+  def home_template(self):
+    content = """
+      <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
+      <p>Discover your wine personality with friends at a Vinely Taste Party. We'll use that personality to select perfectly paired wine and ship wherever you sip. Interested? </p>
+
+    """
+    template = ContentTemplate.objects.create(key="home_unauthenticated", category=1)
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+
+  def our_story_template(self):
+    content = """
+      <h2>Great tastes are hard to come by</h2>
+
+      <p>Our question was simple: Why? Why can't finding tastes you love be easy, social, and fun? Now they are, with Vinely.</p>
+
+      <p>It may look like we have a great time (which we do), but when it comes to taste, we mean business. Serious business. The proof? Our patented Vinely Methodology - a proven system, thoughtfully engineered to define your true Vinely Personality. (It's not rocket science, but it's not far off.)</p>
+
+      <p>At each and every Vinely Taste Party, this methodology is hard at work, separating the Moxies from the Sensational. The Exuberant from the Easygoing. And the Whimsical from the Serendipitous. In turn, you'll be introduced to tastes that fit your Vinely Personality - tastes you won't be able to get enough of.</p>
+
+      <p>We're not out to change the things you enjoy. Fact is, we're here to help you embrace them even more! And with a Vinely Personality, there's nothing stopping you from finding wines that entice, excite, and encourage you to taste Your Personality every chance you get.</p>
+
+      <p>What are you waiting for?</p>    
+    """
+    template = ContentTemplate.objects.create(key="our_story", category=1)
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+
+  def how_it_works_template(self):
+    content = """
+      <h2>What does Vinely do?</h2>
+      <p>By finding your personality, Vinely identifies wines perfectly paired to your taste. 
+      After all, when it comes to choosing wines you love, who wants to play the guessing game? At a Vinely Taste Party you'll sip, savor, and rate different flavors with your friends. 
+      Using those ratings, your Vinely Pro will reveal your inner personality. From there, it's hello to happier tastes.</p>
+
+      <h2>How do I order?</h4>
+      <p>Once you and your wine personality have had some time to bond, you can easily place an order. 
+      Then, wines from near and far will show up at your doorstep. The best part? No guesswork. No research. And no intimidating wall of wines. 
+      Not even a trip to the store. Just exceptional wines, delivered right to your home - conveniently, quickly, and best of all, deliciously.</p>
+
+      <h2>Great! Then what?</h2>
+      <p>And since you'll love every wine, every time, we give you a variety of ways to keep fully stocked. 
+      Become a VIP and receive your personalized Vinely Collection monthly, bi-monthly or quarterly. Or simply place a single order. 
+      No matter what works for you, we're shipping to wherever you're sipping. All you have to do is ask.</p>
+
+      <h2>Where's the party?</h2>
+      <p>If you haven't been invited to a Vinely Taste Party, become a Host and have your own.</p>    
+    """
+    template = ContentTemplate.objects.create(key="how_it_works", category=1)
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+
+  def get_started_template(self):
+    general_content = """
+
+      A Vinely Taste Party is a fun, engaging and unique way for you and your friends to learn about the tastes you love. 
+      As a Vinely Host, we'll pair you with a Vinely Pro. Or you can choose your own. 
+      They'll help you set up the event, moderate the sampling, and provide each Taster attending with an official Vinely Personality. 
+      Oh, and did we mention? In addition to a great time, we'll provide you with Vinely Credits you can use toward Vinely merchandise!
+
+    """
+    host_content = """
+
+      <h2>Be the host with the most. Follow these simple steps to host your own Vinely Taste Party.</h2>
+
+      <p>Find a space: A living room, loft, porch, or kitchen make great party spots. 
+      Truthfully, anywhere wine, food, and 8 - 12 people can fit (without throwing a fit) will work perfectly.</p>
+
+      <p><b>Find some time:</b> You and your Vinely Pro will schedule a party date. 
+      Then, with a little planning, inviting, prepping, and a Vinely Taste Kit, you'll be well on your way to a truly tasteful experience.</p>
+
+      <p><b>Find some friends:</b> You've got 'em. So get 'em to your place! 
+      For your friends who are wine-tasting veterans, it's sure to be an experience unlike any other they've had. 
+      For beginners, it's an exciting, no-pressure way to try new tastes and learn what they love. 
+      Point being, at a Vinely Taste Party, everyone's welcome and everyone wins!</p>
+
+    """
+
+    pro_content = """
+
+      <h2>Want more? Vinely Pro is the way to go!</h2>
+      <p>Would you like to conduct Taste Parties and help people find their inner Wine Personality? 
+      Do you want to earn by helping others learn? By becoming a Vinely Pro, you'll be able to do all that, and more. 
+      You'll work directly with Vinely Hosts, initiating, scheduling, and conducting Taste Parties. 
+      You'll be able to start multiple Taste Parties and track each one's progress. 
+      Become a Pro and there's no telling where the party scene will take you.</p>
+
+      <p>
+        Think you have what it takes to get the Taste Party started?
+      </p>
+
+    """
+    template = ContentTemplate.objects.create(key="get_started", category=1)
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)
+    Section.objects.create(category=Section.SECTION_TYPE[2][0], content=host_content, template=template)
+    Section.objects.create(category=Section.SECTION_TYPE[3][0], content=pro_content, template=template)
+
+
+
