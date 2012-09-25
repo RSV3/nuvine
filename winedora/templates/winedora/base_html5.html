@@ -269,6 +269,18 @@
               <a href="{% url privacy %}">Privacy</a>
             </li>
           </ul>
+          <div class="row">
+            <div class="span1">
+              <a href="https://twitter.com/vinelywine" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @vinelywine</a>
+              <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+            </div>
+            <div class="span1">
+              <a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fwww.vinely.com&media=http%3A%2F%2Fpassets-lt.pinterest.com%2Fimages%2Fabout%2Fbuttons%2Fpinterest-button.png&description=Follow%20Me%20on%20Pinterest" class="pin-it-button" count-layout="none"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>              
+            </div>            
+            <div class="span1">
+              <div class="fb-like" data-href="https://www.vinely.com" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
@@ -330,6 +342,14 @@
 
   </script>
   {% endif %}
-
+    <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+  <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
 </body>
 </html>
