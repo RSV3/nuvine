@@ -168,7 +168,6 @@ def get_started(request):
   u = request.user
   data['get_started_menu'] = True
   sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  print 'sections', [x.category for x in sections]
   data['get_started_general'] = sections.get(category = 0).content
   data['get_started_host'] = sections.get(category = 2).content
   data['get_started_pro'] = sections.get(category = 3).content
@@ -311,6 +310,15 @@ def cart_add_tasting_kit(request, party_id=0):
   except Party.DoesNotExist:
     raise Http404
   
+  # check how many invites and recommend number of taste kits
+  invites = Cart.objects.all()#filter(party = party)
+  if invites.count() <= 6:
+    messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
+  elif invites.count() > 6 and invites.count() <= 12:
+    messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
+  else:
+    messages.warning(request, 'You are only allowed to order up to 2 taste kits (12 wines) per party. However, your party seems to have more tasters than our taste kits provide.')
+
   form = AddTastingKitToCartForm(request.POST or None)
   
   if form.is_valid():
