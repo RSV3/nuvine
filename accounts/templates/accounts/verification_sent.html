@@ -7,6 +7,20 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div id="tell-us-modal" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Talk to us</h3>
+    </div>
+    <div class="modal-body">
+      <p>We would appreciate if you could spend a few minutes to let us know how you heard about us.</p>
+      <textarea rows="5" class="span6"></textarea>
+    </div>
+    <div class="modal-footer">
+      <!-- <a href="#" class="btn">Close</a> -->
+      <a href="#" class="btn btn-primary">Submit</a>
+    </div>
+  </div>  
   <div class="row">
     <div class="offset2 span8">
       <p>We love a good party and we’re glad you’d like to host one! An email should arrive shortly, which will include your sign in and password information.</p>
@@ -23,3 +37,12 @@
 </div>
 
 {% endblock content %}
+
+{% block additional_scripts %}
+<script>
+  $(document).ready(function(){
+    // uncomment this to enable
+    // $("#tell-us-modal").modal();
+  });
+</script>
+{% endblock additional_scripts %}
