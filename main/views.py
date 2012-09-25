@@ -311,7 +311,7 @@ def cart_add_tasting_kit(request, party_id=0):
     raise Http404
   
   # check how many invites and recommend number of taste kits
-  invites = Cart.objects.all()#filter(party = party)
+  invites = PartyInvite.objects.filter(party = party)
   if invites.count() <= 6:
     messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
   elif invites.count() > 6 and invites.count() <= 12:
@@ -960,6 +960,13 @@ def party_details(request, party_id):
 
   data["party"] = party
   data["invitees"] = invitees
+
+  if invitees.count() <= 3: 
+    msg = 'This party still seems to have too few tasters for a party. You should consider <a href="%s">inviting more</a> people to the party.' % reverse('party_taster_invite', args=[party.id])
+    messages.warning(request, msg)
+  elif invitees.count() > 12:
+    msg = 'You\'ve exceeded the number of people recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
+    messages.warning(request, msg)
 
   # TODO: might have to fix this and set Party to have a particular pro
   my_hosts = MyHost.objects.filter(host=party.host).order_by("-timestamp")
