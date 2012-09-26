@@ -237,3 +237,13 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     return cleaned
     
+class HeardAboutForm(forms.Form):
+  SOURCES = (
+    (0, "A Party"),
+    (1, "Print Materials"),
+    (2, "Vinely Pro"),
+    (3, "Word of mouth"),
+    (4, "Other")
+  )
+  source = forms.ChoiceField(choices=SOURCES)
+  description = forms.CharField(widget=forms.Textarea(attrs={'rows':5, 'class':'span6'}))

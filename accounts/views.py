@@ -15,7 +15,8 @@ from main.models import EngagementInterest, PartyInvite, MyHost
 from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
-                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm
+                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
+                           HeardAboutForm
 from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
     check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
@@ -323,7 +324,6 @@ def sign_up(request, account_type):
       try:
         # make sure the pro exists
         pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
-        # if pro_group in pro.groups.all():
         profile.mentor = pro
       except Exception, e:
         pass # leave mentor as default
@@ -333,12 +333,11 @@ def sign_up(request, account_type):
       try:
         # make sure the pro exists
         pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
-        print "Pro found", pro
-        # if pro_group in pro.groups.all():
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
       except Exception, e:
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
+        pass
+        # my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
       
     profile.save()
     
@@ -389,6 +388,7 @@ def sign_up(request, account_type):
         
       send_host_vinely_party_email(request, user, mentor_pro) # to pro or vinely
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+    data['heard_about_us_form'] = HeardAboutForm()
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 

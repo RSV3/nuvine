@@ -13,12 +13,19 @@
       <h3>Talk to us</h3>
     </div>
     <div class="modal-body">
-      <p>We would appreciate if you could spend a few minutes to let us know how you heard about us.</p>
-      <textarea rows="5" class="span6"></textarea>
-    </div>
-    <div class="modal-footer">
-      <!-- <a href="#" class="btn">Close</a> -->
-      <a href="#" class="btn btn-primary">Submit</a>
+      <p>We would appreciate if you could spend a minute or 2 to let us know how you heard about us.</p>
+      <div class="controls">
+        {{ heard_about_us_form.source }}
+      </div>
+      <div class="control-label" for="id_description">
+        {{ heard_about_us_form.description_tag}}
+      </div>
+      <div class="controls">
+        {{ heard_about_us_form.description }}
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary">Submit</a>
+      </div>
     </div>
   </div>  
   <div class="row">
