@@ -761,7 +761,7 @@ def calculate_pro_commission(pro):
 
   for party in parties:
     # get orders made within 120 days after party
-    party_window = party.event_date + timedelta(days=120)
+    party_window = party.event_date + timedelta(days=90)
     orders = Order.objects.filter(order_date__lte = party_window, cart__party = party)
     # exclude taste kits
     orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])

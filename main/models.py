@@ -47,7 +47,7 @@ class Party(models.Model):
 
   def __unicode__(self):
     return self.title
-  
+
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
     if coming <= 3:
@@ -115,13 +115,10 @@ class Party(models.Model):
     basic_total = other_total = freq_total = 0
     basic_aggr = one_time_basic.aggregate(total=Sum('cart__items__total_price'))
     basic_total += basic_aggr['total'] if basic_aggr['total'] else 0
-    print "basic", basic_aggr
     other_aggr = one_time_other.aggregate(total = Sum('cart__items__total_price'))
     other_total += other_aggr['total'] if other_aggr['total'] else 0
-    print "other", other_aggr
     freq_aggr = freq_orders.aggregate(total = Sum('cart__items__total_price'))
     freq_total += freq_aggr['total'] if freq_aggr['total'] else 0
-    print "freq", freq_aggr
     return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total))
 
 
