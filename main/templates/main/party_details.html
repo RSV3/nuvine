@@ -35,7 +35,7 @@
             </tr>
             <tr>
               <td>Guests Attending:</td>
-              <td>{% if party.invitees %}{{ party.invitees }}{% else %}Nobody invited yet{% endif %}</td>
+              <td>{% if party.invitees %}{{ party.invitees }} <span class="badge badge-important">{{ party.high_low }}</span> {{ high_low_status }}{% else %}<a href="{% url party_taster_invite party.id %}">Invite Guests</a>{% endif %}</td>
             </tr>
             <tr>
               <td>Special Instructions:</td>
