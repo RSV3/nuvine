@@ -3,16 +3,15 @@ from django.contrib.auth.models import User, Group
 from emailusernames.utils import create_user
 
 from optparse import make_option
-import types, string
-import xlrd
+import types, string, uuid
+import xlrd, pytz
 from datetime import datetime
-import pytz
 
-from accounts.models import Address, CreditCard
+from accounts.models import Address, CreditCard, VerificationQueue
 from main.models import SubscriptionInfo, CustomizeOrder, Party, PartyInvite
 from personality.utils import calculate_wine_personality
 from personality.models import WinePersonality, Wine, WineRatingData
-
+from accounts.utils import send_thank_valued_member_email
 
 CUSTOMER_ID = 0
 RECIPIENT_FIRST_NAME = 1
@@ -171,6 +170,19 @@ class Command(BaseCommand):
           user.last_name = row[RECIPIENT_LAST_NAME]
           user.save()
           user.groups.add(taster_group)
+          # TODO: create temporary password and send new account e-mail
+          # thanking them
+          temp_password = User.objects.make_random_password()
+          user.set_password(temp_password)
+          user.save()
+
+          verification_code = str(uuid.uuid4())
+          vque = VerificationQueue(user=user, verification_code=verification_code)
+          vque.save()
+
+          # send out verification e-mail, create a verification code
+          send_thank_valued_member_email(None, verification_code, temp_password, user.email)
+
 
         profile = user.get_profile()
         customer_id = str(int(row[CUSTOMER_ID]))

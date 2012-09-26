@@ -494,6 +494,67 @@ def send_not_in_area_party_email(request, user, account_type):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+def send_thank_valued_member_email(request, verification_code, temp_password, receiver_email):
+  # need to get host_name when request = None
+  content = """
+
+  {% load static %}
+
+  Dear Valued Vinely member,
+
+  Thank you for being part of Vinely when we were a baby.  We now have online presence to serve your needs better.
+
+  Your new account has been automatically created. Please verify your e-mail address and create a new password by going to:
+
+  http://{{ host_name }}{% url verify_account verification_code %}
+
+  Your temporary password is: {{ temp_password }} 
+
+  Use this password to verify your account.
+  
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+  """
+  
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  
+  if request:
+    c = RequestContext( request, {"host_name": request.get_host() if request else "www.vinely.com",
+                                  "verification_code": verification_code,
+                                  "temp_password": temp_password,
+                                  })
+  else:
+    c = Context({"host_name": request.get_host() if request else "www.vinely.com",
+                                  "verification_code": verification_code,
+                                  "temp_password": temp_password,
+                                  })
+  txt_message = txt_template.render(c)
+  
+  c.update({'sig':True})
+  html_message = html_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  subject = 'Come visit Vinely website!'
+  recipients = [receiver_email]
+  if request:
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  else:
+    html_msg = render_to_string("email/base_email_lite.html", Context({'title': subject, 'message': html_message, 'host_name': "www.vinely.com"}))
+
+  from_email = 'Welcome to Vinely <welcome@vinely.com>'
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()  
+
 def check_zipcode(zipcode):
   '''
   Check provided zipcode against existing ones to verify if vinely operates in the area
