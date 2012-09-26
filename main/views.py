@@ -958,15 +958,15 @@ def party_details(request, party_id):
 
   # check number of invitees that have accepted or maybe
   invitees = PartyInvite.objects.filter(party=party)
-  
+
   data["party"] = party
   data["invitees"] = invitees
 
   if party.high_low() == '!LOW': 
-    msg = 'This party still seems to have too few tasters for a party. You should consider <a href="%s">inviting more</a> people to the party.' % reverse('party_taster_invite', args=[party.id])
+    msg = 'Too few people have RSVP\'ed to the party. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
   elif party.high_low() == '!HIGH':
-    msg = 'You\'ve exceeded the number of people recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
+    msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
     messages.warning(request, msg)
 
   # TODO: might have to fix this and set Party to have a particular pro
