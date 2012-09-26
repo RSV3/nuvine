@@ -9,10 +9,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 
 @staff_member_required
-def template_list(request):
+def template_list(request, type=0):
 	data = {}
 	page_num = request.GET.get('p', 0)
-	templates = ContentTemplate.objects.all()#.order_by('category').order_by('-key')
+	templates = ContentTemplate.objects.filter(category=type)#.order_by('-key')
 	paginator = Paginator(templates, 10)
 	try:
 		page = paginator.page(page_num)

@@ -2,7 +2,7 @@
 
 {% block header %}
   <!-- <h1>Edit {% if template.category == 0 %} Email {% else %} Web {% endif %}Template</h1> -->
-  <h1><a href="{% url template_list %}">Template List</a> / Edit - {{ template.key }}</h1>
+  <h1><a href="{% url template_list template.category %}">Template List</a> / Edit - {{ template.key }}</h1>
 {% endblock header %}
 
 {% block content %}
