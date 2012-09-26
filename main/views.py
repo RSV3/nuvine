@@ -764,7 +764,6 @@ def tag(request):
 
   return HttpResponse(json.dumps(data), mimetype="application/json") 
 
-
 @login_required
 def party_list(request):
   """
@@ -792,6 +791,7 @@ def party_list(request):
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
+
   elif (hos_group in u.groups.all()):
     data['host_credits'] = calculate_host_credit(u)
     data['parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
@@ -956,15 +956,16 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
+  # check number of invitees that have accepted or maybe
   invitees = PartyInvite.objects.filter(party=party)
-
+  
   data["party"] = party
   data["invitees"] = invitees
 
-  if invitees.count() <= 3: 
+  if party.high_low() == '!LOW': 
     msg = 'This party still seems to have too few tasters for a party. You should consider <a href="%s">inviting more</a> people to the party.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
-  elif invitees.count() > 12:
+  elif party.high_low() == '!HIGH':
     msg = 'You\'ve exceeded the number of people recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
     messages.warning(request, msg)
 

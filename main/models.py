@@ -47,6 +47,15 @@ class Party(models.Model):
 
   def __unicode__(self):
     return self.title
+  
+  def high_low(self):
+    coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
+    if coming <= 3:
+      return '!LOW'
+    elif coming >= 12:
+      return '!HIGH'
+    else:
+      return ''
 
   def invitees(self):
     invites = PartyInvite.objects.filter(party=self).count()
