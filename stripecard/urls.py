@@ -7,4 +7,5 @@ from stripecard.views import *
 
 urlpatterns = patterns(
     '',
+    url(r'^webhooks/$', webhooks, name="webhooks"),
 )
