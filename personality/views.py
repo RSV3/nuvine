@@ -240,65 +240,6 @@ def record_all_wine_ratings(request, email=None, party_id=None):
   if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
     # one can record ratings only if Vinely Pro or Vinely Host/Vinely Taster
 
-    form = AllWineRatingsForm(request.POST or None)
-    if form.is_valid():
-      results = form.save()
-      invitee = results[0]
-      data["invitee"] = invitee 
-
-      if invitee.is_active is False:
-        # new user was created
-        temp_password = User.objects.make_random_password()
-        invitee.set_password(temp_password)
-        invitee.save()
-
-        verification_code = str(uuid.uuid4())
-        vque = VerificationQueue(user=invitee, verification_code=verification_code)
-        vque.save()
-
-        # send out verification e-mail, create a verification code
-        send_verification_email(request, verification_code, temp_password, invitee.email)
-
-      if np.sum(np.array([results[1].overall, results[2].overall, 
-                          results[3].overall, results[4].overall, 
-                          results[5].overall, results[6].overall]) > 0) == 6:
-        # only save personality if all 6 wine fields have been filled out
-        personality = calculate_wine_personality(*results)
-        data["personality"] = personality
-       
-        if pro_group in u.groups.all():
-          # ask if you want to fill out next customer's ratings or order wine
-          data["role"] = "pro"
-          # log the time and the party that the persona was found 
-          if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
-            persona_log.pro = u
-            if created or persona_log.party is None:
-              # record first party
-              persona_log.party = party
-            persona_log.save()
-        elif tas_group in u.groups.all():
-          # saving your own data
-          data["role"] = "taster"
-          if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
-            if persona_log.party is None:
-              # if no previous log has been created, since we only track the first party
-              persona_log.party = party
-              persona_log.save()
-          else:
-            # saved before or without the party
-            PersonaLog.objects.get_or_create(user=invitee)
-        elif hos_group in u.groups.all():
-          # personality was created by an host herself 
-          # ask if you want order wine
-          data["role"] = "host"
-          PersonaLog.objects.get_or_create(user=invitee)
-
-        return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
-      else:
-        messages.success(request, "Partial ratings have been saved for %s" % invitee.email)
-
     # show forms
     wine1 = Wine.objects.get(number=1, active=True)
     wine2 = Wine.objects.get(number=2, active=True)
@@ -421,7 +362,68 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     else:
       initial_data['email'] = email
 
-    form = AllWineRatingsForm(initial=initial_data)
+    form = AllWineRatingsForm(request.POST or None, initial=initial_data)
+    if form.is_valid():
+      results = form.save()
+      invitee = results[0]
+      data["invitee"] = invitee 
+
+      if invitee.is_active is False:
+        # new user was created
+        temp_password = User.objects.make_random_password()
+        invitee.set_password(temp_password)
+        invitee.save()
+
+        verification_code = str(uuid.uuid4())
+        vque = VerificationQueue(user=invitee, verification_code=verification_code)
+        vque.save()
+
+        # send out verification e-mail, create a verification code
+        send_verification_email(request, verification_code, temp_password, invitee.email)
+
+      if np.sum(np.array([results[1].overall, results[2].overall, 
+                          results[3].overall, results[4].overall, 
+                          results[5].overall, results[6].overall]) > 0) == 6:
+        # only save personality if all 6 wine fields have been filled out
+        personality = calculate_wine_personality(*results)
+        data["personality"] = personality
+       
+        if pro_group in u.groups.all():
+          # ask if you want to fill out next customer's ratings or order wine
+          data["role"] = "pro"
+          # log the time and the party that the persona was found 
+          if party:
+            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
+            persona_log.pro = u
+            if created or persona_log.party is None:
+              # record first party
+              persona_log.party = party
+            persona_log.save()
+        elif tas_group in u.groups.all():
+          # saving your own data
+          data["role"] = "taster"
+          if party:
+            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
+            if persona_log.party is None:
+              # if no previous log has been created, since we only track the first party
+              persona_log.party = party
+              persona_log.save()
+          else:
+            # saved before or without the party
+            PersonaLog.objects.get_or_create(user=invitee)
+        elif hos_group in u.groups.all():
+          # personality was created by an host herself 
+          # ask if you want order wine
+          data["role"] = "host"
+          PersonaLog.objects.get_or_create(user=invitee)
+
+        return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
+      else:
+        messages.success(request, "Partial ratings have been saved for %s" % invitee.email)
+
+
+
+    # form = AllWineRatingsForm(initial=initial_data)
 
     data["rate_wines_menu"] = True
     data["form"] = form
