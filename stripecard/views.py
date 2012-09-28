@@ -8,10 +8,6 @@ import json
 
 from stripecard.models import StripeCard
 
-HOOKS = {
-	'invoice.created':invoice_created,
-}
-
 @require_POST
 @csrf_exempt
 def webhooks(request):
@@ -32,4 +28,8 @@ def invoice_created(event_json):
 	# Order.objects.filter()
 	# check what subscriptions are due
 	# create invoice for these and send to stripe
+
+HOOKS = {
+	'invoice.created':invoice_created,
+}
 
