@@ -37,6 +37,10 @@ from django.template.loader import render_to_string
 from django.template import Context, Template
 
 from cms.models import ContentTemplate
+from django.conf import settings
+import stripe
+
+from stripecard.models import StripeCard
 
 def suppliers_only(request):
   """
@@ -585,22 +589,16 @@ def place_order(request):
   u = request.user
 
   data["your_personality"] = "Moxie"
-
+  
   # set this to use in edit_shipping_address and edit_credit_card to indicate that
   # order has been reviewed 
   request.session['ordering'] = True 
   
   if 'cart_id' in request.session:
-    try:
-      cart = Cart.objects.get(id=request.session['cart_id'])
-    except Cart.DoesNotExist:
-      raise Http404
+    cart = get_object_or_404(Cart, id=request.session['cart_id'])
 
-    if 'receiver_id' in request.session:
-      receiver = User.objects.get(id=request.session['receiver_id'])
-      profile = receiver.get_profile()
-    else:
-      raise Http404
+    receiver = get_object_or_404(User, id=request.session['receiver_id'])
+    profile = receiver.get_profile()
 
     if request.method == "POST": 
       # finalize order
@@ -625,12 +623,23 @@ def place_order(request):
         order = Order(ordered_by=u, receiver=receiver, order_id=order_id, cart=cart)
 
       # save credit card and shipping address in the order
-      order.credit_card = profile.credit_card
+      # order.credit_card = profile.credit_card
+      order.stripe_card = profile.stripe_card
       order.shipping_address = profile.shipping_address
       order.save()
 
       cart.status = Cart.CART_STATUS_CHOICES[5][0] 
       cart.save()
+
+      # charge card to stripe
+      stripe.api_key = settings.STRIPE_SECRET
+      # NOTE: Amount must be in cents
+      # Having these first so that they come last in the stripe invoice.
+      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping()* 100), currency='usd', description='Shipping')
+      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+
+      for item in order.cart.items.all():
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
       # save cart to order
       data["shop_menu"] = True
@@ -658,7 +667,7 @@ def place_order(request):
       cart.save()
 
       data["receiver"] = receiver
-      data["credit_card"] = profile.credit_card 
+      data["credit_card"] = profile.stripe_card # profile.credit_card 
       data["shipping_address"] = profile.shipping_address
 
       data["shop_menu"] = True
@@ -1493,6 +1502,15 @@ def edit_shipping_address(request):
   return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
 
+class StripeInfo:
+  def __init__(self, token, month, year, last_four, card_type):
+    self.token = token
+    self.month = month
+    self.year = year
+    self.last_four = last_four
+    self.card_type = card_type
+    self.exp_date = month + "/" + year
+
 @login_required
 def edit_credit_card(request):
   """
@@ -1502,22 +1520,55 @@ def edit_credit_card(request):
   data = {}
   u = request.user
 
-  form = PaymentForm(request.POST or None)
-  #form = CreditCardForm(request.POST or None)
+  # form = PaymentForm(request.POST or None)
+  # form = CreditCardForm(request.POST or None)
 
-  if form.is_valid():
-    new_card = form.save()
+  # if form.is_valid():
+  #   new_card = form.save()
+    # try:
+    #   receiver = User.objects.get(id=request.session['receiver_id'])
+    #   profile = receiver.get_profile()
+    #   profile.credit_card = new_card
+    #   profile.save()
+    #   # for now save the card to receiver 
+    #   #if form.cleaned_data['save_card']:
+    #   profile.credit_cards.add(new_card)
+    # except:
+    #   # the receiver has not been specified
+    #   raise PermissionDenied 
+
+  if request.method == 'POST':
+
+    stripe.api_key = settings.STRIPE_SECRET
+    stripe_token  = request.POST.get('stripe_token')
+    # request.session['stripe_token'] = stripe_token
+
+    # create stripe user
     try:
       receiver = User.objects.get(id=request.session['receiver_id'])
-      profile = receiver.get_profile()
-      profile.credit_card = new_card
-      profile.save()
-      # for now save the card to receiver 
-      #if form.cleaned_data['save_card']:
-      profile.credit_cards.add(new_card)
     except:
       # the receiver has not been specified
       raise PermissionDenied 
+
+    stripe_card = receiver.get_profile().stripe_card
+    try:
+      customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+      stripe_user_id = customer.id
+    except:
+      # no customer record so create on stripe
+      customer = stripe.Customer.create(card=stripe_token, email=u.email)
+      stripe_user_id = customer.id
+
+    # create on vinely
+    print 'stripe user', stripe_user_id
+    stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                              exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                              card_type=request.POST.get('card_type'))
+    if created:
+      profile = receiver.get_profile()
+      profile.stripe_card = stripe_card
+      profile.save()
+      profile.stripe_cards.add(stripe_card)
 
     # update cart status
     cart = Cart.objects.get(id=request.session['cart_id'])
@@ -1529,24 +1580,25 @@ def edit_credit_card(request):
     return HttpResponseRedirect(reverse("place_order"))
 
   # display form: prepopulate with previous credit card used
-  current_user_profile = u.get_profile()
-  if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
-    card_info = current_user_profile.credit_card
-    form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
-                    'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
-                    'billing_zipcode': card_info.billing_zipcode}
-  else:
-    cards = current_user_profile.credit_cards.all()
-    if cards.count() > 0:
-      card_info = cards[0]
-      form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
-                      'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
-                      'billing_zipcode': card_info.billing_zipcode}
-  data['form'] = form
-  if 'ordering' in request.session and request.session['ordering']:
-    # display different set of buttons if currently in address update stage
-    data['update'] = True
+  # current_user_profile = u.get_profile()
+  # if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
+  #   card_info = current_user_profile.credit_card
+  #   form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+  #                   'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
+  #                   'billing_zipcode': card_info.billing_zipcode}
+  # else:
+  #   cards = current_user_profile.credit_cards.all()
+  #   if cards.count() > 0:
+  #     card_info = cards[0]
+  #     form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+  #                     'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
+  #                     'billing_zipcode': card_info.billing_zipcode}
+  # data['form'] = form
+  # if 'ordering' in request.session and request.session['ordering']:
+  #   # display different set of buttons if currently in address update stage
+  #   data['update'] = True
 
+  data['publish_token'] = settings.STRIPE_PUBLISHABLE
   data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 

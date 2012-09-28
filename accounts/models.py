@@ -10,6 +10,7 @@ from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
 
 from datetime import date
+from stripecard.models import StripeCard
 
 # Create your models here.
 
@@ -137,9 +138,11 @@ class UserProfile(models.Model):
   billing_address = models.ForeignKey(Address, related_name="billed_to", null=True, blank=True)
   shipping_address = models.ForeignKey(Address, related_name="shipped_to", null=True, blank=True)
   credit_card = models.ForeignKey(CreditCard, related_name="owner", null=True, blank=True)
+  stripe_card = models.ForeignKey(StripeCard, related_name="stripe_owner", null=True, blank=True)
 
   # for permanently storing for future
   credit_cards = models.ManyToManyField(CreditCard, related_name="owned_by", null=True, blank=True)
+  stripe_cards = models.ManyToManyField(StripeCard, related_name="stripe_owned_by", null=True, blank=True)
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 

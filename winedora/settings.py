@@ -217,6 +217,7 @@ INSTALLED_APPS = (
     'support',
     'social',
     'cms',
+    'stripecard',
 )
 
 
@@ -284,3 +285,6 @@ try:
   from winedora.settings_local import *
 except Exception as e:
   print e
+
+STRIPE_SECRET = "sk_0B7BJP63oAFG6ZwL0TcbWPUWU0LuM"
+STRIPE_PUBLISHABLE = "pk_0B7BHz0y806TkUPZgpOBepr4dVngO"

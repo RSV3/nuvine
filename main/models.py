@@ -6,6 +6,7 @@ from personality.models import WineRatingData
 from sorl.thumbnail import ImageField
 
 from datetime import date, datetime, timedelta
+from stripecard.models import StripeCard
 
 # Create your models here.
 
@@ -298,6 +299,7 @@ class Order(models.Model):
   cart = models.OneToOneField(Cart)
   shipping_address = models.ForeignKey(Address, null=True)
   credit_card = models.ForeignKey(CreditCard, null=True)
+  stripe_card = models.ForeignKey(StripeCard, null=True)
   order_date = models.DateTimeField(auto_now_add=True)
 
   FULFILL_CHOICES = (
