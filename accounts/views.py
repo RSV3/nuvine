@@ -143,11 +143,16 @@ def edit_subscription(request):
   data = {}
   data['edit_subscription'] = True
 
-  try:
-    user_subscription = SubscriptionInfo.objects.get(user=u)
-  except SubscriptionInfo.DoesNotExist:
+  # try:
+  #   user_subscription = SubscriptionInfo.objects.get(user=u)
+  # except SubscriptionInfo.DoesNotExist:
+  #   user_subscription = None
+  subscriptions = SubscriptionInfo.objects.filter(user=u)
+  if subscriptions.exists():
+    user_subscription = subscriptions[0]
+  else:
     user_subscription = None
-
+  
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription)
   if form.is_valid():
     form.save()
@@ -155,7 +160,7 @@ def edit_subscription(request):
 
   data['invited_by'] = my_host(u)
   data['pro_user'], data['pro_profile'] = my_pro(u)
-
+  data['subscriptions'] = subscriptions
   if user_subscription is None:
     form.initial['user'] = u
   data['form'] = form
