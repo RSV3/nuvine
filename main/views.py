@@ -306,8 +306,10 @@ def cart_add_tasting_kit(request, party_id=0):
   u = request.user
   
   party = None
+  today = datetime.now(tz=UTC())
+
   try:
-    party = Party.objects.get(id=party_id, host = u)
+    party = Party.objects.get(id=party_id, host = u, event_date__gt = today)
     if party_id:
       # ordering from a particular party
       request.session['party_id'] = int(party_id)
@@ -316,12 +318,14 @@ def cart_add_tasting_kit(request, party_id=0):
   
   # check how many invites and recommend number of taste kits
   invites = PartyInvite.objects.filter(party = party)
-  if invites.count() <= 6:
+  if invites.count() == 0:
+    messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
+  elif invites.count() < 8:
     messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
-  elif invites.count() > 6 and invites.count() <= 12:
+  elif invites.count() > 12 and invites.count() <= 24:
     messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
-  else:
-    messages.warning(request, 'You are only allowed to order up to 2 taste kits (12 wines) per party. However, your party seems to have more tasters than our taste kits provide.')
+  elif invites.count() > 24:
+    messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
 
   form = AddTastingKitToCartForm(request.POST or None)
   
@@ -980,11 +984,12 @@ def party_details(request, party_id):
 
   data["party"] = party
   data["invitees"] = invitees
+  today = datetime.now(tz=UTC())
 
-  if party.high_low() == '!LOW': 
+  if party.event_date > today and party.high_low() == '!LOW': 
     msg = 'Too few people have RSVP\'ed to the party. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
-  elif party.high_low() == '!HIGH':
+  elif party.event_date > today and party.high_low() == '!HIGH':
     msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
     messages.warning(request, msg)
 
@@ -993,6 +998,7 @@ def party_details(request, party_id):
   data["pro_user"] = my_hosts[0].pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
+  data['can_order_kit'] = (party.event_date > today)
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
 

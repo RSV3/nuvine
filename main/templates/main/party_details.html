@@ -41,7 +41,7 @@
               <td>Special Instructions:</td>
               <td>{{ party.description }}</td>
             </tr>
-            {% if host %}
+            {% if host and can_order_kit %}
             <tr>
               <td>
                 <a class="btn btn-primary" href="{% url cart_add_tasting_kit party.id %}">Order Tasting Kit</a>
