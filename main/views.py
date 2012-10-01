@@ -639,7 +639,15 @@ def place_order(request):
       stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
 
       for item in order.cart.items.all():
+        # both one-time and subscription charged immediately at this point
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
+
+      # if subscription exists then create plan
+      sub_orders = order.cart.items.filter(frequency__in = [1,2,3])        
+      if sub_orders.exists():
+        print "subscribed this customer"
+        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+        customer.update_subscription(plan='half-case-basic')
 
       # save cart to order
       data["shop_menu"] = True
@@ -701,13 +709,15 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.all():
+    for item in order.cart.items.filter(price_category__in = range(5, 11), frequency__in = [1,2,3]):
       # check if item contains subscription
-      if item.price_category in range(5, 11):
-        subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver)
-        subscription.quantity = item.price_category
-        subscription.frequency = item.frequency 
-        subscription.save()
+      # if item.price_category in range(5, 11):
+      subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
+      # subscription.quantity = item.price_category
+      # subscription.frequency = item.frequency
+      next_invoice = datetime.date(datetime.now(tz=UTC())) + timedelta(days=28)
+      subscription.next_invoice_date = next_invoice
+      subscription.save()
 
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
@@ -1502,15 +1512,6 @@ def edit_shipping_address(request):
   return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
 
-class StripeInfo:
-  def __init__(self, token, month, year, last_four, card_type):
-    self.token = token
-    self.month = month
-    self.year = year
-    self.last_four = last_four
-    self.card_type = card_type
-    self.exp_date = month + "/" + year
-
 @login_required
 def edit_credit_card(request):
   """
@@ -1541,9 +1542,7 @@ def edit_credit_card(request):
 
     stripe.api_key = settings.STRIPE_SECRET
     stripe_token  = request.POST.get('stripe_token')
-    # request.session['stripe_token'] = stripe_token
 
-    # create stripe user
     try:
       receiver = User.objects.get(id=request.session['receiver_id'])
     except:
@@ -1553,6 +1552,7 @@ def edit_credit_card(request):
     stripe_card = receiver.get_profile().stripe_card
     try:
       customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+      if c.deleted: raise Exception('Customer Deleted')
       stripe_user_id = customer.id
     except:
       # no customer record so create on stripe
@@ -1560,7 +1560,6 @@ def edit_credit_card(request):
       stripe_user_id = customer.id
 
     # create on vinely
-    print 'stripe user', stripe_user_id
     stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                               exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
                               card_type=request.POST.get('card_type'))
