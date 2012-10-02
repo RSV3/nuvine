@@ -57,4 +57,3 @@ xlrd==0.8.0
 stripe==1.7.4
 newrelic
 pyPdf==1.13
-reportlab==2.5
