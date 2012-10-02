@@ -23,6 +23,7 @@ urlpatterns = patterns('main.views',
     url(r'^party/taster/list/(?P<party_id>\d+)/$', 'party_taster_list', name='party_taster_list'),
     url(r'^party/taster/invite/(?P<party_id>\d+)/$', 'party_taster_invite', name='party_taster_invite'),
     url(r'^party/taster/invite/$', 'party_taster_invite', name='party_taster_invite'),
+    url(r'^party/print/rating/(?P<party_id>\d+)/$', 'print_rating_cards', name='print_rating_cards'),
 
 
     url(r'^order/start/$', 'start_order', name='start_order'),

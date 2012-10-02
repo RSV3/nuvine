@@ -92,7 +92,9 @@
         {% else %}
           {# for pros #}
           <div class="pull-right">
-            <a href="{% static "doc/PDF_vinely_experience_card_Editable_a.pdf" %}" class="btn btn-primary btn-large">Print Rating Cards</a>
+            <!-- <a href="{% static "doc/PDF_vinely_experience_card_Editable_a.pdf" %}" class="btn btn-primary btn-large">Print Rating Cards</a> -->
+            <a href="{% url print_rating_cards party.id %}" class="btn btn-primary btn-large">Print Rating Cards</a>
+            
           </div>
         {% endif %}
       </div>
