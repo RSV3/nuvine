@@ -1680,7 +1680,7 @@ def print_rating_cards(request, party_id):
 
   if path.startswith('http'):
     static_p = urlopen(path)
-    in_stream = cIOStream.IOStream(static_p.read())
+    in_stream = cStringIO.StringIO(static_p.read())
   else:
     path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Editable_a.pdf'
     in_stream = file(path, 'rb')
