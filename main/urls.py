@@ -55,3 +55,8 @@ urlpatterns = patterns('main.views',
     url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),
     url(r'^pros/only/$', 'pros_only', name='pros_only'),
 )
+
+urlpatterns += patterns('accounts.views',
+    url(r'^party/signup/(?P<party_id>\d+)/$', 'fb_party_signup', name='fb_party_signup'),
+)
+

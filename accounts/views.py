@@ -213,6 +213,74 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data, 
                         context_instance=RequestContext(request))
 
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def fb_party_signup(request, party_id):
+  # Added Oct 2 2012 - Billy
+  # Allow taster to signup from FB page
+  # if signing up as a taster there must be a party to link to
+  account_type = 3
+  role = Group.objects.get(id=account_type)
+  data = {}
+  today = datetime.now(tz=UTC())
+  try:
+    party = Party.objects.get(pk=party_id, event_date__gte = today)
+  except:
+    raise Http404
+
+  # create users and send e-mail notifications
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type':account_type}) 
+  
+  if form.is_valid():
+    user = form.save()
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    ok = check_zipcode(profile.zipcode)
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, account_type)
+
+    user.groups.add(role)
+
+    user.is_active = False
+    temp_password = User.objects.make_random_password()
+    user.set_password(temp_password)
+    user.save()
+
+    # save engagement type
+    engagement_type = account_type 
+
+    interest, created = EngagementInterest.objects.get_or_create(user=user, 
+                                                      engagement_type=engagement_type)
+
+    verification_code = str(uuid.uuid4())
+    vque = VerificationQueue(user=user, verification_code=verification_code)
+    vque.save()
+
+    # send out verification e-mail, create a verification code
+    send_verification_email(request, verification_code, temp_password, user.email)
+
+    data["email"] = user.email
+    data["first_name"] = user.first_name
+
+    data["account_type"] = account_type 
+    
+    # link them to party and RSVP
+    PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host, 
+                              response=PartyInvite.RESPONSE_CHOICES[3][0], response_timestamp=today)
+
+    messages.success(request, "Thank you for your interest in attending a Vinely Party.")
+
+    return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+
+  data['heard_about_us_form'] = HeardAboutForm()
+  data['form'] = form
+  data['role'] = role.name
+  data['account_type'] = account_type
+  data["get_started_menu"] = True
+
+  return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+
 
 def sign_up(request, account_type):
   """
