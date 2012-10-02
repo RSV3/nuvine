@@ -1657,3 +1657,77 @@ def party_select(request):
   data["parties_menu"] = True
 
   return render_to_response("main/party_select.html", data, context_instance=RequestContext(request))
+
+
+import cStringIO
+from pyPdf import PdfFileReader, PdfFileWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.contrib import staticfiles
+from urllib2 import urlopen
+@login_required
+def print_rating_cards(request, party_id):
+  
+  party = get_object_or_404(Party, id = party_id)
+  invites = PartyInvite.objects.filter(party = party)
+
+  # assume whoever is printing this is the pro
+  pro = request.user.get_full_name()
+  host = invites[0].party.host.get_full_name()
+  event_date = party.event_date.strftime('%d %B %Y')
+
+  path = staticfiles.templatetags.staticfiles.static("doc/PDF_vinely_experience_card_Editable_a.pdf")
+
+  if path.startswith('http'):
+    static_p = urlopen(path)
+    in_stream = cIOStream.IOStream(static_p.read())
+  else:
+    path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Editable_a.pdf'
+    in_stream = file(path, 'rb')
+  
+  # with file(path, 'rb') as in_stream:
+    
+  output = PdfFileWriter()
+  
+  for invite in invites:
+    packet = cStringIO.StringIO()
+    exp_doc = PdfFileReader(in_stream)
+
+    can = canvas.Canvas(packet, pagesize=letter)
+    # Taster name
+    can.setFont('Helvetica-Bold', 12)
+    can.drawString(230,74, invite.invitee.get_full_name())
+    can.drawString(630,74, invite.invitee.get_full_name())
+
+    can.setFont('Courier', 9)
+    # event date
+    can.drawString(230,63, event_date)
+    can.drawString(630,63, event_date)
+    # host name
+    can.drawString(230,53, host)
+    can.drawString(630,53, host)
+    # pro name
+    can.drawString(230,43, pro)
+    can.drawString(630,43, pro)
+    can.save()
+
+    packet.seek(0)
+    text = PdfFileReader(packet)
+
+    for x in range(exp_doc.numPages):
+      page = exp_doc.getPage(x)
+      page.mergePage(text.getPage(0))
+      output.addPage(page)
+    packet.flush()
+
+  out_stream = cStringIO.StringIO()
+  output.write(out_stream)
+  pdf = out_stream.getvalue()
+  out_stream.close()
+
+  in_stream.close()
+
+  response = HttpResponse(pdf, mimetype='application/pdf', content_type='application/pdf')
+  response['Content-Disposition'] = 'attachment; filename=Vinely_experience_card.pdf'
+  return response
+
