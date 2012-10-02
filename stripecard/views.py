@@ -1,11 +1,9 @@
 # Create your views here.
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from datetime import date, datetime, timedelta
 
 import stripe
 import json

@@ -7,7 +7,7 @@ from support.models import Email
 from cms.models import Section
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
-  
+
   template = Section.objects.get(template__key='verification_email', category=0)
   
   txt_template = Template(template.content)
@@ -71,7 +71,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   '''
   New account invitation - sent when host invites new taster
   '''
-  
+
   template = Section.objects.get(template__key='new_invitation_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -107,25 +107,6 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   Sent when Pro creates new Host for a party
   '''
   
-  # content = """
-
-  # {% load static %}
-
-  # You have been approved to host a new Vinely party by {{ invite_host_name }} ({{ invite_host_email }}).
-
-  # Please verify your e-mail address and create a new password by going to:
-
-  # http://{{ host_name }}{% url verify_account verification_code %}
-
-  # Your temporary password is: {{ temp_password }} 
-
-  # Use this password to verify your account.
-
-  # {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  # from your Vinely Pros
-
-  # """
   template = Section.objects.get(template__key='new_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -158,26 +139,6 @@ def send_pro_request_email(request, receiver):
   Sent when user requests to be a Pro
   '''
   
-  # content = """
-
-  # {% load static %}
-
-  # Hey, {{ first_name }}!
-
-  # We're thrilled about your interest in becoming a Vinely Pro.
-
-  # We will review your application soon and get back to you within the next 48hrs.
-
-  # If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
-  # (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.
-
-  # {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-  
-  # Your Tasteful Friends,
-
-  # - The Vinely Team 
-
-  # """
   template = Section.objects.get(template__key='pro_request_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -208,24 +169,6 @@ def send_pro_review_email(request, user):
   Sent to sales@vinely.com to review and approve request to be a pro
   '''
   
-  # content = """
-
-  # Hey Care Specialist,
-
-  # Someone has sent a request to be a Vinely Pro!
-  # Please follow up ASAP to help set them up and answer any possible questions.
-
-  # Name: {{ first_name }} {{ last_name }}
-
-  # Email Address: {{ email }} 
-
-  # Zipcode: {{ zipcode }}
-
-  # {% if phone %}
-  # Phone: {{ phone }}
-  # {% endif %}
-
-  # """
   template = Section.objects.get(template__key='pro_review_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -259,21 +202,6 @@ def send_pro_review_email(request, user):
 
 def send_know_pro_party_email(request, user):
 
-  # content = """
-  # {% load static %}
-  # Hey {{ host_first_name }}!
-
-  # We're thrilled about your interest in hosting a Vinely Taste Party!  Since you already have a Vinely Pro in mind, they will soon be in contact to set a date and time.  If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at:
-
-  #   (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
-
-  # {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  # Your Tasteful Friends,
-
-  # - The Vinely Team
-
-  # """
   template = Section.objects.get(template__key='know_pro_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -298,25 +226,6 @@ def send_know_pro_party_email(request, user):
 
 def send_unknown_pro_email(request, user):
 
-  # content = """
-
-  # {% load static %}
-
-  #   Hey, {{ first_name }}!
-
-  #   We're thrilled about your interest in hosting a Vinely Taste Party!
-
-  #   To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro. They'll be reaching out soon.
-
-  #   If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
-
-  #   {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  #   Your Tasteful Friends,
-
-  #   - The Vinely Team
-
-  # """
   template = Section.objects.get(template__key='unknown_pro_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -342,27 +251,6 @@ def send_unknown_pro_email(request, user):
 
 def send_pro_approved_email(request, applicant):
 
-  # content = """
-
-  # {% load static %}
-
-  # Hey {{ applicant.first_name }},
-
-  # Your application to become Vinely Pro has been approved.  
-
-  # Your Pro account number is {{ pro_account_number }}. Please keep that for future reference.
-  
-  # You may now login to your account and start recruiting hosts for your taste parties!
-
-  # Go have some fun wine parties!
-
-  # {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-  
-  # Your Tasteful Friends,
-
-  # - The Vinely Team 
-
-  # """
   template = Section.objects.get(template__key='pro_approved_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -390,27 +278,7 @@ def send_pro_approved_email(request, applicant):
   msg.send()
 
 def send_not_in_area_party_email(request, user, account_type):
-  # content = """
-
-  # {% load static %}
-
-  #   Hey, {{ first_name }}!
-
-  #   We have some good news and some bad news.
-
-  #   The Bad News: Vinely does not currently operate in your area. (Bummer, right?)
-
-  #   The Good News: Your interest in Vinely is super important to us! So much, in fact, that when we do expand to your area, you'll be the very first to know.
-
-  #   If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
-
-  #   {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
-
-  #   Your Tasteful Friends,
-
-  #   - The Vinely Team
-
-  # """
+  
   template = Section.objects.get(template__key='not_in_area_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))

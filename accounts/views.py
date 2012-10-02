@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from main.models import EngagementInterest, PartyInvite, MyHost
+from main.models import EngagementInterest, PartyInvite, MyHost, Party
 
 from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
 
@@ -234,6 +234,17 @@ def sign_up(request, account_type):
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
+  # Added Oct 2 2012 - Billy
+  # Allow taster to signup from FB page
+  # if signing up as a taster there must be a party to link to
+  today = datetime.now(tz=UTC())
+  if account_type == 3:
+    try:
+      party_id = int(request.GET.get('p'))
+      party = Party.objects.get(pk=party_id, event_date__gte = today)
+    except:
+      raise Http404
+
   ### Handle people who are already signed up 
   if u.is_authenticated():
     if pro_group in u.groups.all():
@@ -318,8 +329,8 @@ def sign_up(request, account_type):
   if form.is_valid():
     user = form.save()
     profile = user.get_profile()
-    profile.zipcode = request.POST.get('zipcode')
-    ok = check_zipcode(user.get_profile().zipcode)
+    profile.zipcode = form.cleaned_data['zipcode']
+    ok = check_zipcode(profile.zipcode)
     if not ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       send_not_in_area_party_email(request, user, account_type)
@@ -343,7 +354,7 @@ def sign_up(request, account_type):
       except Exception, e:
         pass
         # my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
-      
+    
     profile.save()
     
     if role == pro_group:
@@ -393,6 +404,14 @@ def sign_up(request, account_type):
         
       send_host_vinely_party_email(request, user, mentor_pro) # to pro or vinely
       messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+
+    elif account_type == 3:
+      # link them to party and RSVP
+      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host, 
+                                response=PartyInvite.RESPONSE_CHOICES[3][0], response_timestamp=today)
+
+      messages.success(request, "Thank you for your interest in attending a Vinely Party.")
+
     data['heard_about_us_form'] = HeardAboutForm()
     data["get_started_menu"] = True
     return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
