@@ -7,7 +7,7 @@ from django.utils import timezone
 
 import stripe
 import json
-from main.models import LineItem 
+from main.models import LineItem, Product
 from accounts.models import SubscriptionInfo
 from stripecard.models import StripeCard
 
@@ -21,16 +21,19 @@ def shipping(plans):
 
 def tax(sub_total):
   # TODO: tax needs to be calculated based on the state
-  tax = float(subtotal*0.06)
+  tax = float(sub_total)*0.06
   return tax 
 
 def subtotal(plan):
-	product = Product.objects.get(category = plan.quantity)
-
-	if plan.quantity in [5,7,9]:
-		return product.full_case_price
-	elif plan.quantity in [6,8,10]:
-		return product.unit_price
+	if plan.quantity in [5,6]:
+		product = Product.objects.get(name = "Basic Collection")
+		return product.full_case_price if plan.quantity == 5 else product.unit_price
+	elif plan.quantity in [7,8]:
+		product = Product.objects.get(name = "Superior Collection")
+		return product.full_case_price if plan.quantity == 7 else product.unit_price		
+	elif plan.quantity in [9,10]:
+		product = Product.objects.get(name = "Divine Collection")
+		return product.full_case_price if plan.quantity == 10 else product.unit_price		
 	else:
 		return 0
 
@@ -48,6 +51,7 @@ def webhooks(request):
 def invoice_created(event_json):
 	data = event_json['data']['object']
 	customer = data['customer']
+	# TODO: Verify that this is actually from stripe
 
 	try:
 		stripe_card = StripeCard.objects.get(stripe_user = customer)
@@ -64,11 +68,14 @@ def invoice_created(event_json):
 	stripe.api_key = settings.STRIPE_SECRET
 
 	if my_plans.exists():
-		sub_total = 0
+		total = sub_total = 0
+		qty = dict(SubscriptionInfo.QUANTITY_CHOICES)
+		freq = dict(SubscriptionInfo.FREQUENCY_CHOICES)
+
 		for plan in my_plans:
 			sub_total = subtotal(plan)
 			total += sub_total
-			plan_desc = ("%s subscription -  %s" % (SubscriptionInfo.FREQUENCY_CHOICES[plan.frequency][1], SubscriptionInfo.QUANTITY_CHOICES[plan.quantity][1]))
+			plan_desc = ("%s subscription -  %s" % (freq[plan.frequency], qty[plan.quantity]))
 			stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(sub_total * 100), currency='usd', description=plan_desc)
 
 		stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(my_plans) * 100), currency='usd', description='Shipping')

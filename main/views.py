@@ -649,7 +649,6 @@ def place_order(request):
       # if subscription exists then create plan
       sub_orders = order.cart.items.filter(frequency__in = [1,2,3])        
       if sub_orders.exists():
-        print "subscribed this customer"
         customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
         customer.update_subscription(plan='half-case-basic')
 
@@ -669,7 +668,7 @@ def place_order(request):
       for item in cart.items.all():
         if item.product.category == 1:
           item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
-          print item.img_file_name
+          # print item.img_file_name
         data['items'].append(item)
 
       data["cart" ] = cart
