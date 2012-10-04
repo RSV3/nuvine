@@ -1676,13 +1676,13 @@ def print_rating_cards(request, party_id):
   host = invites[0].party.host.get_full_name()
   event_date = party.event_date.strftime('%m-%d-%Y')
 
-  path = staticfiles.templatetags.staticfiles.static("doc/PDF_vinely_experience_card_Editable_a.pdf")
+  path = staticfiles.templatetags.staticfiles.static("doc/PDF_vinely_experience_card_Raw.pdf")
 
   if path.startswith('http'):
     static_p = urlopen(path)
     in_stream = cStringIO.StringIO(static_p.read())
   else:
-    path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Editable_a.pdf'
+    path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Raw.pdf'
     in_stream = file(path, 'rb')
   
   # with file(path, 'rb') as in_stream:
