@@ -11,7 +11,7 @@
   <section id="invitation-content">
     <div class="row">
       <div class="span12">
-        <p>Please review your invitation</p>
+        <h2>Please review your invitation</h2>
       </div>
     </div>
   <form method="POST" action="{% url party_send_invites %}">
@@ -28,7 +28,7 @@
         <table>
           <tbody>
             <tr>
-              <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}">edit guests</a>)
+              <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
             </tr>
             <tr>
               <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
@@ -53,16 +53,21 @@
     -->
 
     <div class="row">
-      <div class="span12">
-        <p>Vinely party is about learning and having fun while exploring your wine tastes.  We invite you to come and explore the intricacies of wine with your fellow Vinely friends.</p>
+        <div class="span12">
+          <p>What’s a Vinely Taste Party? Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
 
-        <div class="control-group">
-          <div class="controls">
-            {{ form.custom_message.value }}
-            <input type="hidden" name="custom_message" value="{{ form.custom_message.value }}">
-          </div>
-      </div>
-      </div>
+          <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
+
+          <p>Will you attend? You know you want to! (You can always come back and change your response later.)</p>
+
+          <h2>Personalized addendum</h2>
+          <div class="alert control-group">
+            <div class="controls">
+              {{ form.custom_message.value }}
+              <input type="hidden" name="custom_message" value="{{ form.custom_message.value }}">
+            </div>
+        </div>
+        </div>
     </div>
 
     <section id="custom-message-body">

@@ -66,7 +66,7 @@ class PartyCreateForm(forms.ModelForm):
       if pro_group in user.groups.all():
         self._errors['email'] = "The host e-mail is associated with a Vinely Pro and cannot host a party."
     except User.DoesNotExist:
-      # user with this new e-mail will be created in clean 
+      # user with this new e-mail will be created in clean
       pass
 
     return host_email
@@ -74,27 +74,29 @@ class PartyCreateForm(forms.ModelForm):
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
 
-    if 'host' not in cleaned_data: 
-      # create new host or find existing host 
-      try:
-        user = User.objects.get(email=cleaned_data['email'].lower())
-      except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'].lower(), password='welcome')
-        user.is_active = False
-        user.first_name = cleaned_data['first_name']
-        user.last_name = cleaned_data['last_name']
-        user.save()
+    if 'host' not in cleaned_data:
+      # create new host or find existing host
+      if cleaned_data['email']:
+        # create new host based on e-mail
+        try:
+          user = User.objects.get(email=cleaned_data['email'].lower())
+        except User.DoesNotExist:
+          user = create_user(email=cleaned_data['email'].lower(), password='welcome')
+          user.is_active = False
+          user.first_name = cleaned_data['first_name']
+          user.last_name = cleaned_data['last_name']
+          user.save()
 
-      pro_group = Group.objects.get(name="Vinely Pro") 
-      ph_group = Group.objects.get(name="Vinely Host")
-      if ph_group not in user.groups.all() and pro_group not in user.groups.all():
-        # add the user to Vinely Host group if not a Vinely Pro already
-        user.groups.clear()
-        user.groups.add(ph_group)
-        user.save()
+        pro_group = Group.objects.get(name="Vinely Pro")
+        ph_group = Group.objects.get(name="Vinely Host")
+        if ph_group not in user.groups.all() and pro_group not in user.groups.all():
+          # add the user to Vinely Host group if not a Vinely Pro already
+          user.groups.clear()
+          user.groups.add(ph_group)
+          user.save()
 
-      cleaned_data['host'] = user 
-      del self._errors['host']
+        cleaned_data['host'] = user
+        del self._errors['host']
 
     if 'address' not in cleaned_data:
       # create new address
@@ -113,7 +115,7 @@ class PartyCreateForm(forms.ModelForm):
       del self._errors['address']
 
     if 'title' not in cleaned_data:
-      cleaned_data['title'] = "%s's Party"%cleaned_data['host'].first_name
+      cleaned_data['title'] = "%s's Party" % cleaned_data['host'].first_name
       del self._errors['title']
 
     if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
