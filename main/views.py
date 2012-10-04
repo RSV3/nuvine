@@ -9,18 +9,16 @@ from django.contrib.auth.models import User, Group
 from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty
-from personality.models import Wine, WineTaste, GeneralTaste, WinePersonality
+from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue
 
-from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, VinelyProSignupForm, \
+from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm
-
-from accounts.forms import CreditCardForm, PaymentForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
@@ -29,11 +27,9 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         calculate_host_credit, calculate_pro_commission
 
 import json, uuid, math
-from urlparse import urlparse
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from django.utils.safestring import mark_safe
-from django.template.loader import render_to_string
 from django.template import Context, Template
 
 from cms.models import ContentTemplate
@@ -41,6 +37,7 @@ from django.conf import settings
 import stripe
 
 from stripecard.models import StripeCard
+
 
 def suppliers_only(request):
   """
@@ -50,6 +47,7 @@ def suppliers_only(request):
   data["message"] = "Only suppliers are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
 
+
 def pros_only(request):
   """
     Redirected to this page when one is trying to access only pro only features
@@ -57,6 +55,7 @@ def pros_only(request):
   data = {}
   data["message"] = "Only Vinely Pros are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def home(request):
@@ -71,16 +70,16 @@ def home(request):
     hos_group = Group.objects.get(name='Vinely Host')
     sp_group = Group.objects.get(name='Supplier')
     tas_group = Group.objects.get(name='Vinely Taster')
-    
+
     today = datetime.now(tz=UTC())
-    
-    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte = today) 
+
+    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
     invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
     if invites.exists():
       event_date = invites[0].party.event_date
       if event_date > today:
         data['party_date'] = invites[0].party.event_date
-    
+
     if hos_group in u.groups.all():
       parties = Party.objects.filter(host=u).order_by('-event_date')
       if parties.exists():
@@ -97,7 +96,7 @@ def home(request):
           cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
           parties = parties.exclude(id__in = [x.party.id for x in cart])
           data['can_order_kit'] = parties.exists()
-          
+
     if pro_group in u.groups.all():
       parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
       if parties.exists():
@@ -105,16 +104,15 @@ def home(request):
         if today > party_date:
           # set if the party was hosted in the past
           data['party_date'] = party_date
-          #data['earnings'] = 
         else:
           # set if this is an upcoming party
           data['party_scheduled'] = True
           data['party'] = parties[0].party
-          
+
     profile = u.get_profile()
-    
+
     if profile.wine_personality and profile.wine_personality.name != WinePersonality.MYSTERY:
-      data['wine_personality'] = profile.wine_personality 
+      data['wine_personality'] = profile.wine_personality
     else:
       data['wine_personality'] = False
 
@@ -127,7 +125,7 @@ def home(request):
     # go to home page
 
     # if user is Vinely Pro
-    # - be able to add new users and send them e-mail 
+    # - be able to add new users and send them e-mail
     # - see users registered at a party
     # - add a new host
     # - be able to order for a user
@@ -136,7 +134,7 @@ def home(request):
     # if user is host
     # - list of parties (aggregate view of orders placed)
     # - list of Vinely Tasters in each party (aggregate of what each Vinely Taster ordered)
-    # - see orders placed by each Vinely Taster in detail 
+    # - see orders placed by each Vinely Taster in detail
     # - create party
     # - invite Vinely Tasters
 
@@ -151,6 +149,7 @@ def home(request):
 
   return render_to_response("main/home.html", data, context_instance=RequestContext(request))
 
+
 def our_story(request):
   """
 
@@ -161,6 +160,7 @@ def our_story(request):
   data['our_story_menu'] = True
   data['our_story'] = ContentTemplate.objects.get(key='our_story').sections.all()[0].content
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
+
 
 def get_started(request):
   """
@@ -176,6 +176,7 @@ def get_started(request):
   data['get_started_host'] = sections.get(category = 2).content
   data['get_started_pro'] = sections.get(category = 3).content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
+
 
 def contact_us(request):
   """
@@ -197,6 +198,7 @@ def contact_us(request):
 
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def become_vip(request):
   """
@@ -206,6 +208,7 @@ def become_vip(request):
   data = {}
 
   return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def rate_wines(request):
@@ -217,12 +220,13 @@ def rate_wines(request):
   data['rate_wines_menu'] = True
   return render_to_response("main/rate_wines.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def host_vinely_party(request):
   """
     Host your own Vinely party
   """
-  
+
   data = {}
   # check for pro
   pro = None
@@ -233,8 +237,9 @@ def host_vinely_party(request):
   message_body = send_host_vinely_party_email(request, request.user, pro)
 
   data["message"] = message_body
- 
+
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
+
 
 def how_it_works(request):
   """
@@ -246,6 +251,7 @@ def how_it_works(request):
   data["how_it_works_menu"] = True
   data['how_it_works'] = ContentTemplate.objects.get(key='how_it_works').sections.all()[0].content
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
+
 
 def start_order(request, receiver_id=None, party_id=None):
   """
@@ -285,8 +291,8 @@ def start_order(request, receiver_id=None, party_id=None):
 
   for p in products:
     description_template = Template(p.description)
-    p.description = description_template.render(Context({'personality': personality.name }))
-    p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag) 
+    p.description = description_template.render(Context({'personality': personality.name}))
+    p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag)
   data["products"] = products
   data["product_levels"] = [Product.BASIC, Product.SUPERIOR, Product.DIVINE]
   data["shop_menu"] = True
@@ -296,7 +302,7 @@ def start_order(request, receiver_id=None, party_id=None):
 
 def cart_add_tasting_kit(request, party_id=0):
   """
-    
+
     Add tasting kit to cart
 
     submit goes to checkout
@@ -304,7 +310,7 @@ def cart_add_tasting_kit(request, party_id=0):
   data = {}
 
   u = request.user
-  
+
   party = None
   today = datetime.now(tz=UTC())
 
@@ -315,7 +321,7 @@ def cart_add_tasting_kit(request, party_id=0):
       request.session['party_id'] = int(party_id)
   except Party.DoesNotExist:
     raise Http404
-  
+
   # check how many invites and recommend number of taste kits
   invites = PartyInvite.objects.filter(party = party)
   if invites.count() == 0:
@@ -328,7 +334,7 @@ def cart_add_tasting_kit(request, party_id=0):
     messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
 
   form = AddTastingKitToCartForm(request.POST or None)
-  
+
   if form.is_valid():
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
@@ -338,12 +344,12 @@ def cart_add_tasting_kit(request, party_id=0):
         alert_msg = 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url)
         messages.error(request, mark_safe(alert_msg))
         return HttpResponseRedirect('.')
-      
+
       if cart.party and cart.party != party:
         # if cart.party is None, no party has been assigned in previous orders
         messages.error(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
         return HttpResponseRedirect('.')
-    
+
     # add line item to cart
     item = form.save()
     if 'cart_id' in request.session:
@@ -360,11 +366,11 @@ def cart_add_tasting_kit(request, party_id=0):
       cart.save()
       cart.items.add(item)
       request.session['cart_id'] = cart.id
-    
+
     # udpate cart status
     if party:
       cart.party = party
-    cart.status = Cart.CART_STATUS_CHOICES[1][0] 
+    cart.status = Cart.CART_STATUS_CHOICES[1][0]
     cart.adds += 1
     cart.save()
 
@@ -375,14 +381,15 @@ def cart_add_tasting_kit(request, party_id=0):
     data["product"] = products[0]
     form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
     data["form"] = form
-    
+
   data["shop_menu"] = True
 
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
+
 def cart_add_wine(request, level="x"):
   """
-    
+
     Add item to cart
 
     submit goes to checkout
@@ -411,7 +418,7 @@ def cart_add_wine(request, level="x"):
         messages.error(request, mark_safe(alert_msg))
         return HttpResponseRedirect('.')
         #return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
-      
+
     # add line item to cart
     item = form.save()
     item.total_price = item.subtotal()
@@ -434,7 +441,7 @@ def cart_add_wine(request, level="x"):
     # udpate cart status
     if party:
       cart.party = party
-    cart.status = Cart.CART_STATUS_CHOICES[1][0] 
+    cart.status = Cart.CART_STATUS_CHOICES[1][0]
     cart.adds += 1
     cart.save()
 
@@ -450,13 +457,13 @@ def cart_add_wine(request, level="x"):
     raise Http404
 
   description_template = Template(product.description)
-  product.description = description_template.render(Context({'personality': personality.name }))
-  product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag) 
+  product.description = description_template.render(Context({'personality': personality.name}))
+  product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
   product.unit_price = product.full_case_price
   data["product"] = product
   data["personality"] = personality
 
-  form.initial = {'level': level, 
+  form.initial = {'level': level,
                 'total_price': product.unit_price,
                 'product': product}
   data["form"] = form
@@ -465,9 +472,10 @@ def cart_add_wine(request, level="x"):
   data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
+
 def cart(request):
   """
-    
+
     Show items in cart, have a link to go back to start_order to order more
 
     submit goes to checkout
@@ -478,19 +486,19 @@ def cart(request):
 
   try:
     cart_id = request.session['cart_id']
-    cart = Cart.objects.get(id=cart_id) 
+    cart = Cart.objects.get(id=cart_id)
     cart.views += 1
     cart.save()
 
     if 'receiver_id' in request.session:
       personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
     else:
-      personality = u.get_profile().wine_personality 
+      personality = u.get_profile().wine_personality
 
     data['items'] = []
     for item in cart.items.all():
       if item.product.category == 1:
-        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
         # print item.img_file_name
       data['items'].append(item)
 
@@ -508,6 +516,7 @@ def cart(request):
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
+
 def cart_remove_item(request, cart_id, item_id):
   """
     Delete an item from cart
@@ -517,7 +526,7 @@ def cart_remove_item(request, cart_id, item_id):
 
   cart = Cart.objects.get(id=cart_id)
   item = LineItem.objects.get(id=item_id)
-  
+
   cart.items.remove(item)
 
   # track cart activity
@@ -527,6 +536,7 @@ def cart_remove_item(request, cart_id, item_id):
   data["shop_menu"] = True
 
   return HttpResponseRedirect(request.GET.get("next"))
+
 
 def customize_checkout(request):
   """
@@ -553,11 +563,11 @@ def customize_checkout(request):
     except CustomizeOrder.DoesNotExist:
       # continue to show customization form which will be filled in with current user's customization initially
       custom = None
-  
+
   if 'cart_id' not in request.session:
     messages.error(request, 'Your cart is empty. Please add something to the cart first.')
     return HttpResponseRedirect(reverse("cart"))
-  
+
   form = CustomizeOrderForm(request.POST or None, instance=custom)
   if form.is_valid():
     custom = form.save(commit=False)
@@ -568,14 +578,14 @@ def customize_checkout(request):
         custom.user = u
     custom.save()
 
-    cart = Cart.objects.get(id=request.session['cart_id']) 
-    cart.status = Cart.CART_STATUS_CHOICES[2][0] 
+    cart = Cart.objects.get(id=request.session['cart_id'])
+    cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.save()
 
     data["shop_menu"] = True
 
     return HttpResponseRedirect(reverse('main.views.edit_shipping_address'))
-      
+
   if custom is None:
     form.initial = {'wine_mix': 0, 'sparkling': 1}
   data['form'] = form
@@ -583,28 +593,29 @@ def customize_checkout(request):
 
   return render_to_response("main/customize_checkout.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def place_order(request):
   """
     This page allows you to review the order and finalize the order
- 
+
   """
   data = {}
   u = request.user
 
   data["your_personality"] = "Moxie"
-  
+
   # set this to use in edit_shipping_address and edit_credit_card to indicate that
-  # order has been reviewed 
-  request.session['ordering'] = True 
-  
+  # order has been reviewed
+  request.session['ordering'] = True
+
   if 'cart_id' in request.session:
     cart = get_object_or_404(Cart, id=request.session['cart_id'])
 
     receiver = get_object_or_404(User, id=request.session['receiver_id'])
     profile = receiver.get_profile()
 
-    if request.method == "POST": 
+    if request.method == "POST":
       # finalize order
 
       if 'order_id' in request.session:
@@ -618,7 +629,7 @@ def place_order(request):
       try:
         # create order: existing cart
         order = Order.objects.get(cart=cart)
-        order.order_id = order_id 
+        order.order_id = order_id
         if u.is_authenticated():
           order.ordered_by = u
         order.receiver = receiver
@@ -632,14 +643,14 @@ def place_order(request):
       order.shipping_address = profile.shipping_address
       order.save()
 
-      cart.status = Cart.CART_STATUS_CHOICES[5][0] 
+      cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
       # charge card to stripe
       stripe.api_key = settings.STRIPE_SECRET
       # NOTE: Amount must be in cents
       # Having these first so that they come last in the stripe invoice.
-      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping()* 100), currency='usd', description='Shipping')
+      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
       stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
 
       for item in order.cart.items.all():
@@ -647,7 +658,7 @@ def place_order(request):
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
       # if subscription exists then create plan
-      sub_orders = order.cart.items.filter(frequency__in = [1,2,3])        
+      sub_orders = order.cart.items.filter(frequency__in = [1, 2, 3])
       if sub_orders.exists():
         customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
         customer.update_subscription(plan='half-case-basic')
@@ -662,23 +673,23 @@ def place_order(request):
       if 'receiver_id' in request.session:
         personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
       else:
-        personality = u.get_profile().wine_personality 
+        personality = u.get_profile().wine_personality
 
       data['items'] = []
       for item in cart.items.all():
         if item.product.category == 1:
-          item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+          item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
           # print item.img_file_name
         data['items'].append(item)
 
-      data["cart" ] = cart
+      data["cart"] = cart
 
       # record cart views
       cart.views += 1
       cart.save()
 
       data["receiver"] = receiver
-      data["credit_card"] = profile.stripe_card # profile.credit_card 
+      data["credit_card"] = profile.stripe_card  # profile.credit_card
       data["shipping_address"] = profile.shipping_address
 
       data["shop_menu"] = True
@@ -687,6 +698,7 @@ def place_order(request):
     messages.error(request, 'Your session expired, please start ordering again.')
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("start_order"))
+
 
 @login_required
 def order_complete(request, order_id):
@@ -712,7 +724,7 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in = range(5, 11), frequency__in = [1,2,3]):
+    for item in order.cart.items.filter(price_category__in = range(5, 11), frequency__in = [1, 2, 3]):
       # check if item contains subscription
       # if item.price_category in range(5, 11):
       subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
@@ -735,7 +747,7 @@ def order_complete(request, order_id):
     data['items'] = []
     for item in cart.items.all():
       if item.product.category == 1:
-        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+        item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
         # print item.img_file_name
       data['items'].append(item)
 
@@ -747,17 +759,17 @@ def order_complete(request, order_id):
   else:
     raise PermissionDenied
 
+
 @login_required
 def order_history(request):
 
   data = {}
   u = request.user
 
-  data["orders"] = Order.objects.filter( Q( ordered_by=u ) | Q( receiver=u ) )
+  data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
 
   data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
-
 
 
 @login_required
@@ -772,11 +784,12 @@ def parties(request):
 
   return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def tag(request):
   """ 
-    Tag a member with particular term 
-    - people can edit tags 
+    Tag a member with particular term
+    - people can edit tags
     - ajax call
     - log those people who added those tags
   """
@@ -784,7 +797,8 @@ def tag(request):
 
   data["result"] = "tagging successful"
 
-  return HttpResponse(json.dumps(data), mimetype="application/json") 
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
 
 @login_required
 def party_list(request):
@@ -795,8 +809,7 @@ def party_list(request):
   u = request.user
 
   data = {}
-  
-  
+
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
@@ -898,7 +911,7 @@ def party_add(request):
         vque = VerificationQueue(user=new_host, verification_code=verification_code)
         vque.save()
 
-        # send an invitation e-mail if new host created 
+        # send an invitation e-mail if new host created
         send_new_party_email(request, verification_code, temp_password, new_host.email)
       else:
         # existing host needs to notified that party has been arranged
@@ -916,7 +929,7 @@ def party_add(request):
       pros = MyHost.objects.filter(host=u)
       if pros.exists():
         pro = pros[0].pro
-        data["my_pro"] = pro 
+        data["my_pro"] = pro
         send_host_vinely_party_email(request, u, pro)
       else:
         send_host_vinely_party_email(request, u)
@@ -931,7 +944,7 @@ def party_add(request):
         pros = MyHost.objects.filter(host=primary_host)
         if pros.exists():
           pro = pros[0].pro
-          data["my_pro"] = pro 
+          data["my_pro"] = pro
           send_host_vinely_party_email(request, u, pro)
         else:
           # if no pro found, just e-mail sales
@@ -951,6 +964,7 @@ def party_add(request):
   data["parties_menu"] = True
 
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_details(request, party_id):
@@ -988,7 +1002,7 @@ def party_details(request, party_id):
   data["invitees"] = invitees
   today = datetime.now(tz=UTC())
 
-  if party.event_date > today and party.high_low() == '!LOW': 
+  if party.event_date > today and party.high_low() == '!LOW':
     msg = 'Too few people have RSVP\'ed to the party. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
   elif party.event_date > today and party.high_low() == '!HIGH':
@@ -1003,6 +1017,7 @@ def party_details(request, party_id):
   data['can_order_kit'] = (party.event_date > today)
 
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_taster_list(request, party_id):
@@ -1040,10 +1055,11 @@ def party_taster_list(request, party_id):
 
   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def party_taster_invite(request, party_id=0):
   """
-    Invite a new Vinely Taster to a party 
+    Invite a new Vinely Taster to a party
 
       - only allow host or Vinely Pro to add
       - need to track who added and make sure the Vinely Taster is linked to that pro or host
@@ -1072,7 +1088,7 @@ def party_taster_invite(request, party_id=0):
       except PartyInvite.DoesNotExist:
         raise PermissionDenied
 
-  if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all(): 
+  if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all():
     if request.method == "POST":
       form = PartyInviteTasterForm(request.POST)
       if form.is_valid():
@@ -1092,15 +1108,14 @@ def party_taster_invite(request, party_id=0):
           vque = VerificationQueue(user=new_invitee, verification_code=verification_code)
           vque.save()
 
-          # send an invitation e-mail, new user created 
+          # send an invitation e-mail, new user created
           send_new_invitation_email(request, verification_code, temp_password, new_invite)
-          
+
         # removed following lines since invitation get sent in a batch from the UI
         #else:
         #  send_party_invitation_email(request, new_invite)
 
-        messages.success(request, '%s %s (%s) has been invited to the party.' % ( new_invitee.first_name, new_invitee.last_name, new_invitee.email ))
-
+        messages.success(request, '%s %s (%s) has been invited to the party.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
 
         data["parties_menu"] = True
         return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
@@ -1112,18 +1127,18 @@ def party_taster_invite(request, party_id=0):
       else:
         # specified party
         initial_data = {'party': party}
-        form =  PartyInviteTasterForm(initial=initial_data)
+        form = PartyInviteTasterForm(initial=initial_data)
 
     if tas_group in u.groups.all():
       today = datetime.now(tz=UTC())
       parties = []
       for inv in PartyInvite.objects.filter(invitee=u, party__event_date__gt=today):
         parties.append((inv.party.id, inv.party.title))
-      form.fields['party'].choices = parties 
+      form.fields['party'].choices = parties
     elif hos_group in u.groups.all():
       today = datetime.now(tz=UTC())
       parties = Party.objects.filter(host=u, event_date__gt=today)
-      form.fields['party'].queryset = parties 
+      form.fields['party'].queryset = parties
     elif pro_group in u.groups.all():
       my_hosts = MyHost.objects.filter(pro=u)
       my_host_list = []
@@ -1138,7 +1153,8 @@ def party_taster_invite(request, party_id=0):
 
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
   else:
-    raise PermissionDenied 
+    raise PermissionDenied
+
 
 @login_required
 def party_rsvp(request, party_id, response=None):
@@ -1146,7 +1162,7 @@ def party_rsvp(request, party_id, response=None):
   data = {}
   u = request.user
 
-  party = get_object_or_404(Party, pk=party_id) 
+  party = get_object_or_404(Party, pk=party_id)
   try:
     invite = PartyInvite.objects.get(party=party, invitee=u)
   except PartyInvite.DoesNotExist:
@@ -1168,6 +1184,7 @@ def party_rsvp(request, party_id, response=None):
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def party_customize_invite(request):
   """
@@ -1185,7 +1202,7 @@ def party_customize_invite(request):
     form = CustomizeInvitationForm()
     form.initial = {'party': party}
     data["party"] = party
-    data["guests"] = guests 
+    data["guests"] = guests
     data["form"] = form
     data["guest_count"] = len(guests)
     data["parties_menu"] = True
@@ -1193,6 +1210,7 @@ def party_customize_invite(request):
     return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
   else:
     return PermissionDenied
+
 
 @login_required
 def party_send_invites(request):
@@ -1202,7 +1220,7 @@ def party_send_invites(request):
 
   data = {}
 
-  # send invitation 
+  # send invitation
   form = CustomizeInvitationForm(request.POST or None)
   if form.is_valid():
     num_guests = len(request.POST.getlist("guests"))
@@ -1212,7 +1230,7 @@ def party_send_invites(request):
       data["preview"] = True
       data["party"] = party
       data["guests"] = request.POST.getlist("guests")
-      data["guest_count"] = num_guests 
+      data["guest_count"] = num_guests
     else:
       invitation_sent = form.save()
 
@@ -1230,6 +1248,7 @@ def party_send_invites(request):
 
   return render_to_response("main/party_invite_preview.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 @user_passes_test(if_pro, login_url="/pros/only/")
 def dashboard(request):
@@ -1244,6 +1263,7 @@ def dashboard(request):
 # Supplier views
 #
 ################################################################################
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1260,11 +1280,12 @@ def supplier_party_list(request):
 
   return render_to_response("main/supplier_party_list.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_party_orders(request, party_id):
   """
-    Show orders from a particular party for the supplier 
+    Show orders from a particular party for the supplier
 
   """
   data = {}
@@ -1273,6 +1294,7 @@ def supplier_party_orders(request, party_id):
   data['party'] = Party.objects.get(id=party_id)
 
   return render_to_response("main/supplier_party_orders.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1289,6 +1311,7 @@ def supplier_pending_orders(request):
 
   return render_to_response("main/supplier_pending_orders.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_fulfilled_orders(request):
@@ -1304,6 +1327,7 @@ def supplier_fulfilled_orders(request):
 
   return render_to_response("main/supplier_fulfilled_orders.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_all_orders(request):
@@ -1318,6 +1342,7 @@ def supplier_all_orders(request):
   data['orders'] = Order.objects.all()
 
   return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1343,19 +1368,18 @@ def supplier_edit_order(request, order_id):
       send_order_shipped_email(request, order)
 
     messages.success(request, "Fulfill status has been updated.")
-      
+
   data["order"] = order
 
   cart = order.cart
   data["cart"] = cart
 
- 
   personality = order.receiver.get_profile().wine_personality
 
   data['items'] = []
   for item in cart.items.all():
     if item.product.category == 1:
-      item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
+      item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
       # print item.img_file_name
     data['items'].append(item)
   data["form"] = form
@@ -1371,6 +1395,8 @@ def supplier_edit_order(request, order_id):
 
   return render_to_response("main/supplier_edit_order.html", data, context_instance=RequestContext(request))
 
+
+@login_required
 def edit_shipping_address(request):
   """
     Update or add shipping address
@@ -1403,16 +1429,16 @@ def edit_shipping_address(request):
     if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
       msg = 'You MUST be over 21 to make an order. If you are over 21 then <a href="%s">update your account</a> to reflect this.' % reverse('my_information')
       messages.error(request, mark_safe(msg))
-      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
-      
+      return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
+
   # check zipcode is ok
   if request.method == 'POST':
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
     if not ok:
-      messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')      
-      return render_to_response("main/edit_shipping_address.html", {'form':form}, context_instance=RequestContext(request))
-    
+      messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
+      return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
+
   if form.is_valid():
     receiver = form.save()
 
@@ -1428,7 +1454,7 @@ def edit_shipping_address(request):
       new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
       new_customization.save()
 
-    if receiver.is_active is False: 
+    if receiver.is_active is False:
       # if new receiving user created.  happens when receiver never attended a party
       role = Group.objects.get(name="Vinely Taster")
       receiver.groups.add(Group.objects.get(name=role))
@@ -1453,9 +1479,9 @@ def edit_shipping_address(request):
         if u is not None:
           login(request, u)
         else:
-          raise Http500
+          raise Http404
 
-    if u.is_authenticated() and u != receiver: 
+    if u.is_authenticated() and u != receiver:
       # if receiver is already an active user and receiver is not currently logged in user
       receiver_profile = receiver.get_profile()
       profile = u.get_profile()
@@ -1472,7 +1498,7 @@ def edit_shipping_address(request):
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.status = Cart.CART_STATUS_CHOICES[3][0]
       cart.save()
-      
+
       if cart.party is None:
         party = None
         if 'party_id' in request.session:
@@ -1598,7 +1624,7 @@ def edit_credit_card(request):
   #   cards = current_user_profile.credit_cards.all()
   #   if cards.count() > 0:
   #     card_info = cards[0]
-  #     form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+  #     form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,
   #                     'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
   #                     'billing_zipcode': card_info.billing_zipcode}
   # data['form'] = form
@@ -1610,15 +1636,17 @@ def edit_credit_card(request):
   data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
+
 import json
 @login_required
 def cart_kit_detail(request, kit_id):
   kit = Product.objects.get(id=int(kit_id))
   data = {}
   #data['description'] = kit.description
-  data['price'] = "%s" % kit.unit_price #TODO: is there a better way to serialize currency
+  data['price'] = "%s" % kit.unit_price  # TODO: is there a better way to serialize currency
   data['product'] = kit.name
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
 
 @login_required
 def cart_quantity(request, level, quantity):
@@ -1627,7 +1655,7 @@ def cart_quantity(request, level, quantity):
   1 = full case
   2 = half case
   '''
-  
+
   try:
     product = Product.objects.get(cart_tag=level)
   except Product.DoesNotExist:
@@ -1635,8 +1663,9 @@ def cart_quantity(request, level, quantity):
     raise Http404
   data = {}
   data['price'] = "%.2f" % (product.full_case_price if int(quantity) == 1 else product.unit_price)
-  
+
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
 
 @login_required
 def party_select(request):
@@ -1651,7 +1680,7 @@ def party_select(request):
   hos_group = Group.objects.get(name="Vinely Host")
 
   today = datetime.now(tz=UTC())
-  
+
   # check if there's a party that has not ordered a kit, exclude completed orders
   parties = Party.objects.filter(host=u, event_date__gte=today)
   cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
@@ -1691,7 +1720,7 @@ def print_rating_cards(request, party_id):
     static_p = urlopen(path)
     in_stream = cStringIO.StringIO(static_p.read())
   else:
-    path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Raw.pdf'
+    path = settings.PROJECT_ROOT + '/static' + '/doc/PDF_vinely_experience_card_Raw.pdf'
     in_stream = file(path, 'rb')
 
   # with file(path, 'rb') as in_stream:
@@ -1705,19 +1734,19 @@ def print_rating_cards(request, party_id):
     can = canvas.Canvas(packet, pagesize=letter)
     # Taster name
     can.setFont('Helvetica-Bold', 12)
-    can.drawString(230,74, string.upper(invite.invitee.get_full_name()))
-    can.drawString(630,74, string.upper(invite.invitee.get_full_name()))
+    can.drawString(230, 74, string.upper(invite.invitee.get_full_name()))
+    can.drawString(630, 74, string.upper(invite.invitee.get_full_name()))
 
     can.setFont('Courier', 9)
     # event date
-    can.drawString(230,63, event_date)
-    can.drawString(630,63, event_date)
+    can.drawString(230, 63, event_date)
+    can.drawString(630, 63, event_date)
     # host name
-    can.drawString(230,53, host)
-    can.drawString(630,53, host)
+    can.drawString(230, 53, host)
+    can.drawString(630, 53, host)
     # pro name
-    can.drawString(230,43, pro)
-    can.drawString(630,43, pro)
+    can.drawString(230, 43, pro)
+    can.drawString(630, 43, pro)
     can.save()
 
     packet.seek(0)
@@ -1739,4 +1768,3 @@ def print_rating_cards(request, party_id):
   response = HttpResponse(pdf, mimetype='application/pdf', content_type='application/pdf')
   response['Content-Disposition'] = 'attachment; filename=Vinely_experience_card.pdf'
   return response
-
