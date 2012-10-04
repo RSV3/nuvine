@@ -833,6 +833,7 @@ def party_list(request):
 
   return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def party_add(request):
   """
@@ -881,12 +882,12 @@ def party_add(request):
       else:
         my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
-      
+
       # make the pro a mentor to the host
       host_profile = new_host.get_profile()
       host_profile.mentor = u
       host_profile.save()
-      
+
       if not new_host.is_active:
         # new host, so send password and invitation
         temp_password = User.objects.make_random_password()
@@ -909,6 +910,7 @@ def party_add(request):
       # go to party list page
       return HttpResponseRedirect(reverse("party_list"))
   else:
+    # GET
     # if the current user is host, display Vinely Pro
     if "host" in data and data["host"]:
       pros = MyHost.objects.filter(host=u)
@@ -941,8 +943,9 @@ def party_add(request):
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
     form = PartyCreateForm(initial=initial_data)
     hos_group = Group.objects.get(name="Vinely Host")
-    # need to figure out hosts filtered by Vinely Pro
-    form.fields['host'].choices = [(h.host.id, h.host.email) for h in MyHost.objects.filter(pro=u)]
+
+  # need to figure out hosts filtered by Vinely Pro
+  form.fields['host'].choices = [(h.host.id, h.host.email) for h in MyHost.objects.filter(pro=u)]
 
   data["form"] = form
   data["parties_menu"] = True
@@ -1202,12 +1205,14 @@ def party_send_invites(request):
   # send invitation 
   form = CustomizeInvitationForm(request.POST or None)
   if form.is_valid():
+    num_guests = len(request.POST.getlist("guests"))
     if form.cleaned_data['preview']:
       invitation_sent = form.save(commit=False)
       party = invitation_sent.party
       data["preview"] = True
       data["party"] = party
       data["guests"] = request.POST.getlist("guests")
+      data["guest_count"] = num_guests 
     else:
       invitation_sent = form.save()
 
@@ -1215,7 +1220,6 @@ def party_send_invites(request):
 
       # send e-mails
       distribute_party_invites_email(request, invitation_sent)
-      num_guests = len(request.POST.getlist("guests"))
       messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
@@ -1665,11 +1669,16 @@ from reportlab.lib.pagesizes import letter
 from django.contrib import staticfiles
 from urllib2 import urlopen
 import string
+
+
 @login_required
 def print_rating_cards(request, party_id):
-  
+
   party = get_object_or_404(Party, id = party_id)
   invites = PartyInvite.objects.filter(party = party)
+  if invites.count() == 0:
+    messages.warning(request, "No guests have been invited to the party. Invite guests first.")
+    return HttpResponseRedirect(reverse("party_details", args=[party_id]))
 
   # assume whoever is printing this is the pro
   pro = request.user.get_full_name()
@@ -1684,11 +1693,11 @@ def print_rating_cards(request, party_id):
   else:
     path = settings.PROJECT_ROOT+'/static' + '/doc/PDF_vinely_experience_card_Raw.pdf'
     in_stream = file(path, 'rb')
-  
+
   # with file(path, 'rb') as in_stream:
-    
+
   output = PdfFileWriter()
-  
+
   for invite in invites:
     packet = cStringIO.StringIO()
     exp_doc = PdfFileReader(in_stream)

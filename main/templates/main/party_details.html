@@ -87,14 +87,14 @@
             </div>
           </p>
           <section id="party-tips">
-          <p class="pull-right"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Download the Taste Party To-Do List</a></p>
+          <p class="span6"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Download the Taste Party To-Do List</a></p>
           </section>
         {% else %}
           {# for pros #}
           <div class="pull-right">
-            <a href="{% url print_rating_cards party.id %}" class="btn btn-primary btn-large">Print Experience Sheets</a>
+            <a href="{% url print_rating_cards party.id %}" class="btn btn-primary">Print Customized Experience Cards</a>
             <p></p>
-            <a href="{% static "doc/PDF_vinely_experience_card_Editable_a.pdf" %}" class="btn btn-primary btn-large">Print Generic Experience Cards</a>
+            <a href="{% static "doc/PDF_vinely_experience_card_Raw.pdf" %}" class="btn btn-primary">Print Generic Experience Cards</a>
           </div>
         {% endif %}
       </div>
@@ -148,7 +148,7 @@
         </tbody>
       </table>
       <div class="control-group">
-        <button type="submit" class="btn btn-primary">Send Invite</button>
+        <button type="submit" class="btn btn-success btn-large">Send Invite</button> <span class="alert">Please select guests from the above list and send your personalized invitation.</span>
       </div>
     </form>
   </section>
