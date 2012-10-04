@@ -1,0 +1,114 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>YOU ARE CORDIALLY INVITED TO A VINELY TASTE PARTY</h1>
+{% endblock header %}
+
+
+{% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block auth %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block navbar_menu %}{% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block footer %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  {% if already_signed_up %}
+
+    <div class="row">
+      <div class="offset2 span8">
+        Thank you for being an active member of Vinely. Hope you are having a blast with Vinely!
+      </div>
+    </div>
+    <div class="vertical-space">
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
+        Join us October 10th, 2012 for a Vinely Tate Party open house from 4:00 pm to 7:00 pm in downtown Grand Rapids at the <a href="http://www.shopmodiv.com/floorplan.html">Haworth Showroom space located in Mo/Div</a> (40 Monroe Center). 
+        <p>&nbsp;</p>
+        <h2>WHAT’S A VINELY TASTE PARTY?</h2>
+          <p>Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
+
+          <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
+
+          <p>Come early, stay late but promise you will come.</p>
+
+          <p>Tell us you’ll attend! You know you want to!</p>
+
+          <p>By filling out the information below, an online profile will be created for you and gets you one step closer to finding out your Vinely Wine Personality.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
+        <form class="form-horizontal well" method="POST" action="{{ app_path }}">
+          {% csrf_token %}
+
+          {% if error %}
+            <div class="alert alert-error">
+              {{ error }}
+            </div>
+          {% endif %}
+          {% if form.errors %}
+            <div class="alert alert-error">
+              {{ form.errors }}
+            </div>
+          {% endif %}
+
+          <fieldset>
+            <div class="control-group">
+              <div class="control-label" for="id_first_name">
+              {{ form.first_name.label }}
+              </div>
+              <div class="controls">
+                {{ form.first_name }}
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="control-label" for="id_last_name">
+              {{ form.last_name.label_tag }}
+              </div>
+              <div class="controls">
+                {{ form.last_name }}
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="control-label" for="id_email">
+              {{ form.email.label_tag }}
+              </div>
+              <div class="controls">
+                {{ form.email }}
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="control-label" for="id_zipcode">
+              {{ form.zipcode.label_tag }}
+              </div>
+              <div class="controls">
+                {{ form.zipcode }}
+              </div>
+              <input type="hidden" name="password1" value="Sign Up" />
+              <input type="hidden" name="password2" value="Sign Up" />              
+            </div>
+            <div class="form-actions">
+              <div class="controls span4">
+                <button class="btn btn-success" type="submit" name="rsvp" value="3"><i class="icon-ok icon-white"></i> Yes</button>
+                <button class="btn btn-inverse" type="submit" name="rsvp" value="1"><i class="icon-remove icon-white"></i> No</button>
+                <button class="btn btn-warning" type="submit" name="rsvp" value="2"><i class="icon-question-sign icon-white"></i> Maybe</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div> <!-- .row -->
+    <div class="row">
+      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
+        <h2>But where’s the parking?</h2>
+        <p>Don’t let parking stand in your way. There are lots of meters, most of which are free after 6:00 pm. If you arrive before 6:00 pm you can get an hour free in the Monroe Center lot located at 37 Ionia Avenue Northwest (on the corner of Ionia ave and Louis)</p>
+        <p>If you have any other questions, contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or by calling 1.888.294.1128 ext: 1</p>
+      </div>
+    </div>
+  {% endif %}
+</div> <!-- container -->
+
+{% endblock content %}
