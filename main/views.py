@@ -491,7 +491,7 @@ def cart(request):
     for item in cart.items.all():
       if item.product.category == 1:
         item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
-        print item.img_file_name
+        # print item.img_file_name
       data['items'].append(item)
 
     data["cart"] = cart
@@ -736,7 +736,7 @@ def order_complete(request, order_id):
     for item in cart.items.all():
       if item.product.category == 1:
         item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
-        print item.img_file_name
+        # print item.img_file_name
       data['items'].append(item)
 
     # need to send e-mail
@@ -1352,7 +1352,7 @@ def supplier_edit_order(request, order_id):
   for item in cart.items.all():
     if item.product.category == 1:
       item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag) 
-      print item.img_file_name
+      # print item.img_file_name
     data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
@@ -1664,6 +1664,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from django.contrib import staticfiles
 from urllib2 import urlopen
+import string
 @login_required
 def print_rating_cards(request, party_id):
   
@@ -1673,7 +1674,7 @@ def print_rating_cards(request, party_id):
   # assume whoever is printing this is the pro
   pro = request.user.get_full_name()
   host = invites[0].party.host.get_full_name()
-  event_date = party.event_date.strftime('%d %B %Y')
+  event_date = party.event_date.strftime('%m-%d-%Y')
 
   path = staticfiles.templatetags.staticfiles.static("doc/PDF_vinely_experience_card_Editable_a.pdf")
 
@@ -1695,8 +1696,8 @@ def print_rating_cards(request, party_id):
     can = canvas.Canvas(packet, pagesize=letter)
     # Taster name
     can.setFont('Helvetica-Bold', 12)
-    can.drawString(230,74, invite.invitee.get_full_name())
-    can.drawString(630,74, invite.invitee.get_full_name())
+    can.drawString(230,74, string.upper(invite.invitee.get_full_name()))
+    can.drawString(630,74, string.upper(invite.invitee.get_full_name()))
 
     can.setFont('Courier', 9)
     # event date
