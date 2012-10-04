@@ -10,6 +10,7 @@ import json
 from main.models import LineItem, Product
 from accounts.models import SubscriptionInfo
 from stripecard.models import StripeCard
+from datetime import datetime, timedelta
 
 def shipping(plans):
 	# TODO: check invoice qty
@@ -77,7 +78,10 @@ def invoice_created(event_json):
 			total += sub_total
 			plan_desc = ("%s subscription -  %s" % (freq[plan.frequency], qty[plan.quantity]))
 			stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(sub_total * 100), currency='usd', description=plan_desc)
-
+			interval = 28 * plan.frequency
+			next_invoice = datetime.date(datetime.now()) + timedelta(days=interval)
+			plan.next_invoice_date = next_invoice
+			plan.save()
 		stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(my_plans) * 100), currency='usd', description='Shipping')
 		stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(total) * 100), currency='usd', description='Tax')
 
