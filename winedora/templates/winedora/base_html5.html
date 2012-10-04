@@ -101,8 +101,10 @@
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
   <div class="container">
     <div class="row">
-    </div>    
+    </div>
+
     <div class="row">
+      {% block social %}
       <div class="span1">
         <a href="https://twitter.com/vinelywine" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @vinelywine</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
@@ -112,10 +114,12 @@
       </div>            
       <div class="span1">
         <div class="fb-like" data-href="https://www.vinely.com" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
-      </div>      
+      </div>
+      {% endblock %}
       <div class="span5 offset1">
         <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
+      {% block auth %}
       <div class="span3">
         <div class="box-container">
         <div class="box-content authentication">
@@ -133,6 +137,7 @@
           <div class="box-bg"></div>
         </div><!--box-container-->
       </div> <!--span4-->
+      {% endblock %}
     </div> <!-- .row -->
 
     <div class="navbar divider">
@@ -246,6 +251,7 @@
   </div>
   <footer>
     <div class="container">
+      {% block footer %}
       <div class="divider">
         <div class="menu_wrap">
           <ul class="nav">
@@ -283,6 +289,7 @@
           </ul>
         </div>
       </div>
+      {% endblock %}
       <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
     </div> <!-- .container -->
   </footer>

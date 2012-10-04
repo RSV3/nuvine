@@ -1,8 +1,13 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block header %}
-  <h1 class="headline">Welcome to Vinely, {{ first_name }}</h1>
+  <h1 class="{% if not fb_view %}headline{% endif %}">Welcome to Vinely, {{ first_name }}</h1>
 {% endblock header %}
+
+{% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block auth %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block navbar_menu %}{% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block footer %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
 
 {% block content %}
 
@@ -29,14 +34,14 @@
     </div>
   </div>  
   <div class="row">
-    <div class="offset2 span8">
+    <div class="{% if fb_view %}span8{% else %}offset2 span8{% endif %}">
       <p>We love a good party and we’re glad you’d like to host one! An email should arrive shortly, which will include your sign in and password information.</p>
 
       <p>Also, stay on the lookout for an email that should be arriving from a Vinely Pro. If you haven’t heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.</p>
     </div>
   </div>
   <div class="row">
-    <div class="offset2 span8">
+    <div class="{% if fb_view %}span8{% else %}offset2 span8{% endif %}">
       <p>&nbsp;</p>
     </div>
   </div>

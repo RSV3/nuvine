@@ -215,13 +215,17 @@ def forgot_password(request):
 
 from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
-def fb_party_signup(request, party_id):
+def fb_vinely_event_signup(request, party_id):
+  return vinely_event_signup(request, party_id, 1)
+
+def vinely_event_signup(request, party_id, fb_page=0):
   # Added Oct 2 2012 - Billy
   # Allow taster to signup from FB page
   # if signing up as a taster there must be a party to link to
   account_type = 3
   role = Group.objects.get(id=account_type)
   data = {}
+  data['fb_view'] = fb_page
   today = datetime.now(tz=UTC())
   try:
     party = Party.objects.get(pk=party_id, event_date__gte = today)
@@ -230,56 +234,60 @@ def fb_party_signup(request, party_id):
 
   # create users and send e-mail notifications
   form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type':account_type}) 
-  
-  if form.is_valid():
-    user = form.save()
-    profile = user.get_profile()
-    profile.zipcode = form.cleaned_data['zipcode']
-    ok = check_zipcode(profile.zipcode)
-    if not ok:
-      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-      send_not_in_area_party_email(request, user, account_type)
 
-    user.groups.add(role)
+  # FB uses post to get page so shouldnt validate
 
-    user.is_active = False
-    temp_password = User.objects.make_random_password()
-    user.set_password(temp_password)
-    user.save()
+  # raise Exception
+  if request.method == 'POST' and request.POST.get('rsvp'):
+    if form.is_valid():
+      user = form.save()
+      profile = user.get_profile()
+      profile.zipcode = form.cleaned_data['zipcode']
+      ok = check_zipcode(profile.zipcode)
+      if not ok:
+        messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+        send_not_in_area_party_email(request, user, account_type)
 
-    # save engagement type
-    engagement_type = account_type 
+      user.groups.add(role)
 
-    interest, created = EngagementInterest.objects.get_or_create(user=user, 
-                                                      engagement_type=engagement_type)
+      user.is_active = False
+      temp_password = User.objects.make_random_password()
+      user.set_password(temp_password)
+      user.save()
 
-    verification_code = str(uuid.uuid4())
-    vque = VerificationQueue(user=user, verification_code=verification_code)
-    vque.save()
+      # save engagement type
+      engagement_type = account_type 
 
-    # send out verification e-mail, create a verification code
-    send_verification_email(request, verification_code, temp_password, user.email)
+      interest, created = EngagementInterest.objects.get_or_create(user=user, 
+                                                        engagement_type=engagement_type)
 
-    data["email"] = user.email
-    data["first_name"] = user.first_name
+      verification_code = str(uuid.uuid4())
+      vque = VerificationQueue(user=user, verification_code=verification_code)
+      vque.save()
 
-    data["account_type"] = account_type 
-    
-    # link them to party and RSVP
-    PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host, 
-                              response=PartyInvite.RESPONSE_CHOICES[3][0], response_timestamp=today)
+      # send out verification e-mail, create a verification code
+      send_verification_email(request, verification_code, temp_password, user.email)
 
-    messages.success(request, "Thank you for your interest in attending a Vinely Party.")
+      data["email"] = user.email
+      data["first_name"] = user.first_name
+      data["account_type"] = account_type
+      
+      response = int(request.POST['rsvp'])
+      # link them to party and RSVP
+      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host, 
+                                response=response, response_timestamp=today)
 
-    return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+      messages.success(request, "Thank you for your interest in attending a Vinely Party.")
 
-  data['heard_about_us_form'] = HeardAboutForm()
+      return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+
+  # data['heard_about_us_form'] = HeardAboutForm()
   data['form'] = form
   data['role'] = role.name
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
-  return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/vinely_event.html", data, context_instance=RequestContext(request))
 
 
 def sign_up(request, account_type):
