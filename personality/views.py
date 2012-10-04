@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 from main.utils import if_supplier
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
@@ -18,7 +19,6 @@ from accounts.utils import send_verification_email
 
 import numpy as np
 import uuid, json, re
-from urlparse import urlparse
 
 
 @login_required
@@ -33,7 +33,7 @@ def check_personality_exists(request):
       try:
         guest = User.objects.get(email=email)
         mystery = WinePersonality.objects.get(name=WinePersonality.MYSTERY)
-        if guest.get_profile().wine_personality != mystery :
+        if guest.get_profile().wine_personality != mystery:
           data["result"] = 1
           return HttpResponse(json.dumps(data), mimetype="application/json")
       except User.DoesNotExist:
@@ -111,7 +111,7 @@ def pre_questionnaire_general(request):
     general_taste = GeneralTaste.objects.get(user=u)
   except GeneralTaste.DoesNotExist:
     general_taste = None
-  
+
   form = GeneralTasteQuestionnaire(request.POST or None, instance=general_taste)
   if form.is_valid():
     form.save()
@@ -120,7 +120,7 @@ def pre_questionnaire_general(request):
 
   if general_taste is None:
     form.initial['user'] = u
-  data["form"] = form 
+  data["form"] = form
 
   return render_to_response("personality/pre_questionnaire_general.html", data,
                                   context_instance=RequestContext(request))
@@ -149,7 +149,7 @@ def pre_questionnaire_wine(request):
 
   if wine_taste is None:
     form.initial['user'] = u
-  data["form"] = form 
+  data["form"] = form
 
   return render_to_response("personality/pre_questionnaire_wine.html", data,
                                   context_instance=RequestContext(request))
@@ -174,12 +174,12 @@ def record_wine_ratings(request):
     if request.method == "POST":
       form = WineRatingsForm(request.POST)
       if form.is_valid():
-        form.save()      
+        form.save()
 
         if (pro_group in u.groups.all()):
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
-          
+
         if (tas_group in u.groups.all()):
           # ask if you want order wine
           data["role"] = "taster"
@@ -193,7 +193,7 @@ def record_wine_ratings(request):
 
     return render_to_response("personality/record_wine_ratings.html", data, context_instance=RequestContext(request))
   else:
-    raise Http404 
+    raise Http404
 
 @login_required
 def record_ratings(request, email=None, party_id=None):
@@ -249,20 +249,20 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     wine6 = Wine.objects.get(number=6, active=True)
 
     initial_data = { 'wine1': wine1.id,
-                      'wine2': wine2.id, 
-                      'wine3': wine3.id, 
-                      'wine4': wine4.id, 
-                      'wine5': wine5.id, 
-                      'wine6': wine6.id 
+                      'wine2': wine2.id,
+                      'wine3': wine3.id,
+                      'wine4': wine4.id,
+                      'wine5': wine5.id,
+                      'wine6': wine6.id
                       }
 
     if email:
       try:
         taster = User.objects.get(email=email)
         if taster.get_profile().wine_personality.name == "Mystery":
-          data['personality_exists'] = False 
+          data['personality_exists'] = False
         else:
-          data['personality_exists'] = True 
+          data['personality_exists'] = True
       except User.DoesNotExist:
         data['personality_exists'] = False
         taster = None
@@ -329,7 +329,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
         initial_data['wine4_sizzle'] = wine4_rating.sizzle
         initial_data['wine4_sizzle_dnl'] = wine4_rating.sizzle_dnl
       except WineRatingData.DoesNotExist:
-        pass     
+        pass
 
       try:
         wine5_rating = WineRatingData.objects.get(user=taster, wine=wine5)
@@ -343,7 +343,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
         initial_data['wine5_sizzle'] = wine5_rating.sizzle
         initial_data['wine5_sizzle_dnl'] = wine5_rating.sizzle_dnl
       except WineRatingData.DoesNotExist:
-        pass           
+        pass
 
       try:
         wine6_rating = WineRatingData.objects.get(user=taster, wine=wine6)
@@ -381,17 +381,17 @@ def record_all_wine_ratings(request, email=None, party_id=None):
         # send out verification e-mail, create a verification code
         send_verification_email(request, verification_code, temp_password, invitee.email)
 
-      if np.sum(np.array([results[1].overall, results[2].overall, 
-                          results[3].overall, results[4].overall, 
+      if np.sum(np.array([results[1].overall, results[2].overall,
+                          results[3].overall, results[4].overall,
                           results[5].overall, results[6].overall]) > 0) == 6:
         # only save personality if all 6 wine fields have been filled out
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
-       
+
         if pro_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
-          # log the time and the party that the persona was found 
+          # log the time and the party that the persona was found
           if party:
             persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
             persona_log.pro = u
@@ -412,7 +412,7 @@ def record_all_wine_ratings(request, email=None, party_id=None):
             # saved before or without the party
             PersonaLog.objects.get_or_create(user=invitee)
         elif hos_group in u.groups.all():
-          # personality was created by an host herself 
+          # personality was created by an host herself
           # ask if you want order wine
           data["role"] = "host"
           PersonaLog.objects.get_or_create(user=invitee)
@@ -420,8 +420,6 @@ def record_all_wine_ratings(request, email=None, party_id=None):
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
         messages.success(request, "Partial ratings have been saved for %s" % invitee.email)
-
-
 
     # form = AllWineRatingsForm(initial=initial_data)
 
@@ -435,4 +433,4 @@ def record_all_wine_ratings(request, email=None, party_id=None):
 
     # user needs to be a Vinely Pro or Vinely Taster to fill this out
     # Vinely Taster is filling out their own data
-    raise PermissionDenied 
+    raise PermissionDenied
