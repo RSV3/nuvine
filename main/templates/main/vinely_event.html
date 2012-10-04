@@ -24,8 +24,8 @@
     </div>
   {% else %}
     <div class="row">
-      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
-        Join us October 10th, 2012 for a Vinely Tate Party open house from 4:00 pm to 7:00 pm in downtown Grand Rapids at the <a href="http://www.shopmodiv.com/floorplan.html">Haworth Showroom space located in Mo/Div</a> (40 Monroe Center). 
+      <div class="{% if fb_view %}span10{% else %}span12{% endif %}">
+        Join us October 10th, 2012 for a Vinely Taste Party open house from 4:00 pm to 7:00 pm in downtown Grand Rapids at the <a href="http://www.shopmodiv.com/floorplan.html">Haworth|Interphase Showroom space</a> located on the corner of Monroe Center and Division. 
         <p>&nbsp;</p>
         <h2>WHAT’S A VINELY TASTE PARTY?</h2>
           <p>Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
+      <div class="{% if fb_view %}span10{% else %}span12{% endif %}">
         <form class="form-horizontal well" method="POST" action="{{ app_path }}">
           {% csrf_token %}
 
@@ -90,22 +90,29 @@
               <input type="hidden" name="password1" value="Sign Up" />
               <input type="hidden" name="password2" value="Sign Up" />              
             </div>
+
             <div class="form-actions">
-              <div class="controls span4">
+
+            
+            <!-- <hr /> -->
+            <div class="row">
+              <div class="span4">
                 <button class="btn btn-success" type="submit" name="rsvp" value="3"><i class="icon-ok icon-white"></i> Yes</button>
                 <button class="btn btn-inverse" type="submit" name="rsvp" value="1"><i class="icon-remove icon-white"></i> No</button>
                 <button class="btn btn-warning" type="submit" name="rsvp" value="2"><i class="icon-question-sign icon-white"></i> Maybe</button>
               </div>
             </div>
+            </div>            
           </fieldset>
         </form>
       </div>
     </div> <!-- .row -->
     <div class="row">
-      <div class="{% if fb_view %}span8{% else %}span12{% endif %}">
+      <div class="{% if fb_view %}span10{% else %}span12{% endif %}">
         <h2>But where’s the parking?</h2>
         <p>Don’t let parking stand in your way. There are lots of meters, most of which are free after 6:00 pm. If you arrive before 6:00 pm you can get an hour free in the Monroe Center lot located at 37 Ionia Avenue Northwest (on the corner of Ionia ave and Louis)</p>
-        <p>If you have any other questions, contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or by calling 1.888.294.1128 ext: 1</p>
+        <h2>Questions</h2>
+        <p>Contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or call 1.888.294.1128 ext: 1</p>
       </div>
     </div>
   {% endif %}
