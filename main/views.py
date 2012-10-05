@@ -20,9 +20,10 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm
 
-from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode
+from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
+                        send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
-                        distribute_party_invites_email, UTC, \
+                        distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission
 
@@ -1824,17 +1825,12 @@ def vinely_event_signup(request, party_id, fb_page=0):
     # if user already exists just add them to the event dont save
     try:
       user = User.objects.get(email=request.POST.get('email'))
+      profile = user.get_profile()
     except User.DoesNotExist:
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
-      ok = check_zipcode(profile.zipcode)
-      if not ok:
-        messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-        send_not_in_area_party_email(request, user, account_type)
-
       user.groups.add(role)
-
       user.is_active = False
       temp_password = User.objects.make_random_password()
       user.set_password(temp_password)
@@ -1875,6 +1871,11 @@ def vinely_event_signup(request, party_id, fb_page=0):
     else:
       # msg = "Thank you for your interest in attending a Vinely Party."
       data['attending'] = True
+      ok = check_zipcode(profile.zipcode)
+      if not ok:
+        messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+        send_not_in_area_party_email(request, user, account_type)      
+      send_rsvp_thank_you_email(request, user)
     # messages.success(request, msg)
 
     return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))

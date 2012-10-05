@@ -280,18 +280,18 @@ def distribute_party_invites_email(request, invitation_sent):
 
   return msg
 
-def send_rsvp_thank_you_email(request):
+def send_rsvp_thank_you_email(request, user):
 
   template = Section.objects.get(template__key='rsvp_thank_you_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"first_name": request.user.first_name} )
+  c = RequestContext( request, {"first_name": user.first_name} )
   txt_message = txt_template.render(c)
   c.update({'sig':True, 'plain':False})
   html_message = html_template.render(c)
 
-  recipients = [ request.user.email ]
+  recipients = [ user.email ]
 
   # send out party invitation e-mail 
   subject = 'Thanks for the RSVP!'
