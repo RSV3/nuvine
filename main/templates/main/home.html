@@ -7,6 +7,10 @@
 {% endblock header %}
 
 {% block side_navigation %}
+  {% for invite in invites %}
+    <li><div class="chev"><a href="{% url party_rsvp invite.party.id %}"><span class="home-alert-text">RSVP to {{ invite.party.title }}</span></a></div></li>
+  {% endfor %}
+
   {% if pro %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
@@ -54,13 +58,6 @@
     {% endif %}
   {% endif %}
 
-
-  {% if invites %}
-    <li class="nav-header">Alerts</li>
-  {% endif %}
-  {% for invite in invites %}
-    <li><div class="chev"><a href="{% url party_rsvp invite.party.id %}">RSVP to {{ invite.party.title }}</a></div></li>
-  {% endfor %}
 
 {% endblock side_navigation %}
 

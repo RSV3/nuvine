@@ -73,12 +73,6 @@
                     {{ form.email.errors }}
                   </span>
                 {% endif %}
-                <span id="personality-exists-error">
-                  Wine Personality already exists for this user so if you save you will be overriding!
-                </span>
-                <span id="email-invalid-error">
-                  E-mail address is invalid 
-                </span>              
               </div>
             </div>
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">
@@ -830,7 +824,8 @@
                 <fieldset>
                   <div class="form-actions">
                     <center>
-                      <button {% if personality_exists %}disabled="disabled" {% endif %}type="submit" class="pull-right btn btn-primary">Save Ratings</button>
+                      <!--<button {% if personality_exists %}disabled="disabled" {% endif %}type="submit" class="pull-right btn btn-primary">Save Ratings</button>-->
+                      <button type="submit" class="pull-right btn btn-primary">Save Ratings</button>
                     </center>
                   </div>
                 </fieldset>
@@ -867,24 +862,62 @@
       }
   });
 
-  $('#id_email').change(function() {
+  {% if personality_exists %}
+  var personality_error = true;
+  {% else %}
+  var personality_error = false;
+  {% endif %}
+
+  var email_error = false;
+
+  function get_popover_title() {
+    if (personality_error) {
+      return "Personality warning";
+    } else if (email_error) {
+      return "E-mail invalid error";
+    }
+  }
+
+  function get_popover_content() {
+    if (personality_error) {
+      return 'Wine Personality already exists for this user so if you save you will be overriding!'; 
+    } else if (email_error) {
+      return 'E-mail address is an invalid address!';
+    }   
+  }
+
+  $("#id_email").popover(
+    {
+      title: get_popover_title,
+      content: get_popover_content 
+    }
+  );   
+
+  $('#id_email').keyup(function() {
 
     /* for now do not disable the submit button even though personality exists */
-
     $.ajax({
       type: "POST",
       url: "{% url check_personality_exists %}",
       data: { email: $(this).val() },
       success: function(data) {
-        $('#personality-exists-error').hide();
-        $('#email-invalid-error').hide();
+        $('#id_email').popover("hide");
+        $('#email-invalid-error').popover("hide");
         if ( data["result"] == 1 ) {
-          $('#personality-exists-error').show();
+          personality_error = true;
+          $('#id_email').popover("show");
+          console.log("Show popover");
           /*$('button[type="submit"]').attr('disabled', 'disabled');*/
         } else if (data["result"] == 0 ) {
+          personality_error = false;
+          email_error = false;
           /*$('button[type="submit"]').removeAttr('disabled'); */
+          $("#id_email").popover("hide")
+          console.log("Hide popover");
         } else if (data["result"] == -1 ) {
-          $('#email-invalid-error').show();
+          email_error = true;
+          $('#id_email').popover("show");
+          console.log("Show popover");
           /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
         }
       }

@@ -5,9 +5,7 @@ from django.contrib.localflavor.us import forms as us_forms
 from emailusernames.forms import EmailUserChangeForm
 
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
-from main.models import LineItem
 from creditcard.fields import *
-
 
 
 class UserInfoForm(EmailUserChangeForm):
@@ -16,11 +14,13 @@ class UserInfoForm(EmailUserChangeForm):
     model = User
     exclude = ['last_login', 'groups', 'date_joined', 'is_active', 'is_staff', 'is_superuser']
 
+
 class ImagePhoneForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
     fields = ['image', 'phone']
+
 
 class ChangePasswordForm(forms.Form):
   email = forms.CharField(widget=forms.HiddenInput)
@@ -49,9 +49,10 @@ class VerifyAccountForm(forms.Form):
   new_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   retype_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   accepted_tos = forms.BooleanField(label="I accept the terms of service")
+
   def clean(self):
     cleaned_data = super(VerifyAccountForm, self).clean()
-    
+
     try:
       # need to first check the temporary password
       u = User.objects.get(email=cleaned_data['email'])
@@ -69,6 +70,7 @@ class VerifyAccountForm(forms.Form):
 from main.utils import UTC
 from datetime import datetime, timedelta
 import math
+
 class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
@@ -93,10 +95,11 @@ class VerifyEligibilityForm(forms.ModelForm):
         raise forms.ValidationError('The Date of Birth shows that you are not over 21')
     return data
 
+
 class UpdateAddressForm(forms.ModelForm):
 
   class Meta:
-    model = Address 
+    model = Address
 
   def __init__(self, *args, **kwargs):
     super(UpdateAddressForm, self).__init__(*args, **kwargs)
@@ -110,23 +113,24 @@ class ForgotPasswordForm(forms.Form):
     try:
       u = User.objects.get(email=self.cleaned_data['email'])
     except User.DoesNotExist:
-      raise forms.ValidationError('User with %s does not exist'%(self.cleaned_data['email']))
+      raise forms.ValidationError('User with %s does not exist' % (self.cleaned_data['email']))
 
     return self.cleaned_data['email']
 
 
 class CreditCardForm(forms.ModelForm):
   """
-    This form is not used 
+    This form is not used
   """
   card_number = CreditCardField(required=True)
   expiry_date = ExpiryDateField(required=True)
   verification_code = VerificationValueField(required=True)
   billing_zipcode = us_forms.USZipCodeField()
-  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+  #save_card = forms.BooleanField(label="Save this card in My Account", required=False)
 
   class Meta:
     model = CreditCard
+
 
 class PaymentForm(forms.ModelForm):
   """
@@ -138,7 +142,7 @@ class PaymentForm(forms.ModelForm):
   verification_code = forms.IntegerField(required = True, label = "CVV Number",
       max_value = 9999, widget = forms.TextInput(attrs={'size': '4'}))
   billing_zipcode = us_forms.USZipCodeField()
-  #save_card = forms.BooleanField(label="Save this card in My Account", required=False) 
+  #save_card = forms.BooleanField(label="Save this card in My Account", required=False)
 
   class Meta:
     model = CreditCard
@@ -148,7 +152,7 @@ class PaymentForm(forms.ModelForm):
     super(PaymentForm, self).__init__(*args, **kwargs)
     self.fields['verification_code'].widget = forms.PasswordInput()
     self.fields['card_type'].widget = forms.HiddenInput()
- 
+
   def clean(self):
     cleaned_data = super(PaymentForm, self).clean()
 
@@ -169,19 +173,19 @@ class PaymentForm(forms.ModelForm):
       if exp_month:
         del cleaned_data["exp_month"]
 
-    if exp_year and exp_month:    
+    if exp_year and exp_month:
       year = int(exp_year)
       month = int(exp_month)
       # find last day of the month
       day = monthrange(year, month)[1]
       expire = date(year, month, day)
-   
+
       if date.today() > expire:
         #raise forms.ValidationError("The expiration date you entered is in the past.")
         self._errors["exp_year"] = self.error_class(["The expiration date you entered is in the past."])
     else:
         self._errors["exp_year"] = self.error_class(["Is it full 4-digit year you specified?"])
-   
+
     return cleaned_data
 
   def save(self, commit=True, force_insert=False, force_update=False, *args, **kwargs):
@@ -195,6 +199,7 @@ class PaymentForm(forms.ModelForm):
       m.save()
     return m
 
+
 class UpdateSubscriptionForm(forms.ModelForm):
 
   class Meta:
@@ -207,10 +212,11 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 from django.contrib.auth.models import Group
 from emailusernames.forms import NameEmailUserCreationForm
+
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = forms.CharField(max_length=20)
-  
+
   def __init__(self, *args, **kwargs):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
     self.fields['first_name'].required = True
@@ -221,22 +227,23 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
     pro_group = Group.objects.get(name="Vinely Pro")
 
-    if self.initial['account_type'] == 1 and self.cleaned_data['mentor']: # pro -> mentor field
+    if self.initial['account_type'] == 1 and self.cleaned_data['mentor']:  # pro -> mentor field
       try:
         # make sure the pro exists
         pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
-      except User.DoesNotExist:    
+      except User.DoesNotExist:
         raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you")
 
-    if self.initial['account_type'] == 2 and self.cleaned_data['mentor']: # host -> pro field
+    if self.initial['account_type'] == 2 and self.cleaned_data['mentor']:  # host -> pro field
       try:
         # make sure the pro exists
         pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
-      except User.DoesNotExist:    
+      except User.DoesNotExist:
         raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
     return cleaned
-    
+
+
 class HeardAboutForm(forms.Form):
   SOURCES = (
     (0, "A Party"),
@@ -246,4 +253,4 @@ class HeardAboutForm(forms.Form):
     (4, "Other")
   )
   source = forms.ChoiceField(choices=SOURCES)
-  description = forms.CharField(widget=forms.Textarea(attrs={'rows':5, 'class':'span6'}))
+  description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'span6'}))

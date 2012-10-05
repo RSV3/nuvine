@@ -45,6 +45,14 @@
               <a href="{% url start_order user.id %}" class="btn btn-primary">Get Wine</a>
             {% endif %}
           </p>
+          <p>
+            {# Need to check for permissions whether this is a party specialist #}
+            {% if party_id %}
+              <a href="{% url party_details party_id %}#party-tasters" class="btn btn-primary">&laquo; Back to guest list</a>
+            {% else %}
+              <a href="{% url home_page %}">&laquo; Back to Home Page</a>
+            {% endif %}
+          </p>
         </div>
       {% else %}
         <div class="span9">
@@ -58,22 +66,8 @@
       {% endif %}
     </div> <!-- row -->
   </section>
-
-  <section id="continue_order">
-  <div class="row">
-    {# Need to check for permissions whether this is a party specialist #}
-    {% if party_id %}
-      <div class="span12">
-        <a href="{% url party_details party_id %}">&laquo; Back to guest list</a>
-      </div>
-    {% else %}
-      <div class="span12">
-        <a href="{% url home_page %}">&laquo; Back to Home Page</a>
-      </div>    
-    {% endif %}
+  <div class="vertical-space-bottom">
   </div>
-  </section>
-
 </div>
 
 {% endblock content %}

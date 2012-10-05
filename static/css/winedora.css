@@ -18,6 +18,10 @@ body {
   margin-bottom: 25px;
 }
 
+.home-alert-text {
+  color: #0000FF;
+}
+
 .center {
   text-align: center;
 }
