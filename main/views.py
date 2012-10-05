@@ -1779,6 +1779,8 @@ def print_rating_cards(request, party_id):
 ################################################################################
 
 from django.views.decorators.csrf import csrf_exempt
+from accounts.forms import NameEmailUserMentorCreationForm
+
 @csrf_exempt
 def fb_vinely_event(request):
   return vinely_event(request, fb_page=1)
