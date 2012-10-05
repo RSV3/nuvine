@@ -289,7 +289,14 @@ def send_not_in_area_party_email(request, user, account_type):
   c.update({'sig':True})
   html_message = html_template.render(c)
   
-  subject = 'Thanks for your interest in becoming a Vinely %s!' % ('Pro' if account_type == 1  else 'Host')
+  if account_type == 1:
+    user_group = 'Pro'
+  elif account_type == 2:
+    user_group = 'Host'
+  elif account_type == 3:
+    user_group = 'Taster'
+
+  subject = 'Thanks for your interest in becoming a Vinely %s!' % user_group
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely <welcome@vinely.com>'
