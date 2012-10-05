@@ -1818,13 +1818,13 @@ def vinely_event_signup(request, party_id, fb_page=0):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type})
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type, 'vinely_event':True})
 
-  # FB uses post to get page so shouldnt validate
-
-  # raise Exception
-  if request.method == 'POST' and request.POST.get('rsvp'):
-    if form.is_valid():
+  if form.is_valid():
+    # if user already exists just add them to the event dont save
+    try:
+      user = User.objects.get(email=request.POST.get('email'))
+    except User.DoesNotExist:
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
@@ -1853,18 +1853,31 @@ def vinely_event_signup(request, party_id, fb_page=0):
       # send out verification e-mail, create a verification code
       send_verification_email(request, verification_code, temp_password, user.email)
 
-      data["email"] = user.email
-      data["first_name"] = user.first_name
-      data["account_type"] = account_type
+    data["email"] = user.email
+    data["first_name"] = user.first_name
+    data["account_type"] = account_type
 
-      response = int(request.POST['rsvp'])
-      # link them to party and RSVP
+    response = int(request.POST['rsvp'])
+    # link them to party and RSVP
+    # check if already RSVP'ed and just changed response if needed
+    try:
+      invite = PartyInvite.objects.get(party=party, invitee=user)
+      invite.response = response
+      invite.response_timestamp = today
+      invite.save()
+    except PartyInvite.DoesNotExist:
+      # if doest exist then create
       PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
                                 response=response, response_timestamp=today)
+    if response == 1:
+      # msg = 'We hope you will be able to attend next time. You can always visit to our website in case change your mind.'
+      data['attending'] = False
+    else:
+      # msg = "Thank you for your interest in attending a Vinely Party."
+      data['attending'] = True
+    # messages.success(request, msg)
 
-      messages.success(request, "Thank you for your interest in attending a Vinely Party.")
-
-      return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+    return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))
 
   # data['heard_about_us_form'] = HeardAboutForm()
   data['form'] = form

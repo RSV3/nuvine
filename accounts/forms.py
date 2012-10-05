@@ -225,6 +225,11 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
+    
+    # if signing up for vinely event then allow to add to event without creating new user
+    if (self._errors['email'] == self.error_class(['A user with that email already exists.'])) and self.initial.get('vinely_event'):
+        del self._errors['email']
+    
     pro_group = Group.objects.get(name="Vinely Pro")
 
     if self.initial['account_type'] == 1 and self.cleaned_data['mentor']:  # pro -> mentor field
