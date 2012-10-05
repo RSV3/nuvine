@@ -1,0 +1,83 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1>YOU ARE CORDIALLY INVITED TO A VINELY TASTE PARTY</h1>
+{% endblock header %}
+
+
+{% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block auth %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block navbar_menu %}{% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block footer %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="{% if fb_view %}span10{% else %}span12{% endif %}">
+      <form class="form-horizontal well" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+
+        {% if error %}
+          <div class="alert alert-error">
+            {{ error }}
+          </div>
+        {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-error">
+            {{ form.errors }}
+          </div>
+        {% endif %}
+
+        <fieldset>
+          <div class="control-group">
+            <div class="control-label" for="id_first_name">
+            {{ form.first_name.label }}
+            </div>
+            <div class="controls">
+              {{ form.first_name }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_last_name">
+            {{ form.last_name.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.last_name }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_email">
+            {{ form.email.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.email }}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label" for="id_zipcode">
+            {{ form.zipcode.label_tag }}
+            </div>
+            <div class="controls">
+              {{ form.zipcode }}
+            </div>
+            <input type="hidden" name="password1" value="Sign Up" />
+            <input type="hidden" name="password2" value="Sign Up" />              
+          </div>
+
+          <div class="form-actions">
+          <!-- <hr /> -->
+          <div class="row">
+            <div class="span4">
+              <button class="btn btn-success" type="submit" name="rsvp" value="3"><i class="icon-ok icon-white"></i> Yes</button>
+              <button class="btn btn-inverse" type="submit" name="rsvp" value="1"><i class="icon-remove icon-white"></i> No</button>
+              <button class="btn btn-warning" type="submit" name="rsvp" value="2"><i class="icon-question-sign icon-white"></i> Maybe</button>
+            </div>
+          </div>
+          </div>            
+        </fieldset>
+      </form>
+    </div>
+  </div> <!-- .row -->
+</div>
+{% endblock content %}

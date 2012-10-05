@@ -215,6 +215,15 @@ def forgot_password(request):
 
 from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
+def fb_vinely_event(request):
+  return vinely_event(request, fb_page=1)
+
+def vinely_event(request, fb_page=0):
+  data = {}
+  data['fb_view'] = fb_page
+  return render_to_response("main/vinely_event.html", data, context_instance=RequestContext(request))
+
+#@csrf_exempt
 def fb_vinely_event_signup(request, party_id):
   return vinely_event_signup(request, party_id, 1)
 
@@ -287,7 +296,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
-  return render_to_response("main/vinely_event.html", data, context_instance=RequestContext(request))
+  return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
 
 
 def sign_up(request, account_type):
