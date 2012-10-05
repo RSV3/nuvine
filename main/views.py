@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.template import RequestContext, Template
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1770,3 +1770,102 @@ def print_rating_cards(request, party_id):
   response = HttpResponse(pdf, mimetype='application/pdf', content_type='application/pdf')
   response['Content-Disposition'] = 'attachment; filename=Vinely_experience_card.pdf'
   return response
+
+
+################################################################################
+#
+# Vinely Hosted Event views
+#
+################################################################################
+
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def fb_vinely_event(request):
+  return vinely_event(request, fb_page=1)
+
+def vinely_event(request, fb_page=0):
+  data = {}
+  data['fb_view'] = fb_page
+  content = ContentTemplate.objects.get(key='vinely_event').sections.all()[0].content
+  # have to render to template first because of template tags
+  event_template = Template(content)
+  context = RequestContext(request, data)
+  page = event_template.render(context)
+  data['event_content'] = page
+  
+  return render_to_response("main/vinely_event.html", data, context)
+
+#@csrf_exempt
+def fb_vinely_event_signup(request, party_id):
+  return vinely_event_signup(request, party_id, 1)
+
+def vinely_event_signup(request, party_id, fb_page=0):
+  # Added Oct 2 2012 - Billy
+  # Allow taster to signup from FB page
+  # if signing up as a taster there must be a party to link to
+  account_type = 3
+  role = Group.objects.get(id=account_type)
+  data = {}
+  data['fb_view'] = fb_page
+  today = datetime.now(tz=UTC())
+  try:
+    party = Party.objects.get(pk=party_id, event_date__gte = today)
+  except:
+    raise Http404
+
+  # create users and send e-mail notifications
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type})
+
+  # FB uses post to get page so shouldnt validate
+
+  # raise Exception
+  if request.method == 'POST' and request.POST.get('rsvp'):
+    if form.is_valid():
+      user = form.save()
+      profile = user.get_profile()
+      profile.zipcode = form.cleaned_data['zipcode']
+      ok = check_zipcode(profile.zipcode)
+      if not ok:
+        messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+        send_not_in_area_party_email(request, user, account_type)
+
+      user.groups.add(role)
+
+      user.is_active = False
+      temp_password = User.objects.make_random_password()
+      user.set_password(temp_password)
+      user.save()
+
+      # save engagement type
+      engagement_type = account_type
+
+      interest, created = EngagementInterest.objects.get_or_create(user=user,
+                                                        engagement_type=engagement_type)
+
+      verification_code = str(uuid.uuid4())
+      vque = VerificationQueue(user=user, verification_code=verification_code)
+      vque.save()
+
+      # send out verification e-mail, create a verification code
+      send_verification_email(request, verification_code, temp_password, user.email)
+
+      data["email"] = user.email
+      data["first_name"] = user.first_name
+      data["account_type"] = account_type
+
+      response = int(request.POST['rsvp'])
+      # link them to party and RSVP
+      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
+                                response=response, response_timestamp=today)
+
+      messages.success(request, "Thank you for your interest in attending a Vinely Party.")
+
+      return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+
+  # data['heard_about_us_form'] = HeardAboutForm()
+  data['form'] = form
+  data['role'] = role.name
+  data['account_type'] = account_type
+  data["get_started_menu"] = True
+
+  return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))

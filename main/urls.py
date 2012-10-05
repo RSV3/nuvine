@@ -57,7 +57,7 @@ urlpatterns = patterns('main.views',
     url(r'^pros/only/$', 'pros_only', name='pros_only'),
 )
 
-urlpatterns += patterns('accounts.views',
+urlpatterns += patterns('main.views',
     url(r'^events/$', 'vinely_event', name='vinely_event'),
     url(r'^facebook/events/$', 'fb_vinely_event', name='fb_vinely_event'),
     url(r'^event/signup/(?P<party_id>\d+)/$', 'vinely_event_signup', name='vinely_event_signup'),
