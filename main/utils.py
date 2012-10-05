@@ -249,12 +249,14 @@ def distribute_party_invites_email(request, invitation_sent):
   template = Section.objects.get(template__key='distribute_party_invites_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+  rsvp_date = invitation_sent.party.event_date - timedelta(days=5)
 
   c = RequestContext( request, {"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               "invite_host_email": request.user.email,
-              "host_name": request.get_host(), "plain":True})
+              "host_name": request.get_host(), "rsvp_date": rsvp_date,
+              "plain":True})
   txt_message = txt_template.render(c)
   c.update({'sig':True, 'plain':False})
   html_message = html_template.render(c)

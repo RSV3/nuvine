@@ -535,7 +535,7 @@ class SimpleTest(TestCase):
     {{ custom_message }}
     {% endif %}
 
-    Will you attend? You know you want to! RSVP by (5 days prior to event). Better yet, don't wait! 
+    Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait! 
 
     {% if plain %}
     Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
@@ -562,6 +562,8 @@ class SimpleTest(TestCase):
     variable, created = Variable.objects.get_or_create(var="{{ party.address.full_text }}", description="Address of the event")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ custom_message }}", description="Optional custom message added to the invite")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ rsvp_date }}", description="5 days prior to event by which the attendee should RSVP")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_rsvp party.id %}", description="RSVP Link")
     template.variables_legend.add(variable)

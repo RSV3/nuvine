@@ -1208,6 +1208,7 @@ def party_customize_invite(request):
     data["form"] = form
     data["guest_count"] = len(guests)
     data["parties_menu"] = True
+    data['rsvp_date'] = party.event_date - timedelta(days=5)
 
     return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
   else:
@@ -1233,6 +1234,7 @@ def party_send_invites(request):
       data["party"] = party
       data["guests"] = request.POST.getlist("guests")
       data["guest_count"] = num_guests
+      data['rsvp_date'] = party.event_date - timedelta(days=5)
     else:
       invitation_sent = form.save()
 
