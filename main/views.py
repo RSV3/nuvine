@@ -1171,6 +1171,12 @@ def party_rsvp(request, party_id, response=None):
   except PartyInvite.DoesNotExist:
     raise Http404
 
+  # if user has not entered DOB ask them to do this first
+  if response and not u.get_profile().dob:
+    msg = 'You MUST be over 21 to attend a taste party. If you are over 21 then <a href="%s?next=%s">update your profile</a> to reflect this.' % (reverse('my_information'), reverse('party_rsvp', args=[party_id]))
+    messages.warning(request, msg)
+    return HttpResponseRedirect(reverse('party_rsvp', args=[party_id]))
+
   if response:
     invite.response = int(response)
     invite.save()

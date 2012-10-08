@@ -109,7 +109,11 @@ def my_information(request):
     new_profile = profile_form.save()
 
   if user_updated or shipping_updated or billing_updated or payment_updated or eligibility_updated:
-    messages.success(request, 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p"))
+    msg = 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p")
+    next = request.GET.get('next')
+    if next:
+      msg += ' <a href="%s">Back</a>' % next
+    messages.success(request, msg)
     data['updated'] = True
 
   data['user_form'] = user_form
