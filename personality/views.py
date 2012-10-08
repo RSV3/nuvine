@@ -419,7 +419,9 @@ def record_all_wine_ratings(request, email=None, party_id=None):
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
-        messages.success(request, "Partial ratings have been saved for %s" % invitee.email)
+
+        msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email , reverse('party_details', args=[party.id]))
+        messages.success(request, msg)
 
     # form = AllWineRatingsForm(initial=initial_data)
 
