@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.db.models import Q, Count
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, OrganizedParty
+                        CustomizeOrder, Order, OrganizedParty, EngagementInterest
 from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue
 
