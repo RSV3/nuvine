@@ -8,6 +8,7 @@ from sorl.thumbnail import ImageField
 
 from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
+from django.utils import timezone
 
 from datetime import date
 from stripecard.models import StripeCard
@@ -150,6 +151,12 @@ class UserProfile(models.Model):
     year = 365
     age = (date.today() - self.dob).days / year
     return age
+
+  def is_under_age(self):
+    today = timezone.now()
+    if not self.dob or ((today - self.dob) < timedelta(math.ceil(365.25 * 21))):
+      return True
+    return False
 
 def create_user_profile(sender, instance, created, **kwargs):
   if created:

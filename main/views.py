@@ -285,6 +285,9 @@ def start_order(request, receiver_id=None, party_id=None):
   if personality:
     data["your_personality"] = personality.name
 
+  # check receivers age first
+  if receiver.get_profile().is_under_age():
+    messages.warning(request, 'Confirm that that the person you are ordering for is over 21.')
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
 
   # filter only wine packages
@@ -1172,7 +1175,7 @@ def party_rsvp(request, party_id, response=None):
     raise Http404
 
   # if user has not entered DOB ask them to do this first
-  if response and not u.get_profile().dob:
+  if response and u.get_profile().is_under_age():
     msg = 'You MUST be over 21 to attend a taste party. If you are over 21 then <a href="%s?next=%s">update your profile</a> to reflect this.' % (reverse('my_information'), reverse('party_rsvp', args=[party_id]))
     messages.warning(request, msg)
     return HttpResponseRedirect(reverse('party_rsvp', args=[party_id]))
@@ -1435,9 +1438,7 @@ def edit_shipping_address(request):
 
   # confirm that user is over 21
   if request.method == 'POST':
-    dob = u.get_profile().dob
-    today = datetime.date(datetime.now(tz=UTC()))
-    if not dob or (today - dob < timedelta(math.ceil(365.25 * 21))):
+    if u.get_profile().is_under_age():
       msg = 'You MUST be over 21 to make an order. If you are over 21 then <a href="%s">update your account</a> to reflect this.' % reverse('my_information')
       messages.error(request, mark_safe(msg))
       return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
