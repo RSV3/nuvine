@@ -24,6 +24,7 @@ else:
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
+    ('Billy Odero', 'billy@vinely.com'),
 )
 
 
