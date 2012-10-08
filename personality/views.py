@@ -205,7 +205,11 @@ def record_ratings(request, email=None, party_id=None):
   return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
 @login_required
-def record_all_wine_ratings(request, email=None, party_id=None):
+def personality_rating_info(request, email=None, party_id=None):
+  return record_all_wine_ratings(request, email, party_id, None)
+
+@login_required
+def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   """
     Record wine ratings.
     Used by Vinely Pros or Vinely Tasters themselves.
@@ -259,13 +263,20 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     if email:
       try:
         taster = User.objects.get(email=email)
-        if taster.get_profile().wine_personality.name == "Mystery":
-          data['personality_exists'] = False
-        else:
-          data['personality_exists'] = True
+        data['personality_exists'] = taster.get_profile().has_personality()
       except User.DoesNotExist:
         data['personality_exists'] = False
         taster = None
+      
+      # try:
+      #   taster = User.objects.get(email=email)
+      #   if taster.get_profile().wine_personality.name == "Mystery":
+      #     data['personality_exists'] = False
+      #   else:
+      #     data['personality_exists'] = True
+      # except User.DoesNotExist:
+      #   data['personality_exists'] = False
+      #   taster = None
     else:
       # enter your own information
       taster = u
@@ -419,7 +430,6 @@ def record_all_wine_ratings(request, email=None, party_id=None):
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
-
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email , reverse('party_details', args=[party.id]))
         messages.success(request, msg)
 
@@ -428,7 +438,13 @@ def record_all_wine_ratings(request, email=None, party_id=None):
     data["rate_wines_menu"] = True
     data["form"] = form
 
-    return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
+    if not rate and taster.get_profile().has_personality():
+      data['personality'] = taster.get_profile().wine_personality
+      data["invitee"] = taster
+      data['role'] = u.get_profile().role()
+      return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
+    else:
+      return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
   else:
     #else of - if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):

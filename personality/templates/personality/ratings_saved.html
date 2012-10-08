@@ -35,9 +35,12 @@
             Quarterly: If you drink less than one bottle/week
           </p>
           <p>
-            {% if role == "pro" %}
+            {% if pro %}
               {% if party_id %}
                 <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+                <p>
+                  <a href="{% url record_all_wine_ratings invitee.email party.id %}" class="btn btn-primary">Edit rating info</a>
+                </p>
               {% else %}
                 <a href="{% url start_order invitee.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
               {% endif %}

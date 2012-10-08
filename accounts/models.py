@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.conf import settings
 from Crypto.Cipher import AES
@@ -157,6 +157,28 @@ class UserProfile(models.Model):
     if not self.dob or ((today - self.dob) < timedelta(math.ceil(365.25 * 21))):
       return True
     return False
+
+  def has_personality(self):
+    try:
+      return self.wine_personality.name != "Mystery"
+    except:
+      return False
+
+  def role(self):
+    pro_group = Group.objects.get(name="Vinely Pro")
+    hos_group = Group.objects.get(name="Vinely Host")
+    tas_group = Group.objects.get(name="Vinely Taster")
+
+    if pro_group in self.user.groups.all():
+      return 'pro'
+    if hos_group in self.user.groups.all():
+      return 'host'
+    if tas_group in self.user.groups.all():
+      return 'taster'
+
+  def is_pro(self): return self.role() == 'pro'
+  def is_host(self): return self.role() == 'host'
+  def is_taster(self): return self.role() == 'taster'
 
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
