@@ -279,15 +279,17 @@ def start_order(request, receiver_id=None, party_id=None):
   if receiver_id:
     receiver = User.objects.get(id=receiver_id)
     personality = receiver.get_profile().wine_personality
+    
+    # check receivers age first
+    if receiver.get_profile().is_under_age():
+      messages.warning(request, 'Confirm that that the person you are ordering for is over 21.')
+
   elif u.is_authenticated():
     # ordering for oneself
     personality = u.get_profile().wine_personality
   if personality:
     data["your_personality"] = personality.name
 
-  # check receivers age first
-  if receiver.get_profile().is_under_age():
-    messages.warning(request, 'Confirm that that the person you are ordering for is over 21.')
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
 
   # filter only wine packages
