@@ -582,7 +582,7 @@ class SimpleTest(TestCase):
     {% if plain %}
     Click on this link to fill out the questionnaire: http://{{ host_name }}{% url pre_questionnaire_general %}
     {% else %}
-    <a class="brand-btn" ref="http://{{ host_name }}{% url pre_questionnaire_general %}">Take the First Step</a>
+    <a class="brand-btn" href="http://{{ host_name }}{% url pre_questionnaire_general %}">Take the First Step</a>
     {% endif %}
 
     Happy Tasting!

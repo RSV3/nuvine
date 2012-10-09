@@ -4,6 +4,10 @@ from django.forms import Textarea
 
 class EditSectionForm(forms.ModelForm):
 	sections = forms.ModelChoiceField(queryset=Section.objects.all()[:1], empty_label=None)
+	class Meta:
+		model = Section
+		fields = ['sections', 'content']
+		widgets = {'content':Textarea(attrs={'class':'span8', 'rows':20})}
 
 	def __init__(self, *args, **kwargs):
 		super(EditSectionForm, self).__init__(*args, **kwargs)
@@ -13,7 +17,6 @@ class EditSectionForm(forms.ModelForm):
 			self.fields['sections'].queryset = Section.objects.filter(template = instance.template)
 			self.fields['sections'].initial = instance
 
-	class Meta:
-		model = Section
-		fields = ['sections', 'content']
-		widgets = {'content':Textarea(attrs={'class':'span8', 'rows':20})}
+	def clean_content(self):
+		cleaned = self.cleaned_data['content']
+		return cleaned.replace('\r', '')
