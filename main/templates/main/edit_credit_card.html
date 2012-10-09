@@ -27,10 +27,10 @@
         </div>
 
         <div class="control-group{% if form.exp_month.errors or form.exp_year.errors %} error{% endif %}">
-          <div class="control-label">Expiry Date</div>
+          <div class="control-label">Expiration Date</div>
           <div class="controls">
-          <input type="text" size="2" class="card-expiry-month" />
-          <input type="text" size="4" class="card-expiry-year" />
+          <input type="text" size="2" class="card-expiry-month" maxlength="2" placeholder="MM" />
+          <input type="text" size="4" class="card-expiry-year" maxlength="4" placeholder="YYYY" />
             {% if form.exp_month.errors %}
               <span class="help-inline">
                 {{ form.exp_month.errors }}
