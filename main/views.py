@@ -1924,7 +1924,16 @@ def vinely_event_signup(request, party_id, fb_page=0):
     data["first_name"] = user.first_name
     data["account_type"] = account_type
 
-    response = int(request.POST['rsvp'])
+    try:
+      response = int(request.POST['rsvp'])
+    except ValueError:
+      if "Yes" in request.POST['rsvp']:
+        response = 3
+      elif "No" in request.POST['rsvp']:
+        response = 1
+      elif "Maybe" in request.POST['rsvp']:
+        response = 2
+
     # link them to party and RSVP
     # check if already RSVP'ed and just changed response if needed
     try:
@@ -1942,11 +1951,11 @@ def vinely_event_signup(request, party_id, fb_page=0):
     else:
       # msg = "Thank you for your interest in attending a Vinely Party."
       data['attending'] = True
-      
+
       ok = check_zipcode(profile.zipcode)
       if not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-        send_not_in_area_party_email(request, user, account_type)      
+        send_not_in_area_party_email(request, user, account_type)
       send_rsvp_thank_you_email(request, user)
     # messages.success(request, msg)
 
