@@ -1894,6 +1894,8 @@ def vinely_event_signup(request, party_id, fb_page=0):
     try:
       user = User.objects.get(email=request.POST.get('email'))
       profile = user.get_profile()
+      profile.zipcode = form.cleaned_data['zipcode']
+      profile.save()
     except User.DoesNotExist:
       user = form.save()
       profile = user.get_profile()
@@ -1939,6 +1941,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
     else:
       # msg = "Thank you for your interest in attending a Vinely Party."
       data['attending'] = True
+      
       ok = check_zipcode(profile.zipcode)
       if not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
