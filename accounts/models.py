@@ -180,6 +180,27 @@ class UserProfile(models.Model):
   def is_host(self): return self.role() == 'host'
   def is_taster(self): return self.role() == 'taster'
 
+  def personality_rating_code(self):
+    # calculate rating code
+    from personality.models import WineRatingData
+
+    ratings = WineRatingData.objects.filter(user = self.user).order_by('wine__id')
+    r = [x.overall for x in ratings]
+
+    L=[]; D=[]; N=[];
+    likes=''; dislikes=''; neutrals='';
+
+    for i,x in enumerate(r):
+      if x < 3: D.append(i+1)
+      elif x == 3: N.append(i+1)
+      elif x > 3: L.append(i+1)
+
+    likes = "L"+"".join(map(str, L)) if len(L) > 0 else ""
+    neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else "" 
+    dislikes = "D" + "".join(map(str, D)) if len(D) > 0 else ""
+    code = likes + neutrals + dislikes
+    return code if code else "-"
+
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
     UserProfile.objects.create(user=instance)

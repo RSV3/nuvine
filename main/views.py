@@ -1343,6 +1343,8 @@ def supplier_fulfilled_orders(request):
 
   return render_to_response("main/supplier_fulfilled_orders.html", data, context_instance=RequestContext(request))
 
+from django.core.paginator import Paginator
+import urllib
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1352,10 +1354,63 @@ def supplier_all_orders(request):
 
     So it displays all parties
   """
-  data = {}
+  sort_field = {
+    'status':'fulfill_status',
+    '-status':'-fulfill_status',
+    'order_date':'order_date',
+    '-order_date':'-order_date',
+    'ship_date':'ship_date',
+    '-ship_date':'-ship_date',
+    'name':'ordered_by',
+    '-name':'-ordered_by',
+    'personality':'ordered_by__userprofile__wine_personality__name',
+    '-personality':'-ordered_by__userprofile__wine_personality__name',
+    'rwb':'order_date',
+    '-rwb':'-order_date',
+    'quantity':'cart__items__quantity',
+    '-quantity':'-cart__items__quantity',
+  }
 
+  data = {}
+  page_num = request.GET.get('p', 1)
+  sort = request.GET.get('sort')
+  if sort:
+    fld = sort_field.get(sort, 'order_date')
+    orders = Order.objects.all().order_by(fld)
+  else:
+    orders = Order.objects.all().order_by('order_date')
+
+  paginator = Paginator(orders, 20)
+  try:
+    page = paginator.page(page_num)
+  except:
+    page= paginator.page(1)
+  
+  if sort:
+    next_page =  page.next_page_number() if page.has_next() else page_num
+    prev_page =  page.previous_page_number() if page.has_previous() else page_num
+    first_page_url = urllib.urlencode({'sort':sort})
+    last_page_url = urllib.urlencode({'p':paginator.num_pages, 'sort':sort})
+    next_page_url = urllib.urlencode({'p':next_page, 'sort':sort})
+    prev_page_url = urllib.urlencode({'p':prev_page, 'sort':sort})
+  else:
+    next_page =  page.next_page_number() if page.has_next() else page_num
+    prev_page =  page.previous_page_number() if page.has_previous() else page_num
+    first_page_url = urllib.urlencode({})
+    last_page_url = urllib.urlencode({'p':paginator.num_pages})
+    next_page_url = urllib.urlencode({'p':next_page})
+    prev_page_url = urllib.urlencode({'p':prev_page})
+
+  data['page_count'] = paginator.num_pages
+  data['page'] = page
+  data['next_page_url'] = next_page_url
+  data['prev_page_url'] = prev_page_url
+  data['first_page_url'] = first_page_url
+  data['last_page_url'] = last_page_url
+  data['orders'] = page.object_list
+  data['sorting'] = sort
+  
   data["supplier"] = True
-  data['orders'] = Order.objects.all()
 
   return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
 

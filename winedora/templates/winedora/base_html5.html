@@ -105,38 +105,40 @@
 
     <div class="row">
       {% block social %}
-      <div class="span1">
-        <a href="https://twitter.com/vinelywine" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @vinelywine</a>
-        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-      </div>
-      <div class="span1">
-        <a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fwww.vinely.com&media=http%3A%2F%2Fpassets-lt.pinterest.com%2Fimages%2Fabout%2Fbuttons%2Fpinterest-button.png&description=Follow%20Me%20on%20Pinterest" class="pin-it-button" count-layout="none"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>              
-      </div>            
-      <div class="span1">
-        <div class="fb-like" data-href="https://www.vinely.com" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
-      </div>
-      {% endblock %}
+        <div class="span1">
+          <a href="https://twitter.com/vinelywine" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @vinelywine</a>
+          <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </div>
+        <div class="span1">
+          <a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fwww.vinely.com&media=http%3A%2F%2Fpassets-lt.pinterest.com%2Fimages%2Fabout%2Fbuttons%2Fpinterest-button.png&description=Follow%20Me%20on%20Pinterest" class="pin-it-button" count-layout="none"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>              
+        </div>            
+        <div class="span1">
+          <div class="fb-like" data-href="https://www.vinely.com" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+        </div>
+      {% endblock social %}
+      {% block brand_logo %}
       <div class="span5 offset1">
         <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
+      {% endblock brand_logo %}
       {% block auth %}
-      <div class="span3">
-        <div class="box-container">
-        <div class="box-content authentication">
-            {% if user.is_authenticated %}
-                <a href="{% url logout %}">Sign Out</a>
-                <a href="{% url my_information %}">My Account</a>
-                <a href="{% url cart %}">Cart {{ cart_item_count }} Items</a>
-              {% else %}
-              <!-- if not logged in, show login link -->
-              <div class="login-forgot">
-                <a href="{% url login %}">Sign In</a> | <a href="{% url forgot_password %}">Forgot Password</a>
-              </div>
-            {% endif %}
-          </div> <!-- id auth-->
-          <div class="box-bg"></div>
-        </div><!--box-container-->
-      </div> <!--span4-->
+        <div class="span3">
+          <div class="box-container">
+          <div class="box-content authentication">
+              {% if user.is_authenticated %}
+                  <a href="{% url logout %}">Sign Out</a>
+                  <a href="{% url my_information %}">My Account</a>
+                  <a href="{% url cart %}">Cart {{ cart_item_count }} Items</a>
+                {% else %}
+                <!-- if not logged in, show login link -->
+                <div class="login-forgot">
+                  <a href="{% url login %}">Sign In</a> | <a href="{% url forgot_password %}">Forgot Password</a>
+                </div>
+              {% endif %}
+            </div> <!-- id auth-->
+            <div class="box-bg"></div>
+          </div><!--box-container-->
+        </div> <!--span4-->
       {% endblock %}
     </div> <!-- .row -->
 
@@ -237,6 +239,7 @@
       
     {% endblock content %}
   </div>
+  {% block badges %}
   <div class="container">
    <div id="badges" class="pie-container divider">
       <div class="row">
@@ -249,6 +252,7 @@
       </div>
     </div>
   </div>
+  {% endblock badges %}
   <footer>
     <div class="container">
       {% block footer %}
@@ -348,7 +352,8 @@
 
   </script>
   {% endif %}
-    <div id="fb-root"></div>
+  {% block social_scripts %}
+  <div id="fb-root"></div>
   <script>(function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
     if (d.getElementById(id)) return;
@@ -357,5 +362,6 @@
     fjs.parentNode.insertBefore(js, fjs);
   }(document, 'script', 'facebook-jssdk'));</script>
   <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
+  {% endblock social_scripts %}
 </body>
 </html>
