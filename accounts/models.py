@@ -10,7 +10,7 @@ from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
 from django.utils import timezone
 
-from datetime import date
+from datetime import date, timedelta
 from stripecard.models import StripeCard
 
 # Create your models here.
