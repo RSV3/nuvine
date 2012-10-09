@@ -3,7 +3,6 @@ from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.conf import settings
 from Crypto.Cipher import AES
-import binascii, string
 from sorl.thumbnail import ImageField
 
 from personality.models import WinePersonality
@@ -11,9 +10,11 @@ from django.contrib.localflavor.us import models as us_models
 from django.utils import timezone
 
 from datetime import date, timedelta
+import binascii, string, math
 from stripecard.models import StripeCard
 
 # Create your models here.
+
 
 class Address(models.Model):
   nick_name = models.CharField(max_length=64, null=True, blank=True)
@@ -25,15 +26,16 @@ class Address(models.Model):
   zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode")
 
   def __unicode__(self):
-    return "%s, %s"%(self.street1, self.zipcode)
+    return "%s, %s" % (self.street1, self.zipcode)
 
   def full_text(self):
-    return "%s, %s, %s %s"%(self.street1, self.city, self.state, self.zipcode)
+    return "%s, %s, %s %s" % (self.street1, self.city, self.state, self.zipcode)
 
   def google_maps_address(self):
-    search_str = "%s %s, %s %s"%(self.street1, self.city, self.state, self.zipcode)
+    search_str = "%s %s, %s %s" % (self.street1, self.city, self.state, self.zipcode)
     new_str = string.replace(search_str, " ", "+")
-    return new_str 
+    return new_str
+
 
 class CreditCard(models.Model):
   nick_name = models.CharField(max_length=64, null=True, blank=True)
@@ -53,7 +55,7 @@ class CreditCard(models.Model):
     return card_num[-4:]
 
   def exp_date(self):
-    return "%s/%s"%(self.exp_month, self.exp_year)
+    return "%s/%s" % (self.exp_month, self.exp_year)
 
   def encrypt_card_num(self, number):
     """
@@ -91,6 +93,7 @@ class CreditCard(models.Model):
     pad_number = cipher.decrypt(card_cipher)
     return string.strip(pad_number, 'X')
 
+
 class VerificationQueue(models.Model):
 
   VERIFICATION_CHOICES = (
@@ -106,6 +109,7 @@ class VerificationQueue(models.Model):
   #: verify_data is used when verifying e-mail only for now
   verify_data = models.CharField(max_length=128, blank=True, null=True)
   created = models.DateTimeField(auto_now_add=True)
+
 
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
@@ -129,13 +133,13 @@ class UserProfile(models.Model):
   )
 
   gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
-  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence", null=True, blank=True) 
+  zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode of your primariy residence", null=True, blank=True)
   above_21 = models.BooleanField(verbose_name="I certify that I am over 21", default=False)
 
   wine_personality = models.ForeignKey(WinePersonality, default=7)
   prequestionnaire = models.BooleanField(default=False)
 
-  # for storing default addresses 
+  # for storing default addresses
   billing_address = models.ForeignKey(Address, related_name="billed_to", null=True, blank=True)
   shipping_address = models.ForeignKey(Address, related_name="shipped_to", null=True, blank=True)
   credit_card = models.ForeignKey(CreditCard, related_name="owner", null=True, blank=True)
@@ -177,7 +181,9 @@ class UserProfile(models.Model):
       return 'taster'
 
   def is_pro(self): return self.role() == 'pro'
+
   def is_host(self): return self.role() == 'host'
+
   def is_taster(self): return self.role() == 'taster'
 
   def personality_rating_code(self):
@@ -195,7 +201,7 @@ class UserProfile(models.Model):
       elif x == 3: N.append(i+1)
       elif x > 3: L.append(i+1)
 
-    likes = "L"+"".join(map(str, L)) if len(L) > 0 else ""
+    likes = "L" + "".join(map(str, L)) if len(L) > 0 else ""
     neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else "" 
     dislikes = "D" + "".join(map(str, D)) if len(D) > 0 else ""
     code = likes + neutrals + dislikes
@@ -207,6 +213,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 post_save.connect(create_user_profile, sender=User)
 
+
 class VinelyProAccount(models.Model):
   """
     Need to create this for every Vinely Pro account
@@ -215,6 +222,7 @@ class VinelyProAccount(models.Model):
   users = models.ManyToManyField(User)
   account_number = models.CharField(max_length = 8)
   comment = models.CharField(max_length=128)
+
 
 class SubscriptionInfo(models.Model):
   user = models.ForeignKey(User)
@@ -239,6 +247,7 @@ class SubscriptionInfo(models.Model):
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField(auto_now_add=True)
+
 
 class Zipcode(models.Model):
   '''
