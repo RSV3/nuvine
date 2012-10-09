@@ -1660,8 +1660,12 @@ def edit_credit_card(request):
       stripe_user_id = customer.id
     except:
       # no customer record so create on stripe
-      customer = stripe.Customer.create(card=stripe_token, email=u.email)
-      stripe_user_id = customer.id
+      try:
+        customer = stripe.Customer.create(card=stripe_token, email=u.email)
+        stripe_user_id = customer.id
+      except:
+        messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+        return HttpResponseRedirect('.')
 
     # create on vinely
     stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
