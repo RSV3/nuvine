@@ -1900,6 +1900,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
+      profile.save()
       user.groups.add(role)
       user.is_active = False
       temp_password = User.objects.make_random_password()
