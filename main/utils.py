@@ -1,5 +1,5 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template import RequestContext,   Context, Template
+from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 from django.contrib.auth.models import Group
 
@@ -38,7 +38,7 @@ def if_pro(user):
   if user:
     return user.groups.filter(name="Vinely Pro").count() > 0
   return False
-  
+
 def send_order_confirmation_email(request, order_id):
 
   order = Order.objects.get(order_id=order_id)
@@ -46,7 +46,7 @@ def send_order_confirmation_email(request, order_id):
   if order.fulfill_status > 0:
     # return if already processing since e-mail has already been sent
     return
-  
+
   receiver_email = order.receiver.email
   sender_email = order.ordered_by.email
 
@@ -56,19 +56,19 @@ def send_order_confirmation_email(request, order_id):
 
   # TODO: if the order contains a tasting kit, notify the party pro
   # Need to add these info
-  #[Order Summary] 
+  #[Order Summary]
 
   #[Shipping and Billing Info]
-  
+
   template = Section.objects.get(template__key='order_confirmation_email', category=0)
   txt_template = Template(template.content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content('\n\n') if x]))
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
   subject = 'Your Vinely order was placed successfully!'
   from_email = 'Vinely Order <order@vinely.com>'
   recipients = [order.receiver.email]
-  
-  c = RequestContext( request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan", 
+
+  c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
               "host_name": request.get_host(),
               "order_id": order_id,
               "title": subject})
@@ -81,11 +81,10 @@ def send_order_confirmation_email(request, order_id):
       {'title': subject, 'message': html_message, 'host_name': request.get_host()}
     ))
 
-
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  # notify the receiver that the order has been received 
+  # notify the receiver that the order has been received
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
@@ -102,7 +101,7 @@ def send_order_confirmation_email(request, order_id):
   {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
   Your Tasteful Friends,
-  
+
   - The Vinely Team
 
   """
@@ -133,7 +132,7 @@ def send_order_confirmation_email(request, order_id):
   order.save()
 
 def send_order_shipped_email(request, order):
-  
+
   template = Section.objects.get(template__key='order_shipped_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
