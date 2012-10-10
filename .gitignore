@@ -13,7 +13,7 @@ cache
 ssl
 *.old
 *.xlsx
-rating_cards
+Vinely_experience_cards
 .DS_Store
 *~
 # Packages
