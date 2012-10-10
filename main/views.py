@@ -1808,7 +1808,7 @@ def print_rating_cards(request, party_id):
   for invite in invites:
     packet = cStringIO.StringIO()
     exp_doc = PdfFileReader(in_stream)
-    output = PdfFileWriter()
+    # output = PdfFileWriter()
 
     can = canvas.Canvas(packet, pagesize=letter)
     # Taster name
@@ -1835,23 +1835,32 @@ def print_rating_cards(request, party_id):
       page = exp_doc.getPage(x)
       page.mergePage(text.getPage(0))
       output.addPage(page)
-    filename = CARDS_PATH + invite.invitee.email+ '.pdf'
-    with file(filename, 'wb') as out_stream:
-      output.write(out_stream)
-    files.append(filename)
+
+    # filename = CARDS_PATH + invite.invitee.email+ '.pdf'
+    # with file(filename, 'wb') as out_stream:
+    #   output.write(out_stream)
+    # files.append(filename)
 
   ratings_zip = CARDS_PATH + 'ratings-%s.zip' % pro.email
   
-  with zipfile.ZipFile(ratings_zip, 'w') as myzip:
-    for f in files:
-      myzip.write(f, compress_type=zipfile.ZIP_DEFLATED)
+  # with zipfile.ZipFile(ratings_zip, 'w') as myzip:
+  #   for f in files:
+  #     myzip.write(f, compress_type=zipfile.ZIP_DEFLATED)
 
-  # delete the temp pdf files
-  for f in files:
-    try:
-      os.remove(f) 
-    except:
-      pass
+  # # delete the temp pdf files
+  # for f in files:
+  #   try:
+  #     os.remove(f) 
+  #   except:
+  #     pass
+  ratings_pdf = CARDS_PATH + 'experience_cards-%s.pdf' % pro.email
+  with file(ratings_pdf, 'wb') as out_stream:
+    output.write(out_stream)
+
+  with zipfile.ZipFile(ratings_zip, 'w') as myzip:
+    myzip.write(ratings_pdf, compress_type=zipfile.ZIP_DEFLATED)
+
+  os.unlink(ratings_pdf)
 
   in_stream.close()
   f = file(ratings_zip, 'r')
