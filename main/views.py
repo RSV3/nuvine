@@ -759,7 +759,7 @@ def order_complete(request, order_id):
 
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
-    
+
     data["credit_card"] = profile.stripe_card
     data["shop_menu"] = True
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
@@ -1013,7 +1013,7 @@ def party_details(request, party_id):
     msg = 'Too few people have RSVP\'ed to the party. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
   elif party.event_date > today and party.high_low() == '!HIGH':
-    msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider limiting to 12 tasters so that everyone has a great tasting experience.'
+    msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
     messages.warning(request, msg)
 
   # TODO: might have to fix this and set Party to have a particular pro
@@ -1772,7 +1772,8 @@ from reportlab.lib.pagesizes import letter
 from django.contrib import staticfiles
 from urllib2 import urlopen
 import string
-
+import os, zipfile
+from django.core.servers.basehttp import FileWrapper
 
 @login_required
 def print_rating_cards(request, party_id):
@@ -1784,7 +1785,7 @@ def print_rating_cards(request, party_id):
     return HttpResponseRedirect(reverse("party_details", args=[party_id]))
 
   # assume whoever is printing this is the pro
-  pro = request.user.get_full_name()
+  pro = request.user
   host = invites[0].party.host.get_full_name()
   event_date = party.event_date.strftime('%m-%d-%Y')
 
@@ -1800,10 +1801,11 @@ def print_rating_cards(request, party_id):
   # with file(path, 'rb') as in_stream:
 
   output = PdfFileWriter()
-
+  files = []
   for invite in invites:
     packet = cStringIO.StringIO()
     exp_doc = PdfFileReader(in_stream)
+    output = PdfFileWriter()
 
     can = canvas.Canvas(packet, pagesize=letter)
     # Taster name
@@ -1819,8 +1821,8 @@ def print_rating_cards(request, party_id):
     can.drawString(230, 53, host)
     can.drawString(630, 53, host)
     # pro name
-    can.drawString(230, 43, pro)
-    can.drawString(630, 43, pro)
+    can.drawString(230, 43, pro.get_full_name())
+    can.drawString(630, 43, pro.get_full_name())
     can.save()
 
     packet.seek(0)
@@ -1830,18 +1832,41 @@ def print_rating_cards(request, party_id):
       page = exp_doc.getPage(x)
       page.mergePage(text.getPage(0))
       output.addPage(page)
-    packet.flush()
+      filename = settings.MEDIA_ROOT + invite.invitee.email+ '.pdf'
+      with file(filename, 'wb') as out_stream:
+        output.write(out_stream)
+      files.append(filename)
 
-  out_stream = cStringIO.StringIO()
-  output.write(out_stream)
-  pdf = out_stream.getvalue()
-  out_stream.close()
+  ratings_zip = settings.MEDIA_ROOT + 'ratings-%s.zip' % pro.email
+  # with zipfile.ZipFile(ratings_zip, 'w') as myzip :
+  with zipfile.ZipFile(ratings_zip, 'w') as myzip:
+    for f in files:
+      myzip.write(f, compress_type=zipfile.ZIP_DEFLATED)
+
+  # delete the temp pdf files
+  for f in files:
+    try:
+      os.remove(f) 
+    except:
+      pass
+
+  #   for x in range(exp_doc.numPages):
+  #     page = exp_doc.getPage(x)
+  #     page.mergePage(text.getPage(0))
+  #     output.addPage(page)
+  #   packet.flush()
+
+  # out_stream = cStringIO.StringIO()
+  # output.write(out_stream)
+  # pdf = out_stream.getvalue()
+  # out_stream.close()
 
   in_stream.close()
-
-  response = HttpResponse(pdf, mimetype='application/pdf', content_type='application/pdf')
-  response['Content-Disposition'] = 'attachment; filename=Vinely_experience_card.pdf'
+  f = file(ratings_zip, 'r')
+  response = HttpResponse(FileWrapper(f), content_type='application/zip')
+  response['Content-Disposition'] = 'attachment; filename=Vinely_experience_cards.zip'
   return response
+  # return HttpResponseRedirect()
 
 
 ################################################################################
