@@ -28,6 +28,7 @@ def check_personality_exists(request):
   data["result"] = 0
   email = request.POST.get('email', None)
   if email:
+    email = email.lower()
     email_re = re.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", flags=re.IGNORECASE)
     if email_re.search(email):
       try:
@@ -261,13 +262,14 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
                       }
 
     if email:
+      email = email.lower()
       try:
         taster = User.objects.get(email=email)
         data['personality_exists'] = taster.get_profile().has_personality()
       except User.DoesNotExist:
         data['personality_exists'] = False
         taster = None
-      
+
       # try:
       #   taster = User.objects.get(email=email)
       #   if taster.get_profile().wine_personality.name == "Mystery":
@@ -368,7 +370,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         initial_data['wine6_sizzle'] = wine6_rating.sizzle
         initial_data['wine6_sizzle_dnl'] = wine6_rating.sizzle_dnl
       except WineRatingData.DoesNotExist:
-        pass          
+        pass
 
     else:
       initial_data['email'] = email
@@ -377,7 +379,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     if form.is_valid():
       results = form.save()
       invitee = results[0]
-      data["invitee"] = invitee 
+      data["invitee"] = invitee
 
       if invitee.is_active is False:
         # new user was created
@@ -430,7 +432,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
-        msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email , reverse('party_details', args=[party.id]))
+        msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email, reverse('party_details', args=[party.id]))
         messages.success(request, msg)
 
     # form = AllWineRatingsForm(initial=initial_data)

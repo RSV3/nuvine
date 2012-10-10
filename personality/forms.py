@@ -114,37 +114,37 @@ class AllWineRatingsForm(forms.Form):
     results.append(user)
 
     # save each wine data
-    for i in range(1,7):
-      wine = Wine.objects.get(id=data['wine%d'%i])
+    for i in range(1, 7):
+      wine = Wine.objects.get(id=data['wine%d' % i])
       try:
         rating_data = WineRatingData.objects.get(user=user, wine=wine)
         # update
-        rating_data.overall = int(data['wine%d_overall'%i])
+        rating_data.overall = int(data['wine%d_overall' % i])
         #rating_data.dnl = int(data['wine%d_dnl'%i])
-        rating_data.sweet = int(data['wine%d_sweet'%i])
-        rating_data.sweet_dnl = int(data['wine%d_sweet_dnl'%i])
-        rating_data.weight = int(data['wine%d_weight'%i])
-        rating_data.weight_dnl = int(data['wine%d_weight_dnl'%i])
-        rating_data.texture = int(data['wine%d_texture'%i])
-        rating_data.texture_dnl = int(data['wine%d_texture_dnl'%i])
-        rating_data.sizzle = int(data['wine%d_sizzle'%i])
-        rating_data.sizzle_dnl = int(data['wine%d_sizzle_dnl'%i])
+        rating_data.sweet = int(data['wine%d_sweet' % i])
+        rating_data.sweet_dnl = int(data['wine%d_sweet_dnl' % i])
+        rating_data.weight = int(data['wine%d_weight' % i])
+        rating_data.weight_dnl = int(data['wine%d_weight_dnl' % i])
+        rating_data.texture = int(data['wine%d_texture' % i])
+        rating_data.texture_dnl = int(data['wine%d_texture_dnl' % i])
+        rating_data.sizzle = int(data['wine%d_sizzle' % i])
+        rating_data.sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])
         rating_data.save()
       except WineRatingData.DoesNotExist:
         # create new data
         rating_data = WineRatingData.objects.create(
             user = user,
             wine = wine,
-            overall = int(data['wine%d_overall'%i]),
+            overall = int(data['wine%d_overall' % i]),
             #dnl = int(data['wine%d_dnl'%i]),
-            sweet = int(data['wine%d_sweet'%i]),
-            sweet_dnl = int(data['wine%d_sweet_dnl'%i]),
-            weight = int(data['wine%d_weight'%i]),
-            weight_dnl = int(data['wine%d_weight_dnl'%i]),
-            texture = int(data['wine%d_texture'%i]),
-            texture_dnl = int(data['wine%d_texture_dnl'%i]),
-            sizzle = int(data['wine%d_sizzle'%i]),
-            sizzle_dnl = int(data['wine%d_sizzle_dnl'%i])
+            sweet = int(data['wine%d_sweet' % i]),
+            sweet_dnl = int(data['wine%d_sweet_dnl' % i]),
+            weight = int(data['wine%d_weight' % i]),
+            weight_dnl = int(data['wine%d_weight_dnl' % i]),
+            texture = int(data['wine%d_texture' % i]),
+            texture_dnl = int(data['wine%d_texture_dnl' % i]),
+            sizzle = int(data['wine%d_sizzle' % i]),
+            sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])
           )
       results.append(rating_data)
 
@@ -154,7 +154,7 @@ class AllWineRatingsForm(forms.Form):
 class GeneralTasteQuestionnaire(forms.ModelForm):
 
   class Meta:
-    model = GeneralTaste 
+    model = GeneralTaste
 
   def __init__(self, *args, **kwargs):
     super(GeneralTasteQuestionnaire, self).__init__(*args, **kwargs)
@@ -171,13 +171,13 @@ class GeneralTasteQuestionnaire(forms.ModelForm):
 
 class WineTasteQuestionnaire(forms.ModelForm):
 
-  red_survey_wines = SurveyWine.objects.filter(color=SurveyWine.COLOR_CHOICES[0][0])  
-  select_choices = [(s.id, s.name) for s in red_survey_wines]+[(red_survey_wines.count()+1, 'Other')]
+  red_survey_wines = SurveyWine.objects.filter(color=SurveyWine.COLOR_CHOICES[0][0])
+  select_choices = [(s.id, s.name) for s in red_survey_wines] + [(red_survey_wines.count() + 1, 'Other')]
   red_wines_often = forms.MultipleChoiceField(choices=select_choices, required=False, widget=forms.CheckboxSelectMultiple, label='What RED wine(s) do you currently drink most often? (select up to 2)')
   red_wine_dislike = forms.ChoiceField(choices=select_choices, required=False, widget=forms.RadioSelect, label='What RED wine, if any, do you particularly DISLIKE? (select one, optional)')
 
-  white_survey_wines = SurveyWine.objects.filter(color=SurveyWine.COLOR_CHOICES[1][0])  
-  select_choices = [(s.id, s.name) for s in white_survey_wines]+[(white_survey_wines.count()+1, 'Other')]
+  white_survey_wines = SurveyWine.objects.filter(color=SurveyWine.COLOR_CHOICES[1][0])
+  select_choices = [(s.id, s.name) for s in white_survey_wines] + [(white_survey_wines.count() + 1, 'Other')]
   white_wines_often = forms.MultipleChoiceField(choices=select_choices, required=False, widget=forms.CheckboxSelectMultiple, label='What WHITE wine(s) do you currently drink most often? (select up to 2)')
   white_wine_dislike = forms.ChoiceField(choices=select_choices, required=False, widget=forms.RadioSelect, label='What WHITE wine, if any, do you particularly DISLIKE? (select one, optional)')
   other_wines = forms.ModelMultipleChoiceField(queryset=SurveyWine.objects.filter(color=SurveyWine.COLOR_CHOICES[2][0]), required=False, widget=forms.CheckboxSelectMultiple, label='Do you drink (select all that apply):')
@@ -189,15 +189,15 @@ class WineTasteQuestionnaire(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(WineTasteQuestionnaire, self).__init__(*args, **kwargs)
     self.fields['user'].widget = forms.HiddenInput()
-    self.fields['typically_drink'].widget = forms.RadioSelect(choices=WineTaste.TYPICALLY_DRINK_CHOICES) 
-    self.fields['red_body'].widget = forms.RadioSelect(attrs={'class': 'horizontal-radio'}, choices=WineTaste.RED_BODY_CHOICES) 
-    self.fields['red_sweetness'].widget = forms.RadioSelect(choices=WineTaste.RED_SWEETNESS_CHOICES) 
-    #self.fields['red_acidity'].widget = forms.RadioSelect(choices=WineTaste.RED_ACIDITY_CHOICES) 
-    self.fields['red_color'].widget = forms.RadioSelect(choices=WineTaste.RED_COLOR_CHOICES) 
-    self.fields['white_oak'].widget = forms.RadioSelect(choices=WineTaste.WHITE_OAK_CHOICES) 
-    self.fields['white_sweetness'].widget = forms.RadioSelect(choices=WineTaste.WHITE_SWEETNESS_CHOICES) 
-    #self.fields['white_acidity'].widget = forms.RadioSelect(choices=WineTaste.WHITE_ACIDITY_CHOICES) 
-    self.fields['white_color'].widget = forms.RadioSelect(choices=WineTaste.WHITE_COLOR_CHOICES) 
+    self.fields['typically_drink'].widget = forms.RadioSelect(choices=WineTaste.TYPICALLY_DRINK_CHOICES)
+    self.fields['red_body'].widget = forms.RadioSelect(attrs={'class': 'horizontal-radio'}, choices=WineTaste.RED_BODY_CHOICES)
+    self.fields['red_sweetness'].widget = forms.RadioSelect(choices=WineTaste.RED_SWEETNESS_CHOICES)
+    #self.fields['red_acidity'].widget = forms.RadioSelect(choices=WineTaste.RED_ACIDITY_CHOICES)
+    self.fields['red_color'].widget = forms.RadioSelect(choices=WineTaste.RED_COLOR_CHOICES)
+    self.fields['white_oak'].widget = forms.RadioSelect(choices=WineTaste.WHITE_OAK_CHOICES)
+    self.fields['white_sweetness'].widget = forms.RadioSelect(choices=WineTaste.WHITE_SWEETNESS_CHOICES)
+    #self.fields['white_acidity'].widget = forms.RadioSelect(choices=WineTaste.WHITE_ACIDITY_CHOICES)
+    self.fields['white_color'].widget = forms.RadioSelect(choices=WineTaste.WHITE_COLOR_CHOICES)
 
   def clean(self):
     cleaned_data = super(WineTasteQuestionnaire, self).clean()
