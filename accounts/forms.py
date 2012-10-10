@@ -111,7 +111,8 @@ class ForgotPasswordForm(forms.Form):
 
   def clean_email(self):
     try:
-      u = User.objects.get(email=self.cleaned_data['email'])
+      requestor_email = self.cleaned_data['email'].strip()
+      u = User.objects.get(email=requestor_email)
     except User.DoesNotExist:
       raise forms.ValidationError('User with %s does not exist' % (self.cleaned_data['email']))
 
@@ -213,6 +214,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
 from django.contrib.auth.models import Group
 from emailusernames.forms import NameEmailUserCreationForm
 
+
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = forms.CharField(max_length=20)
@@ -225,17 +227,18 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
-    
+
     # if signing up for vinely event then allow to add to event without creating new user
     if (self._errors.get('email') == self.error_class(['A user with that email already exists.'])) and self.initial.get('vinely_event'):
         del self._errors['email']
-    
+
     pro_group = Group.objects.get(name="Vinely Pro")
 
-    if self.initial['account_type'] == 1 and self.cleaned_data['mentor']:  # pro -> mentor field
+    mentor_email = self.cleaned_data['mentor'].strip()
+    if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
       try:
         # make sure the pro exists
-        pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
+        pro = User.objects.get(email = mentor_email, groups__in = [pro_group])
       except User.DoesNotExist:
         raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you")
 

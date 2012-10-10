@@ -1887,12 +1887,12 @@ def vinely_event_signup(request, party_id, fb_page=0):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type, 'vinely_event':True})
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type, 'vinely_event': True})
 
   if form.is_valid():
     # if user already exists just add them to the event dont save
     try:
-      user = User.objects.get(email=request.POST.get('email'))
+      user = User.objects.get(email=request.POST.get('email').strip())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.save()
