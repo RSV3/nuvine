@@ -1908,8 +1908,11 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data = {}
   data['fb_view'] = fb_page
   today = datetime.now(tz=UTC())
+
+  # yesterday is used to only keep event signup open for 24 hours
+  yesterday = today - timedelta(days=1)
   try:
-    party = Party.objects.get(pk=party_id, event_date__gte = today)
+    party = Party.objects.get(pk=party_id, event_date__gte = yesterday)
   except:
     raise Http404
 
@@ -1919,7 +1922,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   if form.is_valid():
     # if user already exists just add them to the event dont save
     try:
-      user = User.objects.get(email=request.POST.get('email').strip())
+      user = User.objects.get(email=request.POST.get('email').strip().lower())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.save()

@@ -110,13 +110,13 @@ class ForgotPasswordForm(forms.Form):
   email = forms.EmailField()
 
   def clean_email(self):
+    requester_email = self.cleaned_data['email'].strip().lower()
     try:
-      requestor_email = self.cleaned_data['email'].strip()
-      u = User.objects.get(email=requestor_email)
+      u = User.objects.get(email=requester_email)
     except User.DoesNotExist:
-      raise forms.ValidationError('User with %s does not exist' % (self.cleaned_data['email']))
+      raise forms.ValidationError('User with %s does not exist' % (requester_email))
 
-    return self.cleaned_data['email']
+    return requester_email
 
 
 class CreditCardForm(forms.ModelForm):
@@ -234,7 +234,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     pro_group = Group.objects.get(name="Vinely Pro")
 
-    mentor_email = self.cleaned_data['mentor'].strip()
+    mentor_email = self.cleaned_data['mentor'].strip().lower()
     if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
       try:
         # make sure the pro exists
@@ -245,10 +245,12 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     if self.initial['account_type'] == 2 and self.cleaned_data['mentor']:  # host -> pro field
       try:
         # make sure the pro exists
-        pro = User.objects.get(email = self.cleaned_data['mentor'], groups__in = [pro_group])
+        pro = User.objects.get(email = mentor_email, groups__in = [pro_group])
       except User.DoesNotExist:
         raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
+    cleaned['email'] = cleaned['email'].strip().lower()
+    cleaned['mentor'] = mentor_email
     return cleaned
 
 
