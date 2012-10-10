@@ -759,7 +759,8 @@ def order_complete(request, order_id):
 
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
-
+    
+    data["credit_card"] = profile.stripe_card
     data["shop_menu"] = True
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
