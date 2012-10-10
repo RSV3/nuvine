@@ -1799,6 +1799,9 @@ def print_rating_cards(request, party_id):
     in_stream = file(path, 'rb')
 
   # with file(path, 'rb') as in_stream:
+  CARDS_PATH = 'rating_cards/'
+  if not os.path.exists(CARDS_PATH):
+    os.mkdir(CARDS_PATH)
 
   output = PdfFileWriter()
   files = []
@@ -1832,12 +1835,12 @@ def print_rating_cards(request, party_id):
       page = exp_doc.getPage(x)
       page.mergePage(text.getPage(0))
       output.addPage(page)
-      filename = settings.MEDIA_ROOT + invite.invitee.email+ '.pdf'
+      filename = CARDS_PATH + invite.invitee.email+ '.pdf'
       with file(filename, 'wb') as out_stream:
         output.write(out_stream)
       files.append(filename)
 
-  ratings_zip = settings.MEDIA_ROOT + 'ratings-%s.zip' % pro.email
+  ratings_zip = CARDS_PATH + 'ratings-%s.zip' % pro.email
   # with zipfile.ZipFile(ratings_zip, 'w') as myzip :
   with zipfile.ZipFile(ratings_zip, 'w') as myzip:
     for f in files:
