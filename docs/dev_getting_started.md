@@ -108,3 +108,9 @@
 
   * Following should be done only if you are going to refresh and replace existing content:
     * Run any django commands that populate content (i.e. refresh_products, create_templates)
+
+# For running worker processes
+  - https://devcenter.heroku.com/articles/cloudamqp#use-with-python
+  - https://devcenter.heroku.com/articles/python-rq
+  - https://devcenter.heroku.com/articles/django
+  - https://devcenter.heroku.com/articles/redisgreen (public beta - so free)
