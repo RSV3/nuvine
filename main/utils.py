@@ -264,9 +264,10 @@ def distribute_party_invites_email(request, invitation_sent):
   for guest in invitation_sent.guests.all():
     recipients.append(guest.email)
 
-  # send out party invitation e-mail 
-  subject = invitation_sent.custom_subject 
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
+  # send out party invitation e-mail
+  subject = invitation_sent.custom_subject
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Good wine and good times await',
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Party Invite <welcome@vinely.com>'
 
@@ -279,22 +280,25 @@ def distribute_party_invites_email(request, invitation_sent):
 
   return msg
 
+
 def send_rsvp_thank_you_email(request, user):
 
   template = Section.objects.get(template__key='rsvp_thank_you_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"first_name": user.first_name} )
+  c = RequestContext(request, {"first_name": user.first_name,
+                                "host_name": request.get_host()})
   txt_message = txt_template.render(c)
-  c.update({'sig':True, 'plain':False})
+  c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
 
   recipients = [ user.email ]
 
-  # send out party invitation e-mail 
+  # send out party invitation e-mail
   subject = 'Thanks for the RSVP!'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'header': 'Good wine and good times await', 
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Good wine and good times await',
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Confirmation <welcome@vinely.com>'
 
@@ -305,24 +309,25 @@ def send_rsvp_thank_you_email(request, user):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
   return msg
-   
+
 def send_contact_request_email(request, contact_request):
   """
     E-mail sent when someone fills out a contact request
   """
-  
+
   template = Section.objects.get(template__key='contact_request_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"contact_request": contact_request})
+  c = RequestContext(request, {"contact_request": contact_request})
   txt_message = txt_template.render(c)
   html_message = html_template.render(c)
 
   # send e-mail to notify about contact request
   subject = "URGENT: Request for information"
   recipients = ['sales@vinely.com']
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message,
+                                                                                    'host_name': request.get_host()}))
   from_email = ('Vinely <%s>' % contact_request.email)
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
@@ -333,20 +338,22 @@ def send_contact_request_email(request, contact_request):
   msg.send()
 
 def send_pro_assigned_notification_email(request, pro, host):
-  
+
   template = Section.objects.get(template__key='pro_assigned_notification_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"host_user": host, "pro_user": pro})
+  c = RequestContext(request, {"host_user": host, "pro_user": pro})
   txt_message = txt_template.render(c)
-  c.update({'sig':True})
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send e-mail to notify about contact request
   subject = "Congratulations! Vinely Pro has been assigned to you."
   recipients = [host.email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                                                      'message': html_message,
+                                                                                      'host_name': request.get_host()}))
   from_email = "Vinely Update <care@vinely.com>"
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
