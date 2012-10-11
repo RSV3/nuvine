@@ -1,14 +1,14 @@
 from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
 
-from emailusernames.forms import EmailAuthenticationForm
+from accounts.forms import VinelyEmailAuthenticationForm
 
 urlpatterns = patterns('',
 
   #  url(r'^login/$', 'django.contrib.auth.views.login',
   #    {'authentication_form': EmailAuthenticationForm, 'template_name': 'email_usernames/login.html'}, name='login'),
   url(r'^login/$', 'django.contrib.auth.views.login',
-     {'authentication_form': EmailAuthenticationForm}, name='login'),
+     {'authentication_form': VinelyEmailAuthenticationForm}, name='login'),
 
   url(r'^my/information/$', 'accounts.views.my_information', name='my_information'),
   url(r'^edit/subscription/$', 'accounts.views.edit_subscription', name='edit_subscription'),

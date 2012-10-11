@@ -212,8 +212,10 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 
 from django.contrib.auth.models import Group
-from emailusernames.forms import NameEmailUserCreationForm
+from emailusernames.forms import NameEmailUserCreationForm, EmailAuthenticationForm
+from django.utils.translation import ugettext_lazy as _
 
+ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" e-mail.")
 
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
@@ -264,3 +266,10 @@ class HeardAboutForm(forms.Form):
   )
   source = forms.ChoiceField(choices=SOURCES)
   description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'span6'}))
+
+class VinelyEmailAuthenticationForm(EmailAuthenticationForm):
+
+  message_inactive = ERROR_MESSAGE_INACTIVE
+
+  def __init__(self, request=None, *args, **kwargs):
+    super(VinelyEmailAuthenticationForm, self).__init__(request, *args, **kwargs)
