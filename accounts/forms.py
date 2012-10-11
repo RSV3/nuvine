@@ -215,7 +215,7 @@ from django.contrib.auth.models import Group
 from emailusernames.forms import NameEmailUserCreationForm, EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
-ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" e-mail.")
+ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
 
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")

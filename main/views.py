@@ -1906,10 +1906,10 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['fb_view'] = fb_page
   today = datetime.now(tz=UTC())
 
-  # yesterday is used to only keep event signup open for 24 hours
-  yesterday = today - timedelta(days=1)
+  # expire_date is used to only keep event signup open 
+  expire_date = today - timedelta(days=3)
   try:
-    party = Party.objects.get(pk=party_id, event_date__gte = yesterday)
+    party = Party.objects.get(pk=party_id, event_date__gte = expire_date)
   except:
     raise Http404
 
