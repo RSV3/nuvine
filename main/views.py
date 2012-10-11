@@ -186,14 +186,11 @@ def contact_us(request):
 
   data = {}
 
-  if request.method == "POST":
-    form = ContactRequestForm(request.POST)
-    if form.is_valid():
-      contact_request = form.save()
-      send_contact_request_email(request, contact_request)
-      return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
-  else:
-    form = ContactRequestForm()
+  form = ContactRequestForm(request.POST or None)
+  if form.is_valid():
+    contact_request = form.save()
+    send_contact_request_email(request, contact_request)
+    return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
 
   data["form"] = form
 
