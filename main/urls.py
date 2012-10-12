@@ -2,8 +2,8 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('main.views',
     url(r'^home/$', 'home', name='home_page'),
-    url(r'^our/story/$', 'our_story', name='our_story'),
-    url(r'^get/started/$', 'get_started', name='get_started'),
+    url(r'^become/pro/$', 'our_story', name='our_story'),
+    url(r'^hosting/party/$', 'get_started', name='get_started'),
     url(r'^contact/$', 'contact_us', name='contact_us'),
     url(r'^howto/$', 'how_it_works', name='how_it_works'),
     url(r'^become/vip/$', 'become_vip', name='become_vip'),
