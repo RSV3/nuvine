@@ -186,11 +186,14 @@ def contact_us(request):
 
   data = {}
 
-  form = ContactRequestForm(request.POST or None)
-  if form.is_valid():
-    contact_request = form.save()
-    send_contact_request_email(request, contact_request)
-    return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
+  if request.method == "POST":
+    form = ContactRequestForm(request.POST)
+    if form.is_valid():
+      contact_request = form.save()
+      send_contact_request_email(request, contact_request)
+      return render_to_response("main/thankyou_contact.html", data, context_instance=RequestContext(request))
+  else:
+    form = ContactRequestForm()
 
   data["form"] = form
 
@@ -1905,11 +1908,8 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data = {}
   data['fb_view'] = fb_page
   today = datetime.now(tz=UTC())
-
-  # expire_date is used to only keep event signup open 
-  expire_date = today - timedelta(days=3)
   try:
-    party = Party.objects.get(pk=party_id, event_date__gte = expire_date)
+    party = Party.objects.get(pk=party_id, event_date__gte = today)
   except:
     raise Http404
 
@@ -1919,7 +1919,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   if form.is_valid():
     # if user already exists just add them to the event dont save
     try:
-      user = User.objects.get(email=request.POST.get('email').strip().lower())
+      user = User.objects.get(email=request.POST.get('email').strip())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.save()

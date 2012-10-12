@@ -114,7 +114,14 @@
         <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
         <td>{{ party.phone }}</td>
         <td>{{ party.address }}</td>
-        <td>{% if party.invitees %}{{ party.invitees }} <span class="badge badge-important">{{ party.high_low }}</span> {{ high_low_status }}{% else %}<a href="{% url party_taster_invite party.id %}">Invite Guests</a>{% endif %}</td>
+        <td>
+          {% if party.invitees %}
+            {{ party.invitees }} 
+            {% if party.high_low %}<span class="badge badge-important">{{ party.high_low }}</span> {% endif %}
+          {% else %}
+            <a href="{% url party_taster_invite party.id %}">Invite Guests</a>
+          {% endif %}
+        </td>
       </tr>
     {% endfor %}
     </tbody>

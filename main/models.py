@@ -51,9 +51,9 @@ class Party(models.Model):
 
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
-    if coming <= 3:
+    if coming <= 8:
       return '!LOW'
-    elif coming >= 12:
+    elif coming > 24:
       return '!HIGH'
     else:
       return ''
