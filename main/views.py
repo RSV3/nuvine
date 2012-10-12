@@ -1449,7 +1449,8 @@ def supplier_orders_filter(request, history_list=False):
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_wine_list(request):
-  pass
+  data = {}
+  return render_to_response("main/supplier_wine_list.html", data, context_instance=RequestContext(request))
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
