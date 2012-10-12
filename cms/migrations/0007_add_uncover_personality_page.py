@@ -9,38 +9,32 @@ class Migration(DataMigration):
     def forwards(self, orm):
         "Write your forwards methods here."
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
-        template = orm.ContentTemplate.objects.get(key='how_it_works')
-        content = "Vinely is a personality test<br />disguised as a wine tasting"
+        template = orm.ContentTemplate.objects.create(key='uncover_personality', category=1)
+        
+        content = """
+        <p>Your Vinely Wine Personality is determined by the flavor preferences that characterize your taste in wine. </p>
+
+        <p>You can uncover yours at a Vinely Taste Party, where you’ll sip, savor, and rate wines with your friends. 
+        Vinely takes your feedback and runs it through a system developed by leading wine experts and scientists. 
+        The system uses this information to uncover your unique taste characteristics and reveals your wine personality. </p>
+
+        <p>Will you be Whimsical, Serendipitous, Sensational, Exuberant, Moxie, or Easygoing?</p>
+
+        <p>Curious to find out? Learn how!</p>
+
+        """
+        orm.Section.objects.create(category=0, content=content, template=template)
+        content = "So, you want to uncover your wine personality?"
         orm.Section.objects.create(category=4, content=content, template=template)
-
-        content = "Are you Whimsical? Serendipitous? Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing?"
-        orm.Section.objects.create(category=5, content=content, template=template)
-
-        template = orm.ContentTemplate.objects.get(key='get_started')
-        content = "Where’s the party? Your place!"
-        orm.Section.objects.create(category=4, content=content, template=template)
-
-        template = orm.ContentTemplate.objects.get(key='our_story')
-        content = "Vinely's Story"
-        orm.Section.objects.create(category=4, content=content, template=template)
-
 
     def backwards(self, orm):
         "Write your backwards methods here."
-        template = orm.ContentTemplate.objects.get(key='how_it_works')
-        content = "Vinely is a personality test<br />disguised as a wine tasting"
-        orm.Section.objects.filter(category=4, template=template).delete()
+        template = orm.ContentTemplate.objects.get(key='uncover_personality')
 
-        content = "Are you Whimsical? Serendipitous? Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing?"
-        orm.Section.objects.filter(category=5, template=template).delete()
-
-        template = orm.ContentTemplate.objects.get(key='get_started')
-        content = "Where’s the party? Your place!"
+        orm.Section.objects.filter(category=0, template=template).delete()
+        content = "So, you want to uncover your wine personality?"
         orm.Section.objects.filter(category=4, template=template).delete()
-
-        template = orm.ContentTemplate.objects.get(key='our_story')
-        content = "Vinely's Story"
-        orm.Section.objects.filter(category=4, template=template).delete()
+        template.delete()
 
     models = {
         'cms.contenttemplate': {

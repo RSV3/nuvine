@@ -204,7 +204,7 @@ class UserProfile(models.Model):
     likes = "L" + "".join(map(str, L)) if len(L) > 0 else ""
     neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else "" 
     dislikes = "D" + "".join(map(str, D)) if len(D) > 0 else ""
-    code = likes + neutrals + dislikes
+    code = likes + neutrals# + dislikes
     return code if code else "-"
 
 def create_user_profile(sender, instance, created, **kwargs):

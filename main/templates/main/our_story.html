@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">Vinely's Story</h1>
+  <h1 class="headline">{{ heading|safe }}</h1>
 {% endblock header %}
 
 {% block content %}
@@ -28,11 +28,13 @@
       <p>What are you waiting for?</p>
        -->
       </section>
+<!-- 
       <div class="control-group">
         <div class="controls center">
           <a href="{% url sign_up 2 %}"><img src="{% static "img/btn_pie_getstarted.png" %}"></a>
         </div>
       </div>
+       -->
       <div class="vertical-spacing">
         &nbsp;
       </div>

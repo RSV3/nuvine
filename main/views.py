@@ -151,6 +151,15 @@ def home(request):
   return render_to_response("main/home.html", data, context_instance=RequestContext(request))
 
 
+def uncover_personality(request):
+  data = {}
+
+  data['uncover_personality_menu'] = True
+  sections = ContentTemplate.objects.get(key='uncover_personality').sections.all()
+  data['uncover_personality'] = sections.get(category=0).content
+  data['heading'] = sections.get(category=4).content
+  return render_to_response("main/uncover_personality.html", data, context_instance=RequestContext(request))
+
 def our_story(request):
   """
 
@@ -159,7 +168,9 @@ def our_story(request):
   data = {}
 
   data['our_story_menu'] = True
-  data['our_story'] = ContentTemplate.objects.get(key='our_story').sections.all()[0].content
+  sections = ContentTemplate.objects.get(key='our_story').sections.all()
+  data['our_story'] = sections.get(category=0).content
+  data['heading'] = sections.get(category=4).content
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
@@ -176,6 +187,7 @@ def get_started(request):
   data['get_started_general'] = sections.get(category = 0).content
   data['get_started_host'] = sections.get(category = 2).content
   data['get_started_pro'] = sections.get(category = 3).content
+  data['heading'] = sections.get(category = 4).content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
@@ -248,11 +260,11 @@ def how_it_works(request):
   """
 
   data = {}
-  template = ContentTemplate.objects.get(key='how_it_works')
+  sections = ContentTemplate.objects.get(key='how_it_works').sections.all()
   data["how_it_works_menu"] = True
-  data['how_it_works'] = template.sections.get(category=0).content
-  data['heading'] = template.sections.get(category=4).content
-  data['sub_heading'] = template.sections.get(category=5).content
+  data['how_it_works'] = sections.get(category=0).content
+  data['heading'] = sections.get(category=4).content
+  data['sub_heading'] = sections.get(category=5).content
   
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
