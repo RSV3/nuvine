@@ -247,7 +247,7 @@ if DEPLOY:
   #EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
 else:
   EMAIL_HOST = 'smtp.gmail.com'
-  EMAIL_PORT = 587 
+  EMAIL_PORT = 587
   EMAIL_HOST_USER = 'tech@vinely.com'
   EMAIL_HOST_PASSWORD = 'hi2winedora'
   EMAIL_USE_TLS = True
@@ -267,12 +267,25 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
     'loggers': {
         'django.request': {
@@ -280,7 +293,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-    }
+        'personality': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        }
+    },
 }
 
 try:

@@ -35,39 +35,78 @@ def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
 
   white = 0
   red = 0
-  if np.sum(white_vec > 3) == 0:
+
+  white_like = white_vec > 3
+  white_neutral = white_vec >= 3
+  red_like = red_vec > 3
+  red_neutral = red_vec >= 3
+
+  if np.sum(white_like) == 0:
     white = 0
-  elif np.sum((white_vec > 3) == [True, False, False]) == 3:
+  elif np.sum((white_like) == [True, False, False]) == 3:
     white = 1
-  elif np.sum((white_vec > 3) == [True, True, False]) == 3:
+  elif np.sum((white_like) == [True, True, False]) == 3:
     white = 2
-  elif np.sum((white_vec > 3) == [False, True, False]) == 3:
+  elif np.sum((white_like) == [False, True, False]) == 3:
     white = 3
-  elif np.sum((white_vec > 3) == [False, True, True]) == 3:
+  elif np.sum((white_like) == [False, True, True]) == 3:
     white = 4
-  elif np.sum((white_vec > 3) == [False, False, True]) == 3:
+  elif np.sum((white_like) == [False, False, True]) == 3:
     white = 5
-  elif np.sum((white_vec > 3) == [True, False, True]) == 3:
+  elif np.sum((white_like) == [True, False, True]) == 3:
     white = 6
-  elif np.sum((white_vec > 3) == [True, True, True]) == 3:
+  elif np.sum((white_like) == [True, True, True]) == 3:
     white = 7
 
-  if np.sum(red_vec > 3) == 0:
+  if np.sum(red_like) == 0:
     red = 0
-  elif np.sum((red_vec > 3) == [True, False, False]) == 3:
+  elif np.sum((red_like) == [True, False, False]) == 3:
     red = 1
-  elif np.sum((red_vec > 3) == [True, True, False]) == 3:
+  elif np.sum((red_like) == [True, True, False]) == 3:
     red = 2
-  elif np.sum((red_vec > 3) == [False, True, False]) == 3:
+  elif np.sum((red_like) == [False, True, False]) == 3:
     red = 3
-  elif np.sum((red_vec > 3) == [False, True, True]) == 3:
+  elif np.sum((red_like) == [False, True, True]) == 3:
     red = 4
-  elif np.sum((red_vec > 3) == [False, False, True]) == 3:
+  elif np.sum((red_like) == [False, False, True]) == 3:
     red = 5
-  elif np.sum((red_vec > 3) == [True, False, True]) == 3:
+  elif np.sum((red_like) == [True, False, True]) == 3:
     red = 6
-  elif np.sum((red_vec > 3) == [True, True, True]) == 3:
+  elif np.sum((red_like) == [True, True, True]) == 3:
     red = 7
+
+  if np.sum(white_like) + np.sum(red_like) == 0:
+    # check for neutral
+    if np.sum((white_neutral) == [True, False, False]) == 3:
+      white = 1
+    elif np.sum((white_neutral) == [True, True, False]) == 3:
+      white = 2
+    elif np.sum((white_neutral) == [False, True, False]) == 3:
+      white = 3
+    elif np.sum((white_neutral) == [False, True, True]) == 3:
+      white = 4
+    elif np.sum((white_neutral) == [False, False, True]) == 3:
+      white = 5
+    elif np.sum((white_neutral) == [True, False, True]) == 3:
+      white = 6
+    elif np.sum((white_neutral) == [True, True, True]) == 3:
+      white = 7
+
+    # check for neutral
+    if np.sum((red_neutral) == [True, False, False]) == 3:
+      red = 1
+    elif np.sum((red_neutral) == [True, True, False]) == 3:
+      red = 2
+    elif np.sum((red_neutral) == [False, True, False]) == 3:
+      red = 3
+    elif np.sum((red_neutral) == [False, True, True]) == 3:
+      red = 4
+    elif np.sum((red_neutral) == [False, False, True]) == 3:
+      red = 5
+    elif np.sum((red_neutral) == [True, False, True]) == 3:
+      red = 6
+    elif np.sum((red_neutral) == [True, True, True]) == 3:
+      red = 7
 
   profile = user.get_profile()
   profile.wine_personality = WinePersonality.objects.get(id=personality_matrix[red, white])

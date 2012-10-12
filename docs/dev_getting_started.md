@@ -114,3 +114,7 @@
   - https://devcenter.heroku.com/articles/python-rq
   - https://devcenter.heroku.com/articles/django
   - https://devcenter.heroku.com/articles/redisgreen (public beta - so free)
+
+# NewRelic for tracking system usage
+  - https://newrelic.com/docs/python/python-agent-and-heroku
+  - It also describes how to track celery tasks
