@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 @staff_member_required
 def template_list(request, type=0):
@@ -43,6 +44,8 @@ def edit_template(request, key):
 			
 			if form.is_valid():
 				form.save()
+				template.last_modified = timezone.now()
+				template.save()
 				messages.success(request, "Template was successfully updated.")
 
 	data['form'] = form
