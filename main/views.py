@@ -248,9 +248,12 @@ def how_it_works(request):
   """
 
   data = {}
-
+  template = ContentTemplate.objects.get(key='how_it_works')
   data["how_it_works_menu"] = True
-  data['how_it_works'] = ContentTemplate.objects.get(key='how_it_works').sections.all()[0].content
+  data['how_it_works'] = template.sections.get(category=0).content
+  data['heading'] = template.sections.get(category=4).content
+  data['sub_heading'] = template.sections.get(category=5).content
+  
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
 

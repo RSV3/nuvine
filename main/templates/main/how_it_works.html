@@ -3,8 +3,7 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">Vinely is a personality test<br />
-  disguised as a wine tasting</h1>
+  <h1 class="headline">{{ heading|safe }}</h1>
 {% endblock header %}
 
 {% block content %}
@@ -13,7 +12,7 @@
 
   <div class="row">
     <div class="span12">
-      <p id="sub-heading" class="center">Are you Whimsical? Serendipitous? Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing?</p>
+      <p id="sub-heading" class="center">{{ sub_heading|safe }}</p>
 
       <section id="how-it-works">
         {{ how_it_works|safe }}

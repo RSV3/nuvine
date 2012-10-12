@@ -27,6 +27,8 @@ class Section(models.Model):
 		(1, 'Taster Section'),
 		(2, 'Host Section'),
 		(3, 'Pro Section'),
+		(4, 'Header Section'),
+		(5, 'Sub Heading Section'),
 	)
 	category = models.IntegerField(choices=SECTION_TYPE, default=0)
 	content = models.TextField()
