@@ -52,6 +52,8 @@ urlpatterns = patterns('main.views',
     url(r'^supplier/orders/fulfilled/$', 'supplier_fulfilled_orders', name='supplier_fulfilled_orders'),
     url(r'^supplier/orders/all/$', 'supplier_all_orders', name='supplier_all_orders'),
     url(r'^supplier/edit/order/(?P<order_id>[\-\w]+)/$', 'supplier_edit_order', name='supplier_edit_order'),
+    url(r'^supplier/orders/history/$', 'supplier_order_history', name='supplier_order_history'),
+    url(r'^supplier/wine/list/$', 'supplier_wine_list', name='supplier_wine_list'),
 
     # access error pages
     url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),

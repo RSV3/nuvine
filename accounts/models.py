@@ -207,6 +207,21 @@ class UserProfile(models.Model):
     code = likes + neutrals# + dislikes
     return code if code else "-"
 
+  def order_customization_pref(self):
+    from main.models import CustomizeOrder
+    try:
+      pref = CustomizeOrder.objects.get(user=self.user)
+      if pref.wine_mix == 1:
+        return "Both"
+      elif pref.wine_mix == 2:
+        return "Red"
+      elif pref.wine_mix == 3:
+        return "White"
+      else:
+        return "-"
+    except CustomizeOrder.DoesNotExist:
+      return "-"
+
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
     UserProfile.objects.create(user=instance)

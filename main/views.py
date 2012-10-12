@@ -1364,12 +1364,23 @@ import urllib
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_order_history(request):
+  """
+  Show order history of fulfilled orders
+  """
+  return supplier_orders_filter(request, history_list=True)
+
+@login_required
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_all_orders(request):
   """
     Shows party list from suppliers point of view
 
     So it displays all parties
   """
+  return supplier_orders_filter(request, history_list=False)
+
+def supplier_orders_filter(request, history_list=False):
   sort_field = {
     'status':'fulfill_status',
     '-status':'-fulfill_status',
@@ -1385,9 +1396,14 @@ def supplier_all_orders(request):
     '-rwb':'-order_date',
     'quantity':'cart__items__quantity',
     '-quantity':'-cart__items__quantity',
+    'track':'tracking_number',
+    '-track':'-tracking_number',
   }
 
   data = {}
+  data['supplier_history_view'] = history_list
+  data['supplier_all_view'] = not history_list
+
   page_num = request.GET.get('p', 1)
   sort = request.GET.get('sort')
   if sort:
@@ -1427,9 +1443,13 @@ def supplier_all_orders(request):
   data['sorting'] = sort
   
   data["supplier"] = True
-
+  data['supplier_history_view']
   return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
 
+@login_required
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_wine_list(request):
+  pass
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
