@@ -383,7 +383,7 @@ class OrderReview(models.Model):
 
 class OrganizedParty(models.Model):
   """
-    Recorded when a party is organized by a pro 
+    Recorded when a party is organized by a pro
   """
   pro = models.ForeignKey(User)
   party = models.ForeignKey(Party)
@@ -397,27 +397,29 @@ class MyHost(models.Model):
   """
   pro = models.ForeignKey(User, related_name="my_host", null=True, blank=True, verbose_name="Select Pro")
   host = models.ForeignKey(User, related_name="my_pro")
-  timestamp = models.DateTimeField(auto_now_add=True)
+  # email of a pro or mentor that user entered, that does not map to existing pro
+  email_entered = models.CharField(max_length=75, blank=True, null=True, verbose_name="Pro Email Entered")
+  timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Host Request Date")
 
   def __unicode__(self):
-    return "%s - %s"%(self.pro, self.host)
+    return "%s - %s" % (self.pro, self.host)
 
 class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-      ( 0, 'Your Vinely recommendation'),
-      ( 1, 'Send me a mix of red & white wine'),
-      ( 2, 'Send me red wine only'),
-      ( 3, 'Send me white wine only')
+      (0, 'Your Vinely recommendation'),
+      (1, 'Send me a mix of red & white wine'),
+      (2, 'Send me red wine only'),
+      (3, 'Send me white wine only')
   )
 
   wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.",
                                   default=MIX_CHOICES[0][0])
 
   SPARKLING_CHOICES = (
-      ( 0, 'No thanks' ),
-      ( 1, 'Yes' )
+      (0, 'No thanks'),
+      (1, 'Yes')
   )
 
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
@@ -431,9 +433,11 @@ class EngagementInterest(models.Model):
   """
 
   ENGAGEMENT_CHOICES = (
+    (0, 'Unassigned Interest'),
     (1, 'Vinely Pro'),
     (2, 'Vinely Host'),
     (3, 'Vinely Taster'),
+    (4, 'Unassigned Interest'),
     (5, 'Tasting Kit'),
   )
 
@@ -447,7 +451,7 @@ class EngagementInterest(models.Model):
     self.save()
 
   def __unicode__(self):
-    return "%s interest in %s"%(self.user.email, EngagementInterest.ENGAGEMENT_CHOICES[self.engagement_type][1])
+    return "%s interest in %s" % (self.user.email, EngagementInterest.ENGAGEMENT_CHOICES[self.engagement_type][1])
 
 class InvitationSent(models.Model):
   """
@@ -467,3 +471,10 @@ class ThankYouNote(models.Model):
   custom_message = models.CharField(max_length=1024, blank=True, null=True)
   guests = models.ManyToManyField(User)
   timestamp = models.DateTimeField(auto_now_add=True)
+
+class ProSignupLog(models.Model):
+
+  new_pro = models.ForeignKey(User)
+  mentor = models.ForeignKey(User, blank=True, null=True, related_name="new_mentees")
+  mentor_email = models.CharField(max_length=75, blank=True, null=True)
+  timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Pro Request Date")

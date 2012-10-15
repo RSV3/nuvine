@@ -64,7 +64,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
   actions = [approve_pro, remove_pro_privileges]
-  
+
   def user_image(self, instance):
     if instance.image:
       return '<img src="%s%s" height="75"/>' % (settings.MEDIA_URL, instance.image)
@@ -87,8 +87,11 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
 
   def user_type(self, instance):
-    group = instance.user.groups.all()[0]
-    return group.name
+    if instance.user.groups.all().count() > 0:
+      group = instance.user.groups.all()[0]
+      return group.name
+    else:
+      return "Unassigned"
 
   def pro_number(self, instance):
     acc = instance.user.vinelyproaccount_set.all()

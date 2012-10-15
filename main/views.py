@@ -247,6 +247,9 @@ def host_vinely_party(request):
   pros = MyHost.objects.filter(host=request.user)
   if pros.exists():
     pro = pros[0].pro
+  else:
+    my_host, created = MyHost.objects.get_or_create(pro=None, host=request.user)
+
   # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
   message_body = send_host_vinely_party_email(request, request.user, pro)
 

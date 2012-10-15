@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
-from main.models import EngagementInterest, PartyInvite, MyHost, Party
+from main.models import EngagementInterest, PartyInvite, MyHost, Party, ProSignupLog
 
 from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
 
@@ -345,8 +345,10 @@ def sign_up(request, account_type):
         # make sure the pro exists
         pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
         profile.mentor = pro
-      except Exception, e:
-        pass  # leave mentor as default
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=request.POST.get('mentor'))
+      except User.DoesNotExist:
+        # mentor e-mail might have been mis-entered 
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=request.POST.get('mentor'))
 
     elif account_type == 2:
       # if host, then set mentor to be the host's pro
@@ -355,9 +357,8 @@ def sign_up(request, account_type):
         pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
-      except Exception, e:
-        pass
-        # my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user)
+      except User.DoesNotExist:
+        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=request.POST.get('mentor'))
 
     profile.save()
 

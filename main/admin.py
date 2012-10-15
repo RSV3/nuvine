@@ -3,8 +3,9 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from main.models import MyHost
+from main.models import MyHost, ProSignupLog, EngagementInterest
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
+
 
 class ProAssignedFilter(SimpleListFilter):
 
@@ -14,8 +15,8 @@ class ProAssignedFilter(SimpleListFilter):
 
   def lookups(self, request, model_admin):
     return (
-        ( 'Yes', 'Pro Assigned'),
-        ( 'No', 'No Pro Assigned'),
+        ('Yes', 'Pro Assigned'),
+        ('No', 'No Pro Assigned'),
       )
 
   def queryset(self, request, queryset):
@@ -25,18 +26,23 @@ class ProAssignedFilter(SimpleListFilter):
     if pro_assigned == 'No':
       return queryset.filter(pro__isnull=True)
 
+
 class MyHostAdmin(admin.ModelAdmin):
-  list_display = ('id', 'pro', 'pro_info', 'pro_account', 'host_info', )
+  list_display = ('id', 'pro', 'pro_info', 'pro_account', 'host_info', 'host_zipcode', 'email_entered', 'timestamp')
   raw_id_fields = ['pro', 'host']
   list_filter = (ProAssignedFilter, )
   list_display_links = ('id', )
   list_editable = ('pro', )
+  ordering = ['-timestamp']
 
   def pro_info(self, instance):
     return "%s %s <%s>" % (instance.pro.first_name, instance.pro.last_name, instance.pro.email)
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
+  def host_zipcode(self, instance):
+    return instance.host.get_profile().zipcode
 
   def pro_account(self, instance):
     acc = instance.pro.vinelyproaccount_set.all()
@@ -50,4 +56,28 @@ class MyHostAdmin(admin.ModelAdmin):
       messages.info(request, "New pro has been successfully assigned.")
     super(MyHostAdmin, self).save_model(request, obj, form, change)
 
+
+class ProSignupLogAdmin(admin.ModelAdmin):
+  list_display = ['new_pro_info', 'mentor_info', 'mentor_email']
+  ordering = ['-timestamp']
+
+  def new_pro_info(self, instance):
+    return "%s %s <%s>" % (instance.new_pro.first_name, instance.new_pro.last_name, instance.new_pro.email)
+
+  def mentor_info(self, instance):
+    if instance:
+      return "%s %s <%s>" % (instance.mentor.first_name, instance.mentor.last_name, instance.mentor.email)
+    else:
+      return "No mentor assigned"
+
+
+class EngagementInterestAdmin(admin.ModelAdmin):
+  list_display = ['user_info', 'engagement_type', 'latest', 'timestamp']
+  ordering = ['-timestamp']
+
+  def user_info(self, instance):
+    return "%s %s <%s>" % (instance.user.first_name, instance.user.last_name, instance.user.email)
+
 admin.site.register(MyHost, MyHostAdmin)
+admin.site.register(ProSignupLog, ProSignupLogAdmin)
+admin.site.register(EngagementInterest, EngagementInterestAdmin)
