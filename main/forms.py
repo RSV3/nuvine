@@ -7,7 +7,7 @@ from emailusernames.utils import create_user, create_superuser
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product
+                        InvitationSent, Order, Product, ThankYouNote
 from accounts.models import Address 
 
 import uuid
@@ -361,6 +361,20 @@ class CustomizeInvitationForm(forms.ModelForm):
     self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5})
+
+class CustomizeThankYouNoteForm(forms.ModelForm):
+
+  preview = forms.BooleanField(required=False)
+  send = forms.BooleanField(required=False)
+
+  class Meta:
+    model = ThankYouNote
+
+  def __init__(self, *args, **kwargs):
+    super(CustomizeThankYouNoteForm, self).__init__(*args, **kwargs)
+    self.fields['custom_subject'].widget.attrs['class'] = 'span5'
+    self.fields['party'].widget = forms.HiddenInput()
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5, 'placeholder':'Your custom thank you note.'})
 
 class OrderFulfillForm(forms.ModelForm):
 

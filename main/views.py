@@ -18,14 +18,14 @@ from accounts.models import VerificationQueue
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CustomizeInvitationForm, OrderFulfillForm
+                        CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission
+                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
 
 import json, uuid, math
 from datetime import datetime, timedelta
@@ -775,7 +775,7 @@ def order_complete(request, order_id):
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
 
-    data["credit_card"] = profile.stripe_card
+    data["credit_card"] = order.receiver.get_profile().stripe_card
     data["shop_menu"] = True
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
@@ -1025,7 +1025,7 @@ def party_details(request, party_id):
   today = datetime.now(tz=UTC())
 
   if party.event_date > today and party.high_low() == '!LOW':
-    msg = 'Too few people have RSVP\'ed to the party. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
+    msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
     messages.warning(request, msg)
   elif party.event_date > today and party.high_low() == '!HIGH':
     msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
@@ -1039,9 +1039,13 @@ def party_details(request, party_id):
   data['can_order_kit'] = (party.event_date > today)
 
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
-
-  return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
-
+  if data['can_order_kit']:
+    return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
+  else:
+    orders = Order.objects.filter(cart__party=party)
+    data['buyers'] = invitees.filter(invitee__in = [x.receiver for x in orders])
+    data['non_buyers'] = invitees.exclude(invitee__in = [x.receiver for x in orders])
+    return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_taster_list(request, party_id):
@@ -1242,6 +1246,66 @@ def party_customize_invite(request):
   else:
     return PermissionDenied
 
+@login_required
+def party_customize_thanks_note(request):
+  """
+    Customize thank you note by host to attendees
+  """
+
+  data = {}
+
+  if request.method == 'POST':
+    guests = request.POST.getlist('guests')
+    party = Party.objects.get(id=request.POST.get('party'))
+    #print "Selected guests:", guests
+
+    form = CustomizeThankYouNoteForm()
+    form.initial = {'party': party}
+    data["party"] = party
+    data["guests"] = guests
+    data["form"] = form
+    data["guest_count"] = len(guests)
+    data["parties_menu"] = True
+    data['rsvp_date'] = party.event_date - timedelta(days=5)
+
+    return render_to_response("main/party_customize_thanks_note.html", data, context_instance=RequestContext(request))
+  else:
+    return PermissionDenied
+
+@login_required
+def party_send_thanks_note(request):
+  """
+    Preview or send thanks note
+  """
+
+  data = {}
+
+  # send invitation
+  form = CustomizeThankYouNoteForm(request.POST or None)
+  print form.errors
+  if form.is_valid():
+    num_guests = len(request.POST.getlist("guests"))
+    if form.cleaned_data['preview']:
+      note_sent = form.save(commit=False)
+      party = note_sent.party
+      data["preview"] = True
+      data["party"] = party
+      data["guests"] = request.POST.getlist("guests")
+      data["guest_count"] = num_guests
+    else:
+      note_sent = form.save()
+      party = note_sent.party
+      # send e-mails
+      distribute_party_thanks_note_email(request, note_sent)
+      messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
+      data["parties_menu"] = True
+
+      return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
+
+  data["form"] = form
+  data["parties_menu"] = True
+
+  return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
 
 @login_required
 def party_send_invites(request):

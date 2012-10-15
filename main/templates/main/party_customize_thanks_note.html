@@ -1,0 +1,77 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1 class="headline">Customize Thank You Note</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <section id="customize-invitation">
+    <div class="row">
+      <div class="span12">
+        <p>Feel free to add your custom invite message.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url party_send_thanks_note %}">
+      {% csrf_token %}
+      {{ form.party }}
+      {% for g in guests %}
+        <input type="hidden" value="{{ g }}" name="guests">
+      {% endfor %}
+      <div class="row">
+        <div class="span12">
+          <table>
+            <tbody>
+              <tr>
+                <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
+              </tr>
+              <tr>
+                <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
+              </tr>
+              <tr>
+                <td>Subject:</td><td>{{ form.custom_subject }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="row">
+        <div class="span12">
+          <p>Thank you for attending our wine tasting party on {{ party.event_date|date:"F j, o" }} and for ordering wine.</p>
+
+          <p>You can always visit our site and <a href="#">order more wine</a> later or become a VIP by <a href="#">subscribing</a> for amazing wine selections.</p>
+
+          <div class="control-group">
+            <div class="controls">
+              {{ form.custom_message }}
+            </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span6">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="span12">
+          <div class="form-actions">
+            <div class="controls">
+              <input class="btn btn-primary" type="submit" name="send" value="Send Note">
+              <input class="btn btn-warning" type="submit" name="preview" value="Preview Note">
+            </div>
+        </div>
+        </div>
+      </div>
+    </form>
+  </section>
+
+</div>
+
+{% endblock content %}

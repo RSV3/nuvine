@@ -1,0 +1,117 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load thumbnail %}
+{% load static %}
+
+{% block header %}
+  <h1>Taste Party: {{ party.title }}</h1>
+  Here are your party details.
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  
+  <section id="party-information">
+    <div class="row">
+      <div class="span6">
+        <table>
+          <tbody>
+            <tr>
+              <td>Hosted by:</td>
+              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
+            </tr>
+            <tr>
+              <td>Party Type:</td>
+              <td>{{ party.title }}</td>
+            </tr>
+            <tr>
+              <td>Date and Time:</td>
+              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+            </tr>
+            <tr>
+              <td>Location:</td>
+              <td>{{ party.address.full_text }}</td>
+            </tr>
+            <tr>
+              <td>Guests Attended:</td>
+              <td>{{ party.invitees }}</td>
+            </tr>
+            <tr>
+              <td>{{ party.description }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div> <!-- .row -->
+  </section>
+
+  <section id="party-tasters">
+    <div class="page-header">Who has ordered wine?</div>
+    <form method="POST" action="{% url party_customize_thanks_note %}">
+      {% csrf_token %}
+      <input type="hidden" name="party" value="{{ party.id }}">
+      <table class="table table-striped">
+        <thead>
+          <th>Select</th>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Personality</th>
+        </thead>
+        <tbody>
+        {% for inv in buyers %}
+          {# create a table of invitees #}
+          <tr>
+            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+            <td>Anonymous</td>
+            {% endif %}
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <div class="control-group">
+        {% if can_order_kit %}
+          <button type="submit" class="btn btn-success btn-large">Send Invite</button> <span class="alert">Please select guests from the above list and send your personalized invitation.</span>
+        {% else %}
+          <button type="submit" class="btn btn-success btn-large">Thank Attendees</button> <span class="alert">Please select guests from the above list and send your personalized thank you note.</span>
+        {% endif %}
+      </div>
+    </form>
+    <div class="page-header">Yet to order wine?</div>    
+    <table class="table table-striped">
+      <thead>
+        <th>Select</th>
+        <th>Name</th>
+        <th>E-mail</th>
+        <th>Personality</th>
+      </thead>
+      <tbody>
+      {% for inv in non_buyers %}
+        {# create a table of invitees #}
+        <tr>
+          <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+          {% if inv.invitee.first_name or inv.invitee.last_name %}
+          <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+          {% else %}
+          <td>Anonymous</td>
+          {% endif %}
+          <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>    
+  </section>
+  <div class="vertical-space-bottom">
+  </div>
+
+</div>
+
+{% endblock content %}
+

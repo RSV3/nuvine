@@ -17,6 +17,7 @@ class SimpleTest(TestCase):
     self.get_started_template()
     self.our_story_template()
     self.how_it_works_template()
+    self.vinely_event_template()
 
   def create_all_templates(self):
     self.create_web_templates()
@@ -43,6 +44,7 @@ class SimpleTest(TestCase):
     self.create_pro_assigned_notification_email_template()
     self.create_mentor_assigned_notification_email_template()
     self.create_mentee_assigned_notification_email_template()
+    self.create_distribute_thanks_note_email_template()
 
 
   def create_verification_email_template(self):
@@ -750,6 +752,35 @@ class SimpleTest(TestCase):
     variable, created = Variable.objects.get_or_create(var="{{ mentee.get_profile.phone }}", description="Mentee's phone number")
     template.variables_legend.add(variable)
 
+  def create_distribute_thanks_note_email_template(self):
+    content = """
+
+    {% load static %}
+
+    Thank you for attending "{{ party.title }}" on {{ party.event_date|date:"F j, o" }} and for ordering wine.
+
+    You can always visit our site and <a href="{% url start_order party.id %}">order more wine</a> later or become a VIP by 
+    <a href="{% url start_order party.id %}">subscribing</a> for our amazing wine selections.
+
+    {% if custom_message %}
+    {{ custom_message }}
+    {% endif %}
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+    template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
+    section = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event is to take place")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ custom_message }}", description="Optional custom message added to the invite")
+    template.variables_legend.add(variable)
 
   ######################################
   # Web Templates

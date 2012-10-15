@@ -25,7 +25,8 @@ urlpatterns = patterns('main.views',
     url(r'^party/taster/invite/(?P<party_id>\d+)/$', 'party_taster_invite', name='party_taster_invite'),
     url(r'^party/taster/invite/$', 'party_taster_invite', name='party_taster_invite'),
     url(r'^party/print/rating/(?P<party_id>\d+)/$', 'print_rating_cards', name='print_rating_cards'),
-
+    url(r'^party/customize/thanks/note/$', 'party_customize_thanks_note', name='party_customize_thanks_note'),
+    url(r'^party/send/thanks/note/$', 'party_send_thanks_note', name='party_send_thanks_note'),
 
     url(r'^order/start/$', 'start_order', name='start_order'),
     url(r'^order/start/(?P<receiver_id>\d+)/$', 'start_order', name='start_order'),

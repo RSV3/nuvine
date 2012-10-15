@@ -13,9 +13,10 @@ class Migration(DataMigration):
 
         {% load static %}
 
-        Thank you for attending our wine tasting party on {{ party.event_date|date:"F j, o" }} and for ordering wine.
+        Thank you for attending "{{ party.title }}" on {{ party.event_date|date:"F j, o" }} and for ordering wine.
 
-        You can always visit our site and <a href="#">order more wine</a> later or become a VIP by <a href="#">subscribing</a> for amazing wine selections.
+        You can always visit our site and <a href="{% url start_order party.id %}">order more wine</a> later or become a VIP by 
+        <a href="{% url start_order party.id %}">subscribing</a> for our amazing wine selections.
 
         {% if custom_message %}
         {{ custom_message }}
@@ -28,16 +29,20 @@ class Migration(DataMigration):
         - The Vinely Team
 
         """
-        template = orm.ContentTemplate.objects.get(key="distribute_party_invites_email", category=0)
-        section = orm.Section.objects.get(category=0, template=template)
-        section.content = content
-        section.save()
-        variable, created = orm.Variable.objects.get_or_create(var="{{ rsvp_date }}", description="Date by which the attendee should RSVP (5 days prior to event)")
+        template = orm.ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
+        section = orm.Section.objects.create(category=0, content=content, template=template)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
+        template.variables_legend.add(variable)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event took take place")
+        template.variables_legend.add(variable)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ custom_message }}", description="Optional custom message added to the thank you message")
         template.variables_legend.add(variable)
 
     def backwards(self, orm):
         "Write your backwards methods here."
-        # orm.Variable.objects.get(var="{{ rsvp_date }}", description="Date by which the attendee should RSVP (5 days prior to event)").delete()
+        template = orm.ContentTemplate.objects.get(key="distribute_party_thanks_note_email", category=0)
+        orm.Section.objects.filter(category=0, template=template).delete()
+        template.delete()
 
     models = {
         'cms.contenttemplate': {
