@@ -463,7 +463,7 @@ class ThankYouNote(models.Model):
   """
   """
   party = models.ForeignKey(Party)
-  custom_subject = models.CharField(max_length=128, default="Thank you for attending our Vinely Taste Party")
+  custom_subject = models.CharField(max_length=128, default="Thanks for Attending My Vinely Taste Party!")
   custom_message = models.CharField(max_length=1024, blank=True, null=True)
   guests = models.ManyToManyField(User)
   timestamp = models.DateTimeField(auto_now_add=True)

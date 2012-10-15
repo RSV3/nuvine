@@ -45,11 +45,16 @@
 
     <div class="row">
         <div class="span12">
-          <p>Thank you for attending "{{ party.title }}" on {{ party.event_date|date:"F j, o" }} and for ordering wine.</p>
+          <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
+          
+          {% if placed_order %}
+            <p>Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.</p>
+          {% else %}
+            <p>It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It’s easy, convenient, and delicious.</p>
 
-          <p>You can always visit our site and <a href="{% url start_order party.id %}">order more wine</a> later or become a VIP by 
-            <a href="{% url start_order party.id %}">subscribing</a> for amazing wine selections.</p>
-
+            <p>Again, thanks so much for coming!</p>
+          {% endif %}
+          
           {% if form.custom_message.value %}
             <h2>Personalized Message</h2>
             <div class="alert control-group">

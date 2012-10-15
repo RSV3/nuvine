@@ -1297,7 +1297,16 @@ def party_send_thanks_note(request):
       note_sent = form.save()
       party = note_sent.party
       # send e-mails
-      distribute_party_thanks_note_email(request, note_sent)
+      guests = request.POST.getlist("guests")
+      invitees = PartyInvite.objects.filter(invitee__id__in = guests, party=party)
+      orders = Order.objects.filter(cart__party=party)
+      buyers = invitees.filter(invitee__in = [x.receiver for x in orders])
+      non_buyers = invitees.exclude(invitee__in = [x.receiver for x in orders])
+      if non_buyers:
+        distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
+      if buyers:
+        distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
+
       messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 

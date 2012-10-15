@@ -411,24 +411,24 @@ def send_mentee_assigned_notification_email(request, mentor, mentee):
   msg.attach_alternative(html_msg, "text/html")
   msg.send() 
 
-def distribute_party_thanks_note_email(request, note_sent):
+def distribute_party_thanks_note_email(request, note_sent, guests, placed_order):
   template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-
+  
   c = RequestContext( request, {"party": note_sent.party,
               "custom_message": note_sent.custom_message,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               "invite_host_email": request.user.email, 
-              "host_name": request.get_host(), 
+              "host_name": request.get_host(), "placed_order":placed_order,
               "plain":True})
   txt_message = txt_template.render(c)
   c.update({'sig':True, 'plain':False})
   html_message = html_template.render(c)
 
   recipients = []
-  for guest in note_sent.guests.all():
-    recipients.append(guest.email)
+  for invite in guests:
+    recipients.append(invite.invitee.email)
 
   # send out party invitation e-mail
   subject = note_sent.custom_subject

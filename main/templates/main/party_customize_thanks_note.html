@@ -38,19 +38,29 @@
         </div>
       </div>
 
-      <hr />
+      <!-- <hr /> -->
 
       <div class="row">
         <div class="span12">
-          <p>Thank you for attending our wine tasting party on {{ party.event_date|date:"F j, o" }} and for ordering wine.</p>
+          <div class="page-header">
+          Sent to those that placed orders
+          </div>
+          <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
+          <p>Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.</p>
 
-          <p>You can always visit our site and <a href="#">order more wine</a> later or become a VIP by <a href="#">subscribing</a> for amazing wine selections.</p>
+          <div class="page-header">
+          Sent to those that never placed orders
+          </div>
+          <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
+          <p>It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It’s easy, convenient, and delicious.</p>
 
+          <p>Again, thanks so much for coming!</p>
+          <hr />
           <div class="control-group">
             <div class="controls">
               {{ form.custom_message }}
             </div>
-        </div>
+          </div>
         </div>
       </div>
 
@@ -63,8 +73,8 @@
         <div class="span12">
           <div class="form-actions">
             <div class="controls">
-              <input class="btn btn-primary" type="submit" name="send" value="Send Note">
-              <input class="btn btn-warning" type="submit" name="preview" value="Preview Note">
+              <input class="btn btn-primary" type="submit" name="send" value="Send Message">
+              <!-- <input class="btn btn-warning" type="submit" name="preview" value="Preview Note"> -->
             </div>
         </div>
         </div>

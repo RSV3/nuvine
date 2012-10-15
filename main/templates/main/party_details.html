@@ -149,9 +149,11 @@
         {% endfor %}
         </tbody>
       </table>
+      {% if can_order_kit %}
       <div class="control-group">
         <button type="submit" class="btn btn-success btn-large">Send Invite</button> <span class="alert">Please select guests from the above list and send your personalized invitation.</span>
       </div>
+      {% endif %}
     </form>
   </section>
   <div class="vertical-space-bottom">

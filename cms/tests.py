@@ -757,20 +757,25 @@ class SimpleTest(TestCase):
 
     {% load static %}
 
-    Thank you for attending "{{ party.title }}" on {{ party.event_date|date:"F j, o" }} and for ordering wine.
+    Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.
 
-    You can always visit our site and <a href="{% url start_order party.id %}">order more wine</a> later or become a VIP by 
-    <a href="{% url start_order party.id %}">subscribing</a> for our amazing wine selections.
+    {% if placed_order %}
+        Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.
+    {% else %}
+        It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It’s easy, convenient, and delicious.
+
+        Again, thanks so much for coming!
+    {% endif %}
 
     {% if custom_message %}
-    {{ custom_message }}
+        {{ custom_message }}
     {% endif %}
 
     {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
-    Your Tasteful Friends,
+    Tastefully,
 
-    - The Vinely Team
+    - {{ party.host.first_name }} {{ party.host.last_name }}
 
     """
     template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
