@@ -23,7 +23,7 @@ def list_emails(request):
 
   emails = Email.objects.all().order_by('-timestamp')
 
-  page_num = request.GET.get('p', 0)
+  page_num = request.GET.get('p', 1)
   paginator = Paginator(emails, 10)
   try:
     page = paginator.page(page_num)
