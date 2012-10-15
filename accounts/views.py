@@ -333,6 +333,7 @@ def sign_up(request, account_type):
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
     ok = check_zipcode(profile.zipcode)
     if not ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
