@@ -374,6 +374,8 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
     else:
       initial_data['email'] = email
+    
+    initial_data['party'] = party
 
     form = AllWineRatingsForm(request.POST or None, initial=initial_data)
     if form.is_valid():

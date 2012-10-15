@@ -105,6 +105,7 @@ def home(request):
         if today > party_date:
           # set if the party was hosted in the past
           data['party_date'] = party_date
+          data['party'] = parties[0].party
         else:
           # set if this is an upcoming party
           data['party_scheduled'] = True

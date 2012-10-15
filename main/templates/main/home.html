@@ -14,7 +14,9 @@
   {% if pro %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
-    <li><div class="chev"><a href="{% url record_all_wine_ratings %}">Record Wine Ratings</a></div></li>
+    {% if party %}
+      <li><div class="chev"><a href="{% url record_all_wine_ratings user.email party.id %}">Record Wine Ratings</a></div></li>
+    {% endif %}
     <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>

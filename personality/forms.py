@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from emailusernames.utils import create_user, create_superuser
+from django.utils import timezone
+from main.models import PartyInvite
 
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, SurveyWine
 
@@ -87,6 +89,10 @@ class AllWineRatingsForm(forms.Form):
   wine6_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
   wine6_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
 
+  def __init__(self, *args, **kwargs):
+    super(AllWineRatingsForm, self).__init__(*args, **kwargs)
+    self.initial = kwargs['initial']
+
   def save(self):
 
     results = []
@@ -98,6 +104,19 @@ class AllWineRatingsForm(forms.Form):
       # create new user
       user = create_user(email=data['email'].lower(), password='welcome')
       user.is_active = False
+
+      # link them to party and RSVP
+      party = self.initial.get('party')
+      today = timezone.now()
+      try:
+        invite = PartyInvite.objects.get(party=party, invitee=user)
+        invite.response = 3
+        invite.response_timestamp = today
+        invite.save()
+      except PartyInvite.DoesNotExist:
+        # if doest exist then create
+        PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
+                                  response=3, response_timestamp=today)
 
     if data['first_name']:
       user.first_name = data['first_name']
