@@ -397,6 +397,14 @@ legend {
  .product-badge.from-220 {
     background: url('../img/btn_pie_from220.png') no-repeat right top;
  }
+ .product-badge.from-120 {
+    background: url('../img/btn_pie_from120.png') no-repeat right top;
+ }
+
+.product-badge.from-225 {
+    background: url('../img/btn_pie_from225.png') no-repeat right top;
+ }
+ 
  .product-description {
   width: 300px;
   margin-top: 15px;
