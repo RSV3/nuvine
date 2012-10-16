@@ -8,9 +8,9 @@ from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote
-from accounts.models import Address 
+from accounts.models import Address
 
-import uuid
+import uuid, string
 
 
 valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
@@ -62,7 +62,7 @@ class PartyCreateForm(forms.ModelForm):
     try:
       user = User.objects.get(email=host_email)
         # check if host is not a pro
-      pro_group = Group.objects.get(name="Vinely Pro") 
+      pro_group = Group.objects.get(name="Vinely Pro")
       if pro_group in user.groups.all():
         self._errors['email'] = "The host e-mail is associated with a Vinely Pro and cannot host a party."
     except User.DoesNotExist:
@@ -119,12 +119,12 @@ class PartyCreateForm(forms.ModelForm):
       del self._errors['title']
 
     if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
-      cleaned_data['event_date'] = "%s %s"%(cleaned_data['event_day'], cleaned_data['event_time'])
+      cleaned_data['event_date'] = "%s %s" % (cleaned_data['event_day'], cleaned_data['event_time'])
       del self._errors['event_date']
     else:
       raise forms.ValidationError("Party date and time are required.")
 
-    return cleaned_data 
+    return cleaned_data
 
 class PartyInviteTasterForm(forms.ModelForm):
   """
@@ -147,7 +147,7 @@ class PartyInviteTasterForm(forms.ModelForm):
   def clean(self):
     cleaned_data = super(PartyInviteTasterForm, self).clean()
 
-    if 'invitee' not in cleaned_data: 
+    if 'invitee' not in cleaned_data:
       # create new host and return host ID
       try:
         user = User.objects.get(email=cleaned_data['email'].lower())
@@ -164,7 +164,7 @@ class PartyInviteTasterForm(forms.ModelForm):
         user.groups.add(att_group)
         user.save()
 
-      cleaned_data['invitee'] = user 
+      cleaned_data['invitee'] = user
       del self._errors['invitee']
 
     if 'party' in cleaned_data and 'invitee' in cleaned_data:
@@ -193,23 +193,23 @@ class VinelyProSignupForm(EmailUserCreationForm):
   def clean_phone(self):
     data = self.cleaned_data['phone']
     table = string.maketrans("", "")
-    stripped_phone = data.translate(table, string.punctuation+string.whitespace)
+    stripped_phone = data.translate(table, string.punctuation + string.whitespace)
     if (stripped_phone[0] == 1 and len(stripped_phone) != 11) or len(stripped_phone) != 10:
       raise forms.ValidationError("US phone number is invalid")
 
     return stripped_phone
 
   def save(self, commit=True):
-    instance = super(VinelyProSignUpForm, self).save(commit)
+    instance = super(VinelyProSignupForm, self).save(commit)
 
     try:
-      address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
+      address = Address.objects.get(street1=self.cleaned_data['street1'], street2=self.cleaned_data['street2'], city=self.cleaned_data['city'], state=self.cleaned_data['state'], zipcode=self.cleaned_data['zipcode'])
     except Address.DoesNotExist:
-      address = Address(street1=cleaned_data['street1'],
-                        street2=cleaned_data['street2'],
-                        city=cleaned_data['city'],
-                        state=cleaned_data['state'],
-                        zipcode=cleaned_data['zipcode'])
+      address = Address(street1=self.cleaned_data['street1'],
+                        street2=self.cleaned_data['street2'],
+                        city=self.cleaned_data['city'],
+                        state=self.cleaned_data['state'],
+                        zipcode=self.cleaned_data['zipcode'])
       address.save()
 
     return instance
@@ -220,13 +220,13 @@ class AddWineToCartForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AddWineToCartForm, self).__init__(*args, **kwargs)
-    self.fields['quantity'].widget = forms.Select() 
-    self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')] 
+    self.fields['quantity'].widget = forms.Select()
+    self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')]
     self.fields['product'].widget = forms.HiddenInput()
     self.fields['total_price'].widget = forms.HiddenInput()
 
   class Meta:
-    model = LineItem 
+    model = LineItem
     exclude = ['sku']
 
   def clean(self):
@@ -245,10 +245,10 @@ class AddWineToCartForm(forms.ModelForm):
         price_category = 8
     elif cleaned_data['level'] == "divine":
       if quantity == 1:
-        price_category = 9 
+        price_category = 9
       elif quantity == 2:
-        price_category = 10 
-      
+        price_category = 10
+
     cleaned_data['price_category'] = price_category
     del self._errors['price_category']
 
@@ -257,7 +257,7 @@ class AddWineToCartForm(forms.ModelForm):
 class AddTastingKitToCartForm(forms.ModelForm):
   product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]))
   #quantity = forms.ChoiceField(choices=((0, 1), (1, 2)))
-  
+
   def __init__(self, *args, **kwargs):
     super(AddTastingKitToCartForm, self).__init__(*args, **kwargs)
     self.fields['total_price'].widget = forms.HiddenInput()
@@ -265,14 +265,14 @@ class AddTastingKitToCartForm(forms.ModelForm):
     self.fields['price_category'].widget = forms.HiddenInput()
     #self.fields['quantity'].widget = forms.HiddenInput()
     self.fields['quantity'].widget = forms.Select()
-    self.fields['quantity'].widget.choices = [(1, 1), (2, 2)] 
+    self.fields['quantity'].widget.choices = [(1, 1), (2, 2)]
 
   class Meta:
-    model = LineItem 
+    model = LineItem
 
   def clean(self):
     cleaned_data = super(AddTastingKitToCartForm, self).clean()
-    cleaned_data['price_category'] = 11 
+    cleaned_data['price_category'] = 11
     cleaned_data['frequency'] = 0
 
     return cleaned_data
@@ -297,7 +297,7 @@ class ShippingForm(forms.ModelForm):
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
   city = forms.CharField(label="City", max_length=64)
-  state = us_forms.USStateField() #choices=us_states.STATE_CHOICES)
+  state = us_forms.USStateField()  #choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
   email = forms.EmailField(help_text="A new account will be created using this e-mail address if not an active account")
@@ -314,7 +314,7 @@ class ShippingForm(forms.ModelForm):
     try:
       # existing user
       user = User.objects.get(email=data['email'].lower())
-      if not user.first_name: 
+      if not user.first_name:
         user.first_name = data['first_name']
       if not user.last_name:
         user.last_name = data['last_name']
@@ -323,7 +323,7 @@ class ShippingForm(forms.ModelForm):
     except User.DoesNotExist:
       # create user if it doesn't exist
       user = create_user(email=data['email'].lower(), password='welcome')
-      user.is_active = False 
+      user.is_active = False
       user.first_name = data['first_name']
       user.last_name = data['last_name']
       user.save()
@@ -360,7 +360,7 @@ class CustomizeInvitationForm(forms.ModelForm):
     super(CustomizeInvitationForm, self).__init__(*args, **kwargs)
     self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5})
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5})
 
 class CustomizeThankYouNoteForm(forms.ModelForm):
 
@@ -374,7 +374,7 @@ class CustomizeThankYouNoteForm(forms.ModelForm):
     super(CustomizeThankYouNoteForm, self).__init__(*args, **kwargs)
     self.fields['custom_subject'].widget.attrs['class'] = 'span5'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows':5, 'placeholder':'Your custom thank you note.'})
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
 
 class OrderFulfillForm(forms.ModelForm):
 
@@ -386,4 +386,4 @@ class OrderFulfillForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(OrderFulfillForm, self).__init__(*args, **kwargs)
     self.fields['order_id'].widget = forms.HiddenInput()
-    
+
