@@ -26,6 +26,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
+from accounts.forms import VerifyEligibilityForm
 
 import json, uuid, math
 from datetime import datetime, timedelta
@@ -1199,6 +1200,21 @@ def party_rsvp(request, party_id, response=None):
     invite = PartyInvite.objects.get(party=party, invitee=u)
   except PartyInvite.DoesNotExist:
     raise Http404
+
+  profile = u.get_profile()
+  
+  form = VerifyEligibilityForm(request.POST or None, instance=profile)
+  print form.errors
+  form.fields['mentor'].widget = forms.HiddenInput()
+  form.fields['gender'].widget = forms.HiddenInput()
+  if form.is_valid():
+    # profile = form.save(commit=False)
+    # profile = u.get_profile()
+    profile = User.objects.get(id = u.id).get_profile()
+    profile.dob = form.cleaned_data['dob']
+    profile.save()
+
+  data['form'] = form
 
   # if user has not entered DOB ask them to do this first
   if response and u.get_profile().is_under_age():

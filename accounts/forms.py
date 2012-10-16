@@ -81,7 +81,7 @@ class VerifyEligibilityForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
     self.fields['dob'].widget.attrs['class'] = 'datepicker'
-    self.fields['dob'].widget.attrs['placeholder'] = 'yyyy-mm-dd'
+    self.fields['dob'].widget.attrs['placeholder'] = 'mm/dd/yyyy'
     self.fields['user'].widget = forms.HiddenInput()
 
   def clean(self):
@@ -252,7 +252,8 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
       except User.DoesNotExist:
         raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
-    cleaned['email'] = cleaned['email'].strip().lower()
+    if cleaned.get('email'):
+      cleaned['email'] = cleaned['email'].strip().lower()
     cleaned['mentor'] = mentor_email
     return cleaned
 
