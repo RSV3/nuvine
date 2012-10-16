@@ -476,5 +476,5 @@ class ProSignupLog(models.Model):
 
   new_pro = models.ForeignKey(User)
   mentor = models.ForeignKey(User, blank=True, null=True, related_name="new_mentees")
-  mentor_email = models.CharField(max_length=75, blank=True, null=True)
+  mentor_email = models.CharField(max_length=75, blank=True, null=True, verbose_name="Typed Mentor Email")
   timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Pro Request Date")

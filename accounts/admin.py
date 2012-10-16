@@ -9,6 +9,8 @@ from accounts.models import UserProfile, VinelyProAccount
 from accounts.utils import send_pro_approved_email
 from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
 
+from main.models import MyHost
+
 from emailusernames.admin import EmailUserAdmin
 
 def approve_pro(modeladmin, request, queryset):
@@ -21,7 +23,7 @@ def approve_pro(modeladmin, request, queryset):
       pro_account_number = generate_pro_account_number()
       account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
       account.users.add(user)
-      
+
     # TODO: need to send out e-mail to the user
     send_pro_approved_email(request, user)
 
@@ -36,6 +38,27 @@ def remove_pro_privileges(modeladmin, request, queryset):
 
 remove_pro_privileges.short_description = "Remove Vinely Pro permissions for selected users"
 
+def change_to_host(modeladmin, request, queryset):
+  for obj in queryset:
+    user = obj.user
+    user.groups.clear()
+    host_group = Group.objects.get(name="Vinely Host")
+    user.groups.add(host_group)
+    try:
+      MyHost.objects.get(host=user)
+    except MyHost.DoesNotExist:
+      MyHost.objects.create(pro=None, host=user)
+
+change_to_host.short_description = "Change user to a host"
+
+def change_to_taster(modeladmin, request, queryset):
+  for obj in queryset:
+    user = obj.user
+    user.groups.clear()
+    taster_group = Group.objects.get(name="Vinely Taster")
+    user.groups.add(taster_group)
+
+change_to_taster.short_description = "Change user to a taster"
 
 class MentorAssignedFilter(SimpleListFilter):
 
@@ -63,7 +86,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
-  actions = [approve_pro, remove_pro_privileges]
+  actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster]
 
   def user_image(self, instance):
     if instance.image:
@@ -87,19 +110,18 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
 
   def user_type(self, instance):
-    if instance.user.groups.all().count() > 0:
+    try:
       group = instance.user.groups.all()[0]
       return group.name
-    else:
+    except IndexError:
       return "Unassigned"
 
   def pro_number(self, instance):
-    acc = instance.user.vinelyproaccount_set.all()
-    return "".join([u.account_number for u in acc])
+    return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance.user)])
 
   def save_model(self, request, obj, form, change):
     old_profile = UserProfile.objects.get(id=obj.pk)
-    if obj.mentor != old_profile.mentor: 
+    if obj.mentor != old_profile.mentor:
       # new pro was assigned, so send e-mail to the host
       send_mentor_assigned_notification_email(request, obj.user, obj.mentor)
       send_mentee_assigned_notification_email(request, obj.mentor, obj.user)
@@ -111,8 +133,8 @@ admin.site.unregister(User)
 
 class VinelyUserAdmin(EmailUserAdmin):
 
-  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number') 
-  list_filter = ('groups', 'is_active' )
+  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number')
+  list_filter = ('groups', 'is_active')
 
   def user_type(self, instance):
     if instance.groups.all().count() > 0:
@@ -120,13 +142,12 @@ class VinelyUserAdmin(EmailUserAdmin):
       return group.name
     else:
       return "No group"
-      
+
   def zipcode(self, instance):
-    zipcode_str = instance.get_profile().zipcode 
+    zipcode_str = instance.get_profile().zipcode
     return zipcode_str
 
   def pro_number(self, instance):
-    acc = instance.vinelyproaccount_set.all()
-    return "".join([u.account_number for u in acc])    
+    return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance)])
 
 admin.site.register(User, VinelyUserAdmin)

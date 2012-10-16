@@ -270,7 +270,7 @@ def how_it_works(request):
   data['how_it_works'] = sections.get(category=0).content
   data['heading'] = sections.get(category=4).content
   data['sub_heading'] = sections.get(category=5).content
-  
+
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
 
