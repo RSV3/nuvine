@@ -75,6 +75,7 @@
 
 # In order to deploy static files
 
+  * You run these commands from your local machine, not from staging or prod
   * Edit winedora/settings_debug.py and set DEBUG = False
   * Run the following to sync static files with Amazon s3:
     
