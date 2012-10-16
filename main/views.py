@@ -1204,13 +1204,12 @@ def party_rsvp(request, party_id, response=None):
   profile = u.get_profile()
   
   form = VerifyEligibilityForm(request.POST or None, instance=profile)
-  print form.errors
   form.fields['mentor'].widget = forms.HiddenInput()
   form.fields['gender'].widget = forms.HiddenInput()
   if form.is_valid():
     # profile = form.save(commit=False)
     # profile = u.get_profile()
-    profile = User.objects.get(id = u.id).get_profile()
+    profile = User.objects.get(id=u.id).get_profile()
     profile.dob = form.cleaned_data['dob']
     profile.save()
 
@@ -1251,8 +1250,6 @@ def party_customize_invite(request):
   if request.method == 'POST':
     guests = request.POST.getlist('guests')
     party = Party.objects.get(id=request.POST.get('party'))
-    #print "Selected guests:", guests
-
     form = CustomizeInvitationForm()
     form.initial = {'party': party}
     data["party"] = party
@@ -1302,7 +1299,6 @@ def party_send_thanks_note(request):
 
   # send invitation
   form = CustomizeThankYouNoteForm(request.POST or None)
-  print form.errors
   if form.is_valid():
     num_guests = len(request.POST.getlist("guests"))
     if form.cleaned_data['preview']:

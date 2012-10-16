@@ -420,7 +420,7 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
               "custom_message": note_sent.custom_message,
               "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               "invite_host_email": request.user.email, 
-              "host_name": request.get_host(), "placed_order":placed_order,
+              "host_name": request.get_host(), "placed_order": placed_order,
               "plain":True})
   txt_message = txt_template.render(c)
   c.update({'sig':True, 'plain':False})

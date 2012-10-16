@@ -219,8 +219,8 @@ ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify y
 
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
-  zipcode = forms.CharField(max_length=20)
-  phone_number = forms.CharField(max_length=20, required=False)
+  zipcode = us_forms.USZipCodeField() #forms.CharField(max_length=20)
+  phone_number = us_forms.USPhoneNumberField(required=False)
 
   def __init__(self, *args, **kwargs):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
