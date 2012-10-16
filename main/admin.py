@@ -3,7 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from main.models import MyHost, ProSignupLog, EngagementInterest
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -80,6 +80,18 @@ class EngagementInterestAdmin(admin.ModelAdmin):
   def user_info(self, instance):
     return "%s %s <%s>" % (instance.user.first_name, instance.user.last_name, instance.user.email)
 
+
+class PartyAdmin(admin.ModelAdmin):
+  list_display = ['title', 'event_date', 'host_info', 'description', 'address', 'created']
+  raw_id_fields = ['host']
+  #list_editable = ['host']
+  search_fields = ['title', 'host__first_name', 'host__last_name']
+  ordering = ['-event_date']
+
+  def host_info(self, instance):
+    return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
 admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
+admin.site.register(Party, PartyAdmin)
