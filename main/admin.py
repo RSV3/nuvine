@@ -58,8 +58,10 @@ class MyHostAdmin(admin.ModelAdmin):
 
 
 class ProSignupLogAdmin(admin.ModelAdmin):
-  list_display = ['new_pro_info', 'mentor_info', 'mentor_email']
+  list_display = ['new_pro_info', 'mentor', 'mentor_info', 'mentor_email']
   ordering = ['-timestamp']
+  raw_id_fields = ['mentor']
+  list_editable = ['mentor']
 
   def new_pro_info(self, instance):
     return "%s %s <%s>" % (instance.new_pro.first_name, instance.new_pro.last_name, instance.new_pro.email)
