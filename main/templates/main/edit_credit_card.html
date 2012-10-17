@@ -19,84 +19,106 @@
         {% csrf_token %}
 
         <fieldset>
-        <div class="control-group{% if form.card_number.errors %} error{% endif %}">
-          <div class="control-label">Card Number</div>
-          <div class="controls">
-            <input type="text" size="20" autocomplete="off" class="card-number" />
-          </div>
-        </div>
+          {% if use_stripe %}
+            <div class="control-group">
+              <div class="control-label">Card Number</div>
+              <div class="controls">
+                <input type="text" size="20" autocomplete="off" class="card-number" />
+              </div>
+            </div>
 
-        <div class="control-group{% if form.exp_month.errors or form.exp_year.errors %} error{% endif %}">
-          <div class="control-label">Expiration Date</div>
-          <div class="controls">
-          <input type="text" size="2" class="card-expiry-month span1" maxlength="2" placeholder="MM" />
-          <input type="text" size="4" class="card-expiry-year span1" maxlength="4" placeholder="YYYY" />
-            {% if form.exp_month.errors %}
-              <span class="help-inline">
-                {{ form.exp_month.errors }}
-              </span>
-            {% endif %}
-            {% if form.exp_year.errors %}
-              <span class="help-inline">
-                {{ form.exp_year.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
+            <div class="control-group">
+              <div class="control-label">Expiration Date</div>
+              <div class="controls">
+                <input type="text" size="2" class="card-expiry-month span1" maxlength="2" placeholder="MM" />
+                <input type="text" size="4" class="card-expiry-year span1" maxlength="4" placeholder="YYYY" />
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="control-label">CVC Number</div>
+              <div class="controls">
+                <input type="password" size="4" autocomplete="off" class="card-cvc" />
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="control-label">Zipcode</div>
+              <div class="controls">
+                <input type="text" size="4" class="card-address-zip span1" />
+              </div>
+            </div>            
+          {% else %}
+            {{ form.card_type }}
+            <div class="control-group{% if form.card_number.errors %} error{% endif %}">
+              <div class="control-label" for="id_card_number">{{ form.card_number.label }}</div>
+              <div class="controls">
+                {{ form.card_number}} 
+                {% if form.card_number.errors %}
+                  <span class="help-inline">
+                    {{ form.card_number.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
 
-        <div class="control-group{% if form.verification_code.errors %} error{% endif %}">
-          <div class="control-label" for="id_verification_code">CVC Number</div>
-          <div class="controls">
-            <input type="password" size="4" autocomplete="off" class="card-cvc" />
-            {% if form.verification_code.errors %}
-              <span class="help-inline">
-                {{ form.verification_code.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-<!-- 
-        <div class="control-group{% if form.billing_zipcode.errors %} error{% endif %}">
-          <div class="control-label" for="id_billing_zipcode">{{ form.billing_zipcode.label }}</div>
-          <div class="controls">
-            {{ form.billing_zipcode}} 
-            {% if form.billing_zipcode.errors %}
-              <span class="help-inline">
-                {{ form.billing_zipcode.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
+            <div class="control-group{% if form.exp_month.errors or form.exp_year.errors %} error{% endif %}">
+              <div class="control-label" for="id_exp_month">{{ form.exp_month.label }}</div>
+              <div class="controls">
+                {{ form.exp_month}} {{ form.exp_year }}
+                {% if form.exp_month.errors %}
+                  <span class="help-inline">
+                    {{ form.exp_month.errors }}
+                  </span>
+                {% endif %}
+                {% if form.exp_year.errors %}
+                  <span class="help-inline">
+                    {{ form.exp_year.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group{% if form.verification_code.errors %} error{% endif %}">
+              <div class="control-label" for="id_verification_code">{{ form.verification_code.label }}</div>
+              <div class="controls">
+                {{ form.verification_code}} 
+                {% if form.verification_code.errors %}
+                  <span class="help-inline">
+                    {{ form.verification_code.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
 
-        <div class="control-group{% if form.save_card.errors %} error{% endif %}">
-          <div class="controls">
-            <label class="checkbox">
-            {{ form.save_card}} 
-            {{ form.save_card.label }}
-            {% if form.save_card.errors %}
-              <span class="help-inline">
-                {{ form.save_card.errors }}
-              </span>
-            {% endif %}
-            </label>
-          </div>
-        </div>
+            <div class="control-group{% if form.billing_zipcode.errors %} error{% endif %}">
+              <div class="control-label" for="id_billing_zipcode">{{ form.billing_zipcode.label }}</div>
+              <div class="controls">
+                {{ form.billing_zipcode}} 
+                {% if form.billing_zipcode.errors %}
+                  <span class="help-inline">
+                    {{ form.billing_zipcode.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
 
-        {% if update %}
-        <div class="form-actions">
-          <a href="{% url place_order %}" class="btn">Cancel</a>  
-          <input class="btn btn-primary" type="submit" value="Update">
-        </div>
-        {% else %}
-        <div class="form-actions">
-          <input class="btn btn-primary" type="submit" value="Place Order">
-        </div>
-        {% endif %}
-         -->
-        <div class="form-actions">
-          <button class="btn btn-primary submit-button">Place Order</button>
-          <!-- <button type="submit" class="btn btn-primary submit-button">Submit Payment</button> -->
-        </div>
+            <div class="control-group{% if form.save_card.errors %} error{% endif %}">
+              <div class="controls">
+                <label class="checkbox">
+                {{ form.save_card}} 
+                {{ form.save_card.label }}
+                {% if form.save_card.errors %}
+                  <span class="help-inline">
+                    {{ form.save_card.errors }}
+                  </span>
+                {% endif %}
+                </label>
+              </div>
+            </div>          
+          {% endif %}
+
+          <div class="form-actions">
+            <button class="btn btn-primary submit-button">Place Order</button>
+            <!-- <button type="submit" class="btn btn-primary submit-button">Submit Payment</button> -->
+          </div>
         </fieldset>
       </form>
     </div>
@@ -107,57 +129,61 @@
 
 {% endblock %}
 {% block additional_scripts %}
-  <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
-  <!-- jQuery is used only for this example; it isn't required to use Stripe -->
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-
   <script type="text/javascript">
-  	$(".payment-errors").hide();
-
-    // this identifies your website in the createToken call below
-    Stripe.setPublishableKey('{{ publish_token }}');
-
-    function stripeResponseHandler(status, response) {
-      if (response.error) {
-        // re-enable the submit button
-        $('.submit-button').removeAttr("disabled");
-        // show the errors on the form
-        $(".payment-errors").text(response.error.message);
-        $(".payment-errors").show();
-      } else {
-        var form$ = $("#payment-form");
-        // token contains id, last4, and card type
-        var token = response['id'];
-        var card = response['card'];
-
-        // insert the token into the form so it gets submitted to the server
-        form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-        form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
-        form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
-        form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
-        form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
-        // and submit
-        form$.get(0).submit();
-      }
-    }
-
-    $(document).ready(function() {
-      $("#payment-form").submit(function(e) {
-        // disable the submit button to prevent repeated clicks
-        $('.submit-button').attr("disabled", "disabled");
-        // createToken returns immediately - the supplied callback submits the form if there are no errors
-        Stripe.createToken({
-          number: $('.card-number').val(),
-          cvc: $('.card-cvc').val(),
-          exp_month: $('.card-expiry-month').val(),
-          exp_year: $('.card-expiry-year').val()
-        }, stripeResponseHandler);
-        return false; // submit from callback
-      });
-    });
-
-    if (window.location.protocol === 'file:') {
-        alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
-    }
+    $(".payment-errors").hide();
   </script>
+
+  {% if use_stripe %}
+    <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+    <script type="text/javascript">
+
+      // this identifies your website in the createToken call below
+      Stripe.setPublishableKey('{{ publish_token }}');
+
+      function stripeResponseHandler(status, response) {
+        if (response.error) {
+          // re-enable the submit button
+          $('.submit-button').removeAttr("disabled");
+          // show the errors on the form
+          $(".payment-errors").text(response.error.message);
+          $(".payment-errors").show();
+        } else {
+          var form$ = $("#payment-form");
+          // token contains id, last4, and card type
+          var token = response['id'];
+          var card = response['card'];
+
+          // insert the token into the form so it gets submitted to the server
+          form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+          form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
+          form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
+          form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
+          form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
+          form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+          // and submit
+          form$.get(0).submit();
+        }
+      }
+
+      $(document).ready(function() {
+        $("#payment-form").submit(function(e) {
+          // disable the submit button to prevent repeated clicks
+          $('.submit-button').attr("disabled", "disabled");
+          // createToken returns immediately - the supplied callback submits the form if there are no errors
+          Stripe.createToken({
+            number: $('.card-number').val(),
+            cvc: $('.card-cvc').val(),
+            exp_month: $('.card-expiry-month').val(),
+            exp_year: $('.card-expiry-year').val(),
+            address_zip: $('.card-address-zip').val()
+          }, stripeResponseHandler);
+          return false; // submit from callback
+        });
+      });
+
+      if (window.location.protocol === 'file:') {
+          alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+      }
+    </script>
+  {% endif %}
 {% endblock additional_scripts %}

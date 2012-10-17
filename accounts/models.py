@@ -283,4 +283,4 @@ class Zipcode(models.Model):
   latitude = models.CharField(max_length = 20)
   longitude = models.CharField(max_length = 20)
 
-SUPPORTED_STATES = ['MI', 'CA']
+SUPPORTED_STATES = ['MI', 'CA', 'MA']
