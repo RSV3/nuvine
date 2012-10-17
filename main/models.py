@@ -258,9 +258,18 @@ class Cart(models.Model):
 
   def shipping(self):
     shipping = 0
+    # for item in self.items.all():
+    #   # always $16 - August 2, 2012
+    #   shipping += 16
     for item in self.items.all():
-      # always $16 - August 2, 2012
-      shipping += 16
+      if (item.price_category in [5,7,9]) or ((item.price_category == 11) and (item.quantity == 1)):
+        # half case or single tasting kit
+        shipping += 16
+      else:
+          # full case or 2 tasting kits
+        shipping += 32
+      return shipping
+
       """
       if item.price_category in [5, 6, 8]:
         # add shipping for good half, full, better half case

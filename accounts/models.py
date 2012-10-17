@@ -242,6 +242,14 @@ class VinelyProAccount(models.Model):
 class SubscriptionInfo(models.Model):
   user = models.ForeignKey(User)
 
+  # matrix of frequency x quantity 
+  STRIPE_PLAN = (
+    ('', ), # one time purchase
+    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly'), # monthly
+    ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'), # bimonthly
+    ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'), # quarterly
+  )
+
   FREQUENCY_CHOICES = (
     (0, 'One-time purchase'),
     (1, 'Monthly'),

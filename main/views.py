@@ -444,21 +444,13 @@ def cart_add_wine(request, level="x"):
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
     
-    # add line item to cart
+    # hold on adding line item to cart until after verification theres no multiple subscription
     item = form.save(commit=False)
-    # can only order make one subscription at a time
-    if (item.frequency in [1,2,3]) and cart.items.filter(frequency__in=[1,2,3]).exists():
-      alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
-      messages.error(request, alert_msg)
-      return HttpResponseRedirect('.')
-
-    item.total_price = item.subtotal()
-    item.save()
 
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
-      cart.items.add(item)
-      cart.save()
+      # cart.items.add(item)
+      # cart.save()
     else:
       # create new cart
       if u.is_authenticated():
@@ -467,8 +459,19 @@ def cart_add_wine(request, level="x"):
         # anonymous cart
         cart = Cart()
       cart.save()
-      cart.items.add(item)
       request.session['cart_id'] = cart.id
+
+    # can only order make one subscription at a time
+    if (item.frequency in [1,2,3]) and cart:
+      if cart.items.filter(frequency__in=[1,2,3]).exists():
+        alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
+        messages.error(request, alert_msg)
+        return HttpResponseRedirect('.')
+
+    # save item and add to cart after verifying no other item in cart
+    item.total_price = item.subtotal()
+    item.save()    
+    cart.items.add(item)
 
     # udpate cart status
     if party:
@@ -479,11 +482,8 @@ def cart_add_wine(request, level="x"):
 
     # notify user if they are already subscribed and that a new subscription will cancel the existing
     if cart.items.filter(frequency__in=[1,2,3]).exists():
-      try:
-        subscription = SubscriptionInfo.objects.get(user=u, frequency__in = [1,2,3])
+      if SubscriptionInfo.objects.filter(user=u, frequency__in = [1,2,3]):
         messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
-      except SubscriptionInfo.DoesNotExist:
-        pass # nothing to do
 
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))
@@ -692,16 +692,18 @@ def place_order(request):
       # Having these first so that they come last in the stripe invoice.
       stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
       stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
-
-      for item in order.cart.items.all():
-        # both one-time and subscription charged immediately at this point
+      non_sub_orders = order.cart.items.filter(frequency = 0)
+      for item in non_sub_orders:
+        # one-time only charged immediately at this point
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
       # if subscription exists then create plan
       sub_orders = order.cart.items.filter(frequency__in = [1, 2, 3])
       if sub_orders.exists():
+        item = sub_orders[0]
         customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-        customer.update_subscription(plan='half-case-basic')
+        stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category-5]
+        customer.update_subscription(plan=stripe_plan)
 
       # save cart to order
       data["shop_menu"] = True
@@ -1796,9 +1798,10 @@ def edit_credit_card(request):
     stripe_card = receiver.get_profile().stripe_card
     try:
       customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-      if c.deleted: raise Exception('Customer Deleted')
+      if customer.get('deleted'): raise Exception('Customer Deleted')
       stripe_user_id = customer.id
     except:
+      print 'creating another stripe customer'
       # no customer record so create on stripe
       try:
         customer = stripe.Customer.create(card=stripe_token, email=u.email)
