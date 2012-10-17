@@ -439,16 +439,22 @@ def cart_add_wine(request, level="x"):
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
-      if cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0]).exists():
+      if cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0]).exists():
         alert_msg = 'A tasting kit is already in your cart.  Either clear it from your <a href="%s">cart</a> or checkout that order first.' % reverse("cart")
-        messages.error(request, mark_safe(alert_msg))
+        messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
-        #return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
-
+    
     # add line item to cart
-    item = form.save()
+    item = form.save(commit=False)
+    # can only order make one subscription at a time
+    if (item.frequency in [1,2,3]) and cart.items.filter(frequency__in=[1,2,3]).exists():
+      alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
+      messages.error(request, alert_msg)
+      return HttpResponseRedirect('.')
+
     item.total_price = item.subtotal()
     item.save()
+
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.items.add(item)
@@ -470,6 +476,14 @@ def cart_add_wine(request, level="x"):
     cart.status = Cart.CART_STATUS_CHOICES[1][0]
     cart.adds += 1
     cart.save()
+
+    # notify user if they are already subscribed and that a new subscription will cancel the existing
+    if cart.items.filter(frequency__in=[1,2,3]).exists():
+      try:
+        subscription = SubscriptionInfo.objects.get(user=u, frequency__in = [1,2,3])
+        messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
+      except SubscriptionInfo.DoesNotExist:
+        pass # nothing to do
 
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))
@@ -2044,7 +2058,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   if form.is_valid():
     # if user already exists just add them to the event dont save
     try:
-      user = User.objects.get(email=request.POST.get('email').strip())
+      user = User.objects.get(email=request.POST.get('email').strip().lower())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.save()
