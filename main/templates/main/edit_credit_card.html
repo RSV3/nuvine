@@ -37,13 +37,13 @@
             <div class="control-group">
               <div class="control-label">CVC Number</div>
               <div class="controls">
-                <input type="password" size="4" autocomplete="off" class="card-cvc" />
+                <input type="password" size="4" autocomplete="off" class="card-cvc" maxlength="4" />
               </div>
             </div>
             <div class="control-group">
-              <div class="control-label">Zipcode</div>
+              <div class="control-label">Billing zipcode</div>
               <div class="controls">
-                <input type="text" size="4" class="card-address-zip span1" />
+                <input type="text" size="5" class="card-address-zip" />
               </div>
             </div>            
           {% else %}

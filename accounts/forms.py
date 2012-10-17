@@ -138,10 +138,10 @@ class PaymentForm(forms.ModelForm):
     This form is used
   """
   card_number = CreditCardField(required = True, label = "Card Number")
-  exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)])
+  exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)], label="Expiration Date")
   exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
-  verification_code = forms.IntegerField(required = True, label = "CVV Number",
-      max_value = 9999, widget = forms.TextInput(attrs={'size': '4'}))
+  verification_code = forms.IntegerField(required = True, label = "CVC Number",
+      max_value = 9999, widget = forms.PasswordInput())
   billing_zipcode = us_forms.USZipCodeField()
   #save_card = forms.BooleanField(label="Save this card in My Account", required=False)
 
@@ -151,7 +151,7 @@ class PaymentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     self.payment_data = kwargs.pop('payment_data', None)
     super(PaymentForm, self).__init__(*args, **kwargs)
-    self.fields['verification_code'].widget = forms.PasswordInput()
+    # self.fields['verification_code'].widget = forms.PasswordInput()
     self.fields['card_type'].widget = forms.HiddenInput()
 
   def clean(self):

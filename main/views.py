@@ -1794,28 +1794,35 @@ def edit_credit_card(request):
       stripe_token  = request.POST.get('stripe_token')
       stripe_card = receiver.get_profile().stripe_card
 
-      try:
+      try:        
         customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
         if customer.get('deleted'): raise Exception('Customer Deleted')
         stripe_user_id = customer.id
+
+        # makes sure we have the exact same card
+        stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'), 
+                          exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                          card_type=request.POST.get('card_type'))
       except:
-        # no customer record so create on stripe
+        # no record of this customer-card mapping so create
         try:
           customer = stripe.Customer.create(card=stripe_token, email=u.email)
           stripe_user_id = customer.id
+
+          # create on vinely
+          stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                                    exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                    card_type=request.POST.get('card_type'))
+          if created:
+            profile = receiver.get_profile()
+            profile.stripe_card = stripe_card
+            profile.save()
+            profile.stripe_cards.add(stripe_card)
+
         except:
           messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
           return HttpResponseRedirect('.')
 
-      # create on vinely
-      stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
-                                exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                                card_type=request.POST.get('card_type'))
-      if created:
-        profile = receiver.get_profile()
-        profile.stripe_card = stripe_card
-        profile.save()
-        profile.stripe_cards.add(stripe_card)
 
       # update cart status
       cart = Cart.objects.get(id=request.session['cart_id'])
