@@ -1148,8 +1148,13 @@ def party_taster_invite(request, party_id=0):
         raise PermissionDenied
 
   if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all():
+    if u.get_profile().is_host():
+      initial_data = {'host': u}
+    elif u.get_profile().is_pro():
+      initial_data = {'pro': u}
+
     if request.method == "POST":
-      form = PartyInviteTasterForm(request.POST)
+      form = PartyInviteTasterForm(request.POST, initial=initial_data)
       if form.is_valid():
         new_invite = form.save()
         new_invite.invited_by = u
@@ -1182,10 +1187,10 @@ def party_taster_invite(request, party_id=0):
       # if request is GET
       if int(party_id) == 0:
         # unspecified party
-        form = PartyInviteTasterForm()
+        form = PartyInviteTasterForm(initial=initial_data)
       else:
         # specified party
-        initial_data = {'party': party}
+        initial_data.update({'party': party})
         form = PartyInviteTasterForm(initial=initial_data)
 
     if tas_group in u.groups.all():
