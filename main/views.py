@@ -933,7 +933,8 @@ def party_add(request):
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   if request.method == "POST":
-    form = PartyCreateForm(request.POST)
+    initial_data = {'pro': u}
+    form = PartyCreateForm(request.POST, initial=initial_data)
     if form.is_valid():
 
       new_party = form.save()
@@ -1006,7 +1007,7 @@ def party_add(request):
         # if no previous party found, just e-mail sales
         send_host_vinely_party_email(request, u)
 
-    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
+    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
     form = PartyCreateForm(initial=initial_data)
     hos_group = Group.objects.get(name="Vinely Host")
 

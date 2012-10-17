@@ -56,6 +56,12 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_date'].widget = forms.HiddenInput()
     self.fields['description'].required = False
     self.fields['title'].initial = 'First Taste Party'
+    initial = kwargs.get('initial')
+    parties = Party.objects.filter(organizedparty__pro=initial.get('pro'))
+    addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
+    # only show addresses that pro has dealt with before
+    self.fields['address'].queryset = addresses
+
 
   def clean_email(self):
     host_email = self.cleaned_data['email']
