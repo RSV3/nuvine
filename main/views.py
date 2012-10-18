@@ -1616,6 +1616,7 @@ def supplier_edit_order(request, order_id):
 
   receiver = order.receiver
   data["personality"] = receiver.get_profile().wine_personality
+  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
 
   try:
     data["customization"] = CustomizeOrder.objects.get(user=order.receiver)

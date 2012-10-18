@@ -97,10 +97,10 @@
               {% else %}
                 <p>Customizations: Vinely Recommended</p>
                 <p>Bubbles: Yes</p>  
-                {% if personality %}
-                  <p>Personality: <a href="{% url personality_details order.receiver.id %}">{{ personality.name }}</a></p>
+                {% if personality != MYSTERY_PERSONALITY %}
+                  <p>Personality: <a href="{% url personality_details order.receiver.id order.id %}">{{ personality.name }}</a></p>
                 {% else %}
-                  <p>Vinely Personality: None yet</p>
+                  <p>Vinely Personality: Mystery</p>
                 {% endif %}
               {% endif %}
             </div>
