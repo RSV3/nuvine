@@ -1610,6 +1610,9 @@ def supplier_edit_order(request, order_id):
     if item.product.category == 1:
       item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
       # print item.img_file_name
+    # TODO: currently template handles tasting kit images
+    #elif item.product.category == 0:
+    #  item.img_file_name =  
     data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
