@@ -335,6 +335,7 @@ def sign_up(request, account_type):
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
     ok = check_zipcode(profile.zipcode)
+
     if not ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       send_not_in_area_party_email(request, user, account_type)
@@ -342,23 +343,22 @@ def sign_up(request, account_type):
     # if pro, then mentor IS mentor
     if account_type == 1:
       try:
-        # make sure the pro exists
-        pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
+        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
         profile.mentor = pro
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=request.POST.get('mentor'))
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
       except User.DoesNotExist:
-        # mentor e-mail might have been mis-entered 
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=request.POST.get('mentor'))
+        # mentor e-mail was not entered 
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
 
     elif account_type == 2:
       # if host, then set mentor to be the host's pro
       try:
-        # make sure the pro exists
-        pro = User.objects.get(email = request.POST.get('mentor'), groups__in = [pro_group])
+        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
       except User.DoesNotExist:
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=request.POST.get('mentor'))
+        # pro e-mail was not entered 
+        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
 
     profile.save()
 

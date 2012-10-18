@@ -10,8 +10,11 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 
 from accounts.models import VerificationQueue
-
+from main.models import MyHost, ProSignupLog
+from support.models import Email
 from emailusernames.utils import create_user, create_superuser
+
+from cms.tests import SimpleTest as CMSTest
 
 class SimpleTest(TestCase):
 
@@ -83,6 +86,9 @@ class SimpleTest(TestCase):
     attendees = User.objects.filter(groups=att_group)
     self.assertEqual(attendees.count(), 9)
 
+    test = CMSTest()
+    test.create_all_templates()
+
   def test_verification_code(self):
     u = User.objects.get(email="attendee9@example.com")
     vque = VerificationQueue(user=u, verification_code="12345")
@@ -90,39 +96,110 @@ class SimpleTest(TestCase):
 
   def test_user_creation(self):
 
-    response = self.client.get(reverse("sign_up", args=[0]))
+    response = self.client.get(reverse("sign_up", args=[1]))
     self.assertContains(response, "Vinely Pro")
 
-    response = self.client.get(reverse("sign_up", args=[1]))
+    response = self.client.get(reverse("sign_up", args=[2]))
     self.assertContains(response, "Vinely Host")
 
-    response = self.client.get(reverse("sign_up", args=[2]))
-    self.assertContains(response, "future Vinely party")
+    # response = self.client.get(reverse("sign_up", args=[3]))
+    # self.assertContains(response, "future Vinely party")
 
-    response = self.client.get(reverse("sign_up", args=[3]))
-    self.assertContains(response, "Supplier")
+    # response = self.client.get(reverse("sign_up", args=[4]))
+    # self.assertContains(response, "Supplier")
 
-    response = self.client.post(reverse("sign_up", args=[0]), {'first_name': 'John',
+    response = self.client.post(reverse("sign_up", args=[1]), {'first_name': 'John',
                                                                 'last_name': 'Doe1',
                                                                 'email': 'john.doe1@example.com',
                                                                 'password1': 'Sign Up',
-                                                                'password2': 'Sign Up'})
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546'})
+    self.assertContains(response, "Thank you for your interest in becoming a Vinely Pro")
 
-    self.assertContains(response, "Verification Sent")
+    self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor=None).exists())
 
-    response = self.client.post(reverse("sign_up", args=[0]), {'first_name': 'John',
+    # check that emails are sent to vinely
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', 'getstarted@vinely.com']", subject="Vinely Pro Request")
+    self.assertTrue(vinely_recipients.exists())
+
+    # check that emails are sent to recipient
+    user_recipient = Email.objects.filter(recipients="[u'john.doe1@example.com']", subject="Vinely Pro Request!")
+    self.assertTrue(user_recipient.exists())
+
+    response = self.client.post(reverse("sign_up", args=[1]), {'first_name': 'John',
                                                                 'last_name': 'Doe2',
                                                                 'email': 'john.doe1@example.com',
                                                                 'password1': 'Sign Up',
-                                                                'password2': 'Sign Up'})
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546'})
     self.assertContains(response, "A user with that email already exists")
 
     response = self.client.post(reverse("sign_up", args=[1]), {'first_name': 'John',
                                                                 'last_name': 'Doe2',
                                                                 'email': 'john.doe2@example.com',
                                                                 'password1': 'Sign Up',
-                                                                'password2': 'Sign Up'})
-    self.assertContains(response, "Verification Sent")
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546',
+                                                                'mentor': 'specialist1@example.com'})
+    self.assertContains(response, "Thank you for your interest in becoming a Vinely Pro")
+
+    # pro fake mentor email specified
+    response = self.client.post(reverse("sign_up", args=[1]), {'first_name': 'John',
+                                                                'last_name': 'Doe3',
+                                                                'email': 'john.doe3@example.com',
+                                                                'password1': 'Sign Up',
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546',
+                                                                'mentor': 'no.pro@example.com'})
+    self.assertContains(response, "The mentor you specified is not a Vinely Pro")    
+
+    # TODO: check zipcode is supported
+    response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
+                                                                'last_name': 'Doe4',
+                                                                'email': 'john.doe4@example.com',
+                                                                'password1': 'Sign Up',
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546',
+                                                                'mentor': 'no.pro@example.com'})
+    self.assertContains(response, "The Pro email you specified is not for a Vinley Pro")
+
+    response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
+                                                                'last_name': 'Doe4',
+                                                                'email': 'john.doe4@example.com',
+                                                                'password1': 'Sign Up',
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546',
+                                                                'mentor': 'specialist1@example.com'})
+    self.assertContains(response, "Thank you for your interest in hosting a Vinely Party!")
+    
+    self.assertTrue(MyHost.objects.filter(pro__email='specialist1@example.com', host__email='john.doe3@example.com').exists)
+
+    # check that emails are sent to vinely + pro
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'specialist1@example.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    self.assertTrue(vinely_recipients.exists())
+
+    # check that emails are sent to recipient
+    host_recipient = Email.objects.filter(recipients="[u'john.doe4@example.com']", subject='Get the party started with Vinely')
+    self.assertTrue(host_recipient.exists())
+
+    # host no pro specified
+    response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
+                                                                'last_name': 'Doe5',
+                                                                'email': 'john.doe5@example.com',
+                                                                'password1': 'Sign Up',
+                                                                'password2': 'Sign Up',
+                                                                'zipcode': '49546'})
+    self.assertContains(response, "Thank you for your interest in hosting a Vinely Party!")
+    self.assertTrue(MyHost.objects.filter(pro=None, host__email='john.doe4@example.com').exists)
+
+    # check that emails are sent to vinely
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    self.assertTrue(vinely_recipients.exists())
+
+
+    # TODO: check email sent to new user
+    # TODO: check email sent to pro
+    # TODO: check email sent to care
 
     # verify user
     temp_password = response.context['temp_password']
@@ -132,59 +209,88 @@ class SimpleTest(TestCase):
     self.assertEqual(response.status_code, 200)
 
     response = self.client.post(reverse("verify_account", args=[verification_code]), {
-                                                                          'email': 'john.doe2@example.com',
+                                                                          'email': 'john.doe5@example.com',
                                                                           'temp_password': temp_password,
                                                                           'new_password': 'hello',
-                                                                          'retype_password': 'hello1'})
+                                                                          'retype_password': 'hello1',
+                                                                          'accepted_tos': True})
     self.assertContains(response, "The new passwords do not match") 
 
     response = self.client.post(reverse("verify_account", args=[verification_code]), {
-                                                                          'email': 'john.doe2@example.com',
+                                                                          'email': 'john.doe5@example.com',
                                                                           'temp_password': temp_password+"1",
                                                                           'new_password': 'hello',
-                                                                          'retype_password': 'hello'})
+                                                                          'retype_password': 'hello',
+                                                                          'accepted_tos': True})
     self.assertContains(response, "Your temporary password does not match") 
 
     response = self.client.post(reverse("verify_account", args=[verification_code]), {
                                                                           'email': 'john.doe3@example.com',
                                                                           'temp_password': temp_password+"1",
                                                                           'new_password': 'hello',
-                                                                          'retype_password': 'hello1'})
+                                                                          'retype_password': 'hello1',
+                                                                          'accepted_tos': True})
     self.assertContains(response, "You should sign up first") 
 
     response = self.client.post(reverse("verify_account", args=[verification_code]), {
-                                                                          'email': 'john.doe2@example.com',
+                                                                          'email': 'john.doe5@example.com',
                                                                           'temp_password': temp_password,
                                                                           'new_password': 'hello',
-                                                                          'retype_password': 'hello'})
+                                                                          'retype_password': 'hello',
+                                                                          'accepted_tos': True})
+
     # user logged in
     self.assertRedirects(response, reverse("home_page"))
 
     verify = VerificationQueue.objects.get(verification_code=verification_code)
-    user = User.objects.get(email='john.doe2@example.com')
+    user = User.objects.get(email='john.doe5@example.com')
     self.assertEquals(verify.verified, True)
     self.assertEquals(user.is_active, True)
 
-
-    # existing member of Vinely signing up as attendee
-    response = self.client.post(reverse("sign_up", args=[2]), {'first_name': 'John',
-                                                                'last_name': 'Doe2',
-                                                                'email': 'john.doe2@example.com',
-                                                                'password1': 'Sign Up',
-                                                                'password2': 'Sign Up'})
-
-    self.assertContains(response, "active member of Vinely")
-
     self.client.logout()
 
-    # create a supplier
-    response = self.client.post(reverse("sign_up", args=[3]), {'first_name': 'John',
-                                                                'last_name': 'Doe4',
-                                                                'email': 'john.doe4@example.com',
-                                                                'password1': 'Sign Up',
-                                                                'password2': 'Sign Up'})
 
-    self.assertContains(response, "e-mail to verify your e-mail address")
+    # logged in as taster, sign up to be host
+    response = self.client.login(email="john.doe5@example.com", password="hello")
+    self.assertEquals(response, True)
+
+    response = self.client.get(reverse("sign_up", args=[2]))
+    self.assertEquals(response.status_code, 200)
+
+    self.assertContains(response, "Thank you for your interest in hosting a Vinely Party!")
+
+    # taster added to MyHost
+    self.assertTrue(MyHost.objects.filter(pro=None, host__email='john.doe5@example.com').exists)
+
+    # check that emails are sent to vinely
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    self.assertTrue(vinely_recipients.exists())
+
+    # check that emails are sent to taster
+    host_recipient = Email.objects.filter(recipients="[u'john.doe5@example.com']", subject='Thanks for your interest in becoming a Vinely Host!')
+    self.assertTrue(host_recipient.exists())    
+
+    # existing member of Vinely signing up as attendee
+    # NOTE: User cannot sign up at the moment
+    # response = self.client.post(reverse("sign_up", args=[3]), {'first_name': 'John',
+    #                                                             'last_name': 'Doe2',
+    #                                                             'email': 'john.doe2@example.com',
+    #                                                             'password1': 'Sign Up',
+    #                                                             'password2': 'Sign Up'})
+
+    # self.assertContains(response, "active member of Vinely")
+
+    
+
+    # create a supplier
+    # NOTE: Supplier cannot sign up at the moment
+    # response = self.client.post(reverse("sign_up", args=[4]), {'first_name': 'John',
+    #                                                             'last_name': 'Doe4',
+    #                                                             'email': 'john.doe4@example.com',
+    #                                                             'password1': 'Sign Up',
+    #                                                             'password2': 'Sign Up'})
+
+    # self.assertContains(response, "e-mail to verify your e-mail address")
 
   def test_my_information_update(self):
     response = self.client.login(email="attendee2@example.com", password="hello")

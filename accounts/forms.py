@@ -250,7 +250,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
         # make sure the pro exists
         pro = User.objects.get(email = mentor_email, groups__in = [pro_group])
       except User.DoesNotExist:
-        raise forms.ValidationError("The Pro email you specified is not a Vinley Pro's. Please verify the email address or leave it blank and a Pro will be assigned to you")
+        raise forms.ValidationError("The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
     if cleaned.get('email'):
       cleaned['email'] = cleaned['email'].strip().lower()
