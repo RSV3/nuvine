@@ -1610,12 +1610,16 @@ def supplier_edit_order(request, order_id):
     if item.product.category == 1:
       item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
       # print item.img_file_name
+    # TODO: currently template handles tasting kit images
+    #elif item.product.category == 0:
+    #  item.img_file_name =  
     data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
 
   receiver = order.receiver
   data["personality"] = receiver.get_profile().wine_personality
+  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
 
   try:
     data["customization"] = CustomizeOrder.objects.get(user=order.receiver)
@@ -1677,9 +1681,10 @@ def edit_shipping_address(request):
       CustomizeOrder.objects.get(user=receiver)
     except CustomizeOrder.DoesNotExist:
       # customization that current user filled out
-      current_customization = CustomizeOrder.objects.get(user=u)
-      new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
-      new_customization.save()
+      if CustomizeOrder.objects.filter(user=u).exists():
+        current_customization = CustomizeOrder.objects.get(user=u)
+        new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
+        new_customization.save()
 
     if receiver.is_active is False:
       # if new receiving user created.  happens when receiver never attended a party

@@ -260,8 +260,7 @@ class SimpleTest(TestCase):
 
       f = open("data/SP_superior_prodimg.png", 'r')
       p, created = Product.objects.get_or_create(name="Superior Collection",
-                                    description="As its name might suggest, this collection is \
-                                    full of class. Great for enjoying alone or with friends, each \
+                                    description="Great for enjoying alone or with friends, each \
                                     bottle is filled with the potential to take your wine experience \
                                     to exciting new places. The {{personality}} Superior Collection \
                                     is the perfect choice for those with a passion for wine and its \

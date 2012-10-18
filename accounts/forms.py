@@ -45,7 +45,7 @@ class ChangePasswordForm(forms.Form):
 
 class VerifyAccountForm(forms.Form):
   email = forms.CharField(widget=forms.HiddenInput)
-  temp_password = forms.CharField(label="Temporary Password", max_length=64, widget=forms.PasswordInput)
+  temp_password = forms.CharField(label="Temporary Password (from e-mail)", max_length=64, widget=forms.PasswordInput)
   new_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   retype_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   accepted_tos = forms.BooleanField(label="I accept the terms of service")
@@ -60,10 +60,12 @@ class VerifyAccountForm(forms.Form):
         raise forms.ValidationError('Your temporary password does not match')
     except User.DoesNotExist:
       raise forms.ValidationError('You should sign up first')
+    except KeyError:
+      raise forms.ValidationError('Please enter the temporary password from the e-mail you received from Vinely')
 
     # verify the two passwords are equal and not same as temporary password
     if cleaned_data['new_password'] != cleaned_data['retype_password']:
-      raise forms.ValidationError('The new passwords do not match.  Please re-verify your new password')
+      raise forms.ValidationError('The new passwords do not match.  Please re-verify your new password.')
 
     return cleaned_data
 
@@ -218,6 +220,12 @@ from django.utils.translation import ugettext_lazy as _
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
 
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
+  """
+    The form is used for user creation when people sign up for host or pro,
+    but also when inviting people to public Vinely events.
+    As a result the clean method has cases to handle users that already exist.
+  """
+
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = us_forms.USZipCodeField() #forms.CharField(max_length=20)
   phone_number = us_forms.USPhoneNumberField(required=False)

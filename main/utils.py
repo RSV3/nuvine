@@ -198,7 +198,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   email_log.save()
 
   # update our DB that there was repeated interest
-  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[0][0])
+  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[1][0])
   if not created:
     interest.update_time()
   else:

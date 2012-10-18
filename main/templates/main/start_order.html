@@ -43,9 +43,11 @@
               <img height="250" src="{{ im.url }}"/>
             {% endthumbnail %}
             -->
-             <div class="product-img"><img heigh="250" src="{{ STATIC_URL }}img/{{ product.img_file_name }}"/></div>
+            <div class="product-img"><img heigh="250" src="{{ STATIC_URL }}img/{{ product.img_file_name }}"/></div>
+            <br>
+            <br>
             <div class="product-description">
-              <h4>{{ your_personality }} {{ product.name }}</h4>
+              <h3 style="font-size:1.1em; margin-bottom:5px;">{{ your_personality }} {{ product.name }}</h3>
               <p>{{ product.description }}</p>
               <p><a href="{% url cart_add_wine product.cart_tag %}">Select {{ product.name }}</a></p>
              </div>
