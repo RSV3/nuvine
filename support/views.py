@@ -122,6 +122,88 @@ def download_users(request):
   return response
 
 @staff_member_required
+def download_users_from_party(request, party_id):
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=vinely_users.csv'
+
+  fieldnames = ['ID', 'First Name', 'Last Name', 'E-mail', 'Zipcode', 'Date of Birth', 
+                'Subscription Frequency', 'Subscription Quantity', 'Member Since',
+                'Vinely Pro', 'Wine Personality',
+                'Wine 1 Overall', 'Wine 1 Sweet', 'Wine 1 Sweet DNL', 'Wine 1 Weight', 'Wine 1 Weight DNL',
+                'Wine 1 Texture', 'Wine 1 Texture DNL', 'Wine 1 Sizzle', 'Wine 1 Sizzle DNL',
+                'Wine 2 Overall', 'Wine 2 Sweet', 'Wine 2 Sweet DNL', 'Wine 2 Weight', 'Wine 2 Weight DNL',
+                'Wine 2 Texture', 'Wine 2 Texture DNL', 'Wine 2 Sizzle', 'Wine 2 Sizzle DNL',
+                'Wine 3 Overall', 'Wine 3 Sweet', 'Wine 3 Sweet DNL', 'Wine 3 Weight', 'Wine 3 Weight DNL',
+                'Wine 3 Texture', 'Wine 3 Texture DNL', 'Wine 3 Sizzle', 'Wine 3 Sizzle DNL',                
+                'Wine 4 Overall', 'Wine 4 Sweet', 'Wine 4 Sweet DNL', 'Wine 4 Weight', 'Wine 4 Weight DNL',
+                'Wine 4 Texture', 'Wine 4 Texture DNL', 'Wine 4 Sizzle', 'Wine 4 Sizzle DNL',
+                'Wine 5 Overall', 'Wine 5 Sweet', 'Wine 5 Sweet DNL', 'Wine 5 Weight', 'Wine 5 Weight DNL',
+                'Wine 5 Texture', 'Wine 5 Texture DNL', 'Wine 5 Sizzle', 'Wine 5 Sizzle DNL',                
+                'Wine 6 Overall', 'Wine 6 Sweet', 'Wine 6 Sweet DNL', 'Wine 6 Weight', 'Wine 6 Weight DNL',
+                'Wine 6 Texture', 'Wine 6 Texture DNL', 'Wine 6 Sizzle', 'Wine 6 Sizzle DNL']
+
+
+  writer = csv.DictWriter(response, fieldnames)
+
+  writer.writeheader()
+
+  party = get_object_or_404(Party, pk=party_id)
+
+  for user_dict in PartyInvite.objects.filter(party=party).values('invitee'):
+    data = {}
+    user = User.objects.get(id=user_dict["invitee"])
+    data['ID'] = user.id
+    data['First Name'] = user.first_name
+    data['Last Name'] = user.last_name
+    data['E-mail'] = user.email
+    profile = user.get_profile()
+    data['Zipcode'] = profile.zipcode 
+    data['Wine Personality'] = profile.wine_personality.name
+    data['Date of Birth'] = profile.dob.strftime('%m/%d/%Y') if profile.dob else None
+    try:
+      subscription = SubscriptionInfo.objects.get(user=user)
+      data['Subscription Frequency'] = subscription.get_frequency_display() 
+      data['Subscription Quantity'] = subscription.get_quantity_display()
+    except SubscriptionInfo.DoesNotExist:
+      data['Subscription Frequency'] = None 
+      data['Subscription Quantity'] = None 
+    data['Member Since'] = user.date_joined.strftime('%m/%d/%Y')
+    pro = my_pro(user)
+    if pro[0]:
+      data['Vinely Pro'] = pro[0].email 
+    else:
+      data['Vinely Pro'] = pro[0]
+
+    for wine_id in [1,2,3,4,5,6]:
+      try:
+        rating = WineRatingData.objects.get(user=user, wine__id=wine_id)
+        data['Wine %d Overall' % wine_id] = rating.overall
+        data['Wine %d Sweet' % wine_id] = rating.sweet
+        data['Wine %d Sweet DNL' % wine_id] = rating.sweet_dnl
+        data['Wine %d Weight' % wine_id] = rating.weight
+        data['Wine %d Weight DNL' % wine_id] = rating.weight_dnl
+        data['Wine %d Texture' % wine_id] = rating.texture
+        data['Wine %d Texture DNL' % wine_id] = rating.texture_dnl
+        data['Wine %d Sizzle' % wine_id] = rating.sizzle
+        data['Wine %d Sizzle DNL' % wine_id] = rating.sizzle_dnl
+      except WineRatingData.DoesNotExist:
+        data['Wine %d Overall' % wine_id] = 0 
+        data['Wine %d Sweet' % wine_id] = 0 
+        data['Wine %d Sweet DNL' % wine_id] = 0 
+        data['Wine %d Weight' % wine_id] = 0 
+        data['Wine %d Weight DNL' % wine_id] = 0 
+        data['Wine %d Texture' % wine_id] = 0 
+        data['Wine %d Texture DNL' % wine_id] = 0 
+        data['Wine %d Sizzle' % wine_id] = 0 
+        data['Wine %d Sizzle DNL' % wine_id] = 0 
+
+    writer.writerow(data)
+
+
+  return response
+
+
+@staff_member_required
 def download_parties(request):
   
   response = HttpResponse(mimetype='text/csv')
