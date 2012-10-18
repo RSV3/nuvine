@@ -35,17 +35,18 @@
 
       {{ form.email }}
 
-      {% if form.errors %}
+      {% if form.non_field_errors %}
         <div class="alert alert-error">
-          {{ form.errors }}
+          {{ form.non_field_errors }}
         </div>
       {% endif %}
 
         <fieldset>
-          <div class="control-group">
+          <div class="control-group{% if form.temp_password.errors %} error{% endif %}">
             <label class="control-label" for="id_temp_password">{{ form.temp_password.label }}</label>
             <div class="controls">
               {{ form.temp_password }}
+              <span class="help-inline error">{{ form.temp_password.errors }}</span>
             </div>
           </div>
           <hr>
