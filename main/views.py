@@ -1677,9 +1677,10 @@ def edit_shipping_address(request):
       CustomizeOrder.objects.get(user=receiver)
     except CustomizeOrder.DoesNotExist:
       # customization that current user filled out
-      current_customization = CustomizeOrder.objects.get(user=u)
-      new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
-      new_customization.save()
+      if CustomizeOrder.objects.filter(user=u).exists():
+        current_customization = CustomizeOrder.objects.get(user=u)
+        new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
+        new_customization.save()
 
     if receiver.is_active is False:
       # if new receiving user created.  happens when receiver never attended a party
