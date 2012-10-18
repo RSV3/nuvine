@@ -161,11 +161,19 @@
         {% if update %}
         <div class="form-actions">
           <a href="{% url place_order %}" class="btn">Cancel</a>  
-          <input class="btn btn-primary" type="submit" value="Update">
+          <input class="btn btn-primary" type="submit" value="Update" />
         </div>
         {% else %}
         <div class="form-actions">
-          <input class="btn btn-primary" type="submit" value="Next">
+          <input class="btn btn-primary" type="submit" value="Next" />
+<!-- 
+          <script src="https://button.stripe.com/v1/button.js" class="stripe-button"
+          data-key="YOUR_KEY"
+          data-description="A year's subscription"
+          data-phone
+          data-price="5000"
+          data-address></script>
+           -->
         </div>
         {% endif %}
 

@@ -12,18 +12,20 @@ from accounts.models import SubscriptionInfo
 from stripecard.models import StripeCard
 from datetime import datetime, timedelta
 
-def shipping(plans):
-	# TODO: check invoice qty
-  shipping = 0
-  for item in xrange(plans.count()):
-    # always $16 - August 2, 2012
-    shipping += 16
-  return shipping 
+def shipping(plan):
+	shipping = 0
+	if plan.quantity in [5,7,9]:
+		# full case shipping = $32
+		shipping += 32
+	else:
+		# half case shipping = $16, 
+		shipping += 16
+	return shipping
 
 def tax(sub_total):
-  # TODO: tax needs to be calculated based on the state
-  tax = float(sub_total)*0.06
-  return tax 
+	# TODO: tax needs to be calculated based on the state
+	tax = float(sub_total)*0.06
+	return tax 
 
 def subtotal(plan):
 	if plan.quantity in [5,6]:
@@ -50,6 +52,25 @@ def webhooks(request):
 	return HttpResponse('sweet', status=200)
 
 def invoice_created(event_json):
+	data = event_json['data']['object']
+	customer = data['customer']
+	# TODO: Verify that this is actually from stripe
+
+	try:
+		stripe_card = StripeCard.objects.get(stripe_user = customer)
+	except StripeCard.DoesNotExist:
+		return
+	profile = stripe_card.stripe_owner.all()[0]
+	# get latest subscription
+	plan = SubscriptionInfo.objects.filter(user=profile.user, frequency__in = [1,2,3]).order_by('-id')[0]
+	sub_total = data['subtotal']
+	# only need to add shipping and tax info
+	stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
+	stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total)), currency='usd', description='Tax')
+
+
+# NOTE: invoice_created_old below might be necessary once we allow multiple descriptions
+def invoice_created_old(event_json):
 	data = event_json['data']['object']
 	customer = data['customer']
 	# TODO: Verify that this is actually from stripe
