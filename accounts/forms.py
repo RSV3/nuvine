@@ -220,6 +220,12 @@ from django.utils.translation import ugettext_lazy as _
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
 
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
+  """
+    The form is used for user creation when people sign up for host or pro,
+    but also when inviting people to public Vinely events.
+    As a result the clean method has cases to handle users that already exist.
+  """
+
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = us_forms.USZipCodeField() #forms.CharField(max_length=20)
   phone_number = us_forms.USPhoneNumberField(required=False)
