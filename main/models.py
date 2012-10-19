@@ -172,14 +172,16 @@ class Product(models.Model):
   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
   description = models.CharField(max_length=1024)
+  #: half case price
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  full_case_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
   image = ImageField(upload_to="products/")
   cart_tag = models.CharField(max_length=64, default="x")
   active = models.BooleanField(default=True)
   # when it was last added 
   timestamp = models.DateTimeField(auto_now_add=True)
-  full_case_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-  
+
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
 
