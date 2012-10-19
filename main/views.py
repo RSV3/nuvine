@@ -341,7 +341,7 @@ def cart_add_tasting_kit(request, party_id=0):
   today = datetime.now(tz=UTC())
 
   try:
-    party = Party.objects.get(id=party_id, host = u, event_date__gt = today)
+    party = Party.objects.get(id=party_id, host__id=u.id, event_date__gt=today)
     if party_id:
       # ordering from a particular party
       request.session['party_id'] = int(party_id)
@@ -434,7 +434,7 @@ def cart_add_wine(request, level="x"):
   else:
     personality = u.get_profile().wine_personality
   form = AddWineToCartForm(request.POST or None)
-
+  
   if form.is_valid():
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
@@ -1848,7 +1848,7 @@ def edit_credit_card(request):
   else:
     # other states use Processed through Vinely - MA, CA
     form = PaymentForm(request.POST or None)
-
+    
     if form.is_valid():
       new_card = form.save()
       profile = receiver.get_profile()
@@ -1859,7 +1859,6 @@ def edit_credit_card(request):
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.status = Cart.CART_STATUS_CHOICES[4][0]
       cart.save()
-      request.session['stripe_payment'] = True
 
       # for now save the card to receiver 
       profile.credit_cards.add(new_card)

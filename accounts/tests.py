@@ -29,6 +29,8 @@ class SimpleTest(TestCase):
     ph_group, created = Group.objects.get_or_create(name="Vinely Host")
     att_group, created = Group.objects.get_or_create(name="Vinely Taster")
     supp_group, created = Group.objects.get_or_create(name="Supplier")
+    pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
+
     if not User.objects.filter(email="specialist1@example.com").exists():
       u = create_user("specialist1@example.com", "hello")
       u.groups.add(ps_group)
@@ -102,10 +104,12 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse("sign_up", args=[2]))
     self.assertContains(response, "Vinely Host")
 
-    # response = self.client.get(reverse("sign_up", args=[3]))
-    # self.assertContains(response, "future Vinely party")
+    response = self.client.get(reverse("sign_up", args=[3]))
+    self.assertContains(response, "future Vinely party")
 
-    # response = self.client.get(reverse("sign_up", args=[4]))
+    # suppliers currently cannot sign up
+    response = self.client.get(reverse("sign_up", args=[4]))
+    self.assertEqual(response.status_code, 404)
     # self.assertContains(response, "Supplier")
 
     response = self.client.post(reverse("sign_up", args=[1]), {'first_name': 'John',
@@ -196,11 +200,6 @@ class SimpleTest(TestCase):
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
-
-    # TODO: check email sent to new user
-    # TODO: check email sent to pro
-    # TODO: check email sent to care
-
     # verify user
     temp_password = response.context['temp_password']
     verification_code = response.context['verification_code']
@@ -249,9 +248,8 @@ class SimpleTest(TestCase):
 
     self.client.logout()
 
-
     # logged in as taster, sign up to be host
-    response = self.client.login(email="john.doe5@example.com", password="hello")
+    response = self.client.login(email="attendee1@example.com", password="hello")
     self.assertEquals(response, True)
 
     response = self.client.get(reverse("sign_up", args=[2]))
@@ -260,14 +258,14 @@ class SimpleTest(TestCase):
     self.assertContains(response, "Thank you for your interest in hosting a Vinely Party!")
 
     # taster added to MyHost
-    self.assertTrue(MyHost.objects.filter(pro=None, host__email='john.doe5@example.com').exists)
+    self.assertTrue(MyHost.objects.filter(pro=None, host__email='attendee1@example.com').exists)
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to taster
-    host_recipient = Email.objects.filter(recipients="[u'john.doe5@example.com']", subject='Thanks for your interest in becoming a Vinely Host!')
+    host_recipient = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Thanks for your interest in becoming a Vinely Host!')
     self.assertTrue(host_recipient.exists())    
 
     # existing member of Vinely signing up as attendee

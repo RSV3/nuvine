@@ -12,7 +12,7 @@ class Email(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __unicode__(self):
-    return "%s TO %s" % (subject, recipients)
+    return "%s TO %s" % (self.subject, self.recipients)
 
   def recipients_list(self):
     return eval(self.recipients)

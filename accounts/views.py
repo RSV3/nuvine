@@ -237,17 +237,6 @@ def sign_up(request, account_type):
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
-  # Added Oct 2 2012 - Billy
-  # Allow taster to signup from FB page
-  # if signing up as a taster there must be a party to link to
-  today = datetime.now(tz=UTC())
-  if account_type == 3:
-    try:
-      party_id = int(request.GET.get('p'))
-      party = Party.objects.get(pk=party_id, event_date__gte = today)
-    except:
-      raise Http404
-
   ### Handle people who are already signed up
   if u.is_authenticated():
     if pro_group in u.groups.all():
