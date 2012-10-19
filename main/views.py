@@ -276,7 +276,7 @@ def how_it_works(request):
 
 def start_order(request, receiver_id=None, party_id=None):
   """
-    Show wine order page
+    Show wine subscription order page
 
     :param receiver_id: the user id of the user who's order is being fulfilled
                       for example, when a Vinely Pro enters rating data and continues an order
@@ -296,10 +296,11 @@ def start_order(request, receiver_id=None, party_id=None):
     request.session['party_id'] = int(party_id)
 
   data["your_personality"] = WinePersonality.MYSTERY
+  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
   if receiver_id:
     receiver = User.objects.get(id=receiver_id)
     personality = receiver.get_profile().wine_personality
-    
+
     # check receivers age first
     if receiver.get_profile().is_under_age():
       messages.warning(request, 'Confirm that that the person you are ordering for is over 21.')
@@ -310,17 +311,16 @@ def start_order(request, receiver_id=None, party_id=None):
   if personality:
     data["your_personality"] = personality.name
 
-  data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
+    # filter only wine packages
+    products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0]).order_by('unit_price')
 
-  # filter only wine packages
-  products = Product.objects.filter(category=Product.PRODUCT_TYPE[1][0]).order_by('unit_price')
+    for p in products:
+      description_template = Template(p.description)
+      p.description = description_template.render(Context({'personality': personality.name}))
+      p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag)
+    data["products"] = products
+    data["product_levels"] = [Product.BASIC, Product.SUPERIOR, Product.DIVINE]
 
-  for p in products:
-    description_template = Template(p.description)
-    p.description = description_template.render(Context({'personality': personality.name}))
-    p.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, p.cart_tag)
-  data["products"] = products
-  data["product_levels"] = [Product.BASIC, Product.SUPERIOR, Product.DIVINE]
   data["shop_menu"] = True
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
