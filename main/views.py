@@ -434,7 +434,7 @@ def cart_add_wine(request, level="x"):
   else:
     personality = u.get_profile().wine_personality
   form = AddWineToCartForm(request.POST or None)
-  
+
   if form.is_valid():
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
@@ -443,7 +443,7 @@ def cart_add_wine(request, level="x"):
         alert_msg = 'A tasting kit is already in your cart.  Either clear it from your <a href="%s">cart</a> or checkout that order first.' % reverse("cart")
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
-    
+
     # hold on adding line item to cart until after verification theres no multiple subscription
     item = form.save(commit=False)
 
@@ -470,7 +470,7 @@ def cart_add_wine(request, level="x"):
 
     # save item and add to cart after verifying no other item in cart
     item.total_price = item.subtotal()
-    item.save()    
+    item.save()
     cart.items.add(item)
 
     # udpate cart status

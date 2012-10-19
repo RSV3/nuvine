@@ -253,10 +253,10 @@ class Cart(models.Model):
 
   def subtotal(self):
     # sum of all line items
-    price_sum = 0 
+    price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum 
+    return price_sum
 
   def shipping(self):
     shipping = 0
@@ -264,7 +264,7 @@ class Cart(models.Model):
     #   # always $16 - August 2, 2012
     #   shipping += 16
     for item in self.items.all():
-      if (item.price_category in [5,7,9]) or ((item.price_category == 11) and (item.quantity == 1)):
+      if (item.price_category in [5, 7, 9]) or ((item.price_category == 11) and (item.quantity == 1)):
         # half case or single tasting kit
         shipping += 16
       else:
@@ -279,19 +279,19 @@ class Cart(models.Model):
       elif item.frequency == 0:
         shipping += 16
       """
-    return shipping 
+    return shipping
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
-    tax = float(self.subtotal())*0.06
-    return tax 
+    tax = float(self.subtotal()) * 0.06
+    return tax
 
   def total(self):
     # TODO: total everything including shipping and tax
-    return self.shipping() + self.tax() + self.subtotal() 
+    return self.shipping() + self.tax() + self.subtotal()
 
   def items_str(self):
-    output = [] 
+    output = []
     for item in self.items.all():
       output.append(item.product)
 
