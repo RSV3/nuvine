@@ -678,14 +678,12 @@ class SimpleTest(TestCase):
 
     self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
     
-    # self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
-    # self.assertEquals(response.status_code, 200)
-
     # check emails sent
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'buyer@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    vinely_email = Email.objects.filter(subject__startswith="Order ID:", subject__endswith="has been submitted!", recipients="['fulfillment@vinely.com']")
+    subject = "Order ID: %s has been submitted!" % order.order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
 
     # self.assertRedirects(response, reverse("main.views.order_complete", args=[]))
     self.client.logout()
@@ -742,16 +740,13 @@ class SimpleTest(TestCase):
 
     self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
     
-    # self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
-    # self.assertEquals(response.status_code, 200)
-
     self.assertTrue(Order.objects.filter(cart__items__product = case).exists())
     
     # check emails sent
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'host1@example.com']")
     self.assertTrue(recipient_email.exists())
-
-    vinely_email = Email.objects.filter(subject__startswith="Order ID:", subject__endswith="has been submitted!", recipients="['fulfillment@vinely.com']")
+    subject = "Order ID: %s has been submitted!" % order.order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     # self.client.logout()
 
     # TODO: Pro order for taster
