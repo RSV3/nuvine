@@ -11,127 +11,162 @@ class WineRatingsForm(forms.ModelForm):
   class Meta:
     model = WineRatingData
 
-class AllWineRatingsForm(forms.Form):
+class AddTasterRatingsForm(forms.ModelForm):
   first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'First Name'}))
   last_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Last Name'}))
   email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
 
+  class Meta:
+    model = User
+    exclude = ['username', 'password', 'last_login', 'date_joined']
+  # def old_save(self, commit=True):
+  #   data = self.cleaned_data
+  #   user = User.objects.get(email=data['email'].lower())
+  #   except User.DoesNotExist:
+  #     # create new user
+  #     user = create_user(email=data['email'].lower(), password='welcome')
+  #     user.is_active = False
+
+  #     # link them to party and RSVP
+  #     party = self.initial.get('party')
+  #     today = timezone.now()
+  #     try:
+  #       invite = PartyInvite.objects.get(party=party, invitee=user)
+  #       invite.response = 3
+  #       invite.response_timestamp = today
+  #       invite.save()
+  #     except PartyInvite.DoesNotExist:
+  #       # if doest exist then create
+  #       PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
+  #                                 response=3, response_timestamp=today)
+
+  #   if data['first_name']:
+  #     user.first_name = data['first_name']
+  #   if data['last_name']:
+  #     user.last_name = data['last_name']
+  #   user.save()
+
+  #   if user.groups.all().count() == 0:
+  #     # add to attendee group
+  #     taster_group = Group.objects.get(name="Vinely Taster")
+  #     user.groups.add(taster_group)
+  #     user.save()
+# from django.utils.safestring import mark_safe
+from django.utils.html import conditional_escape, mark_safe
+class CustomRadioField(forms.RadioSelect.renderer):
+  def render(self):
+    # print "%s, %s, %s, %s" % (name, value, attrs, choices)
+    # print dir(self)
+    # print self.choices
+    # super(CustomRadioField, self).render(name, value, attrs, choices)
+    items = []
+    # print dir(self)
+    # print self.value
+    for x in self:
+      # print x.choice_value, x.is_checked()
+      # print x.value
+      if x.index == 0:
+        items.append('')
+      else:
+        html = '''
+        <div class="span1">
+          <center>
+            <input type="radio" id="%s" value="%s" name="%s" %s />
+          </center>
+        </div>
+        ''' % (x.attrs['id'], x.index, x.name, 'checked="checked"' if x.is_checked() else "")
+        items.append(html)
+      labels = []
+      # elif x.index == 1 or x.index == self.choices[-1][0]:      
+    return mark_safe(u'\n'.join(items))
+
+
+class AllWineRatingsForm(forms.Form):
+  # first_name = forms.CharField(widget=forms.HiddenInput())
+  # last_name = forms.CharField(widget=forms.HiddenInput())
+  email = forms.EmailField(widget=forms.HiddenInput())
+
   wine1 = forms.IntegerField(widget=forms.HiddenInput())
-  wine1_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(attrs={"class":"radio"}), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine1_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine1_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine1_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine1_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine1_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine1_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine1_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine1_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine1_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine1_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  wine1_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine1_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine1_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine1_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine1_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine1_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine1_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine1_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   wine2 = forms.IntegerField(widget=forms.HiddenInput())
-  wine2_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine2_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine2_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine2_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine2_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine2_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine2_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine2_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine2_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine2_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine2_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  wine2_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine2_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine2_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine2_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine2_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine2_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine2_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine2_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
 
   wine3 = forms.IntegerField(widget=forms.HiddenInput())
-  wine3_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine3_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine3_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine3_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine3_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine3_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine3_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine3_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine3_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine3_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine3_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  wine3_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine3_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine3_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine3_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine3_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine3_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine3_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine3_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   wine4 = forms.IntegerField(widget=forms.HiddenInput())
-  wine4_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine4_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine4_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine4_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine4_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine4_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine4_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine4_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine4_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine4_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine4_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  wine4_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine4_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine4_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine4_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine4_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine4_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine4_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine4_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   wine5 = forms.IntegerField(widget=forms.HiddenInput())
-  wine5_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine5_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine5_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine5_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine5_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine5_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine5_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine5_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine5_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine5_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine5_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
+  wine5_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine5_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine5_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine5_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine5_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine5_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine5_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine5_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   wine6 = forms.IntegerField(widget=forms.HiddenInput())
-  wine6_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect, choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  wine6_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
   #wine6_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine6_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect, choices=WineRatingData.SWEET_CHOICES, initial=0)
-  wine6_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine6_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect, choices=WineRatingData.WEIGHT_CHOICES, initial=0)
-  wine6_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine6_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect, choices=WineRatingData.TEXTURE_CHOICES, initial=0)
-  wine6_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-  wine6_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect, choices=WineRatingData.SIZZLE_CHOICES, initial=0)
-  wine6_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0)
-
-  def __init__(self, *args, **kwargs):
-    super(AllWineRatingsForm, self).__init__(*args, **kwargs)
-    self.initial = kwargs.get('initial')
+  wine6_sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  wine6_sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine6_weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  wine6_weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine6_texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  wine6_texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
+  wine6_sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  wine6_sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   def save(self):
 
     results = []
 
+    # results.append(user)
     data = self.cleaned_data
-    try:
-      user = User.objects.get(email=data['email'].lower())
-    except User.DoesNotExist:
-      # create new user
-      user = create_user(email=data['email'].lower(), password='welcome')
-      user.is_active = False
-
-      # link them to party and RSVP
-      party = self.initial.get('party')
-      today = timezone.now()
-      try:
-        invite = PartyInvite.objects.get(party=party, invitee=user)
-        invite.response = 3
-        invite.response_timestamp = today
-        invite.save()
-      except PartyInvite.DoesNotExist:
-        # if doest exist then create
-        PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
-                                  response=3, response_timestamp=today)
-
-    if data['first_name']:
-      user.first_name = data['first_name']
-    if data['last_name']:
-      user.last_name = data['last_name']
-    user.save()
-
-    if user.groups.all().count() == 0:
-      # add to attendee group
-      taster_group = Group.objects.get(name="Vinely Taster")
-      user.groups.add(taster_group)
-      user.save()
-
-    results.append(user)
-
+    user = User.objects.get(email=data['email'])
+    
     # save each wine data
     for i in range(1, 7):
       wine = Wine.objects.get(id=data['wine%d' % i])

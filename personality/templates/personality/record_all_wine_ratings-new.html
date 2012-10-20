@@ -29,7 +29,7 @@
 {% block content %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  <form method="POST" action="" class="form-horizontal">
+  <form method="POST" action="{% url add_taster_in_ratings party.id %}" class="form-horizontal">
     {% csrf_token %}
     <div class="row">
       <div class="span3">
@@ -38,47 +38,49 @@
     </div>
     <div class="row">
       <div class="span3">
-        <div class="control-group {% if form.first_name.errors %}error{% endif %}">
-          {{ form.first_name }} 
-          {% if form.first_name.errors %}
+        <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+          {{ taster_form.first_name }} 
+          {% if taster_form.first_name.errors %}
             <span class="help-inline">
-              {{ form.first_name.errors }}
+              {{ taster_form.first_name.errors }}
             </span>
           {% endif %}
         </div>
       </div>
       <div class="span3">
-        <div class="control-group {% if form.last_name.errors %}error{% endif %}">
-          {{ form.last_name }} 
-          {% if form.last_name.errors %}
+        <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+          {{ taster_form.last_name }} 
+          {% if taster_form.last_name.errors %}
             <span class="help-inline">
-              {{ form.last_name.errors }}
+              {{ taster_form.last_name.errors }}
             </span>
           {% endif %}
         </div>
       </div>
       <div class="span3">
-        <div class="control-group {% if form.email.errors %}error{% endif %}">
-          {{ form.email }} 
-          {% if form.email.errors %}
+        <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+          {{ taster_form.email }} 
+          {% if taster_form.email.errors %}
             <span class="help-inline">
-              {{ form.email.errors }}
+              {{ taster_form.email.errors }}
             </span>
           {% endif %}
         </div>
       </div>
       <div class="span1">
-        <button type="submit" name="add" value="add" class="btn btn-primary">Add</button>   
+        <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
       </div>
     </div>
-  <!-- </form> -->
-    <hr />
+  </form>
+  <hr />
+  <form method="POST" action="" class="form-horizontal">
+  {% csrf_token %}
   <!-- <section id="user-ratings"> -->
-
     <div class="row">
       <div class="span8">
         <h3>Taster:</h3>
         <h1>{% if invitee.first_name %}{{ invitee.first_name }} {{ invitee.last_name }} {% else %} Anonymous {% endif %}</h1>
+        {{ form.email }}
         <p>{{ invitee.email }}</p>
         <div class="row">
           <div class="span7">
@@ -95,9 +97,12 @@
         <p><input type="text" placeholder="Type in new taster's name" /></p>
         <p><button type="submit" name="go" value="go" class="btn btn-primary">Go</button></p>
         <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
-        <p><button type="submit" name="save-ratings" class="btn btn-primary">Submit and reveal wine personality</button></p>
+        <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Submit and reveal wine personality</button></p>
       </div>
     </div>
+    {% if form.errors %}
+      <div class="alert alert-error">Check all the tabs below to ensure that you have all required fields completed.</div>
+    {% endif %}    
     <section id="user-ratings">
       <div class="row">
         <div class="span12">
@@ -121,6 +126,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
+                    {{ form.wine1 }}
                     <center>
                       <h2>{{ form.wine1_sweet.label }}</h2>
                     </center>
@@ -133,13 +139,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine1_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine1_sweet_{{id}}" value="{{id}}" name="wine1_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine1_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine1_sweet.field.choices|slice:"1::" %}
@@ -176,13 +176,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine1_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine1_weight_{{id}}" value="{{id}}" name="wine1_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine1_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine1_weight.field.choices|slice:"1::" %}
@@ -219,13 +213,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine1_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine1_texture_{{id}}" value="{{id}}" name="wine1_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine1_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine1_texture.field.choices|slice:"1::" %}
@@ -262,13 +250,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine1_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine1_sizzle_{{id}}" value="{{id}}" name="wine1_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine1_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine1_sizzle.field.choices|slice:"1::" %}
@@ -306,13 +288,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine1_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine1_overall_{{id}}" value="{{id}}" name="wine1_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine1_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine1_overall.field.choices|slice:"1::" %}
@@ -346,6 +322,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
+                    {{ form.wine2 }}
                     <center>
                       <h2>{{ form.wine2_sweet.label }}</h2>
                     </center>
@@ -358,13 +335,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine2_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine2_sweet_{{id}}" value="{{id}}" name="wine2_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine2_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine2_sweet.field.choices|slice:"1::" %}
@@ -401,13 +372,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine2_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine2_weight_{{id}}" value="{{id}}" name="wine2_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine2_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine2_weight.field.choices|slice:"1::" %}
@@ -444,13 +409,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine2_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine2_texture_{{id}}" value="{{id}}" name="wine2_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine2_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine2_texture.field.choices|slice:"1::" %}
@@ -487,13 +446,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine2_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine2_sizzle_{{id}}" value="{{id}}" name="wine2_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine2_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine2_sizzle.field.choices|slice:"1::" %}
@@ -530,13 +483,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine2_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine2_overall_{{id}}" value="{{id}}" name="wine2_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine2_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine2_overall.field.choices|slice:"1::" %}
@@ -571,6 +518,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
+                    {{ form.wine3 }}
                     <center>
                       <h2>{{ form.wine3_sweet.label }}</h2>
                     </center>
@@ -583,13 +531,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine3_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine3_sweet_{{id}}" value="{{id}}" name="wine3_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine3_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine3_sweet.field.choices|slice:"1::" %}
@@ -626,13 +568,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine3_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine3_weight_{{id}}" value="{{id}}" name="wine3_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine3_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine3_weight.field.choices|slice:"1::" %}
@@ -669,13 +605,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine3_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine3_texture_{{id}}" value="{{id}}" name="wine3_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine3_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine3_texture.field.choices|slice:"1::" %}
@@ -712,13 +642,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine3_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine3_sizzle_{{id}}" value="{{id}}" name="wine3_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine3_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine3_sizzle.field.choices|slice:"1::" %}
@@ -755,13 +679,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine3_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine3_overall_{{id}}" value="{{id}}" name="wine3_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine3_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine3_overall.field.choices|slice:"1::" %}
@@ -795,6 +713,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
+                    {{ form.wine4 }}
                     <center>
                       <h2>{{ form.wine4_sweet.label }}</h2>
                     </center>
@@ -807,13 +726,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine4_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine4_sweet_{{id}}" value="{{id}}" name="wine4_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine4_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine4_sweet.field.choices|slice:"1::" %}
@@ -850,13 +763,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine4_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine4_weight_{{id}}" value="{{id}}" name="wine4_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine4_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine4_weight.field.choices|slice:"1::" %}
@@ -893,13 +800,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine4_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine4_texture_{{id}}" value="{{id}}" name="wine4_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine4_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine4_texture.field.choices|slice:"1::" %}
@@ -936,13 +837,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine4_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine4_sizzle_{{id}}" value="{{id}}" name="wine4_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine4_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine4_sizzle.field.choices|slice:"1::" %}
@@ -979,13 +874,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine4_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine4_overall_{{id}}" value="{{id}}" name="wine4_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine4_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine4_overall.field.choices|slice:"1::" %}
@@ -1019,6 +908,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
+                    {{ form.wine5 }}
                     <center>
                       <h2>{{ form.wine5_sweet.label }}</h2>
                     </center>
@@ -1031,13 +921,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine5_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine5_sweet_{{id}}" value="{{id}}" name="wine5_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine5_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine5_sweet.field.choices|slice:"1::" %}
@@ -1074,13 +958,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine5_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine5_weight_{{id}}" value="{{id}}" name="wine5_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine5_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine5_weight.field.choices|slice:"1::" %}
@@ -1117,13 +995,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine5_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine5_texture_{{id}}" value="{{id}}" name="wine5_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine5_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine5_texture.field.choices|slice:"1::" %}
@@ -1160,13 +1032,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine5_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine5_sizzle_{{id}}" value="{{id}}" name="wine5_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine5_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine5_sizzle.field.choices|slice:"1::" %}
@@ -1203,13 +1069,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine5_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine5_overall_{{id}}" value="{{id}}" name="wine5_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine5_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine5_overall.field.choices|slice:"1::" %}
@@ -1243,6 +1103,7 @@
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
+                    {{ form.wine6 }}
                     <center>
                       <h2>{{ form.wine6_sweet.label }}</h2>
                     </center>
@@ -1255,13 +1116,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine6_sweet.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine6_sweet_{{id}}" value="{{id}}" name="wine6_sweet" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine6_sweet }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine6_sweet.field.choices|slice:"1::" %}
@@ -1298,13 +1153,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine6_weight.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine6_weight_{{id}}" value="{{id}}" name="wine6_weight" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine6_weight }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine6_weight.field.choices|slice:"1::" %}
@@ -1341,13 +1190,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine6_texture.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine6_texture_{{id}}" value="{{id}}" name="wine6_texture" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine6_texture }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine6_texture.field.choices|slice:"1::" %}
@@ -1384,13 +1227,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine6_sizzle.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine6_sizzle_{{id}}" value="{{id}}" name="wine6_sizzle" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine6_sizzle }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine6_sizzle.field.choices|slice:"1::" %}
@@ -1427,13 +1264,7 @@
                 </div>
                 <div class="span5">
                   <div class="row">
-                  {% for id, choice in form.wine6_overall.field.choices|slice:"1::" %}
-                    <div class="span1">
-                      <center>
-                        <input type="radio" id="id_wine6_overall_{{id}}" value="{{id}}" name="wine6_overall" />
-                      </center>
-                    </div>
-                  {% endfor %}  
+                    {{ form.wine6_overall }}
                   </div>
                   <div class="row">
                   {% for id, choice in form.wine6_overall.field.choices|slice:"1::" %}

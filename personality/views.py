@@ -1,4 +1,4 @@
-# Create your views here.
+# Create your views here.`
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -7,12 +7,14 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 from main.utils import if_supplier
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
-from main.models import Order, Party, PersonaLog
+from main.models import Order, Party, PersonaLog, PartyInvite
 from accounts.models import VerificationQueue
-from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm
+from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
+                              AddTasterRatingsForm
 
 from personality.utils import calculate_wine_personality
 from accounts.utils import send_verification_email
@@ -210,6 +212,41 @@ def personality_rating_info(request, email=None, party_id=None):
   return record_all_wine_ratings(request, email, party_id, None)
 
 @login_required
+# @user_passes_test(if_pro, login_url="/pros/only/")
+def add_taster_in_ratings(request, party_id):
+  data = {}
+  party = None
+  if party_id:
+    party = Party.objects.get(id=party_id)
+
+  taster_form = AddTasterRatingsForm(request.POST or None)
+  data['taster_form'] = taster_form
+
+  if taster_form.is_valid():
+    invitee = taster_form.save()
+
+    # new user was created
+    temp_password = User.objects.make_random_password()
+    invitee.set_password(temp_password)
+    invitee.save()
+
+    verification_code = str(uuid.uuid4())
+    vque = VerificationQueue(user=invitee, verification_code=verification_code)
+    vque.save()
+
+    # send out verification e-mail, create a verification code
+    send_verification_email(request, verification_code, temp_password, invitee.email)
+
+    # link them to party and RSVP
+    today = timezone.now()
+    
+    invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host,
+                                response=3, response_timestamp=today)
+    # send them back to same page with details preloaded so they can fill in details
+    messages.info(request, "New taster successfully created. Now you can go ahead and add their wine ratings.")
+    return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))
+
+@login_required
 def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   """
     Record wine ratings.
@@ -271,23 +308,12 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         data['personality_exists'] = False
         taster = None
 
-      # try:
-      #   taster = User.objects.get(email=email)
-      #   if taster.get_profile().wine_personality.name == "Mystery":
-      #     data['personality_exists'] = False
-      #   else:
-      #     data['personality_exists'] = True
-      # except User.DoesNotExist:
-      #   data['personality_exists'] = False
-      #   taster = None
     else:
       # enter your own information
       taster = u
 
     if taster:
-      # initial_data['email'] = taster.email
-      # initial_data['first_name'] = taster.first_name
-      # initial_data['last_name'] = taster.last_name
+      initial_data['email'] = taster.email
 
       try:
         wine1_rating = WineRatingData.objects.get(user=taster, wine=wine1)
@@ -378,24 +404,46 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     
     initial_data['party'] = party
 
+    # if request.POST.get('add_taster'):
+    #   taster_form = AddTasterRatingsForm(request.POST)
+    # else:
+    #   taster_form = AddTasterRatingsForm()
+    # data['taster_form'] = taster_form
+
+    # if request.POST.get('save_ratings'):
+    taster_form = AddTasterRatingsForm()
+    data['taster_form'] = taster_form
+    # raise Exception
     form = AllWineRatingsForm(request.POST or None, initial=initial_data)
+    # else:
+    #   form = AllWineRatingsForm(None, initial=initial_data)
+    
+    # if taster_form.is_valid():
+    #   invitee = taster_form.save()
+
+    #   # new user was created
+    #   temp_password = User.objects.make_random_password()
+    #   invitee.set_password(temp_password)
+    #   invitee.save()
+
+    #   verification_code = str(uuid.uuid4())
+    #   vque = VerificationQueue(user=invitee, verification_code=verification_code)
+    #   vque.save()
+
+    #   # send out verification e-mail, create a verification code
+    #   send_verification_email(request, verification_code, temp_password, invitee.email)
+
+    #   # link them to party and RSVP
+    #   today = timezone.now()
+      
+    #   invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host,
+    #                               response=3, response_timestamp=today)
+    #   # send them back to same page with details preloaded so they can fill in details
+    #   messages.info(request, "New taster successfully created. Now you can go ahead and add their wine ratings.")
+    #   return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))
+
     if form.is_valid():
       results = form.save()
-      invitee = results[0]
-      data["invitee"] = invitee
-
-      if invitee.is_active is False:
-        # new user was created
-        temp_password = User.objects.make_random_password()
-        invitee.set_password(temp_password)
-        invitee.save()
-
-        verification_code = str(uuid.uuid4())
-        vque = VerificationQueue(user=invitee, verification_code=verification_code)
-        vque.save()
-
-        # send out verification e-mail, create a verification code
-        send_verification_email(request, verification_code, temp_password, invitee.email)
 
       if np.sum(np.array([results[1].overall, results[2].overall,
                           results[3].overall, results[4].overall,
@@ -437,8 +485,6 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       else:
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email, reverse('party_details', args=[party.id]))
         messages.success(request, msg)
-
-    # form = AllWineRatingsForm(initial=initial_data)
 
     data["rate_wines_menu"] = True
     data["form"] = form
