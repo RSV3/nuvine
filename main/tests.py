@@ -530,7 +530,76 @@ class SimpleTest(TestCase):
     pass
 
   def test_attendee_ordering_online(self):
-    pass
+    
+    case = Product.objects.get(name="Vinely's Superior Taste Kit", unit_price=120.00)
+    response = self.client.login(email="attendee1@example.com", password="hello")
+    self.assertTrue(response)
+
+    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
+
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), { "product": case.id,
+                                                                                          "quantity": 2,
+                                                                                          "frequency": 0,
+                                                                                          "total_price": 220.00,
+                                                                                          "level": "superior"})
+    self.assertRedirects(response, reverse("main.views.cart"))
+
+    response = self.client.get(reverse("main.views.customize_checkout"))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("main.views.customize_checkout"), { "product": case.id,
+                                                                            "wine_mix": 1,
+                                                                            "sparkling": 0})
+    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), { "first_name": "John",
+                                                                        "last_name": "Doe",
+                                                                        "address1": "65 Gordon St.",
+                                                                        "city": "Cambridge",
+                                                                        "state": "MA",
+                                                                        "zipcode": "02139",
+                                                                        "phone": "555-617-6706",
+                                                                        "email": "attendee1@example.com"})
+    self.assertContains(response, "You MUST be over 21 to make an order")
+
+    user = User.objects.get(email="attendee1@example.com")
+    profile = user.get_profile()
+    profile.dob = timezone.now() - timedelta(days = 30*365)
+    profile.save()
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), { "first_name": "John",
+                                                                        "last_name": "Doe",
+                                                                        "address1": "65 Gordon St.",
+                                                                        "city": "Cambridge",
+                                                                        "state": "MA",
+                                                                        "zipcode": "02139",
+                                                                        "phone": "555-617-6706",
+                                                                        "email": "attendee1@example.com"})    
+    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+
+    year = datetime.today().year + 5
+    response = self.client.post(reverse("main.views.edit_credit_card"), { "card_number": "4111111111111",
+                                                                        "exp_month": 6,
+                                                                        "exp_year": year,
+                                                                        "verification_code": 111,
+                                                                        "billing_zipcode": "02139",
+                                                                        "card_type": "Unknown" })
+    self.assertRedirects(response, reverse("main.views.place_order"))
+    
+    response = self.client.post(reverse("main.views.place_order"))
+    order = Order.objects.get(cart__items__product = case)
+
+    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
+    
+    self.assertTrue(Order.objects.filter(cart__items__product = case).exists())
+    
+    # check emails sent
+    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
+    self.assertTrue(recipient_email.exists())
+    subject = "Order ID: %s has been submitted!" % order.order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
 
   def test_supplier_viewing_fulfilling(self):
     pass
@@ -549,6 +618,9 @@ class SimpleTest(TestCase):
     """
 
   def test_product_ordering(self):
+    """
+    test host order tasting kit
+    """
     party = self.create_party()
 
     response = self.client.login(email="host1@example.com", password="hello")
@@ -685,7 +757,6 @@ class SimpleTest(TestCase):
     subject = "Order ID: %s has been submitted!" % order.order_id
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
 
-    # self.assertRedirects(response, reverse("main.views.order_complete", args=[]))
     self.client.logout()
 
     ######################################################################################
@@ -694,59 +765,6 @@ class SimpleTest(TestCase):
     #
     ######################################################################################
 
-    response = self.client.login(email="host1@example.com", password="hello")
-    self.assertTrue(response)
-
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
-
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), { "product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 220.00,
-                                                                                          "level": "superior"})
-    self.assertRedirects(response, reverse("main.views.cart"))
-
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"), { "product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 0})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
-
-    response = self.client.post(reverse("main.views.edit_shipping_address"), { "first_name": "John",
-                                                                        "last_name": "Doe",
-                                                                        "address1": "65 Gordon St.",
-                                                                        "city": "Cambridge",
-                                                                        "state": "MA",
-                                                                        "zipcode": "02139",
-                                                                        "phone": "555-617-6706",
-                                                                        "email": "host1@example.com"})
-    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
-
-    year = datetime.today().year + 5
-    response = self.client.post(reverse("main.views.edit_credit_card"), { "card_number": "4111111111111",
-                                                                        "exp_month": 6,
-                                                                        "exp_year": year,
-                                                                        "verification_code": 111,
-                                                                        "billing_zipcode": "02139",
-                                                                        "card_type": "Unknown" })
-    self.assertRedirects(response, reverse("main.views.place_order"))
-    
-    response = self.client.post(reverse("main.views.place_order"))
-    order = Order.objects.get(cart__items__product = case)
-
-    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
-    
-    self.assertTrue(Order.objects.filter(cart__items__product = case).exists())
-    
-    # check emails sent
-    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'host1@example.com']")
-    self.assertTrue(recipient_email.exists())
-    subject = "Order ID: %s has been submitted!" % order.order_id
-    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     # self.client.logout()
 
     # TODO: Pro order for taster
