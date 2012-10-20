@@ -12,9 +12,9 @@ class WineRatingsForm(forms.ModelForm):
     model = WineRatingData
 
 class AllWineRatingsForm(forms.Form):
-  first_name = forms.CharField(max_length=30)
-  last_name = forms.CharField(max_length=30)
-  email = forms.EmailField()
+  first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'First Name'}))
+  last_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'Last Name'}))
+  email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder': 'Email'}))
 
   wine1 = forms.IntegerField(widget=forms.HiddenInput())
   wine1_overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(attrs={"class":"radio"}), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
@@ -91,7 +91,7 @@ class AllWineRatingsForm(forms.Form):
 
   def __init__(self, *args, **kwargs):
     super(AllWineRatingsForm, self).__init__(*args, **kwargs)
-    self.initial = kwargs['initial']
+    self.initial = kwargs.get('initial')
 
   def save(self):
 

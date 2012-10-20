@@ -1,0 +1,1549 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .shaded {
+      background-color: #EAEAE3;
+    }
+
+    #personality-exists-error {
+      {% if not personality_exists %}
+      display: none;
+      {% endif %}
+      color: #F00;
+    }
+
+    #email-invalid-error {
+      display: none;
+      color: #F00;
+    }
+  </style>
+{% endblock %}
+
+{% block header %}
+  <!-- <h1>{% if party %}Taste Party: {{ party.title }}{% else %}Record Wine Ratings{% endif %}</h1> -->
+{% endblock header %}
+
+{% block content %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <form method="POST" action="" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class="span3">
+        <h2>Add Taster:</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="span3">
+        <div class="control-group {% if form.first_name.errors %}error{% endif %}">
+          {{ form.first_name }} 
+          {% if form.first_name.errors %}
+            <span class="help-inline">
+              {{ form.first_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="span3">
+        <div class="control-group {% if form.last_name.errors %}error{% endif %}">
+          {{ form.last_name }} 
+          {% if form.last_name.errors %}
+            <span class="help-inline">
+              {{ form.last_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="span3">
+        <div class="control-group {% if form.email.errors %}error{% endif %}">
+          {{ form.email }} 
+          {% if form.email.errors %}
+            <span class="help-inline">
+              {{ form.email.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="span1">
+        <button type="submit" name="add" value="add" class="btn btn-primary">Add</button>   
+      </div>
+    </div>
+  <!-- </form> -->
+    <hr />
+  <!-- <section id="user-ratings"> -->
+
+    <div class="row">
+      <div class="span8">
+        <h3>Taster:</h3>
+        <h1>{% if invitee.first_name %}{{ invitee.first_name }} {{ invitee.last_name }} {% else %} Anonymous {% endif %}</h1>
+        <p>{{ invitee.email }}</p>
+        <div class="row">
+          <div class="span7">
+            <p>
+              Use the pages below to input Taster ratings. Keep in mind that you can come back later and edit any entry. 
+              If you are short on time at the Taste Party, just input the "Feeling" Criteria. 
+              You will need to come back later to add in the remainder of the feedback to accurately match wines for order fulfillment.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="span4">
+        <h3>Quick Search:</h3>
+        <p><input type="text" placeholder="Type in new taster's name" /></p>
+        <p><button type="submit" name="go" value="go" class="btn btn-primary">Go</button></p>
+        <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
+        <p><button type="submit" name="save-ratings" class="btn btn-primary">Submit and reveal wine personality</button></p>
+      </div>
+    </div>
+    <section id="user-ratings">
+      <div class="row">
+        <div class="span12">
+          <ul id="wine-ratings-tabs" class="nav nav-tabs">
+            <li class="active"><a href="#wine1" data-toggle="tab" class="span1">Wine 1</a></li>
+            <li><a href="#wine2" data-toggle="tab" class="span1">Wine 2</a></li>
+            <li><a href="#wine3" data-toggle="tab" class="span1">Wine 3</a></li>
+            <li><a href="#wine4" data-toggle="tab" class="span1">Wine 4</a></li>
+            <li><a href="#wine5" data-toggle="tab" class="span1">Wine 5</a></li>
+            <li><a href="#wine6" data-toggle="tab" class="span1">Wine 6</a></li>
+          </ul>
+          <div class="tab-content">
+            <!--
+            ########################################
+            # 
+            # Wine 1 Ratings
+            #
+            #########################################
+            -->            
+            <div class="tab-pane fade in active" id="wine1">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine1_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine1_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine1_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine1_sweet_{{id}}" value="{{id}}" name="wine1_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine1_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine1_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine1_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine1_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine1_weight.label }}</h2>
+                    </center>
+                    {% if form.wine1_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine1_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine1_weight_{{id}}" value="{{id}}" name="wine1_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine1_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine1_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine1_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine1_texture.label }}</h2>
+                    </center>
+                    {% if form.wine1_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine1_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine1_texture_{{id}}" value="{{id}}" name="wine1_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine1_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine1_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine1_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine1_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine1_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine1_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine1_sizzle_{{id}}" value="{{id}}" name="wine1_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine1_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine1_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine1_sizzle_dnl}} 
+                </div>
+              </div>
+              <hr />
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine1_overall.label }}</h2>
+                    </center>
+                    {% if form.wine1_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine1_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine1_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine1_overall_{{id}}" value="{{id}}" name="wine1_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine1_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine1_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine1_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+            <!--
+            ########################################
+            # 
+            # Wine 2 Ratings
+            #
+            #########################################
+            -->
+            <div class="tab-pane fade" id="wine2">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine2_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine2_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine2_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine2_sweet_{{id}}" value="{{id}}" name="wine2_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine2_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine2_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine2_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine2_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine2_weight.label }}</h2>
+                    </center>
+                    {% if form.wine2_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine2_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine2_weight_{{id}}" value="{{id}}" name="wine2_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine2_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine2_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine2_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine2_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine2_texture.label }}</h2>
+                    </center>
+                    {% if form.wine2_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine2_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine2_texture_{{id}}" value="{{id}}" name="wine2_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine2_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine2_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine2_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine2_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine2_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine2_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine2_sizzle_{{id}}" value="{{id}}" name="wine2_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine2_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine2_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine2_sizzle_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine2_overall.label }}</h2>
+                    </center>
+                    {% if form.wine2_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine2_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine2_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine2_overall_{{id}}" value="{{id}}" name="wine2_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine2_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine2_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine2_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+
+            <!--
+            ########################################
+            # 
+            # Wine 3 Ratings
+            #
+            #########################################
+            -->
+            <div class="tab-pane fade" id="wine3">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine3_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine3_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine3_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine3_sweet_{{id}}" value="{{id}}" name="wine3_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine3_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine3_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine3_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine3_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine3_weight.label }}</h2>
+                    </center>
+                    {% if form.wine3_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine3_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine3_weight_{{id}}" value="{{id}}" name="wine3_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine3_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine3_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine3_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine3_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine3_texture.label }}</h2>
+                    </center>
+                    {% if form.wine3_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine3_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine3_texture_{{id}}" value="{{id}}" name="wine3_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine3_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine3_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine3_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine3_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine3_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine3_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine3_sizzle_{{id}}" value="{{id}}" name="wine3_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine3_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine3_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine3_sizzle_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine3_overall.label }}</h2>
+                    </center>
+                    {% if form.wine3_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine3_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine3_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine3_overall_{{id}}" value="{{id}}" name="wine3_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine3_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine3_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine3_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+            <!--
+            ########################################
+            # 
+            # Wine 4 Ratings
+            #
+            #########################################
+            -->
+            <div class="tab-pane fade" id="wine4">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine4_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine4_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine4_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine4_sweet_{{id}}" value="{{id}}" name="wine4_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine4_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine4_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine4_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine4_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine4_weight.label }}</h2>
+                    </center>
+                    {% if form.wine4_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine4_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine4_weight_{{id}}" value="{{id}}" name="wine4_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine4_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine4_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine4_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine4_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine4_texture.label }}</h2>
+                    </center>
+                    {% if form.wine4_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine4_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine4_texture_{{id}}" value="{{id}}" name="wine4_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine4_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine4_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine4_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine4_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine4_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine4_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine4_sizzle_{{id}}" value="{{id}}" name="wine4_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine4_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine4_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine4_sizzle_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine4_overall.label }}</h2>
+                    </center>
+                    {% if form.wine4_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine4_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine4_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine4_overall_{{id}}" value="{{id}}" name="wine4_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine4_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine4_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine4_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+            <!--
+            ########################################
+            # 
+            # Wine 5 Ratings
+            #
+            #########################################
+            -->
+            <div class="tab-pane fade" id="wine5">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine5_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine5_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine5_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine5_sweet_{{id}}" value="{{id}}" name="wine5_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine5_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine5_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine5_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine5_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine5_weight.label }}</h2>
+                    </center>
+                    {% if form.wine5_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine5_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine5_weight_{{id}}" value="{{id}}" name="wine5_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine5_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine5_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine5_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine5_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine5_texture.label }}</h2>
+                    </center>
+                    {% if form.wine5_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine5_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine5_texture_{{id}}" value="{{id}}" name="wine5_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine5_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine5_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine5_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine5_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine5_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine5_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine5_sizzle_{{id}}" value="{{id}}" name="wine5_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine5_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine5_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine5_sizzle_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine5_overall.label }}</h2>
+                    </center>
+                    {% if form.wine5_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine5_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine5_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine5_overall_{{id}}" value="{{id}}" name="wine5_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine5_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine5_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine5_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+            <!--
+            ########################################
+            # 
+            # Wine 6 Ratings
+            #
+            #########################################
+            -->
+            <div class="tab-pane fade" id="wine6">
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine6_sweet.label }}</h2>
+                    </center>
+                    {% if form.wine6_sweet.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sweet.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine6_sweet.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine6_sweet_{{id}}" value="{{id}}" name="wine6_sweet" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine6_sweet.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine6_sweet.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine6_sweet_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine6_weight.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine6_weight.label }}</h2>
+                    </center>
+                    {% if form.wine6_weight.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_weight.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine6_weight.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine6_weight_{{id}}" value="{{id}}" name="wine6_weight" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine6_weight.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine6_weight.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine6_weight_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine6_texture.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine6_texture.label }}</h2>
+                    </center>
+                    {% if form.wine6_texture.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_texture.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine6_texture.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine6_texture_{{id}}" value="{{id}}" name="wine6_texture" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine6_texture.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine6_texture.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine6_texture_dnl}} 
+                </div>
+              </div>
+              <div class="row">
+                <div class="span2">
+                  <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine6_sizzle.label }}</h2>
+                    </center>
+                    {% if form.wine6_sizzle.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_sizzle.errors }}
+                      </span>
+                    {% endif %}                    
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine6_sizzle.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine6_sizzle_{{id}}" value="{{id}}" name="wine6_sizzle" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine6_sizzle.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == form.wine6_sizzle.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine6_sizzle_dnl}} 
+                </div>
+              </div>
+              <div class="row shaded">
+                <div class="span2">
+                  <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
+                    <center>
+                      <h2>{{ form.wine6_overall.label }}</h2>
+                    </center>
+                    {% if form.wine6_overall.errors %}
+                      <span class="help-inline">
+                        {{ form.wine6_overall.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span5">
+                  <div class="row">
+                  {% for id, choice in form.wine6_overall.field.choices|slice:"1::" %}
+                    <div class="span1">
+                      <center>
+                        <input type="radio" id="id_wine6_overall_{{id}}" value="{{id}}" name="wine6_overall" />
+                      </center>
+                    </div>
+                  {% endfor %}  
+                  </div>
+                  <div class="row">
+                  {% for id, choice in form.wine6_overall.field.choices|slice:"1::" %}
+                    {% if id == 1 or id == 3 or id == form.wine6_overall.field.choices|last|first %}
+                      <div class="span1">
+                        <center>
+                          <label>{{ choice }}</label>
+                        </center>
+                      </div>
+                    {% else %}
+                      <div class="span1">
+                        <label></label>
+                      </div>
+                    {% endif %}
+                  {% endfor %}  
+                  </div>
+                </div>
+                <div class="span4">
+                  {{ form.wine6_overall_dnl}} 
+                </div>
+              </div>              
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </form>
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+
+<script src="{% static "js/jquery.cookie.js" %}"></script>
+<script type="text/javascript">
+  var csrftoken = $.cookie('csrftoken');
+
+  function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+
+  $.ajaxSetup({
+      crossDomain: false, // obviates need for sameOrigin test
+      beforeSend: function(xhr, settings) {
+          if (!csrfSafeMethod(settings.type)) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          }
+      }
+  });
+
+  {% if personality_exists %}
+  var personality_error = true;
+  {% else %}
+  var personality_error = false;
+  {% endif %}
+
+  var email_error = false;
+
+  function get_popover_title() {
+    if (personality_error) {
+      return "Personality warning";
+    } else if (email_error) {
+      return "E-mail invalid error";
+    }
+  }
+
+  function get_popover_content() {
+    if (personality_error) {
+      return 'Wine Personality already exists for this user so if you save you will be overriding!'; 
+    } else if (email_error) {
+      return 'E-mail address is an invalid address!';
+    }   
+  }
+
+  $("#id_email").popover(
+    {
+      title: get_popover_title,
+      content: get_popover_content 
+    }
+  );   
+
+  $('#id_email').keyup(function() {
+
+    /* for now do not disable the submit button even though personality exists */
+    $.ajax({
+      type: "POST",
+      url: "{% url check_personality_exists %}",
+      data: { email: $(this).val() },
+      success: function(data) {
+        $('#id_email').popover("hide");
+        $('#email-invalid-error').popover("hide");
+        if ( data["result"] == 1 ) {
+          personality_error = true;
+          $('#id_email').popover("show");
+          console.log("Show popover");
+          /*$('button[type="submit"]').attr('disabled', 'disabled');*/
+        } else if (data["result"] == 0 ) {
+          personality_error = false;
+          email_error = false;
+          /*$('button[type="submit"]').removeAttr('disabled'); */
+          $("#id_email").popover("hide")
+          console.log("Hide popover");
+        } else if (data["result"] == -1 ) {
+          email_error = true;
+          $('#id_email').popover("show");
+          console.log("Show popover");
+          /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
+        }
+      }
+    })
+  });
+</script>
+{% endblock additional_scripts %}

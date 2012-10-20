@@ -266,6 +266,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       try:
         taster = User.objects.get(email=email)
         data['personality_exists'] = taster.get_profile().has_personality()
+        data['invitee'] = taster
       except User.DoesNotExist:
         data['personality_exists'] = False
         taster = None
@@ -284,9 +285,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       taster = u
 
     if taster:
-      initial_data['email'] = taster.email
-      initial_data['first_name'] = taster.first_name
-      initial_data['last_name'] = taster.last_name
+      # initial_data['email'] = taster.email
+      # initial_data['first_name'] = taster.first_name
+      # initial_data['last_name'] = taster.last_name
 
       try:
         wine1_rating = WineRatingData.objects.get(user=taster, wine=wine1)
@@ -448,7 +449,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       data['role'] = u.get_profile().role()
       return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
-      return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
+      return render_to_response("personality/record_all_wine_ratings-new.html", data, context_instance=RequestContext(request))
 
   else:
     #else of - if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
