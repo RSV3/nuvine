@@ -464,7 +464,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       data['role'] = u.get_profile().role()
       return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
-      return render_to_response("personality/record_all_wine_ratings-new.html", data, context_instance=RequestContext(request))
+      return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
   else:
     #else of - if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
