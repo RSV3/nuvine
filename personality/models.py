@@ -86,7 +86,7 @@ class WineRatingData(models.Model):
     (2, 'Somewhat'),
     (3, 'Tingle'),
     (4, 'Semi Burn'),
-    (5, 'Butn')
+    (5, 'Burn')
   )
 
   user = models.ForeignKey(User)

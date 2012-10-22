@@ -18,7 +18,7 @@ from accounts.models import VerificationQueue, Zipcode, SUPPORTED_STATES
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm
+                        CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email

@@ -222,12 +222,10 @@ ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify y
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   """
     The form is used for user creation when people sign up for host or pro,
-    but also when inviting people to public Vinely events.
-    As a result the clean method has cases to handle users that already exist.
   """
 
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
-  zipcode = us_forms.USZipCodeField() #forms.CharField(max_length=20)
+  zipcode = us_forms.USZipCodeField()
   phone_number = us_forms.USPhoneNumberField(required=False)
 
   def __init__(self, *args, **kwargs):
@@ -238,10 +236,6 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
-
-    # if signing up for vinely event then allow to add to event without creating new user
-    if (self._errors.get('email') == self.error_class(['A user with that email already exists.'])) and self.initial.get('vinely_event'):
-        del self._errors['email']
 
     pro_group = Group.objects.get(name="Vinely Pro")
 

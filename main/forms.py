@@ -408,3 +408,21 @@ class OrderFulfillForm(forms.ModelForm):
     super(OrderFulfillForm, self).__init__(*args, **kwargs)
     self.fields['order_id'].widget = forms.HiddenInput()
 
+from emailusernames.forms import NameEmailUserCreationForm
+class EventSignupForm(NameEmailUserCreationForm):
+  '''
+    This form is used when inviting people to public Vinely events.
+    As a result the clean method has cases to handle creation of new users and users that already exist.
+  '''  
+  zipcode = us_forms.USZipCodeField()
+
+  def clean(self):
+    cleaned = super(EventSignupForm, self).clean()
+
+    # if signing up for vinely event then allow to add to event without creating new user
+    if (self._errors.get('email') == self.error_class(['A user with that email already exists.'])) and self.initial.get('vinely_event'):
+        del self._errors['email']
+
+    if cleaned.get('email'):
+      cleaned['email'] = cleaned['email'].strip().lower()
+    return cleaned
