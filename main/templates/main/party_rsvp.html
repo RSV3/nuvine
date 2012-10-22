@@ -1,6 +1,11 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+{% endblock %}
+
 {% block header %}
   <h1 class="headline">You have been invited to a Vinely Taste Party!</h1>
 {% endblock header %}
@@ -27,8 +32,9 @@
           <div class="modal-body">
             <form method="POST" class="modal-form" action="">{% csrf_token %}
               <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
+              <br />
               <div class="control-label" for="id_description">
-                {{ form.dob_tag}}
+                {{ form.dob.label }}
               </div>
               <div class="controls">
                 {{ form.mentor }}
@@ -163,11 +169,8 @@
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
-          $(".datepicker").datepicker();
-      });
-    </script>    
-    <script>
-      $(document).ready(function(){
+        $(".datepicker").datepicker();
+        
         // uncomment this to enable
         $("#update-age").modal();
       });

@@ -24,22 +24,22 @@
 {% endblock right_content %}
 
 {% block additional_scripts %}
-  <script type="text/javascript">
-    $(".side-nav li").hover(
-      function () {
-        $(this).children(".chev").addClass("active");
-        $(this).find("a").addClass("hovered");
-      },
-      function () {
-        $(this).children(".chev").removeClass("active");
-        $(this).find("a").removeClass("hovered");
-      }
-    );
-  </script>
   <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript">
-    $(document).ready( function () {
-        $(".datepicker").datepicker();
+    $(document).ready(function(){
+      $(".datepicker").datepicker();
+
+      $(".side-nav li").hover(
+        function () {
+          $(this).children(".chev").addClass("active");
+          $(this).find("a").addClass("hovered");
+        },
+        function () {
+          $(this).children(".chev").removeClass("active");
+          $(this).find("a").removeClass("hovered");
+        }
+      );
     });
   </script>
+  
 {% endblock %}
