@@ -124,7 +124,7 @@
             # Wine 1 Ratings
             #
             #########################################
-            -->            
+            -->
             <div class="tab-pane fade in active" id="wine1">
               <div class="row shaded">
                 <div class="span2">
@@ -897,43 +897,43 @@
     }   
   }
 
-  $("#id_email").popover(
-    {
-      title: get_popover_title,
-      content: get_popover_content 
-    }
-  );   
+  // $("#id_email").popover(
+  //   {
+  //     title: get_popover_title,
+  //     content: get_popover_content 
+  //   }
+  // );   
 
-  $('#id_email').keyup(function() {
+  // $('#id_email').keyup(function() {
 
-    /* for now do not disable the submit button even though personality exists */
-    $.ajax({
-      type: "POST",
-      url: "{% url check_personality_exists %}",
-      data: { email: $(this).val() },
-      success: function(data) {
-        $('#id_email').popover("hide");
-        $('#email-invalid-error').popover("hide");
-        if ( data["result"] == 1 ) {
-          personality_error = true;
-          $('#id_email').popover("show");
-          console.log("Show popover");
-          /*$('button[type="submit"]').attr('disabled', 'disabled');*/
-        } else if (data["result"] == 0 ) {
-          personality_error = false;
-          email_error = false;
-          /*$('button[type="submit"]').removeAttr('disabled'); */
-          $("#id_email").popover("hide")
-          console.log("Hide popover");
-        } else if (data["result"] == -1 ) {
-          email_error = true;
-          $('#id_email').popover("show");
-          console.log("Show popover");
-          /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
-        }
-      }
-    })
-  });
+  //   /* for now do not disable the submit button even though personality exists */
+  //   $.ajax({
+  //     type: "POST",
+  //     url: "{% url check_personality_exists %}",
+  //     data: { email: $(this).val() },
+  //     success: function(data) {
+  //       $('#id_email').popover("hide");
+  //       $('#email-invalid-error').popover("hide");
+  //       if ( data["result"] == 1 ) {
+  //         personality_error = true;
+  //         $('#id_email').popover("show");
+  //         console.log("Show popover");
+  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/
+  //       } else if (data["result"] == 0 ) {
+  //         personality_error = false;
+  //         email_error = false;
+  //         /*$('button[type="submit"]').removeAttr('disabled'); */
+  //         $("#id_email").popover("hide")
+  //         console.log("Hide popover");
+  //       } else if (data["result"] == -1 ) {
+  //         email_error = true;
+  //         $('#id_email').popover("show");
+  //         console.log("Show popover");
+  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
+  //       }
+  //     }
+  //   })
+  // });
 </script>
 
 <script type="text/javascript">

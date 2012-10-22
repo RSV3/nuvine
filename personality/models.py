@@ -39,38 +39,45 @@ class WineRatingData(models.Model):
       (5, 'Love'),
   )
 
+  # DNL_CHOICES = (
+  #   (0, 'Not Answered'),
+  #   (1, 'Dislike'),
+  #   (2, 'Neutral'),
+  #   (3, 'Like'),
+  # )
+
   DNL_CHOICES = (
     (0, 'Not Answered'),
-    (1, 'Dislike'),
-    (2, 'Neutral'),
-    (3, 'Like'),
+    (1, 'Too Little'),
+    (2, 'Just Right'),
+    (3, 'Too Much'),
   )
 
   SWEET_CHOICES = (
     (0, 'Not Answered'),
-    (1, 'Very Tart'),
-    (2, 'Tart'),
+    (1, 'Tart'),
+    (2, 'Semi Tart'),
     (3, 'Neutral'),
-    (4, 'Sweet'),
-    (5, 'Very Sweet'),
+    (4, 'Semi Sweet'),
+    (5, 'Sweet'),
   )
   
   WEIGHT_CHOICES = (
     (0, 'Not Answered'),
-    (1, 'Very Light'),
-    (2, 'Light'),
+    (1, 'Light'),
+    (2, 'Semi Light'),
     (3, 'Medium'),
-    (4, 'Heavy'),
-    (5, 'Very Heavy'),
+    (4, 'Semi Heavy'),
+    (5, 'Heavy'),
   )
 
   TEXTURE_CHOICES = (
     (0, 'Not Answered'),
-    (1, 'Very Silky'),
-    (2, 'Silky'),
+    (1, 'Silky'),
+    (2, 'Semi Silky'),
     (3, 'Neutral'),
-    (4, 'Furry'),
-    (5, 'Very Furry'),
+    (4, 'Semi Furry'),
+    (5, 'Furry'),
   )
 
   SIZZLE_CHOICES = (
@@ -78,8 +85,8 @@ class WineRatingData(models.Model):
     (1, 'None'),
     (2, 'Somewhat'),
     (3, 'Tingle'),
-    (4, 'Burn'),
-    (5, 'Hot')
+    (4, 'Semi Burn'),
+    (5, 'Butn')
   )
 
   user = models.ForeignKey(User)

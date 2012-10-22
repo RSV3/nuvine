@@ -37,15 +37,21 @@ class CustomRadioField(forms.RadioSelect.renderer):
             </center>
           </div>
         ''' % (x.attrs['id'], x.index, x.name, 'checked="checked"' if x.is_checked() else "")
+        
         items.append(radio_html)
 
-        label_html = '''
-          <div class="span1">
-            <center>
-              <label>%s</label>
-            </center>
-          </div>
-        ''' % x.choice_label
+        if x.index == 1 or x.index == 5 or \
+          (x.index == 3 and ('weight' in x.name or 'sizzle' in x.name)) or \
+          ('overall' in x.name):
+          label_html = '''
+            <div class="span1">
+              <center>
+                <label>%s</label>
+              </center>
+            </div>
+          ''' % x.choice_label
+        else:
+          label_html = '<div class="span1">&nbsp;</div>'          
         labels.append(label_html)
 
     return mark_safe(u'\n'.join(items) + u'\n'.join(labels))
