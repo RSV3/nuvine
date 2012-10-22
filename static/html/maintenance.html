@@ -100,11 +100,9 @@
 
     <div class="row">
 
-      {% block brand_logo %}
-      <div class="span5 offset1">
-        <h1><a class="brand" href=""><img src="http://s3.amazonaws.com/cdn.vinely.com/static/img/vinely_logo_notag.png" title="Vinely" class="default" width="312" height="160"></a></h1>
+      <div class="span12 offset4">
+        <h1><a class="brand" href=""f><img src="http://s3.amazonaws.com/cdn.vinely.com/static/img/vinely_logo_notag.png" title="Vinely" class="default" width="312" height="160"></a></h1>
       </div>
-      {% endblock brand_logo %}
     </div> <!-- .row -->
   </div> <!-- .container (do we want this here?) -->
 
@@ -115,15 +113,25 @@
   </header>
 
   <div role="main" id="main-content">
-    {% block content %}
+    <div class="container">
     <div class="row">
       <div class="span12">
-      We're sorry to inform that Vinely site is currently under maintenance.  Please check back with us in a few hours.
+        <div class="vertical-space">
+          &nbsp;
+        </div>
+        <h1>
+          We're sorry to inform that Vinely site is currently under maintenance.  
+        </h1>
+        <h1>
+          Please check back with us in a few hours.
+        </h1>
+        <div class="vertical-space">
+          &nbsp;
+        </div>
       </div>
     </div>
-    {% endblock content %}
   </div>
-  {% block badges %}
+
   <div class="container">
    <div id="badges" class="pie-container divider">
       <div class="row">
@@ -136,7 +144,7 @@
       </div>
     </div>
   </div>
-  {% endblock badges %}
+
   <footer>
     <div class="container">
       <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
