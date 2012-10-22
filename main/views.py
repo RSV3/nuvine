@@ -1153,6 +1153,8 @@ def party_taster_invite(request, party_id=0):
       initial_data = {'host': u}
     elif u.get_profile().is_pro():
       initial_data = {'pro': u}
+    else:
+      initial_data = {}
 
     if request.method == "POST":
       form = PartyInviteTasterForm(request.POST, initial=initial_data)
