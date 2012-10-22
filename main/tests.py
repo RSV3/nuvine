@@ -205,9 +205,12 @@ class SimpleTest(TestCase):
     reason = ContactReason.objects.get_or_create(reason="Other")
 
   def create_products(self):
+    """
+      Need to specify pk explicitly or else it creates products with ID's that are incremental from previous entries
+    """
     if Product.objects.all().count() < 6:
       f = open("data/firsthostkit_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit",
+      p, created = Product.objects.get_or_create(pk=1, name="Vinely's First Taste Kit",
                                     description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
                                         discover their true wine personality. Included are six carefully-selected wines, offered \
                                         in three unique tasting experiences.</p>\
@@ -225,7 +228,7 @@ class SimpleTest(TestCase):
       f.close()
 
       #f = open("data/firsthostkit_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Vinely's Superior Taste Kit",
+      p, created = Product.objects.get_or_create(pk=2, name="Vinely's Superior Taste Kit",
                                     description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
                                         discover their true wine personality. Included are six carefully-selected wines, offered \
                                         in three unique tasting experiences.</p>\
@@ -243,7 +246,7 @@ class SimpleTest(TestCase):
       #f.close()
 
       #f = open("data/firsthostkit_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Vinely's Divine Taste Kit",
+      p, created = Product.objects.get_or_create(pk=3, name="Vinely's Divine Taste Kit",
                                     description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
                                         discover their true wine personality. Included are six carefully-selected wines, offered \
                                         in three unique tasting experiences.</p>\
@@ -262,7 +265,7 @@ class SimpleTest(TestCase):
 
 
       f = open("data/SP_basic_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Basic Collection",
+      p, created = Product.objects.get_or_create(pk=4, name="Basic Collection",
                                     description="The {{ personality }} Basic Collection is lively, yet \
                                     laid-back - just like life should be. It offers a dynamic medley \
                                     of flavors you won't be able to resist. For those new to the world \
@@ -276,7 +279,7 @@ class SimpleTest(TestCase):
       f.close()
 
       f = open("data/SP_superior_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Superior Collection",
+      p, created = Product.objects.get_or_create(pk=5, name="Superior Collection",
                                     description="Great for enjoying alone or with friends, each \
                                     bottle is filled with the potential to take your wine experience \
                                     to exciting new places. The {{personality}} Superior Collection \
@@ -291,7 +294,7 @@ class SimpleTest(TestCase):
       f.close()
 
       f = open("data/SP_divine_prodimg.png", 'r')
-      p, created = Product.objects.get_or_create(name="Divine Collection",
+      p, created = Product.objects.get_or_create(pk=6, name="Divine Collection",
                                     description="Captivating. Balanced. Brilliant. You're full \
                                     of depth and so is the {{personality}} Divine Collection. \
                                     Excite your senses each and every time you pour a glass. \

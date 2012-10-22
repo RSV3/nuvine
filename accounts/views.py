@@ -305,11 +305,13 @@ def sign_up(request, account_type):
         return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
   ### Handle people who are signing up fresh
-  if account_type == 5:
+  if account_type in [3,5]:
     # people who order wine tasting kit
     role = tas_group
-  elif account_type in [1,2,3]:
-    role = Group.objects.get(id=account_type)
+  elif account_type == 1:
+    role = pro_group
+  elif account_type == 2:
+    role = hos_group
 
   if not role:
     # currently suppliers cannot sign up

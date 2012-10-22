@@ -1,12 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
-from main.models import Product
+from main.models import Product, Order, LineItem
 from main.tests import SimpleTest
 
 class Command(BaseCommand):
   args = ""
-  help = "Manually initialize products"
+  help = "Script used to fix previous order that referred to old product ID"
 
   option_list = BaseCommand.option_list + (
     make_option('-m', '--mutual',
@@ -23,8 +23,16 @@ class Command(BaseCommand):
 
 
   def handle(self, *args, **options):
-    for p in Product.objects.all():
-      p.delete()
+    # TODO: need to specify order_id, product_id, price_category, quantity, frequency
 
-    s = SimpleTest()
-    s.create_products()
+    o = Order.objects.get(id=1)
+    cart = o.cart
+
+    # superior collection
+    p = Product.objects.get(id=5)
+    # full case
+    item = LineItem(product=p, price_category=7, quantity=1, frequency=2)
+    item.total_price = item.subtotal()
+    item.save()
+    cart.items.add(item)
+    cart.save()

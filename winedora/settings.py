@@ -296,6 +296,10 @@ LOGGING = {
         'personality': {
             'handlers': ['console'],
             'level': 'INFO'
+        },
+        'accounts': {
+            'handlers': ['console'],
+            'level': 'INFO'
         }
     },
 }

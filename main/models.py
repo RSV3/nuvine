@@ -172,14 +172,16 @@ class Product(models.Model):
   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
   description = models.CharField(max_length=1024)
+  #: half case price
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  full_case_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
   image = ImageField(upload_to="products/")
   cart_tag = models.CharField(max_length=64, default="x")
   active = models.BooleanField(default=True)
   # when it was last added 
   timestamp = models.DateTimeField(auto_now_add=True)
-  full_case_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-  
+
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
 
@@ -251,10 +253,10 @@ class Cart(models.Model):
 
   def subtotal(self):
     # sum of all line items
-    price_sum = 0 
+    price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum 
+    return price_sum
 
   def shipping(self):
     shipping = 0
@@ -262,7 +264,7 @@ class Cart(models.Model):
     #   # always $16 - August 2, 2012
     #   shipping += 16
     for item in self.items.all():
-      if (item.price_category in [5,7,9]) or ((item.price_category == 11) and (item.quantity == 1)):
+      if (item.price_category in [5, 7, 9]) or ((item.price_category == 11) and (item.quantity == 1)):
         # half case or single tasting kit
         shipping += 16
       else:
@@ -277,19 +279,19 @@ class Cart(models.Model):
       elif item.frequency == 0:
         shipping += 16
       """
-    return shipping 
+    return shipping
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
-    tax = float(self.subtotal())*0.06
-    return tax 
+    tax = float(self.subtotal()) * 0.06
+    return tax
 
   def total(self):
     # TODO: total everything including shipping and tax
-    return self.shipping() + self.tax() + self.subtotal() 
+    return self.shipping() + self.tax() + self.subtotal()
 
   def items_str(self):
-    output = [] 
+    output = []
     for item in self.items.all():
       output.append(item.product)
 
