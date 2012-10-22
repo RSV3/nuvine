@@ -29,7 +29,7 @@
 {% block content %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  <form method="POST" action="{% url add_taster_in_ratings party.id %}" class="form-horizontal">
+  <form method="POST" action="" class="form-horizontal">
     {% csrf_token %}
     <div class="row">
       <div class="span3">
@@ -95,8 +95,8 @@
       <div class="span4">
         <h3>Quick Search:</h3>
         <p>
-          <input type="text" placeholder="Type in new taster's name" />
-          <button type="submit" name="go" value="go" class="btn btn-primary">Go</button>
+          <input type="text" placeholder="Type in new taster's name" class="typeahead"  data-provide="typeahead" />
+          <button id="load_taster" type="submit" name="go" value="go" class="btn btn-primary">Go</button>
         </p>
         <p>&nbsp;</p>
         <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
@@ -934,5 +934,40 @@
       }
     })
   });
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.typeahead').typeahead({
+      source: function (query, process){
+        // console.log("query: " + query);
+        var url = "{% url taster_list -1 0 %}".replace(-1, query).replace(0, {{ party.id }});
+        $.ajax({
+          url: url,
+          cache: true,
+          dataType: "json",
+          success: function(json, textStatus) {
+            return process(json);
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // alert("error: " + errorThrown);
+            console.log("error" + errorThrown)
+          }
+        });
+        return [];
+      }
+    });
+
+    $("#load_taster").click(function(e){
+      var text = $('.typeahead').val();
+      if (text.length > 0) {
+        var url = "{% url record_all_wine_ratings -1 0 %}".replace(-1, text.split(",")[1].trim()).replace(0, {{ party.id }});
+        // console.log("url: " + url);
+        window.location = url;
+      }
+      return false;
+    });
+  });
+
 </script>
 {% endblock additional_scripts %}

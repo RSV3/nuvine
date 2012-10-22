@@ -11,5 +11,5 @@ urlpatterns = patterns('personality.views',
     url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
     url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
 	url(r'^ratings/info/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'personality_rating_info', name='personality_rating_info'),
-    url(r'^add/taster/ratings/(?P<party_id>\d+)/$', 'add_taster_in_ratings', name='add_taster_in_ratings'),
+    url(r'^taster/list/(?P<taster>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'taster_list', name='taster_list'),
 )

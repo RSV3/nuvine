@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from main.utils import if_supplier
+from main.utils import if_supplier, if_pro
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog, PartyInvite
 from accounts.models import VerificationQueue
@@ -212,41 +212,6 @@ def personality_rating_info(request, email=None, party_id=None):
   return record_all_wine_ratings(request, email, party_id, None)
 
 @login_required
-# @user_passes_test(if_pro, login_url="/pros/only/")
-def add_taster_in_ratings(request, party_id):
-  data = {}
-  party = None
-  if party_id:
-    party = Party.objects.get(id=party_id)
-
-  taster_form = AddTasterRatingsForm(request.POST or None)
-  data['taster_form'] = taster_form
-
-  if taster_form.is_valid():
-    invitee = taster_form.save()
-
-    # new user was created
-    temp_password = User.objects.make_random_password()
-    invitee.set_password(temp_password)
-    invitee.save()
-
-    verification_code = str(uuid.uuid4())
-    vque = VerificationQueue(user=invitee, verification_code=verification_code)
-    vque.save()
-
-    # send out verification e-mail, create a verification code
-    send_verification_email(request, verification_code, temp_password, invitee.email)
-
-    # link them to party and RSVP
-    today = timezone.now()
-    
-    invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host,
-                                response=3, response_timestamp=today)
-    # send them back to same page with details preloaded so they can fill in details
-    messages.info(request, "New taster successfully created. Now you can go ahead and add their wine ratings.")
-    return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))
-
-@login_required
 def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   """
     Record wine ratings.
@@ -404,43 +369,47 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     
     initial_data['party'] = party
 
-    # if request.POST.get('add_taster'):
-    #   taster_form = AddTasterRatingsForm(request.POST)
-    # else:
-    #   taster_form = AddTasterRatingsForm()
-    # data['taster_form'] = taster_form
-
-    # if request.POST.get('save_ratings'):
-    taster_form = AddTasterRatingsForm()
+    if request.POST.get('add_taster'):
+      taster_form = AddTasterRatingsForm(request.POST)
+    else:
+      taster_form = AddTasterRatingsForm()
     data['taster_form'] = taster_form
-    # raise Exception
-    form = AllWineRatingsForm(request.POST or None, initial=initial_data)
-    # else:
-    #   form = AllWineRatingsForm(None, initial=initial_data)
-    
-    # if taster_form.is_valid():
-    #   invitee = taster_form.save()
 
-    #   # new user was created
-    #   temp_password = User.objects.make_random_password()
-    #   invitee.set_password(temp_password)
-    #   invitee.save()
+    if taster_form.is_valid():
+      try:
+        invitee = User.objects.get(email=taster_form.cleaned_data['email'].lower())
+      except User.DoesNotExist:
+        invitee = taster_form.save()
 
-    #   verification_code = str(uuid.uuid4())
-    #   vque = VerificationQueue(user=invitee, verification_code=verification_code)
-    #   vque.save()
+        # new user was created
+        temp_password = User.objects.make_random_password()
+        invitee.set_password(temp_password)
+        invitee.save()
 
-    #   # send out verification e-mail, create a verification code
-    #   send_verification_email(request, verification_code, temp_password, invitee.email)
+        verification_code = str(uuid.uuid4())
+        vque = VerificationQueue(user=invitee, verification_code=verification_code)
+        vque.save()
 
-    #   # link them to party and RSVP
-    #   today = timezone.now()
+        # send out verification e-mail, create a verification code
+        send_verification_email(request, verification_code, temp_password, invitee.email)
+
+      # link them to party and RSVP
+      today = timezone.now()
       
-    #   invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host,
-    #                               response=3, response_timestamp=today)
-    #   # send them back to same page with details preloaded so they can fill in details
-    #   messages.info(request, "New taster successfully created. Now you can go ahead and add their wine ratings.")
-    #   return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))
+      invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host)
+      # only update response times for tasters who had not RSVP'd
+      if created:
+        invite.response = 3
+        invite.response_timestamp = today
+        invite.save()
+
+      messages.info(request, "Taster successfully added to this party. Now you can go ahead and add their wine ratings.")
+      return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))      
+
+    if request.POST.get('save_ratings'):
+      form = AllWineRatingsForm(request.POST or None, initial=initial_data)
+    else:
+      form = AllWineRatingsForm(initial=initial_data)
 
     if form.is_valid():
       results = form.save()
@@ -503,3 +472,24 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     # user needs to be a Vinely Pro or Vinely Taster to fill this out
     # Vinely Taster is filling out their own data
     raise PermissionDenied
+
+import json
+from django.db.models import Q
+@login_required
+def taster_list(request, taster, party_id):
+  pro = request.user
+  taster = taster.strip()
+  # only get tasters linked to this pro
+  att_group = Group.objects.get(name="Vinely Taster")
+  # show people linked to this pro
+  # my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro)
+  # show people who RSVP'ed to the party
+  my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
+  users = User.objects.filter(id__in = [x.invitee.id for x in my_guests]) # , groups__in=[att_group])
+  users = users.filter(Q(first_name__icontains=taster) | Q(last_name__icontains=taster) | Q(email__icontains=taster)).order_by('first_name')
+  data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
+
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+
