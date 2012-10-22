@@ -19,40 +19,8 @@ class AddTasterRatingsForm(forms.ModelForm):
   class Meta:
     model = User
     exclude = ['username', 'password', 'last_login', 'date_joined']
-  # def old_save(self, commit=True):
-  #   data = self.cleaned_data
-  #   user = User.objects.get(email=data['email'].lower())
-  #   except User.DoesNotExist:
-  #     # create new user
-  #     user = create_user(email=data['email'].lower(), password='welcome')
-  #     user.is_active = False
-
-  #     # link them to party and RSVP
-  #     party = self.initial.get('party')
-  #     today = timezone.now()
-  #     try:
-  #       invite = PartyInvite.objects.get(party=party, invitee=user)
-  #       invite.response = 3
-  #       invite.response_timestamp = today
-  #       invite.save()
-  #     except PartyInvite.DoesNotExist:
-  #       # if doest exist then create
-  #       PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
-  #                                 response=3, response_timestamp=today)
-
-  #   if data['first_name']:
-  #     user.first_name = data['first_name']
-  #   if data['last_name']:
-  #     user.last_name = data['last_name']
-  #   user.save()
-
-  #   if user.groups.all().count() == 0:
-  #     # add to attendee group
-  #     taster_group = Group.objects.get(name="Vinely Taster")
-  #     user.groups.add(taster_group)
-  #     user.save()
-# from django.utils.safestring import mark_safe
-from django.utils.html import conditional_escape, mark_safe
+  
+from django.utils.safestring import mark_safe
 class CustomRadioField(forms.RadioSelect.renderer):
   def render(self):
     items = []
