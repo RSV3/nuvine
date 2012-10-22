@@ -55,30 +55,32 @@ class AddTasterRatingsForm(forms.ModelForm):
 from django.utils.html import conditional_escape, mark_safe
 class CustomRadioField(forms.RadioSelect.renderer):
   def render(self):
-    # print "%s, %s, %s, %s" % (name, value, attrs, choices)
-    # print dir(self)
-    # print self.choices
-    # super(CustomRadioField, self).render(name, value, attrs, choices)
     items = []
-    # print dir(self)
-    # print self.value
+    labels = []
     for x in self:
-      # print x.choice_value, x.is_checked()
-      # print x.value
       if x.index == 0:
         items.append('')
+        labels.append('')
       else:
-        html = '''
-        <div class="span1">
-          <center>
-            <input type="radio" id="%s" value="%s" name="%s" %s />
-          </center>
-        </div>
+        radio_html = '''
+          <div class="span1">
+            <center>
+              <input type="radio" id="%s" value="%s" name="%s" %s />
+            </center>
+          </div>
         ''' % (x.attrs['id'], x.index, x.name, 'checked="checked"' if x.is_checked() else "")
-        items.append(html)
-      labels = []
-      # elif x.index == 1 or x.index == self.choices[-1][0]:      
-    return mark_safe(u'\n'.join(items))
+        items.append(radio_html)
+
+        label_html = '''
+          <div class="span1">
+            <center>
+              <label>%s</label>
+            </center>
+          </div>
+        ''' % x.choice_label
+        labels.append(label_html)
+
+    return mark_safe(u'\n'.join(items) + u'\n'.join(labels))
 
 
 class AllWineRatingsForm(forms.Form):
@@ -162,11 +164,11 @@ class AllWineRatingsForm(forms.Form):
   def save(self):
 
     results = []
-
-    # results.append(user)
+    
     data = self.cleaned_data
     user = User.objects.get(email=data['email'])
-    
+    results.append(user)
+
     # save each wine data
     for i in range(1, 7):
       wine = Wine.objects.get(id=data['wine%d' % i])
@@ -175,14 +177,14 @@ class AllWineRatingsForm(forms.Form):
         # update
         rating_data.overall = int(data['wine%d_overall' % i])
         #rating_data.dnl = int(data['wine%d_dnl'%i])
-        rating_data.sweet = int(data['wine%d_sweet' % i])
-        rating_data.sweet_dnl = int(data['wine%d_sweet_dnl' % i])
-        rating_data.weight = int(data['wine%d_weight' % i])
-        rating_data.weight_dnl = int(data['wine%d_weight_dnl' % i])
-        rating_data.texture = int(data['wine%d_texture' % i])
-        rating_data.texture_dnl = int(data['wine%d_texture_dnl' % i])
-        rating_data.sizzle = int(data['wine%d_sizzle' % i])
-        rating_data.sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])
+        rating_data.sweet = int(data['wine%d_sweet' % i])             if data['wine%d_sweet' % i] else 0
+        rating_data.sweet_dnl = int(data['wine%d_sweet_dnl' % i])     if data['wine%d_sweet_dnl' % i] else 0
+        rating_data.weight = int(data['wine%d_weight' % i])           if data['wine%d_weight' % i] else 0
+        rating_data.weight_dnl = int(data['wine%d_weight_dnl' % i])   if data['wine%d_weight_dnl' % i] else 0
+        rating_data.texture = int(data['wine%d_texture' % i])         if data['wine%d_texture' % i] else 0
+        rating_data.texture_dnl = int(data['wine%d_texture_dnl' % i]) if data['wine%d_texture_dnl' % i] else 0
+        rating_data.sizzle = int(data['wine%d_sizzle' % i])           if data['wine%d_sizzle' % i] else 0
+        rating_data.sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])   if data['wine%d_sizzle_dnl' % i] else 0
         rating_data.save()
       except WineRatingData.DoesNotExist:
         # create new data
@@ -191,14 +193,14 @@ class AllWineRatingsForm(forms.Form):
             wine = wine,
             overall = int(data['wine%d_overall' % i]),
             #dnl = int(data['wine%d_dnl'%i]),
-            sweet = int(data['wine%d_sweet' % i]),
-            sweet_dnl = int(data['wine%d_sweet_dnl' % i]),
-            weight = int(data['wine%d_weight' % i]),
-            weight_dnl = int(data['wine%d_weight_dnl' % i]),
-            texture = int(data['wine%d_texture' % i]),
-            texture_dnl = int(data['wine%d_texture_dnl' % i]),
-            sizzle = int(data['wine%d_sizzle' % i]),
-            sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])
+            sweet = int(data['wine%d_sweet' % i])             if data['wine%d_sweet' % i] else 0,
+            sweet_dnl = int(data['wine%d_sweet_dnl' % i])     if data['wine%d_sweet_dnl' % i] else 0,
+            weight = int(data['wine%d_weight' % i])           if data['wine%d_weight' % i] else 0,
+            weight_dnl = int(data['wine%d_weight_dnl' % i])   if data['wine%d_weight_dnl' % i] else 0,
+            texture = int(data['wine%d_texture' % i])         if data['wine%d_texture' % i] else 0,
+            texture_dnl = int(data['wine%d_texture_dnl' % i]) if data['wine%d_texture_dnl' % i] else 0,
+            sizzle = int(data['wine%d_sizzle' % i])           if data['wine%d_sizzle' % i] else 0,
+            sizzle_dnl = int(data['wine%d_sizzle_dnl' % i])   if data['wine%d_sizzle_dnl' % i] else 0
           )
       results.append(rating_data)
 

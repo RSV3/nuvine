@@ -94,8 +94,11 @@
       </div>
       <div class="span4">
         <h3>Quick Search:</h3>
-        <p><input type="text" placeholder="Type in new taster's name" /></p>
-        <p><button type="submit" name="go" value="go" class="btn btn-primary">Go</button></p>
+        <p>
+          <input type="text" placeholder="Type in new taster's name" />
+          <button type="submit" name="go" value="go" class="btn btn-primary">Go</button>
+        </p>
+        <p>&nbsp;</p>
         <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
         <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Submit and reveal wine personality</button></p>
       </div>
@@ -141,21 +144,6 @@
                   <div class="row">
                     {{ form.wine1_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine1_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine1_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine1_sweet_dnl}} 
@@ -177,21 +165,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine1_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine1_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine1_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -215,21 +188,6 @@
                   <div class="row">
                     {{ form.wine1_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine1_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine1_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine1_texture_dnl}} 
@@ -251,21 +209,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine1_sizzle }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine1_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine1_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -289,21 +232,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine1_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine1_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine1_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -337,21 +265,6 @@
                   <div class="row">
                     {{ form.wine2_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine2_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine2_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine2_sweet_dnl}} 
@@ -373,21 +286,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine2_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine2_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine2_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -411,21 +309,6 @@
                   <div class="row">
                     {{ form.wine2_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine2_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine2_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine2_texture_dnl}} 
@@ -448,26 +331,12 @@
                   <div class="row">
                     {{ form.wine2_sizzle }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine2_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine2_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine2_sizzle_dnl}} 
                 </div>
               </div>
+              <hr />
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
@@ -484,21 +353,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine2_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine2_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine2_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -533,21 +387,6 @@
                   <div class="row">
                     {{ form.wine3_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine3_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine3_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine3_sweet_dnl}} 
@@ -569,21 +408,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine3_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine3_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine3_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -607,21 +431,6 @@
                   <div class="row">
                     {{ form.wine3_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine3_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine3_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine3_texture_dnl}} 
@@ -644,26 +453,12 @@
                   <div class="row">
                     {{ form.wine3_sizzle }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine3_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine3_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine3_sizzle_dnl}} 
                 </div>
               </div>
+              <hr />
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
@@ -680,21 +475,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine3_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine3_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine3_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -728,21 +508,6 @@
                   <div class="row">
                     {{ form.wine4_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine4_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine4_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine4_sweet_dnl}} 
@@ -764,21 +529,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine4_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine4_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine4_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -802,21 +552,6 @@
                   <div class="row">
                     {{ form.wine4_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine4_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine4_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine4_texture_dnl}} 
@@ -839,26 +574,12 @@
                   <div class="row">
                     {{ form.wine4_sizzle }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine4_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine4_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine4_sizzle_dnl}} 
                 </div>
               </div>
+              <hr />
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
@@ -875,21 +596,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine4_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine4_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine4_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -923,21 +629,6 @@
                   <div class="row">
                     {{ form.wine5_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine5_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine5_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine5_sweet_dnl}} 
@@ -959,21 +650,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine5_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine5_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine5_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -997,21 +673,6 @@
                   <div class="row">
                     {{ form.wine5_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine5_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine5_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine5_texture_dnl}} 
@@ -1034,26 +695,12 @@
                   <div class="row">
                     {{ form.wine5_sizzle }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine5_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine5_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine5_sizzle_dnl}} 
                 </div>
               </div>
+              <hr />
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
@@ -1070,21 +717,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine5_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine5_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine5_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -1118,21 +750,6 @@
                   <div class="row">
                     {{ form.wine6_sweet }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine6_sweet.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine6_sweet.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine6_sweet_dnl}} 
@@ -1154,21 +771,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine6_weight }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine6_weight.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine6_weight.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">
@@ -1192,21 +794,6 @@
                   <div class="row">
                     {{ form.wine6_texture }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine6_texture.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine6_texture.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine6_texture_dnl}} 
@@ -1229,26 +816,12 @@
                   <div class="row">
                     {{ form.wine6_sizzle }}
                   </div>
-                  <div class="row">
-                  {% for id, choice in form.wine6_sizzle.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == form.wine6_sizzle.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
-                  </div>
                 </div>
                 <div class="span4">
                   {{ form.wine6_sizzle_dnl}} 
                 </div>
               </div>
+              <hr />
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
@@ -1265,21 +838,6 @@
                 <div class="span5">
                   <div class="row">
                     {{ form.wine6_overall }}
-                  </div>
-                  <div class="row">
-                  {% for id, choice in form.wine6_overall.field.choices|slice:"1::" %}
-                    {% if id == 1 or id == 3 or id == form.wine6_overall.field.choices|last|first %}
-                      <div class="span1">
-                        <center>
-                          <label>{{ choice }}</label>
-                        </center>
-                      </div>
-                    {% else %}
-                      <div class="span1">
-                        <label></label>
-                      </div>
-                    {% endif %}
-                  {% endfor %}  
                   </div>
                 </div>
                 <div class="span4">

@@ -457,7 +457,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           data["role"] = "pro"
           # log the time and the party that the persona was found
           if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
+            persona_log, created = PersonaLog.objects.get_or_create(user=taster)
             persona_log.pro = u
             if created or persona_log.party is None:
               # record first party
@@ -467,23 +467,23 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           # saving your own data
           data["role"] = "taster"
           if party:
-            persona_log, created = PersonaLog.objects.get_or_create(user=invitee)
+            persona_log, created = PersonaLog.objects.get_or_create(user=taster)
             if persona_log.party is None:
               # if no previous log has been created, since we only track the first party
               persona_log.party = party
               persona_log.save()
           else:
             # saved before or without the party
-            PersonaLog.objects.get_or_create(user=invitee)
+            PersonaLog.objects.get_or_create(user=taster)
         elif hos_group in u.groups.all():
           # personality was created by an host herself
           # ask if you want order wine
           data["role"] = "host"
-          PersonaLog.objects.get_or_create(user=invitee)
+          PersonaLog.objects.get_or_create(user=taster)
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
-        msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (invitee.email, reverse('party_details', args=[party.id]))
+        msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))
         messages.success(request, msg)
 
     data["rate_wines_menu"] = True
