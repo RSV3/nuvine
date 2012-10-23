@@ -1054,7 +1054,7 @@ def party_details(request, party_id):
 
   data["party"] = party
   data["invitees"] = invitees
-  today = datetime.now(tz=UTC())
+  today = datetime.now(tz=UTC()) - timedelta(days=1)
 
   if party.event_date > today and party.high_low() == '!LOW':
     msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
@@ -1960,45 +1960,47 @@ import os, zipfile
 # from django.core.servers.basehttp import FileWrapper
 
 
-def generate_rating_card(event_date, pro, host_name, invitee, in_stream, output):
+def generate_rating_card(event_date, pro, host, invitee, in_stream, output):
     """
       internal method used to generate rating card for each invitee
     """
-    packet = cStringIO.StringIO()
-    exp_doc = PdfFileReader(in_stream)
-    # output = PdfFileWriter()
 
-    can = canvas.Canvas(packet, pagesize=letter)
-    # Taster name
-    can.setFont('Helvetica-Bold', 12)
-    can.drawString(230, 74, string.upper(invitee.get_full_name()))
-    can.drawString(630, 74, string.upper(invitee.get_full_name()))
+    if invitee != host:
+      packet = cStringIO.StringIO()
+      exp_doc = PdfFileReader(in_stream)
+      # output = PdfFileWriter()
 
-    can.setFont('Courier', 9)
-    # event date
-    can.drawString(230, 63, event_date)
-    can.drawString(630, 63, event_date)
-    # host name
-    can.drawString(230, 53, host_name)
-    can.drawString(630, 53, host_name)
-    # pro name
-    can.drawString(230, 43, pro.get_full_name())
-    can.drawString(630, 43, pro.get_full_name())
-    can.save()
+      can = canvas.Canvas(packet, pagesize=letter)
+      # Taster name
+      can.setFont('Helvetica-Bold', 12)
+      can.drawString(230, 74, string.upper(invitee.get_full_name()))
+      can.drawString(630, 74, string.upper(invitee.get_full_name()))
 
-    packet.seek(0)
-    text = PdfFileReader(packet)
+      can.setFont('Courier', 9)
+      # event date
+      can.drawString(230, 63, event_date)
+      can.drawString(630, 63, event_date)
+      # host name
+      can.drawString(230, 53, host.get_full_name())
+      can.drawString(630, 53, host.get_full_name())
+      # pro name
+      can.drawString(230, 43, pro.get_full_name())
+      can.drawString(630, 43, pro.get_full_name())
+      can.save()
 
-    for x in range(exp_doc.numPages):
-      page = exp_doc.getPage(x)
-      page.mergePage(text.getPage(0))
-      output.addPage(page)
+      packet.seek(0)
+      text = PdfFileReader(packet)
 
-    # when creating multiple files
-    # filename = CARDS_PATH + invite.invitee.email+ '.pdf'
-    # with file(filename, 'wb') as out_stream:
-    #   output.write(out_stream)
-    # files.append(filename)
+      for x in range(exp_doc.numPages):
+        page = exp_doc.getPage(x)
+        page.mergePage(text.getPage(0))
+        output.addPage(page)
+
+      # when creating multiple files
+      # filename = CARDS_PATH + invite.invitee.email+ '.pdf'
+      # with file(filename, 'wb') as out_stream:
+      #   output.write(out_stream)
+      # files.append(filename)
 
 @login_required
 def print_rating_cards(request, party_id):
@@ -2012,7 +2014,6 @@ def print_rating_cards(request, party_id):
   # assume whoever is printing this is the pro
   pro = request.user
   host = party.host
-  host_name = party.host.get_full_name()
   event_date = party.event_date.strftime('%m-%d-%Y')
 
   path = staticfiles.templatetags.staticfiles.static("doc/PDF_vinely_experience_card_Raw.pdf")
@@ -2033,10 +2034,10 @@ def print_rating_cards(request, party_id):
   # files = []
   output = PdfFileWriter()
   # generate rating card for host
-  generate_rating_card(event_date, pro, host_name, host, in_stream, output)
+  generate_rating_card(event_date, pro, host, host, in_stream, output)
   for invite in invites:
     # generate rating cards for invitees
-    generate_rating_card(event_date, pro, host_name, invite.invitee, in_stream, output)
+    generate_rating_card(event_date, pro, host, invite.invitee, in_stream, output)
 
   ratings_zip = CARDS_PATH + 'ratings-%s.zip' % pro.email
 
