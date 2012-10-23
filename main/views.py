@@ -967,6 +967,7 @@ def party_add(request):
 
         # send an invitation e-mail if new host created
         send_new_party_email(request, verification_code, temp_password, new_host.email)
+        send_new_party_scheduled_email(request, new_party)
       else:
         # existing host needs to notified that party has been arranged
         send_new_party_scheduled_email(request, new_party)
@@ -1182,7 +1183,7 @@ def party_taster_invite(request, party_id=0):
         #else:
         #  send_party_invitation_email(request, new_invite)
 
-        messages.success(request, '%s %s (%s) has been invited to the party.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+        messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
 
         data["parties_menu"] = True
         return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
@@ -1419,6 +1420,12 @@ def dashboard(request):
 #
 ################################################################################
 
+@login_required
+@user_passes_test(if_supplier, login_url="/suppliers/only/")
+def supplier_add_wine(request):
+  data = {}
+  data["supplier"] = True
+  return render_to_response("main/supplier_add_wine.html", data, context_instance=RequestContext(request))
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")

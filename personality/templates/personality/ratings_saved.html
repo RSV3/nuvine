@@ -36,8 +36,8 @@
           </p>
           <p>
             {% if pro %}
-              {% if party_id %}
-                <a href="{% url start_order invitee.id party_id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+              {% if party.id %}
+                <a href="{% url start_order invitee.id party.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
                 <p>
                   <a href="{% url record_all_wine_ratings invitee.email party.id %}" class="btn btn-primary">Edit rating info</a>
                 </p>
@@ -50,8 +50,8 @@
           </p>
           <p>
             {# Need to check for permissions whether this is a party specialist #}
-            {% if party_id %}
-              <a href="{% url party_details party_id %}#party-tasters" class="btn btn-primary">&laquo; Back to guest list</a>
+            {% if party.id %}
+              <a href="{% url party_details party.id %}#party-tasters" class="btn btn-primary">&laquo; Back to guest list</a>
             {% else %}
               <a href="{% url home_page %}">&laquo; Back to Home Page</a>
             {% endif %}

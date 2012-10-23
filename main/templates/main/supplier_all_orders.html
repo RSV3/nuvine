@@ -4,7 +4,7 @@
 
 {% block additional_styles %}
 <style>
-  th a:visited, .taste-code {
+  th a:visited, .taste-code:visited {
     color: #DD4040;
     text-decoration: none;
   }
@@ -101,7 +101,10 @@
             <td>{{ order.receiver.first_name}} {{ order.receiver.last_name }}</td>
             <td>{{ order.receiver_personality }}</td>
             <td>{{ order.receiver.userprofile.order_customization_pref }}</td>
-            <td><a href="#" class="taste-code" rel="popover" data-placement="bottom" data-content="And here's some amazing content. It's very engaging. right?">{{ order.receiver.userprofile.personality_rating_code }}</a></td>
+            <td><a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
+                   data-content="And here's some amazing content. It's very engaging. right?">
+                   {{ order.receiver.userprofile.personality_rating_code }}</a>
+                 </td>
             <td>$$</td>
             <td>{{ order.quantity_summary }}</td>
             <!-- <td>{{ order.party_state }}</td> -->
@@ -132,7 +135,9 @@
 
 {% block additional_scripts %}
   <script type="text/javascript">
-    // $('.taste_code').popover({''});
+    $(document).ready(function(){
+      $('.taste-code').popover();
+    });
   </script>
 {% endblock additional_scripts %}
 
