@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from accounts.models import Address, Zipcode
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, LineItem, Order, OrganizedParty
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, LineItem, Order, OrganizedParty, MyHost
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user, create_superuser
 
@@ -394,10 +394,88 @@ class SimpleTest(TestCase):
 
     PartyInvite.objects.create(party=party2, invitee=User.objects.get(email=attendees1[0]))
 
+  def test_rep_create_party(self):
+    response = self.client.login(email='specialist2@example.com', password='hello')
+    self.assertTrue(response)
+
+    pro = User.objects.get(email='specialist2@example.com')
+
+    response = self.client.get(reverse('main.views.party_add'))
+    self.assertEquals(response.status_code, 200)
+
+    # TODO: select host from list
+    response = self.client.post(reverse('main.views.party_add'),  {'title': 'Weird Party',
+                                                      'description': 'Just another weird party',
+                                                      'phone': '555-617-6706',
+                                                      'event_day': (timezone.now()+timedelta(days=10)).strftime('%m/%d/%Y'),
+                                                      'event_time': '08:30',
+                                                      'first_name': 'New',
+                                                      'last_name': 'Host',
+                                                      'email': 'new.host@example.com',
+                                                      'street1': '5 Kendall',
+                                                      'city': 'Cambridge',
+                                                      'state': 'MA',
+                                                      'zipcode': '02139',
+                                                      })
+    self.assertRedirects(response, reverse('main.views.party_list'))
+    
+    party = Party.objects.get(title='Weird Party')
+
+    self.assertTrue(MyHost.objects.filter(pro=pro, host__email='new.host@example.com').exists())
+
+    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
+
+    # check emails were sent
+    new_host_email = Email.objects.filter(subject="Your Vinely Party has been Scheduled!", recipients="[u'new.host@example.com']")
+    self.assertTrue(new_host_email.exists())
+
+    welcome_email = Email.objects.filter(subject="Welcome to Vinely!", recipients="[u'new.host@example.com']")
+    self.assertTrue(welcome_email.exists())
+    
+    # invite existing tasters
+    response = self.client.get(reverse('main.views.party_taster_invite'))
+    self.assertEquals(response.status_code, 200)
+
+    # select taster from list
+    invitee = User.objects.get(email='attendee2@example.com')
+
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'invitee': invitee.id})
+
+    self.assertRedirects(response, reverse('party_details', args=[party.id]))
+    
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='attendee2@example.com').exists())
+
+    # enter existing user in form
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'Attendee',
+                                                            'last_name': 'Four',
+                                                            'email': 'attendee4@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
+
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='attendee4@example.com').exists())
+
+    # invite new user
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'New',
+                                                            'last_name': 'Guy',
+                                                            'email': 'new.guy@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
+
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
+
+    
+    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
+    self.assertTrue(recipient_email.exists())
+
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
+
+
   def test_rep_adding_ratings(self):
     
     # login with rep
     response = self.client.login(email='specialist1@example.com', password='hello')
+    self.assertTrue(response)
 
     party = self.create_party()
 
