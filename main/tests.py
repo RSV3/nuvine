@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from accounts.models import Address, Zipcode
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, LineItem, Order
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, LineItem, Order, OrganizedParty
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user, create_superuser
 
@@ -399,9 +399,10 @@ class SimpleTest(TestCase):
     # login with rep
     response = self.client.login(email='specialist1@example.com', password='hello')
 
-    #for g in Group.objects.all():
-    #  print g.name
+    party = self.create_party()
 
+    # TODO: try adding party if you are not pro of that party
+    # TODO: add new user from add taster form 
     self.assertEquals(Group.objects.all().count(), 5)
 
     ps_group = Group.objects.get(name="Vinely Pro")
@@ -411,14 +412,14 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse('personality.views.record_wine_ratings'))
     self.assertEquals(response.status_code, 200)
 
-    response = self.client.get(reverse('personality.views.record_all_wine_ratings'))
+    response = self.client.get(reverse('personality.views.record_all_wine_ratings', args=['attendee1@example.com', party.id]))
     self.assertEquals(response.status_code, 200)
 
     # add an attendee information
     # type in the rating information
-    response = self.client.post(reverse('personality.views.record_all_wine_ratings'), {'first_name': 'Jane',
-                                                        'last_name': 'Lamb',
-                                                        'email': 'attendee1@example.com',
+    response = self.client.post(reverse('personality.views.record_all_wine_ratings', 
+                                        args=["attendee1@example.com", party.id]), {'email': 'attendee1@example.com',
+                                                        'save_ratings': "save_ratings",
                                                         'wine1': 1,
                                                         'wine1_overall': 3,
                                                         'wine1_sweet': 4,
@@ -480,7 +481,6 @@ class SimpleTest(TestCase):
                                                         'wine6_sizzle': 5,
                                                         'wine6_sizzle_dnl': 1
                                                     })
-    
     self.assertContains(response, "you are a Serendipitous")
 
     self.client.login(email='attendee1@example.com', password='hello')
@@ -508,33 +508,110 @@ class SimpleTest(TestCase):
     # save and move to next attendee, may also order wines instead of going to next attendee
 
   def create_party(self):
-    host1 = User.objects.get(email="host1@example.com")
-    address1 = Address.objects.create(street1="65 Gordon St.",
+    
+    pro = User.objects.get(email="specialist1@example.com")
+    host = User.objects.get(email="host1@example.com")
+    address = Address.objects.create(street1="65 Gordon St.",
                                       city="Detroit",
                                       state="MI",
                                       zipcode="42524-2342"
                                       )
 
-    party = Party.objects.create(host=host1, title="John's party", description="Wine party on a sizzling hot day",
-                              address=address1, event_date=timezone.now()+timedelta(days=10))
+    party = Party.objects.create(host=host, title="John's party", description="Wine party on a sizzling hot day",
+                              address=address, event_date=timezone.now()+timedelta(days=10))
+
+    OrganizedParty.objects.create(pro=pro, party=party)
     # invite people
-    attendees1 = ['attendee1@example.com',
+    attendees = ['attendee1@example.com',
                   'attendee2@example.com',
                   'attendee3@example.com',
                   'attendee4@example.com',
                   'attendee5@example.com']
 
-    for att in attendees1:
+    for att in attendees:
       PartyInvite.objects.create(party=party, invitee=User.objects.get(email=att))
 
     return party
 
   def test_rep_adding_orders(self):
-    pass
+    party = self.create_party()
+
+    attendee = User.objects.get(email='attendee1@example.com')
+
+    response = self.client.login(email="attendee1@example.com", password="hello")
+    self.assertTrue(response)
+
+    # TODO: try with wrong party and wrong attendee
+    attendee2 = User.objects.get(email='attendee6@example.com')
+    # response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+
+    response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+    self.assertEquals(response.status_code, 200)
+
+    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
+    response = self.client.login(email="attendee1@example.com", password="hello")
+    self.assertTrue(response)
+
+    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), { "product": case.id,
+                                                                                          "quantity": 2,
+                                                                                          "frequency": 0,
+                                                                                          "total_price": 220.00,
+                                                                                          "level": "superior"})
+    self.assertRedirects(response, reverse("main.views.cart"))
+
+    response = self.client.get(reverse("main.views.customize_checkout"))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("main.views.customize_checkout"), { "product": case.id,
+                                                                            "wine_mix": 1,
+                                                                            "sparkling": 1})
+    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
+
+    user = User.objects.get(email="attendee1@example.com")
+    profile = user.get_profile()
+    profile.dob = timezone.now() - timedelta(days = 30*365)
+    profile.save()
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), { "first_name": "John",
+                                                                        "last_name": "Doe",
+                                                                        "address1": "65 Gordon St.",
+                                                                        "city": "Cambridge",
+                                                                        "state": "MA",
+                                                                        "zipcode": "02139",
+                                                                        "phone": "555-617-6706",
+                                                                        "email": "attendee1@example.com"})    
+    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+
+    year = datetime.today().year + 5
+    response = self.client.post(reverse("main.views.edit_credit_card"), { "card_number": "4111111111111",
+                                                                        "exp_month": 6,
+                                                                        "exp_year": year,
+                                                                        "verification_code": 111,
+                                                                        "billing_zipcode": "02139",
+                                                                        "card_type": "Unknown" })
+    self.assertRedirects(response, reverse("main.views.place_order"))
+    
+    response = self.client.post(reverse("main.views.place_order"))
+    order = Order.objects.get(cart__items__product = case)
+
+    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
+    
+    self.assertTrue(Order.objects.filter(cart__items__product = case).exists())
+    
+    # check emails sent
+    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
+    self.assertTrue(recipient_email.exists())
+    subject = "Order ID: %s has been submitted!" % order.order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
+
+
 
   def test_attendee_ordering_online(self):
     
-    case = Product.objects.get(name="Vinely's Superior Taste Kit", unit_price=120.00)
+    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
     response = self.client.login(email="attendee1@example.com", password="hello")
     self.assertTrue(response)
 
@@ -663,7 +740,7 @@ class SimpleTest(TestCase):
     self.assertRedirects(response, reverse("main.views.cart_add_tasting_kit", args=[party2.id]))
     # self.assertContains(response, "You can only order taste kits for one party at a time.")
     
-    case = Product.objects.get(name="Vinely's Superior Taste Kit", unit_price=120.00)
+    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
     response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), { "product": case.id,
                                                                               "quantity": 2,
                                                                               # "price_category": 0,
@@ -762,18 +839,6 @@ class SimpleTest(TestCase):
 
     self.client.logout()
 
-    ######################################################################################
-    #
-    # case orders flow from here
-    #
-    ######################################################################################
-
-    # self.client.logout()
-
     # TODO: Pro order for taster
 
-  def test_basic_addition(self):
-    """
-    Tests that 1 + 1 always equals 2.
-    """
-    self.assertEqual(1 + 1, 2)
+  

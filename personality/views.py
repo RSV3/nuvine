@@ -227,12 +227,18 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   u = request.user
 
   party = None
-  if party_id:
-    party_id = int(party_id)
-    # used in ratings_saved.html template to go back to party details
-    data["party_id"] = party_id
-    party = Party.objects.get(id=party_id)
-    data["party"] = party
+
+  party = get_object_or_404(Party, pk=party_id)
+  
+  # used in ratings_saved.html template to go back to party details
+  data["party_id"] = party_id
+  data["party"] = party
+  # if party_id:
+  #   party_id = int(party_id)
+  #   # used in ratings_saved.html template to go back to party details
+  #   data["party_id"] = party_id
+  #   party = Party.objects.get(id=party_id)
+  #   data["party"] = party
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
