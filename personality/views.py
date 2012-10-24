@@ -261,8 +261,11 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       # if not the pro then must have been invited to the party
       try:
         taster = User.objects.get(email=email)
-        if u.email != email: # True for the pro
-          invite = PartyInvite.objects.get(invitee=taster, party=party)
+        if u.email != email:  # True for the pro
+          if party.host.email == email:
+            taster = party.host
+          else:
+            invite = PartyInvite.objects.get(invitee=taster, party=party)
       except (User.DoesNotExist, PartyInvite.DoesNotExist):
           messages.error(request, "(%s) is not an invitee to the party. They must be added as tasters first to enter their ratings." % email)
           return HttpResponseRedirect(reverse('party_list'))
@@ -378,7 +381,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
     else:
       initial_data['email'] = email
-    
+
     initial_data['party'] = party
 
     if request.POST.get('add_taster'):
@@ -407,7 +410,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
       # link them to party and RSVP
       today = timezone.now()
-      
+
       invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host)
       # only update response times for tasters who had not RSVP'd
       if created:

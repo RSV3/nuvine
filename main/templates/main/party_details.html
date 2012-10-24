@@ -19,7 +19,7 @@
           <tbody>
             <tr>
               <td>Hosted by:</td>
-              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
+              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a> [{% if pro %}{% if party.host.get_profile.has_personality %}<a href="{% url personality_rating_info party.host.email party.id %}">{{ party.host.get_profile.wine_personality}}</a>{% else %}<a href="{% url record_all_wine_ratings party.host.email party.id %}">Enter ratings</a>{% endif %}{% endif %}]</td>
             </tr>
             <tr>
               <td>Party Type:</td>
@@ -138,10 +138,10 @@
             {% endif %}
             <td>{{ inv.get_response_display }}</td>
             {% if pro %}
-              {% if not inv.invitee.get_profile.has_personality %}
-                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
-              {% else %}
+              {% if inv.invitee.get_profile.has_personality %}
                 <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
+              {% else %}
+                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
               {% endif %}
               <td>{{ completed }}</td>
             {% endif %}
