@@ -8,6 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from datetime import timedelta
 
 from main.utils import if_supplier, if_pro
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
@@ -460,6 +461,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           # ask if you want order wine
           data["role"] = "host"
           PersonaLog.objects.get_or_create(user=taster)
+          today = timezone.now()
+
+          data['can_order'] = (today - party.event_date <= timedelta(hours=24))
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
@@ -473,6 +477,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       data['personality'] = taster.get_profile().wine_personality
       data["invitee"] = taster
       data['role'] = u.get_profile().role()
+      today = timezone.now()
+      data['can_order'] = (today - party.event_date <= timedelta(hours=24))
+
       return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
       return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))

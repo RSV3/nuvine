@@ -503,7 +503,7 @@ class SimpleTest(TestCase):
                                                                                     'last_name': 'Taster',
                                                                                     'add_taster': 'add_taster'})
     self.assertRedirects(response, reverse('personality.views.record_all_wine_ratings', args=['new.taster@example.com', party.id]))
-    
+
     # ensure linked to party
     self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.taster@example.com').exists())
 
@@ -632,16 +632,27 @@ class SimpleTest(TestCase):
   def test_rep_adding_orders(self):
     party = self.create_party()
 
-    attendee = User.objects.get(email='attendee1@example.com')
+    real_attendee = User.objects.get(email='attendee1@example.com')
 
-    response = self.client.login(email="attendee1@example.com", password="hello")
+    response = self.client.login(email="specialist2@example.com", password="hello")
     self.assertTrue(response)
 
-    # TODO: try with wrong party and wrong attendee
-    attendee2 = User.objects.get(email='attendee6@example.com')
-    # response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+    # try with party that you are not the pro
+    response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
 
-    response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+    self.client.logout()
+
+    response = self.client.login(email="specialist1@example.com", password="hello")
+    self.assertTrue(response)
+
+    # try with wrong attendee
+    fake_attendee = User.objects.get(email='attendee6@example.com')
+    response = self.client.get(reverse('main.views.start_order', args=[fake_attendee.id, party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
+
+    # now with real taster and real party
+    response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
     self.assertEquals(response.status_code, 200)
 
     case = Product.objects.get(name="Superior Collection", unit_price=120.00)

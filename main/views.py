@@ -10,6 +10,7 @@ from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
+from django.utils import timezone
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest
@@ -73,7 +74,7 @@ def home(request):
     sp_group = Group.objects.get(name='Supplier')
     tas_group = Group.objects.get(name='Vinely Taster')
 
-    today = datetime.now(tz=UTC())
+    today = timezone.now()
 
     data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
     invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
@@ -288,17 +289,33 @@ def start_order(request, receiver_id=None, party_id=None):
 
   u = request.user
 
-  if receiver_id:
+  # both receiver and party_id must be present or none at all
+  if receiver_id or party_id:
     # ordering for a particular user
-    request.session['receiver_id'] = int(receiver_id)
-  if party_id:
+    receiver = get_object_or_404(User, pk=receiver_id)
+    request.session['receiver_id'] = receiver.id
+
+    # if party_id:
     # ordering from a particular party
-    request.session['party_id'] = int(party_id)
+    party = get_object_or_404(Party, pk=party_id)
+    request.session['party_id'] = party.id
 
   data["your_personality"] = WinePersonality.MYSTERY
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
+
   if receiver_id:
-    receiver = User.objects.get(id=receiver_id)
+    # can only order for others if you are the pro
+    if u.get_profile().is_pro():
+      try:
+        OrganizedParty.objects.get(party=party, pro=u)
+
+        # if not the pro then must have been invited to the party    
+        if u.id != receiver.id: # True for the pro
+          invite = PartyInvite.objects.get(invitee=receiver, party=party)
+      except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
+        messages.error(request, 'You can only order for tasters at your own parties')
+        return HttpResponseRedirect(reverse('party_list'))
+
     personality = receiver.get_profile().wine_personality
 
     # check receivers age first
@@ -322,6 +339,11 @@ def start_order(request, receiver_id=None, party_id=None):
     data["product_levels"] = [Product.BASIC, Product.SUPERIOR, Product.DIVINE]
 
   data["shop_menu"] = True
+  today = timezone.now()
+  can_order = (today - party.event_date <= timedelta(hours=24))
+  if receiver_id and party_id and can_order == False:
+    messages.error(request, "You can only order for a taster up to 24 hours after the party.")
+    return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
 
@@ -338,7 +360,7 @@ def cart_add_tasting_kit(request, party_id=0):
   u = request.user
 
   party = None
-  today = datetime.now(tz=UTC())
+  today = timezone.now()
 
   try:
     party = Party.objects.get(id=party_id, host__id=u.id, event_date__gt=today)
@@ -868,7 +890,7 @@ def party_list(request):
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
-  today = datetime.now(tz=UTC())
+  today = timezone.now()
 
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
@@ -1055,7 +1077,7 @@ def party_details(request, party_id):
 
   data["party"] = party
   data["invitees"] = invitees
-  today = datetime.now(tz=UTC())
+  today = timezone.now()
 
   if party.event_date > today and party.high_low() == '!LOW':
     msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
@@ -1197,7 +1219,7 @@ def party_taster_invite(request, party_id=0):
         initial_data.update({'party': party})
         form = PartyInviteTasterForm(initial=initial_data)
 
-    today = datetime.now(tz=UTC())
+    today = timezone.now()
     if tas_group in u.groups.all():
       parties = Party.objects.filter(partyinvite__invitee=u, event_date__gt=today)
       form.fields['party'].queryset = parties
@@ -1205,7 +1227,7 @@ def party_taster_invite(request, party_id=0):
       parties = Party.objects.filter(host=u, event_date__gt=today)
       form.fields['party'].queryset = parties
     elif pro_group in u.groups.all():
-      parties = Party.objects.filter(organizedparty__pro=u, event_date__gte=today)
+      parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=today)
       form.fields['party'].queryset = parties
 
     data["form"] = form
@@ -1937,7 +1959,7 @@ def party_select(request):
 
   hos_group = Group.objects.get(name="Vinely Host")
 
-  today = datetime.now(tz=UTC())
+  today = timezone.now()
 
   # check if there's a party that has not ordered a kit, exclude completed orders
   parties = Party.objects.filter(host=u, event_date__gte=today)
@@ -2104,7 +2126,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   role = Group.objects.get(id=account_type)
   data = {}
   data['fb_view'] = fb_page
-  today = datetime.now(tz=UTC())
+  today = timezone.now()
   try:
     party = Party.objects.get(pk=party_id, event_date__gte = today)
   except:
