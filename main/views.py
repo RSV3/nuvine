@@ -1987,42 +1987,41 @@ def generate_rating_card(event_date, pro, host, invitee, in_stream, output):
       internal method used to generate rating card for each invitee
     """
 
-    if invitee != host:
-      packet = cStringIO.StringIO()
-      exp_doc = PdfFileReader(in_stream)
-      # output = PdfFileWriter()
+    packet = cStringIO.StringIO()
+    exp_doc = PdfFileReader(in_stream)
+    # output = PdfFileWriter()
 
-      can = canvas.Canvas(packet, pagesize=letter)
-      # Taster name
-      can.setFont('Helvetica-Bold', 12)
-      can.drawString(230, 74, string.upper(invitee.get_full_name()))
-      can.drawString(630, 74, string.upper(invitee.get_full_name()))
+    can = canvas.Canvas(packet, pagesize=letter)
+    # Taster name
+    can.setFont('Helvetica-Bold', 12)
+    can.drawString(230, 74, string.upper(invitee.get_full_name()))
+    can.drawString(630, 74, string.upper(invitee.get_full_name()))
 
-      can.setFont('Courier', 9)
-      # event date
-      can.drawString(230, 63, event_date)
-      can.drawString(630, 63, event_date)
-      # host name
-      can.drawString(230, 53, host.get_full_name())
-      can.drawString(630, 53, host.get_full_name())
-      # pro name
-      can.drawString(230, 43, pro.get_full_name())
-      can.drawString(630, 43, pro.get_full_name())
-      can.save()
+    can.setFont('Courier', 9)
+    # event date
+    can.drawString(230, 63, event_date)
+    can.drawString(630, 63, event_date)
+    # host name
+    can.drawString(230, 53, host.get_full_name())
+    can.drawString(630, 53, host.get_full_name())
+    # pro name
+    can.drawString(230, 43, pro.get_full_name())
+    can.drawString(630, 43, pro.get_full_name())
+    can.save()
 
-      packet.seek(0)
-      text = PdfFileReader(packet)
+    packet.seek(0)
+    text = PdfFileReader(packet)
 
-      for x in range(exp_doc.numPages):
-        page = exp_doc.getPage(x)
-        page.mergePage(text.getPage(0))
-        output.addPage(page)
+    for x in range(exp_doc.numPages):
+      page = exp_doc.getPage(x)
+      page.mergePage(text.getPage(0))
+      output.addPage(page)
 
-      # when creating multiple files
-      # filename = CARDS_PATH + invite.invitee.email+ '.pdf'
-      # with file(filename, 'wb') as out_stream:
-      #   output.write(out_stream)
-      # files.append(filename)
+    # when creating multiple files
+    # filename = CARDS_PATH + invite.invitee.email+ '.pdf'
+    # with file(filename, 'wb') as out_stream:
+    #   output.write(out_stream)
+    # files.append(filename)
 
 @login_required
 def print_rating_cards(request, party_id):
@@ -2059,7 +2058,8 @@ def print_rating_cards(request, party_id):
   generate_rating_card(event_date, pro, host, host, in_stream, output)
   for invite in invites:
     # generate rating cards for invitees
-    generate_rating_card(event_date, pro, host, invite.invitee, in_stream, output)
+    if invite.invitee != host:
+      generate_rating_card(event_date, pro, host, invite.invitee, in_stream, output)
 
   ratings_zip = CARDS_PATH + 'ratings-%s.zip' % pro.email
 
