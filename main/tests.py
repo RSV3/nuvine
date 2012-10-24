@@ -408,7 +408,7 @@ class SimpleTest(TestCase):
                                                       'description': 'Just another weird party',
                                                       'phone': '555-617-6706',
                                                       'event_day': (timezone.now()+timedelta(days=10)).strftime('%m/%d/%Y'),
-                                                      'event_time': '08:30',
+                                                      'event_time': '08:30', # TODO: sort out this timezone warning
                                                       'first_name': 'New',
                                                       'last_name': 'Host',
                                                       'email': 'new.host@example.com',
@@ -464,34 +464,52 @@ class SimpleTest(TestCase):
 
     self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
 
-    
     recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
     self.assertTrue(recipient_email.exists())
-
-    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
 
 
   def test_rep_adding_ratings(self):
     
+    party = self.create_party()
+
+    # try adding ratings if you are not pro of that party
+    response = self.client.login(email='specialist2@example.com', password='hello')
+    self.assertTrue(response)
+
+    response = self.client.get(reverse('personality.views.record_all_wine_ratings', args=['attendee1@example.com', party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
+
+    self.client.logout()
+
     # login with rep
     response = self.client.login(email='specialist1@example.com', password='hello')
     self.assertTrue(response)
 
-    party = self.create_party()
-
-    # TODO: try adding party if you are not pro of that party
-    # TODO: add new user from add taster form 
-    self.assertEquals(Group.objects.all().count(), 5)
-
-    ps_group = Group.objects.get(name="Vinely Pro")
-    pro = User.objects.get(email='specialist1@example.com')
-    self.assertEquals(ps_group in pro.groups.all(), True)
-
-    response = self.client.get(reverse('personality.views.record_wine_ratings'))
-    self.assertEquals(response.status_code, 200)
+    # NOTE: View not being used
+    # response = self.client.get(reverse('personality.views.record_wine_ratings'))
+    # self.assertEquals(response.status_code, 200)
 
     response = self.client.get(reverse('personality.views.record_all_wine_ratings', args=['attendee1@example.com', party.id]))
     self.assertEquals(response.status_code, 200)
+
+    # attendee must have been in the party invite
+    response = self.client.get(reverse('personality.views.record_all_wine_ratings', args=['attendee6@example.com', party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
+
+    # TODO: add new user from add taster form 
+    response = self.client.post(reverse('personality.views.record_all_wine_ratings', 
+                                        args=["attendee1@example.com", party.id]), {'email': 'new.taster@example.com',
+                                                                                    'first_name': 'New',
+                                                                                    'last_name': 'Taster',
+                                                                                    'add_taster': 'add_taster'})
+    self.assertRedirects(response, reverse('personality.views.record_all_wine_ratings', args=['new.taster@example.com', party.id]))
+
+    # ensure linked to party
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.taster@example.com').exists())
+
+    # ensure emails sent
+    welcome_email = Email.objects.filter(subject="Welcome to Vinely!", recipients="[u'new.taster@example.com']")
+    self.assertTrue(welcome_email.exists())
 
     # add an attendee information
     # type in the rating information
@@ -614,16 +632,27 @@ class SimpleTest(TestCase):
   def test_rep_adding_orders(self):
     party = self.create_party()
 
-    attendee = User.objects.get(email='attendee1@example.com')
+    real_attendee = User.objects.get(email='attendee1@example.com')
 
-    response = self.client.login(email="attendee1@example.com", password="hello")
+    response = self.client.login(email="specialist2@example.com", password="hello")
     self.assertTrue(response)
 
-    # TODO: try with wrong party and wrong attendee
-    attendee2 = User.objects.get(email='attendee6@example.com')
-    # response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+    # try with party that you are not the pro
+    response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
 
-    response = self.client.get(reverse('main.views.start_order', args=[attendee2.id, party.id]))
+    self.client.logout()
+
+    response = self.client.login(email="specialist1@example.com", password="hello")
+    self.assertTrue(response)
+
+    # try with wrong attendee
+    fake_attendee = User.objects.get(email='attendee6@example.com')
+    response = self.client.get(reverse('main.views.start_order', args=[fake_attendee.id, party.id]))
+    self.assertRedirects(response, reverse('main.views.party_list'))
+
+    # now with real taster and real party
+    response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
     self.assertEquals(response.status_code, 200)
 
     case = Product.objects.get(name="Superior Collection", unit_price=120.00)

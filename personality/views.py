@@ -8,10 +8,11 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from datetime import timedelta
 
 from main.utils import if_supplier, if_pro
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
-from main.models import Order, Party, PersonaLog, PartyInvite
+from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
                               AddTasterRatingsForm
@@ -233,12 +234,6 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   # used in ratings_saved.html template to go back to party details
   data["party_id"] = party_id
   data["party"] = party
-  # if party_id:
-  #   party_id = int(party_id)
-  #   # used in ratings_saved.html template to go back to party details
-  #   data["party_id"] = party_id
-  #   party = Party.objects.get(id=party_id)
-  #   data["party"] = party
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
@@ -250,8 +245,33 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   if tas_group in u.groups.all():
     data["taster"] = True
 
+  if u.get_profile().is_pro():
+    try:
+      OrganizedParty.objects.get(party=party, pro=u)
+    except OrganizedParty.DoesNotExist:
+      messages.error(request, 'You can only add ratings for your own parties')
+      return HttpResponseRedirect(reverse('party_list'))
+
   if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
     # one can record ratings only if Vinely Pro or Vinely Host/Vinely Taster
+
+    if email:
+      email = email.lower()
+
+      # if not the pro then must have been invited to the party
+      try:
+        taster = User.objects.get(email=email)
+        if u.email != email: # True for the pro
+          invite = PartyInvite.objects.get(invitee=taster, party=party)
+      except (User.DoesNotExist, PartyInvite.DoesNotExist):
+          messages.error(request, "(%s) is not an invitee to the party. They must be added as tasters first to enter their ratings." % email)
+          return HttpResponseRedirect(reverse('party_list'))
+    else:
+      # enter your own information
+      taster = u
+
+    data['personality_exists'] = taster.get_profile().has_personality()
+    data['invitee'] = taster
 
     # show forms
     wine1 = Wine.objects.get(number=1, active=True)
@@ -268,20 +288,6 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
                       'wine5': wine5.id,
                       'wine6': wine6.id
                       }
-
-    if email:
-      email = email.lower()
-      try:
-        taster = User.objects.get(email=email)
-        data['personality_exists'] = taster.get_profile().has_personality()
-        data['invitee'] = taster
-      except User.DoesNotExist:
-        data['personality_exists'] = False
-        taster = None
-
-    else:
-      # enter your own information
-      taster = u
 
     if taster:
       initial_data['email'] = taster.email
@@ -410,7 +416,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         invite.save()
 
       messages.info(request, "Taster successfully added to this party. Now you can go ahead and add their wine ratings.")
-      return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))      
+      return HttpResponseRedirect(reverse('record_all_wine_ratings', args=[invitee.email, party.id]))
 
     if request.POST.get('save_ratings'):
       form = AllWineRatingsForm(request.POST or None, initial=initial_data)
@@ -455,6 +461,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           # ask if you want order wine
           data["role"] = "host"
           PersonaLog.objects.get_or_create(user=taster)
+          today = timezone.now()
+
+          data['can_order'] = (today - party.event_date <= timedelta(hours=24))
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
@@ -468,6 +477,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       data['personality'] = taster.get_profile().wine_personality
       data["invitee"] = taster
       data['role'] = u.get_profile().role()
+      today = timezone.now()
+      data['can_order'] = (today - party.event_date <= timedelta(hours=24))
+
       return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
       return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))

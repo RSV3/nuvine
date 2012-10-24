@@ -28,51 +28,53 @@
 
 {% block content %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-
-  <form method="POST" action="" class="form-horizontal">
-    {% csrf_token %}
-    <div class="row">
-      <div class="span3">
-        <h2>Add Taster:</h2>
-      </div>
-    </div>
-    <div class="row">
-      <div class="span3">
-        <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
-          {{ taster_form.first_name }} 
-          {% if taster_form.first_name.errors %}
-            <span class="help-inline">
-              {{ taster_form.first_name.errors }}
-            </span>
-          {% endif %}
+  {% if pro %}
+    <form method="POST" action="" class="form-horizontal">
+      {% csrf_token %}
+      <div class="row">
+        <div class="span3">
+          <h2>Add Taster:</h2>
         </div>
       </div>
-      <div class="span3">
-        <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
-          {{ taster_form.last_name }} 
-          {% if taster_form.last_name.errors %}
-            <span class="help-inline">
-              {{ taster_form.last_name.errors }}
-            </span>
-          {% endif %}
+      <div class="row">
+        <div class="span3">
+          <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+            {{ taster_form.first_name }} 
+            {% if taster_form.first_name.errors %}
+              <span class="help-inline">
+                {{ taster_form.first_name.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="span3">
+          <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+            {{ taster_form.last_name }} 
+            {% if taster_form.last_name.errors %}
+              <span class="help-inline">
+                {{ taster_form.last_name.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="span3">
+          <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+            {{ taster_form.email }} 
+            {% if taster_form.email.errors %}
+              <span class="help-inline">
+                {{ taster_form.email.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="span1">
+          <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
         </div>
       </div>
-      <div class="span3">
-        <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
-          {{ taster_form.email }} 
-          {% if taster_form.email.errors %}
-            <span class="help-inline">
-              {{ taster_form.email.errors }}
-            </span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="span1">
-        <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
-      </div>
-    </div>
-  </form>
-  <hr />
+    </form>
+    <hr />
+  {% endif %}
+  
   <form method="POST" action="" class="form-horizontal">
   {% csrf_token %}
   <!-- <section id="user-ratings"> -->

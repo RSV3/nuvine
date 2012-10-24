@@ -37,7 +37,9 @@
           <p>
             {% if pro %}
               {% if party.id %}
-                <a href="{% url start_order invitee.id party.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+                {% if can_order %}
+                  <a href="{% url start_order invitee.id party.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+                {% endif %}
                 <p>
                   <a href="{% url record_all_wine_ratings invitee.email party.id %}" class="btn btn-primary">Edit rating info</a>
                 </p>
