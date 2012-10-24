@@ -1197,22 +1197,15 @@ def party_taster_invite(request, party_id=0):
         initial_data.update({'party': party})
         form = PartyInviteTasterForm(initial=initial_data)
 
+    today = datetime.now(tz=UTC())
     if tas_group in u.groups.all():
-      today = datetime.now(tz=UTC())
-      parties = []
-      for inv in PartyInvite.objects.filter(invitee=u, party__event_date__gt=today):
-        parties.append((inv.party.id, inv.party.title))
-      form.fields['party'].choices = parties
+      parties = Party.objects.filter(partyinvite__invitee=u, event_date__gt=today)
+      form.fields['party'].queryset = parties
     elif hos_group in u.groups.all():
-      today = datetime.now(tz=UTC())
       parties = Party.objects.filter(host=u, event_date__gt=today)
       form.fields['party'].queryset = parties
     elif pro_group in u.groups.all():
-      my_hosts = MyHost.objects.filter(pro=u)
-      my_host_list = []
-      for my_host in my_hosts:
-        my_host_list.append(my_host.host)
-      parties = Party.objects.filter(host__in=my_host_list)
+      parties = Party.objects.filter(organizedparty__pro=u, event_date__gte=today)
       form.fields['party'].queryset = parties
 
     data["form"] = form
