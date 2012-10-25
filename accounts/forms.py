@@ -7,6 +7,10 @@ from emailusernames.forms import EmailUserChangeForm
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
 
+from main.utils import UTC
+from datetime import datetime, timedelta
+import math
+
 
 class UserInfoForm(EmailUserChangeForm):
 
@@ -69,9 +73,6 @@ class VerifyAccountForm(forms.Form):
 
     return cleaned_data
 
-from main.utils import UTC
-from datetime import datetime, timedelta
-import math
 
 class VerifyEligibilityForm(forms.ModelForm):
 
@@ -82,7 +83,7 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years', 
+    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years',
                                         'data-date-format': 'yyyy-mm-dd'}
     self.fields['user'].widget = forms.HiddenInput()
 
@@ -139,11 +140,11 @@ class PaymentForm(forms.ModelForm):
   """
     This form is used
   """
-  card_number = CreditCardField(required = True, label = "Card Number")
+  card_number = CreditCardField(required=True, label="Card Number")
   exp_month = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(1, 13)], label="Expiration Date")
   exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
-  verification_code = forms.IntegerField(required = True, label = "CVC Number",
-      max_value = 9999, widget = forms.PasswordInput())
+  verification_code = forms.IntegerField(required=True, label="CVC Number",
+      max_value=9999, widget=forms.PasswordInput())
   billing_zipcode = us_forms.USZipCodeField()
   #save_card = forms.BooleanField(label="Save this card in My Account", required=False)
 
@@ -219,6 +220,7 @@ from django.utils.translation import ugettext_lazy as _
 
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
 
+
 class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   """
     The form is used for user creation when people sign up for host or pro,
@@ -239,19 +241,18 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     pro_group = Group.objects.get(name="Vinely Pro")
 
-    mentor_email = self.cleaned_data['mentor'].strip().lower()
+    mentor_email = cleaned.get('mentor')
+    if mentor_email:
+      mentor_email = cleaned['mentor'].strip().lower()
+
     if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
-      try:
-        # make sure the pro exists
-        pro = User.objects.get(email = mentor_email, groups__in = [pro_group])
-      except User.DoesNotExist:
+      # make sure the pro exists
+      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
         raise forms.ValidationError("The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you")
 
-    if self.initial['account_type'] == 2 and self.cleaned_data['mentor']:  # host -> pro field
-      try:
-        # make sure the pro exists
-        pro = User.objects.get(email = mentor_email, groups__in = [pro_group])
-      except User.DoesNotExist:
+    if self.initial['account_type'] == 2 and mentor_email:  # host -> pro field
+      # make sure the pro exists
+      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
         raise forms.ValidationError("The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you")
 
     if cleaned.get('email'):
@@ -270,6 +271,7 @@ class HeardAboutForm(forms.Form):
   )
   source = forms.ChoiceField(choices=SOURCES)
   description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'span6'}))
+
 
 class VinelyEmailAuthenticationForm(EmailAuthenticationForm):
 
