@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('main.views',
     url(r'^home/$', 'home', name='home_page'),
@@ -39,7 +39,7 @@ urlpatterns = patterns('main.views',
     url(r'^cart/customize/$', 'customize_checkout', name='customize_checkout'),
     url(r'^cart/tasting/kit/details/(?P<kit_id>\d+)/$', 'cart_kit_detail', name='cart_kit_detail'),
     url(r'^cart/wine/(?P<level>\w+)/(?P<quantity>\d+)/$', 'cart_quantity', name='cart_quantity'),
-                       
+
     url(r'^order/place/$', 'place_order', name='place_order'),
     url(r'^order/complete/(?P<order_id>[\-\w]+)/$', 'order_complete', name='order_complete'),
     url(r'^order/history/$', 'order_history', name='order_history'),
@@ -55,6 +55,7 @@ urlpatterns = patterns('main.views',
     url(r'^supplier/edit/order/(?P<order_id>[\-\w]+)/$', 'supplier_edit_order', name='supplier_edit_order'),
     url(r'^supplier/orders/history/$', 'supplier_order_history', name='supplier_order_history'),
     url(r'^supplier/wine/list/$', 'supplier_wine_list', name='supplier_wine_list'),
+    url(r'^supplier/add/wine/$', 'supplier_add_wine', name='supplier_add_wine'),
 
     # access error pages
     url(r'^suppliers/only/$', 'suppliers_only', name='suppliers_only'),
@@ -67,4 +68,3 @@ urlpatterns += patterns('main.views',
     url(r'^event/signup/(?P<party_id>\d+)/$', 'vinely_event_signup', name='vinely_event_signup'),
     url(r'^facebook/event/signup/(?P<party_id>\d+)/$', 'fb_vinely_event_signup', name='fb_vinely_event_signup'),
 )
-

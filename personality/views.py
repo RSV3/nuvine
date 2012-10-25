@@ -284,7 +284,6 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
     data['personality_exists'] = taster.get_profile().has_personality()
     data['invitee'] = taster
-    print dir(taster)
 
     # show forms
     wine1 = Wine.objects.get(number=1, active=True)
