@@ -286,7 +286,8 @@ def start_order(request, receiver_id=None, party_id=None):
   data = {}
   #: receiver's wine personality, or current user's wine personality
   personality = None
-
+  party = None
+  receiver = None
   u = request.user
 
   # both receiver and party_id must be present or none at all
@@ -309,8 +310,8 @@ def start_order(request, receiver_id=None, party_id=None):
       try:
         OrganizedParty.objects.get(party=party, pro=u)
 
-        # if not the pro then must have been invited to the party    
-        if u.id != receiver.id: # True for the pro
+        # if not the pro then must have been invited to the party
+        if u != receiver:  # True for the pro
           invite = PartyInvite.objects.get(invitee=receiver, party=party)
       except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
         messages.error(request, 'You can only order for tasters at your own parties')
@@ -325,6 +326,7 @@ def start_order(request, receiver_id=None, party_id=None):
   elif u.is_authenticated():
     # ordering for oneself
     personality = u.get_profile().wine_personality
+
   if personality:
     data["your_personality"] = personality.name
 
@@ -340,10 +342,12 @@ def start_order(request, receiver_id=None, party_id=None):
 
   data["shop_menu"] = True
   today = timezone.now()
-  can_order = (today - party.event_date <= timedelta(hours=24))
-  if receiver_id and party_id and can_order == False:
-    messages.error(request, "You can only order for a taster up to 24 hours after the party.")
-    return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
+
+  if party:
+    can_order = (today - party.event_date <= timedelta(hours=24))
+    if receiver_id and party_id and can_order == False:
+      messages.error(request, "You can only order for a taster up to 24 hours after the party.")
+      return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
   return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
 

@@ -435,6 +435,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         # only save personality if all 6 wine fields have been filled out
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
+        data['can_order'] = True
 
         if pro_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
@@ -447,6 +448,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
               # record first party
               persona_log.party = party
             persona_log.save()
+
         elif tas_group in u.groups.all():
           # saving your own data
           data["role"] = "taster"
