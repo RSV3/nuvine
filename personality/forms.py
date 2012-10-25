@@ -37,7 +37,7 @@ class CustomRadioField(forms.RadioSelect.renderer):
             </center>
           </div>
         ''' % (x.attrs['id'], x.index, x.name, 'checked="checked"' if x.is_checked() else "")
-        
+
         items.append(radio_html)
 
         if x.index == 1 or x.index == 5 or \
@@ -51,7 +51,7 @@ class CustomRadioField(forms.RadioSelect.renderer):
             </div>
           ''' % x.choice_label
         else:
-          label_html = '<div class="span1">&nbsp;</div>'          
+          label_html = '<div class="span1">&nbsp;</div>'
         labels.append(label_html)
 
     return mark_safe(u'\n'.join(items) + u'\n'.join(labels))

@@ -124,7 +124,7 @@ class UserProfile(models.Model):
   work_phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
-  mentor = models.ForeignKey(User, default = 1, verbose_name='Vinely Pro Mentor', related_name='mentor')
+  mentor = models.ForeignKey(User, default=1, verbose_name='Vinely Pro Mentor', related_name='mentor')
 
   GENDER_CHOICES = (
     (0, 'FEMALE'),

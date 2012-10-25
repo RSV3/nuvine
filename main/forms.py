@@ -1,10 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
-from django.contrib.localflavor.us import us_states
 
-from emailusernames.utils import create_user, create_superuser
-from emailusernames.forms import EmailUserCreationForm
+from emailusernames.utils import create_user
+from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote
@@ -14,6 +13,7 @@ import uuid, string
 
 
 valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
+
 
 class ContactRequestForm(forms.ModelForm):
 
@@ -27,6 +27,7 @@ class ContactRequestForm(forms.ModelForm):
 
   class Meta:
     model = ContactRequest
+
 
 class PartyCreateForm(forms.ModelForm):
 
@@ -61,7 +62,6 @@ class PartyCreateForm(forms.ModelForm):
     addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
     # only show addresses that pro has dealt with before
     self.fields['address'].queryset = addresses
-
 
   def clean_email(self):
     host_email = self.cleaned_data['email']
@@ -132,6 +132,7 @@ class PartyCreateForm(forms.ModelForm):
 
     return cleaned_data
 
+
 class PartyInviteTasterForm(forms.ModelForm):
   """
     Invite a new taster
@@ -154,16 +155,16 @@ class PartyInviteTasterForm(forms.ModelForm):
     if initial.get('host'):
       # only get users linked to this host
       my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-      users = User.objects.filter(id__in = [x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
     elif initial.get('pro'):
       # only get users linked to this host
       my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
-      users = User.objects.filter(id__in = [x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
     else:
       # everything
       users = User.objects.filter(groups__in=[att_group])
 
-    self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id','email')]
+    self.fields['invitee'].choices=[('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
   def clean(self):
     cleaned_data = super(PartyInviteTasterForm, self).clean()
@@ -194,6 +195,7 @@ class PartyInviteTasterForm(forms.ModelForm):
         raise forms.ValidationError("Invitee already has been invited to the party")
 
     return cleaned_data
+
 
 class VinelyProSignupForm(EmailUserCreationForm):
   """
@@ -275,6 +277,7 @@ class AddWineToCartForm(forms.ModelForm):
 
     return cleaned_data
 
+
 class AddTastingKitToCartForm(forms.ModelForm):
   product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]))
   #quantity = forms.ChoiceField(choices=((0, 1), (1, 2)))
@@ -298,6 +301,7 @@ class AddTastingKitToCartForm(forms.ModelForm):
 
     return cleaned_data
 
+
 class CustomizeOrderForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
@@ -309,6 +313,7 @@ class CustomizeOrderForm(forms.ModelForm):
     model = CustomizeOrder
     exclude = ['user', 'timestamp']
 
+
 class ShippingForm(forms.ModelForm):
 
   first_name = forms.CharField(max_length=30)
@@ -318,7 +323,7 @@ class ShippingForm(forms.ModelForm):
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
   city = forms.CharField(label="City", max_length=64)
-  state = us_forms.USStateField()  #choices=us_states.STATE_CHOICES)
+  state = us_forms.USStateField()  # choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
   email = forms.EmailField(help_text="A new account will be created using this e-mail address if not an active account")
@@ -349,11 +354,11 @@ class ShippingForm(forms.ModelForm):
       user.last_name = data['last_name']
       user.save()
 
-    new_shipping = Address( street1 = data['address1'],
-                          street2 = data['address2'],
-                          city = data['city'],
-                          state = data['state'],
-                          zipcode = data['zipcode'])
+    new_shipping = Address(street1=data['address1'],
+                          street2=data['address2'],
+                          city=data['city'],
+                          state=data['state'],
+                          zipcode=data['zipcode'])
     if data['company_co']:
       new_shipping.company_co = data['company_co']
 
@@ -369,6 +374,7 @@ class ShippingForm(forms.ModelForm):
 
     return user
 
+
 class CustomizeInvitationForm(forms.ModelForm):
 
   preview = forms.BooleanField(required=False)
@@ -382,6 +388,7 @@ class CustomizeInvitationForm(forms.ModelForm):
     self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5})
+
 
 class CustomizeThankYouNoteForm(forms.ModelForm):
 
@@ -397,6 +404,7 @@ class CustomizeThankYouNoteForm(forms.ModelForm):
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
 
+
 class OrderFulfillForm(forms.ModelForm):
 
   class Meta:
@@ -408,12 +416,12 @@ class OrderFulfillForm(forms.ModelForm):
     super(OrderFulfillForm, self).__init__(*args, **kwargs)
     self.fields['order_id'].widget = forms.HiddenInput()
 
-from emailusernames.forms import NameEmailUserCreationForm
+
 class EventSignupForm(NameEmailUserCreationForm):
   '''
     This form is used when inviting people to public Vinely events.
     As a result the clean method has cases to handle creation of new users and users that already exist.
-  '''  
+  '''
   zipcode = us_forms.USZipCodeField()
 
   def clean(self):

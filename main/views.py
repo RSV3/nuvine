@@ -1901,7 +1901,7 @@ def edit_credit_card(request):
     current_user_profile = u.get_profile()
     if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
       card_info = current_user_profile.credit_card
-      form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month, 
+      form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,
                       'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
                       'billing_zipcode': card_info.billing_zipcode}
     else:
@@ -1921,7 +1921,6 @@ def edit_credit_card(request):
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
 
-import json
 @login_required
 def cart_kit_detail(request, kit_id):
   kit = Product.objects.get(id=int(kit_id))

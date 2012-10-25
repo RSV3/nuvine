@@ -7,14 +7,24 @@
     .shaded {
       background-color: #EAEAE3;
     }
-
+    .tab-header h2 {
+      color: #F12636;
+    }
+    .tab-header.completed h2 {
+      color: #00C245;
+    }    
     #personality-exists-error {
       {% if not personality_exists %}
       display: none;
       {% endif %}
       color: #F00;
     }
-
+    .tab-pane .control-group h2{
+      top: 50%; margin-top: 1em;
+    }
+    .tab-pane .span5 .row {
+      top: 50%; margin-top: 2em;
+    }
     #email-invalid-error {
       display: none;
       color: #F00;
@@ -112,9 +122,6 @@
         <p>&nbsp;</p>
         <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
         <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Save Ratings</button></p>        
-<!-- 
-        <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Submit and reveal wine personality</button></p>
- -->        
       </div>
     </div>
     {% if form.errors %}
@@ -124,12 +131,18 @@
       <div class="row">
         <div class="span12">
           <ul id="wine-ratings-tabs" class="nav nav-tabs">
-            <li class="active"><a href="#wine1" data-toggle="tab" class="span1">Wine 1</a></li>
-            <li><a href="#wine2" data-toggle="tab" class="span1">Wine 2</a></li>
-            <li><a href="#wine3" data-toggle="tab" class="span1">Wine 3</a></li>
-            <li><a href="#wine4" data-toggle="tab" class="span1">Wine 4</a></li>
-            <li><a href="#wine5" data-toggle="tab" class="span1">Wine 5</a></li>
-            <li><a href="#wine6" data-toggle="tab" class="span1">Wine 6</a></li>
+            <li class="active"><a href="#wine1" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
+            <li><a href="#wine2" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.1.overall %} completed {% endif %}"><h2>Wine 2</h2></a></li>
+            <li><a href="#wine3" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.2.overall %} completed {% endif %}"><h2>Wine 3</h2></a></li>
+            <li><a href="#wine4" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.3.overall %} completed {% endif %}"><h2>Wine 4</h2></a></li>
+            <li><a href="#wine5" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.4.overall %} completed {% endif %}"><h2>Wine 5</h2></a></li>
+            <li><a href="#wine6" data-toggle="tab" 
+              class="span1 tab-header {% if invitee.wineratingdata_set.all.5.overall %} completed {% endif %}"><h2>Wine 6</h2></a></li>
           </ul>
           <div class="tab-content">
             <!--

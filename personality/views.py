@@ -284,6 +284,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
     data['personality_exists'] = taster.get_profile().has_personality()
     data['invitee'] = taster
+    print dir(taster)
 
     # show forms
     wine1 = Wine.objects.get(number=1, active=True)
@@ -293,13 +294,13 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     wine5 = Wine.objects.get(number=5, active=True)
     wine6 = Wine.objects.get(number=6, active=True)
 
-    initial_data = { 'wine1': wine1.id,
-                      'wine2': wine2.id,
-                      'wine3': wine3.id,
-                      'wine4': wine4.id,
-                      'wine5': wine5.id,
-                      'wine6': wine6.id
-                      }
+    initial_data = {'wine1': wine1.id,
+                    'wine2': wine2.id,
+                    'wine3': wine3.id,
+                    'wine4': wine4.id,
+                    'wine5': wine5.id,
+                    'wine6': wine6.id
+                    }
 
     if taster:
       initial_data['email'] = taster.email
@@ -510,7 +511,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 def taster_list(request, taster, party_id):
   pro = request.user
   taster = taster.strip()
-  
+
   # only get tasters linked to this pro
   att_group = Group.objects.get(name="Vinely Taster")
 
@@ -521,4 +522,3 @@ def taster_list(request, taster, party_id):
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
-
