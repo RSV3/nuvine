@@ -1,8 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User 
-
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
+
 
 class Wine(models.Model):
   name = models.CharField(max_length=128)
@@ -18,7 +19,7 @@ class Wine(models.Model):
 
   def deactivate(self):
     self.active = False
-    self.deactivated = date.today()
+    self.deactivated = timezone.today()
     self.save()
 
   def activate(self):
@@ -26,7 +27,8 @@ class Wine(models.Model):
     self.save()
 
   def __unicode__(self):
-    return "%s: %s"%(self.number, self.name)
+    return "%s: %s" % (self.number, self.name)
+
 
 class WineRatingData(models.Model):
 
@@ -61,7 +63,7 @@ class WineRatingData(models.Model):
     (4, 'Semi Sweet'),
     (5, 'Sweet'),
   )
-  
+
   WEIGHT_CHOICES = (
     (0, 'Not Answered'),
     (1, 'Light'),
@@ -93,15 +95,16 @@ class WineRatingData(models.Model):
   wine = models.ForeignKey(Wine)
   overall = models.IntegerField(choices=LIKENESS_CHOICES, default=LIKENESS_CHOICES[0][0])
   dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
-  sweet = models.IntegerField(choices=SWEET_CHOICES, default=SWEET_CHOICES[0][0]) 
+  sweet = models.IntegerField(choices=SWEET_CHOICES, default=SWEET_CHOICES[0][0])
   sweet_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
-  weight = models.IntegerField(choices=WEIGHT_CHOICES, default=WEIGHT_CHOICES[0][0]) 
+  weight = models.IntegerField(choices=WEIGHT_CHOICES, default=WEIGHT_CHOICES[0][0])
   weight_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
-  texture = models.IntegerField(choices=TEXTURE_CHOICES, default=TEXTURE_CHOICES[0][0]) 
+  texture = models.IntegerField(choices=TEXTURE_CHOICES, default=TEXTURE_CHOICES[0][0])
   texture_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
-  sizzle = models.IntegerField(choices=SIZZLE_CHOICES, default=SIZZLE_CHOICES[0][0]) 
+  sizzle = models.IntegerField(choices=SIZZLE_CHOICES, default=SIZZLE_CHOICES[0][0])
   sizzle_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
   timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class WinePersonality(models.Model):
   """
@@ -118,6 +121,7 @@ class WinePersonality(models.Model):
   def __unicode__(self):
     return self.name
 
+
 class SurveyWine(models.Model):
 
   name = models.CharField(max_length=32)
@@ -131,6 +135,7 @@ class SurveyWine(models.Model):
 
   def __unicode__(self):
     return self.name
+
 
 class GeneralTaste(models.Model):
   """
@@ -226,6 +231,7 @@ class GeneralTaste(models.Model):
   )
   new_flavors = models.IntegerField(choices=NEW_FLAVORS_CHOICES, default=0, verbose_name='How often do you try out new foods and flavors?')
 
+
 class WineTaste(models.Model):
 
   user = models.ForeignKey(User)
@@ -250,7 +256,7 @@ class WineTaste(models.Model):
     (1, 'Sweet'),
     (2, 'Dry'),
     (3, 'No Clue/It Depends')
-  ) 
+  )
   red_sweetness = models.IntegerField(choices=RED_SWEETNESS_CHOICES, default=0, verbose_name='Sweetness', blank=True, null=True)
 
   RED_ACIDITY_CHOICES = (
@@ -270,11 +276,11 @@ class WineTaste(models.Model):
   # question 3
   red_wines_often = models.ManyToManyField(SurveyWine, verbose_name='What RED wine(s) do you currently drink most often? (select up to 2)', related_name='survey_red_favorites')
   red_wines_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Other (please specify):")
-  
+
   # question 4
-  red_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What RED wine, if any, do you particularly DISLIKE?', null=True, blank=True, related_name='survey_red_dislike') 
+  red_wine_dislike = models.ForeignKey(SurveyWine, verbose_name='What RED wine, if any, do you particularly DISLIKE?', null=True, blank=True, related_name='survey_red_dislike')
   red_wine_dislike_other = models.CharField(max_length=32, null=True, blank=True, verbose_name="Other (please specify):")
-  
+
   # question 5
   WHITE_OAK_CHOICES = (
     (1, 'Oaky'),

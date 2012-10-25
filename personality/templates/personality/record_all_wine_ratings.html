@@ -80,10 +80,19 @@
   <!-- <section id="user-ratings"> -->
     <div class="row">
       <div class="span8">
-        <h3>Taster:</h3>
-        <h1>{% if invitee.first_name %}{{ invitee.first_name }} {{ invitee.last_name }} {% else %} Anonymous {% endif %}</h1>
-        {{ form.email }}
-        <p>{{ invitee.email }}</p>
+        <div class="row">
+          {% if invitee.get_profile.has_personality %}
+            <div class="span2">
+              <img src="{{ STATIC_URL }}img/badge_{{ invitee.get_profile.wine_personality.suffix }}.png">
+            </div>
+          {% endif %}
+          <div class="span5">
+            <h3>Taster:</h3>
+            <h1>{% if invitee.first_name %}{{ invitee.first_name }} {{ invitee.last_name }} {% else %} Anonymous {% endif %}</h1>
+            {{ form.email }}
+            <p>{{ invitee.email }}</p>
+          </div>
+        </div>
         <div class="row">
           <div class="span7">
             <p>
