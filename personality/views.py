@@ -8,9 +8,10 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.db.models import Q
 from datetime import timedelta
 
-from main.utils import if_supplier, if_pro
+from main.utils import if_supplier
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue
@@ -49,6 +50,7 @@ def check_personality_exists(request):
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
+
 @login_required
 def my_wine_personality(request):
   data = {}
@@ -58,6 +60,7 @@ def my_wine_personality(request):
   data["personality"] = u.get_profile().wine_personality
 
   return render_to_response("personality/my_wine_personality.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -105,6 +108,7 @@ def personality_details(request, user_id, order_id=None):
 
   return render_to_response("personality/personality_details.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def pre_questionnaire_general(request):
   data = {}
@@ -128,6 +132,7 @@ def pre_questionnaire_general(request):
 
   return render_to_response("personality/pre_questionnaire_general.html", data,
                                   context_instance=RequestContext(request))
+
 
 @login_required
 def pre_questionnaire_wine(request):
@@ -157,6 +162,7 @@ def pre_questionnaire_wine(request):
 
   return render_to_response("personality/pre_questionnaire_wine.html", data,
                                   context_instance=RequestContext(request))
+
 
 @login_required
 def record_wine_ratings(request):
@@ -199,6 +205,7 @@ def record_wine_ratings(request):
   else:
     raise Http404
 
+
 @login_required
 def record_ratings(request, email=None, party_id=None):
   """
@@ -208,9 +215,11 @@ def record_ratings(request, email=None, party_id=None):
   data = {}
   return render_to_response("personality/record_all_wine_ratings.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def personality_rating_info(request, email=None, party_id=None):
   return record_all_wine_ratings(request, email, party_id, None)
+
 
 @login_required
 def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
@@ -435,7 +444,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         # only save personality if all 6 wine fields have been filled out
         personality = calculate_wine_personality(*results)
         data["personality"] = personality
-        data['can_order'] = True
+        data['can_order_for_taster'] = True
 
         if pro_group in u.groups.all():
           # ask if you want to fill out next customer's ratings or order wine
@@ -468,7 +477,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           PersonaLog.objects.get_or_create(user=taster)
           today = timezone.now()
 
-          data['can_order'] = (today - party.event_date <= timedelta(hours=24))
+          data['can_order_for_taster'] = (today - party.event_date <= timedelta(hours=24))
 
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
@@ -483,7 +492,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       data["invitee"] = taster
       data['role'] = u.get_profile().role()
       today = timezone.now()
-      data['can_order'] = (today - party.event_date <= timedelta(hours=24))
+      data['can_order_for_taster'] = (today - party.event_date <= timedelta(hours=24))
 
       return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
     else:
@@ -496,16 +505,15 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     # Vinely Taster is filling out their own data
     raise PermissionDenied
 
-import json
-from django.db.models import Q
+
 @login_required
 def taster_list(request, taster, party_id):
   pro = request.user
   taster = taster.strip()
+  
   # only get tasters linked to this pro
   att_group = Group.objects.get(name="Vinely Taster")
-  # show people linked to this pro
-  # my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro)
+
   # show people who RSVP'ed to the party
   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
   users = User.objects.filter(id__in = [x.invitee.id for x in my_guests]) # , groups__in=[att_group])
@@ -513,6 +521,4 @@ def taster_list(request, taster, party_id):
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
-
-
 
