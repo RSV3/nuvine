@@ -5,16 +5,19 @@ from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
 from sorl.thumbnail import ImageField
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from stripecard.models import StripeCard
+from django.db.models import Sum
 
 # Create your models here.
+
 
 class ContactReason(models.Model):
   reason = models.CharField(max_length=1024)
 
   def __unicode__(self):
     return self.reason
+
 
 class ContactRequest(models.Model):
 
@@ -33,8 +36,7 @@ class ContactRequest(models.Model):
   message = models.TextField()
   zipcode = models.CharField(max_length=12)
 
-from django.db.models import Sum
-from datetime import timedelta, datetime
+
 class Party(models.Model):
 
   # default to the name of the host
@@ -179,11 +181,12 @@ class Product(models.Model):
   image = ImageField(upload_to="products/")
   cart_tag = models.CharField(max_length=64, default="x")
   active = models.BooleanField(default=True)
-  # when it was last added 
+  # when it was last added
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
+
 
 class LineItem(models.Model):
 
@@ -209,19 +212,20 @@ class LineItem(models.Model):
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
   def subtotal(self):
-    if self.price_category in [5,7,9]:
+    if self.price_category in [5, 7, 9]:
       #return 2*float(self.product.unit_price)
       return self.product.full_case_price
-    elif self.price_category in [6,8,10]:
+    elif self.price_category in [6, 8, 10]:
       return self.product.unit_price
     else:
-      return self.quantity*self.product.unit_price
+      return self.quantity * self.product.unit_price
 
   def quantity_str(self):
-    if self.price_category in [5,6,7,8,9,10]:
+    if self.price_category in [5, 6, 7, 8, 9, 10]:
       return "Full Case" if self.quantity == 1 else "Half Case"
     else:
       return str(self.quantity)
+
 
 class Cart(models.Model):
   """
@@ -259,19 +263,30 @@ class Cart(models.Model):
     return price_sum
 
   def shipping(self):
+    # NOTE: Quantity has different interpretations depending on if wine case or tasting kit
+    #
+    # For Wine case quantity means:
+    # 1 = full case
+    # 2 = half case
+    #
+    # For tasting kit quantity is the number if kits ordered
+
     shipping = 0
     # for item in self.items.all():
     #   # always $16 - August 2, 2012
     #   shipping += 16
     for item in self.items.all():
-      if (item.price_category in [5, 7, 9]) or ((item.price_category == 11) and (item.quantity == 1)):
-        # half case or single tasting kit
-        shipping += 16
-      else:
-          # full case or 2 tasting kits
-        shipping += 32
-      return shipping
+      # tasting kits
+      if item.price_category == 11:
+        shipping = 16 * item.quantity
 
+      # wine cases
+      elif (item.price_category in [5, 7, 9]):
+        # full case
+        shipping += 32
+      elif (item.price_category in [6, 8, 10]):
+        # half case
+        shipping += 16
       """
       if item.price_category in [5, 6, 8]:
         # add shipping for good half, full, better half case
@@ -489,3 +504,26 @@ class ProSignupLog(models.Model):
   mentor = models.ForeignKey(User, blank=True, null=True, related_name="new_mentees")
   mentor_email = models.CharField(max_length=75, blank=True, null=True, verbose_name="Typed Mentor Email")
   timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Pro Request Date")
+
+# class SupplierWine(models.Model):
+#   '''
+#   This stores the wine casings for suppliers
+#   '''
+#   WINE_COLOR = (
+#     (0, "Red"),
+#     (1, "Rose"),
+#     (2, "White")
+#   )
+#   SWEETNESS = (
+
+#   )
+#   name = models.CharField(max_length=128)
+#   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
+#   winery = models.CharField(max_length=128)
+#   color =  models.IntegerField(choices=WINE_COLOR)
+#   sparkling = models.BooleanField()
+#   varietal = models.CharField(max_length=128)
+#   vintage = models.IntegerField()
+#   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
+#   timestamp = models.DateTimeField(auto_now_add=True)
+

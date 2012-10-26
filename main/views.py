@@ -377,7 +377,7 @@ def cart_add_tasting_kit(request, party_id=0):
     raise Http404
 
   # check how many invites and recommend number of taste kits
-  invites = PartyInvite.objects.filter(party = party)
+  invites = PartyInvite.objects.filter(party=party)
   if invites.count() == 0:
     messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
   elif invites.count() < 8:
@@ -393,7 +393,7 @@ def cart_add_tasting_kit(request, party_id=0):
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
-      if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
+      if cart.items.exclude(product__category=Product.PRODUCT_TYPE[0][0]).exists():
         cart_url = reverse("cart")
         alert_msg = 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url)
         messages.error(request, mark_safe(alert_msg))
