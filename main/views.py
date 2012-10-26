@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext, Template
+from django.template import RequestContext, Template, Context
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -15,7 +15,7 @@ from django.utils import timezone
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest
 from personality.models import WineTaste, GeneralTaste, WinePersonality
-from accounts.models import VerificationQueue, Zipcode, SUPPORTED_STATES
+from accounts.models import VerificationQueue, Zipcode
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
@@ -29,14 +29,16 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm
 
+from cms.models import ContentTemplate
+
 import json, uuid, math
 from datetime import datetime, timedelta
 
 from django.utils.safestring import mark_safe
-from django.template import Context, Template
-
-from cms.models import ContentTemplate
 from django.conf import settings
+from django.core.paginator import Paginator
+import urllib
+
 import stripe
 
 from stripecard.models import StripeCard
@@ -92,16 +94,16 @@ def home(request):
           data['party_date'] = party_date
         else:
           # set if this is an upcoming party
-          parties = parties.filter(event_date__gte = today)
+          parties = parties.filter(event_date__gte=today)
           data['party_scheduled'] = True
           data['party'] = parties[0]
           # check if there's a party that has not ordered a kit, exclude completed orders
-          cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
-          parties = parties.exclude(id__in = [x.party.id for x in cart])
+          cart = Cart.objects.filter(user=u, party__in=parties, status=Cart.CART_STATUS_CHOICES[5][0])
+          parties = parties.exclude(id__in=[x.party.id for x in cart])
           data['can_order_kit'] = parties.exists()
 
     if pro_group in u.groups.all():
-      parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
+      parties = OrganizedParty.objects.filter(pro=u).order_by('-party__event_date')
       if parties.exists():
         party_date = parties[0].party.event_date
         if today > party_date:
@@ -1508,8 +1510,6 @@ def supplier_fulfilled_orders(request):
 
   return render_to_response("main/supplier_fulfilled_orders.html", data, context_instance=RequestContext(request))
 
-from django.core.paginator import Paginator
-import urllib
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1518,6 +1518,7 @@ def supplier_order_history(request):
   Show order history of fulfilled orders
   """
   return supplier_orders_filter(request, history_list=True)
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1529,24 +1530,25 @@ def supplier_all_orders(request):
   """
   return supplier_orders_filter(request, history_list=False)
 
+
 def supplier_orders_filter(request, history_list=False):
   sort_field = {
-    'status':'fulfill_status',
-    '-status':'-fulfill_status',
-    'order_date':'order_date',
-    '-order_date':'-order_date',
-    'ship_date':'ship_date',
-    '-ship_date':'-ship_date',
-    'name':'ordered_by',
-    '-name':'-ordered_by',
-    'personality':'ordered_by__userprofile__wine_personality__name',
-    '-personality':'-ordered_by__userprofile__wine_personality__name',
-    'rwb':'order_date',
-    '-rwb':'-order_date',
-    'quantity':'cart__items__quantity',
-    '-quantity':'-cart__items__quantity',
-    'track':'tracking_number',
-    '-track':'-tracking_number',
+    'status': 'fulfill_status',
+    '-status': '-fulfill_status',
+    'order_date': 'order_date',
+    '-order_date': '-order_date',
+    'ship_date': 'ship_date',
+    '-ship_date': '-ship_date',
+    'name': 'ordered_by',
+    '-name': '-ordered_by',
+    'personality': 'ordered_by__userprofile__wine_personality__name',
+    '-personality': '-ordered_by__userprofile__wine_personality__name',
+    'rwb': 'order_date',
+    '-rwb': '-order_date',
+    'quantity': 'cart__items__quantity',
+    '-quantity': '-cart__items__quantity',
+    'track': 'tracking_number',
+    '-track': '-tracking_number',
   }
 
   data = {}
@@ -1565,22 +1567,22 @@ def supplier_orders_filter(request, history_list=False):
   try:
     page = paginator.page(page_num)
   except:
-    page= paginator.page(1)
-  
+    page = paginator.page(1)
+
   if sort:
-    next_page =  page.next_page_number() if page.has_next() else page_num
-    prev_page =  page.previous_page_number() if page.has_previous() else page_num
-    first_page_url = urllib.urlencode({'sort':sort})
-    last_page_url = urllib.urlencode({'p':paginator.num_pages, 'sort':sort})
-    next_page_url = urllib.urlencode({'p':next_page, 'sort':sort})
-    prev_page_url = urllib.urlencode({'p':prev_page, 'sort':sort})
+    next_page = page.next_page_number() if page.has_next() else page_num
+    prev_page = page.previous_page_number() if page.has_previous() else page_num
+    first_page_url = urllib.urlencode({'sort': sort})
+    last_page_url = urllib.urlencode({'p': paginator.num_pages, 'sort': sort})
+    next_page_url = urllib.urlencode({'p': next_page, 'sort': sort})
+    prev_page_url = urllib.urlencode({'p': prev_page, 'sort': sort})
   else:
-    next_page =  page.next_page_number() if page.has_next() else page_num
-    prev_page =  page.previous_page_number() if page.has_previous() else page_num
+    next_page = page.next_page_number() if page.has_next() else page_num
+    prev_page = page.previous_page_number() if page.has_previous() else page_num
     first_page_url = urllib.urlencode({})
-    last_page_url = urllib.urlencode({'p':paginator.num_pages})
-    next_page_url = urllib.urlencode({'p':next_page})
-    prev_page_url = urllib.urlencode({'p':prev_page})
+    last_page_url = urllib.urlencode({'p': paginator.num_pages})
+    next_page_url = urllib.urlencode({'p': next_page})
+    prev_page_url = urllib.urlencode({'p': prev_page})
 
   data['page_count'] = paginator.num_pages
   data['page'] = page
@@ -1590,16 +1592,18 @@ def supplier_orders_filter(request, history_list=False):
   data['last_page_url'] = last_page_url
   data['orders'] = page.object_list
   data['sorting'] = sort
-  
+
   data["supplier"] = True
   data['supplier_history_view']
   return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_wine_list(request):
   data = {}
   return render_to_response("main/supplier_wine_list.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1639,8 +1643,8 @@ def supplier_edit_order(request, order_id):
       item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
       # print item.img_file_name
     # TODO: currently template handles tasting kit images
-    #elif item.product.category == 0:
-    #  item.img_file_name =  
+    # elif item.product.category == 0:
+    #  item.img_file_name =
     data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
@@ -1780,7 +1784,7 @@ def edit_shipping_address(request):
   # display form: populate with initial data if user is authenticated
   initial_data = {}
   if receiver:
-    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name, 
+    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name,
                     'email': receiver.email, 'phone': receiver.get_profile().phone}
     if receiver.get_profile().shipping_addresses.all().count() > 0:
       form.fields['shipping_addresses'] = forms.ChoiceField()
