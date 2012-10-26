@@ -781,7 +781,7 @@ def order_complete(request, order_id):
   data = {}
 
   u = request.user
-  stripe_payment_mode = request.session['stripe_payment']
+  stripe_payment_mode = request.session.get('stripe_payment', None)
 
   # remove session information if it exists
   if 'ordering' in request.session:
