@@ -180,29 +180,32 @@ class UserProfile(models.Model):
     if tas_group in self.user.groups.all():
       return 'taster'
 
-  def is_pro(self): return self.role() == 'pro'
+  def is_pro(self):
+    return self.role() == 'pro'
 
-  def is_host(self): return self.role() == 'host'
+  def is_host(self):
+    return self.role() == 'host'
 
-  def is_taster(self): return self.role() == 'taster'
+  def is_taster(self):
+    return self.role() == 'taster'
 
   def personality_rating_code(self):
     # calculate rating code
     from personality.models import WineRatingData
 
-    ratings = WineRatingData.objects.filter(user = self.user).order_by('wine__id')
+    ratings = WineRatingData.objects.filter(user=self.user).order_by('wine__id')
     r = [x.overall for x in ratings]
 
-    L=[]; D=[]; N=[];
-    likes=''; dislikes=''; neutrals='';
+    L = []; D = []; N = [];
+    likes = ''; dislikes = ''; neutrals = '';
 
     for i,x in enumerate(r):
-      if x < 3: D.append(i+1)
-      elif x == 3: N.append(i+1)
-      elif x > 3: L.append(i+1)
+      if x < 3: D.append(i + 1)
+      elif x == 3: N.append(i + 1)
+      elif x > 3: L.append(i + 1)
 
     likes = "L" + "".join(map(str, L)) if len(L) > 0 else ""
-    neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else "" 
+    neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else ""
     dislikes = "D" + "".join(map(str, D)) if len(D) > 0 else ""
     code = likes + neutrals  # + dislikes
     return code if code else "-"
@@ -222,6 +225,7 @@ class UserProfile(models.Model):
     except CustomizeOrder.DoesNotExist:
       return "-"
 
+
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
     UserProfile.objects.create(user=instance)
@@ -235,19 +239,19 @@ class VinelyProAccount(models.Model):
     Map wife and husband into one VinelyPro account
   """
   users = models.ManyToManyField(User)
-  account_number = models.CharField(max_length = 8)
+  account_number = models.CharField(max_length=8)
   comment = models.CharField(max_length=128)
 
 
 class SubscriptionInfo(models.Model):
   user = models.ForeignKey(User)
 
-  # matrix of frequency x quantity 
+  # matrix of frequency x quantity
   STRIPE_PLAN = (
-    ('', ), # one time purchase
-    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly'), # monthly
-    ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'), # bimonthly
-    ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'), # quarterly
+    ('', ),  # one time purchase
+    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly'),  # monthly
+    ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
+    ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
   )
 
   FREQUENCY_CHOICES = (
@@ -276,11 +280,11 @@ class Zipcode(models.Model):
   '''
   List of all zipcodes in US
   '''
-  code = models.CharField(max_length = 5)
-  country = models.CharField(max_length = 2)
-  city = models.CharField(max_length = 32)
-  state = models.CharField(max_length = 2)
-  latitude = models.CharField(max_length = 20)
-  longitude = models.CharField(max_length = 20)
+  code = models.CharField(max_length=5)
+  country = models.CharField(max_length=2)
+  city = models.CharField(max_length=32)
+  state = models.CharField(max_length=2)
+  latitude = models.CharField(max_length=20)
+  longitude = models.CharField(max_length=20)
 
 SUPPORTED_STATES = ['MI', 'CA', 'MA']

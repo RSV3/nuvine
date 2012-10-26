@@ -488,8 +488,8 @@ def cart_add_wine(request, level="x"):
       request.session['cart_id'] = cart.id
 
     # can only order make one subscription at a time
-    if (item.frequency in [1,2,3]) and cart:
-      if cart.items.filter(frequency__in=[1,2,3]).exists():
+    if (item.frequency in [1, 2, 3]) and cart:
+      if cart.items.filter(frequency__in=[1, 2, 3]).exists():
         alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
@@ -507,8 +507,8 @@ def cart_add_wine(request, level="x"):
     cart.save()
 
     # notify user if they are already subscribed and that a new subscription will cancel the existing
-    if cart.items.filter(frequency__in=[1,2,3]).exists():
-      if SubscriptionInfo.objects.filter(user=u, frequency__in = [1,2,3]):
+    if cart.items.filter(frequency__in=[1, 2, 3]).exists():
+      if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]):
         messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
 
     data["shop_menu"] = True
@@ -571,7 +571,7 @@ def cart(request):
     data["cart"] = cart
     data['allow_customize'] = True
     # skip customizing if only ordering tasting kit
-    check_cart = cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0])
+    check_cart = cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if check_cart.exists():
       data['allow_customize'] = False
   except KeyError:
@@ -708,7 +708,7 @@ def place_order(request):
         order.stripe_card = profile.stripe_card
       else:
         order.credit_card = profile.credit_card
-      
+
       order.shipping_address = profile.shipping_address
       order.save()
 
@@ -722,17 +722,17 @@ def place_order(request):
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
-        non_sub_orders = order.cart.items.filter(frequency = 0)
+        non_sub_orders = order.cart.items.filter(frequency=0)
         for item in non_sub_orders:
           # one-time only charged immediately at this point
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
         # if subscription exists then create plan
-        sub_orders = order.cart.items.filter(frequency__in = [1, 2, 3])
+        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category-5]
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
       # save cart to order
@@ -802,7 +802,7 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in = range(5, 11), frequency__in = [1, 2, 3]):
+    for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
       # check if item contains subscription
       # if item.price_category in range(5, 11):
       subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
@@ -1830,18 +1830,19 @@ def edit_credit_card(request):
 
     if request.method == 'POST':
       stripe.api_key = settings.STRIPE_SECRET
-      stripe_token  = request.POST.get('stripe_token')
+      stripe_token = request.POST.get('stripe_token')
       stripe_card = receiver.get_profile().stripe_card
 
-      try:        
+      try:
         customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-        if customer.get('deleted'): raise Exception('Customer Deleted')
+        if customer.get('deleted'):
+          raise Exception('Customer Deleted')
         stripe_user_id = customer.id
 
         # makes sure we have the exact same card
-        stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'), 
+        stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                           exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                          card_type=request.POST.get('card_type'))
+                          card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
       except:
         # no record of this customer-card mapping so create
         try:
@@ -1851,7 +1852,7 @@ def edit_credit_card(request):
           # create on vinely
           stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                                     exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                                    card_type=request.POST.get('card_type'))
+                                    card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
           if created:
             profile = receiver.get_profile()
             profile.stripe_card = stripe_card
@@ -1861,7 +1862,6 @@ def edit_credit_card(request):
         except:
           messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
           return HttpResponseRedirect('.')
-
 
       # update cart status
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -1876,7 +1876,7 @@ def edit_credit_card(request):
   else:
     # other states use Processed through Vinely - MA, CA
     form = PaymentForm(request.POST or None)
-    
+
     if form.is_valid():
       new_card = form.save()
       profile = receiver.get_profile()
@@ -1888,14 +1888,13 @@ def edit_credit_card(request):
       cart.status = Cart.CART_STATUS_CHOICES[4][0]
       cart.save()
 
-      # for now save the card to receiver 
+      # for now save the card to receiver
       profile.credit_cards.add(new_card)
       request.session['stripe_payment'] = False
 
       # go finalize order
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("place_order"))
-
 
     # display form: prepopulate with previous credit card used
     current_user_profile = u.get_profile()
