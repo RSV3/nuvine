@@ -6,7 +6,7 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
 if 'DEBUG' in os.environ and os.environ['DEBUG'] == 'true':
-  DEBUG = True 
+  DEBUG = True
 else:
   DEBUG = False
 
@@ -18,9 +18,9 @@ except Exception as e:
 TEMPLATE_DEBUG = DEBUG
 
 if 'DEPLOY' in os.environ and os.environ['DEPLOY'] == 'true':
-  DEPLOY = True # only True if production (for mail settings and https)
+  DEPLOY = True  # only True if production (for mail settings and https)
 else:
-  DEPLOY =  False 
+  DEPLOY = False
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -78,11 +78,11 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True 
+USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = PROJECT_ROOT+'/sitemedia/'
+MEDIA_ROOT = PROJECT_ROOT + '/sitemedia/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -93,7 +93,7 @@ MEDIA_URL = 'http://s3.amazonaws.com/cdn.vinely.com/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = PROJECT_ROOT+'/sitestatic/'
+STATIC_ROOT = PROJECT_ROOT + '/sitestatic/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -107,7 +107,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    PROJECT_ROOT+'/static',
+    PROJECT_ROOT + '/static',
 )
 
 # List of finder classes that know how to find static files in
@@ -126,10 +126,10 @@ AWS_PRELOAD_METADATA = True
 
 if DEPLOY:
   # for handling https static file serving
-  from boto.s3.connection import OrdinaryCallingFormat 
+  from boto.s3.connection import OrdinaryCallingFormat
   AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 else:
-  # for static files to serve from http 
+  # for static files to serve from http
   AWS_S3_SECURE_URLS = False
 
 # AWS_S3_CUSTOM_DOMAIN = 'our own cname for the s3 bucket'
@@ -192,7 +192,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    PROJECT_ROOT+'/templates',
+    PROJECT_ROOT + '/templates',
 )
 
 INSTALLED_APPS = (

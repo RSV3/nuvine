@@ -484,6 +484,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))
         messages.success(request, msg)
 
+    # set active tab to be next wine where 'feeling' is not filled
+    ratings = taster.wineratingdata_set.exclude(overall__in=range(1, 6))
+    data['active_tab'] = ratings[0].wine.number if ratings else 0
     data["rate_wines_menu"] = True
     data["form"] = form
 

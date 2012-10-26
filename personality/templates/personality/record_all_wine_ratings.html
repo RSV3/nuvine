@@ -130,20 +130,22 @@
     <section id="user-ratings">
       <div class="row">
         <div class="span12">
-          <ul id="wine-ratings-tabs" class="nav nav-tabs">
-            <li class="active"><a href="#wine1" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
-            <li><a href="#wine2" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.1.overall %} completed {% endif %}"><h2>Wine 2</h2></a></li>
-            <li><a href="#wine3" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.2.overall %} completed {% endif %}"><h2>Wine 3</h2></a></li>
-            <li><a href="#wine4" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.3.overall %} completed {% endif %}"><h2>Wine 4</h2></a></li>
-            <li><a href="#wine5" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.4.overall %} completed {% endif %}"><h2>Wine 5</h2></a></li>
-            <li><a href="#wine6" data-toggle="tab" 
-              class="span1 tab-header {% if invitee.wineratingdata_set.all.5.overall %} completed {% endif %}"><h2>Wine 6</h2></a></li>
-          </ul>
+          {% with ratings=invitee.wineratingdata_set.all %}
+            <ul id="wine-ratings-tabs" class="nav nav-tabs">
+              <li {% if active_tab == 1 %} class="active" {% endif %}><a href="#wine1" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
+              <li {% if active_tab == 2 %} class="active" {% endif %}><a href="#wine2" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.1.overall %} completed {% endif %}"><h2>Wine 2</h2></a></li>
+              <li {% if active_tab == 3 %} class="active" {% endif %}><a href="#wine3" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.2.overall %} completed {% endif %}"><h2>Wine 3</h2></a></li>
+              <li {% if active_tab == 4 %} class="active" {% endif %}><a href="#wine4" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.3.overall %} completed {% endif %}"><h2>Wine 4</h2></a></li>
+              <li {% if active_tab == 5 %} class="active" {% endif %}><a href="#wine5" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.4.overall %} completed {% endif %}"><h2>Wine 5</h2></a></li>
+              <li {% if active_tab == 6 %} class="active" {% endif %}><a href="#wine6" data-toggle="tab" 
+                class="span1 tab-header {% if ratings.5.overall %} completed {% endif %}"><h2>Wine 6</h2></a></li>
+            </ul>
+          {% endwith %}
           <div class="tab-content">
             <!--
             ########################################
@@ -152,7 +154,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade in active" id="wine1">
+            <div class="tab-pane fade {% if active_tab == 1 %}in active {% endif %}" id="wine1">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
@@ -273,7 +275,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade" id="wine2">
+            <div class="tab-pane fade {% if active_tab == 2 %}in active {% endif %}" id="wine2">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
@@ -395,7 +397,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade" id="wine3">
+            <div class="tab-pane fade {% if active_tab == 3 %}in active {% endif %}" id="wine3">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
@@ -516,7 +518,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade" id="wine4">
+            <div class="tab-pane fade {% if active_tab == 4 %}in active {% endif %}" id="wine4">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
@@ -637,7 +639,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade" id="wine5">
+            <div class="tab-pane fade {% if active_tab == 5 %}in active {% endif %}" id="wine5">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
@@ -758,7 +760,7 @@
             #
             #########################################
             -->
-            <div class="tab-pane fade" id="wine6">
+            <div class="tab-pane fade {% if active_tab == 6 %}in active {% endif %}" id="wine6">
               <div class="row shaded">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">

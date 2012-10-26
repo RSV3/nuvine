@@ -31,7 +31,11 @@
               <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
             </tr>
             <tr>
-              <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
+              {% if taster %}
+                <td>From:</td><td>{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Friendly Taster{% endif %} ({{ user.email }})</td>                
+              {% else %}
+                <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
+              {% endif %}
             </tr>
             <tr>
               <td>Subject:</td><td>{{ form.custom_subject.value }}</td>

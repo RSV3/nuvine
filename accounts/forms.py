@@ -243,7 +243,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     mentor_email = cleaned.get('mentor')
     if mentor_email:
-      mentor_email = cleaned['mentor'].strip().lower()
+      mentor_email = mentor_email.strip().lower()
 
     if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
       # make sure the pro exists

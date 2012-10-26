@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext, Template
+from django.template import RequestContext, Template, Context
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -15,7 +15,7 @@ from django.utils import timezone
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest
 from personality.models import WineTaste, GeneralTaste, WinePersonality
-from accounts.models import VerificationQueue, Zipcode, SUPPORTED_STATES
+from accounts.models import VerificationQueue, Zipcode
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
@@ -29,14 +29,16 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm
 
+from cms.models import ContentTemplate
+
 import json, uuid, math
 from datetime import datetime, timedelta
 
 from django.utils.safestring import mark_safe
-from django.template import Context, Template
-
-from cms.models import ContentTemplate
 from django.conf import settings
+from django.core.paginator import Paginator
+import urllib
+
 import stripe
 
 from stripecard.models import StripeCard
@@ -92,16 +94,16 @@ def home(request):
           data['party_date'] = party_date
         else:
           # set if this is an upcoming party
-          parties = parties.filter(event_date__gte = today)
+          parties = parties.filter(event_date__gte=today)
           data['party_scheduled'] = True
           data['party'] = parties[0]
           # check if there's a party that has not ordered a kit, exclude completed orders
-          cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
-          parties = parties.exclude(id__in = [x.party.id for x in cart])
+          cart = Cart.objects.filter(user=u, party__in=parties, status=Cart.CART_STATUS_CHOICES[5][0])
+          parties = parties.exclude(id__in=[x.party.id for x in cart])
           data['can_order_kit'] = parties.exists()
 
     if pro_group in u.groups.all():
-      parties = OrganizedParty.objects.filter(pro = u).order_by('-party__event_date')
+      parties = OrganizedParty.objects.filter(pro=u).order_by('-party__event_date')
       if parties.exists():
         party_date = parties[0].party.event_date
         if today > party_date:
@@ -375,7 +377,7 @@ def cart_add_tasting_kit(request, party_id=0):
     raise Http404
 
   # check how many invites and recommend number of taste kits
-  invites = PartyInvite.objects.filter(party = party)
+  invites = PartyInvite.objects.filter(party=party)
   if invites.count() == 0:
     messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
   elif invites.count() < 8:
@@ -391,7 +393,7 @@ def cart_add_tasting_kit(request, party_id=0):
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
-      if cart.items.exclude(product__category = Product.PRODUCT_TYPE[0][0]).exists():
+      if cart.items.exclude(product__category=Product.PRODUCT_TYPE[0][0]).exists():
         cart_url = reverse("cart")
         alert_msg = 'You can\'t order anything else when ordering a taste kit. Either clear your <a href="%s">cart</a> or checkout the existing <a href="%s">cart</a> first.' % (cart_url, cart_url)
         messages.error(request, mark_safe(alert_msg))
@@ -488,8 +490,8 @@ def cart_add_wine(request, level="x"):
       request.session['cart_id'] = cart.id
 
     # can only order make one subscription at a time
-    if (item.frequency in [1,2,3]) and cart:
-      if cart.items.filter(frequency__in=[1,2,3]).exists():
+    if (item.frequency in [1, 2, 3]) and cart:
+      if cart.items.filter(frequency__in=[1, 2, 3]).exists():
         alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
@@ -507,8 +509,8 @@ def cart_add_wine(request, level="x"):
     cart.save()
 
     # notify user if they are already subscribed and that a new subscription will cancel the existing
-    if cart.items.filter(frequency__in=[1,2,3]).exists():
-      if SubscriptionInfo.objects.filter(user=u, frequency__in = [1,2,3]):
+    if cart.items.filter(frequency__in=[1, 2, 3]).exists():
+      if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]):
         messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
 
     data["shop_menu"] = True
@@ -571,7 +573,7 @@ def cart(request):
     data["cart"] = cart
     data['allow_customize'] = True
     # skip customizing if only ordering tasting kit
-    check_cart = cart.items.filter(product__category = Product.PRODUCT_TYPE[0][0])
+    check_cart = cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if check_cart.exists():
       data['allow_customize'] = False
   except KeyError:
@@ -708,7 +710,7 @@ def place_order(request):
         order.stripe_card = profile.stripe_card
       else:
         order.credit_card = profile.credit_card
-      
+
       order.shipping_address = profile.shipping_address
       order.save()
 
@@ -722,17 +724,17 @@ def place_order(request):
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
-        non_sub_orders = order.cart.items.filter(frequency = 0)
+        non_sub_orders = order.cart.items.filter(frequency=0)
         for item in non_sub_orders:
           # one-time only charged immediately at this point
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
         # if subscription exists then create plan
-        sub_orders = order.cart.items.filter(frequency__in = [1, 2, 3])
+        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category-5]
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
       # save cart to order
@@ -802,7 +804,7 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in = range(5, 11), frequency__in = [1, 2, 3]):
+    for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
       # check if item contains subscription
       # if item.price_category in range(5, 11):
       subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
@@ -1076,23 +1078,27 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  # check number of invitees that have accepted or maybe
-  invitees = PartyInvite.objects.filter(party=party)
+  # tasters should only see list of people that they invited
+  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
+    invitees = PartyInvite.objects.filter(party=party)
+  else:
+    invitees = PartyInvite.objects.filter(party=party, invited_by=u)
 
   data["party"] = party
   data["invitees"] = invitees
   today = timezone.now() - timedelta(days=1)
 
-  if party.event_date > today and party.high_low() == '!LOW':
-    msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
-    messages.warning(request, msg)
-  elif party.event_date > today and party.high_low() == '!HIGH':
-    msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
-    messages.warning(request, msg)
+  # these messages are only relevant to host or Pro
+  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
+    if party.event_date > today and party.high_low() == '!LOW':
+      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
+      messages.warning(request, msg)
+    elif party.event_date > today and party.high_low() == '!HIGH':
+      msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
+      messages.warning(request, msg)
 
-  # TODO: might have to fix this and set Party to have a particular pro
-  my_hosts = MyHost.objects.filter(host=party.host).order_by("-timestamp")
-  data["pro_user"] = my_hosts[0].pro
+  pro = OrganizedParty.objects.get(party=party)
+  data["pro_user"] = pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
   data['can_order_kit'] = (party.event_date > today)
@@ -1102,9 +1108,10 @@ def party_details(request, party_id):
     return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
   else:
     orders = Order.objects.filter(cart__party=party)
-    data['buyers'] = invitees.filter(invitee__in = [x.receiver for x in orders])
-    data['non_buyers'] = invitees.exclude(invitee__in = [x.receiver for x in orders])
+    data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
+    data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
     return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_taster_list(request, party_id):
@@ -1317,6 +1324,7 @@ def party_customize_invite(request):
   else:
     return PermissionDenied
 
+
 @login_required
 def party_customize_thanks_note(request):
   """
@@ -1367,10 +1375,10 @@ def party_send_thanks_note(request):
       party = note_sent.party
       # send e-mails
       guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in = guests, party=party)
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party)
       orders = Order.objects.filter(cart__party=party)
-      buyers = invitees.filter(invitee__in = [x.receiver for x in orders])
-      non_buyers = invitees.exclude(invitee__in = [x.receiver for x in orders])
+      buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
+      non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
       if non_buyers:
         distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
       if buyers:
@@ -1385,6 +1393,7 @@ def party_send_thanks_note(request):
   data["parties_menu"] = True
 
   return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_send_invites(request):
@@ -1508,8 +1517,6 @@ def supplier_fulfilled_orders(request):
 
   return render_to_response("main/supplier_fulfilled_orders.html", data, context_instance=RequestContext(request))
 
-from django.core.paginator import Paginator
-import urllib
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1518,6 +1525,7 @@ def supplier_order_history(request):
   Show order history of fulfilled orders
   """
   return supplier_orders_filter(request, history_list=True)
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1529,24 +1537,25 @@ def supplier_all_orders(request):
   """
   return supplier_orders_filter(request, history_list=False)
 
+
 def supplier_orders_filter(request, history_list=False):
   sort_field = {
-    'status':'fulfill_status',
-    '-status':'-fulfill_status',
-    'order_date':'order_date',
-    '-order_date':'-order_date',
-    'ship_date':'ship_date',
-    '-ship_date':'-ship_date',
-    'name':'ordered_by',
-    '-name':'-ordered_by',
-    'personality':'ordered_by__userprofile__wine_personality__name',
-    '-personality':'-ordered_by__userprofile__wine_personality__name',
-    'rwb':'order_date',
-    '-rwb':'-order_date',
-    'quantity':'cart__items__quantity',
-    '-quantity':'-cart__items__quantity',
-    'track':'tracking_number',
-    '-track':'-tracking_number',
+    'status': 'fulfill_status',
+    '-status': '-fulfill_status',
+    'order_date': 'order_date',
+    '-order_date': '-order_date',
+    'ship_date': 'ship_date',
+    '-ship_date': '-ship_date',
+    'name': 'ordered_by',
+    '-name': '-ordered_by',
+    'personality': 'ordered_by__userprofile__wine_personality__name',
+    '-personality': '-ordered_by__userprofile__wine_personality__name',
+    'rwb': 'order_date',
+    '-rwb': '-order_date',
+    'quantity': 'cart__items__quantity',
+    '-quantity': '-cart__items__quantity',
+    'track': 'tracking_number',
+    '-track': '-tracking_number',
   }
 
   data = {}
@@ -1565,22 +1574,22 @@ def supplier_orders_filter(request, history_list=False):
   try:
     page = paginator.page(page_num)
   except:
-    page= paginator.page(1)
-  
+    page = paginator.page(1)
+
   if sort:
-    next_page =  page.next_page_number() if page.has_next() else page_num
-    prev_page =  page.previous_page_number() if page.has_previous() else page_num
-    first_page_url = urllib.urlencode({'sort':sort})
-    last_page_url = urllib.urlencode({'p':paginator.num_pages, 'sort':sort})
-    next_page_url = urllib.urlencode({'p':next_page, 'sort':sort})
-    prev_page_url = urllib.urlencode({'p':prev_page, 'sort':sort})
+    next_page = page.next_page_number() if page.has_next() else page_num
+    prev_page = page.previous_page_number() if page.has_previous() else page_num
+    first_page_url = urllib.urlencode({'sort': sort})
+    last_page_url = urllib.urlencode({'p': paginator.num_pages, 'sort': sort})
+    next_page_url = urllib.urlencode({'p': next_page, 'sort': sort})
+    prev_page_url = urllib.urlencode({'p': prev_page, 'sort': sort})
   else:
-    next_page =  page.next_page_number() if page.has_next() else page_num
-    prev_page =  page.previous_page_number() if page.has_previous() else page_num
+    next_page = page.next_page_number() if page.has_next() else page_num
+    prev_page = page.previous_page_number() if page.has_previous() else page_num
     first_page_url = urllib.urlencode({})
-    last_page_url = urllib.urlencode({'p':paginator.num_pages})
-    next_page_url = urllib.urlencode({'p':next_page})
-    prev_page_url = urllib.urlencode({'p':prev_page})
+    last_page_url = urllib.urlencode({'p': paginator.num_pages})
+    next_page_url = urllib.urlencode({'p': next_page})
+    prev_page_url = urllib.urlencode({'p': prev_page})
 
   data['page_count'] = paginator.num_pages
   data['page'] = page
@@ -1590,16 +1599,18 @@ def supplier_orders_filter(request, history_list=False):
   data['last_page_url'] = last_page_url
   data['orders'] = page.object_list
   data['sorting'] = sort
-  
+
   data["supplier"] = True
   data['supplier_history_view']
   return render_to_response("main/supplier_all_orders.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_wine_list(request):
   data = {}
   return render_to_response("main/supplier_wine_list.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
@@ -1639,8 +1650,8 @@ def supplier_edit_order(request, order_id):
       item.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, item.product.cart_tag)
       # print item.img_file_name
     # TODO: currently template handles tasting kit images
-    #elif item.product.category == 0:
-    #  item.img_file_name =  
+    # elif item.product.category == 0:
+    #  item.img_file_name =
     data['items'].append(item)
   data["form"] = form
   data["order_id"] = order_id
@@ -1780,7 +1791,7 @@ def edit_shipping_address(request):
   # display form: populate with initial data if user is authenticated
   initial_data = {}
   if receiver:
-    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name, 
+    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name,
                     'email': receiver.email, 'phone': receiver.get_profile().phone}
     if receiver.get_profile().shipping_addresses.all().count() > 0:
       form.fields['shipping_addresses'] = forms.ChoiceField()
@@ -1830,18 +1841,19 @@ def edit_credit_card(request):
 
     if request.method == 'POST':
       stripe.api_key = settings.STRIPE_SECRET
-      stripe_token  = request.POST.get('stripe_token')
+      stripe_token = request.POST.get('stripe_token')
       stripe_card = receiver.get_profile().stripe_card
 
-      try:        
+      try:
         customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-        if customer.get('deleted'): raise Exception('Customer Deleted')
+        if customer.get('deleted'):
+          raise Exception('Customer Deleted')
         stripe_user_id = customer.id
 
         # makes sure we have the exact same card
-        stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'), 
+        stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                           exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                          card_type=request.POST.get('card_type'))
+                          card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
       except:
         # no record of this customer-card mapping so create
         try:
@@ -1851,7 +1863,7 @@ def edit_credit_card(request):
           # create on vinely
           stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                                     exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                                    card_type=request.POST.get('card_type'))
+                                    card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
           if created:
             profile = receiver.get_profile()
             profile.stripe_card = stripe_card
@@ -1861,7 +1873,6 @@ def edit_credit_card(request):
         except:
           messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
           return HttpResponseRedirect('.')
-
 
       # update cart status
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -1876,7 +1887,7 @@ def edit_credit_card(request):
   else:
     # other states use Processed through Vinely - MA, CA
     form = PaymentForm(request.POST or None)
-    
+
     if form.is_valid():
       new_card = form.save()
       profile = receiver.get_profile()
@@ -1888,14 +1899,13 @@ def edit_credit_card(request):
       cart.status = Cart.CART_STATUS_CHOICES[4][0]
       cart.save()
 
-      # for now save the card to receiver 
+      # for now save the card to receiver
       profile.credit_cards.add(new_card)
       request.session['stripe_payment'] = False
 
       # go finalize order
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("place_order"))
-
 
     # display form: prepopulate with previous credit card used
     current_user_profile = u.get_profile()
