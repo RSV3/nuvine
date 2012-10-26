@@ -3,7 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -28,7 +28,7 @@ class ProAssignedFilter(SimpleListFilter):
 
 
 class MyHostAdmin(admin.ModelAdmin):
-  list_display = ('id', 'pro', 'pro_info', 'pro_account', 'host_info', 'host_zipcode', 'email_entered', 'timestamp')
+  list_display = ('id', 'pro', 'pro_info', 'pro_account', 'host_info', 'host_zipcode', 'first_party', 'first_party_host', 'parties_invited', 'email_entered', 'timestamp')
   raw_id_fields = ['pro', 'host']
   list_filter = (ProAssignedFilter, )
   list_display_links = ('id', )
@@ -48,6 +48,34 @@ class MyHostAdmin(admin.ModelAdmin):
   def pro_account(self, instance):
     acc = instance.pro.vinelyproaccount_set.all()
     return "".join([u.account_number for u in acc])
+
+  def first_party(self, instance):
+    """
+      Return the first party date
+    """
+    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp') 
+    # party that they rsvp'ed yes
+    #party_participated = PartyInvite.objects.filter(invitee=instance.host, response=3).order_by('invited_timestamp')
+
+    if party_participated.count() > 0:
+      return party_participated[0].party.event_date
+    else:
+      return None
+
+  def first_party_host(self, instance):
+
+    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp') 
+    # party that they rsvp'ed yes
+    #party_participated = PartyInvite.objects.filter(invitee=instance.host, response=3).order_by('invited_timestamp')
+
+    if party_participated.count() > 0:
+      first_host = party_participated[0].party.host
+      return "%s %s <%s>" % (first_host.first_name, first_host.last_name, first_host.email)
+    else:
+      return None
+
+  def parties_invited(self, instance):
+    return PartyInvite.objects.filter(invitee=instance.host).count()
 
   def save_model(self, request, obj, form, change):
     if obj.pro and obj.host:
