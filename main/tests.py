@@ -342,52 +342,88 @@ class SimpleTest(TestCase):
     req = ContactRequest(subject=reason, first_name="abc", last_name="def", email="hello4@mit.edu", zipcode="02139")
     req.save()
 
-  def test_party_creation_invitations(self):
+  def test_invite_to_party(self):
+    '''
+    Test inviting people to party by host and invitee
+    Invite by Pro covered in @test_rep_create_party
+    '''
+    party = self.create_party()
 
-    host1 = User.objects.get(email="host1@example.com")
-    address1 = Address.objects.create(street1="65 Gordon St.",
-                                      city="Grand Rapids",
-                                      state="MI",
-                                      zipcode="49546-2342"
-                                      )
+    ############################################
+    # invites by host
+    ############################################
+    response = self.client.login(email='host1@example.com', password='hello')
+    self.assertTrue(response)
 
-    party1 = Party.objects.create(host=host1, title="John's party", description="Wine party on a sizzling hot day",
-                              address=address1, event_date=timezone.now() + timedelta(days=10))
+    # invite existing tasters
+    response = self.client.get(reverse('main.views.party_taster_invite'))
+    self.assertEquals(response.status_code, 200)
 
-    host2 = User.objects.get(email="host2@example.com")
-    address2 = Address.objects.create(nick_name="home address",
-                                      street1="65 Gordon St.",
-                                      city="Grand Rapids",
-                                      state="MI",
-                                      zipcode="49546-2342"
-                                      )
+    # select taster from list
+    invitee = User.objects.get(email='attendee6@example.com')
 
-    party2 = Party.objects.create(host=host2, title="Mary's party", description="Wine party in the garden",
-                              address=address2, event_date=timezone.now() + timedelta(days=15))
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'invitee': invitee.id})
 
-    # invite people
-    attendees1 = ['attendee1@example.com',
-                  'attendee2@example.com',
-                  'attendee3@example.com',
-                  'attendee4@example.com',
-                  'attendee5@example.com']
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
 
-    attendees2 = ['attendee6@example.com',
-                  'attendee7@example.com',
-                  'attendee8@example.com',
-                  'attendee9@example.com']
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='attendee6@example.com').exists())
 
-    for att in attendees1:
-      PartyInvite.objects.create(party=party1, invitee=User.objects.get(email=att))
+    # enter existing user in form
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'Attendee',
+                                                            'last_name': 'Six',
+                                                            'email': 'attendee7@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
 
-    for att in attendees2:
-      PartyInvite.objects.create(party=party2, invitee=User.objects.get(email=att))
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='attendee7@example.com').exists())
 
-    # add and remove attendee
-    cancelled = PartyInvite.objects.get(invitee=User.objects.get(email=attendees1[0]))
-    cancelled.delete()
+    # invite new user
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'New',
+                                                            'last_name': 'Guy',
+                                                            'email': 'new.guy@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
 
-    PartyInvite.objects.create(party=party2, invitee=User.objects.get(email=attendees1[0]))
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
+
+    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
+    self.assertTrue(recipient_email.exists())
+
+    self.client.logout()
+
+    ############################################
+    # Invites by taster
+    ############################################
+    response = self.client.login(email='attendee3@example.com', password='hello')
+    self.assertTrue(response)
+
+    # invite existing tasters
+    response = self.client.get(reverse('main.views.party_taster_invite'))
+    self.assertEquals(response.status_code, 200)
+
+    # enter existing user in form
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'Attendee',
+                                                            'last_name': 'Eight',
+                                                            'email': 'attendee8@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
+
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='attendee8@example.com').exists())
+
+    # invite new user
+    response = self.client.post(reverse('main.views.party_taster_invite'),  {'party': party.id,
+                                                            'first_name': 'New',
+                                                            'last_name': 'Guy2',
+                                                            'email': 'new.guy2@example.com'})
+    self.assertRedirects(response, reverse('main.views.party_details', args=[party.id]))
+
+    self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy2@example.com').exists())
+
+    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy2@example.com']")
+    self.assertTrue(recipient_email.exists())
+
+    # TODO: Hit send invite and check if mails are sent
 
   def test_rep_create_party(self):
     response = self.client.login(email='specialist2@example.com', password='hello')
@@ -461,6 +497,8 @@ class SimpleTest(TestCase):
 
     recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
     self.assertTrue(recipient_email.exists())
+
+    # TODO: Hit send invite and check if mails are sent
 
   def test_rep_adding_ratings(self):
 

@@ -1078,23 +1078,27 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  # check number of invitees that have accepted or maybe
-  invitees = PartyInvite.objects.filter(party=party)
+  # tasters should only see list of people that they invited
+  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
+    invitees = PartyInvite.objects.filter(party=party)
+  else:
+    invitees = PartyInvite.objects.filter(party=party, invited_by=u)
 
   data["party"] = party
   data["invitees"] = invitees
   today = timezone.now() - timedelta(days=1)
 
-  if party.event_date > today and party.high_low() == '!LOW':
-    msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
-    messages.warning(request, msg)
-  elif party.event_date > today and party.high_low() == '!HIGH':
-    msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
-    messages.warning(request, msg)
+  # these messages are only relevant to host or Pro
+  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
+    if party.event_date > today and party.high_low() == '!LOW':
+      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
+      messages.warning(request, msg)
+    elif party.event_date > today and party.high_low() == '!HIGH':
+      msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
+      messages.warning(request, msg)
 
-  # TODO: might have to fix this and set Party to have a particular pro
-  my_hosts = MyHost.objects.filter(host=party.host).order_by("-timestamp")
-  data["pro_user"] = my_hosts[0].pro
+  pro = OrganizedParty.objects.get(party=party)
+  data["pro_user"] = pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
   data['can_order_kit'] = (party.event_date > today)
@@ -1104,9 +1108,10 @@ def party_details(request, party_id):
     return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
   else:
     orders = Order.objects.filter(cart__party=party)
-    data['buyers'] = invitees.filter(invitee__in = [x.receiver for x in orders])
-    data['non_buyers'] = invitees.exclude(invitee__in = [x.receiver for x in orders])
+    data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
+    data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
     return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_taster_list(request, party_id):
@@ -1319,6 +1324,7 @@ def party_customize_invite(request):
   else:
     return PermissionDenied
 
+
 @login_required
 def party_customize_thanks_note(request):
   """
@@ -1369,10 +1375,10 @@ def party_send_thanks_note(request):
       party = note_sent.party
       # send e-mails
       guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in = guests, party=party)
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party)
       orders = Order.objects.filter(cart__party=party)
-      buyers = invitees.filter(invitee__in = [x.receiver for x in orders])
-      non_buyers = invitees.exclude(invitee__in = [x.receiver for x in orders])
+      buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
+      non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
       if non_buyers:
         distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
       if buyers:
@@ -1387,6 +1393,7 @@ def party_send_thanks_note(request):
   data["parties_menu"] = True
 
   return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def party_send_invites(request):

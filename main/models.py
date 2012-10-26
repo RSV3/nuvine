@@ -52,7 +52,7 @@ class Party(models.Model):
     return self.title
 
   def high_low(self):
-    coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
+    coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
     if coming < 8:
       return '!LOW'
     elif coming > 24:
@@ -62,26 +62,26 @@ class Party(models.Model):
 
   def invitees(self):
     invites = PartyInvite.objects.filter(party=self).count()
-    coming = PartyInvite.objects.filter(party=self, response__in=[2,3]).count()
+    coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
 
     if invites == 0:
       return ""
     else:
-      return "%d [%d]"%(coming, invites)
+      return "%d [%d]" % (coming, invites)
 
   def num_orders(self):
-    # TODO: num orders and num orders pending 
-    return "%d [%d]"%(5, 4) 
+    # TODO: num orders and num orders pending
+    return "%d [%d]" % (5, 4)
 
   def credit(self):
     order_window = self.event_date + timedelta(days=7)
     total_orders = 0
-    orders = Order.objects.filter(cart__party = self, order_date__lte = order_window)
+    orders = Order.objects.filter(cart__party=self, order_date__lte=order_window)
     # exclude orders made by host
-    orders = orders.exclude(ordered_by = self.host)
+    orders = orders.exclude(ordered_by=self.host)
     # should not be tasting kit
-    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
-    aggregate = orders.aggregate(total = Sum('cart__items__total_price'))
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
     total_orders += aggregate['total'] if aggregate['total'] else 0
 
     # sales < 399 = 0 credit
@@ -91,7 +91,7 @@ class Party(models.Model):
     # 1000-1199 = 120
     # 1200-1399 = 150
     credit = 20
-    
+
     total = int(total_orders + 1)
     for cost in range(400, total, 200):
       if cost == 400:
@@ -100,27 +100,27 @@ class Party(models.Model):
         credit += 30
       else:
         credit += 20
-        
+
     return credit
 
   def pro_commission(self):
-    orders = Order.objects.filter(cart__party = self)
+    orders = Order.objects.filter(cart__party=self)
     # exclude taste kits
-    orders = orders.exclude(cart__items__product__category = Product.PRODUCT_TYPE[0][0])
-    
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+
     # get one-time basic orders
-    one_time_basic = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [5, 6])
+    one_time_basic = orders.filter(cart__items__frequency=SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in=[5, 6])
     # get one-time divine, superior
-    one_time_other = orders.filter(cart__items__frequency = SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in = [7, 8, 9, 10])
+    one_time_other = orders.filter(cart__items__frequency=SubscriptionInfo.FREQUENCY_CHOICES[0][0], cart__items__price_category__in=[7, 8, 9, 10])
     # get frequency buys
-    freq_orders = orders.filter(cart__items__frequency__in = [1,2,3])
+    freq_orders = orders.filter(cart__items__frequency__in=[1, 2, 3])
 
     basic_total = other_total = freq_total = 0
     basic_aggr = one_time_basic.aggregate(total=Sum('cart__items__total_price'))
     basic_total += basic_aggr['total'] if basic_aggr['total'] else 0
-    other_aggr = one_time_other.aggregate(total = Sum('cart__items__total_price'))
+    other_aggr = one_time_other.aggregate(total=Sum('cart__items__total_price'))
     other_total += other_aggr['total'] if other_aggr['total'] else 0
-    freq_aggr = freq_orders.aggregate(total = Sum('cart__items__total_price'))
+    freq_aggr = freq_orders.aggregate(total=Sum('cart__items__total_price'))
     freq_total += freq_aggr['total'] if freq_aggr['total'] else 0
     return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total))
 
@@ -147,15 +147,17 @@ class PartyInvite(models.Model):
     self.response_timestamp = datetime.now()
     self.save()
 
+
 class PersonaLog(models.Model):
   """
-    First party that a person's personality was saved 
+    First party that a person's personality was saved
   """
   user = models.OneToOneField(User, related_name="personality_found")
   #: party and Pro's are null if user created their own personality
   party = models.ForeignKey(Party, null=True)
   pro = models.ForeignKey(User, null=True, related_name="personality_acquired")
   timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class Product(models.Model):
 
@@ -312,6 +314,7 @@ class Cart(models.Model):
 
     return str(output)
 
+
 class Order(models.Model):
   """
     An order is created when a user finally pays for the order
@@ -321,7 +324,7 @@ class Order(models.Model):
   ordered_by = models.ForeignKey(User, related_name="ordered")
   receiver = models.ForeignKey(User, related_name="received")
   # unique order id
-  order_id = models.CharField(max_length=128) 
+  order_id = models.CharField(max_length=128)
   cart = models.OneToOneField(Cart)
   shipping_address = models.ForeignKey(Address, null=True)
   credit_card = models.ForeignKey(CreditCard, null=True)
@@ -329,23 +332,23 @@ class Order(models.Model):
   order_date = models.DateTimeField(auto_now_add=True)
 
   FULFILL_CHOICES = (
-      ( 0, 'Not Ordered' ),
-      ( 1, 'Ordered' ),
-      ( 2, 'Processing' ),
-      ( 3, 'Delayed' ),
-      ( 4, 'Out of Stock'),
-      ( 5, 'Wine Selected'),
-      ( 6, 'Shipped' ),
-      ( 7, 'Received' ),
+      (0, 'Not Ordered'),
+      (1, 'Ordered'),
+      (2, 'Processing'),
+      (3, 'Delayed'),
+      (4, 'Out of Stock'),
+      (5, 'Wine Selected'),
+      (6, 'Shipped'),
+      (7, 'Received'),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
   CARRIER_TYPE = (
-      ( 0, 'Unspecified'),
-      ( 1, 'FedEx'),
-      ( 2, 'UPS' ),
-      ( 3, 'DHL' ),
-      ( 4, 'USPS' )
+      (0, 'Unspecified'),
+      (1, 'FedEx'),
+      (2, 'UPS'),
+      (3, 'DHL'),
+      (4, 'USPS')
   )
   carrier = models.IntegerField(choices=CARRIER_TYPE, default=0)
   tracking_number = models.CharField(max_length=128, null=True, blank=True)
@@ -363,24 +366,24 @@ class Order(models.Model):
       return "-"
 
   def quantity_summary(self):
-    items = self.cart.items.filter(price_category__in=[5,6,7,8,9,10])
+    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10])
     if items.exists():
       return items[0].quantity_str()
     else:
-      items = self.cart.items.exclude(price_category__in=[5,6,7,8,9,10])
+      items = self.cart.items.exclude(price_category__in=[5, 6, 7, 8, 9, 10])
       if items.exists():
         return items[0].quantity
     return "-"
 
   def recurring(self):
-    items = self.cart.items.filter(frequency__in=[1,2,3])
+    items = self.cart.items.filter(frequency__in=[1, 2, 3])
     if items.exists():
       return "Y"
     else:
       return "N"
 
   def party_state(self):
-    # find the party state by looking at the party that the receiver has participated 
+    # find the party state by looking at the party that the receiver has participated
     latest_parties = PartyInvite.objects.filter(invitee=self.receiver).order_by('-party__event_date')
     if latest_parties.exists():
       return latest_parties[0].party.address.state
@@ -407,6 +410,7 @@ class OrderReview(models.Model):
   wine_rating = models.ForeignKey(WineRatingData)
   timestamp = models.DateTimeField(auto_now_add=True)
 
+
 class OrganizedParty(models.Model):
   """
     Recorded when a party is organized by a pro
@@ -414,6 +418,7 @@ class OrganizedParty(models.Model):
   pro = models.ForeignKey(User)
   party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class MyHost(models.Model):
   """
@@ -429,6 +434,7 @@ class MyHost(models.Model):
 
   def __unicode__(self):
     return "%s - %s" % (self.pro, self.host)
+
 
 class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
@@ -479,6 +485,7 @@ class EngagementInterest(models.Model):
   def __unicode__(self):
     return "%s interest in %s" % (self.user.email, EngagementInterest.ENGAGEMENT_CHOICES[self.engagement_type][1])
 
+
 class InvitationSent(models.Model):
   """
     Tracking the invitations sent from Party Details page
@@ -489,6 +496,7 @@ class InvitationSent(models.Model):
   guests = models.ManyToManyField(User)
   timestamp = models.DateTimeField(auto_now_add=True)
 
+
 class ThankYouNote(models.Model):
   """
   """
@@ -497,6 +505,7 @@ class ThankYouNote(models.Model):
   custom_message = models.CharField(max_length=1024, blank=True, null=True)
   guests = models.ManyToManyField(User)
   timestamp = models.DateTimeField(auto_now_add=True)
+
 
 class ProSignupLog(models.Model):
 
@@ -526,4 +535,3 @@ class ProSignupLog(models.Model):
 #   vintage = models.IntegerField()
 #   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
 #   timestamp = models.DateTimeField(auto_now_add=True)
-
