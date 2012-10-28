@@ -65,13 +65,15 @@
           <!-- <p>Will you attend? You know you want to! (You can always come back and change your response later.)</p> -->
           <p>Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait! </p>
 
+          {% if form.custom_message.value %}
           <h2>Personalized addendum</h2>
           <div class="alert control-group">
             <div class="controls">
               {{ form.custom_message.value }}
               <input type="hidden" name="custom_message" value="{{ form.custom_message.value }}">
             </div>
-        </div>
+          </div>
+          {% endif %}
         </div>
     </div>
 

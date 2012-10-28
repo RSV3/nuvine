@@ -75,24 +75,30 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   template = Section.objects.get(template__key='new_invitation_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  
-  c = RequestContext( request, {"party_name": party_invite.party.title, 
+
+  inviter_full_name = "Your friend"
+  if request.user.first_name:
+    inviter_full_name = "%s %s" % (request.user.first_name, request.user.last_name)
+
+  c = RequestContext(request, {"party_name": party_invite.party.title,
                                 "party_id": party_invite.party.id,
-                                "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name),
+                                "invite_host_name": inviter_full_name,
                                 "invite_host_email": request.user.email,
                                 "host_name": request.get_host(),
                                 "verification_code": verification_code,
                                 "temp_password": temp_password})
   txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
+
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
-  subject = 'Join Vinely Party!'
+  subject = '%s has invited you to a Vinely Party!' % inviter_full_name
   recipients = [party_invite.invitee.email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Vinely Party Invite <welcome@vinely.com>'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = 'Invitation from %s <welcome@vinely.com>' % inviter_full_name
+  if inviter_full_name == "Your friend":
+    from_email = 'Vinely Party Invite <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()

@@ -244,25 +244,23 @@ def send_new_party_scheduled_email(request, party):
 
 
 def distribute_party_invites_email(request, invitation_sent):
-  
+
   template = Section.objects.get(template__key='distribute_party_invites_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
   rsvp_date = invitation_sent.party.event_date - timedelta(days=5)
 
-  c = RequestContext( request, {"party": invitation_sent.party,
+  host_user = invitation_sent.party.host
+  inviting_user = request.user
+  c = RequestContext(request, {"party": invitation_sent.party,
               "custom_message": invitation_sent.custom_message,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
-              "invite_host_email": request.user.email,
+              "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
+              "invite_host_email": host_user.email,
               "host_name": request.get_host(), "rsvp_date": rsvp_date,
-              "plain":True})
+              "plain": True})
   txt_message = txt_template.render(c)
-  c.update({'sig':True, 'plain':False})
+  c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
-
-  recipients = []
-  for guest in invitation_sent.guests.all():
-    recipients.append(guest.email)
 
   # send out party invitation e-mail
   subject = invitation_sent.custom_subject
@@ -270,13 +268,19 @@ def distribute_party_invites_email(request, invitation_sent):
                                                             'header': 'Good wine and good times await',
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Party Invite <welcome@vinely.com>'
+  if inviting_user.first_name:
+    from_email = 'Invitation from %s %s <welcome@vinely.com>' % (inviting_user.first_name, inviting_user.last_name)
+  else:
+    from_email = 'Invitation from %s %s <welcome@vinely.com>' % (host_user.first_name, host_user.last_name)
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
-  email_log.save()
+  for guest in invitation_sent.guests.all():
+    recipients = [guest.email]
+    email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+    email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
-  msg.attach_alternative(html_msg, "text/html")
-  msg.send()
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg.attach_alternative(html_msg, "text/html")
+    msg.send()
 
   return msg
 
@@ -293,7 +297,7 @@ def send_rsvp_thank_you_email(request, user):
   c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
 
-  recipients = [ user.email ]
+  recipients = [user.email]
 
   # send out party invitation e-mail
   subject = 'Thanks for the RSVP!'

@@ -53,7 +53,7 @@ class MyHostAdmin(admin.ModelAdmin):
     """
       Return the first party date
     """
-    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp') 
+    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp')
     # party that they rsvp'ed yes
     #party_participated = PartyInvite.objects.filter(invitee=instance.host, response=3).order_by('invited_timestamp')
 
@@ -64,7 +64,7 @@ class MyHostAdmin(admin.ModelAdmin):
 
   def first_party_host(self, instance):
 
-    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp') 
+    party_participated = PartyInvite.objects.filter(invitee=instance.host).order_by('invited_timestamp')
     # party that they rsvp'ed yes
     #party_participated = PartyInvite.objects.filter(invitee=instance.host, response=3).order_by('invited_timestamp')
 

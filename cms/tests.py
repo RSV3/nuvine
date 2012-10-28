@@ -499,19 +499,19 @@ class SimpleTest(TestCase):
     template = ContentTemplate(key="new_party_scheduled_email", category=0)
     template.save()
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
-    variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's first name")
+    variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's first name.")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party.")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ party.description }}", description="Description of the party. Only shown if exists")
+    variable, created = Variable.objects.get_or_create(var="{{ party.description }}", description="Description of the party. Only shown if exists.")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event is to take place")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_taster_invite party.id %}", description="Link to the party details")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ pro_email }}", description="Email of the pro that scheduled the party")
+    variable, created = Variable.objects.get_or_create(var="{{ pro_email }}", description="Email of the pro that scheduled the party.")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Phone number of the pro. Only shown if exists")
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Phone number of the pro. Only shown if exists.")
     template.variables_legend.add(variable)
 
   def create_distribute_party_invites_email_template(self):
@@ -528,6 +528,7 @@ class SimpleTest(TestCase):
     paired to your taste - right to your doorstep.
 
       Party: "{{ party.title }}"
+      Host: {{ invite_host_name }} <{{ invite_host_email }}>
       {% if party.description %}{{ party.description }}{% endif %}
       Date: {{ party.event_date|date:"F j, o" }}
       Time: {{ party.event_date|date:"g:i A" }}
@@ -569,6 +570,11 @@ class SimpleTest(TestCase):
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_rsvp party.id %}", description="RSVP Link")
     template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Full name of the host that is hosting the party.")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ invite_host_email }}", description="E-mail of the host that is hosting the party.")
+    template.variables_legend.add(variable)
+
 
   def create_rsvp_thank_you_email_template(self):
     content = """

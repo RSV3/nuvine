@@ -1312,7 +1312,14 @@ def party_customize_invite(request):
     guests = request.POST.getlist('guests')
     party = Party.objects.get(id=request.POST.get('party'))
     form = CustomizeInvitationForm()
-    form.initial = {'party': party}
+    host_full_name = "Your friend"
+    if request.user.first_name:
+      # if inviting person is not the host (a friend of friend or pro)
+      host_full_name = "%s %s" % (request.user.first_name, request.user.last_name)
+    elif party.host.first_name:
+      host_full_name = "%s %s" % (party.host.first_name, party.host.last_name)
+    form.initial = {'custom_subject': '%s invites you to a Vinely Party!' % host_full_name,
+                    'party': party}
     data["party"] = party
     data["guests"] = guests
     data["form"] = form
