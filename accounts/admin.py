@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from accounts.models import UserProfile, VinelyProAccount
+from accounts.models import UserProfile, VinelyProAccount, Address
 from accounts.utils import send_pro_approved_email
 from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
 
@@ -151,4 +151,8 @@ class VinelyUserAdmin(EmailUserAdmin):
   def pro_number(self, instance):
     return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance)])
 
+class AddressAdmin(admin.ModelAdmin):
+  pass
+
 admin.site.register(User, VinelyUserAdmin)
+admin.site.register(Address, AddressAdmin)

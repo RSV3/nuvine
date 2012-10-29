@@ -312,6 +312,9 @@ class Cart(models.Model):
 
     return str(output)
 
+  def __unicode__(self):
+    return self.items_str()
+
 
 class Order(models.Model):
   """

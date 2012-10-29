@@ -3,7 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -120,7 +120,23 @@ class PartyAdmin(admin.ModelAdmin):
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
 
+class OrderAdmin(admin.ModelAdmin):
+  list_display = ['order_id', 'ordered_by_info', 'receiver_info', 'shipping_address_link', 'cart', 'order_date']
+
+  def ordered_by_info(self, instance):
+    return "%s %s <%s>" % (instance.ordered_by.first_name, instance.ordered_by.last_name, instance.ordered_by.email)
+
+  def receiver_info(self, instance):
+    return "%s %s <%s>" % (instance.receiver.first_name, instance.receiver.last_name, instance.receiver.email)
+
+  def shipping_address_link(self, instance):
+    return '<a href="/admin/accounts/address/%s/">%s</a>' % (instance.shipping_address.id, instance.shipping_address.full_text())
+  shipping_address_link.allow_tags = True
+
+  ordering = ['-order_date']
+
 admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)
+admin.site.register(Order, OrderAdmin)
