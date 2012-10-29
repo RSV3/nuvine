@@ -45,7 +45,7 @@ class CreditCard(models.Model):
   #expiry_date = models.DateField()
   verification_code = models.CharField(max_length=32)
   billing_zipcode = models.CharField(max_length=5, help_text="5 digit zipcode")
-  card_type = models.CharField(max_length=10, default="Unknown")
+  card_type = models.CharField(max_length=32, default="Unknown")
 
   def last_four(self):
     cipher = AES.new(settings.SECRET_KEY[:32], AES.MODE_ECB)

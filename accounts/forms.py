@@ -145,7 +145,7 @@ class PaymentForm(forms.ModelForm):
   exp_year = forms.ChoiceField(required=True, choices=[(x, x) for x in xrange(date.today().year, date.today().year + 15)])
   verification_code = forms.IntegerField(required=True, label="CVC Number",
       max_value=9999, widget=forms.PasswordInput())
-  billing_zipcode = us_forms.USZipCodeField()
+  billing_zipcode = us_forms.USZipCodeField(label="Billing Zipcode")
   #save_card = forms.BooleanField(label="Save this card in My Account", required=False)
 
   class Meta:
