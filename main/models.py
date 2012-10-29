@@ -209,6 +209,8 @@ class LineItem(models.Model):
 
   product = models.ForeignKey(Product, null=True)
   price_category = models.IntegerField(choices=PRICE_TYPE, default=PRICE_TYPE[0][0])
+  # NOTE: quantity: legacy from old code - 1 is full case, 2 is half case for wines
+  #                 for tasting kits 1 is 6 bottles, 2 is 12 bottles total
   quantity = models.IntegerField(default=1)
   frequency = models.IntegerField(choices=SubscriptionInfo.FREQUENCY_CHOICES, default=1)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -280,22 +282,18 @@ class Cart(models.Model):
     for item in self.items.all():
       # tasting kits
       if item.price_category == 11:
-        shipping = 16 * item.quantity
+        shipping += 16 * item.quantity
 
       # wine cases
       elif (item.price_category in [5, 7, 9]):
         # full case
-        shipping += 32
-      elif (item.price_category in [6, 8, 10]):
-        # half case
         shipping += 16
-      """
-      if item.price_category in [5, 6, 8]:
-        # add shipping for good half, full, better half case
-        shipping += 16
-      elif item.frequency == 0:
-        shipping += 16
-      """
+
+    # calculate for half cases
+    half_case_count = self.items.filter(price_category__in=[6, 8, 10]).count()
+
+    shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
+
     return shipping
 
   def tax(self):
