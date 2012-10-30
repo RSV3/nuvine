@@ -1,5 +1,4 @@
-from django.conf.urls import patterns, include, url
-from django.core.urlresolvers import reverse
+from django.conf.urls import patterns, url
 
 from accounts.forms import VinelyEmailAuthenticationForm
 
@@ -9,7 +8,8 @@ urlpatterns = patterns('',
   #    {'authentication_form': EmailAuthenticationForm, 'template_name': 'email_usernames/login.html'}, name='login'),
   url(r'^login/$', 'django.contrib.auth.views.login',
      {'authentication_form': VinelyEmailAuthenticationForm}, name='login'),
-
+  # url(r'^login/$', 'accounts.views.login',
+  #    {'authentication_form': VinelyEmailAuthenticationForm}, name='login'),
   url(r'^my/information/$', 'accounts.views.my_information', name='my_information'),
   url(r'^edit/subscription/$', 'accounts.views.edit_subscription', name='edit_subscription'),
   url(r'^change/password/$', 'accounts.views.change_password', name='change_password'),
@@ -22,5 +22,5 @@ urlpatterns = patterns('',
   url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
   url(r'^terms/$', 'accounts.views.terms', name="terms"),
   url(r'^privacy/$', 'accounts.views.privacy', name='privacy'),
+  url(r'^make/(?P<account_type>\w+)/$', 'accounts.views.make_pro_host', name='make_pro_host'),
 )
-

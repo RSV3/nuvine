@@ -261,6 +261,30 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     return cleaned
 
 
+class MakeHostProForm(NameEmailUserMentorCreationForm):
+  '''
+  This for is used by users that are already authenticated to provide the extra
+  info needed to make them host or pro
+  '''
+  def __init__(self, *args, **kwargs):
+    super(MakeHostProForm, self).__init__(*args, **kwargs)
+    self.fields['email'].widget.attrs['readonly'] = True
+
+  def clean_email(self):
+    return self.instance.email
+
+  def clean(self):
+    cleaned = super(MakeHostProForm, self).clean()
+
+    # if signing up for vinely event then allow to add to event without creating new user
+    if (self._errors.get('email') == self.error_class(['A user with that email already exists.'])) and self.initial.get('make_host_or_pro'):
+        del self._errors['email']
+
+    if cleaned.get('email'):
+      cleaned['email'] = cleaned['email'].strip().lower()
+    return cleaned
+
+
 class HeardAboutForm(forms.Form):
   SOURCES = (
     (0, "A Party"),

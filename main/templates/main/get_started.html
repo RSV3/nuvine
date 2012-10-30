@@ -43,7 +43,11 @@
 
         <div class="control-group">
           <div class="controls center">
-            <a href="{% url sign_up 2 %}"><img src="{% static "img/btn_pie_makemeahost.png" %}"></a>
+            {% if user.is_authenticated %}
+              <a href="{% url make_pro_host 'host' %}"><img src="{% static "img/btn_pie_makemeahost.png" %}"></a>
+            {% else %}
+              <a href="{% url sign_up 2 %}"><img src="{% static "img/btn_pie_makemeahost.png" %}"></a>
+            {% endif %}
           </div>
         </div>
       {% endif %}
@@ -70,7 +74,11 @@
 
         <div class="control-group">
           <div class="controls center">
-            <a href="{% url sign_up 1 %}"><img src="{% static "img/btn_pie_makemeapro.png" %}"></a>
+            {% if user.is_authenticated %}
+              <a href="{% url make_pro_host 'pro' %}"><img src="{% static "img/btn_pie_makemeapro.png" %}"></a>
+            {% else %}
+              <a href="{% url sign_up 1 %}"><img src="{% static "img/btn_pie_makemeapro.png" %}"></a>
+            {% endif %}
           </div>
         </div>
    

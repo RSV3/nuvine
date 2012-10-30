@@ -1,8 +1,7 @@
 # Create your views here.
-from urlparse import urlparse
 from django.shortcuts import render_to_response
-from django.template import RequestContext, Context, Template
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.template import RequestContext
+from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -11,16 +10,14 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from main.models import EngagementInterest, PartyInvite, MyHost, Party, ProSignupLog
-
-from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
+from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm
+                           HeardAboutForm, MakeHostProForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-    check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
+                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
 
 from datetime import datetime, timedelta
 import math
@@ -187,8 +184,9 @@ def change_password(request):
   form.initial['email'] = u.email
   data["form"] = form
   data['change_password'] = True
-  return render_to_response("accounts/change_password.html", data, 
+  return render_to_response("accounts/change_password.html", data,
                         context_instance=RequestContext(request))
+
 
 def forgot_password(request):
 
@@ -197,7 +195,7 @@ def forgot_password(request):
   form = ForgotPasswordForm(request.POST or None)
   if form.is_valid():
     # find user with this e-mail and assign temporary password
-    user = User.objects.get(email = form.cleaned_data['email'])
+    user = User.objects.get(email=form.cleaned_data['email'])
     temp_password = User.objects.make_random_password()
     user.set_password(temp_password)
     user.save()
@@ -208,12 +206,141 @@ def forgot_password(request):
 
     # send an e-mail with random password
     send_password_change_email(request, verification_code, temp_password, user)
-    data["changed_password"] = True      
+    data["changed_password"] = True
     data["email"] = form.cleaned_data['email']
 
   data['form'] = form
-  return render_to_response("accounts/forgot_password.html", data, 
+  return render_to_response("accounts/forgot_password.html", data,
                         context_instance=RequestContext(request))
+
+
+@login_required
+def make_pro_host(request, account_type):
+  '''
+  account_type: 'host' or 'pro'
+  '''
+  data = {}
+
+  data['role'] = account_type
+
+  if account_type == 'pro':
+    account_type = 1
+  elif account_type == 'host':
+    account_type = 2
+  else:
+    raise Http404
+
+  data['account_type'] = account_type
+
+  u = request.user
+  profile = u.get_profile()
+
+  pro_group = Group.objects.get(name="Vinely Pro")
+  hos_group = Group.objects.get(name="Vinely Host")
+  tas_group = Group.objects.get(name="Vinely Taster")
+  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
+
+  initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
+                  'email': u.email, 'zipcode': profile.zipcode}
+
+  form = MakeHostProForm(request.POST or None, initial=initial_data)
+
+  data['form'] = form
+
+  if form.is_valid():
+    user = form.save(commit=False)
+    u.first_name = user.first_name
+    u.last_name = user.last_name
+    u.save()
+    profile = u.get_profile()
+    profile.zipcode = form.cleaned_data.get('zipcode')
+    profile.phone = form.cleaned_data.get('phone')
+    profile.save()
+
+    ### Handle people who are already signed up
+    if profile.is_pro():
+      data["already_signed_up"] = True
+      data["get_started_menu"] = True
+      return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+
+    elif profile.is_host():
+
+      # can only be pro
+      if account_type > 1:
+        data["already_signed_up"] = True
+        data["get_started_menu"] = True
+        ok = check_zipcode(profile.zipcode)
+        if not ok:
+          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+          send_not_in_area_party_email(request, u, account_type)
+
+      elif account_type == 1:
+        data['make_host_or_pro'] = True
+        EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        try:
+          mentor = User.objects.get(email=form.cleaned_data.get('mentor'))
+          profile.mentor = mentor
+          profile.save()
+        except User.DoesNotExist:
+          mentor = None
+
+        ProSignupLog.objects.get_or_create(new_pro=u, mentor=mentor, mentor_email=form.cleaned_data['mentor'])
+
+        ok = check_zipcode(profile.zipcode)
+        if not ok:
+          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+          send_not_in_area_party_email(request, u, account_type)
+
+        # if not already in pro_pending_group, add them
+        if not pro_pending_group in u.groups.all():
+          u.groups.clear()
+          u.groups.add(pro_pending_group)
+
+        send_pro_request_email(request, u)
+        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+
+    elif profile.is_taster():
+      data['make_host_or_pro'] = True
+
+      EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+
+      ok = check_zipcode(profile.zipcode)
+      if not ok:
+        messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+        send_not_in_area_party_email(request, u, account_type)
+
+      if account_type == 1:
+        send_pro_request_email(request, u)
+        # if not already in pro_pending_group, add them
+        if not pro_group in u.groups.all():
+          u.groups.clear()
+          u.groups.add(pro_pending_group)
+        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+        return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+
+      elif account_type == 2:
+        try:
+          pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+          print 'linked: ', pro.email
+        except User.DoesNotExist:
+          print 'haikumek'
+          pro = None
+        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+        send_host_vinely_party_email(request, u)  # to vinely
+        u.groups.clear()
+        u.groups.add(hos_group)
+        u.groups.remove(tas_group)
+        messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+        return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
+
+      elif account_type > 2:
+        data["already_signed_up"] = True
+        data["get_started_menu"] = True
+        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+
+  return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+
 
 def sign_up(request, account_type):
   """
@@ -227,80 +354,12 @@ def sign_up(request, account_type):
   data = {}
   role = None
 
-  u = request.user
   account_type = int(account_type)
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
-
-  ### Handle people who are already signed up
-  if u.is_authenticated():
-    if pro_group in u.groups.all():
-      data["already_signed_up"] = True
-      data["get_started_menu"] = True
-      return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
-
-    elif hos_group in u.groups.all():
-      # can only be pro
-      if account_type > 1:
-        data["already_signed_up"] = True
-        data["get_started_menu"] = True
-        ok = check_zipcode(u.get_profile().zipcode)
-        if not ok:
-          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-          send_not_in_area_party_email(request, u, account_type)
-
-      elif account_type == 1:
-        EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
-        ok = check_zipcode(u.get_profile().zipcode)
-        if not ok:
-          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-          send_not_in_area_party_email(request, u, account_type)
-
-        # if not already in pro_pending_group, add them
-        if not pro_group in u.groups.all():
-          u.groups.clear()
-          u.groups.add(pro_pending_group)
-          # u.groups.remove(hos_group)
-
-        send_pro_request_email(request, u)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
-
-    elif tas_group in u.groups.all():
-      if account_type == 1 or account_type == 2:
-        EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=u)
-
-        ok = check_zipcode(u.get_profile().zipcode)
-        if not ok:
-          messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-          send_not_in_area_party_email(request, u, account_type)
-
-      if account_type == 1:
-        send_pro_request_email(request, u)
-        # if not already in pro_pending_group, add them
-        if not pro_group in u.groups.all():
-          u.groups.clear()
-          u.groups.add(pro_pending_group)
-          #u.groups.remove(tas_group)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-        return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
-
-      elif account_type == 2:
-        send_host_vinely_party_email(request, u)  # to vinely
-        u.groups.clear()
-        u.groups.add(hos_group)
-        u.groups.remove(tas_group)
-        messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-        return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
-
-      elif account_type > 2:
-        data["already_signed_up"] = True
-        data["get_started_menu"] = True
-        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
   ### Handle people who are signing up fresh
   if account_type in [3, 5]:

@@ -19,7 +19,7 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  {% if already_signed_up %}
+  {% if already_signed_up and not make_host_or_pro %}
 
     <div class="row">
       <div class="offset2 span8">

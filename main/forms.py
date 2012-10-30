@@ -164,7 +164,7 @@ class PartyInviteTasterForm(forms.ModelForm):
       # everything
       users = User.objects.filter(groups__in=[att_group])
 
-    self.fields['invitee'].choices=[('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+    self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
   def clean(self):
     cleaned_data = super(PartyInviteTasterForm, self).clean()
@@ -434,3 +434,4 @@ class EventSignupForm(NameEmailUserCreationForm):
     if cleaned.get('email'):
       cleaned['email'] = cleaned['email'].strip().lower()
     return cleaned
+
