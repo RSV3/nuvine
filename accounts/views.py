@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 from main.models import EngagementInterest, PartyInvite, MyHost, Party, ProSignupLog
 
@@ -17,18 +18,19 @@ from emailusernames.forms import EmailAuthenticationForm, EmailUserChangeForm
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
                            HeardAboutForm
-from accounts.models import VerificationQueue, SubscriptionInfo, VinelyProAccount
+from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
     check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
 
-
-from main.utils import send_host_vinely_party_email, my_host, my_pro
+from datetime import datetime, timedelta
+import math
+from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
 import uuid
 import logging
 
-from datetime import datetime
 
 log = logging.getLogger(__name__)
+
 
 @login_required
 def profile(request):
@@ -37,9 +39,6 @@ def profile(request):
   """
   return HttpResponseRedirect(reverse('home_page'))
 
-from main.utils import UTC
-from datetime import datetime, timedelta
-import math
 
 @login_required
 def my_information(request):
@@ -65,8 +64,7 @@ def my_information(request):
   payment_updated = False
   profile_updated = False
   eligibility_updated = False
-  
-  
+
   if request.method == 'POST':
     today = datetime.date(datetime.now(tz=UTC()))
     dob = today
@@ -80,7 +78,7 @@ def my_information(request):
           (not dob and request.POST.get('eligibility-above_21') == 'on'):
       messages.error(request, 'The Date of Birth shows that you are not over 21')
       return HttpResponseRedirect('.')
-      
+
   if user_form.is_valid(): 
     update_user = user_form.save()
     user_updated = True 
@@ -305,7 +303,7 @@ def sign_up(request, account_type):
         return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
   ### Handle people who are signing up fresh
-  if account_type in [3,5]:
+  if account_type in [3, 5]:
     # people who order wine tasting kit
     role = tas_group
   elif account_type == 1:
@@ -318,7 +316,7 @@ def sign_up(request, account_type):
     raise Http404
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial = {'account_type': account_type})
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
 
   if form.is_valid():
     user = form.save()
@@ -338,7 +336,7 @@ def sign_up(request, account_type):
         profile.mentor = pro
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
       except User.DoesNotExist:
-        # mentor e-mail was not entered 
+        # mentor e-mail was not entered
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
 
     elif account_type == 2:
@@ -348,7 +346,7 @@ def sign_up(request, account_type):
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
       except User.DoesNotExist:
-        # pro e-mail was not entered 
+        # pro e-mail was not entered
         my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
 
     profile.save()
@@ -390,7 +388,7 @@ def sign_up(request, account_type):
       mentor_pro = None
       try:
         # make sure selected mentor is a pro
-        mentor_pro = User.objects.get(email = request.POST.get('mentor'))
+        mentor_pro = User.objects.get(email=request.POST.get('mentor'))
 
         if pro_group in mentor_pro.groups.all():
           send_know_pro_party_email(request, user)  # to host
@@ -420,6 +418,7 @@ def sign_up(request, account_type):
   return render_to_response("accounts/sign_up.html", data,
                         context_instance=RequestContext(request))
 
+
 def verify_email(request, verification_code):
   """
     Verify e-mail, used when user changes e-mail address
@@ -444,6 +443,7 @@ def verify_email(request, verification_code):
   except VerificationQueue.DoesNotExist:
     raise PermissionDenied
 
+
 def verify_account(request, verification_code):
   """
     Show e-mail and ask to verify
@@ -454,6 +454,7 @@ def verify_account(request, verification_code):
   data = {}
 
   data["verification_code"] = verification_code
+  u = request.user
 
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
@@ -492,6 +493,12 @@ def verify_account(request, verification_code):
       elif verification.verification_type == VerificationQueue.VERIFICATION_CHOICES[1][0]:
         messages.success(request, "Your password has been reset to your new password.")
 
+      today = timezone.now()
+      # if user is taster and was invited to a party, redirect them to RSVP page
+      invites = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
+      if invites.exists():
+        return HttpResponseRedirect(reverse('party_rsvp', args=[invites[0].party.id]))
+
       return HttpResponseRedirect(reverse("home_page"))
 
     form.initial['email'] = verification.user.email
@@ -499,6 +506,7 @@ def verify_account(request, verification_code):
 
   return render_to_response("accounts/verify_account.html", data,
                         context_instance=RequestContext(request))
+
 
 @login_required
 def verify_eligibility(request):

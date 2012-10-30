@@ -1455,12 +1455,14 @@ def dashboard(request):
 #
 ################################################################################
 
+
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
 def supplier_add_wine(request):
   data = {}
   data["supplier"] = True
   return render_to_response("main/supplier_add_wine.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 @user_passes_test(if_supplier, login_url="/suppliers/only/")
