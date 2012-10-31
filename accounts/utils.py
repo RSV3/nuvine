@@ -1,6 +1,7 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
+from djanog.contrib.auth.models import Group
 from accounts.models import Zipcode, SUPPORTED_STATES
 
 from support.models import Email
@@ -9,23 +10,23 @@ from cms.models import Section
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
   template = Section.objects.get(template__key='verification_email', category=0)
-  
+
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  
+
   c = RequestContext( request, {"host_name": request.get_host(),
                                 "verification_code": verification_code,
                                 "temp_password": temp_password,
                                 })
   txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
+
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
   subject = 'Welcome to Vinely!'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Welcome to Vinely <welcome@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
@@ -40,23 +41,29 @@ def send_password_change_email(request, verification_code, temp_password, user):
   template = Section.objects.get(template__key='password_change_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  
+
   receiver_email = user.email
-  
-  c = RequestContext( request, {"first_name": user.first_name,
+
+  vinely_taster_group = Group.objects.get(name="Vinely Taster")
+  if user.groups.all().count() == 0:
+    # the user is in a weird state without a role, so assign taster
+    user.groups.add(vinely_taster_group)
+    user.save()
+
+  c = RequestContext(request, {"first_name": user.first_name,
                                 "role": user.groups.all()[0],
                                 "host_name": request.get_host(),
                                 "verification_code": verification_code,
                                 "temp_password": temp_password})
   txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
+
+  c.update({'sig': True})
   html_message = html_template.render(c)
-  
+
   # send out verification e-mail, create a verification code
   subject = 'Your new password, courtesy of Vinely'
   recipients = [receiver_email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Support <support@vinely.com>'
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
