@@ -165,7 +165,7 @@ class Command(BaseCommand):
         except User.DoesNotExist:
           # create new user
           user = create_user(row[RECIPIENT_EMAIL], 'welcome')
-          user.is_active = False 
+          user.is_active = False
           user.first_name = row[RECIPIENT_FIRST_NAME]
           user.last_name = row[RECIPIENT_LAST_NAME]
           user.save()
