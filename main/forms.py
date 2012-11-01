@@ -63,6 +63,10 @@ class PartyCreateForm(forms.ModelForm):
     # only show addresses that pro has dealt with before
     self.fields['address'].queryset = addresses
 
+    my_hosts = Party.objects.filter(organizedparty__pro=initial.get('pro'))
+    users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
+    self.fields['host'].choices = [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+
   def clean_email(self):
     host_email = self.cleaned_data['email']
     try:

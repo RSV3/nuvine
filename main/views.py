@@ -960,8 +960,9 @@ def party_add(request):
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
+  initial_data = {'pro': u}
+
   if request.method == "POST":
-    initial_data = {'pro': u}
     form = PartyCreateForm(request.POST, initial=initial_data)
     if form.is_valid():
 
@@ -1041,7 +1042,7 @@ def party_add(request):
     hos_group = Group.objects.get(name="Vinely Host")
 
   # need to figure out hosts filtered by Vinely Pro
-  form.fields['host'].choices = [(h.host.id, h.host.email) for h in MyHost.objects.filter(pro=u)]
+  # form.fields['host'].choices = [(h.host.id, h.host.email) for h in MyHost.objects.filter(pro=u)]
 
   data["form"] = form
   data["parties_menu"] = True
