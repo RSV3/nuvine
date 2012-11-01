@@ -26,8 +26,8 @@ from accounts.utils import send_verification_email, send_new_invitation_email, s
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
-from accounts.forms import VerifyEligibilityForm, PaymentForm
+                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, my_pro
+from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
 
@@ -1263,7 +1263,7 @@ def party_rsvp(request, party_id, response=None):
     raise Http404
 
   profile = u.get_profile()
-  
+
   form = VerifyEligibilityForm(request.POST or None, instance=profile)
   form.fields['mentor'].widget = forms.HiddenInput()
   form.fields['gender'].widget = forms.HiddenInput()
@@ -1703,12 +1703,16 @@ def edit_shipping_address(request):
       receiver = u
     form = ShippingForm(request.POST or None, instance=receiver)
 
-  # confirm that user is over 21
-  if request.method == 'POST':
-    if u.get_profile().is_under_age():
-      msg = 'You MUST be over 21 to make an order. If you are over 21 then <a href="%s">update your account</a> to reflect this.' % reverse('my_information')
-      messages.error(request, mark_safe(msg))
-      return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
+
+  valid_age = age_validity_form.is_valid()
+
+  if age_validity_form.is_valid():
+    profile = User.objects.get(id=u.id).get_profile()
+    profile.dob = age_validity_form.cleaned_data['dob']
+    profile.save()
+
+  data['age_validity_form'] = age_validity_form
 
   # check zipcode is ok
   if request.method == 'POST':
@@ -1718,7 +1722,7 @@ def edit_shipping_address(request):
       messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
       return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
 
-  if form.is_valid():
+  if form.is_valid() and valid_age:
     receiver = form.save()
 
     # update the receiver user

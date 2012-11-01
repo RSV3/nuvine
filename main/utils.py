@@ -454,15 +454,17 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
 # Utility methods for finding out user relations and party relations
 ##############################################################################
 
+
 def first_party(user):
   """
     returns string of the date of the party that the user first participated
   """
   invites = PartyInvite.objects.filter(invitee=user).order_by('invited_timestamp')
   if invites.exists():
-    return invites[0].invited_timestamp.strftime('%m/%d/%Y') 
+    return invites[0].invited_timestamp.strftime('%m/%d/%Y')
   else:
     return "No party yet"
+
 
 def my_host(user):
 
@@ -475,7 +477,8 @@ def my_host(user):
   if invitation.exists():
     return invitation[0].party.host
 
-  return None 
+  return None
+
 
 def my_pro(user):
 
@@ -498,7 +501,7 @@ def my_pro(user):
     invitation = PartyInvite.objects.filter(invitee=user).order_by('invited_timestamp')
     if invitation.exists():
       host = invitation[0].party.host
-      # find pro that arranged party for my host 
+      # find pro that arranged party for my host
       mypros = MyHost.objects.filter(host=host).order_by('-timestamp')
       if mypros.exists():
         pro = mypros[0].pro

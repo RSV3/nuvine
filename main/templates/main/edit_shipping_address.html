@@ -1,5 +1,12 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+{% endblock %}
+
+
 {% block header %}
   <h1 class="headline">Where do you want it?</h1>
 {% endblock header %}
@@ -10,14 +17,35 @@
 
   <section id="shipping-information">
   <div class="page-header">
-    <h4>Enter Shipping Address</h4>
+    <h3>Enter Shipping Address</h3>
+    <br />
     <p>You have to be 21 to drink it, so you have to be 21 to receive it. Make sure wherever you ship will have someone 21 or older available to sign.</a>
   </div>
   <div class="row">
+
     <div class="span12">
       <form class="form-horizontal" method="POST" action="{% url edit_shipping_address %}">
         {% csrf_token %}
-
+        <fieldset>
+          <p>We need to verify the age information for all orders being made. Please ensure that this information is correct before you proceed.</p>
+          <div class="control-group{% if age_validity_form.dob.errors %} error{% endif %}">
+            <div class="control-label" for="id_eligibility-dob">
+              {{ age_validity_form.dob.label }}
+            </div>
+            <div class="controls">
+              {{ age_validity_form.mentor }}
+              {{ age_validity_form.gender }}
+              {{ age_validity_form.user }}
+              {{ age_validity_form.dob }}
+              {% if age_validity_form.dob.errors %}
+                <span class="help-inline">
+                  {{ age_validity_form.dob.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <hr />
+        </fieldset>
         <!-- {{ form.errors }}-->
         <fieldset>
         <div class="control-group{% if form.first_name.errors %} error{% endif %}">
@@ -188,3 +216,16 @@
 
 {% endblock %}
 
+{% block additional_scripts %}
+  {% if user.get_profile.is_under_age %}
+    <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready( function () {
+        $(".datepicker").datepicker();
+        
+        // uncomment this to enable
+        $("#update-age").modal();
+      });
+    </script>
+  {% endif %}
+{% endblock additional_scripts %}

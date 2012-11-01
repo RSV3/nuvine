@@ -69,14 +69,14 @@ def my_information(request):
       dob = datetime.strptime(request.POST.get('eligibility-dob'), '%Y-%m-%d').date()
     except Exception, e:
       pass
-    
+
     datediff = today - dob
     if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and request.POST.get('eligibility-above_21') == 'on') or \
           (not dob and request.POST.get('eligibility-above_21') == 'on'):
       messages.error(request, 'The Date of Birth shows that you are not over 21')
       return HttpResponseRedirect('.')
 
-  if user_form.is_valid(): 
+  if user_form.is_valid():
     update_user = user_form.save()
     user_updated = True 
 
@@ -239,9 +239,10 @@ def make_pro_host(request, account_type):
   hos_group = Group.objects.get(name="Vinely Host")
   tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
-
+  pro, pro_profile = my_pro(u)
+  pro_email = pro.email if pro else None
   initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
-                  'email': u.email, 'zipcode': profile.zipcode}
+                  'email': u.email, 'zipcode': profile.zipcode, 'mentor': pro_email}
 
   form = MakeHostProForm(request.POST or None, initial=initial_data)
 
@@ -322,9 +323,7 @@ def make_pro_host(request, account_type):
       elif account_type == 2:
         try:
           pro = User.objects.get(email=form.cleaned_data.get('mentor'))
-          print 'linked: ', pro.email
         except User.DoesNotExist:
-          print 'haikumek'
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
         send_host_vinely_party_email(request, u)  # to vinely

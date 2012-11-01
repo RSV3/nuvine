@@ -99,6 +99,28 @@ class VerifyEligibilityForm(forms.ModelForm):
     return data
 
 
+class AgeValidityForm(VerifyEligibilityForm):
+  def __init__(self, *args, **kwargs):
+    super(AgeValidityForm, self).__init__(*args, **kwargs)
+    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years',
+                                                      'data-date-format': 'yyyy-mm-dd'})
+    self.fields['mentor'].widget = forms.HiddenInput()
+    self.fields['gender'].widget = forms.HiddenInput()
+
+  def clean(self):
+    data = super(AgeValidityForm, self).clean()
+    dob = data['dob']
+
+    if dob:
+      today = datetime.date(datetime.now(tz=UTC()))
+      datediff = today - dob
+      if datediff.days < timedelta(math.ceil(365.25 * 21)).days:
+        self._errors["dob"] = self.error_class(["You cannot order wine until you verify that you are not are under 21"])
+    else:
+      self._errors["dob"] = self.error_class(["You cannot order wine until you verify that you are not are under 21"])
+    return data
+
+
 class UpdateAddressForm(forms.ModelForm):
 
   class Meta:
