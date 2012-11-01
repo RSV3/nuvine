@@ -868,7 +868,7 @@ def parties(request):
 
 @login_required
 def tag(request):
-  """ 
+  """
     Tag a member with particular term
     - people can edit tags
     - ajax call
@@ -901,8 +901,10 @@ def party_list(request):
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
     my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=today).order_by('event_date')
-    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=today).order_by('-event_date')
+    # consider a party 'past' 24hours after event date
+    party_valid_date = today - timedelta(hours=24)
+    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=party_valid_date).order_by('event_date')
+    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=party_valid_date).order_by('-event_date')
     pro_comm, mentee_comm = calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
@@ -1040,9 +1042,6 @@ def party_add(request):
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
     form = PartyCreateForm(initial=initial_data)
     hos_group = Group.objects.get(name="Vinely Host")
-
-  # need to figure out hosts filtered by Vinely Pro
-  # form.fields['host'].choices = [(h.host.id, h.host.email) for h in MyHost.objects.filter(pro=u)]
 
   data["form"] = form
   data["parties_menu"] = True
@@ -2050,11 +2049,12 @@ def generate_rating_card(event_date, pro, host, invitee, in_stream, output):
     #   output.write(out_stream)
     # files.append(filename)
 
+
 @login_required
 def print_rating_cards(request, party_id):
 
-  party = get_object_or_404(Party, id = party_id)
-  invites = PartyInvite.objects.filter(party = party)
+  party = get_object_or_404(Party, id=party_id)
+  invites = PartyInvite.objects.filter(party=party)
   if invites.count() == 0:
     messages.warning(request, "No guests have been invited to the party. Invite guests first.")
     return HttpResponseRedirect(reverse("party_details", args=[party_id]))
