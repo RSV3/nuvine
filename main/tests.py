@@ -387,7 +387,7 @@ class SimpleTest(TestCase):
 
     self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
 
-    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
+    recipient_email = Email.objects.filter(subject__icontains="has invited you to a Vinely Party!", recipients="[u'new.guy@example.com']")
     self.assertTrue(recipient_email.exists())
 
     self.client.logout()
@@ -420,7 +420,7 @@ class SimpleTest(TestCase):
 
     self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy2@example.com').exists())
 
-    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy2@example.com']")
+    recipient_email = Email.objects.filter(subject__icontains="invited you to a Vinely Party!", recipients="[u'new.guy2@example.com']")
     self.assertTrue(recipient_email.exists())
 
     # TODO: Hit send invite and check if mails are sent
@@ -495,7 +495,7 @@ class SimpleTest(TestCase):
 
     self.assertTrue(PartyInvite.objects.filter(party=party, invitee__email='new.guy@example.com').exists())
 
-    recipient_email = Email.objects.filter(subject="Join Vinely Party!", recipients="[u'new.guy@example.com']")
+    recipient_email = Email.objects.filter(subject__icontains="has invited you to a Vinely Party!", recipients="[u'new.guy@example.com']")
     self.assertTrue(recipient_email.exists())
 
     # TODO: Hit send invite and check if mails are sent
@@ -709,19 +709,17 @@ class SimpleTest(TestCase):
                                                                             "sparkling": 1})
     self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
 
-    user = User.objects.get(email="attendee1@example.com")
-    profile = user.get_profile()
-    profile.dob = timezone.now() - timedelta(days=30 * 365)
-    profile.save()
+    birth_date = timezone.now() - timedelta(days=30 * 365)
 
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
-                                                                        "last_name": "Doe",
-                                                                        "address1": "65 Gordon St.",
-                                                                        "city": "Cambridge",
-                                                                        "state": "MA",
-                                                                        "zipcode": "02139",
-                                                                        "phone": "555-617-6706",
-                                                                        "email": "attendee1@example.com"})
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "Cambridge",
+                                                                              "state": "MA",
+                                                                              "zipcode": "02139",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
     self.assertRedirects(response, reverse("main.views.edit_credit_card"))
 
     year = datetime.today().year + 5
@@ -792,14 +790,12 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
-    self.assertContains(response, "You MUST be over 21 to make an order")
+    self.assertContains(response, "You cannot order wine until you verify that you are not under 21")
 
-    user = User.objects.get(email="attendee1@example.com")
-    profile = user.get_profile()
-    profile.dob = timezone.now() - timedelta(days=30 * 365)
-    profile.save()
+    birth_date = timezone.now() - timedelta(days=30 * 365)
 
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
                                                                               "city": "Cambridge",
@@ -807,6 +803,7 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
+    # print response
     self.assertRedirects(response, reverse("main.views.edit_credit_card"))
 
     year = datetime.today().year + 5
@@ -871,7 +868,10 @@ class SimpleTest(TestCase):
                                                                             "sparkling": 0})
     self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
 
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+    birth_date = timezone.now() - timedelta(days=30 * 365)
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
                                                                               "city": "Grand Rapids",
@@ -999,15 +999,13 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "host1@example.com"})
-    self.assertContains(response, "You MUST be over 21 to make an order")
+    self.assertContains(response, "You cannot order wine until you verify that you are not under 21")
 
-    user = User.objects.get(email="host1@example.com")
-    profile = user.get_profile()
-    profile.dob = timezone.now() - timedelta(days=30 * 365)
-    profile.save()
+    birth_date = timezone.now() - timedelta(days=30 * 365)
 
     # check switch between stripe and vinely credit cards
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
                                                                               "city": "Grand Rapids",
@@ -1031,7 +1029,10 @@ class SimpleTest(TestCase):
                                                                               "email": "host1@example.com"})
     self.assertContains(response, "Vinely does not currently operate in the specified area")
 
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+    birth_date = timezone.now() - timedelta(days=30 * 365)
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
                                                                               "city": "Cambridge",
@@ -1042,7 +1043,8 @@ class SimpleTest(TestCase):
     self.assertRedirects(response, reverse("main.views.edit_credit_card"))
 
     # check if new user created
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
                                                                               "city": "Cambridge",
