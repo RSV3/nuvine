@@ -57,6 +57,8 @@ def change_to_taster(modeladmin, request, queryset):
     user.groups.clear()
     taster_group = Group.objects.get(name="Vinely Taster")
     user.groups.add(taster_group)
+    for my_host in MyHost.objects.filter(host=user):
+      my_host.delete()
 
 change_to_taster.short_description = "Change user to a taster"
 
