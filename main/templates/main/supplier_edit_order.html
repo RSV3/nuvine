@@ -17,9 +17,9 @@
 {% block navbar_menu %}
   <div class="menu_wrap main">
     <ul class="nav">
-      <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="Live Orders">Live</a></li>
-      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url get_started %}" title="Order History"></a></li>
-      <li id="your_wine_list"{% if wine_list_menu %} class="active"{% endif %}><a href="{% url our_story %}" title="Your Wine List"></a></li>
+      <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="" title="Live Orders">Live</a></li>
+      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url supplier_all_orders %}" title="Order History">Order History</a></li>
+      <li id="your_wine_list"{% if wine_list_menu %} class="active"{% endif %}><a href="" title="Your Wine List"></a></li>
     </ul>
   </div>
 {% endblock navbar_menu %}
@@ -76,8 +76,8 @@
           <p><h3>Billing Information</h3></p>
           <p></p>
           {# <p>{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}</p> #}
-          <p>Credit card ending in: {% if order.credit_card %}{{ order.credit_card.last_four }}{% else %} {{ order.stripe_card.last_four }}{% endif %}</p>
-          <p>Exp Date: {% if order.credit_card %}{{ order.credit_card.exp_date }}{% else %} {{ order.stripe_card.exp_date }}{% endif %}</p>
+          <p>{% if order.credit_card %}{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}{% else %}Processed via Stripe w/ card ending in: {{ order.stripe_card.last_four }}{% endif %}</p>
+          <p>Exp Date: {% if order.credit_card %}{{ order.credit_card.exp_date }}{% else %}{{ order.stripe_card.exp_date }}{% endif %}</p>
           {# <p>CVV: {{ order.credit_card.decrypt_cvv }}</p> #}
           {# <p>Zipcode: {{ order.credit_card.billing_zipcode }}</p> #}
         </div>

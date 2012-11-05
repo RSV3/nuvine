@@ -1,0 +1,57 @@
+James Kennedy, jakennedy@csufresno.edu
+reduce thousands of molecules of wine, reduce to buckets
+
+- sugar
+- aroma driven
+	fruitiness
+		- spectrums of red, dark, dry fruit
+	oak
+	green (veggieness, green beans, asparagus)
+	floral
+- palate driven
+	- abstraction level
+
+varying degrees of success
+- academic world yet successful define
+
+wineries have had marginal success in getting information
+
+
+analytical tools
+- gc mass spec
+- hplc
+
+labs
+- look at individual compounds
+- leave it up to you to determine how important the compound is to taste
+- ets labs (http://www.etslabs.com/)
+
+
+compounds
+- understand when in isolation
+- however other molecules suppress, modify, accentuate the perception
+- need to monitor other molecules
+- how do they interrelate with other molecules
+
+- level of success is pretty low in genome map
+
+Australia wine research institute
+- metabolomics approach combined with sensory
+
+
+Cheaper or lower cost effective
+- use expert wine panel to be cheaper
+- they become advocates of that judge
+
+
+budweiser people
+- american consumer: sweetness and fruitiness most important (over 50% of wine consumed)
+
+complex appreciation for wine
+- like complexity and variation, different sorts of things, difficult to reduce number of buckets
+- provide consumer information about if you want to try oaky wine try this (transient consumer)
+
+Australian journal of wine research
+- reviews of complexity of wine to quantify, provide metrics to wine to relate that to consumer
+
+
