@@ -808,10 +808,9 @@ def order_complete(request, order_id):
       # check if item contains subscription
       # if item.price_category in range(5, 11):
       subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
-      # subscription.quantity = item.price_category
-      # subscription.frequency = item.frequency
       next_invoice = datetime.date(datetime.now(tz=UTC())) + timedelta(days=28)
       subscription.next_invoice_date = next_invoice
+      subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
 
   if order.ordered_by == u or order.receiver == u:

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
@@ -7,7 +8,7 @@ from sorl.thumbnail import ImageField
 
 from datetime import datetime, timedelta
 from stripecard.models import StripeCard
-from django.db.models import Sum
+import uuid
 
 # Create your models here.
 
@@ -192,6 +193,8 @@ class Product(models.Model):
 
 class LineItem(models.Model):
 
+  # Make sure some of these values are same in
+  # accounts.models.py SubscriptionInfo.QUANTITY_CHOICES
   PRICE_TYPE = (
       (0, 'Product'),
       (1, 'Service'),
@@ -243,12 +246,12 @@ class Cart(models.Model):
   party = models.ForeignKey(Party, null=True)
 
   CART_STATUS_CHOICES = (
-      (0, 'START'),
+      (0, 'STARTED'),
       (1, 'ADDED ITEM'),
-      (2, 'CUSTOMIZE CHECKOUT'),
+      (2, 'CUSTOMIZED CHECKOUT'),
       (3, 'FILLED SHIPPING'),
       (4, 'FILLED BILLING'),
-      (5, 'COMPLETE ORDER'),
+      (5, 'COMPLETED ORDER'),
   )
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
@@ -355,6 +358,12 @@ class Order(models.Model):
   tracking_number = models.CharField(max_length=128, null=True, blank=True)
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
+
+  def assign_new_order_id(self):
+    new_order_id = str(uuid.uuid4())
+    self.order_id = new_order_id
+    self.save()
+    return new_order_id
 
   def receiver_personality(self):
     """

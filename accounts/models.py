@@ -214,7 +214,9 @@ class UserProfile(models.Model):
     from main.models import CustomizeOrder
     try:
       pref = CustomizeOrder.objects.get(user=self.user)
-      if pref.wine_mix == 1:
+      if pref.wine_mix == 0:
+        return "Vinely Recommendation"
+      elif pref.wine_mix == 1:
         return "Both"
       elif pref.wine_mix == 2:
         return "Red"
@@ -263,6 +265,7 @@ class SubscriptionInfo(models.Model):
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
 
+  # Make sure these map to LineItem.PRICE_TYPE
   QUANTITY_CHOICES = (
     (0, 'No Subscription'),
     (5, 'Basic: Full Case (12 bottles)'),
@@ -274,6 +277,7 @@ class SubscriptionInfo(models.Model):
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField(auto_now_add=True)
+  updated_datetime = models.DateTimeField(auto_now=True)
 
 
 class Zipcode(models.Model):

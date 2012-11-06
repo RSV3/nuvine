@@ -2,13 +2,100 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User, Group
 
 from optparse import make_option
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from accounts.models import CreditCard
-from main.models import SubscriptionInfo, CustomizeOrder, Party, PartyInvite
+from accounts.models import CreditCard, Address
+from main.models import SubscriptionInfo, CustomizeOrder, Party, LineItem, Cart, Product, Order
 from personality.models import WinePersonality, Wine, WineRatingData
+from creditcard.utils import get_cc_type
+from main.utils import UTC
+from emailusernames.utils import create_user
+from lepl.apps.rfc3696 import Email
 
 import xlrd
+
+ORDER_ID = 0
+CUSTOMER_ID = 1
+RECIPIENT_FIRST_NAME = 2
+RECIPIENT_LAST_NAME = 3
+RECIPIENT_COMPANY = 4
+RECIPIENT_ADDRESS_1 = 5
+RECIPIENT_ADDRESS_2 = 6
+RECIPIENT_CITY = 7
+RECIPIENT_STATE = 8
+RECIPIENT_ZIPCODE = 9
+RECIPIENT_COUNTRY = 10
+RECIPIENT_HOME_PHONE = 11
+RECIPIENT_WORK_PHONE = 12
+RECIPIENT_EMAIL = 13
+CUSTOMER_FIRST_NAME = 14
+CUSTOMER_LAST_NAME = 15
+CUSTOMER_ADDRESS = 16
+CUSTOMER_CITY = 17
+CUSTOMER_STATE = 18
+CUSTOMER_ZIPCODE = 19
+CUSTOMER_EMAIL = 20
+CREDIT_CARD_TYPE = 21
+CREDIT_CARD_NUM = 22
+CREDIT_CARD_CVV = 23
+CREDIT_CARD_EXP = 24
+BILLING_ZIPCODE = 25
+
+SUBSCRIPTION_FREQ = 93
+PRICE_TIER = 94
+QUANTITY = 95
+RED_WHITE = 96
+SPARKLING = 97
+WINE_PERSONALITY = 99
+
+
+def get_subscription_frequency(subscription_str):
+  if subscription_str.strip().lower() == "one time":
+    return 0
+  elif subscription_str.strip().lower() == "monthly":
+    return 1
+  elif subscription_str.strip().lower() == "bi-monthly":
+    return 2
+  elif subscription_str.strip().lower() == "quarterly":
+    return 3
+
+def get_subscription_quantity(price_tier, quantity_float, rownum=0):
+  """
+    rownum when imported from Excel file
+  """
+  product = Product.objects.get(cart_tag=price_tier.strip().lower())
+  quantity = int(quantity_float)
+  if quantity == 6:
+    quantity_code = 0
+    # 6, 8, 10
+    if product.id == 4:
+      price_category = 6
+      # ^ basic
+    elif product.id == 5:
+      price_category = 8
+      # ^ superior
+    elif product.id == 6:
+      price_category = 10
+      # ^ divine
+  elif quantity == 12:
+    quantity_code = 1
+    # 5, 7, 9
+    if product.id == 4:
+      price_category = 5
+      # ^ basic
+    elif product.id == 5:
+      price_category = 7
+      # ^ superior
+    elif product.id == 6:
+      price_category = 9
+      # ^ divine
+  else:
+    print "Invalid quantity of wine bottles for row %d" % rownum
+    product = None
+    price_category = 0
+    quantity_code = 0
+  return product, price_category, quantity_code
+
 
 class Command(BaseCommand):
 
@@ -26,30 +113,131 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     # Read excel file, go through each column
 
+    taster_group = Group.objects.get(name="Vinely Taster")
+    email_validator = Email()
+
     wb = xlrd.open_workbook("docs/new_orders_10292012.xlsx")
     sheet = wb.sheet_by_name("Orders")
 
-    print sheet.nrows
     for rownum in range(1, 6):
+      print "Processing row: %d" % rownum
       row = sheet.row_values(rownum)
       # find user first
 
-      customer_email = row[20].strip().lower()
+      customer_email = row[CUSTOMER_EMAIL].strip().lower()
+      # check if valid e-mail exists
+      if not email_validator(customer_email):
+        # go to next line
+        continue
+
       try:
         u = User.objects.get(email=customer_email)
       except User.DoesNotExist:
-        
+        print "Customer email", rownum, customer_email
+        u = create_user(row[CUSTOMER_EMAIL], 'welcome')
+        u.first_name = row[CUSTOMER_FIRST_NAME].strip()
+        u.last_name = row[CUSTOMER_LAST_NAME].strip()
+        u.is_active = False
+        u.save()
+        u.groups.add(taster_group)
+      customer_full_name = "%s %s" % (u.first_name, u.last_name)
 
+        # TODO: generate verification e-mail,
+        #       e-mail user account created in the welcome e-mail
 
-      # cart, item
+      # create item
+      product, price_category, quantity_code = get_subscription_quantity(row[PRICE_TIER], row[QUANTITY])
+      if product is None:
+        print "No valid product found"
+        continue
 
-      #Cart.objects.get_or_create()
+      item = LineItem(product=product, price_category=price_category, quantity=quantity_code)
+      item.save()
 
-      #CustomizeOrder.objects.get_or_create(user=u)
+      cart = Cart(user=u, adds=1)
+      cart.save()
+      cart.items.add(item)
+      cart.save()
+
+      customize, created = CustomizeOrder.objects.get_or_create(user=u)
+      wine_mix_choice = row[RED_WHITE].strip().lower()
+      if wine_mix_choice == "vinely":
+        customize.wine_mix = 0
+      elif wine_mix_choice == "both":
+        customize.wine_mix = 1
+      elif wine_mix_choice == "red":
+        customize.wine_mix = 2
+      elif wine_mix_choice == "white":
+        customize.wine_mix = 3
+      sparkling_choice = row[SPARKLING].strip().lower()
+      customize.sparkling = 0 if sparkling_choice == "no" else 1
+      customize.save()
+
+      # create receiver user
+      if u.email == row[RECIPIENT_EMAIL].strip().lower():
+        receiver = u
+      else:
+        # check to see if receiver already has account
+        recipient_email = row[RECIPIENT_EMAIL].strip().lower()
+        try:
+          receiver = User.objects.get(email=recipient_email)
+        except User.DoesNotExist:
+          print "Customer email", rownum, recipient_email
+          receiver = create_user(row[RECIPIENT_EMAIL], 'welcome')
+          receiver.first_name = row[RECIPIENT_FIRST_NAME].strip()
+          receiver.last_name = row[RECIPIENT_LAST_NAME].strip()
+          receiver.is_active = False
+          receiver.save()
+          receiver.groups.add(taster_group)
+
+      receiver_full_name = "%s %s" % (receiver.first_name, receiver.last_name)
       # create shipping address
+      company_co = row[RECIPIENT_COMPANY]
+      if not company_co:
+        company_co = receiver_full_name
+      if u.email == receiver.email and u.first_name != row[RECIPIENT_FIRST_NAME].strip():
+        # need to use the c/o
+        shipping_address = Address(nick_name=receiver_full_name, company_co=company_co,
+                          street1=row[RECIPIENT_ADDRESS_1], street2=row[RECIPIENT_ADDRESS_2],
+                          city=row[RECIPIENT_CITY], state=row[RECIPIENT_STATE], zipcode=str(int(row[RECIPIENT_ZIPCODE])).zfill(5))
 
-      # create credit CreditCard
+      else:
+        # use customer's address
+        shipping_address = Address(nick_name=customer_full_name, company_co=company_co,
+                          street1=row[RECIPIENT_ADDRESS_1], street2=row[RECIPIENT_ADDRESS_2],
+                          city=row[RECIPIENT_CITY], state=row[RECIPIENT_STATE], zipcode=str(int(row[RECIPIENT_ZIPCODE])).zfill(5))
+
+      shipping_address.save()
+
+      # create credit card
+      card_num = row[CREDIT_CARD_NUM].strip()
+      cvv_num = row[CREDIT_CARD_CVV].strip()
+      card_type = get_cc_type(row[CREDIT_CARD_NUM])
+
+      billing_zipcode = row[BILLING_ZIPCODE]
+      if not billing_zipcode:
+        billing_zipcode = row[CUSTOMER_ZIPCODE]
+      exp_date = datetime.strptime(row[CREDIT_CARD_EXP], "%m/%y")
+      card = CreditCard(nick_name=customer_email, card_number=card_num,
+                  exp_month=exp_date.month, exp_year=exp_date.year, verification_code=cvv_num,
+                  billing_zipcode=str(int(billing_zipcode)).zfill(5),
+                  card_type=card_type)
+      card.save()
+      # encrypt card number
+      card.encrypt_card_num(card_num)
+      card.encrypt_cvv(cvv_num)
+      card.save()
 
       # create order
+      order = Order(ordered_by=u, receiver=receiver, cart=cart,
+            shipping_address=shipping_address, credit_card=card,
+            fulfill_status=1)
+      order.assign_new_order_id()
+      order.save()
 
-      # save everything
+      subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category,
+                                                                    frequency=item.frequency)
+      next_invoice = datetime.date(datetime.now(tz=UTC())) + timedelta(days=28)
+      subscription.next_invoice_date = next_invoice
+      subscription.updated_datetime = datetime.now(tz=UTC())
+      subscription.save()

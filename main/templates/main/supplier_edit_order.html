@@ -75,11 +75,14 @@
           <p></p>
           <p><h3>Billing Information</h3></p>
           <p></p>
-          {# <p>{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}</p> #}
-          <p>{% if order.credit_card %}{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}{% else %}Processed via Stripe w/ card ending in: {{ order.stripe_card.last_four }}{% endif %}</p>
-          <p>Exp Date: {% if order.credit_card %}{{ order.credit_card.exp_date }}{% else %}{{ order.stripe_card.exp_date }}{% endif %}</p>
-          {# <p>CVV: {{ order.credit_card.decrypt_cvv }}</p> #}
-          {# <p>Zipcode: {{ order.credit_card.billing_zipcode }}</p> #}
+          {% if order.credit_card %}
+            <p>{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}</p>
+            <p>CVV: {{ order.credit_card.decrypt_cvv }}</p>
+            <p>Zipcode: {{ order.credit_card.billing_zipcode }}</p>
+          {% else %}
+            <p>Processed via Stripe w/ card ending in: {{ order.stripe_card.last_four }}</p>
+            <p>Exp Date: {{ order.stripe_card.exp_date }}</p>
+          {% endif %}
         </div>
         <div class="span8">
           <div class="row">

@@ -67,7 +67,7 @@ def invoice_created(event_json):
         return
     profile = stripe_card.stripe_owner.all()[0]
     # get latest subscription
-    plan = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-id')[0]
+    plan = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')[0]
     sub_total = data['subtotal']
     # only need to add shipping and tax info
     stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')

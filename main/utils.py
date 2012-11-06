@@ -113,11 +113,11 @@ def send_order_confirmation_email(request, order_id):
   c.update({'sig': True})
   html_message = html_template.render(c)
 
-  subject = 'Order ID: %s has been submitted!'%order_id
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, 
+  subject = 'Order ID: %s has been submitted!' % order_id
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
 
-  from_email = 'Vinely <welcome@vinely.com>'
+  from_email = 'Vinely Order <order@vinely.com>'
   recipients = ['fulfillment@vinely.com']
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)

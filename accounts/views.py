@@ -146,12 +146,12 @@ def edit_subscription(request):
   #   user_subscription = SubscriptionInfo.objects.get(user=u)
   # except SubscriptionInfo.DoesNotExist:
   #   user_subscription = None
-  subscriptions = SubscriptionInfo.objects.filter(user=u)
+  subscriptions = SubscriptionInfo.objects.filter(user=u).order_by("-updated_datetime")
   if subscriptions.exists():
     user_subscription = subscriptions[0]
   else:
     user_subscription = None
-  
+
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription)
   if form.is_valid():
     form.save()
