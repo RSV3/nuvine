@@ -66,6 +66,9 @@
           <p><h3>Shipping Information</h3></p>
           <address>
             <p>{{ order.receiver.first_name }} {{ order.receiver.last_name }}</p>
+            {% if order.shipping_address.company_co %}
+            <p>c/o {{ order.shipping_address.company_co }}</p>
+            {% endif %}
             <p>{{ order.shipping_address.street1 }}</p>
             {% if order.shipping_address.street2 %}
             <p>{{ order.shipping_address.street2 }}</p>

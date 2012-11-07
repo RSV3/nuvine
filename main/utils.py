@@ -39,6 +39,137 @@ def if_pro(user):
     return user.groups.filter(name="Vinely Pro").count() > 0
   return False
 
+def send_order_added_email(request, order_id, user_email, verification_code=None, temp_password=None):
+  """
+    The next method: send_to_supplier_order_added_email has to be called after this method is called
+    to update order status to Ordered
+  """
+  order = Order.objects.get(order_id=order_id)
+  user = User.objects.get(email=user_email)
+  if order.fulfill_status > 0:
+    # return if already processing since e-mail has already been sent
+    return
+
+
+  content = """
+   {% load static %}
+
+    Hey {{ customer }},
+
+    Thank you for choosing Vinely!
+
+    Your order {{ order_id }} has been received and your delicious surprise should arrive in 7 - 10 business days. Remember, someone 21 years or older must be available to receive your order.
+    {% if verification_code %}
+    If you are a new user, a new Vinely account has been created for you and you can verify using the following temporary password:
+
+      Your temporary password is: {{ temp_password }}
+
+    at:
+
+      http://{{ host_name }}{% url verify_account verification_code %}
+    {% endif %}
+
+    Keep an eye on your inbox over the next few days, as we will be sending further shipping information.  You can check the status of your order at:
+
+      http://{{ host_name }}{% url order_complete order_id %}
+
+    Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+  """
+
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+
+  subject = 'Your Vinely order was placed successfully!'
+  from_email = 'Vinely Order <order@vinely.com>'
+  recipients = [user_email]
+
+  c = RequestContext(request, {"customer": user.first_name if user.first_name else "Vinely Fan",
+              "host_name": request.get_host(),
+              "order_id": order_id,
+              "verification_code": verification_code,
+              "temp_password": temp_password,
+              "title": subject})
+
+  txt_message = txt_template.render(c)
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
+      {'title': subject, 'message': html_message, 'host_name': request.get_host()}
+    ))
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  # notify the receiver that the order has been received
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+
+def send_to_supplier_order_added_email(request, order_id):
+
+  order = Order.objects.get(order_id=order_id)
+
+  if order.fulfill_status > 0:
+    # return if already processing since e-mail has already been sent
+    return
+
+  # formulate e-mail to the supplier
+  content = """
+  {% load static %}
+  Dear Supplier,
+
+  Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
+
+    http://{{ host_name }}{% url supplier_edit_order order_id %}
+
+  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
+  """
+
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  subject = 'Order ID: %s has been submitted!' % order_id
+
+  c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
+              "host_name": request.get_host(),
+              "order_id": order_id,
+              "title": subject})
+
+  txt_message = txt_template.render(c)
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
+    {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+
+  from_email = 'Vinely Order <order@vinely.com>'
+  recipients = ['fulfillment@vinely.com']
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  # notify the supplier that an order has been received
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+  order.fulfill_status = 1
+  order.save()
+
+
 def send_order_confirmation_email(request, order_id):
 
   order = Order.objects.get(order_id=order_id)
@@ -94,7 +225,7 @@ def send_order_confirmation_email(request, order_id):
   {% load static %}
   Dear Supplier,
 
-  Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the status of their order at:
+  Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 

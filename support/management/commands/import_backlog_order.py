@@ -1,16 +1,19 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User, Group
+from django.http import HttpRequest
 
 from optparse import make_option
 from datetime import datetime, timedelta
 
-from accounts.models import CreditCard, Address
+from accounts.models import CreditCard, Address, VerificationQueue
 from main.models import SubscriptionInfo, CustomizeOrder, Party, LineItem, Cart, Product, Order
+from main.utils import UTC, send_order_added_email, send_to_supplier_order_added_email
 from personality.models import WinePersonality, Wine, WineRatingData
 from creditcard.utils import get_cc_type
-from main.utils import UTC
 from emailusernames.utils import create_user
+
 from lepl.apps.rfc3696 import Email
+import uuid
 
 import xlrd
 
@@ -115,6 +118,10 @@ class Command(BaseCommand):
 
     taster_group = Group.objects.get(name="Vinely Taster")
     email_validator = Email()
+    customer_temp_password = None
+    customer_verification_code = None
+    receiver_temp_password = None
+    receiver_verification_code = None
 
     wb = xlrd.open_workbook("docs/new_orders_10292012.xlsx")
     sheet = wb.sheet_by_name("Orders")
@@ -133,17 +140,55 @@ class Command(BaseCommand):
       try:
         u = User.objects.get(email=customer_email)
       except User.DoesNotExist:
-        print "Customer email", rownum, customer_email
+        print "New user created for customer", rownum, customer_email
         u = create_user(row[CUSTOMER_EMAIL], 'welcome')
         u.first_name = row[CUSTOMER_FIRST_NAME].strip()
         u.last_name = row[CUSTOMER_LAST_NAME].strip()
         u.is_active = False
+        customer_temp_password = User.objects.make_random_password()
+        u.set_password(customer_temp_password)
         u.save()
         u.groups.add(taster_group)
+        u.save()
+
+        customer_verification_code = str(uuid.uuid4())
+        vque = VerificationQueue(user=u, verification_code=customer_verification_code)
+        vque.save()
+
       customer_full_name = "%s %s" % (u.first_name, u.last_name)
 
-        # TODO: generate verification e-mail,
+          # TODO: generate verification e-mail,
         #       e-mail user account created in the welcome e-mail
+
+
+
+      # create receiver user
+      if u.email == row[RECIPIENT_EMAIL].strip().lower():
+        receiver = u
+      else:
+        # check to see if receiver already has account
+        recipient_email = row[RECIPIENT_EMAIL].strip().lower()
+        try:
+          receiver = User.objects.get(email=recipient_email)
+        except User.DoesNotExist:
+          print "New user created for receiver", rownum, recipient_email
+          receiver = create_user(row[RECIPIENT_EMAIL], 'welcome')
+          receiver.first_name = row[RECIPIENT_FIRST_NAME].strip()
+          receiver.last_name = row[RECIPIENT_LAST_NAME].strip()
+          receiver.is_active = False
+          receiver.save()
+          receiver.groups.add(taster_group)
+          receiver_temp_password = User.objects.make_random_password()
+          receiver.set_password(receiver_temp_password)
+          receiver.save()
+          receiver.groups.add(taster_group)
+          receiver.save()
+
+          receiver_verification_code = str(uuid.uuid4())
+          vque = VerificationQueue(user=receiver, verification_code=receiver_verification_code)
+          vque.save()
+
+      receiver_full_name = "%s %s" % (receiver.first_name, receiver.last_name)
 
       # create item
       product, price_category, quantity_code = get_subscription_quantity(row[PRICE_TIER], row[QUANTITY])
@@ -159,7 +204,7 @@ class Command(BaseCommand):
       cart.items.add(item)
       cart.save()
 
-      customize, created = CustomizeOrder.objects.get_or_create(user=u)
+      customize, created = CustomizeOrder.objects.get_or_create(user=receiver)
       wine_mix_choice = row[RED_WHITE].strip().lower()
       if wine_mix_choice == "vinely":
         customize.wine_mix = 0
@@ -173,27 +218,25 @@ class Command(BaseCommand):
       customize.sparkling = 0 if sparkling_choice == "no" else 1
       customize.save()
 
-      # create receiver user
-      if u.email == row[RECIPIENT_EMAIL].strip().lower():
-        receiver = u
-      else:
-        # check to see if receiver already has account
-        recipient_email = row[RECIPIENT_EMAIL].strip().lower()
-        try:
-          receiver = User.objects.get(email=recipient_email)
-        except User.DoesNotExist:
-          print "Customer email", rownum, recipient_email
-          receiver = create_user(row[RECIPIENT_EMAIL], 'welcome')
-          receiver.first_name = row[RECIPIENT_FIRST_NAME].strip()
-          receiver.last_name = row[RECIPIENT_LAST_NAME].strip()
-          receiver.is_active = False
-          receiver.save()
-          receiver.groups.add(taster_group)
+      # save customization for customer who ordered if different
+      if u != receiver:
+        customize, created = CustomizeOrder.objects.get_or_create(user=u)
+        wine_mix_choice = row[RED_WHITE].strip().lower()
+        if wine_mix_choice == "vinely":
+          customize.wine_mix = 0
+        elif wine_mix_choice == "both":
+          customize.wine_mix = 1
+        elif wine_mix_choice == "red":
+          customize.wine_mix = 2
+        elif wine_mix_choice == "white":
+          customize.wine_mix = 3
+        sparkling_choice = row[SPARKLING].strip().lower()
+        customize.sparkling = 0 if sparkling_choice == "no" else 1
+        customize.save()
 
-      receiver_full_name = "%s %s" % (receiver.first_name, receiver.last_name)
       # create shipping address
       company_co = row[RECIPIENT_COMPANY]
-      if not company_co:
+      if not company_co and customer_full_name != receiver_full_name:
         company_co = receiver_full_name
       if u.email == receiver.email and u.first_name != row[RECIPIENT_FIRST_NAME].strip():
         # need to use the c/o
@@ -208,6 +251,11 @@ class Command(BaseCommand):
                           city=row[RECIPIENT_CITY], state=row[RECIPIENT_STATE], zipcode=str(int(row[RECIPIENT_ZIPCODE])).zfill(5))
 
       shipping_address.save()
+
+      billing_address = Address(nick_name=customer_full_name,
+                                street1=row[CUSTOMER_ADDRESS], city=row[CUSTOMER_CITY],
+                                state=row[CUSTOMER_STATE], zipcode=str(int(row[CUSTOMER_ZIPCODE])).zfill(5))
+      billing_address.save()
 
       # create credit card
       card_num = row[CREDIT_CARD_NUM].strip()
@@ -228,10 +276,25 @@ class Command(BaseCommand):
       card.encrypt_cvv(cvv_num)
       card.save()
 
+      # add shipping address to user account
+      user_profile = u.get_profile()
+      user_profile.shipping_address = shipping_address
+      user_profile.shipping_addresses.add(shipping_address)
+      user_profile.credit_card = card
+      user_profile.credit_cards.add(card)
+      user_profile.billing_address = billing_address
+      user_profile.save()
+
+      if u.email != receiver.email:
+        # if receiver is a different user
+        user_profile = receiver.get_profile()
+        user_profile.shipping_address = shipping_address
+        user_profile.shipping_addresses.add(shipping_address)
+        user_profile.save()
+
       # create order
       order = Order(ordered_by=u, receiver=receiver, cart=cart,
-            shipping_address=shipping_address, credit_card=card,
-            fulfill_status=1)
+            shipping_address=shipping_address, credit_card=card)
       order.assign_new_order_id()
       order.save()
 
@@ -241,3 +304,18 @@ class Command(BaseCommand):
       subscription.next_invoice_date = next_invoice
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
+
+      # send out verification e-mail, create a verification code
+      request = HttpRequest()
+      request.META['SERVER_NAME'] = "www.vinely.com"
+      request.META['SERVER_PORT'] = 443
+      request.user = u
+      request.session = {}
+
+      if u.email == receiver.email:
+        send_order_added_email(request, order.order_id, u.email, customer_verification_code, customer_temp_password)
+      else:
+        send_order_added_email(request, order.order_id, u.email, customer_verification_code, customer_temp_password)
+        send_order_added_email(request, order.order_id, receiver.email, receiver_verification_code, receiver_temp_password)
+      send_to_supplier_order_added_email(request, order.order_id)
+

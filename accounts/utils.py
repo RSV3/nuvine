@@ -37,7 +37,6 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
-
 def send_password_change_email(request, verification_code, temp_password, user):
 
   template = Section.objects.get(template__key='password_change_email', category=0)
