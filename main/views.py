@@ -26,7 +26,7 @@ from accounts.utils import send_verification_email, send_new_invitation_email, s
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, my_pro
+                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
