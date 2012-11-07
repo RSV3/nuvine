@@ -32,10 +32,10 @@
                 {% endif %}
               </td>
               <td>
-		{% if invited_by %}
-		<a href="">unlink</a>
-		{% endif %}
-	      </td>
+              {% if invited_by %}
+              <!-- <a href="">unlink</a> -->
+              {% endif %}
+              </td>
             </tr>
             <tr>
               <td><b>Vinely Pro</b></td>
@@ -67,10 +67,14 @@
                 {% endif %}
               </td> 
               <td>
-		{% if not pro and pro_user %}
-		<a href="">unlink</a>
-		{% endif %}
-	      </td>
+            		{% if not pro %}
+                  {% if pro_user%}
+            		    <a id="unlink_pro" href="{% url pro_unlink %}">unlink</a>
+                  {% else %}
+                    <a id="link_pro" href="javascript:;">Link to pro</a>
+                  {% endif %}
+            		{% endif %}
+      	      </td>
             </tr>
           </table> 
         </fieldset>
@@ -99,9 +103,39 @@
             </div>
           </div>
         </fieldset>
-           
-
       </form>
 
+      <div id="link_pro_modal" class="modal hide fade">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h3>Link me to a Pro</h3>
+        </div>
+        <div class="modal-body">
+          <form method="POST" class="modal-form" action="{% url pro_link %}">{% csrf_token %}
+            <p>Provide the email address of the Pro that you'd like to be linked to.</p>
+            <br />
+            <div class="control-label" for="id_email">
+              {{ pro_link_form.email.label }}
+            </div>
+            <div class="controls">
+              {{ pro_link_form.email }}
+            </div>
+            <div class="modal-footer">
+              <input type="submit" name="update" class="btn btn-primary" value="Update" />
+            </div>
+          </form>
+        </div>
+      </div> 
 
 {% endblock right_content %}
+
+{% block additional_scripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#link_pro").click(function(e) {
+      $("#link_pro_modal").modal();
+      return false;
+    });
+  });
+</script>
+{% endblock additional_scripts %}

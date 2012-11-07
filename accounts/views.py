@@ -14,7 +14,7 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm
+                           HeardAboutForm, MakeHostProForm, ProLinkForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
@@ -141,6 +141,7 @@ def edit_subscription(request):
 
   data = {}
   data['edit_subscription'] = True
+  data['pro_link_form'] = ProLinkForm()
 
   # try:
   #   user_subscription = SubscriptionInfo.objects.get(user=u)
@@ -165,6 +166,7 @@ def edit_subscription(request):
   data['form'] = form
 
   return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def change_password(request):
@@ -604,6 +606,7 @@ def privacy(request):
   return render_to_response("accounts/privacy.html", data,
                                   context_instance=RequestContext(request))
 
+
 @login_required
 def host_unlink(request):
 
@@ -616,11 +619,34 @@ def host_unlink(request):
 
 
 @login_required
+def pro_link(request):
+  u = request.user
+  profile = u.get_profile()
+
+  if profile.is_host():
+    form = ProLinkForm(request.POST or None)
+    if form.is_valid():
+      pro = User.objects.get(email=form.cleaned_data['email'])
+      my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+      messages.success(request, "You were successfully linked to the pro %s." % pro.email)
+    if form.errors:
+      messages.error(request, form.errors)
+
+  return HttpResponseRedirect(reverse('edit_subscription'))
+
+
+@login_required
 def pro_unlink(request):
 
-  data = {}
-
   u = request.user
+  profile = u.get_profile()
+
   # unlink current user's pro
+  if profile.is_host():
+    MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
+    messages.success(request, "You have been successfully unlinked from the Pro.")
+  elif profile.is_taster():
+    # seems there's no way to unlink a pro for taster because no direct link
+    pass
 
   return HttpResponseRedirect(reverse("edit_subscription"))

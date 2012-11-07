@@ -329,3 +329,16 @@ class VinelyEmailAuthenticationForm(EmailAuthenticationForm):
 
   def __init__(self, request=None, *args, **kwargs):
     super(VinelyEmailAuthenticationForm, self).__init__(request, *args, **kwargs)
+
+
+class ProLinkForm(forms.Form):
+  email = forms.EmailField(label="Vinely Pro (Email)")
+
+  def clean_email(self):
+    cleaned_email = self.cleaned_data['email'].strip().lower()
+    pro_group = Group.objects.get(name="Vinely Pro")
+
+    if not User.objects.filter(email=cleaned_email, groups__in=[pro_group]).exists():
+      raise forms.ValidationError('Pro with the email %s does not exist' % (cleaned_email))
+
+    return cleaned_email

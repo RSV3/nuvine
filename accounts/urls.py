@@ -23,4 +23,7 @@ urlpatterns = patterns('',
   url(r'^terms/$', 'accounts.views.terms', name="terms"),
   url(r'^privacy/$', 'accounts.views.privacy', name='privacy'),
   url(r'^make/(?P<account_type>\w+)/$', 'accounts.views.make_pro_host', name='make_pro_host'),
+  url(r'^unlink/pro/$', 'accounts.views.pro_unlink', name='pro_unlink'),
+  url(r'^unlink/host/$', 'accounts.views.host_unlink', name='host_unlink'),
+  url(r'^link/pro/$', 'accounts.views.pro_link', name='pro_link'),
 )
