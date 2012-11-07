@@ -13,6 +13,8 @@ from datetime import date, timedelta
 import binascii, string, math
 from stripecard.models import StripeCard
 
+from personality.models import WineRatingData
+
 # Create your models here.
 
 
@@ -191,9 +193,7 @@ class UserProfile(models.Model):
 
   def personality_rating_code(self):
     # calculate rating code
-    from personality.models import WineRatingData
-
-    ratings = WineRatingData.objects.filter(user=self.user).order_by('wine__id')
+    ratings = WineRatingData.objects.filter(user=self.user).order_by('wine__number')
     r = [x.overall for x in ratings]
 
     L = []; D = []; N = [];
@@ -214,8 +214,30 @@ class UserProfile(models.Model):
     from main.models import CustomizeOrder
     try:
       pref = CustomizeOrder.objects.get(user=self.user)
-      if pref.wine_mix == 0:
-        return "Vinely Recommendation"
+      if pref.wine_mix == 0:  # Vinely recommendation
+        whites = [1, 2, 3]
+        reds = [4, 5, 6]
+
+        # use the wine ratings
+        likes_reds = WineRatingData.objects.filter(user=self.user, wine__number__in=reds, overall__gt=3).exists()
+        likes_whites = WineRatingData.objects.filter(user=self.user, wine__number__in=whites, overall__gt=3).exists()
+        if likes_reds and likes_whites:
+          return "Both"
+        elif likes_reds:
+          return "Red"
+        elif likes_whites:
+          return "White"
+        else:
+          neutral_whites = WineRatingData.objects.filter(user=self.user, wine__number__in=whites, overall=3).exists()
+          neutral_reds = WineRatingData.objects.filter(user=self.user, wine__number__in=whites, overall=3).exists()
+          if neutral_reds and neutral_whites:
+            return "Both"
+          elif neutral_whites:
+            return "White"
+          elif neutral_reds:
+            return "Red"
+          else:
+            return "-"
       elif pref.wine_mix == 1:
         return "Both"
       elif pref.wine_mix == 2:

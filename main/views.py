@@ -77,6 +77,10 @@ def home(request):
     sp_group = Group.objects.get(name='Supplier')
     tas_group = Group.objects.get(name='Vinely Taster')
 
+    # suppliers go directly to orders page
+    # if sp_group in u.groups.all():
+    #   return HttpResponseRedirect(reverse('supplier_all_orders'))
+
     today = timezone.now()
 
     data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
