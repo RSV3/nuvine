@@ -19,7 +19,8 @@ from accounts.models import VerificationQueue, Zipcode
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
-                        CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm
+                        CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
+                        ChangeTasterRSVPForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -1048,6 +1049,18 @@ def party_add(request):
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 
+def party_change_taster_rsvp(request):
+  form = ChangeTasterRSVPForm(request.POST or None)
+  if form.is_valid():
+    guests = request.POST.getlist('guests')
+    party = form.cleaned_data.get('party', 0)
+    today = timezone.now()
+    guest_list = [int(x) for x in guests]
+    PartyInvite.objects.filter(invitee__id__in=guest_list).update(response=form.cleaned_data['rsvp'], response_timestamp=today)
+
+  return HttpResponseRedirect(reverse('party_details', args=[party]))
+
+
 @login_required
 def party_details(request, party_id):
   """
@@ -1077,11 +1090,13 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
+  data['rsvp_form'] = ChangeTasterRSVPForm(initial={'party': party_id})
+
   # tasters should only see list of people that they invited
   if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
-    invitees = PartyInvite.objects.filter(party=party)
+    invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name')
   else:
-    invitees = PartyInvite.objects.filter(party=party, invited_by=u)
+    invitees = PartyInvite.objects.filter(party=party, invited_by=u).order_by('invitee__first_name')
 
   data["party"] = party
   data["invitees"] = invitees
@@ -1306,6 +1321,10 @@ def party_customize_invite(request):
 
   # TODO: show that the following invitation will be sent
   data = {}
+
+  # change RSVP uses same form
+  if request.POST.get('change_rsvp'):
+    return party_change_taster_rsvp(request)
 
   if request.method == 'POST':
     guests = request.POST.getlist('guests')
@@ -1988,8 +2007,8 @@ def party_select(request):
 
   # check if there's a party that has not ordered a kit, exclude completed orders
   parties = Party.objects.filter(host=u, event_date__gte=today)
-  cart = Cart.objects.filter(user = u, party__in = parties, status = Cart.CART_STATUS_CHOICES[5][0])
-  parties = parties.exclude(id__in = [x.party.id for x in cart])
+  cart = Cart.objects.filter(user=u, party__in=parties, status=Cart.CART_STATUS_CHOICES[5][0])
+  parties = parties.exclude(id__in=[x.party.id for x in cart])
   data['parties'] = parties
   data["parties_menu"] = True
 
@@ -2123,11 +2142,12 @@ def print_rating_cards(request, party_id):
 ################################################################################
 
 from django.views.decorators.csrf import csrf_exempt
-from accounts.forms import NameEmailUserMentorCreationForm
+
 
 @csrf_exempt
 def fb_vinely_event(request):
   return vinely_event(request, fb_page=1)
+
 
 def vinely_event(request, fb_page=0):
   data = {}
@@ -2138,12 +2158,13 @@ def vinely_event(request, fb_page=0):
   context = RequestContext(request, data)
   page = event_template.render(context)
   data['event_content'] = page
-  
+
   return render_to_response("main/vinely_event.html", data, context)
 
-#@csrf_exempt
+
 def fb_vinely_event_signup(request, party_id):
   return vinely_event_signup(request, party_id, 1)
+
 
 def vinely_event_signup(request, party_id, fb_page=0):
   # Added Oct 2 2012 - Billy
@@ -2154,13 +2175,11 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data = {}
   data['fb_view'] = fb_page
   today = timezone.now()
-  try:
-    party = Party.objects.get(pk=party_id, event_date__gte = today)
-  except:
-    raise Http404
+
+  party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
 
   # create users and send e-mail notifications
-  form = EventSignupForm(request.POST or None, initial = {'account_type': account_type, 'vinely_event': True})
+  form = EventSignupForm(request.POST or None, initial={'account_type': account_type, 'vinely_event': True})
 
   if form.is_valid():
     # if user already exists just add them to the event dont save

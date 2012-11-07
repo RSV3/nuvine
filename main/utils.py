@@ -357,13 +357,13 @@ def send_new_party_scheduled_email(request, party):
               "host_name": request.get_host()})
 
   txt_message = txt_template.render(c)
-  c.update({'sig':True})
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # notify about scheduled party
   recipients = [party.host.email]
-  subject = 'Your Vinely Party has been Scheduled!'  
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  subject = 'Your Vinely Party has been Scheduled!'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <%s>' % request.user.email)
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)

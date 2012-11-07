@@ -439,3 +439,13 @@ class EventSignupForm(NameEmailUserCreationForm):
       cleaned['email'] = cleaned['email'].strip().lower()
     return cleaned
 
+
+class ChangeTasterRSVPForm(forms.Form):
+  RSVP_CHOICES = (
+    (0, '------'),
+    (1, 'No'),
+    (2, 'Maybe'),
+    (3, 'Yes'),
+  )
+  party = forms.IntegerField(widget=forms.HiddenInput())
+  rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
