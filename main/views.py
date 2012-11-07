@@ -1585,17 +1585,28 @@ def supplier_orders_filter(request, history_list=False):
     '-track': '-tracking_number',
   }
 
+  u = request.user
+
   data = {}
   data['supplier_history_view'] = history_list
   data['supplier_all_view'] = not history_list
+
+  # split orders shown by state. Supplier only sees orders to their state
+  active_state = None
+  if u.email == 'mi_sales@vinely.com':
+    active_state = 'MI'
+  elif u.email == 'sales@vinely.com':
+    active_state = 'MA'
+
+  zipcodes = Zipcode.objects.filter(state=active_state).values('code')
 
   page_num = request.GET.get('p', 1)
   sort = request.GET.get('sort')
   if sort:
     fld = sort_field.get(sort, 'order_date')
-    orders = Order.objects.all().order_by(fld)
+    orders = Order.objects.filter(shipping_address__zipcode__in=zipcodes).order_by(fld)
   else:
-    orders = Order.objects.all().order_by('order_date')
+    orders = Order.objects.filter(shipping_address__zipcode__in=zipcodes).order_by('order_date')
 
   paginator = Paginator(orders, 20)
   try:
