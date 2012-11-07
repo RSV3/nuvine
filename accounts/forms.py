@@ -6,6 +6,7 @@ from emailusernames.forms import EmailUserChangeForm
 
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
+from main.models import CustomizeOrder
 
 from main.utils import UTC
 from datetime import datetime, timedelta
@@ -231,6 +232,8 @@ class PaymentForm(forms.ModelForm):
 
 
 class UpdateSubscriptionForm(forms.ModelForm):
+  wine_mix = forms.ChoiceField(choices=CustomizeOrder.MIX_CHOICES)
+  sparkling = forms.ChoiceField(choices=CustomizeOrder.SPARKLING_CHOICES)
 
   class Meta:
     model = SubscriptionInfo

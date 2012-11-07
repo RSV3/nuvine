@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog
+from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
@@ -135,6 +135,7 @@ def edit_subscription(request):
     - Cancel
     - Change product
     - Change frequency
+    - Change Wine mix preferences
   """
 
   u = request.user
@@ -153,9 +154,23 @@ def edit_subscription(request):
   else:
     user_subscription = None
 
-  form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription)
+  try:
+    custom_order = CustomizeOrder.objects.get(user=u)
+    wine_mix = custom_order.wine_mix
+    sparkling = custom_order.sparkling
+  except CustomizeOrder.DoesNotExist:
+    wine_mix = None
+    sparkling = None
+
+  initial_data = {'wine_mix': wine_mix, 'sparkling': sparkling}
+
+  form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
     form.save()
+    custom_order, created = CustomizeOrder.objects.get_or_create(user=u)
+    custom_order.wine_mix = form.cleaned_data['wine_mix']
+    custom_order.sparkling = form.cleaned_data['sparkling']
+    custom_order.save()
     messages.success(request, "Your subscription will be updated for the next month.")
 
   data['invited_by'] = my_host(u)

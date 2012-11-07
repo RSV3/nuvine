@@ -199,7 +199,7 @@ class UserProfile(models.Model):
     L = []; D = []; N = [];
     likes = ''; dislikes = ''; neutrals = '';
 
-    for i,x in enumerate(r):
+    for i, x in enumerate(r):
       if x < 3: D.append(i + 1)
       elif x == 3: N.append(i + 1)
       elif x > 3: L.append(i + 1)
