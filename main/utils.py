@@ -283,7 +283,7 @@ def send_order_shipped_email(request, order):
     recipients.append(sender_email)
 
   subject = 'Order ID: %s has been shipped!' % order.order_id
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, 
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Order <order@vinely.com>'
 
@@ -295,24 +295,24 @@ def send_order_shipped_email(request, order):
   msg.send()
 
 def send_host_vinely_party_email(request, user, pro=None):
-  
+
   template = Section.objects.get(template__key='host_vinely_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  
+
   profile = user.get_profile()
 
-  c = RequestContext( request, {"first_name": user.first_name if user.first_name else "Vinely", 
+  c = RequestContext(request, {"first_name": user.first_name if user.first_name else "Vinely",
                                 "last_name": user.last_name if user.last_name else "Fan",
                                 "email": user.email,
                                 "pro_first_name": pro.first_name if pro else "Care Specialist",
                                 "phone": profile.phone,
                                 "host_name": request.get_host(),
-                                "zipcode":user.get_profile().zipcode})
+                                "zipcode": user.get_profile().zipcode})
 
   txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
+
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # new engagement interest
@@ -320,9 +320,9 @@ def send_host_vinely_party_email(request, user, pro=None):
   if pro:
     recipients.append(pro.email)
 
-  # notify interest in hosting to Vinely Pro or vinely sales 
+  # notify interest in hosting to Vinely Pro or vinely sales
   subject = 'A Vinely Taste Party is ready to be scheduled'
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <%s>' % user.email)
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
@@ -338,17 +338,17 @@ def send_host_vinely_party_email(request, user, pro=None):
     msg.send()
 
   # return text message for display
-  return txt_message 
+  return txt_message
 
 def send_new_party_scheduled_email(request, party):
 
   template = Section.objects.get(template__key='new_party_scheduled_email', category=0)
   txt_template = Template(template.content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x])) #Template("<pre>%s</pre>" % content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))  #Template("<pre>%s</pre>" % content)
 
   profile = request.user.get_profile()
 
-  c = RequestContext( request, {"host_first_name": party.host.first_name if party.host.first_name else "Superb Host", 
+  c = RequestContext(request, {"host_first_name": party.host.first_name if party.host.first_name else "Superb Host",
               "pro_email": request.user.email,
               "pro_phone": profile.phone,
               "pro_first_name": request.user.first_name,

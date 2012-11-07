@@ -1045,7 +1045,6 @@ def party_add(request):
 
     initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
     form = PartyCreateForm(initial=initial_data)
-    hos_group = Group.objects.get(name="Vinely Host")
 
   data["form"] = form
   data["parties_menu"] = True
