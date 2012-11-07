@@ -343,10 +343,9 @@ def make_pro_host(request, account_type):
         except User.DoesNotExist:
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
-        send_host_vinely_party_email(request, u)  # to vinely
+        send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         u.groups.clear()
         u.groups.add(hos_group)
-        u.groups.remove(tas_group)
         messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
         return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
 

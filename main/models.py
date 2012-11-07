@@ -50,7 +50,10 @@ class Party(models.Model):
   event_date = models.DateTimeField()
 
   def __unicode__(self):
-    return self.title
+    if self.host.first_name:
+      return "%s by %s <%s>" % (self.title, self.host.first_name, self.host.email)
+    else:
+      return "%s by <%s>" % (self.title, self.host.email)
 
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()

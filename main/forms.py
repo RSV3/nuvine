@@ -6,7 +6,7 @@ from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote
+                        InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address
 
 import uuid, string
@@ -63,7 +63,7 @@ class PartyCreateForm(forms.ModelForm):
     # only show addresses that pro has dealt with before
     self.fields['address'].queryset = addresses
 
-    my_hosts = Party.objects.filter(organizedparty__pro=initial.get('pro'))
+    my_hosts = MyHost.objects.filter(pro=initial.get('pro'))
     users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
     self.fields['host'].choices = [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
@@ -154,19 +154,19 @@ class PartyInviteTasterForm(forms.ModelForm):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
 
     initial = kwargs.get('initial')
-    att_group = Group.objects.get(name="Vinely Taster")
+    tas_group = Group.objects.get(name="Vinely Taster")
 
     if initial.get('host'):
       # only get users linked to this host
       my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
     elif initial.get('pro'):
       # only get users linked to this host
       my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[att_group]).order_by('first_name')
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
     else:
       # everything
-      users = User.objects.filter(groups__in=[att_group])
+      users = User.objects.filter(groups__in=[tas_group])
 
     self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
