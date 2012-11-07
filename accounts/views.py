@@ -646,7 +646,8 @@ def pro_link(request):
       messages.success(request, "You were successfully linked to the pro %s." % pro.email)
     if form.errors:
       messages.error(request, form.errors)
-
+  else:
+    messages.error(request, "Only Hosts can link to Pro's at the moment")
   return HttpResponseRedirect(reverse('edit_subscription'))
 
 
@@ -662,6 +663,6 @@ def pro_unlink(request):
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
     # seems there's no way to unlink a pro for taster because no direct link
-    pass
+    messages.error(request, "Only Hosts can unlink from their Pro's at the moment")
 
   return HttpResponseRedirect(reverse("edit_subscription"))
