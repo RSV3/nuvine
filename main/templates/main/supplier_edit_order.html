@@ -162,9 +162,12 @@
               <h3>Wine Preference</h3>
               <br />
               <p>Personality: <a href="{% url personality_details order.receiver.id order.order_id %}">{{ order.receiver_personality }}</a></p>
-              <p>Taste Code: <a href="#" class="taste-code" rel="popover" data-trigger="hover"
-                   data-content="And here's some amazing content. It's very engaging. right?">
-                   {{ order.receiver.userprofile.personality_rating_code }}</a>
+              <p>Taste Code: 
+                {% with rating_summary=order.receiver.userprofile.personality_rating_code %}
+                  <a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
+                      data-content="{{ rating_summary.1 }}">
+                      {{ rating_summary.0 }}</a>
+                {% endwith %}                
               </p>
               <p>Red/White: {{ order.receiver.userprofile.order_customization_pref }}</p>
               <p>Bubbles: {{ customization.get_sparkling_display }}</p>

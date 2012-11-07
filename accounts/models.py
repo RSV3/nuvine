@@ -192,23 +192,46 @@ class UserProfile(models.Model):
     return self.role() == 'taster'
 
   def personality_rating_code(self):
+    html = '''
+    <center>
+    <table class='table table-striped'>
+      <thead>
+        <tr>
+          <th>Wine</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        %s
+      </tbody>
+    </table>
+    </center>
+    '''
     # calculate rating code
     ratings = WineRatingData.objects.filter(user=self.user).order_by('wine__number')
     r = [x.overall for x in ratings]
 
     L = []; D = []; N = [];
     likes = ''; dislikes = ''; neutrals = '';
-
+    rows = ''
     for i, x in enumerate(r):
-      if x < 3: D.append(i + 1)
-      elif x == 3: N.append(i + 1)
-      elif x > 3: L.append(i + 1)
+      if x < 3:
+        D.append(i + 1)
+        rows += "<tr><td>%s</td><td>%s</td></tr>" % (i + 1, "-")
+      elif x == 3:
+        N.append(i + 1)
+        rows += "<tr><td>%s</td><td>%s</td></tr>" % (i + 1, "Neutral")
+      elif x > 3:
+        L.append(i + 1)
+        rows += "<tr><td>%s</td><td>%s</td></tr>" % (i + 1, "Likes")
 
+    html = html % rows
     likes = "L" + "".join(map(str, L)) if len(L) > 0 else ""
     neutrals = "N" + "".join(map(str, N)) if len(N) > 0 else ""
     dislikes = "D" + "".join(map(str, D)) if len(D) > 0 else ""
     code = likes + neutrals  # + dislikes
-    return code if code else "-"
+    code = code if code else "-"
+    return (code, html)
 
   def order_customization_pref(self):
     from main.models import CustomizeOrder
