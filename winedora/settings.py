@@ -246,11 +246,12 @@ if DEPLOY:
   EMAIL_HOST_USER = os.environ.get('MAILGUN_SMTP_LOGIN')
   EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_SMTP_PASSWORD')
 else:
-  EMAIL_HOST = 'smtp.gmail.com'
-  EMAIL_PORT = 587
-  EMAIL_HOST_USER = 'tech@vinely.com'
-  EMAIL_HOST_PASSWORD = 'hi2winedora'
-  EMAIL_USE_TLS = True
+  EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+  #EMAIL_HOST = 'smtp.gmail.com'
+  #EMAIL_PORT = 587
+  #EMAIL_HOST_USER = 'tech@vinely.com'
+  #EMAIL_HOST_PASSWORD = 'hi2winedora'
+  #EMAIL_USE_TLS = True
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
