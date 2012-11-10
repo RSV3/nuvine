@@ -1233,15 +1233,16 @@ def party_taster_invite(request, party_id=0):
         initial_data.update({'party': party})
         form = PartyInviteTasterForm(initial=initial_data)
 
-    today = timezone.now()
+    # use yesterday to filter event so that people can invite more people
+    yesterday = timezone.now() - timedelta(days=1)
     if tas_group in u.groups.all():
-      parties = Party.objects.filter(partyinvite__invitee=u, event_date__gt=today)
+      parties = Party.objects.filter(partyinvite__invitee=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
     elif hos_group in u.groups.all():
-      parties = Party.objects.filter(host=u, event_date__gt=today)
+      parties = Party.objects.filter(host=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
     elif pro_group in u.groups.all():
-      parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=today)
+      parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
 
     data["form"] = form
