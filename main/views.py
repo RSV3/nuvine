@@ -1215,20 +1215,6 @@ def party_taster_invite(request, party_id=0):
         new_invite.save()
 
         new_invitee = new_invite.invitee
-
-        if new_invitee.is_active is False:
-          # new user created through party invitation
-          temp_password = User.objects.make_random_password()
-          new_invitee.set_password(temp_password)
-          new_invitee.save()
-
-          verification_code = str(uuid.uuid4())
-          vque = VerificationQueue(user=new_invitee, verification_code=verification_code)
-          vque.save()
-
-          # send an invitation e-mail, new user created
-          send_new_invitation_email(request, verification_code, temp_password, new_invite)
-
         # removed following lines since invitation get sent in a batch from the UI
         #else:
         #  send_party_invitation_email(request, new_invite)

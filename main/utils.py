@@ -1,11 +1,11 @@
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 
 from main.models import Order, EngagementInterest, MyHost, PartyInvite
 from support.models import Email
-from accounts.models import VinelyProAccount
+from accounts.models import VinelyProAccount, VerificationQueue
 from datetime import tzinfo, timedelta
 from cms.models import Section
 
@@ -385,21 +385,9 @@ def distribute_party_invites_email(request, invitation_sent):
 
   host_user = invitation_sent.party.host
   inviting_user = request.user
-  c = RequestContext(request, {"party": invitation_sent.party,
-              "custom_message": invitation_sent.custom_message,
-              "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
-              "invite_host_email": host_user.email,
-              "host_name": request.get_host(), "rsvp_date": rsvp_date,
-              "plain": True})
-  txt_message = txt_template.render(c)
-  c.update({'sig': True, 'plain': False})
-  html_message = html_template.render(c)
 
-  # send out party invitation e-mail
   subject = invitation_sent.custom_subject
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
-                                                            'header': 'Good wine and good times await',
-                                                            'message': html_message, 'host_name': request.get_host()}))
+
   from_email = 'Vinely Party Invite <welcome@vinely.com>'
   if inviting_user.first_name:
     from_email = 'Invitation from %s %s <welcome@vinely.com>' % (inviting_user.first_name, inviting_user.last_name)
@@ -407,6 +395,38 @@ def distribute_party_invites_email(request, invitation_sent):
     from_email = 'Invitation from %s %s <welcome@vinely.com>' % (host_user.first_name, host_user.last_name)
 
   for guest in invitation_sent.guests.all():
+    c = RequestContext(request, {"party": invitation_sent.party,
+                "custom_message": invitation_sent.custom_message,
+                "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
+                "invite_host_email": host_user.email,
+                "host_name": request.get_host(), "rsvp_date": rsvp_date,
+                "plain": True})
+    if guest.is_active is False:
+      # new user created through party invitation
+      temp_password = User.objects.make_random_password()
+      guest.set_password(temp_password)
+      guest.save()
+
+      if VerificationQueue.objects.filter(user=guest, verified=False).exists():
+        vque = VerificationQueue.objects.filter(user=guest, verified=False).order_by('-created')[0]
+        verification_code = vque.verification_code
+      else:
+        verification_code = str(uuid.uuid4())
+        vque = VerificationQueue(user=guest, verification_code=verification_code)
+        vque.save()
+
+      # include verification code
+      c.update({'verification_code': verification_code,
+                'temp_password': temp_password})
+
+    txt_message = txt_template.render(c)
+    c.update({'sig': True, 'plain': False})
+    html_message = html_template.render(c)
+
+    # send out party invitation e-mail
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                              'header': 'Good wine and good times await',
+                                                              'message': html_message, 'host_name': request.get_host()}))
     recipients = [guest.email]
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()

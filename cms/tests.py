@@ -522,10 +522,7 @@ class SimpleTest(TestCase):
     What's a Vinely Party? Think of it as learning through drinking.  It's part wine tasting.
     Part personality test.  And part... well... party.
 
-    The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy 
-    and the ones you could do without. After sipping, savoring, and rating each wine, we'll 
-    assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly 
-    paired to your taste - right to your doorstep.
+    The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.
 
       Party: "{{ party.title }}"
       Host: {{ invite_host_name }} <{{ invite_host_email }}>
@@ -533,6 +530,16 @@ class SimpleTest(TestCase):
       Date: {{ party.event_date|date:"F j, o" }}
       Time: {{ party.event_date|date:"g:i A" }}
       Location: {{ party.address.full_text }}
+
+    {% if verification_code %}
+    To manage your invitation and follow the party, we have created a new account for you.
+
+    Copy this verification code: {{ temp_password }} and click the following link
+
+      http://{{ host_name }}{% url verify_account verification_code %}
+
+    to verify your e-mail address and create a new password.
+    {% endif %}
 
     {% if custom_message %}
     {{ custom_message }}
@@ -574,7 +581,10 @@ class SimpleTest(TestCase):
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_email }}", description="E-mail of the host that is hosting the party.")
     template.variables_legend.add(variable)
-
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="E-mail verification link.")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ temp_pssword }}", description="Temporarily created password to verify account.")
+    template.variables_legend.add(variable)
 
   def create_rsvp_thank_you_email_template(self):
     content = """

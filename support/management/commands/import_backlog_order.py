@@ -157,11 +157,6 @@ class Command(BaseCommand):
 
       customer_full_name = "%s %s" % (u.first_name, u.last_name)
 
-          # TODO: generate verification e-mail,
-        #       e-mail user account created in the welcome e-mail
-
-
-
       # create receiver user
       if u.email == row[RECIPIENT_EMAIL].strip().lower():
         receiver = u
@@ -305,6 +300,12 @@ class Command(BaseCommand):
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
 
+      # shipped already
+      order.fulfill_status = 6
+      order.save()
+
+      """
+      # Don't send e-mail for now
       # send out verification e-mail, create a verification code
       request = HttpRequest()
       request.META['SERVER_NAME'] = "www.vinely.com"
@@ -318,4 +319,4 @@ class Command(BaseCommand):
         send_order_added_email(request, order.order_id, u.email, customer_verification_code, customer_temp_password)
         send_order_added_email(request, order.order_id, receiver.email, receiver_verification_code, receiver_temp_password)
       send_to_supplier_order_added_email(request, order.order_id)
-
+      """
