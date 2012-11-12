@@ -19,7 +19,16 @@ class AddTasterRatingsForm(forms.ModelForm):
   class Meta:
     model = User
     exclude = ['username', 'password', 'last_login', 'date_joined']
-  
+
+  def clean(self):
+    cleaned_data = super(AddTasterRatingsForm, self).clean()
+
+    if 'email' in cleaned_data:
+      cleaned_data['email'] = cleaned_data['email'].strip().lower()
+
+    return cleaned_data
+
+
 from django.utils.safestring import mark_safe
 class CustomRadioField(forms.RadioSelect.renderer):
   def render(self):

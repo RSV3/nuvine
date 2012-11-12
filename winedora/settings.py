@@ -252,6 +252,7 @@ else:
   #EMAIL_HOST_USER = 'tech@vinely.com'
   #EMAIL_HOST_PASSWORD = 'hi2winedora'
   #EMAIL_USE_TLS = True
+  EMAIL_FILE_PATH = PROJECT_ROOT + '/emails/'
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
