@@ -34,7 +34,7 @@ class MyHostAdmin(admin.ModelAdmin):
   list_display_links = ('id', )
   list_editable = ('pro', )
   ordering = ['-timestamp']
-  search_fields = ['host__first_name', 'host__last_name']
+  search_fields = ['host__first_name', 'host__last_name', 'host__email']
 
   def pro_info(self, instance):
     return "%s %s <%s>" % (instance.pro.first_name, instance.pro.last_name, instance.pro.email)

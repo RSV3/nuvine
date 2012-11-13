@@ -334,31 +334,53 @@ def send_thank_valued_member_email(request, verification_code, temp_password, re
 
   {% load static %}
 
-  Dear Valued Vinely member,
+Dear Valued Vinely member,
 
-  Thank you for being part of Vinely when we were a baby.  We now have online presence to serve your needs better.
+You're probably asking "Who is Vinely? Why are they emailing me?" Don't fret, Vinely is just a new
+name for the same great company you've already fallen in love with. You may have known us previously
+as Winedora, or you might have just known us as the tasting party that introduced you to your Wine
+Personality. Either way, we wanted to let you know we've changed names and invite you to check out
+our new site.
 
-  Your new account has been automatically created. Please verify your e-mail address and create a new password by going to:
+<h1>Vinely.com</h1>
+<h2>Great features that make your life easier.</h2>
 
-  http://{{ host_name }}{% url verify_account verification_code %}
+<ul>
+<li>Access your account 24/7</li>
+<li>Make purchases</li>
+<li>Adjust your subscriptions</li>
+<li>Rate wines from your shipments</li>
+<li>Sign up to host a taste party</li>
+<li>and much more</li>
+</ul>
 
-  Your temporary password is: {{ temp_password }}
+We've taken the first step by integrating your tasting data and your personality into an account for you, take the next step and activate it using the link and temporary password below.
 
-  Use this password to verify your account.
-  
+    {% if verification_code %}
+    Copy your temporary password: {{ temp_password }}
+
+    Verify and create new password by clicking the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a>:
+
+      https://{{ host_name }}{% url verify_account verification_code %}
+    {% endif %}
+
+We're still helping people discover their Wine Personalities, and shipping to wherever you're sipping, now as Vinely.
+
+Be sure to keep up on the latest Vinely news, events and SipBits. Follow us through <a href="http://www.facebook.com/vinelywine">Facebook</a>, <a href="http://www.twitter.com/vinelywine">Twitter</a>, and <a href="http://www.pinterest.com/vinely">Pinterest</a>.
+
   {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
-    Your Tasteful Friends,
+Your Tasteful Friends,
 
-    - The Vinely Team
+- The Vinely Team
 
   """
   # template = Section.objects.get(template__key='thank_valued_member_email', category=0)
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
-  
+
   if request:
-    c = RequestContext( request, {"host_name": request.get_host() if request else "www.vinely.com",
+    c = RequestContext(request, {"host_name": request.get_host() if request else "www.vinely.com",
                                   "verification_code": verification_code,
                                   "temp_password": temp_password,
                                   })
@@ -367,16 +389,18 @@ def send_thank_valued_member_email(request, verification_code, temp_password, re
                                   "verification_code": verification_code,
                                   "temp_password": temp_password,
                                   })
+
+  c.update({'headline': 'The best way to discover tastes you love is now Vinely!'})
   txt_message = txt_template.render(c)
-  
-  c.update({'sig':True})
+
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send out verification e-mail, create a verification code
-  subject = 'Come visit Vinely website!'
+  subject = 'Our new name is ... Vinely!'
   recipients = [receiver_email]
   if request:
-    html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   else:
     html_msg = render_to_string("email/base_email_lite.html", Context({'title': subject, 'message': html_message, 'host_name': "www.vinely.com"}))
 
@@ -387,7 +411,7 @@ def send_thank_valued_member_email(request, verification_code, temp_password, re
 
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
   msg.attach_alternative(html_msg, "text/html")
-  msg.send()  
+  msg.send()
 
 def check_zipcode(zipcode):
   '''

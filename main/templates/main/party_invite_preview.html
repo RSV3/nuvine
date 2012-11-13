@@ -18,7 +18,7 @@
     {% csrf_token %}
     {{ form.party }}
 
-    {{ form.errors }}
+    <!--{{ form.errors }}-->
     {% for g in guests %}
       <input type="hidden" value="{{ g }}" name="guests">
     {% endfor %}
@@ -28,7 +28,7 @@
         <table>
           <tbody>
             <tr>
-              <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
+              <td>To:</td><td>{% if guest_count %}{{ guest_count }} Guests{% else %}No Guests Invited Yet{% endif %} (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
             </tr>
             <tr>
               {% if taster %}

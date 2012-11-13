@@ -1442,6 +1442,8 @@ def party_send_invites(request):
 
       return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
 
+  if "party" not in data:
+    data["party"] = Party.objects.get(id=request.POST['party'])
   data["form"] = form
   data["parties_menu"] = True
 

@@ -123,7 +123,7 @@ class Command(BaseCommand):
     receiver_temp_password = None
     receiver_verification_code = None
 
-    wb = xlrd.open_workbook("docs/new_orders_10292012.xlsx")
+    wb = xlrd.open_workbook("data/new_orders_10292012.xlsx")
     sheet = wb.sheet_by_name("Orders")
 
     for rownum in range(1, 6):

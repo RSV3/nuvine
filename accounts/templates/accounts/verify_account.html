@@ -20,7 +20,7 @@
   </div>
   {% else %}
   <div class="row">
-    <div class="span8">
+    <div class="span12">
     Please verify that your e-mail address is {{ email }} and update your password.
     </div>
   </div>
@@ -30,16 +30,17 @@
     </div>
   </div>
   <div class="row">
-    <form class="form-horizontal well" method="POST" action="{% url verify_account verification_code %}">
-      {% csrf_token %}
+    <div class="span12">
+      <form class="form-horizontal well" method="POST" action="{% url verify_account verification_code %}">
+        {% csrf_token %}
 
-      {{ form.email }}
+        {{ form.email }}
 
-      {% if form.non_field_errors %}
-        <div class="alert alert-error">
-          {{ form.non_field_errors }}
-        </div>
-      {% endif %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-error">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
 
         <fieldset>
           <div class="control-group{% if form.temp_password.errors %} error{% endif %}">
@@ -79,7 +80,7 @@
         </fieldset>
 
       </form>
-    </div> <!-- span8 -->
+    </div>
   </div> <!-- row -->
   {% endif %}
 

@@ -12,7 +12,6 @@ sitestatic
 cache
 ssl
 *.old
-*.xlsx
 Vinely_experience_cards
 .DS_Store
 *~
