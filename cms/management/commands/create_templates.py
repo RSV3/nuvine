@@ -21,6 +21,11 @@ class Command(BaseCommand):
             dest='web',
             default=False,
             help='Recreate only the web templates'),
+    make_option('-n', '--activation',
+            action='store_true',
+            dest='activation',
+            default=False,
+            help='Create activate account e-mail template'),
     )
 
   def handle(self, *args, **options):
@@ -34,7 +39,7 @@ class Command(BaseCommand):
     #     if confirm == 'no':
     #         return
     #     break
-    
+
     s = SimpleTest()
     if options['email']:
       print "Recreating email templates"
@@ -50,6 +55,9 @@ class Command(BaseCommand):
         web.variables_legend.delete()
         web.delete()
       s.create_web_templates()
+    elif options['activation']:
+      s.create_account_activation_email_template()
+      print "Created activate account e-mail template"
     else:
       print "Recreating all templates"
       both = ContentTemplate.objects.all().delete()
