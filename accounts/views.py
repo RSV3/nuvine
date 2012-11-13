@@ -17,7 +17,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
                            HeardAboutForm, MakeHostProForm, ProLinkForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email
+                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
 
 from datetime import datetime, timedelta
 import math
@@ -209,6 +209,10 @@ def forgot_password(request):
 
   data = {}
 
+  if request.user.is_authenticated():
+    return render_to_response("accounts/already_authenticated.html", data,
+                              context_instance=RequestContext(request))
+
   form = ForgotPasswordForm(request.POST or None)
   if form.is_valid():
     # find user with this e-mail and assign temporary password
@@ -230,6 +234,34 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data,
                         context_instance=RequestContext(request))
 
+def activate_account(request):
+
+  data = {}
+
+  if request.user.is_authenticated():
+    return render_to_response("accounts/already_authenticated.html", data,
+                              context_instance=RequestContext(request))
+
+  form = ForgotPasswordForm(request.POST or None)
+  if form.is_valid():
+    # find user with this e-mail and assign temporary password
+    user = User.objects.get(email=form.cleaned_data['email'])
+    temp_password = User.objects.make_random_password()
+    user.set_password(temp_password)
+    user.save()
+
+    verification_code = str(uuid.uuid4())
+    vque = VerificationQueue(user=user, verification_code=verification_code, verification_type=VerificationQueue.VERIFICATION_CHOICES[1][0])
+    vque.save()
+
+    # send an e-mail with random password
+    send_account_activation_email(request, verification_code, temp_password, user)
+    data["changed_password"] = True
+    data["email"] = form.cleaned_data['email']
+
+  data['form'] = form
+  return render_to_response("accounts/activate_account.html", data,
+                        context_instance=RequestContext(request))
 
 @login_required
 def make_pro_host(request, account_type):

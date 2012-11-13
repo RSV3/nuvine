@@ -1,0 +1,22 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+    <div class="row">
+      <div class="offset2 span8">
+        You are currently logged in. Go back <a href="{% url home_page %}">home</a> or go to <a href="{% url my_information %}">My Account</a> to change your password.
+      </div>
+    </div>
+    <div class="row">
+      <div class="vertical-space-bottom">
+        <p>&nbsp;</p>
+      </div>
+    </div>
+
+</div>
+
+{% endblock content %}

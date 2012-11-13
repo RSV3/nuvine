@@ -225,7 +225,14 @@ class Command(BaseCommand):
         #customer_id = str(int(row[CUSTOMER_ID]))
         #profile.vinely_customer_id = customer_id.rjust(7, '0')
         if profile.zipcode is None and row[CUSTOMER_POSTAL_CODE]:
-          profile.zipcode = str(int(row[CUSTOMER_POSTAL_CODE])).rjust(5, '0')
+          billing_zipcode = str(int(row[CUSTOMER_POSTAL_CODE])).rjust(5, '0')
+          profile.zipcode = billing_zipcode
+        else:
+          billing_zipcode = ""
+        if row[RECIPIENT_POSTAL_CODE]:
+          recipient_zipcode = str(int(row[RECIPIENT_POSTAL_CODE])).rjust(5, '0')
+        else:
+          recipient_zipcode = ""
 
         shipping_address = Address(nick_name="Shipping",
                 company_co=row[RECIPIENT_COMPANY],
@@ -233,7 +240,7 @@ class Command(BaseCommand):
                 street2=row[RECIPIENT_ADDRESS2],
                 city=row[RECIPIENT_CITY],
                 state=row[RECIPIENT_STATE],
-                zipcode=row[RECIPIENT_POSTAL_CODE])
+                zipcode=recipient_zipcode)
         shipping_address.save()
         profile.shipping_address = shipping_address
 
@@ -241,7 +248,7 @@ class Command(BaseCommand):
                 street1=row[CUSTOMER_ADDRESS],
                 city=row[CUSTOMER_CITY],
                 state=row[CUSTOMER_STATE],
-                zipcode=row[CUSTOMER_POSTAL_CODE])
+                zipcode=billing_zipcode)
         billing_address.save()
 
         profile.billing_address = billing_address

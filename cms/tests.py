@@ -26,6 +26,7 @@ class SimpleTest(TestCase):
   def create_email_templates(self):
     self.create_verification_email_template()
     self.create_password_change_email_template()
+    self.create_account_activation_email_template()
     self.create_new_invitation_email_template()
     self.create_new_party_email_template()
     self.create_pro_request_email_template()
@@ -97,11 +98,49 @@ class SimpleTest(TestCase):
 
     Your Tasteful Friends,
 
-    - The Vinely Team 
+    - The Vinely Team
 
     """
     
     template = ContentTemplate(key="password_change_email", category=0)
+    template.save()
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+
+    variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="User's first name")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ role.name }}", description="User's role e.g. host, pro, taster")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="Account verification link")
+    template.variables_legend.add(variable)
+
+  def create_account_activation_email_template(self):
+    content = """
+
+    {% load static %}
+
+    Hey {% if first_name %}{{ first_name }}{% else %}{{ role.name }}{% endif %}!
+
+    The following information describes how you can get access to Vinely.
+
+    Copy the following temporary password: {{ temp_password }}
+
+    and go to the following link to activate your account.
+
+      http://{{ host_name }}{% url verify_account verification_code %}
+
+    If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
+
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+
+    template = ContentTemplate(key="account_activation_email", category=0)
     template.save()
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
 

@@ -1,0 +1,52 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  {% if changed_password %}
+    <div class="row">
+      <div class="offset2 span8">
+        You should be receiving an e-mail soon at {{ email }}. Please click the link in the e-mail to reset your password.
+      </div>
+    </div>
+    <div class="row">
+      <div class="vertical-space-bottom">
+        <p>&nbsp;</p>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="offset2 span8">
+        <form class="well form-horizontal" method="POST" action="{% url activate_account %}">
+          {% csrf_token %}
+          <fieldset>
+            <legend>Activate Account</legend>
+            Enter your e-mail address to and we'll send you your account information 
+            <div class="control-group{% if form.email.errors %} error{% endif %}">
+              <div class="control-label" for="id_email">{{ form.email.label }}</div>
+              <div class="controls">
+                {{ form.email }} 
+                {% if form.email.errors %}
+                  <span class="help-inline">
+                    {{ form.email.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input type="submit" class="btn btn-primary" value="Get Activation E-mail">
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock content %}

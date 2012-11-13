@@ -74,6 +74,42 @@ def send_password_change_email(request, verification_code, temp_password, user):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+def send_account_activation_email(request, verification_code, temp_password, user):
+
+  template = Section.objects.get(template__key='account_activation_email', category=0)
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  receiver_email = user.email
+
+  vinely_taster_group = Group.objects.get(name="Vinely Taster")
+  if user.groups.all().count() == 0:
+    # the user is in a weird state without a role, so assign taster
+    user.groups.add(vinely_taster_group)
+    user.save()
+
+  c = RequestContext(request, {"first_name": user.first_name,
+                                "role": user.groups.all()[0],
+                                "host_name": request.get_host(),
+                                "verification_code": verification_code,
+                                "temp_password": temp_password})
+  txt_message = txt_template.render(c)
+
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  subject = 'Activate your Vinely Account'
+  recipients = [receiver_email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = 'Vinely Support <support@vinely.com>'
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 def send_new_invitation_email(request, verification_code, temp_password, party_invite):
   '''
