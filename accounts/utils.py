@@ -364,13 +364,13 @@ def send_not_in_area_party_email(request, user, account_type):
   msg.send()
 
 
-def send_thank_valued_member_email(request, verification_code, temp_password, receiver_email):
+def send_thank_valued_member_email(request, verification_code, temp_password, receiver):
   # need to get host_name when request = None
   content = """
 
   {% load static %}
 
-Dear Valued Vinely member,
+Dear {{ receiver.first_name }},
 
 You're probably asking "Who is Vinely? Why are they emailing me?" Don't fret, Vinely is just a new
 name for the same great company you've already fallen in love with. You may have known us previously
@@ -378,8 +378,7 @@ as Winedora, or you might have just known us as the tasting party that introduce
 Personality. Either way, we wanted to let you know we've changed names and invite you to check out
 our new site.
 
-<h1>Vinely.com</h1>
-<h2>Great features that make your life easier.</h2>
+<h2>Vinely.com is full of great features including:</h2>
 
 <ul>
 <li>Access your account 24/7</li>
@@ -390,14 +389,15 @@ our new site.
 <li>and much more</li>
 </ul>
 
-We've taken the first step by integrating your tasting data and your personality into an account for you, take the next step and activate it using the link and temporary password below.
+We've integrated your taste data and your personality into an account just for you. Follow the steps below to activate it.
 
     {% if verification_code %}
-    Copy your temporary password: {{ temp_password }}
-
-    Verify and create new password by clicking the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a>:
+    <ul>
+    <li>Step One: Copy your temporary password {{ temp_password }}</li>
+    <li>Step Two: Click the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</li>  
 
       https://{{ host_name }}{% url verify_account verification_code %}
+    </ul>
     {% endif %}
 
 We're still helping people discover their Wine Personalities, and shipping to wherever you're sipping, now as Vinely.
@@ -419,11 +419,13 @@ Your Tasteful Friends,
     c = RequestContext(request, {"host_name": request.get_host() if request else "www.vinely.com",
                                   "verification_code": verification_code,
                                   "temp_password": temp_password,
+                                  "receiver": receiver
                                   })
   else:
     c = Context({"host_name": request.get_host() if request else "www.vinely.com",
                                   "verification_code": verification_code,
                                   "temp_password": temp_password,
+                                  "receiver": receiver
                                   })
 
   c.update({'headline': 'The best way to discover tastes you love is now Vinely!'})
@@ -434,7 +436,7 @@ Your Tasteful Friends,
 
   # send out verification e-mail, create a verification code
   subject = 'Our new name is ... Vinely!'
-  recipients = [receiver_email]
+  recipients = [receiver.email]
   if request:
     html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   else:

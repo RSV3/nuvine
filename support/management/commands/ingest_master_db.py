@@ -219,7 +219,7 @@ class Command(BaseCommand):
           request.session = {}
 
           # send out verification e-mail, create a verification code
-          send_thank_valued_member_email(request, verification_code, temp_password, user.email)
+          send_thank_valued_member_email(request, verification_code, temp_password, user)
 
         profile = user.get_profile()
 
