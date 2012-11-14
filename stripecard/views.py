@@ -14,19 +14,15 @@ from datetime import datetime, timedelta
 
 
 def shipping(plan):
-    shipping = 0
-    if plan.quantity in [5, 7, 9]:
-        # full case shipping = $32
-        shipping += 32
-    else:
-        # half case shipping = $16
-        shipping += 16
+    shipping = 16
     return shipping
 
 
-def tax(sub_total):
-    # TODO: tax needs to be calculated based on the state
-    tax = float(sub_total) * 0.06
+def tax(sub_total, profile):
+    if profile.shipping_address.state == 'MA':
+        tax = 0
+    else:
+        tax = float(sub_total) * 0.06
     return tax
 
 
@@ -71,7 +67,7 @@ def invoice_created(event_json):
     sub_total = data['subtotal']
     # only need to add shipping and tax info
     stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
-    stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total)), currency='usd', description='Tax')
+    stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total), profile), currency='usd', description='Tax')
 
 
 # NOTE: invoice_created_old below might be necessary once we allow multiple descriptions
