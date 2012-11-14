@@ -9,7 +9,7 @@
   {% if changed_password %}
     <div class="row">
       <div class="offset2 span8">
-        You should be receiving an e-mail soon at {{ email }}. Please click the link in the e-mail to reset your password.
+        You will receive an e-mail at {{ email }}. Please follow the instructions in the e-mail to reset your password. Please check your spam folder in case it gets spam filtered.  If you have not received an email within 10 min please try again. 
       </div>
     </div>
     <div class="row">
@@ -24,7 +24,7 @@
           {% csrf_token %}
           <fieldset>
             <legend>Activate Account</legend>
-            Enter your e-mail address to and we'll send you your account information 
+            Enter your e-mail address and we'll send you an email to verify your account.
             <div class="control-group{% if form.email.errors %} error{% endif %}">
               <div class="control-label" for="id_email">{{ form.email.label }}</div>
               <div class="controls">
