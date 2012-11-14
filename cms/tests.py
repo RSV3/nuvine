@@ -124,13 +124,14 @@ class SimpleTest(TestCase):
 
     The following information describes how you can get access to Vinely.
 
-    Copy the following temporary password: {{ temp_password }}
-
-    and go to the following link to activate your account.
+    <ul>
+    <li>Step 1: Copy the following temporary password {{ temp_password }}</li>
+    <li>Step 2: Click the following <a href="http://{{ host_name }}{% url verify_account verification_code %}">link</a> to activate your account.</li>
 
       http://{{ host_name }}{% url verify_account verification_code %}
+    </ul>
 
-    If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
+    If you don't know why you're receiving this email, you can e-mail us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
 
     {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
