@@ -65,6 +65,8 @@
         <p>{{ shipping_address.street2 }}</p>
         {% endif %}
         <p>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.zipcode }}</p>
+        <br />
+        <p>Phone: {{ cart.receiver.get_profile.phone }}</p>        
         <p><a href="{% url edit_shipping_address %}">Edit</a></p>
       </address>
     </div>

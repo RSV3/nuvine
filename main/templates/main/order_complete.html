@@ -34,6 +34,8 @@
         <p>{{ order.shipping_address.street2 }}</p>
         {% endif %}
         <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.zipcode }}</p>
+        <br />
+        <p>Phone: {{ order.receiver.get_profile.phone }}</p>
       </address>
       <p></p>
       <p><h3>Billing Information</h3></p>
