@@ -9,7 +9,8 @@ from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeO
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address
 
-import uuid, string
+import string
+from lepl.apps.rfc3696 import Email
 
 
 valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
@@ -171,26 +172,34 @@ class PartyInviteTasterForm(forms.ModelForm):
     self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
   def clean(self):
-    cleaned_data = super(PartyInviteTasterForm, self).clean()
 
+    cleaned_data = super(PartyInviteTasterForm, self).clean()
+    email_validator = Email()
     if 'invitee' not in cleaned_data:
       # create new host and return host ID
-      try:
-        user = User.objects.get(email=cleaned_data['email'].lower())
-      except User.DoesNotExist:
-        user = create_user(email=cleaned_data['email'].lower(), password='welcome')
-        user.first_name = cleaned_data['first_name']
-        user.last_name = cleaned_data['last_name']
-        user.is_active = False
-        user.save()
+      if email_validator(cleaned_data['email']):
 
-      if user.groups.all().count() == 0:
-        # add the user to Party Taster group
-        att_group = Group.objects.get(name="Vinely Taster")
-        user.groups.add(att_group)
-        user.save()
+        try:
+          user = User.objects.get(email=cleaned_data['email'].lower())
+        except User.DoesNotExist:
+          user = create_user(email=cleaned_data['email'].lower(), password='welcome')
+          user.first_name = cleaned_data['first_name']
+          user.last_name = cleaned_data['last_name']
+          user.is_active = False
+          user.save()
 
-      cleaned_data['invitee'] = user
+        if user.groups.all().count() == 0:
+          # add the user to Party Taster group
+          att_group = Group.objects.get(name="Vinely Taster")
+          user.groups.add(att_group)
+          user.save()
+        cleaned_data['invitee'] = user
+      else:
+        from django.forms.util import ErrorList
+        msg = 'Enter valid e-mail for the invitee.'
+        self._errors['email'] = ErrorList([msg])
+        del self.cleaned_data['email']
+      # delete error if we think user manually being filled out
       del self._errors['invitee']
 
     if 'party' in cleaned_data and 'invitee' in cleaned_data:
