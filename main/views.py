@@ -1366,6 +1366,7 @@ def party_customize_thanks_note(request):
   else:
     return PermissionDenied
 
+
 @login_required
 def party_send_thanks_note(request):
   """
@@ -1728,11 +1729,6 @@ def edit_shipping_address(request):
 
   valid_age = age_validity_form.is_valid()
 
-  if age_validity_form.is_valid():
-    profile = User.objects.get(id=u.id).get_profile()
-    profile.dob = age_validity_form.cleaned_data['dob']
-    profile.save()
-
   data['age_validity_form'] = age_validity_form
 
   # check zipcode is ok
@@ -1745,6 +1741,10 @@ def edit_shipping_address(request):
 
   if form.is_valid() and valid_age:
     receiver = form.save()
+
+    profile = receiver.get_profile()
+    profile.dob = age_validity_form.cleaned_data['dob']
+    profile.save()
 
     # update the receiver user
     request.session['receiver_id'] = receiver.id
@@ -1796,12 +1796,16 @@ def edit_shipping_address(request):
 
     if 'ordering' in request.session and request.session['ordering']:
       # only happens when user decided to edit the shipping address
+      cart = Cart.objects.get(id=request.session['cart_id'])
+      cart.receiver = receiver
+      cart.save()
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("place_order"))
     else:
       # update cart status
       cart = Cart.objects.get(id=request.session['cart_id'])
       cart.status = Cart.CART_STATUS_CHOICES[3][0]
+      cart.receiver = receiver
       cart.save()
 
       if cart.party is None:

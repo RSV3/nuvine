@@ -244,6 +244,8 @@ class Cart(models.Model):
   user = models.ForeignKey(User, null=True)
   items = models.ManyToManyField(LineItem)
   updated = models.DateTimeField(auto_now=True)
+  # need receiver to calculate taxing
+  receiver = models.ForeignKey(User, null=True, related_name="receiver")
 
   # to track the parties that resulted in orders
   party = models.ForeignKey(Party, null=True)
@@ -256,6 +258,8 @@ class Cart(models.Model):
       (4, 'FILLED BILLING'),
       (5, 'COMPLETED ORDER'),
   )
+
+  NO_TAX_STATES = ('MA',)
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
 
@@ -304,7 +308,10 @@ class Cart(models.Model):
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
-    tax = float(self.subtotal()) * 0.06
+    if self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
+      tax = 0
+    else:
+      tax = float(self.subtotal()) * 0.06
     return tax
 
   def total(self):
