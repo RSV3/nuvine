@@ -222,6 +222,12 @@ class Command(BaseCommand):
           send_thank_valued_member_email(request, verification_code, temp_password, user.email)
 
         profile = user.get_profile()
+
+        if row[RECIPIENT_HOME_PHONE]:
+          profile.phone = row[RECIPIENT_HOME_PHONE].strip()
+        if row[RECIPIENT_WORK_PHONE]:
+          profile.work_phone = row[RECIPIENT_WORK_PHONE].strip()
+
         #customer_id = str(int(row[CUSTOMER_ID]))
         #profile.vinely_customer_id = customer_id.rjust(7, '0')
         if profile.zipcode is None and row[CUSTOMER_POSTAL_CODE]:
@@ -255,13 +261,14 @@ class Command(BaseCommand):
 
         if row[CREDIT_CARD_NUMBER]:
           # create credit card
-          card_num = row[CREDIT_CARD_NUMBER].strip()
-          cvv_num = row[CREDIT_CARD_CVV].strip()
-          card_type = get_cc_type(row[CREDIT_CARD_NUMBER])
+          card_num = str(int(row[CREDIT_CARD_NUMBER])).strip()
+          cvv_num = str(int(row[CREDIT_CARD_CVV]) if row[CREDIT_CARD_CVV] else row[CREDIT_CARD_CVV]).strip()
+          card_type = get_cc_type(int(row[CREDIT_CARD_NUMBER]))
 
           billing_zipcode = row[BILLING_ZIPCODE]
           if not billing_zipcode:
             billing_zipcode = row[CUSTOMER_POSTAL_CODE]
+
           exp_date = datetime.strptime(row[CREDIT_CARD_EXPIRATION].strip(), "%m/%y")
           credit_card = CreditCard(nick_name=customer_email, card_number=card_num,
                       exp_month=exp_date.month, exp_year=exp_date.year, verification_code=cvv_num,
@@ -329,10 +336,10 @@ class Command(BaseCommand):
             # vinely recommendation
             customization.wine_mix = 0
 
-          if string.strip(row[SPARKLING]).lower() in ['yes']:
-            customization.sparkling = 1
-          else:
+          if string.strip(row[SPARKLING]).lower() in ['no']:
             customization.sparkling = 0
+          else:
+            customization.sparkling = 1
           customization.save()
 
         # create party

@@ -89,7 +89,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
   actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster]
-  search_fields = ['user__first_name', 'user__last_name']
+  search_fields = ['user__first_name', 'user__last_name', 'user__email']
 
   def user_image(self, instance):
     if instance.image:

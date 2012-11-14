@@ -151,6 +151,11 @@ class PartyInvite(models.Model):
     self.response_timestamp = datetime.now()
     self.save()
 
+  def __unicode__(self):
+    if self.invited_by:
+      return "%s invited by %s to %s" % (self.invitee.email, self.invited_by.email, self.party.title)
+    else:
+      return "%s invited to %s" % (self.invitee.email, self.party.title)
 
 class PersonaLog(models.Model):
   """
@@ -477,6 +482,9 @@ class CustomizeOrder(models.Model):
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
                                     default=SPARKLING_CHOICES[1][0])
   timestamp = models.DateTimeField(auto_now_add=True)
+
+  def __unicode__(self):
+    return "Mix: %s, Sparkling: %s" % (self.get_wine_mix_display(), self.get_sparkling_display())
 
 
 class EngagementInterest(models.Model):

@@ -324,6 +324,8 @@ class SubscriptionInfo(models.Model):
   next_invoice_date = models.DateField(auto_now_add=True)
   updated_datetime = models.DateTimeField(auto_now=True)
 
+  def __unicode__(self):
+    return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
 
 class Zipcode(models.Model):
   '''
