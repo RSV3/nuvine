@@ -83,6 +83,7 @@
           {% if order.credit_card %}
             <p>{{ order.credit_card.card_type }} {{ order.credit_card.decrypt_card_num }}</p>
             <p>CVV: {{ order.credit_card.decrypt_cvv }}</p>
+            <p>Exp Date: {{ order.credit_card.exp_month }}/{{ order.credit_card.exp_year }}</p>
             <p>Zipcode: {{ order.credit_card.billing_zipcode }}</p>
           {% else %}
             <p>Processed via Stripe w/ card ending in: {{ order.stripe_card.last_four }}</p>
