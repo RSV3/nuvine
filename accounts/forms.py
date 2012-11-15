@@ -90,7 +90,7 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   def clean(self):
     data = super(VerifyEligibilityForm, self).clean()
-    dob = data['dob']
+    dob = data.get('dob')
 
     if dob:
       today = datetime.date(datetime.now(tz=UTC()))
@@ -114,7 +114,7 @@ class AgeValidityForm(forms.ModelForm):
 
   def clean(self):
     data = super(AgeValidityForm, self).clean()
-    dob = data['dob']
+    dob = data.get('dob')
 
     if dob:
       today = datetime.date(datetime.now(tz=UTC()))
