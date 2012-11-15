@@ -445,7 +445,6 @@ Your Tasteful Friends,
                                   "receiver": receiver
                                   })
 
-  c.update({'headline': 'The best way to discover tastes you love is now Vinely!'})
   txt_message = txt_template.render(c)
 
   c.update({'sig': True})
@@ -455,9 +454,13 @@ Your Tasteful Friends,
   subject = 'Our new name is ... Vinely!'
   recipients = [receiver.email]
   if request:
-    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message,
+                                                                                      'headline': 'The best way to discover tastes you love is now Vinely!',
+                                                                                      'host_name': request.get_host()}))
   else:
-    html_msg = render_to_string("email/base_email_lite.html", Context({'title': subject, 'message': html_message, 'host_name': "www.vinely.com"}))
+    html_msg = render_to_string("email/base_email_lite.html", Context({'title': subject, 'message': html_message,
+                                                                                      'headline': 'The best way to discover tastes you love is now Vinely!',
+                                                                                      'host_name': "www.vinely.com"}))
 
   from_email = 'Welcome to Vinely <welcome@vinely.com>'
 
