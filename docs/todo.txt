@@ -1,3 +1,14 @@
+python manage.py dumpdata --format json cms > cms_local.json
+replace:
+{% static \"img/vinely_logo_signature.png\" %}
+{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png
+
+heroku run python manage.py loaddata data/cms_local.json -a winedora-staging
+heroku run python manage.py create_templates --activation -a winedora-staging
+heroku run python manage.py ingest_master_db
+
+
+
 Need to export csv file
 
 Need to import csv file
