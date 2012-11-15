@@ -1,14 +1,29 @@
-python manage.py dumpdata --format json cms > cms_local.json
-replace:
+==============================
+November 15, 2012 Deployment
+
+heroku maintenance:on -a winedora
+
+# backup production db
+heroku pgbackups:capture -a winedora
+cd data
+# use the db name
+./get_latest_dump.sh winedora b252
+
+# backup cms
+python manage.py dumpdata --format json cms > data/cms_local.json
+
+
+#replace:
 {% static \"img/vinely_logo_signature.png\" %}
 {{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png
 
+# replaces the cms data
 heroku run python manage.py loaddata data/cms_local.json -a winedora-staging
 heroku run python manage.py create_templates --activation -a winedora-staging
-heroku run python manage.py ingest_master_db
+heroku run python manage.py ingest_master_db -a winedora-staging
 
 
-
+==============================
 Need to export csv file
 
 Need to import csv file
