@@ -1,5 +1,6 @@
 from main.models import Cart 
 from django.contrib.auth.models import Group
+from django.conf import settings
 
 def vinely_user_info(request):
 
@@ -33,4 +34,5 @@ def vinely_user_info(request):
       # clear session since db messed up (db must have got cleared) 
       del request.session['cart_id']
 
+  data['EMAIL_STATIC_URL'] = settings.EMAIL_STATIC_URL
   return data

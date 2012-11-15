@@ -421,7 +421,7 @@ We're still helping people discover their Wine Personalities, and shipping to wh
 
 Be sure to keep up on the latest Vinely news, events and SipBits. Follow us through <a href="http://www.facebook.com/vinelywine">Facebook</a>, <a href="http://www.twitter.com/vinelywine">Twitter</a>, and <a href="http://www.pinterest.com/vinely">Pinterest</a>.
 
-  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
 Your Tasteful Friends,
 

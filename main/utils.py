@@ -75,7 +75,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.processing"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -131,7 +131,7 @@ def send_to_supplier_order_added_email(request, order_id):
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 
-  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 
@@ -229,7 +229,7 @@ def send_order_confirmation_email(request, order_id):
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 
-  {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+  {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 

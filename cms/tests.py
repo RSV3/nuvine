@@ -61,7 +61,7 @@ class SimpleTest(TestCase):
 
     Use this password to verify your account.
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     from your Vinely Pros.
 
@@ -94,7 +94,7 @@ class SimpleTest(TestCase):
 
     If you don't know why you're receiving this email, click <a href="mailto:care@vinely.com">here</a>.
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -133,7 +133,7 @@ class SimpleTest(TestCase):
 
     If you don't know why you're receiving this email, you can e-mail us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -175,7 +175,7 @@ class SimpleTest(TestCase):
 
       http://{{ host_name }}{% url party_rsvp party_id %}
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
     
     from your Vinely Pros.
 
@@ -212,7 +212,7 @@ class SimpleTest(TestCase):
 
     Use this password to verify your account.
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     from your Vinely Pros
 
@@ -242,7 +242,7 @@ class SimpleTest(TestCase):
     If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at 
     (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
     
     Your Tasteful Friends,
 
@@ -302,7 +302,7 @@ class SimpleTest(TestCase):
 
       (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -330,7 +330,7 @@ class SimpleTest(TestCase):
 
     If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -360,7 +360,7 @@ class SimpleTest(TestCase):
 
     Go have some fun wine parties!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
     
     Your Tasteful Friends,
 
@@ -388,7 +388,7 @@ class SimpleTest(TestCase):
 
       If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-      {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+      {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
       Your Tasteful Friends,
 
@@ -417,7 +417,7 @@ class SimpleTest(TestCase):
 
       Happy Tasting!
 
-      {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+      {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
       Your Tasteful Friends,
     
@@ -446,7 +446,7 @@ class SimpleTest(TestCase):
 
       http://{{ host_name }}{% url order_complete order.order_id %}
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -485,7 +485,7 @@ class SimpleTest(TestCase):
 
     If you have any questions, please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -531,7 +531,7 @@ class SimpleTest(TestCase):
 
     Look forward to seeing you soon!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Vinely Pro {{ pro_first_name }} {{ pro_last_name }}
 
@@ -593,7 +593,7 @@ class SimpleTest(TestCase):
     <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
     {% endif %}
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 
@@ -645,7 +645,7 @@ class SimpleTest(TestCase):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     - The Vinely Team
 
@@ -674,7 +674,7 @@ class SimpleTest(TestCase):
 
       {{ contact_request.message }}
 
-      {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+      {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
       - The Vinely Web Site
     """
@@ -711,7 +711,7 @@ class SimpleTest(TestCase):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     - The Vinely Team
 
@@ -747,7 +747,7 @@ class SimpleTest(TestCase):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     - The Vinely Team
 
@@ -785,7 +785,7 @@ class SimpleTest(TestCase):
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     - The Vinely Team
 
@@ -827,7 +827,7 @@ class SimpleTest(TestCase):
         {{ custom_message }}
     {% endif %}
 
-    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Tastefully,
 

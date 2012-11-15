@@ -133,6 +133,7 @@ else:
   AWS_S3_SECURE_URLS = False
 
 # AWS_S3_CUSTOM_DOMAIN = 'our own cname for the s3 bucket'
+EMAIL_STATIC_URL = 'http://s3.amazonaws.com/cdn.vinely.com/static/'
 
 if DEBUG is False:
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
