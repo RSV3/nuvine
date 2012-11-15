@@ -122,6 +122,7 @@ def my_information(request):
   data['profile_form'] = profile_form
   data['eligibility_form'] = eligibility_form
   data['profile'] = profile
+  data['my_information'] = True
 
   return render_to_response("accounts/my_information.html", data,
                             context_instance=RequestContext(request))
@@ -166,7 +167,10 @@ def edit_subscription(request):
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
-    form.save()
+    # create new subscription info object to track subscription change
+    info = SubscriptionInfo(user=u, frequency=form.cleaned_data['frequency'],
+                              quantity=form.cleaned_data['quantity'])
+    info.save()
     custom_order, created = CustomizeOrder.objects.get_or_create(user=u)
     custom_order.wine_mix = form.cleaned_data['wine_mix']
     custom_order.sparkling = form.cleaned_data['sparkling']
@@ -175,13 +179,22 @@ def edit_subscription(request):
 
   data['invited_by'] = my_host(u)
   data['pro_user'], data['pro_profile'] = my_pro(u)
-  data['subscriptions'] = subscriptions
+  data['subscription'] = user_subscription
+  data['edit_subscription'] = True
   if user_subscription is None:
     form.initial['user'] = u
   data['form'] = form
 
   return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
+@login_required
+def cancel_subscription(request):
+  u = request.user
+  info = SubscriptionInfo(user=u, frequency=9,
+                            quantity=0)
+  info.save()
+  messages.success(request, "Your subscription has been cancelled.")
+  return HttpResponseRedirect(reverse("edit_subscription"))
 
 @login_required
 def change_password(request):

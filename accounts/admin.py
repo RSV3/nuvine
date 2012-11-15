@@ -62,6 +62,13 @@ def change_to_taster(modeladmin, request, queryset):
 
 change_to_taster.short_description = "Change user to a taster"
 
+def cancel_subscription(modeladmin, request, queryset):
+  for obj in queryset:
+    obj.cancel_subscription()
+    messages.warning(request, "Subscription has been cancelled for %s" % obj.user.email)
+
+cancel_subscription.short_description = "Cancel subscription"
+
 class MentorAssignedFilter(SimpleListFilter):
 
   title = _('mentor assigned')
@@ -88,7 +95,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
-  actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster]
+  actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster, cancel_subscription]
   search_fields = ['user__first_name', 'user__last_name', 'user__email']
 
   def user_image(self, instance):

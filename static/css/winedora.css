@@ -224,6 +224,18 @@ legend {
   background: url('../img/btn_chevronrt_transparent_bkgd.png') no-repeat center right;
   padding: 7px 12px 7px 0;
 }
+
+.sidebar-nav li.active a {
+  text-decoration: none;
+  background: url('../img/btn_leftsubnav_bkgd.png');
+  color: #FFFFFF; 
+}
+.sidebar-nav li.active div.chev {
+  display: inline;
+  background: url('../img/btn_chevronrt_bkgd.png') no-repeat center right;
+  padding: 7px 12px 7px 0;
+}
+
 .sidebar-nav li div.chev.active {
   display: inline;
   background: url('../img/btn_chevronrt_bkgd.png') no-repeat center right;

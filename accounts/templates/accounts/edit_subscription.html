@@ -113,6 +113,14 @@
             </div>
           </div>
 
+          {% if subscription.frequency != 0 and subscription.quantity != 0 %}
+          <div class="control-group">
+            <div class="controls">
+              <a href="{% url cancel_subscription %}">Cancel Subscription</a>
+            </div>
+          </div>
+          {% endif %}
+
           <div class="form-actions">
             <div class="controls">
               <input class="btn btn-primary" type="submit" value="Submit" />
@@ -146,12 +154,27 @@
 {% endblock right_content %}
 
 {% block additional_scripts %}
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#link_pro").click(function(e) {
-      $("#link_pro_modal").modal();
-      return false;
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $("#link_pro").click(function(e) {
+        $("#link_pro_modal").modal();
+        return false;
+      });
     });
-  });
-</script>
-{% endblock additional_scripts %}
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+      $(".side-nav li").hover(
+        function () {
+          $(this).children(".chev").addClass("active");
+          $(this).find("a").addClass("hovered");
+        },
+        function () {
+          $(this).children(".chev").removeClass("active");
+          $(this).find("a").removeClass("hovered");
+        }
+      );
+    });
+  </script>
+  {% endblock additional_scripts %}

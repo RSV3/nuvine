@@ -191,6 +191,15 @@ class UserProfile(models.Model):
   def is_taster(self):
     return self.role() == 'taster'
 
+  def cancel_subscription(self):
+    """
+      Cancels user subscription
+    """
+    # in order to keep track of subscription history, we add new entry with no subscription
+    subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0)
+    subscription.save()
+    # TODO: need to cancel credit card charges (i.e. Stripe)
+
   def personality_rating_code(self):
     html = '''
     <center>
