@@ -389,15 +389,32 @@ our new site.
 <li>and much more</li>
 </ul>
 
-We've integrated your taste data and your personality into an account just for you. Follow the steps below to activate it.
+  {% if verification_code %}
+  We've integrated your taste data and your personality into an account just for you. Follow the steps below to activate it.
 
-    {% if verification_code %}
-    <ul>
-    <li>Step One: Copy your temporary password {{ temp_password }}</li>
-    <li>Step Two: Click the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</li>  
-
-      https://{{ host_name }}{% url verify_account verification_code %}
-    </ul>
+  <h3>Activate Accout:</h3>
+    <table>
+    <tr>
+    <td>&nbsp;</td>
+    <td><b>Step One</b></td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td>Copy your temporary password: {{ temp_password }}</td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td><b>Step Two</b></td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td>Click the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td><a href="https://{{ host_name }}{% url verify_account verification_code %}">https://{{ host_name }}{% url verify_account verification_code %}</a></td>
+    </tr>
+    </table>
     {% endif %}
 
 We're still helping people discover their Wine Personalities, and shipping to wherever you're sipping, now as Vinely.
