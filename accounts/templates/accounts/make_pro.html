@@ -1,0 +1,181 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block header %}
+  <h1 class="headline">{{ heading|safe }}</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span12">
+      <p id="sub-heading" class="center">{{ sub_heading|safe }}</p>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-error">
+      {{ error }}
+    </div>
+  {% endif %}
+<!-- 
+  {% if form.errors %}
+    <div class="alert alert-error">
+      {{ form.errors }}
+    </div>
+  {% endif %}
+ -->
+  <section id="getstarted">
+    <div class="row">
+      {% if pro or pending_pro %}
+        <div class="span12">
+        	{{ content|safe }}
+        </div>
+      {% else %}
+        <div class="span6">
+          {{ content|safe }}
+        </div>
+        <div class="span1">
+          &nbsp;
+        </div>        
+        <div class="span5">
+          <div class="row">
+            <div class="span5">
+              Questions? Contact us at <a href="mailto:care@vinely.com">care@vinely.com</a> or 888-294-1128
+            <p>&nbsp;</p>
+            </div>
+          </div>
+          <div class="row">
+            <form class="form-horizontal well" method="POST" action="{{ app_path }}">
+              {% csrf_token %}
+
+              <fieldset>
+                <div class="control-group {% if form.first_name.errors %} error {% endif %}">
+                  <div class="control-label" for="id_first_name">
+                  {{ form.first_name.label }}
+                  </div>
+                  <div class="controls">
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                      <span class="help-inline">
+                        {{ form.first_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.last_name.errors %} error {% endif %}">
+                  <div class="control-label" for="id_last_name">
+                    {{ form.last_name.label_tag }}
+                  </div>
+                  <div class="controls">
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                      <span class="help-inline">
+                        {{ form.last_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.email.errors %} error {% endif %}">
+                  <div class="control-label" for="id_email">
+                    {{ form.email.label_tag }}
+                  </div>
+                  <div class="controls">
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                      <span class="help-inline">
+                        {{ form.email.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.zipcode.errors %} error {% endif %}">
+                  <div class="control-label" for="id_zipcode">
+                    {{ form.zipcode.label_tag }}
+                  </div>
+                  <div class="controls">
+                    {{ form.zipcode }}
+                    {% if form.zipcode.errors %}
+                      <span class="help-inline">
+                        {{ form.zipcode.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.phone_number.errors %} error {% endif %}">
+                  <label class="control-label" for="id_phone_number">
+                    {{ form.phone_number.label_tag }}
+                  </label>
+                  <div class="controls">
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                      <span class="help-inline">
+                        {{ form.phone_number.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.mentor.errors %} error {% endif %}">
+                  <div class="control-label" for="id_mentor">
+                    <label>Your Vinely Pro (Email)</label>
+                  </div>
+                  <div class="controls">
+                    {{ form.mentor }}
+                    <!-- <span>(Just leave this blank if you don't know what it is)<span> -->
+                    {% if form.mentor.errors %}
+                      <span class="help-inline">
+                        {{ form.mentor.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if not user.is_authenticated %}
+                  <hr />
+                  <div class="control-group {% if form.password1.errors %} error {% endif %}">
+                    <div class="control-label" for="id_mentor">
+                      <label>{{ form.password1.label_tag }}</label>
+                    </div>
+                    <div class="controls">
+                      {{ form.password1 }}
+                    {% if form.password1.errors %}
+                      <span class="help-inline">
+                        {{ form.password1.errors }}
+                      </span>
+                    {% endif %}
+                    </div>
+                  </div>
+                  <div class="control-group {% if form.password2.errors %} error {% endif %}">
+                    <div class="control-label" for="id_mentor">
+                      <label>{{ form.password2.label_tag }}</label>
+                    </div>
+                    <div class="controls">
+                      {{ form.password2 }}
+                    {% if form.password2.errors %}
+                      <span class="help-inline">
+                        {{ form.password2.errors }}
+                      </span>
+                    {% endif %}
+                    </div>
+                  </div>
+                  <div class="controls">
+                    <input class="btn btn-primary" type="submit" value="Sign Up" />
+                  </div>
+                {% endif %}
+              </fieldset>
+            </form>
+          </div>
+
+        </div>
+      {% endif %}
+    </div>
+    <div class="vertical-space-bottom">
+      &nbsp;
+    </div>
+  </section>
+
+</div>
+
+{% endblock content %}
+
