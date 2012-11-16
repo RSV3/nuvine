@@ -14,7 +14,7 @@ import binascii, string, math
 from stripecard.models import StripeCard
 
 from personality.models import WineRatingData
-
+import stripe
 # Create your models here.
 
 
@@ -198,7 +198,11 @@ class UserProfile(models.Model):
     # in order to keep track of subscription history, we add new entry with no subscription
     subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0)
     subscription.save()
-    # TODO: need to cancel credit card charges (i.e. Stripe)
+
+    # need to cancel credit card charges (i.e. Stripe)
+    if self.stripe_card:
+      customer = stripe.Customer.retrieve(id=self.stripe_card.stripe_user)
+      customer.cancel_subscription()
 
   def personality_rating_code(self):
     html = '''

@@ -187,14 +187,14 @@ def edit_subscription(request):
 
   return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def cancel_subscription(request):
   u = request.user
-  info = SubscriptionInfo(user=u, frequency=9,
-                            quantity=0)
-  info.save()
+  u.get_profile().cancel_subscription()
   messages.success(request, "Your subscription has been cancelled.")
   return HttpResponseRedirect(reverse("edit_subscription"))
+
 
 @login_required
 def change_password(request):
