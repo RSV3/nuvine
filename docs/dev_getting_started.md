@@ -7,10 +7,10 @@
 # Setting up staging, new party and production
   * Refer to: http://suitmymind.com/blog/2009/06/02/deploying-multiple-environments-on-heroku-while-still-hosting-code-on-github/
 
+#
+
     $ heroku git:remote -a winedora-staging -r heroku-staging (staging remote)
-
     $ heroku git:remote -a winedora (production remote)
-
     $ heroku git:remote -a vinely-newparty -r heroku-newparty (newparty remote)
 
 # Code update from github
@@ -47,9 +47,13 @@
   * The virtual environment is currently in nuvine-env inside the project directory
   * You should probably have an alias to activate the virtual environment, but if not
 
+#
+
     $ source nuvine-env/bin/activate
 
   * run server which will be accessible from http://localhost:8000
+
+#
 
     $ python manage.py runserver
 
@@ -72,6 +76,8 @@
 
   * On staging server
 
+#
+
     $ heroku run python manage.py loaddata personality/fixtures/sample_rating_data.yaml --app winedora-staging
 
 # In order to manage fixtures and database syncing on heroku
@@ -85,7 +91,9 @@
   * You run these commands from your local machine, not from staging or prod
   * Edit winedora/settings_debug.py and set DEBUG = False
   * Run the following to sync static files with Amazon s3:
-    
+
+#
+
       $ python manage.py collectstatic
 
   * Reset winedora/settings_debug.py and set DEBUG = True to continue with local development
@@ -105,12 +113,15 @@
 # For transferring production DB to staging to test
   - refer to: https://devcenter.heroku.com/articles/pgbackups
 
+#
+
     $ heroku pgbackups -a winedora
     
   * Find the backup tag that should be used to transfer and switch a065 below with that tag
 
+#
+
     $ heroku pgbackups:restore DATABASE \`heroku pgbackups:url a065 -a winedora\` -a winedora-staging
-    
     
     $ heroku run python manage migrate -a winedora-staging
 
