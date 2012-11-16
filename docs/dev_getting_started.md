@@ -4,11 +4,14 @@
   * main/templates/main contains most of the templates
   * accounts/templates/accounts/base_my_account.html also is the template that user account related templates inherit
 
-# Setting up staging and production
+# Setting up staging, new party and production
   * Refer to: http://suitmymind.com/blog/2009/06/02/deploying-multiple-environments-on-heroku-while-still-hosting-code-on-github/
 
     $ heroku git:remote -a winedora-staging -r heroku-staging (staging remote)
+
     $ heroku git:remote -a winedora (production remote)
+
+    $ heroku git:remote -a vinely-newparty -r heroku-newparty (newparty remote)
 
 # Code update from github
 
@@ -17,6 +20,10 @@
 # Setup so that your staging branch tracks origin/staging (at github)
 
     $ git branch --set-upstream staging origin/staging
+
+# Setup so that your newparty branch tracks origin/newparty (at github)
+
+    $ git branch --set-upstream newparty origin/newparty
 
 # For checking in code
 
