@@ -10,6 +10,7 @@ urlpatterns = patterns('main.views',
     url(r'^dashboard/$', 'dashboard', name='dashboard'),
     url(r'^rate/wines/$', 'rate_wines', name='rate_wines'),
     url(r'^uncover/personality/$', 'uncover_personality', name='uncover_personality'),
+    url(r'^resend/invite/$', 'resend_rsvp', name='resend_rsvp'),
 
     url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
 

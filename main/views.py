@@ -13,7 +13,7 @@ from django.db.models import Q, Count
 from django.utils import timezone
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, OrganizedParty, EngagementInterest
+                        CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
 from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue, Zipcode
 
@@ -27,7 +27,7 @@ from accounts.utils import send_verification_email, send_new_invitation_email, s
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email
+                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, resend_party_invite_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
@@ -1253,6 +1253,26 @@ def party_taster_invite(request, party_id=0):
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
   else:
     raise PermissionDenied
+
+
+def resend_rsvp(request):
+
+  email = request.POST.get('email')
+
+  if email:
+    user = None
+    try:
+      user = User.objects.get(email=email)
+    except:
+      messages.error(request, "There are no upcoming parties to which you have been invited.")
+    today = timezone.now()
+
+    invites = InvitationSent.objects.filter(party__event_date__gte=today, guests=user)
+    if invites:
+      for invite in invites:
+        resend_party_invite_email(request, user, invite)
+      messages.info(request, "We've emailed you the info about the upcoming parties.")
+  return HttpResponseRedirect(request.META.get('HTTP_REFERER') or reverse('home_page'))
 
 
 # @login_required
