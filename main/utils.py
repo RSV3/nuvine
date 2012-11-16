@@ -9,7 +9,9 @@ from accounts.models import VinelyProAccount, VerificationQueue
 from datetime import tzinfo, timedelta
 from cms.models import Section
 
+import uuid
 ZERO = timedelta(0)
+
 
 class UTC(tzinfo):
   """UTC"""
@@ -23,6 +25,7 @@ class UTC(tzinfo):
   def dst(self, dt):
     return ZERO
 
+
 def if_supplier(user):
   """
     Used in user_passes_test decorator to check if user is a supplier
@@ -30,7 +33,8 @@ def if_supplier(user):
   if user:
     return user.groups.filter(name="Supplier").count() > 0
   return False
-  
+
+
 def if_pro(user):
   """
     Used in user_passes_test decorator to check if user is a supplier
@@ -38,6 +42,7 @@ def if_pro(user):
   if user:
     return user.groups.filter(name="Vinely Pro").count() > 0
   return False
+
 
 def send_order_added_email(request, order_id, user_email, verification_code=None, temp_password=None):
   """
@@ -395,12 +400,13 @@ def distribute_party_invites_email(request, invitation_sent):
     from_email = 'Invitation from %s %s <welcome@vinely.com>' % (host_user.first_name, host_user.last_name)
 
   for guest in invitation_sent.guests.all():
+    invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
     c = RequestContext(request, {"party": invitation_sent.party,
                 "custom_message": invitation_sent.custom_message,
                 "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
                 "invite_host_email": host_user.email,
                 "host_name": request.get_host(), "rsvp_date": rsvp_date,
-                "plain": True})
+                "rsvp_code": invite.rsvp_code, "plain": True})
     if guest.is_active is False:
       # new user created through party invitation
       temp_password = User.objects.make_random_password()
@@ -416,8 +422,8 @@ def distribute_party_invites_email(request, invitation_sent):
         vque.save()
 
       # include verification code
-      c.update({'verification_code': verification_code,
-                'temp_password': temp_password})
+      # c.update({'verification_code': verification_code,
+      #           'temp_password': temp_password})
 
     txt_message = txt_template.render(c)
     c.update({'sig': True, 'plain': False})

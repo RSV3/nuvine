@@ -526,8 +526,8 @@ class SimpleTest(TestCase):
     You can start inviting guests to your party at:
 
       http://{{ host_name }}{% url party_taster_invite party.id %}
-    
-    If you have any questions, please contact me via e-mail: {{ pro_email }} {% if pro_phone %}or via phone: {{ pro_phone }}{% endif %} 
+
+    If you have any questions, please contact me via e-mail: {{ pro_email }} {% if pro_phone %}or via phone: {{ pro_phone }}{% endif %}
 
     Look forward to seeing you soon!
 
@@ -585,12 +585,12 @@ class SimpleTest(TestCase):
     {{ custom_message }}
     {% endif %}
 
-    Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait! 
+    Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
 
     {% if plain %}
-    Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}
+    Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}{{ rsvp_code }}
     {% else %}
-    <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}">RSVP Now</a></div>
+    <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}{{ rsvp_code }}">RSVP Now</a></div>
     {% endif %}
 
     {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}

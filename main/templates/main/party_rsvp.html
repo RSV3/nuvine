@@ -57,9 +57,9 @@
       <div class="span6">
         <p><b>Will you attend? You know you want to! (You can always come back and change your response later.)</b></p>
         <p>
-        <a class="btn btn-success btn-large" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
-        <a class="btn btn-inverse btn-large" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
-        <a class="btn btn-warning btn-large" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+        <a class="btn btn-success btn-large" href="{% url party_rsvp rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+        <a class="btn btn-inverse btn-large" href="{% url party_rsvp rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+        <a class="btn btn-warning btn-large" href="{% url party_rsvp rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
         </p>
         {% if invite.response %}
         <p>
@@ -165,12 +165,12 @@
 {% endblock content %}
 
 {% block additional_scripts %}
-  {% if user.get_profile.is_under_age %}
+  {% if invited_user.get_profile.is_under_age %}
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
         $(".datepicker").datepicker();
-        
+
         // uncomment this to enable
         $("#update_age").modal();
       });

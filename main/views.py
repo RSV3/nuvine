@@ -1212,6 +1212,7 @@ def party_taster_invite(request, party_id=0):
       if form.is_valid():
         new_invite = form.save()
         new_invite.invited_by = u
+        new_invite.rsvp_code = str(uuid.uuid4())
         new_invite.save()
 
         new_invitee = new_invite.invitee
@@ -1254,17 +1255,24 @@ def party_taster_invite(request, party_id=0):
     raise PermissionDenied
 
 
-@login_required
-def party_rsvp(request, party_id, response=None):
+# @login_required
+
+def party_rsvp(request, party_id, rsvp_code, response=None):
 
   data = {}
+
   u = request.user
 
   party = get_object_or_404(Party, pk=party_id)
-  try:
-    invite = PartyInvite.objects.get(party=party, invitee=u)
-  except PartyInvite.DoesNotExist:
-    raise Http404
+
+  if u.is_authenticated():
+    invite = get_object_or_404(PartyInvite, party=party, invitee=u)
+  else:
+    invite = get_object_or_404(PartyInvite, party=party, rsvp_code=rsvp_code)
+    u = invite.invitee
+
+  data['rsvp_code'] = rsvp_code
+  data['invited_user'] = u
 
   profile = u.get_profile()
 
@@ -1282,9 +1290,9 @@ def party_rsvp(request, party_id, response=None):
 
   # if user has not entered DOB ask them to do this first
   if response and u.get_profile().is_under_age():
-    msg = 'You MUST be over 21 to attend a taste party. If you are over 21 then <a href="%s?next=%s">update your profile</a> to reflect this.' % (reverse('my_information'), reverse('party_rsvp', args=[party_id]))
+    msg = 'You MUST be over 21 to attend a taste party.' % (reverse('party_rsvp', args=[rsvp_code, party_id]))
     messages.warning(request, msg)
-    return HttpResponseRedirect(reverse('party_rsvp', args=[party_id]))
+    return HttpResponseRedirect(reverse('party_rsvp', args=[rsvp_code, party_id]))
 
   if response:
     invite.response = int(response)
