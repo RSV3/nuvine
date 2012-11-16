@@ -158,10 +158,14 @@
                     {% endif %}
                     </div>
                   </div>
-                  <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="Sign Up" />
-                  </div>
+                {% else %}
+                  <input type="hidden" name="password1" value="Sign Up" />
+                  <input type="hidden" name="password2" value="Sign Up" />
                 {% endif %}
+
+                <div class="controls">
+                  <input class="btn btn-primary" type="submit" value="Sign Up" />
+                </div>
               </fieldset>
             </form>
           </div>

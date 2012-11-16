@@ -170,6 +170,7 @@ def uncover_personality(request):
   data['heading'] = sections.get(category=4).content
   return render_to_response("main/uncover_personality.html", data, context_instance=RequestContext(request))
 
+
 def our_story(request):
   """
 

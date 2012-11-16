@@ -249,6 +249,7 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data,
                         context_instance=RequestContext(request))
 
+
 def activate_account(request):
 
   data = {}
@@ -279,21 +280,13 @@ def activate_account(request):
                         context_instance=RequestContext(request))
 
 
-@login_required
-def make_pro_host(request, account_type):
+# @login_required
+def make_pro_host(request, account_type, data):
   '''
   account_type: 'host' or 'pro'
   '''
-  data = {}
 
   data['role'] = account_type
-
-  if account_type == 'pro':
-    account_type = 1
-  elif account_type == 'host':
-    account_type = 2
-  else:
-    raise Http404
 
   data['account_type'] = account_type
 
@@ -302,8 +295,9 @@ def make_pro_host(request, account_type):
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name="Vinely Taster")
+  # tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
+
   pro, pro_profile = my_pro(u)
   pro_email = pro.email if pro else None
   initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
@@ -327,7 +321,12 @@ def make_pro_host(request, account_type):
     if profile.is_pro():
       data["already_signed_up"] = True
       data["get_started_menu"] = True
-      return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+      if account_type == 1:
+        return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+      else:
+        return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+
+      # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
     elif profile.is_host():
 
@@ -400,29 +399,44 @@ def make_pro_host(request, account_type):
       elif account_type > 2:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
-        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
-  return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+        # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+  if account_type == 1:
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+  else:
+    return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+
+  # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
 
 def make_host(request):
   data = {}
+  u = request.user
+
   host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
   data['heading'] = host_sections.get(category=4).content
   data['sub_heading'] = host_sections.get(category=5).content
   data['content'] = host_sections.get(category=0).content
 
-  return sign_up(request, 2, data)
+  if u.is_authenticated():
+    return make_pro_host(request, 2, data)
+  else:
+    return sign_up(request, 2, data)
 
 
 def make_pro(request):
   data = {}
+  u = request.user
+
   pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
   data['heading'] = pro_sections.get(category=4).content
   data['sub_heading'] = pro_sections.get(category=5).content
   data['content'] = pro_sections.get(category=0).content
 
-  return sign_up(request, 1, data)
+  if u.is_authenticated():
+    return make_pro_host(request, 1, data)
+  else:
+    return sign_up(request, 1, data)
 
 
 def sign_up(request, account_type, data):
@@ -453,8 +467,6 @@ def sign_up(request, account_type, data):
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
     ok = check_zipcode(profile.zipcode)
-    # user.is_active = True
-    # user.save()
 
     if not ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')

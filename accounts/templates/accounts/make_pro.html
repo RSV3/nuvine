@@ -119,7 +119,7 @@
                 </div>
                 <div class="control-group {% if form.mentor.errors %} error {% endif %}">
                   <div class="control-label" for="id_mentor">
-                    <label>Your Vinely Pro (Email)</label>
+                    <label>{{ form.mentor.label_tag }}</label>
                   </div>
                   <div class="controls">
                     {{ form.mentor }}
@@ -159,10 +159,13 @@
                     {% endif %}
                     </div>
                   </div>
-                  <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="Sign Up" />
-                  </div>
+                {% else %}
+                  <input type="hidden" name="password1" value="Sign Up" />
+                  <input type="hidden" name="password2" value="Sign Up" />
                 {% endif %}
+                <div class="controls">
+                  <input class="btn btn-primary" type="submit" value="Sign Up" />
+                </div>
               </fieldset>
             </form>
           </div>
