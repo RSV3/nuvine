@@ -588,9 +588,9 @@ class SimpleTest(TestCase):
     Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
 
     {% if plain %}
-    Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp party.id %}{{ rsvp_code }}
+    Click on this link to RSVP Now: http://{{ host_name }}{% url party_rsvp rsvp_code party.id %}
     {% else %}
-    <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp party.id %}{{ rsvp_code }}">RSVP Now</a></div>
+    <div class="email-rsvp-button"><a href="http://{{ host_name }}{% url party_rsvp rsvp_code party.id %}">RSVP Now</a></div>
     {% endif %}
 
     {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
@@ -615,7 +615,7 @@ class SimpleTest(TestCase):
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ rsvp_date }}", description="5 days prior to event by which the attendee should RSVP")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_rsvp party.id %}", description="RSVP Link")
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_rsvp rsvp_code party.id %}", description="RSVP Link")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Full name of the host that is hosting the party.")
     template.variables_legend.add(variable)

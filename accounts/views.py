@@ -276,6 +276,7 @@ def activate_account(request):
   return render_to_response("accounts/activate_account.html", data,
                         context_instance=RequestContext(request))
 
+
 @login_required
 def make_pro_host(request, account_type):
   '''
