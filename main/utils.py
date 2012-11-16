@@ -444,6 +444,52 @@ def distribute_party_invites_email(request, invitation_sent):
   return msg
 
 
+def resend_party_invite_email(request, user, invitation_sent):
+
+  template = Section.objects.get(template__key='distribute_party_invites_email', category=0)
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+  rsvp_date = invitation_sent.party.event_date - timedelta(days=5)
+
+  host_user = invitation_sent.party.host
+  inviting_user = host_user
+
+  subject = invitation_sent.custom_subject
+
+  from_email = 'Vinely Party Invite <welcome@vinely.com>'
+  if inviting_user.first_name:
+    from_email = 'Invitation from %s %s <welcome@vinely.com>' % (inviting_user.first_name, inviting_user.last_name)
+  else:
+    from_email = 'Invitation from %s %s <welcome@vinely.com>' % (host_user.first_name, host_user.last_name)
+
+  for guest in invitation_sent.guests.filter(id=user.id):
+    invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
+    c = RequestContext(request, {"party": invitation_sent.party,
+                "custom_message": invitation_sent.custom_message,
+                "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
+                "invite_host_email": host_user.email,
+                "host_name": request.get_host(), "rsvp_date": rsvp_date,
+                "rsvp_code": invite.rsvp_code, "plain": True})
+
+    txt_message = txt_template.render(c)
+    c.update({'sig': True, 'plain': False})
+    html_message = html_template.render(c)
+
+    # send out party invitation e-mail
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                              'header': 'Good wine and good times await',
+                                                              'message': html_message, 'host_name': request.get_host()}))
+    recipients = [guest.email]
+    email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+    email_log.save()
+
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg.attach_alternative(html_msg, "text/html")
+    msg.send()
+
+  return msg
+
+
 def send_rsvp_thank_you_email(request, user):
 
   template = Section.objects.get(template__key='rsvp_thank_you_email', category=0)
