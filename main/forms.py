@@ -397,8 +397,14 @@ class ShippingForm(forms.ModelForm):
 
 class CustomizeInvitationForm(forms.ModelForm):
 
+  INVITE_OPTIONS = (
+    (0, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
+    (1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
+    (2, 'allow guests to invite friends?')
+  )
   preview = forms.BooleanField(required=False)
   send = forms.BooleanField(required=False)
+  invite_options = forms.MultipleChoiceField(choices=INVITE_OPTIONS, widget=forms.CheckboxSelectMultiple)
 
   class Meta:
     model = InvitationSent

@@ -27,7 +27,8 @@ from accounts.utils import send_verification_email, send_new_invitation_email, s
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, resend_party_invite_email
+                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
+                        resend_party_invite_email, get_default_invite_message
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
@@ -1349,6 +1350,29 @@ def party_rsvp(request, party_id, rsvp_code, response=None):
     data["custom_message"] = invitations[0].custom_message
 
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_write_invitation(request, party_id):
+  data = {}
+  party = get_object_or_404(Party, id=party_id)
+  data['party'] = party
+
+  initial_data = {'party': party, 'custom_message': get_default_invite_message(party)}
+  form = CustomizeInvitationForm(request.POST or None, initial=initial_data)
+
+  if request.POST.get("next") or request.POST.get("save"):
+    if form.is_valid():
+      print "listing", form.cleaned_data
+      invitation = form.save(commit=False)
+      invite_options = [int(x) for x in form.cleaned_data['invite_options']]
+      invitation.auto_invite = True if 0 in invite_options else False
+      invitation.auto_thank_you = True if 1 in invite_options else False
+      invitation.guests_can_invite = True if 2 in invite_options else False
+      invitation.save()
+    # return HttpResponseRedirect(reverse(''))
+  data['form'] = form
+  return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
 
 
 @login_required

@@ -1,117 +1,194 @@
 {% extends "winedora/base_html5.html" %}
 
+{% block additional_styles %}
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .text-label {
+      text-align: right;
+      font-weight: 900;
+      text-transform: capitalize;
+    }
+    .text-content {
+      display:table-cell; 
+      vertical-align:middle;
+    }
+    .form-row {
+      margin-bottom: 12px;
+    }
+  </style>
+{% endblock additional_styles %}
+
 {% block header %}
-  <h1 class="headline">Customize Invitation</h1>
+  <h1 class="headline">Get The Party Started</h1>
 {% endblock header %}
 
 {% block content %}
 
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  <section id="customize-invitation">
-    <div class="row">
-      <div class="span12">
-        <p>Feel free to add your custom invite message.</p>
-      </div>
-    </div>
+    {% block breadcrumb %}
 
-    <form method="POST" action="{% url party_send_invites %}">
-      {% csrf_token %}
+    {% endblock breadcrumb %}
+    {{ form.errors }}
+    <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+      <section id="customize-invitation">
 
-      {{ form.party }}
+        <form class="form-horizontal" method="POST" action="{{ app_path }}">
+          {% csrf_token %}
 
-      {% for g in guests %}
-        <input type="hidden" value="{{ g }}" name="guests">
-      {% endfor %}
-      <div class="row">
-        <div class="span12">
-          <table>
-            <tbody>
-              <tr>
-                <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
-              </tr>
-              <tr>
-                {% if taster %}
-                  <td>From:</td><td>{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Friendly Taster{% endif %} ({{ user.email }})</td>                
-                {% else %}
-                  <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
-                {% endif %}
-              </tr>
-              <tr>
-                <td>Subject:</td><td>{{ form.custom_subject }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+          {{ form.party }}
+<!-- 
+          <div class="row form-row">
+            <div class="span1">&nbsp;</div>
+            <div class="span2 text-label">From</div>
+            <div class="span8">
+              <p>{{ party.host.first_name }} {{ party.host.last_name }} (Note: The email will be sent from {{ party.host.email }})</p>
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="span1">&nbsp;</div>
+            <div class="span2 text-label">Email subject</div>
+            <div class="span8">&nbsp;
+              {{ form.subject }}
+              {% if form.subject.errors %}
+                <span class="help-inline">
+                  {{ form.subject.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="span1">&nbsp;</div>
+            <div class="span2 text-label"><h2>Party Info</h2></div>
+            <div class="span8">
+              <p><a href="#">Edit</a></p>
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="span1">&nbsp;</div>
+            <div class="span2 text-label">Date/Time</div>
+            <div class="span8">
+              <p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p>
+            </div>
+          </div>
 
-      <hr>
+          <div class="row form-row">
+            <div class="span1">&nbsp;</div>
+            <div class="span4">
+              <div class="row form-row">
+                <div class="span3 text-label">Party Name</div>
+                <div class="span8">
+                  {{ party.title }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="span3 text-label">Location</div>
+                <div class="span8">
+                  <p>{{ party.address.street1 }}</p>
+                  <p>{{ party.address.street2 }}</p>
+                  <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="span3">
+              <p>Note: We will notify your Pro of the party request once you complete the setup. 
+                The Pro will then need to confirm the date and time before your party invite can be sent out.
+                See 'Invite Options' section below for preferences on when we should deliver your invite.
+              </p>
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="span3 text-label">Party Name</div>
+            <div class="span8">
+              {{ party.title }}
+            </div>
+          </div>
 
-      <!--
-      <div class="span12">
-        <center>
-          <img src="http://www.winepartiesbydesign.com/_images/banner_1.png">
-        </center>
-      </div>
-      -->
-
-      <div class="row">
-        <div class="span12">
-          <p>What’s a Vinely Taste Party? Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
-
-          <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
-
-          <!-- <p>Will you attend? You know you want to! (You can always come back and change your response later.)</p> -->
-          <p>Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait! </p>
+          
+          <div class="control-group">
+            <div class="control-label text-label"><h2>Message</h2></div>
+            <div class="controls">
+              {{ form.message }}
+            </div>
+          </div>
+          <hr />
+ -->
+           <div class="control-group">
+            <div class="control-label text-label">From</div>
+            <div class="controls">
+              <p>{{ party.host.first_name }} {{ party.host.last_name }} (Note: The email will be sent from {{ party.host.email }})</p>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label text-label">Email subject</div>
+            <div class="controls">
+              {{ form.custom_subject }}
+              {% if form.custom_subject.errors %}
+                <span class="help-inline">
+                  {{ form.custom_subject.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
 
           <div class="control-group">
+            <h2 class="control-label text-label">Party Info</h2>
+            <div class="controls" style="padding-top: 13px;">
+              <a href="#">Edit</a>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label text-label">Date/Time</div>
+            <div class="controls">
+              <p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label text-label">Party Name</div>
+            <div class="controls">
+              {{ party.title }}
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label text-label">Location</div>
+            <div class="controls">
+              <p>{{ party.address.street1 }}</p>
+              <p>{{ party.address.street2 }}</p>
+              <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label text-label"><h2>Message</h2></div>
             <div class="controls">
               {{ form.custom_message }}
             </div>
-        </div>
-        </div>
-      </div>
+          </div>
 
-      <div class="row">
-        <div class="span6">
-          <p><h3>Party Details</h3></p>
-          <table cellpadding="5">
-            <tbody>
-              <tr>
-                <td>Date and Time:</td>
-                <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-              </tr>
-              <tr>
-                <td>Party Type:</td>
-                <td>{{ party.title }}</td>
-              </tr>
-              <tr>
-                <td>Location:</td>
-                <td>
-                  {{ party.address.street1 }}<br>
-                  {% if party.address.street2 %}{{ party.address.street2 }}<br>{% endif %}
-                  {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="span6">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="span12">
-          <div class="form-actions">
+          <div class="control-group">
+            <div class="control-label text-label"><h2>Invite Options</h2></div>
             <div class="controls">
-              <input class="btn btn-primary" type="submit" name="send" value="Send Invitation">
-              <input class="btn btn-warning" type="submit" name="preview" value="Preview Invitation">
+              <p>Do you want vinely to?</p>
+              {{ form.invite_options }}
             </div>
-        </div>
-        </div>
-      </div>
-    </form>
-  </section>
+          </div>
+          <div class="row">
+            <div class="span1">&nbsp;</div>
+            <div class="span7">
+              <a href="#" class="btn btn-primary">Back</a>
+              <button class="btn btn-primary" name="save" value="save">Save</button>
+            </div>
+            <div class="span4">
+              <button class="btn btn-primary" name="preview" value="preview">Preview Invite</button>
+              <button class="btn btn-primary" name="next" value="next">Next</button>
+            </div>
+          </div>          
+        </form>
+      </section>
 
-</div>
+    </div>
 
 {% endblock content %}

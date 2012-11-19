@@ -823,6 +823,8 @@ def calculate_pro_commission(pro):
           )
 
 import re
+
+
 def generate_pro_account_number():
   '''
   Generate a new account number for a pro in the format VP#####A
@@ -830,11 +832,11 @@ def generate_pro_account_number():
   #TODO: avoid race condition
   max = 99999
   accounts_to_ignore = ['VP00090A', 'VP00091A', 'VP00092A', 'VP00093A', 'VP00094A', 'VP00095A', 'VP00096A', 'VP00097A', 'VP00098A', 'VP00099A']
-  latest = VinelyProAccount.objects.exclude(account_number__in = accounts_to_ignore).order_by('-account_number')[:1]
+  latest = VinelyProAccount.objects.exclude(account_number__in=accounts_to_ignore).order_by('-account_number')[:1]
   if latest.exists():
-    prefix = 'VP' # latest[:2]
+    prefix = 'VP'  # latest[:2]
     account = latest[0].account_number
-    suffix = account[7:] # last chars(s) after number
+    suffix = account[7:]  # last chars(s) after number
     num = int(re.findall('\d+', account)[0])
     if num == max:
       last = suffix[-1]
@@ -843,10 +845,24 @@ def generate_pro_account_number():
         num = 1
       else:
         num = 1
-        suffix = suffix[:-1] + chr(ord(last)+1)
+        suffix = suffix[:-1] + chr(ord(last) + 1)
     else:
       num += 1
     acc_num = '%s%s%s' % (prefix, '%0*d' % (5, num), suffix)
   else:
     acc_num = 'VP00100A'
   return acc_num
+
+
+def get_default_invite_message(party):
+  message_text = '''
+  What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.
+
+  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstepself.
+
+  Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
+  '''
+  template = Template(message_text)
+  rsvp_date = party.event_date - timedelta(days=5)
+  context = Context({'rsvp_date': rsvp_date})
+  return template.render(context)
