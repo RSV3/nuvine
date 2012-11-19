@@ -417,7 +417,7 @@ def make_host(request):
   data['heading'] = host_sections.get(category=4).content
   data['sub_heading'] = host_sections.get(category=5).content
   data['content'] = host_sections.get(category=0).content
-
+  data['host_party_menu'] = True
   if u.is_authenticated():
     return make_pro_host(request, 2, data)
   else:
@@ -432,7 +432,7 @@ def make_pro(request):
   data['heading'] = pro_sections.get(category=4).content
   data['sub_heading'] = pro_sections.get(category=5).content
   data['content'] = pro_sections.get(category=0).content
-
+  data['become_pro_menu'] = True
   if u.is_authenticated():
     return make_pro_host(request, 1, data)
   else:

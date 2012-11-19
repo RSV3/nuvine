@@ -109,56 +109,70 @@ legend {
 }
 
 #parties {
-  background: url('../img/main_nav_sprite.png') no-repeat 0px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat 0px -55px; 
   width: 83px;
 }
 #parties a {
   padding: 0px 40px 31px 43px;
 }
 #shop {
-  background: url('../img/main_nav_sprite.png') no-repeat -83px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -82px -55px; 
   width: 66px;
 }
 #shop a {
   padding: 0px 30px 31px 36px;
 }
 #rate_wines {
-  background: url('../img/main_nav_sprite.png') no-repeat -149px -50px; 
-  width: 118px;
+  background: url('../img/main_nav_sprite.png') no-repeat -146px -55px; 
+  /*width: 118px;*/
 }
 #rate_wines a {
   padding: 0px 59px 31px 59px;
 }
 #how_it_works {
-  background: url('../img/main_nav_sprite.png') no-repeat -267px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -381px -55px; 
   width: 140px;
 }
 #how_it_works a {
   padding: 0px 70px 31px 70px;
 }
+#host_a_party {
+  background: url('../img/main_nav_sprite.png') no-repeat -516px -55px; 
+  /*width: 126px;*/
+}
+#host_a_party a {
+  padding: 0px 70px 31px 70px;
+}
+#become_a_pro {
+  background: url('../img/main_nav_sprite.png') no-repeat -651px -55px; 
+  /*width: 126px;*/
+}
+#become_a_pro a {
+  padding: 0px 70px 31px 70px;
+}
 #nav_get_started {
-  background: url('../img/main_nav_sprite.png') no-repeat -407px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -407px -55px; 
   width: 126px;
 }
 #nav_get_started a {
   padding: 0px 63px 31px 63px;
 }
 #our_story {
-  background: url('../img/main_nav_sprite.png') no-repeat -533px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -788px -55px; 
   width: 111px;
 }
 #our_story a {
   padding: 0px 55px 31px 56px;
 }
 #dashboard {
-  background: url('../img/main_nav_sprite.png') no-repeat -644px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -644px -55px; 
   width: 119px;
 }
 #dashboard a {
   padding: 0px 59px 31px 60px;
 }
 #vinely_u {
-  background: url('../img/main_nav_sprite.png') no-repeat -763px -50px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -763px -55px; 
   width: 93px;
 }
 #vinely_u a {
@@ -166,11 +180,13 @@ legend {
 }
 
 #parties a:hover, #parties.active { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
-#shop a:hover, #shop.active { background: url('../img/main_nav_sprite.png') no-repeat -83px 0px;}
-#rate_wines a:hover, #rate_wines.active { background: url('../img/main_nav_sprite.png') no-repeat -149px 0px;}
-#how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -267px 0px;}
+#shop a:hover, #shop.active { background: url('../img/main_nav_sprite.png') no-repeat -82px 0px;}
+#rate_wines a:hover, #rate_wines.active { background: url('../img/main_nav_sprite.png') no-repeat -146px 0px;}
+#how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -381px 0px;}
+#host_a_party a:hover, #host_a_party.active { background: url('../img/main_nav_sprite.png') no-repeat -516px 0px;}
+#become_a_pro a:hover, #become_a_pro.active { background: url('../img/main_nav_sprite.png') no-repeat -651px 0px;}
 #nav_get_started a:hover, #nav_get_started.active { background: url('../img/main_nav_sprite.png') no-repeat -407px 0px;}
-#our_story a:hover, #our_story.active { background: url('../img/main_nav_sprite.png') no-repeat -533px 0px;}
+#our_story a:hover, #our_story.active { background: url('../img/main_nav_sprite.png') no-repeat -788px 0px;}
 #dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
 #vinely_u a:hover, #vinely_u.active { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
 

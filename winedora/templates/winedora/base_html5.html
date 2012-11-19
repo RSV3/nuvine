@@ -186,12 +186,15 @@
               <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
                   <a href="{% url dashboard %}" title="dashboard"></a>
               </li>
-              {% endif %}              
+              {% endif %}
               <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
                 <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
-              <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}>
-                <a href="{% url make_host %}" title="get started"></a>
+              <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
+                  <a href="{% url make_host %}" title="Host A Party"></a>
+              </li>
+              <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
+                  <a href="{% url make_pro %}" title="Become A Pro"></a>
               </li>
               <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
                 <a href="{% url our_story %}" title="our story"></a>

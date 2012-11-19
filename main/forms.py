@@ -42,8 +42,8 @@ class PartyCreateForm(forms.ModelForm):
   state = us_forms.USStateField(required=False)
   zipcode = us_forms.USZipCodeField(required=False)
 
-  event_day = forms.DateField(label="Taste Party Date")
-  event_time = forms.TimeField(input_formats=valid_time_formats, label="Taste Party Time")
+  event_day = forms.DateField(label="Party Date")
+  event_time = forms.TimeField(input_formats=valid_time_formats, label="Party Time")
 
   # replace form field for Party.phone
   phone = us_forms.USPhoneNumberField()
@@ -56,17 +56,24 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
+    # self.fields['email'].widget.attrs['readonly'] = True
     self.fields['description'].required = False
     self.fields['title'].initial = 'First Taste Party'
     initial = kwargs.get('initial')
-    parties = Party.objects.filter(organizedparty__pro=initial.get('pro'))
-    addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
-    # only show addresses that pro has dealt with before
-    self.fields['address'].queryset = addresses
 
-    my_hosts = MyHost.objects.filter(pro=initial.get('pro'))
-    users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
-    self.fields['host'].choices = [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+    # if party being organized by host then load previous addresses by host
+    if initial.get('host'):
+      parties = Party.objects.filter(host=initial.get('host'))
+    else:
+      # else if by pro then load prev organized party addresses
+      parties = Party.objects.filter(organizedparty__pro=initial.get('pro'))
+      my_hosts = MyHost.objects.filter(pro=initial.get('pro'))
+      users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
+      self.fields['host'].choices = [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+
+    addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
+    # only show addresses that pro/host has dealt with before
+    self.fields['address'].queryset = addresses
 
   def clean_email(self):
     host_email = self.cleaned_data['email']

@@ -961,16 +961,34 @@ def party_add(request):
     data["taster"] = True
 
   data["no_perms"] = False
-  if pro_group not in u.groups.all():
+  # if pro_group not in u.groups.all():
+  if u.get_profile().is_pro() and u.get_profile.is_host():
     # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
-  initial_data = {'pro': u}
+  initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
+
+  if u.get_profile().is_host():
+    initial_data['first_name'] = u.first_name
+    initial_data['last_name'] = u.last_name
+    initial_data['email'] = u.email
+    initial_data['phone'] = u.get_profile().phone
+    initial_data['host'] = u
+    # pre-load address with most recent party's address
+    most_recent_party = Party.objects.filter(host=u).order_by('-id')[0]
+
+  else:
+    # is pro
+    initial_data['pro'] = u
+    most_recent_party = Party.objects.filter(organizedparty__pro=u).order_by('-id')[0]
+
+  initial_data['address'] = most_recent_party.address
+
+  form = PartyCreateForm(request.POST or None, initial=initial_data)
 
   if request.method == "POST":
-    form = PartyCreateForm(request.POST, initial=initial_data)
     if form.is_valid():
 
       new_party = form.save()
@@ -1011,8 +1029,12 @@ def party_add(request):
       messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
 
       data["parties_menu"] = True
-      # go to party list page
-      return HttpResponseRedirect(reverse("party_list"))
+
+      if request.POST.get('save'):
+        # go to party list page
+        return HttpResponseRedirect(reverse("party_list"))
+      else:
+        return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
   else:
     # GET
     # if the current user is host, display Vinely Pro
@@ -1043,9 +1065,6 @@ def party_add(request):
       else:
         # if no previous party found, just e-mail sales
         send_host_vinely_party_email(request, u)
-
-    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
-    form = PartyCreateForm(initial=initial_data)
 
   data["form"] = form
   data["parties_menu"] = True
