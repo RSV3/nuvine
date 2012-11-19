@@ -433,6 +433,37 @@ legend {
     background: url('../img/btn_pie_from225.png') no-repeat right top;
  }
  
+.menu_wrap.partycrumb ul.nav, .menu_wrap.partycrumb ul.nav li {
+  margin: 10px 0;
+  height: 90px;
+}
+
+.partycrumb li {
+  height: 190px;
+}
+
+.party-add {
+  background: url('../img/create_party_nav.png') no-repeat 0 -85px; 
+  width: 298px;
+}
+.party-write-invitation {
+  background: url('../img/create_party_nav.png') no-repeat -300px -85px; 
+  width: 260px;
+}
+.party-invite-friends {
+  background: url('../img/create_party_nav.png') no-repeat -562px -85px; 
+  width: 250px;
+}
+
+.party-add.active {
+  background-position: 0 0;
+}
+.party-write-invitation.active {
+  background-position: -300px 0; 
+}
+.party-invite-friends.active {
+  background-position: -562px 0; 
+}
  .product-description {
   width: 300px;
   margin-top: 15px;
