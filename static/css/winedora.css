@@ -151,7 +151,7 @@ legend {
   padding: 0px 70px 31px 70px;
 }
 #nav_get_started {
-  background: url('../img/main_nav_sprite.png') no-repeat -407px -55px; 
+  background: url('../img/main_nav_sprite_old.png') no-repeat -407px -50px; 
   width: 126px;
 }
 #nav_get_started a {
@@ -165,7 +165,7 @@ legend {
   padding: 0px 55px 31px 56px;
 }
 #dashboard {
-  background: url('../img/main_nav_sprite.png') no-repeat -644px -55px; 
+  background: url('../img/main_nav_sprite_old.png') no-repeat -644px -50px; 
   width: 119px;
 }
 #dashboard a {
@@ -185,9 +185,9 @@ legend {
 #how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -381px 0px;}
 #host_a_party a:hover, #host_a_party.active { background: url('../img/main_nav_sprite.png') no-repeat -516px 0px;}
 #become_a_pro a:hover, #become_a_pro.active { background: url('../img/main_nav_sprite.png') no-repeat -651px 0px;}
-#nav_get_started a:hover, #nav_get_started.active { background: url('../img/main_nav_sprite.png') no-repeat -407px 0px;}
+#nav_get_started a:hover, #nav_get_started.active { background: url('../img/main_nav_sprite_old.png') no-repeat -407px 0px;}
 #our_story a:hover, #our_story.active { background: url('../img/main_nav_sprite.png') no-repeat -788px 0px;}
-#dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite.png') no-repeat -644px 0px;}
+#dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite_old.png') no-repeat -644px 0px;}
 #vinely_u a:hover, #vinely_u.active { background: url('../img/main_nav_sprite.png') no-repeat -763px 0px;}
 
 #get_started {
