@@ -20,6 +20,7 @@ python manage.py dumpdata --format json cms > data/cms_local.json
 # replaces the cms data
 heroku run python manage.py loaddata data/cms_local.json -a winedora-staging
 heroku run python manage.py create_templates --activation -a winedora-staging
+heroku run python manage.py migrate main -a winedora-staging
 heroku run python manage.py ingest_master_db -a winedora-staging
 
 
