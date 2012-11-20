@@ -978,14 +978,17 @@ def party_add(request):
     initial_data['phone'] = u.get_profile().phone
     initial_data['host'] = u
     # pre-load address with most recent party's address
-    most_recent_party = Party.objects.filter(host=u).order_by('-id')[0]
+    parties = Party.objects.filter(host=u).order_by('-id')
+    most_recent_party = parties[0] if parties.exists() else None
 
   else:
     # is pro
     initial_data['pro'] = u
-    most_recent_party = Party.objects.filter(organizedparty__pro=u).order_by('-id')[0]
+    parties = Party.objects.filter(organizedparty__pro=u).order_by('-id')
+    most_recent_party = parties[0] if parties.exists() else None
 
-  initial_data['address'] = most_recent_party.address
+  if most_recent_party:
+    initial_data['address'] = most_recent_party.address
 
   form = PartyCreateForm(request.POST or None, initial=initial_data)
 

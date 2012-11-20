@@ -22,6 +22,7 @@
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif host %}
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
+    <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     {% if party_scheduled %}
       <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Guests</a></div></li>
       {# <li><div class="chev"><a href="{% url party_rsvp party.id %}">Your RSVPs</a></div></li> #}
