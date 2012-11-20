@@ -34,23 +34,27 @@
         	{{ content|safe }}
         </div>
       {% else %}
-        <div class="span6">
+        <div class="span5">
           {{ content|safe }}
         </div>
+
         <div class="span1">
           &nbsp;
-        </div>        
-        <div class="span5">
+        </div>
+
+        <div class="span6">
+<!-- 
           <div class="row">
             <div class="span5">
               Questions? Contact us at <a href="mailto:care@vinely.com">care@vinely.com</a> or 888-294-1128
             <p>&nbsp;</p>
             </div>
           </div>
+ -->
           <div class="row">
             <form class="form-horizontal well" method="POST" action="{{ app_path }}">
               {% csrf_token %}
-
+              <h2 class="center">Sign up to be a Vinely Pro - it's easy</h2>
               <fieldset>
                 <div class="control-group {% if form.first_name.errors %} error {% endif %}">
                   <div class="control-label" for="id_first_name">
@@ -117,24 +121,9 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="control-group {% if form.mentor.errors %} error {% endif %}">
-                  <div class="control-label" for="id_mentor">
-                    <label>{{ form.mentor.label_tag }}</label>
-                  </div>
-                  <div class="controls">
-                    {{ form.mentor }}
-                    <!-- <span>(Just leave this blank if you don't know what it is)<span> -->
-                    {% if form.mentor.errors %}
-                      <span class="help-inline">
-                        {{ form.mentor.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
                 {% if not user.is_authenticated %}
-                  <hr />
                   <div class="control-group {% if form.password1.errors %} error {% endif %}">
-                    <div class="control-label" for="id_mentor">
+                    <div class="control-label" for="id_password1">
                       <label>{{ form.password1.label_tag }}</label>
                     </div>
                     <div class="controls">
@@ -147,7 +136,7 @@
                     </div>
                   </div>
                   <div class="control-group {% if form.password2.errors %} error {% endif %}">
-                    <div class="control-label" for="id_mentor">
+                    <div class="control-label" for="id_password2">
                       <label>{{ form.password2.label_tag }}</label>
                     </div>
                     <div class="controls">
@@ -163,6 +152,20 @@
                   <input type="hidden" name="password1" value="Sign Up" />
                   <input type="hidden" name="password2" value="Sign Up" />
                 {% endif %}
+                <div class="control-group {% if form.mentor.errors %} error {% endif %}">
+                  <div class="control-label" for="id_mentor">
+                    <label>Your Vinely Pro Email <br />(Just leave this blank if you don't know what it is)</label>
+                  </div>
+                  <div class="controls">
+                    {{ form.mentor }}
+                    <!-- <span>(Just leave this blank if you don't know what it is)<span> -->
+                    {% if form.mentor.errors %}
+                      <span class="help-inline">
+                        {{ form.mentor.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
                 <div class="controls">
                   <input class="btn btn-primary" type="submit" value="Sign Up" />
                 </div>

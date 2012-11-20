@@ -48,7 +48,7 @@
     {% endif %}
     <li><div class="chev"><a href="{% url make_host %}">Host a Vinely Taste Party</a></div></li>
     <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
-    <li><div class="chev"><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></div></li>
+    <li><div class="chev"><a href="{% url make_pro %}">Become a Vinely Pro</a></div></li>
   {% elif pending_pro %}
     {% if not wine_personality and not questionnaire_completed %}
       <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>

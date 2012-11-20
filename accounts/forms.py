@@ -255,7 +255,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     The form is used for user creation when people sign up for host or pro,
   """
 
-  mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
+  mentor = forms.EmailField(required=False, label="Your Vinely Pro Email")
   zipcode = us_forms.USZipCodeField()
   phone_number = us_forms.USPhoneNumberField(required=False)
 
