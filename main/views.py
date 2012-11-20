@@ -963,7 +963,7 @@ def party_add(request):
 
   data["no_perms"] = False
   # if pro_group not in u.groups.all():
-  if u.get_profile().is_pro() and u.get_profile.is_host():
+  if u.get_profile().is_pro() and u.get_profile().is_host():
     # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
     data["pending_pro"] = pending_pro in u.groups.all()
