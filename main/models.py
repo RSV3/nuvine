@@ -48,6 +48,9 @@ class Party(models.Model):
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
+  auto_invite = models.BooleanField()
+  auto_thank_you = models.BooleanField()
+  guests_can_invite = models.BooleanField()
 
   def __unicode__(self):
     if self.host.first_name:
@@ -524,9 +527,6 @@ class InvitationSent(models.Model):
   custom_subject = models.CharField(max_length=128, default="You're invited to a Vinely Party!")
   custom_message = models.CharField(max_length=1024, blank=True, null=True)
   guests = models.ManyToManyField(User, blank=True, null=True)
-  auto_invite = models.BooleanField()
-  auto_thank_you = models.BooleanField()
-  guests_can_invite = models.BooleanField()
   timestamp = models.DateTimeField(auto_now_add=True)
 
 

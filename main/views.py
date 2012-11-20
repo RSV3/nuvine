@@ -1348,6 +1348,7 @@ def party_rsvp(request, party_id, rsvp_code, response=None):
   data["invitees"] = invitees
   data["invite"] = invite
   data["parties_menu"] = True
+  InvitationSent.objects.filter
   invitations = party.invitationsent_set.all().order_by("-timestamp")
   if invitations.exists():
     data["custom_message"] = invitations[0].custom_message
@@ -1366,15 +1367,16 @@ def party_write_invitation(request, party_id):
 
   if request.POST.get("next") or request.POST.get("save"):
     if form.is_valid():
-      print "listing", form.cleaned_data
-      invitation = form.save(commit=False)
+      invitation = form.save()
       invite_options = [int(x) for x in form.cleaned_data['invite_options']]
-      invitation.auto_invite = True if 0 in invite_options else False
-      invitation.auto_thank_you = True if 1 in invite_options else False
-      invitation.guests_can_invite = True if 2 in invite_options else False
-      invitation.save()
+      party = invitation.party
+      party.auto_invite = True if 0 in invite_options else False
+      party.auto_thank_you = True if 1 in invite_options else False
+      party.guests_can_invite = True if 2 in invite_options else False
+      party.save()
     # return HttpResponseRedirect(reverse(''))
   data['form'] = form
+  data["parties_menu"] = True
   return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))
 
 

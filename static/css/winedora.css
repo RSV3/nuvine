@@ -443,15 +443,15 @@ legend {
 }
 
 .party-add {
-  background: url('../img/create_party_nav.png') no-repeat 0 -85px; 
+  background: url('../img/create_party_nav.png') no-repeat 0 -82px; 
   width: 298px;
 }
 .party-write-invitation {
-  background: url('../img/create_party_nav.png') no-repeat -300px -85px; 
+  background: url('../img/create_party_nav.png') no-repeat -300px -82px; 
   width: 260px;
 }
 .party-invite-friends {
-  background: url('../img/create_party_nav.png') no-repeat -562px -85px; 
+  background: url('../img/create_party_nav.png') no-repeat -562px -82px; 
   width: 250px;
 }
 
