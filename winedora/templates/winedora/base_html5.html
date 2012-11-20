@@ -182,11 +182,13 @@
               <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
                 <a href="{% url rate_wines %}" title="rate wines"></a>
               </li>
+<!-- 
               {% if pro %}
               <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
                   <a href="{% url dashboard %}" title="dashboard"></a>
               </li>
               {% endif %}
+ -->
               <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
                 <a href="{% url how_it_works %}" title="how it works"></a>
               </li>
@@ -224,9 +226,6 @@
                 <ul class="nav">
                   <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
                   <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="how it works"></a></li>
-<!-- 
-                  <li id="nav_get_started"{% if get_started_menu %} class="active"{% endif %}><a href="{% url get_started %}" title="get started"></a></li>
- -->
                   <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
                       <a href="{% url make_host %}" title="Host A Party"></a>
                   </li>
