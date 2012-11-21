@@ -164,7 +164,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
   list_display = ('email', 'full_name', 'quantity', 'frequency', 'next_invoice_date', 'updated_datetime')
   search_fields = ('user__email', 'user__first_name', 'user__last_name')
-  #list_editable = ('quantity', 'frequency', 'next_invoice_date')
+  list_editable = ['next_invoice_date']
   raw_id_fields = ['user']
 
   def email(self, instance):

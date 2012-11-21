@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpRequest
 
 from optparse import make_option
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from accounts.models import CreditCard, Address, VerificationQueue
@@ -418,19 +418,34 @@ class Command(BaseCommand):
       order.assign_new_order_id()
       order.save()
 
-      subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category,
-                                                                    frequency=item.frequency)
-      if item.frequency == 1:
-        next_invoice = datetime.date(datetime.now(tz=UTC())) + relativedelta(months=+1)
-      elif item.frequency == 2:
-        next_invoice = datetime.date(datetime.now(tz=UTC())) + relativedelta(months=+2)
-      elif item.frequency == 3:
-        next_invoice = datetime.date(datetime.now(tz=UTC())) + relativedelta(months=+3)
+      update_invoice_date = True
+      from_date = datetime.date(datetime.now(tz=UTC()))
+      subscriptions = SubscriptionInfo.objects.filter(user=order.receiver).order_by("-updated_datetime")
+      if subscriptions.exists() and subscriptions[0].quantity == item.price_category and subscriptions[0].frequency == item.frequency:
+        # latest subscription info is valid and use it to update
+        subscription = subscriptions[0]
+        if subscription.next_invoice_date < date.today():
+          from_date = subscription.next_invoice_date
+        else:
+          update_invoice_date = False
       else:
-        # set it to yesterday since subscription cancelled or was one time
-        # this way, celery task won't pick things up
-        next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
-      subscription.next_invoice_date = next_invoice
+        # create new subscription info
+        subscription = SubscriptionInfo(user=order.receiver,
+                                      quantity=item.price_category,
+                                      frequency=item.frequency)
+
+      if update_invoice_date:
+        if item.frequency == 1:
+          next_invoice = from_date + relativedelta(months=+1)
+        elif item.frequency == 2:
+          next_invoice = from_date + relativedelta(months=+2)
+        elif item.frequency == 3:
+          next_invoice = from_date + relativedelta(months=+3)
+        else:
+          # set it to yesterday since subscription cancelled or was one time purchase
+          # this way, celery task won't pick things up
+          next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
+        subscription.next_invoice_date = next_invoice
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
 
