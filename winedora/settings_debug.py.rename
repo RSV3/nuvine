@@ -1,4 +1,7 @@
-# set to True if in local
-# set to False to upload static content to cdn
+# set DEBUG = True if in local
+# set DEBUG = False to upload static content to cdn
 
-DEBUG = True 
+DEBUG = False 
+
+# set NEW_PARTY = True to upload to NEW_PARTY cdn else keep it False
+NEW_PARTY = True
