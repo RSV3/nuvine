@@ -234,7 +234,8 @@ class Command(BaseCommand):
       # find user first
 
       customer_email = row[CUSTOMER_EMAIL].strip().lower()
-      print "Processing row: %d, %s" % (rownum, customer_email)
+      recipient_email = row[RECIPIENT_EMAIL].strip().lower()
+      print "%s Processing row: %d, %s\tSend to: %s" % (customer_email==recipient_email, rownum, customer_email, recipient_email )
       # check if valid e-mail exists
       if not email_validator(customer_email):
         # go to next line
@@ -264,11 +265,10 @@ class Command(BaseCommand):
       customer_full_name = "%s %s" % (u.first_name, u.last_name)
 
       # create receiver user
-      if u.email == row[RECIPIENT_EMAIL].strip().lower():
+      if u.email == recipient_email:
         receiver = u
       else:
         # check to see if receiver already has account
-        recipient_email = row[RECIPIENT_EMAIL].strip().lower()
         try:
           receiver = User.objects.get(email=recipient_email)
           if not receiver.first_name:
@@ -375,7 +375,7 @@ class Command(BaseCommand):
         cvv_num = row[CREDIT_CARD_CVV].strip()
         card_type = get_cc_type(row[CREDIT_CARD_NUM])
 
-        exp_date = datetime.strptime(row[CREDIT_CARD_EXP], "%m/%y")
+        exp_date = datetime.strptime(row[CREDIT_CARD_EXP].strip(), "%m/%y")
         card = CreditCard(nick_name=customer_email, card_number=card_num,
                     exp_month=exp_date.month, exp_year=exp_date.year, verification_code=cvv_num,
                     billing_zipcode=str(int(billing_zipcode)).zfill(5),
@@ -412,9 +412,9 @@ class Command(BaseCommand):
         user_profile.save()
 
       # create order
+      yesterday = datetime.today() - timedelta(days=1)
       order = Order(ordered_by=u, receiver=receiver, cart=cart,
-            shipping_address=shipping_address, credit_card=card)
-      # TODO: need to assign order_date
+            shipping_address=shipping_address, credit_card=card, order_date=yesterday)
       order.assign_new_order_id()
       order.save()
 
@@ -427,7 +427,9 @@ class Command(BaseCommand):
       elif item.frequency == 3:
         next_invoice = datetime.date(datetime.now(tz=UTC())) + relativedelta(months=+3)
       else:
-        next_invoice = datetime.now(tz=UTC())
+        # set it to yesterday since subscription cancelled or was one time
+        # this way, celery task won't pick things up
+        next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
       subscription.next_invoice_date = next_invoice
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()

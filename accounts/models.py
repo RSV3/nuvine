@@ -334,7 +334,7 @@ class SubscriptionInfo(models.Model):
     (10, 'Divine: Half Case (6 bottles)'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
-  next_invoice_date = models.DateField(auto_now_add=True)
+  next_invoice_date = models.DateField()
   updated_datetime = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
