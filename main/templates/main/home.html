@@ -18,8 +18,12 @@
       <li><div class="chev"><a href="{% url record_all_wine_ratings user.email party.id %}">Record Wine Ratings</a></div></li>
     {% endif %}
     <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
-    <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
-    <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+    {% if user.get_profile.has_personality %}
+      <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+    {% endif %}
+    {% if user.get_profile.has_orders %}
+      <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+    {% endif %}
   {% elif host %}
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
@@ -31,8 +35,12 @@
       {% endif %}
       <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
     {% endif %}
-    <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
-    <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+    {% if user.get_profile.has_personality %}
+      <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+    {% endif %}
+    {% if user.get_profile.has_orders %}
+      <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+    {% endif %}
   {% elif supplier %}
     <li><div class="chev"><a href="{% url supplier_pending_orders %}">Pending Orders</a></div></li>
     <li><div class="chev"><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></div></li>
@@ -44,8 +52,12 @@
     {% if not wine_personality and not questionnaire_completed %}
       <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
     {% else %}
-      <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
-      <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+      {% if user.get_profile.has_personality %}
+        <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+      {% endif %}
+      {% if user.get_profile.has_orders %}
+        <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+      {% endif %}
     {% endif %}
     <li><div class="chev"><a href="{% url make_host %}">Host a Vinely Taste Party</a></div></li>
     <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
@@ -56,8 +68,12 @@
       <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
     {% else %}
       <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
-      <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
-      <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>  
+      {% if user.get_profile.has_personality %}
+        <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
+      {% endif %}
+      {% if user.get_profile.has_orders %}
+        <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
+      {% endif %}
     {% endif %}
   {% endif %}
 

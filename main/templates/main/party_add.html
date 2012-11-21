@@ -40,14 +40,15 @@
       </div>
     </div>
 -->
-    <div class="menu_wrap main partycrumb">
-      <ul class="nav">
-        <li class="party-add active">&nbsp;</li>
-        <li class="party-write-invitation">&nbsp;</li>
-        <li class="party-invite-friends">&nbsp;</li>
-      </ul>
-    </div>
-
+    {% if user.get_profile.is_host %}
+      <div class="menu_wrap main partycrumb">
+        <ul class="nav">
+          <li class="party-add active">&nbsp;</li>
+          <li class="party-write-invitation">&nbsp;</li>
+          <li class="party-invite-friends">&nbsp;</li>
+        </ul>
+      </div>
+    {% endif %}
     <section id="add-party">
       {# add new parties form #}
     
@@ -60,18 +61,22 @@
           <div class="span12">
             <fieldset>
               <legend><h2>Party Info</h2></legend>
-                <div class="control-group {% if form.title.errors %}error{% endif %}">
-                  <div class="control-label" for="id_title">{{ form.title.label }}</div>
-                  <div class="controls">
-                    {{ form.title }} 
-                    {% if form.title.errors %}
-                      <span class="help-inline">
-                        {{ form.title.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
+<!-- 
+              <div class="control-group">
+                <div class="control-label"><h2>Party Info</h2></div>
+              </div>
+ -->
+              <div class="control-group {% if form.title.errors %}error{% endif %}">
+                <div class="control-label" for="id_title">{{ form.title.label }}</div>
+                <div class="controls">
+                  {{ form.title }} 
+                  {% if form.title.errors %}
+                    <span class="help-inline">
+                      {{ form.title.errors }}
+                    </span>
+                  {% endif %}
                 </div>
-              </legend>            
+              </div>
             <fieldset>
               <legend><h2>Host Contact Info</h2></legend>
               {% if pro %}
@@ -267,8 +272,12 @@
             <fieldset>
               <div class="control-group">
                 <div class="controls">
-                  <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
-                  <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
+                  {% if user.get_profile.is_host %}
+                    <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
+                    <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
+                  {% else %}
+                    <button type="submit" name="save" value="save" class="btn btn-primary">Create</button>
+                  {% endif %}
                 </div>
               </div>
             </fieldset>

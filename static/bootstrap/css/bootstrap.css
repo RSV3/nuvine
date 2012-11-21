@@ -626,12 +626,13 @@ legend {
   display: block;
   width: 100%;
   padding: 0;
-  margin-bottom: 1.9500000000000002em;
+  /*margin-bottom: 1.9500000000000002em;*/
   font-size: 14px;
   line-height: 2.6em;
   color: #415A68;
   border: 0;
-  border-bottom: 1px solid #e5e5e5;
+  /*border-bottom: 1px solid #e5e5e5;*/
+  border-top: 1px solid #e5e5e5;
 }
 legend small {
   font-size: 0.9750000000000001em;

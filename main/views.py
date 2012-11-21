@@ -937,7 +937,7 @@ def party_list(request):
 
 
 @login_required
-def party_add(request):
+def party_add(request, party_id=None):
   """
     Add a new party
   """
@@ -963,13 +963,13 @@ def party_add(request):
 
   data["no_perms"] = False
   # if pro_group not in u.groups.all():
-  if u.get_profile().is_pro() and u.get_profile.is_host():
+  if u.get_profile().is_pro() and u.get_profile().is_host():
     # if not a Vinely Pro, one does not have permissions
     data["no_perms"] = True
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
-  initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y")}
+  initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
 
   if u.get_profile().is_host():
     initial_data['first_name'] = u.first_name
@@ -990,7 +990,14 @@ def party_add(request):
   if most_recent_party:
     initial_data['address'] = most_recent_party.address
 
-  form = PartyCreateForm(request.POST or None, initial=initial_data)
+  party = None
+  if party_id:
+    party = get_object_or_404(Party, pk=party_id)
+    initial_data['address'] = party.address
+    initial_data['event_day'] = party.event_date.strftime("%m/%d/%Y")
+    initial_data['event_time'] = party.event_date.time()
+
+  form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party)
 
   if request.method == "POST":
     if form.is_valid():
@@ -1035,8 +1042,8 @@ def party_add(request):
       data["parties_menu"] = True
 
       if request.POST.get('save'):
-        # go to party list page
-        return HttpResponseRedirect(reverse("party_list"))
+        # go to party details page
+        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
       else:
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
   else:
@@ -1360,21 +1367,29 @@ def party_rsvp(request, party_id, rsvp_code, response=None):
 def party_write_invitation(request, party_id):
   data = {}
   party = get_object_or_404(Party, id=party_id)
-  data['party'] = party
+  try:
+    invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
+  except:
+    invitation = None
 
   initial_data = {'party': party, 'custom_message': get_default_invite_message(party)}
-  form = CustomizeInvitationForm(request.POST or None, initial=initial_data)
+  if party.guests_can_invite:
+    initial_data['guests_can_invite'] = CustomizeInvitationForm.GUEST_INVITE_OPTIONS[0]
+
+  form = CustomizeInvitationForm(request.POST or None, initial=initial_data, instance=invitation)
 
   if request.POST.get("next") or request.POST.get("save"):
     if form.is_valid():
       invitation = form.save()
-      invite_options = [int(x) for x in form.cleaned_data['invite_options']]
+      guest_can_invite = [int(x) for x in form.cleaned_data['guests_can_invite']]
       party = invitation.party
-      party.auto_invite = True if 0 in invite_options else False
-      party.auto_thank_you = True if 1 in invite_options else False
-      party.guests_can_invite = True if 2 in invite_options else False
+      party.auto_invite = True if int(form.cleaned_data['auto_invite']) == 0 else False
+      party.auto_thank_you = True if int(form.cleaned_data['auto_thank_you']) == 0 else False
+      party.guests_can_invite = bool(guest_can_invite)
       party.save()
     # return HttpResponseRedirect(reverse(''))
+
+  data['party'] = party
   data['form'] = form
   data["parties_menu"] = True
   return render_to_response("main/party_customize_invite.html", data, context_instance=RequestContext(request))

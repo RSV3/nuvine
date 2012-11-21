@@ -170,6 +170,9 @@ class UserProfile(models.Model):
     except:
       return False
 
+  def has_orders(self):
+    return self.user.ordered.all().exists()
+
   def role(self):
     pro_group = Group.objects.get(name="Vinely Pro")
     hos_group = Group.objects.get(name="Vinely Host")

@@ -32,9 +32,9 @@ class ContactRequestForm(forms.ModelForm):
 
 class PartyCreateForm(forms.ModelForm):
 
-  first_name = forms.CharField(max_length=30, required=False)
-  last_name = forms.CharField(max_length=30, required=False)
-  email = forms.EmailField(required=False)
+  first_name = forms.CharField(max_length=30)
+  last_name = forms.CharField(max_length=30)
+  email = forms.EmailField()
 
   street1 = forms.CharField(label="Street 1", max_length=128, required=False)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
@@ -46,7 +46,7 @@ class PartyCreateForm(forms.ModelForm):
   event_time = forms.TimeField(input_formats=valid_time_formats, label="Party Time")
 
   # replace form field for Party.phone
-  phone = us_forms.USPhoneNumberField()
+  phone = us_forms.USPhoneNumberField(required=False)
 
   class Meta:
     model = Party
@@ -63,7 +63,7 @@ class PartyCreateForm(forms.ModelForm):
 
     # if party being organized by host then load previous addresses by host
     if initial.get('host'):
-      parties = Party.objects.filter(host=initial.get('host'))
+      parties = Party.objects.filter(host=initial['host'])
     else:
       # else if by pro then load prev organized party addresses
       parties = Party.objects.filter(organizedparty__pro=initial.get('pro'))
@@ -76,7 +76,11 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['address'].queryset = addresses
 
   def clean_email(self):
-    host_email = self.cleaned_data['email']
+    #1. if current user is host dont allow to set new host via
+    if self.initial.get('host'):
+      host_email = self.initial['host'].email
+    else:
+      host_email = self.cleaned_data['email']
     try:
       user = User.objects.get(email=host_email)
         # check if host is not a pro
@@ -86,15 +90,20 @@ class PartyCreateForm(forms.ModelForm):
     except User.DoesNotExist:
       # user with this new e-mail will be created in clean
       pass
-
     return host_email
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
+    if self._errors['host']:
+      self._errors['host'] = 'Pick a Host from the list or Enter the Host details below'
 
-    if 'host' not in cleaned_data:
+    if 'host' in cleaned_data:
+      del self._errors['first_name']
+      del self._errors['last_name']
+      del self._errors['email']
+    else:
       # create new host or find existing host
-      if cleaned_data['email']:
+      if cleaned_data.get('email'):
         # create new host based on e-mail
         try:
           user = User.objects.get(email=cleaned_data['email'].lower())
@@ -397,14 +406,22 @@ class ShippingForm(forms.ModelForm):
 
 class CustomizeInvitationForm(forms.ModelForm):
 
-  INVITE_OPTIONS = (
+  AUTO_INVITE_OPTIONS = (
     (0, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
-    (1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
-    (2, 'allow guests to invite friends?')
+    (1, 'allow you to confirm your invite email again before it is sent out?')
+  )
+  AUTO_THANK_OPTIONS = (
+    (0, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
+    (1, 'let me send my own Thank You email after the party')
+  )
+  GUEST_INVITE_OPTIONS = (
+    (1, 'allow guests to invite friends?'),
   )
   preview = forms.BooleanField(required=False)
   send = forms.BooleanField(required=False)
-  invite_options = forms.MultipleChoiceField(choices=INVITE_OPTIONS, widget=forms.CheckboxSelectMultiple)
+  auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect)
+  auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect)
+  guests_can_invite = forms.MultipleChoiceField(choices=GUEST_INVITE_OPTIONS, widget=forms.CheckboxSelectMultiple, required=False)
 
   class Meta:
     model = InvitationSent

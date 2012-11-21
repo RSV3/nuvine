@@ -171,56 +171,64 @@
           {% block navbar_menu %}
 
           {% if user.is_authenticated %} 
-          <div class="menu_wrap main">           
-            <ul class="nav">
-              <li id="parties"{% if parties_menu %} class="active"{% endif %}>
-                <a href="{% url party_list %}" title="parties"></a>
-              </li>
-              <li id="shop"{% if shop_menu %} class="active"{% endif %}>
-                <a href="{% url start_order %}" title="shop"></a>
-              </li>
-              <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
-                <a href="{% url rate_wines %}" title="rate wines"></a>
-              </li>
-<!-- 
-              {% if pro %}
-              <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
-                  <a href="{% url dashboard %}" title="dashboard"></a>
-              </li>
-              {% endif %}
- -->
-              <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
-                <a href="{% url how_it_works %}" title="how it works"></a>
-              </li>
-              <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
-                  <a href="{% url make_host %}" title="Host A Party"></a>
-              </li>
-              <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
-                  <a href="{% url make_pro %}" title="Become A Pro"></a>
-              </li>
-              <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
-                <a href="{% url our_story %}" title="our story"></a>
-              </li>
-
-
-              <!--
-              <li id="vinely_u">
-                <a href="#" title="vinely u"></a>
-              </li>
-              -->
-
-              {% if wine_personality %}
-              
-              {% endif %}
-
-              {% if pending_ratings %} 
-                <li id="rate_wines">
-                  <a href="{% url rate_wines %}">RATE_WINES</a>
+            <div class="menu_wrap main">           
+              <ul class="nav">
+                <li id="parties"{% if parties_menu %} class="active"{% endif %}>
+                  <a href="{% url party_list %}" title="parties"></a>
                 </li>
-              {% endif %}
+                {% if user.get_profile.has_personality %}
+                  <li id="shop"{% if shop_menu %} class="active"{% endif %}>
+                    <a href="{% url start_order %}" title="shop"></a>
+                  </li>
+                {% endif %}
+                {% if user.get_profile.has_orders %}
+                  <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
+                    <a href="{% url rate_wines %}" title="rate wines"></a>
+                  </li>
+                {% endif %}
+  <!-- 
+                {% if pro %}
+                <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
+                    <a href="{% url dashboard %}" title="dashboard"></a>
+                </li>
+                {% endif %}
+   -->
+                <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
+                  <a href="{% url how_it_works %}" title="how it works"></a>
+                </li>
+                {% if not user.get_profile.is_pro and not user.get_profile.is_host %}
+                  <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
+                      <a href="{% url make_host %}" title="Host A Party"></a>
+                  </li>
+                {% endif %}
+                {% if not user.get_profile.is_pro %}
+                  <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
+                      <a href="{% url make_pro %}" title="Become A Pro"></a>
+                  </li>
+                {% endif %}
+                <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
+                  <a href="{% url our_story %}" title="our story"></a>
+                </li>
 
-            </ul><!-- .nave -->
-          </div><!-- .main_menu_wrap -->
+
+                <!--
+                <li id="vinely_u">
+                  <a href="#" title="vinely u"></a>
+                </li>
+                -->
+
+                {% if wine_personality %}
+                
+                {% endif %}
+
+                {% if pending_ratings %} 
+                  <li id="rate_wines">
+                    <a href="{% url rate_wines %}">RATE_WINES</a>
+                  </li>
+                {% endif %}
+
+              </ul><!-- .nave -->
+            </div><!-- .main_menu_wrap -->
           {% else %}
           <div class="menu_wrap main">
                 <ul class="nav">
@@ -297,7 +305,7 @@
               <a href="{% url home_page %}">Home</a>
             </li>
             <li>
-              {% if user.is_authenticated %}
+              {% if user.is_authenticated and user.get_profile.has_personality %}
                 <a href="{% url start_order %}">Shop</a>
               {% endif %}
             </li>
@@ -312,9 +320,11 @@
             <li>
               <a href="{% url how_it_works %}">How It Works</a>
             </li>
+<!-- 
             <li>
               <a href="{% url get_started %}">Get Started</a>
             </li>
+ -->
             <li>
               <a href="{% url our_story %}">Our Story</a>
             </li>
