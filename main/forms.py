@@ -154,6 +154,15 @@ class PartyCreateForm(forms.ModelForm):
     return cleaned_data
 
 
+class PartyTasterOptionsForm(forms.Form):
+  TASTER_OPTIONS = (
+    (0, "see the guest list"),
+    (1, "be able to invite friends"),
+  )
+
+  taster_actions = forms.MultipleChoiceField(choices=TASTER_OPTIONS, widget=forms.CheckboxSelectMultiple, label="Do you want tasters to", required=False)
+
+
 class PartyInviteTasterForm(forms.ModelForm):
   """
     Invite a new taster
@@ -162,13 +171,17 @@ class PartyInviteTasterForm(forms.ModelForm):
   first_name = forms.CharField(max_length=30, required=False)
   last_name = forms.CharField(max_length=30, required=False)
   email = forms.EmailField(required=False)
+  # taster = forms.ModelChoiceField()
 
   class Meta:
     model = PartyInvite
-    exclude = ['response']
+    exclude = ['response', 'party']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].widget.attrs = {"placeholder": "First Name"}
+    self.fields['last_name'].widget.attrs = {"placeholder": "Last Name"}
+    self.fields['email'].widget.attrs = {"placeholder": "Email"}
 
     initial = kwargs.get('initial')
     tas_group = Group.objects.get(name="Vinely Taster")

@@ -51,6 +51,8 @@ class Party(models.Model):
   auto_invite = models.BooleanField()
   auto_thank_you = models.BooleanField()
   guests_can_invite = models.BooleanField()
+  guests_see_guestlist = models.BooleanField()
+  confirmed = models.BooleanField()
 
   def __unicode__(self):
     if self.host.first_name:

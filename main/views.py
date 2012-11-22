@@ -20,7 +20,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        ChangeTasterRSVPForm
+                        ChangeTasterRSVPForm, PartyTasterOptionsForm
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -1101,6 +1101,84 @@ def party_add(request, party_id=None):
   data["parties_menu"] = True
 
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_find_friends(request, party_id):
+  data = {}
+  u = request.user
+
+  party = get_object_or_404(Party, pk=party_id, host=u)
+
+  data["parties_menu"] = True
+  data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+
+  initial_data = {'host': u, "party": party}
+
+  taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+
+  options_form = PartyTasterOptionsForm(request.POST or None)
+
+  if taster_form.is_valid():
+    new_invite = taster_form.save()
+    new_invite.invited_by = u
+    new_invite.rsvp_code = str(uuid.uuid4())
+    new_invite.save()
+
+    new_invitee = new_invite.invitee
+    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+
+    return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
+
+  data['party'] = party
+  data['taster_form'] = taster_form
+  data['options_form'] = options_form
+  return render_to_response("main/party_find_friends.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_remove_taster(request, invite_id):
+
+  invite = get_object_or_404(PartyInvite, pk=invite_id)
+  party = invite.party
+  invite.delete()
+
+  return HttpResponseRedirect(reverse("party_find_friends", args=[party.id]))
+
+
+@login_required
+def party_edit_taster_info(request, invite_id):
+  data = {}
+  u = request.user
+
+  invite = get_object_or_404(PartyInvite, pk=invite_id)
+
+  initial_data = {'host': u, "first_name": invite.invitee.first_name, "last_name": invite.invitee.last_name, "email": invite.invitee.email}
+
+  form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
+
+  if form.is_valid():
+    invite.delete()
+    new_invite = form.save()
+    new_invite.invited_by = u
+    new_invite.rsvp_code = str(uuid.uuid4())
+    new_invite.save()
+    invite = new_invite
+    new_invitee = new_invite.invitee
+
+    # you can only change names if it's a new user
+    if not new_invitee.is_active:
+      new_invitee.first_name = form.cleaned_data['first_name']
+      new_invitee.last_name = form.cleaned_data['last_name']
+      new_invitee.save()
+    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+
+    return HttpResponseRedirect(reverse("party_find_friends", args=[new_invite.party.id]))
+
+  data['party'] = invite.party
+  data['taster_form'] = form
+  data['invite'] = invite
+  return render_to_response("main/party_edit_taster_modal.html", data, context_instance=RequestContext(request))
 
 
 def party_change_taster_rsvp(request):

@@ -1,15 +1,15 @@
 from django import forms
-from django.contrib.auth.models import User, Group
-from emailusernames.utils import create_user, create_superuser
-from django.utils import timezone
-from main.models import PartyInvite
+from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, SurveyWine
+
 
 class WineRatingsForm(forms.ModelForm):
 
   class Meta:
     model = WineRatingData
+
 
 class AddTasterRatingsForm(forms.ModelForm):
   first_name = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'placeholder': 'First Name'}))
@@ -29,7 +29,6 @@ class AddTasterRatingsForm(forms.ModelForm):
     return cleaned_data
 
 
-from django.utils.safestring import mark_safe
 class CustomRadioField(forms.RadioSelect.renderer):
   def render(self):
     items = []
