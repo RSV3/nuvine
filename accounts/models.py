@@ -9,14 +9,29 @@ from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
 from django.utils import timezone
 
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta, tzinfo
 import binascii, string, math
 from stripecard.models import StripeCard
 
 from personality.models import WineRatingData
 import stripe
+ZERO = timedelta(0)
+
+
 # Create your models here.
 
+# have to redefine instead of importing from main.utils due to circular dependency
+class UTC(tzinfo):
+  """UTC"""
+
+  def utcoffset(self, dt):
+    return ZERO
+
+  def tzname(self, dt):
+    return "UTC"
+
+  def dst(self, dt):
+    return ZERO
 
 class Address(models.Model):
   nick_name = models.CharField(max_length=64, null=True, blank=True)
@@ -199,7 +214,7 @@ class UserProfile(models.Model):
       Cancels user subscription
     """
     # in order to keep track of subscription history, we add new entry with no subscription
-    subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0)
+    subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
     subscription.save()
 
     # need to cancel credit card charges (i.e. Stripe)
@@ -337,7 +352,7 @@ class SubscriptionInfo(models.Model):
     (10, 'Divine: Half Case (6 bottles)'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
-  next_invoice_date = models.DateField(auto_now_add=True)
+  next_invoice_date = models.DateField()
   updated_datetime = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):

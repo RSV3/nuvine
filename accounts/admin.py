@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from accounts.models import UserProfile, VinelyProAccount, Address
+from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo
 from accounts.utils import send_pro_approved_email
 from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
 
@@ -160,8 +160,22 @@ class VinelyUserAdmin(EmailUserAdmin):
   def pro_number(self, instance):
     return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance)])
 
+class SubscriptionAdmin(admin.ModelAdmin):
+
+  list_display = ('email', 'full_name', 'quantity', 'frequency', 'next_invoice_date', 'updated_datetime')
+  search_fields = ('user__email', 'user__first_name', 'user__last_name')
+  list_editable = ['next_invoice_date']
+  raw_id_fields = ['user']
+
+  def email(self, instance):
+    return instance.user.email
+
+  def full_name(self, instance):
+    return "%s %s" % (instance.user.first_name, instance.user.last_name)
+
 class AddressAdmin(admin.ModelAdmin):
   pass
 
 admin.site.register(User, VinelyUserAdmin)
 admin.site.register(Address, AddressAdmin)
+admin.site.register(SubscriptionInfo, SubscriptionAdmin)

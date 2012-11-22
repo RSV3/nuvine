@@ -35,6 +35,7 @@ from cms.models import ContentTemplate
 
 import json, uuid, math
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -813,9 +814,28 @@ def order_complete(request, order_id):
     # update subscription information if new order
     for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
       # check if item contains subscription
-      # if item.price_category in range(5, 11):
-      subscription, created = SubscriptionInfo.objects.get_or_create(user=order.receiver, quantity=item.price_category, frequency=item.frequency)
-      next_invoice = datetime.date(datetime.now(tz=UTC())) + timedelta(days=28)
+      from_date = datetime.date(datetime.now(tz=UTC()))
+      subscriptions = SubscriptionInfo.objects.filter(user=order.receiver).order_by("-updated_datetime")
+      if subscriptions.exists() and subscriptions[0].quantity == item.price_category and subscriptions[0].frequency == item.frequency:
+        # latest subscription info is valid and use it to update
+        subscription = subscriptions[0]
+        from_date = subscription.next_invoice_date
+      else:
+        # create new subscription info
+        subscription = SubscriptionInfo(user=order.receiver,
+                                      quantity=item.price_category,
+                                      frequency=item.frequency)
+
+      if item.frequency == 1:
+        next_invoice = from_date + relativedelta(months=+1)
+      elif item.frequency == 2:
+        next_invoice = from_date + relativedelta(months=+2)
+      elif item.frequency == 3:
+        next_invoice = from_date + relativedelta(months=+3)
+      else:
+        # set it to yesterday since subscription cancelled or was one time purchase
+        # this way, celery task won't pick things up
+        next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
       subscription.next_invoice_date = next_invoice
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
