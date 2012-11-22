@@ -1133,12 +1133,13 @@ def party_find_friends(request, party_id):
     options_form = PartyTasterOptionsForm(request.POST or None, initial=initial_data)
 
   if request.POST.get("add_taster"):
+    print taster_form.errors
     if taster_form.is_valid():
       new_invite = taster_form.save()
       new_invite.invited_by = u
       new_invite.rsvp_code = str(uuid.uuid4())
       new_invite.save()
-
+      print "added "
       new_invitee = new_invite.invitee
       messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
 
@@ -1173,33 +1174,41 @@ def party_remove_taster(request, invite_id):
 
 
 @login_required
-def party_edit_taster_info(request, invite_id):
+def party_edit_taster_info(request, invite_id, change_rsvp=None):
   data = {}
   u = request.user
 
   invite = get_object_or_404(PartyInvite, pk=invite_id)
 
-  initial_data = {'host': u, "first_name": invite.invitee.first_name, "last_name": invite.invitee.last_name, "email": invite.invitee.email}
+  initial_data = {'host': u, "first_name": invite.invitee.first_name,
+                  'last_name': invite.invitee.last_name, 'email': invite.invitee.email,
+                  'phone': invite.invitee.get_profile().phone, 'change_rsvp': change_rsvp}
 
   form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
-  print form.errors
-  if form.is_valid():
-    invite.delete()
-    new_invite = form.save()
-    new_invite.invited_by = u
-    new_invite.rsvp_code = str(uuid.uuid4())
-    new_invite.save()
-    invite = new_invite
-    new_invitee = new_invite.invitee
 
-    # you can only change names if it's a new user
-    if not new_invitee.is_active:
-      new_invitee.first_name = form.cleaned_data['first_name']
-      new_invitee.last_name = form.cleaned_data['last_name']
-      new_invitee.save()
-    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+  if request.method == 'POST':
+    previous_page = request.META.get('HTTP_REFERER')
+    if form.is_valid():
+      invite.delete()
+      new_invite = form.save()
+      new_invite.invited_by = u
+      new_invite.rsvp_code = str(uuid.uuid4())
+      new_invite.save()
+      invite = new_invite
+      new_invitee = new_invite.invitee
 
-    return HttpResponseRedirect(reverse("party_find_friends", args=[new_invite.party.id]))
+      # you can only change names if it's a new user
+      if not new_invitee.is_active:
+        new_invitee.first_name = form.cleaned_data['first_name']
+        new_invitee.last_name = form.cleaned_data['last_name']
+        new_invitee.save()
+        invitee_profile = new_invitee.get_profile()
+        invitee_profile.phone = form.cleaned_data['phone']
+        invitee_profile.save()
+      messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+    else:
+      messages.error(request, form.errors)
+    return HttpResponseRedirect(previous_page)
 
   data['party'] = invite.party
   data['taster_form'] = form
@@ -1248,13 +1257,20 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
+  initial_data = {}
+
+  taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+  data['taster_form'] = taster_form
+
   data['rsvp_form'] = ChangeTasterRSVPForm(initial={'party': party_id})
 
+  invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+
   # tasters should only see list of people that they invited
-  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
-    invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name')
-  else:
-    invitees = PartyInvite.objects.filter(party=party, invited_by=u).order_by('invitee__first_name')
+  # if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
+  #   invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+  # else:
+  #   invitees = PartyInvite.objects.filter(party=party, invited_by=u).order_by('invitee__first_name', 'invitee__last_name')
 
   data["party"] = party
   data["invitees"] = invitees
@@ -1269,7 +1285,7 @@ def party_details(request, party_id):
       msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
       messages.warning(request, msg)
 
-  pro = OrganizedParty.objects.get(party=party)
+  pro = OrganizedParty.objects.get(party=party).pro
   data["pro_user"] = pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY

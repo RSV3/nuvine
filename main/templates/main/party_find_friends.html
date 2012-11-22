@@ -79,6 +79,17 @@
               {% endif %}
             </div>
           </div>
+          <div class="span2">
+            <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+              {{ taster_form.phone }} 
+              {% if taster_form.phone.errors %}
+                <span class="help-inline">
+                  {{ taster_form.phone.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {{ taster_form.response }}
           <div class="span12">
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
           </div>
@@ -167,7 +178,7 @@
           <div class="span4">
             <button class="btn btn-primary" name="request" value="request">Request Party</button>
           </div>
-        </div>                
+        </div>
     </form>
   </div>
 

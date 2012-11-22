@@ -148,9 +148,12 @@ class PartyInvite(models.Model):
   # if other than the host
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
-  invited_timestamp = models.DateTimeField(auto_now_add=True)
+  invited_timestamp = models.DateTimeField(blank=True, null=True)  # auto_now_add=True)
   response_timestamp = models.DateTimeField(blank=True, null=True)
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
+
+  def invited(self):
+    return bool(self.invited_timestamp)
 
   def set_response(self, response):
     self.response = response

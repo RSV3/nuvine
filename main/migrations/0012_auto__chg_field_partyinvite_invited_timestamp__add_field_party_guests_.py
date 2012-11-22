@@ -8,6 +8,9 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+
+        # Changing field 'PartyInvite.invited_timestamp'
+        db.alter_column('main_partyinvite', 'invited_timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True))
         # Adding field 'Party.guests_see_guestlist'
         db.add_column('main_party', 'guests_see_guestlist',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -20,6 +23,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+
+        # Changing field 'PartyInvite.invited_timestamp'
+        db.alter_column('main_partyinvite', 'invited_timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=datetime.datetime(2012, 11, 22, 0, 0)))
         # Deleting field 'Party.guests_see_guestlist'
         db.delete_column('main_party', 'guests_see_guestlist')
 
@@ -210,7 +216,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'PartyInvite'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'invited_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'my_guests'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'invitee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'my_invites'", 'to': "orm['auth.User']"}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'}),

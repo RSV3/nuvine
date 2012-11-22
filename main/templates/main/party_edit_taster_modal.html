@@ -2,10 +2,10 @@
   <div id="update_age" class="modal hide fade">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-      <h3>Edit Taster Info</h3>
+      <h3 class="center">Edit Taster Info</h3>
     </div>
     <div class="modal-body">
-      <form method="POST" class="modal-form" action="{% url party_edit_taster_info invite.id %}">{% csrf_token %}
+      <form method="POST" class="form-horizontal" action="{% url party_edit_taster_info invite.id %}">{% csrf_token %}
         <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
         {{ taster_form.party }}
         <br />
@@ -25,6 +25,18 @@
           <div class="control-label">{{ taster_form.email.label }}</div>
           <div class="controls">
             {{ taster_form.email }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">{{ taster_form.phone.label }}</div>
+          <div class="controls">
+            {{ taster_form.phone }}
+          </div>
+        </div>
+        <div class="control-group">
+          <!-- <div class="control-label">{{ taster_form.response.label }}</div> -->
+          <div class="controls">
+            {{ taster_form.response }}
           </div>
         </div>
         <div class="modal-footer">

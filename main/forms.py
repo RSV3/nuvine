@@ -168,23 +168,28 @@ class PartyInviteTasterForm(forms.ModelForm):
     Invite a new taster
   """
 
-  first_name = forms.CharField(max_length=30, required=False)
-  last_name = forms.CharField(max_length=30, required=False)
-  email = forms.EmailField(required=False)
+  first_name = forms.CharField(max_length=30)
+  last_name = forms.CharField(max_length=30)
+  email = forms.EmailField()
+  phone = us_forms.USPhoneNumberField(required=False)
   # taster = forms.ModelChoiceField()
 
   class Meta:
     model = PartyInvite
-    exclude = ['response']
+    # exclude = ['response']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
+    initial = kwargs.get('initial')
+
     self.fields['first_name'].widget.attrs = {"placeholder": "First Name"}
     self.fields['last_name'].widget.attrs = {"placeholder": "Last Name"}
     self.fields['email'].widget.attrs = {"placeholder": "Email"}
+    self.fields['phone'].widget.attrs = {"placeholder": "Phone"}
     self.fields['party'].widget = forms.HiddenInput()
+    if not initial.get('change_rsvp') == 't':
+      self.fields['response'].widget = forms.HiddenInput()
 
-    initial = kwargs.get('initial')
     tas_group = Group.objects.get(name="Vinely Taster")
 
     # only get users linked to this host

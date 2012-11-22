@@ -5,18 +5,23 @@
 {% load static %}
 
 {% block header %}
-  <h1>Taste Party: {{ party.title }}</h1>
-  Here are your party details.  Invite more tasters to learn about their wine profiles.
+  <h1 class="headline">{{ party.title }}</h1>
 {% endblock header %}
 
 {% block additional_styles %}
   <style type="text/css">
-    select, option {
+/*    select, option {
       width: 120px;
       margin: 5px;
+    }*/
+    .summary-table tr td:first-child{
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
     }
   </style>
 {% endblock additional_styles %}
+
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -24,159 +29,243 @@
   <section id="party-information">
     <div class="row">
       <div class="span6">
-        <table>
+        <table class="summary-table">
           <tbody>
             <tr>
-              <td>Hosted by:</td>
-              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a> {% if pro %}[{% if party.host.get_profile.has_personality %}<a href="{% url personality_rating_info party.host.email party.id %}">{{ party.host.get_profile.wine_personality}}</a>{% else %}<a href="{% url record_all_wine_ratings party.host.email party.id %}">Enter ratings</a>{% endif %}]{% endif %}</td>
+              <td><h2>Party Info</h2></td>
             </tr>
             <tr>
-              <td>Party Type:</td>
-              <td>{{ party.title }}</td>
+              <td>Date</td>
+              <td><p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p></td>
             </tr>
             <tr>
-              <td>Date and Time:</td>
-              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-            </tr>
-            <tr>
-              <td>Location:</td>
-              <td>{{ party.address.full_text }}</td>
-            </tr>
-            <tr>
-              <td>Guests Attending:</td>
-              <td>{% if party.invitees %}{{ party.invitees }} <span class="badge badge-important">{{ party.high_low }}</span> {{ high_low_status }}{% else %}<a href="{% url party_taster_invite party.id %}">Invite Guests</a>{% endif %}</td>
-            </tr>
-            <tr>
-              <td>Special Instructions:</td>
-              <td>{{ party.description }}</td>
-            </tr>
-            {% if host and can_order_kit %}
-            <tr>
+              <td>Location</td>
               <td>
-                <a class="btn btn-primary" href="{% url cart_add_tasting_kit party.id %}">Order Tasting Kit</a>
-              </td>
-              <td>
+                <p>{{ party.address.street1 }}</p>
+                <p>{{ party.address.street2 }}</p>
+                <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
               </td>
             </tr>
-            {% endif %}
+            <tr>
+              <td>Host Name</td>
+              <td>
+                <p><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Host Phone</td>
+              <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}-{% endif %}</p></td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <div class="span6">
-        {% if not pro %}
-          {# for hosts #}
-          <p>
-            <div class="user-info">
-              <div class="user-pic">
-                {% if pro_user.get_profile.image %}
-                  {% thumbnail pro_user.get_profile.image "120x120" as im %}
-                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                  {% endthumbnail %}
-                {% else %}
-                  <img src="{% static "img/noprofilephoto_img.png" %}" width="120">
-                {% endif %}
-              </div>
-              <div class="user-contact">
-                <p><b>Vinely Pro:</b></p>
-                <div class="user-name">
-                  {% if pro_user.first_name %}
-                    {{ pro_user.first_name }} {{ pro_user.last_name }}
-                  {% else %}
-                    Valued Customer Name
-                  {% endif %}
-                </div>
-                <div class="user-phone">
-                  <i class="icon-user"></i> {% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
-                </div>
-                <div class="user-email">
-                  <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
-                </div>
-              </div>
-            </div>
-          </p>
-          <section id="party-tips">
-          <p class="span6"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Download the Taste Party To-Do List</a></p>
-          </section>
-        {% else %}
-          {# for pros #}
-          <div class="pull-right">
-            <a href="{% url print_rating_cards party.id %}" class="btn btn-primary">Create Customized Experience Cards</a>
-            <p></p>
-            <a href="{% static "doc/PDF_vinely_experience_card_Raw.pdf" %}" class="btn btn-primary">Download Generic Experience Cards</a>
+        <div class="row">
+          <div class="span2">
+            <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td><h2>Pro Info</h2></td>
+                </tr>
+                <tr>
+                  <td>
+                    {% if pro_user.get_profile.image %}
+                      {% thumbnail pro_user.get_profile.image "90x90" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                      {% endthumbnail %}
+                    {% else %}
+                      <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        {% endif %}
+        <!-- </div> -->
+          <div class="span4">
+            <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td><h2>&nbsp;</h2></td>
+                </tr>
+                <tr>
+                  <td>Name</td>
+                  <td>
+                    <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Phone</td>
+                  <td>
+                    <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}-{% endif %}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div> <!-- .row -->
   </section>
 
-  <section id="party-tasters">
-    <div class="page-header">
-      Tasters Attending - <a href="{% url party_taster_invite party.id %}">Invite Tasters <i class="icon-plus"></i></a>
+  {% if host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
+    <hr />
+    <div class="vertical-space"></div>
+    <!-- <section id="party-tasters"> -->
+    <div class="row">
+      <div class="span12">
+        <h2>Tasters Attending</h2>
+          {% if host or taster and party.guests_can_invite %}
+            <p><h3>Add Taster</h3></p>
+            {% if host %}
+              <p>{{ taster_form.invitee }}</p>
+              <p><h3>or add new taster</h3></p>
+            {% endif %}
+          {% endif %}
+      </div>
     </div>
-
-    <form method="POST" action="{% url party_customize_invite %}">
-      {% csrf_token %}
-      {% if host %}
-        {{ rsvp_form.party }}
-        <div class="control-group">
-          {{ rsvp_form.rsvp }}
-          <button type="submit" class="btn btn-primary" name="change_rsvp" value="change_rsvp">Change RSVP Status</button>
+    {% if host or taster and party.guests_can_invite %}
+      <div class="row">
+        <div class="span3">
+          <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+            {{ taster_form.first_name }}
+            {% if taster_form.first_name.errors %}
+              <span class="help-inline">
+                {{ taster_form.first_name.errors }}
+              </span>
+            {% endif %}
+          </div>
         </div>
-      {% endif %}
-      <input type="hidden" name="party" value="{{ party.id }}">
+        <div class="span3">
+          <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+            {{ taster_form.last_name }} 
+            {% if taster_form.last_name.errors %}
+              <span class="help-inline">
+                {{ taster_form.last_name.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="span3">
+          <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+            {{ taster_form.email }} 
+            {% if taster_form.email.errors %}
+              <span class="help-inline">
+                {{ taster_form.email.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="span2">
+          <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+            {{ taster_form.phone }} 
+            {% if taster_form.phone.errors %}
+              <span class="help-inline">
+                {{ taster_form.phone.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        {{ taster_form.response }}
+        <div class="span12">
+          <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+        </div>
+      </div>
+    {% endif %}
+    {% if host or taster and party.guests_see_guestlist %}
+      <div class="vertical-space"></div>
       <table class="table table-striped">
         <thead>
-          <th>Select</th>
+          <th><input type="checkbox" class="all-guests"></th>
           <th>Name</th>
           <th>E-mail</th>
           <th>Phone</th>
           <th>RSVP</th>
-          {% if pro %}
-          <th>Wine Personality</th>
-          <th>Questionnaire</th>
+          <th>Invited</th>
+          {% if host %}
+            <th></th>
+            {% if not party.confirmed %}
+            <th></th>
+            {% endif %}
           {% endif %}
         </thead>
         <tbody>
         {% for inv in invitees %}
           {# create a table of invitees #}
           <tr>
-            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
-            {% if inv.invitee.first_name or inv.invitee.last_name %}
-            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
-            {% else %}
-            <td>Anonymous</td>
-            {% endif %}
-            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-            {% if inv.invitee.get_profile.phone %}
-            <td>{{ inv.invitee.get_profile.phone }}</td>
-            {% else %}
-            <td>-</td>
-            {% endif %}
-            <td>{{ inv.get_response_display }}</td>
-            {% if pro %}
-              {% if inv.invitee.get_profile.has_personality %}
-                <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
+            <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
+            <td>
+              {% if inv.invitee.first_name or inv.invitee.last_name %} 
+                {{ inv.invitee.first_name }} {{ inv.invitee.last_name }}
               {% else %}
-                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+                Anonymous
               {% endif %}
-              <td>{{ completed }}</td>
+            </td>
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+            <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
+            <td>{{ inv.get_response_display }}</td>
+            <td>{{ inv.invited }}</td>
+            {% if host %}
+              <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
+              {% if not party.confirmed %}
+                <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+              {% endif %}
             {% endif %}
           </tr>
         {% endfor %}
         </tbody>
       </table>
-      {% if can_order_kit %}
-      <div class="control-group">
-        <button type="submit" class="btn btn-success btn-large">Send Invite</button> <span class="alert">Please select guests from the above list and send your personalized invitation.</span>
+    {% endif %}
+    {% if host %}
+      <div class="vertical-space">&nbsp;</div>
+      <div class="row">
+        <div class="span10">
+          <button class="btn btn-primary" name="edit_invite" value="edit_invite">Edit Invite</button>
+        </div>
+        <div class="span2">
+          <button class="btn btn-primary pull-right" name="send_invite" value="send_invite">Send Invite</button>
+        </div>
       </div>
-      {% endif %}
-    </form>
-  </section>
-  <div class="vertical-space-bottom">
-  </div>
-
+    {% endif %}
+  {% endif %}
+  <div class="vertical-space-bottom"></div>
 </div>
 
 {% endblock content %}
 
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+
+      //select all rows on the table
+      $('.all-guests').click(function(e) {
+        var selected = $(this).prop('checked');
+        $('.guest').prop('checked',selected);
+      });
+
+      //show modal for editing user info
+      $('.edit-taster').click(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          type: "GET",
+          url: "{% url party_edit_taster_info 0 't' %}".replace(0, $(this).attr('data-invite')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });      
+    });
+  </script>
+{% endblock additional_scripts %}
