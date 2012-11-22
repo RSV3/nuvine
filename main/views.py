@@ -1115,20 +1115,46 @@ def party_find_friends(request, party_id):
 
   initial_data = {'host': u, "party": party}
 
-  taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+  allowed_taster_actions = []
 
-  options_form = PartyTasterOptionsForm(request.POST or None)
+  if party.guests_can_invite:
+    allowed_taster_actions.append(PartyTasterOptionsForm.TASTER_OPTIONS[1][0])
 
-  if taster_form.is_valid():
-    new_invite = taster_form.save()
-    new_invite.invited_by = u
-    new_invite.rsvp_code = str(uuid.uuid4())
-    new_invite.save()
+  if party.guests_see_guestlist:
+    allowed_taster_actions.append(PartyTasterOptionsForm.TASTER_OPTIONS[0][0])
 
-    new_invitee = new_invite.invitee
-    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+  initial_data['taster_actions'] = allowed_taster_actions
 
-    return HttpResponseRedirect(reverse("party_details", args=[new_invite.party.id]))
+  if request.POST.get("add_taster"):
+    taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+    options_form = PartyTasterOptionsForm(initial=initial_data)
+  else:
+    taster_form = PartyInviteTasterForm(initial=initial_data)
+    options_form = PartyTasterOptionsForm(request.POST or None, initial=initial_data)
+
+  if request.POST.get("add_taster"):
+    if taster_form.is_valid():
+      new_invite = taster_form.save()
+      new_invite.invited_by = u
+      new_invite.rsvp_code = str(uuid.uuid4())
+      new_invite.save()
+
+      new_invitee = new_invite.invitee
+      messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+
+      return HttpResponseRedirect(reverse("party_find_friends", args=[new_invite.party.id]))
+
+  if request.POST.get("save") or request.POST.get("request"):
+    if options_form.is_valid():
+      guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
+      party.guests_see_guestlist = True if 0 in guest_options else False
+      party.guests_can_invite = True if 1 in guest_options else False
+      party.save()
+
+      if request.POST.get("request"):
+        # TODO: Send confirmation request to Pro
+        messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
+        return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data['party'] = party
   data['taster_form'] = taster_form
@@ -1156,7 +1182,7 @@ def party_edit_taster_info(request, invite_id):
   initial_data = {'host': u, "first_name": invite.invitee.first_name, "last_name": invite.invitee.last_name, "email": invite.invitee.email}
 
   form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
-
+  print form.errors
   if form.is_valid():
     invite.delete()
     new_invite = form.save()

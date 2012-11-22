@@ -1,0 +1,200 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .text-label {
+      text-align: right;
+    }
+  </style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">Get The Party Started</h1>
+{% endblock header %}
+
+{% block content %}
+  <div class="menu_wrap main partycrumb">
+    <ul class="nav">
+      <li class="party-add">&nbsp;</li>
+      <li class="party-write-invitation">&nbsp;</li>
+      <li class="party-invite-friends active">&nbsp;</li>
+    </ul>
+  </div>
+
+  {{ form.errors }}
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+    <section id="customize-invitation">
+      <form class="form-horizontal" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+        {{ taster_form.party }}
+        <div class="row">
+          <div class="span3">
+            <h2>Tasters Attending</h2>
+          </div>
+          <div class="span8">
+            <i>
+              <p>Note: We recommend you invite 8-10 friends to a tasting party</p>
+              <p>You will be able to invite more tasters later so don't worry if you forget someone now!</p>
+            </i>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span12">
+            <p><h3>Select Taster</h3></p>
+            <p>{{ taster_form.invitee }}</p>
+            <p><h3>or add new taster</h3></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span3">
+            <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+              {{ taster_form.first_name }} 
+              {% if taster_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.first_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+              {{ taster_form.last_name }} 
+              {% if taster_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.last_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+              {{ taster_form.email }} 
+              {% if taster_form.email.errors %}
+                <span class="help-inline">
+                  {{ taster_form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span12">
+            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+          </div>
+        </div>
+      </form>
+
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+          <th>Edit</th>
+          <th>Remove</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
+            {% if inv.invitee.get_profile.phone %}
+              <td>{{ inv.invitee.get_profile.phone }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+
+            <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
+            <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>      
+    </section>
+    <div class="vertical-space"></div>
+    <hr />
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="control-group">
+        <div class="control-label text-label"><h2>Taster Options</h2></div>
+        <div class="controls" style="padding-top: 11px;">
+          <p>{{ options_form.taster_actions.label }}</p>
+          <p>{{ options_form.taster_actions }}</p>
+        </div>
+
+        <div class="vertical-space"></div>
+        <hr />
+
+        <div class="control-group">
+          <div class="control-label text-label"><h2>Party Info</h2></div>
+          <div class="controls" style="padding-top: 11px;">
+            <a href="{% url party_add party.id %}">Edit</a>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label text-label">Date/Time</div>
+          <div class="controls">
+            <p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label text-label">Party Name</div>
+          <div class="controls">
+            {{ party.title }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label text-label">Location</div>
+          <div class="controls">
+            <p>{{ party.address.street1 }}</p>
+            <p>{{ party.address.street2 }}</p>
+            <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span1">&nbsp;</div>
+          <div class="span7">
+            <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
+            <button class="btn btn-primary" name="save" value="save">Save</button>
+          </div>
+          <div class="span4">
+            <button class="btn btn-primary" name="request" value="request">Request Party</button>
+          </div>
+        </div>                
+    </form>
+  </div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.edit-taster').click(function(e) {
+        e.preventDefault();
+
+        console.log("starting edit-taster");
+
+        $.ajax({
+          type: "GET",
+          url: "{% url party_edit_taster_info 0 %}".replace(0, $(this).attr('data-invite')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });
+    });
+  </script>
+{% endblock additional_scripts %}

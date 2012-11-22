@@ -156,8 +156,8 @@ class PartyCreateForm(forms.ModelForm):
 
 class PartyTasterOptionsForm(forms.Form):
   TASTER_OPTIONS = (
-    (0, "see the guest list"),
-    (1, "be able to invite friends"),
+    (0, "see the guest list?"),
+    (1, "be able to invite friends?"),
   )
 
   taster_actions = forms.MultipleChoiceField(choices=TASTER_OPTIONS, widget=forms.CheckboxSelectMultiple, label="Do you want tasters to", required=False)
@@ -175,28 +175,21 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    exclude = ['response', 'party']
+    exclude = ['response']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
     self.fields['first_name'].widget.attrs = {"placeholder": "First Name"}
     self.fields['last_name'].widget.attrs = {"placeholder": "Last Name"}
     self.fields['email'].widget.attrs = {"placeholder": "Email"}
+    self.fields['party'].widget = forms.HiddenInput()
 
     initial = kwargs.get('initial')
     tas_group = Group.objects.get(name="Vinely Taster")
 
-    if initial.get('host'):
-      # only get users linked to this host
-      my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    elif initial.get('pro'):
-      # only get users linked to this host
-      my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    else:
-      # everything
-      users = User.objects.filter(groups__in=[tas_group])
+    # only get users linked to this host
+    my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
+    users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
 
     self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
@@ -231,10 +224,10 @@ class PartyInviteTasterForm(forms.ModelForm):
       # delete error if we think user manually being filled out
       del self._errors['invitee']
 
-    if 'party' in cleaned_data and 'invitee' in cleaned_data:
-      party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
-      if party_invited.exists():
-        raise forms.ValidationError("Invitee already has been invited to the party")
+    # if 'party' in cleaned_data and 'invitee' in cleaned_data:
+    #   party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
+    #   if party_invited.exists():
+    #     raise forms.ValidationError("Invitee already has been invited to the party")
 
     return cleaned_data
 
