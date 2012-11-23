@@ -253,26 +253,26 @@
   <header>
     <div class="container">
 
+      {% block header %}
+
+      {% endblock header %}
+      <div class="vertical-space"></div>
       <div class="message-container">
 
         {% if messages %}
           <div class="messages">
               {% for message in messages %}
                 {% if "info" in message.tags %}
-                  <div class="alert alert-info">{{ message|safe }}</div>
+                  <div class="alert alert-info center"><h2><small>{{ message|safe }}</small></h2></div>
                 {% elif "success" in message.tags %}
-                  <div class="alert alert-success">{{ message|safe }}</div>
+                  <div class="alert alert-success center"><h2><small>{{ message|safe }}</small></h2></div>
                 {% elif "error" in message.tags or "warning" in message.tags %}
-                  <div class="alert alert-error">{{ message|safe }}</div>
+                  <div class="alert alert-error center"><h2><small>{{ message|safe }}</small></h2></div>
                 {% endif %}
               {% endfor %}
           </div>
         {% endif %}
       </div> <!-- .message-container -->
-
-      {% block header %}
-
-      {% endblock header %}
     </div> <!-- .container for head -->
   </header>
 

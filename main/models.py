@@ -60,6 +60,19 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  def pro(self):
+    try:
+      return OrganizedParty.objects.get(party=self).pro
+    except OrganizedParty.DoesNotExist:
+      return None
+
+  def kit_ordered(self):
+    order = Order.objects.filter(cart__party=self, cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    return order.exists()
+
+  def invite_sent(self):
+    return PartyInvite.objects.filter(party=self).exists()
+
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
     if coming < 8:

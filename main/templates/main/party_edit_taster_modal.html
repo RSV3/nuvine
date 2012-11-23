@@ -33,12 +33,14 @@
             {{ taster_form.phone }}
           </div>
         </div>
-        <div class="control-group">
-          <!-- <div class="control-label">{{ taster_form.response.label }}</div> -->
-          <div class="controls">
-            {{ taster_form.response }}
+        {% if change_rsvp %}
+          <div class="control-group">
+            <div class="control-label">{{ taster_form.response.label }}</div>
+            <div class="controls">
+              {{ taster_form.response }}
+            </div>
           </div>
-        </div>
+        {% endif %}
         <div class="modal-footer">
           <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>
         </div>

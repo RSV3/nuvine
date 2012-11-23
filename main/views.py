@@ -28,7 +28,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message
+                        resend_party_invite_email, get_default_invite_message, my_pro
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
@@ -1026,18 +1026,23 @@ def party_add(request, party_id=None):
       new_host = new_party.host
 
       # map host to a pro
+      if u.get_profile().is_pro():
+        applicable_pro = u
+      else:
+        applicable_pro = my_pro(u)
+
       no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
       if no_applicable_pro.exists():
         my_hosts = no_applicable_pro[0]
-        my_hosts.pro = u
+        my_hosts.pro = applicable_pro
         my_hosts.save()
       else:
-        my_hosts, created = MyHost.objects.get_or_create(pro=u, host=new_host)
-      pro_parties, created = OrganizedParty.objects.get_or_create(pro=u, party=new_party)
+        my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
+      pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
 
       # make the pro a mentor to the host
       host_profile = new_host.get_profile()
-      host_profile.mentor = u
+      host_profile.mentor = applicable_pro
       host_profile.save()
 
       if not new_host.is_active:
@@ -1209,7 +1214,7 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
     else:
       messages.error(request, form.errors)
     return HttpResponseRedirect(previous_page)
-
+  data['change_rsvp'] = change_rsvp
   data['party'] = invite.party
   data['taster_form'] = form
   data['invite'] = invite
@@ -1266,31 +1271,49 @@ def party_details(request, party_id):
 
   invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
 
-  # tasters should only see list of people that they invited
-  # if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
-  #   invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
-  # else:
-  #   invitees = PartyInvite.objects.filter(party=party, invited_by=u).order_by('invitee__first_name', 'invitee__last_name')
-
   data["party"] = party
   data["invitees"] = invitees
-  today = timezone.now() - timedelta(days=1)
 
-  # these messages are only relevant to host or Pro
-  if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
-    if party.event_date > today and party.high_low() == '!LOW':
-      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
-      messages.warning(request, msg)
-    elif party.event_date > today and party.high_low() == '!HIGH':
-      msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
-      messages.warning(request, msg)
+  # host can order kit upto 10 days before party party
+  today = timezone.now() - timedelta(days=10)
+  can_order_kit = (party.event_date > today)
+
+  # these checks are only relevant to host or Pro
+  if party.pro() == u or party.host == u:
+    if u.get_profile().is_pro():
+      if party.confirmed:
+        if not party.kit_ordered():
+          msg = 'Your host needs to order their tasting kit by %s' % today.strftime("%m/%d/%Y")
+          messages.warning(request, msg)
+      else:
+        pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
+        pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
+        msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
+        messages.warning(request, msg)
+    else:
+      # for host
+      if party.confirmed:
+        if party.invite_sent():
+          if not party.kit_ordered():
+            msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (today.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
+            messages.warning(request, msg)
+          # TODO: if kit ordered but number is still higher than kit
+          # ask to order another kit
+        else:
+          msg = 'Your party date and time have been confirmed! Let\'s get this party started and send out your invite!'
+          messages.warning(request, msg)
+      else:
+        msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for your Pro to confirm your date and time.'
+        messages.info(request, msg)
 
   pro = OrganizedParty.objects.get(party=party).pro
   data["pro_user"] = pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
-  data['can_order_kit'] = (party.event_date > today)
+  data['can_order_kit'] = can_order_kit
+
   # pro can only shop for taster upto 24hrs after party
+  today = timezone.now() - timedelta(days=1)
   data['can_shop_for_taster'] = (party.event_date > today)
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
   if data['can_order_kit']:
@@ -1300,6 +1323,16 @@ def party_details(request, party_id):
     data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
     data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
     return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_confirm(request, party_id):
+  party = get_object_or_404(Party, pk=party_id)
+  party.confirmed = True
+  party.save()
+
+  messages.success(request, 'Congratulations! Your party has been scheduled')
+  return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
 
 @login_required

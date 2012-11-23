@@ -29,23 +29,6 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  {% if pro and not party.confirmed %}
-    <div class="message-container">
-      <div class="messages">
-        <div class="alert alert-error center">
-          <h2>
-          {% if party.host.first_name|last == 's' %} 
-            {{ party.host.first_name }}'
-          {% else%}
-            {{ party.host.first_name }}'s
-          {% endif %} 
-          Party date and time need to be confirmed for {{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}.
-          <a href="" class="btn btn-primary">Confirm</a>
-          </h2>
-        </div>
-      </div>
-    </div>
-  {% endif %}
   <section id="party-information">
     <div class="row">
       <div class="span6">
@@ -146,6 +129,26 @@
     <hr />
     <div class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
+    {% if party.confirmed %} 
+      {% if party.high_low == '!LOW' %}
+        <div class="message-container">
+          <div class="messages">
+            <div class="alert alert-error center">
+              <h2>
+                <small>
+                  {% if pro %}
+                    Low attendance! Remind host to invite more people
+                  {% endif %}
+                  {% if host %}
+                    Low attendance! Consider inviting more people or RSVP'ing for them
+                  {% endif %}
+                </small>
+              </h2>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
     <div class="row">
       <div class="span12">
         <h2>Tasters Attending</h2>
@@ -248,7 +251,7 @@
             <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
             <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
             <td>{{ inv.get_response_display }}</td>
-            <td>{{ inv.invited }}</td>
+            <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
             {% if host %}
               <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
               {% if not party.confirmed %}
