@@ -1290,7 +1290,8 @@ def party_details(request, party_id):
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
   data['can_order_kit'] = (party.event_date > today)
-
+  # pro can only shop for taster upto 24hrs after party
+  data['can_shop_for_taster'] = (party.event_date > today)
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
   if data['can_order_kit']:
     return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))

@@ -5,7 +5,11 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">{{ party.title }}</h1>
+  {% if party.host.first_name %}
+    <h1 class="headline">{% if party.host.first_name|last == 's' %} {{ party.host.first_name }}' {% else%} {{ party.host.first_name }}'s {% endif %} Party: {{ party.title }}</h1>
+  {% else %}
+    <h1 class="headline">Friendly Host's Party: {{ party.title }}</h1>
+  {% endif %}
 {% endblock header %}
 
 {% block additional_styles %}
@@ -25,7 +29,23 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  
+  {% if pro and not party.confirmed %}
+    <div class="message-container">
+      <div class="messages">
+        <div class="alert alert-error center">
+          <h2>
+          {% if party.host.first_name|last == 's' %} 
+            {{ party.host.first_name }}'
+          {% else%}
+            {{ party.host.first_name }}'s
+          {% endif %} 
+          Party date and time need to be confirmed for {{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}.
+          <a href="" class="btn btn-primary">Confirm</a>
+          </h2>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   <section id="party-information">
     <div class="row">
       <div class="span6">
@@ -46,6 +66,7 @@
                 <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
               </td>
             </tr>
+            <tr><td>&nbsp;</td></tr>
             <tr>
               <td>Host Name</td>
               <td>
@@ -82,7 +103,6 @@
               </tbody>
             </table>
           </div>
-        <!-- </div> -->
           <div class="span4">
             <table class="summary-table">
               <tbody>
@@ -109,27 +129,36 @@
             </table>
           </div>
         </div>
+        <div class="vertical-space"></div>
+        <table class="summary-table">
+          <tbody>
+            <tr>
+              <td>Special Instructions</td>
+              <td>{{ party.description }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div> <!-- .row -->
   </section>
 
-  {% if host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
+  {% if pro or host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
     <hr />
     <div class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
     <div class="row">
       <div class="span12">
         <h2>Tasters Attending</h2>
-          {% if host or taster and party.guests_can_invite %}
+          {% if pro or host or taster and party.guests_can_invite %}
             <p><h3>Add Taster</h3></p>
-            {% if host %}
+            {% if pro or host %}
               <p>{{ taster_form.invitee }}</p>
               <p><h3>or add new taster</h3></p>
             {% endif %}
           {% endif %}
       </div>
     </div>
-    {% if host or taster and party.guests_can_invite %}
+    {% if pro or host or taster and party.guests_can_invite %}
       <div class="row">
         <div class="span3">
           <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
@@ -177,20 +206,28 @@
         </div>
       </div>
     {% endif %}
-    {% if host or taster and party.guests_see_guestlist %}
+    {% if pro or host or taster and party.guests_see_guestlist %}
       <div class="vertical-space"></div>
       <table class="table table-striped">
         <thead>
-          <th><input type="checkbox" class="all-guests"></th>
+          {% if host %}
+            <th><input type="checkbox" class="all-guests"></th>
+          {% endif %}
           <th>Name</th>
           <th>E-mail</th>
           <th>Phone</th>
           <th>RSVP</th>
           <th>Invited</th>
           {% if host %}
-            <th></th>
+            <th><!-- Edit --></th>
             {% if not party.confirmed %}
-            <th></th>
+              <th><!-- Remove --></th>
+            {% endif %}
+          {% endif %}
+          {% if pro %}
+            <th>Wine Personality</th>
+            {% if can_shop_for_taster %}
+              <th><!-- Shop --></th>
             {% endif %}
           {% endif %}
         </thead>
@@ -198,7 +235,9 @@
         {% for inv in invitees %}
           {# create a table of invitees #}
           <tr>
-            <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
+            {% if host %}
+              <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
+            {% endif %}
             <td>
               {% if inv.invitee.first_name or inv.invitee.last_name %} 
                 {{ inv.invitee.first_name }} {{ inv.invitee.last_name }}
@@ -214,6 +253,16 @@
               <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
               {% if not party.confirmed %}
                 <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+              {% endif %}
+            {% endif %}
+            {% if pro %}
+              {% if inv.invitee.get_profile.has_personality %}
+                <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
+              {% else %}
+                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+              {% endif %}
+              {% if can_shop_for_taster %}
+                <th><!-- Shop --></th>
               {% endif %}
             {% endif %}
           </tr>
