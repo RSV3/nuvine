@@ -265,7 +265,7 @@
                 <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
               {% endif %}
               {% if can_shop_for_taster %}
-                <th><!-- Shop --></th>
+                <th><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></th>
               {% endif %}
             {% endif %}
           </tr>
