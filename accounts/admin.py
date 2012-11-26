@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo
@@ -175,6 +177,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
+
+  #def response_change(self, request, obj, post_url_continue=None):
+  #  return HttpResponseRedirect(reverse("support:manage_subscriptions"))
+
+  def queryset(self, request):
+    subscription_ids = []
+    for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
+      user = User.objects.get(id=user_id)
+      subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
+      subscription_ids.append(subscription.id)
+
+    subscriptions = SubscriptionInfo.objects.filter(id__in=subscription_ids).order_by('next_invoice_date')
+    return subscriptions
 
 class AddressAdmin(admin.ModelAdmin):
   pass

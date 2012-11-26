@@ -23,7 +23,7 @@ class Command(BaseCommand):
     for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
       user = User.objects.get(id=user_id)
 
-      # need to add new orders
+      # need to work with only the latest subscription info per user
       subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
 
       if subscription.quantity == 0 or subscription.frequency in [0, 9]:

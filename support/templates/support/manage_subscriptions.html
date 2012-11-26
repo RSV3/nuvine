@@ -1,34 +1,32 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block content %}
-
   <div class="container">
+    <h1>Currently Active Subscriptions</h1>
     <div class="row">
       <div class="span12">
           <table class="table">
             <thead>
               <tr>
-              <th>ID</th>
-              <th>Subject</th>
-              <th>Recipients</th>
-              <th>Date Sent</th>
+              <th>E-mail</th>
+              <th>Full name</th>
+              <th>State</th>
+              <th>Quantity</th>
+              <th>Frequency</th>
+              <th>Next Invoice Date</th>
+              <th>Updated Time</th>
               </tr>
             </thead>
             <tbody>
-            {% for email in emails %}
+            {% for subscription in subscriptions %}
             <tr>
-              <td><a href="{% url support:view_email email.id %}">{{ email.id }}</a></td>
-              <td><a href="{% url support:view_email email.id %}">{{ email.subject }}</a></td>
-              <td>
-                {% for address in email.recipients_list %}
-                  {% if forloop.last %}
-                    {{ address }}
-                  {% else %}
-                    {{ address }},
-                  {% endif %}
-                {% endfor %}
-              </td>
-              <td>{{ email.timestamp }}</td>
+              <td><a href="{% url admin:accounts_subscriptioninfo_change subscription.id %}">{{ subscription.user.email }}</a></td>
+              <td>{{ subscription.user.first_name }} {{ subscription.user.last_name }}</td>
+              <td>{{ subscription.user.get_profile.shipping_address.state }}</td>
+              <td>{{ subscription.get_quantity_display }}</td>
+              <td>{{ subscription.get_frequency_display }}</td>
+              <td>{{ subscription.next_invoice_date }}</td>
+              <td>{{ subscription.updated_datetime }}</td>
             </tr>
             {% endfor %}
             </tbody>
