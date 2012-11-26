@@ -4,128 +4,129 @@
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
-{% endblock %}
+
+  <style type="text/css">
+    h2 {
+      margin-top: -14px;
+    }
+  </style>
+{% endblock additional_styles %}
 
 {% block header %}
-  <h1 class="headline">You have been invited to a Vinely Taste Party!</h1>
+  <h1 class="headline">You've been invited to a Vinely Tasting Party!</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
+  <div id="update_age" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Update Profile Info</h3>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="modal-form" action="">{% csrf_token %}
+        <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
+        <br />
+        <div class="control-label" for="id_dob">
+          {{ form.dob.label }}
+        </div>
+        <div class="controls">
+          {{ form.mentor }}
+          {{ form.gender }}
+          {{ form.user }}
+          {{ form.dob }}
+        </div>
+        <div class="modal-footer">
+          <input type="submit" name="update" class="btn btn-primary" value="Update" />
+        </div>
+      </form>
+    </div>
+  </div> 
+
   <section id="party-message">
     <div class="row">
-      <div class="span12">
-        <p>What’s a Vinely Taste Party? Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
+      <div class="span3">
+        <p>Will you attend?</p>
+        <p>
+          <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" type="button" href="{% url party_rsvp rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+        </p>
+        <p>
+          <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+        </p>
+        <p>
+          <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+        </p>
+      </div>
+      <div class="span5">
+        <div class="vertical-space"></div>
+        <div class="row">
+          <div class="span1"><h2 class="pull-right">What</h2></div>
+          <div class="span4">{{ invite.party.title }}</div>
+        </div>
+        <div class="row">
+          <div class="span1"><h2 class="pull-right">Who</h2></div>
+          <div class="span4">{{ invite.party.host.first_name }} {{ invite.party.host.last_name }}</div>
+        </div>
+        <div class="row">
+          <div class="span1"><h2 class="pull-right">When</h2></div>
+          <div class="span4">{{ invite.party.event_date|date:"F j, o" }} at {{ invite.party.event_date|date:"g:i A" }}</div>
+        </div>
+        <div class="row">
+          <div class="span1"><h2 class="pull-right">Where</h2></div>
+          <div class="span4">
+            <p>{{ invite.party.address.street1 }}</p>
+            <p>{{ invite.party.address.street2 }}</p>
+            <p>{{ invite.party.address.city }}, {{ invite.party.address.state }} {{ invite.party.address.zipcode}}
+              [<a href="https://maps.google.com/maps?q={{ invite.party.address.google_maps_address }}" target="_blank">map</a>]
+            </p>            
+          </div>
+        </div>        
+      </div>
+      <div class="span4">
+        <div class="vertical-space"></div>
+        <h2>Special Instructions</h2>
+          <p>{{ invite.party.description }}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="vertical-space"></div>
+      <div class="span8">
+        <p>What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.</p>
 
-        <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
+        <p>The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
+<!-- 
         <blockquote>
           {{ custom_message }}
         </blockquote>
-
-        <div id="update_age" class="modal hide fade">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>Update Profile Info</h3>
-          </div>
-          <div class="modal-body">
-            <form method="POST" class="modal-form" action="">{% csrf_token %}
-              <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
-              <br />
-              <div class="control-label" for="id_description">
-                {{ form.dob.label }}
-              </div>
-              <div class="controls">
-                {{ form.mentor }}
-                {{ form.gender }}
-                {{ form.user }}
-                {{ form.dob }}
-              </div>
-              <div class="modal-footer">
-                <input type="submit" name="update" class="btn btn-primary" value="Update" />
-              </div>
-            </form>
-          </div>
-        </div> 
+ -->
+      </div>
+      <div class="span4">
+        <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
+        {% if questionnaire_completed %}
+          <p>
+            <a href="javascript:;" class="btn btn-inverse btn-large input-large disabled">Take The Survey</a>
+          </p>
+        {% else %}
+          <p>
+            <a href="{% url pre_questionnaire_general %}" target="_blank" class="btn btn-inverse btn-large input-large">Take The Survey</a>
+          </p>
+        {% endif %}
       </div>
     </div>
-  </section>
-
-  <section id="party-information">
-    <div class="row">
-      <div class="span6">
-        <p><b>Will you attend? You know you want to! (You can always come back and change your response later.)</b></p>
-        <p>
-        <a class="btn btn-success btn-large" href="{% url party_rsvp rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
-        <a class="btn btn-inverse btn-large" href="{% url party_rsvp rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
-        <a class="btn btn-warning btn-large" href="{% url party_rsvp rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
-        </p>
-        {% if invite.response %}
-        <p>
-          You have replied <b>{{ invite.get_response_display }}</b>. 
-        </p>
-        {% endif %}
-        {% if invite.response == 1 %}
-          <p>
-            We are sorry that you can't attend.  If your plan changes, you can always update your RSVP.
-          </p>
-        {% elif invite.response == 2 %}
-          <p>
-            Unsure? If your plan changes, you can always update your RSVP.
-          </p>
-        {% elif invite.response == 3 %}
-          <p>
-            We look forward to seeing you there! 
-          </p>
-          <p>&nbsp;</p>
-          {% if not questionnaire_completed %}
-          <p>
-            <a href="{% url pre_questionnaire_general %}" class="btn btn-primary btn-large">Fill out Questionaire</a>
-          </p>
-          {% endif %}
-        {% endif %}
-      </div>
-
-      <div class="span6">
-        <p><b>Party Details</b></p>
-        <table>
-          <tbody>
-            <tr>
-              <td>Special Instructions:</td>
-              <td>{{ party.description }}</td>
-            </tr>           
-            <tr>
-              <td>Hosted by:</td>
-              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></td>
-            </tr>
-            <tr>
-              <td>Date and Time:</td>
-              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-            </tr>
-            <tr>
-              <td>Location:</td>
-              <td>
-                {{ party.address.street1 }}<br>
-                {% if party.adddress.street2 %}{{ party.address.street2 }}<br>{% endif %}
-                {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }} [<a href="https://maps.google.com/maps?q={{party.address.google_maps_address}}">map</a>]<br>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div> <!-- .row -->
   </section>
 
   <section id="party-attendees">
     <div class="page-header">
-      Other Guests - You can also <a href="{% url party_taster_invite party.id %}">invite your friends</a>
+      <div class="row">
+        <div class="span2"><h2>Other Guests</h2></div>
+        {% if party.guests_can_invite %} You can also <a href="{% url party_taster_invite party.id %}">invite your friends</a> {% endif %}
+      </div>
     </div>
     <table class="table table-striped">
       <thead>
         <th>Name</th>
-        <th>E-mail</th>
-        <th>Phone</th>
         <th>Coming</th>
         <th>Wine Personality</th>
       </thead>
@@ -138,22 +139,8 @@
           {% else %}
             <td>Anonymous</td>
           {% endif %}
-
-          <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-
-          {% if inv.invitee.get_profile.phone %}
-            <td>{{ inv.invitee.get_profile.phone }}</td>
-          {% else %}
-            <td>-</td>
-          {% endif %}
-
           <td>{{ inv.get_response_display }}</td>
-
-          {% if inv.invitee.get_profile.wine_personality %}
-            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-          {% else %}
-            <td><a href="{% url record_all_wine_ratings inv.invitee.email %}">Enter ratings</a></td>
-          {% endif %}
+          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
         </tr>
       {% endfor %}
       </tbody>
