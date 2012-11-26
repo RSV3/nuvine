@@ -926,30 +926,28 @@ def party_list(request):
 
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
-    my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=party_valid_date).order_by('event_date')
-    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=party_valid_date).order_by('-event_date')
+    # parties managed
+    data['pro_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
+    data['pro_past_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
+
+    # parties hosted
+    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
+
     pro_comm, mentee_comm = calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
-
   elif (hos_group in u.groups.all()):
     data['host_credits'] = calculate_host_credit(u)
-    data['parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
-    data['past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
-  elif (tas_group in u.groups.all()):
-    data['parties'] = []
-    data['past_parties'] = []
-    for inv in PartyInvite.objects.filter(invitee=u).order_by('party__event_date'):
-      if inv.party.event_date < today:
-        data['past_parties'].append(inv.party)
-      else:
-        data['parties'].append(inv.party)
-  else:
-    messages.success(request, "You will soon be able to create parties as soon as we approve you as a pro.")
+    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
+
+  # parties attended
+  data['taster_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__gte=today).order_by('event_date')
+  data['taster_past_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__lt=today).order_by('-event_date')
 
   data["parties_menu"] = True
 
