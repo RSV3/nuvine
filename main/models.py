@@ -315,8 +315,10 @@ class Cart(models.Model):
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
-    if self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
-      tax = 0
+    if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
+        tax = 0
+    elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
+        tax = 0
     else:
       tax = float(self.subtotal()) * 0.06
     return tax
@@ -375,6 +377,9 @@ class Order(models.Model):
   tracking_number = models.CharField(max_length=128, null=True, blank=True)
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
+
+  def vinely_order_id(self):
+    return 'OR' + str(self.id).zfill(7)
 
   def assign_new_order_id(self):
     new_order_id = str(uuid.uuid4())

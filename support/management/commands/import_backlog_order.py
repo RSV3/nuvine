@@ -7,7 +7,7 @@ from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from accounts.models import CreditCard, Address, VerificationQueue
-from main.models import SubscriptionInfo, CustomizeOrder, Party, LineItem, Cart, Product, Order
+from main.models import SubscriptionInfo, CustomizeOrder, Party, LineItem, Cart, Product, Order, PartyInvite
 from main.utils import UTC, send_order_added_email, send_to_supplier_order_added_email
 from personality.models import WinePersonality, Wine, WineRatingData
 from creditcard.utils import get_cc_type
@@ -304,7 +304,7 @@ class Command(BaseCommand):
       item = LineItem(product=product, price_category=price_category, quantity=quantity_code, frequency=order_frequency)
       item.save()
 
-      cart = Cart(user=u, adds=1)
+      cart = Cart(user=u, receiver=receiver, adds=1)
       cart.save()
       cart.items.add(item)
       cart.save()
@@ -418,11 +418,15 @@ class Command(BaseCommand):
       order.assign_new_order_id()
       order.save()
 
+      # last party they participated
+
+      inv = PartyInvite.objects.filter(invitee=u).order_by('party__event_date')[0]
+      print "Last party date: %s" % inv.party.event_date
       update_invoice_date = True
       from_date = datetime.date(datetime.now(tz=UTC()))
       subscriptions = SubscriptionInfo.objects.filter(user=order.receiver).order_by("-updated_datetime")
       if subscriptions.exists() and subscriptions[0].quantity == item.price_category and subscriptions[0].frequency == item.frequency:
-        # latest subscription info is valid and use it to update
+        # latest existing subscription info is valid so use it to update
         subscription = subscriptions[0]
         if subscription.next_invoice_date < date.today():
           from_date = subscription.next_invoice_date

@@ -63,7 +63,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
     Thank you for choosing Vinely!
 
-    Your order {{ order_id }} has been received and your delicious surprise should arrive in 7 - 10 business days. Remember, someone 21 years or older must be available to receive your order.
+    Your order {{ vinely_order_id }} has been received and your delicious surprise should arrive in 7 - 10 business days. Remember, someone 21 years or older must be available to receive your order.
     {% if verification_code %}
     If you are a new user, a new Vinely account has been created for you and you can verify using the following temporary password:
 
@@ -97,6 +97,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
   c = RequestContext(request, {"customer": user.first_name if user.first_name else "Vinely Fan",
               "host_name": request.get_host(),
+              "vinley_order_id": order.vinely_order_id(),
               "order_id": order_id,
               "verification_code": verification_code,
               "temp_password": temp_password,
@@ -146,7 +147,7 @@ def send_to_supplier_order_added_email(request, order_id):
 
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
-  subject = 'Order ID: %s has been submitted!' % order_id
+  subject = 'Order ID: %s has been submitted!' % order.vinely_order_id()
 
   c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
               "host_name": request.get_host(),
@@ -206,6 +207,7 @@ def send_order_confirmation_email(request, order_id):
 
   c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
               "host_name": request.get_host(),
+              "vinely_order_id": order.vinely_order_id(),
               "order_id": order_id,
               "title": subject})
 
@@ -249,7 +251,7 @@ def send_order_confirmation_email(request, order_id):
   c.update({'sig': True})
   html_message = html_template.render(c)
 
-  subject = 'Order ID: %s has been submitted!' % order_id
+  subject = 'Order ID: %s has been submitted!' % order.vinely_order_id()
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
 

@@ -409,7 +409,7 @@ class SimpleTest(TestCase):
 
       Thank you for choosing Vinely!
 
-      Your order {{ order_id }} has been received and you should expect your delicious surprise in 7 - 10 business days. Remember, someone 21 years or older must be available to receive your order.
+      Your order {{ vinely_order_id }} has been received and you should expect your delicious surprise in 7 - 10 business days. Remember, someone 21 years or older must be available to receive your order.
 
       Keep an eye on your inbox over the next few days, as we will be sending further shipping information.  You can check the status of your order at:
 
@@ -420,7 +420,7 @@ class SimpleTest(TestCase):
       {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
       Your Tasteful Friends,
-    
+
       - The Vinely Team
 
     """
@@ -429,9 +429,11 @@ class SimpleTest(TestCase):
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ customer }}", description="First name of the customer")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID")
+    variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID used for the order detail URL")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url order_complete order_id %}", 
+    variable, created = Variable.objects.get_or_create(var="{{ vinely_order_id }}", description="Vinely Order ID")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url order_complete order_id %}",
                                                       description="Link to the completed order")
     template.variables_legend.add(variable)
 
@@ -444,7 +446,7 @@ class SimpleTest(TestCase):
 
     Your order has been shipped and you should receive your order in the next 7 days.  You can check the status of your order at:
 
-      http://{{ host_name }}{% url order_complete order.order_id %}
+      http://{{ host_name }}{% url order_complete order_id %}
 
     {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
@@ -458,9 +460,9 @@ class SimpleTest(TestCase):
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ order.receiver.first_name }}", description="First name of the customer")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID")
+    variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID used for the order detail URL")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url order_complete order_id %}", 
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url order_complete order_id %}",
                                                       description="Link to the completed order")
     template.variables_legend.add(variable)
 
