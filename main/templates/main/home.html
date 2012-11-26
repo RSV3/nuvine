@@ -8,7 +8,11 @@
 
 {% block side_navigation %}
   {% for invite in invites %}
-    <li><div class="chev"><a href="{% url party_rsvp invite.rsvp_code invite.party.id %}"><span class="home-alert-text">RSVP to {{ invite.party.title }}</span></a></div></li>
+    {% if invite.rsvp_code %}
+      <li><div class="chev"><a href="{% url party_rsvp invite.rsvp_code invite.party.id %}"><span class="home-alert-text">RSVP to {{ invite.party.title }}</span></a></div></li>
+    {% else %}
+      <li><div class="chev"><a href="{% url party_rsvp invite.party.id %}"><span class="home-alert-text">RSVP to {{ invite.party.title }}</span></a></div></li>
+    {% endif %}
   {% endfor %}
 
   {% if pro %}

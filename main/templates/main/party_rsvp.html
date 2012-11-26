@@ -50,13 +50,25 @@
       <div class="span3">
         <p>Will you attend?</p>
         <p>
-          <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" type="button" href="{% url party_rsvp rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+          {% if invite.rsvp_code %}
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+          {% else %}
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+          {% endif %}
         </p>
         <p>
-          <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+          {% if invite.rsvp_code %}
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+          {% else %}
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-ok icon-white"></i> Yes</a>
+          {% endif %}
         </p>
         <p>
-          <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+          {% if invite.rsvp_code %}
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+          {% else %}
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-ok icon-white"></i> Yes</a>
+          {% endif %}
         </p>
       </div>
       <div class="span5">
@@ -106,11 +118,11 @@
         <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
         {% if questionnaire_completed %}
           <p>
-            <a href="javascript:;" class="btn btn-inverse btn-large input-large disabled">Take The Survey</a>
+            <a href="javascript:;" class="btn btn-primary btn-large input-large disabled">Take The Survey</a>
           </p>
         {% else %}
           <p>
-            <a href="{% url pre_questionnaire_general %}" target="_blank" class="btn btn-inverse btn-large input-large">Take The Survey</a>
+            <a href="{% url pre_questionnaire_general %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
           </p>
         {% endif %}
       </div>
