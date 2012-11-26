@@ -1297,7 +1297,7 @@ def resend_rsvp(request):
 
 # @login_required
 
-def party_rsvp(request, party_id, rsvp_code, response=None):
+def party_rsvp(request, party_id, rsvp_code=None, response=None):
 
   data = {}
 
@@ -1305,13 +1305,17 @@ def party_rsvp(request, party_id, rsvp_code, response=None):
 
   party = get_object_or_404(Party, pk=party_id)
 
+  # if no rsvp_code then user has to login first
+  if not rsvp_code and not u.is_authenticated():
+    return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+
   if u.is_authenticated():
     invite = get_object_or_404(PartyInvite, party=party, invitee=u)
   else:
     invite = get_object_or_404(PartyInvite, party=party, rsvp_code=rsvp_code)
     u = invite.invitee
 
-  data['rsvp_code'] = rsvp_code
+  # data['rsvp_code'] = rsvp_code
   data['invited_user'] = u
 
   profile = u.get_profile()
