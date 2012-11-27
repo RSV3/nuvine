@@ -1,3 +1,11 @@
+=============================
+November 26, 2012 Deployment
+
+- Need to add vinely_order_id in order_confirmation_email e-mail template (http://www.vinely.com/cms/edit/template/order_confirmation_email/)
+- Need to migrate main for updating rsvp
+- python manage.py import_backlog_order
+- add python manage.py update_orders to scheduler (running once a day)
+
 ==============================
 November 15, 2012 Deployment
 

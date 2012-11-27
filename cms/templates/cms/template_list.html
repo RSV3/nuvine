@@ -4,8 +4,8 @@
   <h1>System Templates</h1>
   <div class="row">
     <div class="span4">
-      <a href="{% url template_list 0 %}">Email Templates</a> | 
-      <a href="{% url template_list 1 %}">Web Templates</a>
+      <a href="{% url cms:template_list 0 %}">Email Templates</a> | 
+      <a href="{% url cms:template_list 1 %}">Web Templates</a>
     </div>
   </div>
   <br />
@@ -28,7 +28,7 @@
             <tbody>
               {% for template in templates %}
                 <tr>
-                  <td><a href="{% url edit_template template.key %}">{{ template.key }}</a></td>
+                  <td><a href="{% url cms:edit_template template.key %}">{{ template.key }}</a></td>
                   <td>{{ template.get_category_display }}</td>
                   <td>{{ template.last_modified }}</td>
                 </tr>

@@ -10,18 +10,20 @@ from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from django.http import HttpRequest
 
+from main.utils import send_order_confirmation_email, send_to_supplier_order_added_email
+
 
 class Command(BaseCommand):
 
   args = ''
-  help = 'Daily process to check the subscription information and add new orders'
+  help = 'Daily process to check the subscription information, create new order and add next order if they are due today'
 
   def handle(self, *args, **options):
 
-    for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0,9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
+    for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
       user = User.objects.get(id=user_id)
 
-      # need to add new orders
+      # need to work with only the latest subscription info per user
       subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
 
       if subscription.quantity == 0 or subscription.frequency in [0, 9]:
@@ -55,7 +57,7 @@ class Command(BaseCommand):
         item = LineItem(product=product, price_category=subscription.quantity, quantity=quantity_code, frequency=subscription.frequency)
         item.save()
 
-        cart = Cart(user=user, adds=1)
+        cart = Cart(user=user, receiver=user, adds=1)
         cart.save()
         cart.items.add(item)
         cart.save()

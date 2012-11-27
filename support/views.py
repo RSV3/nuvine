@@ -16,6 +16,43 @@ from main.utils import my_pro
 from datetime import datetime
 import csv
 
+@staff_member_required
+def admin_index(request):
+  """
+    Shows list of things admin can do
+  """
+
+  data = {}
+
+  return render_to_response("support/admin_index.html", data, context_instance=RequestContext(request))
+
+@staff_member_required
+def manage_subscriptions(request):
+
+  data = {}
+
+  subscription_ids = []
+  for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
+    user = User.objects.get(id=user_id)
+
+    # need to work with only the latest subscription info per user
+    subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
+    subscription_ids.append(subscription.id)
+
+  subscriptions = SubscriptionInfo.objects.filter(id__in=subscription_ids).order_by('next_invoice_date')
+
+  page_num = request.GET.get('p', 1)
+  paginator = Paginator(subscriptions, 20)
+  try:
+    page = paginator.page(page_num)
+  except:
+    page = paginator.page(1)
+
+  data['page_count'] = paginator.num_pages
+  data['page'] = page
+  data['subscriptions'] = page.object_list
+
+  return render_to_response("support/manage_subscriptions.html", data, context_instance=RequestContext(request))
 
 @staff_member_required
 def list_emails(request):

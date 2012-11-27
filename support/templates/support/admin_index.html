@@ -1,0 +1,18 @@
+{% extends "winedora/base_html5.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <h1>Control Panel for Vinely Administration</h1>
+    <div class="row">
+      <div class="span12">
+        <ul>
+          <li><a href="{% url cms:list_templates %}">Manage E-mail and Web Templates</a></li>
+          <li><a href="{% url support:manage_subscriptions %}">Manage Subscriptions</a></li>
+          <li><a href="{% url support:list_emails %}">View E-mails</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

@@ -89,7 +89,7 @@
         <tbody>
           {% for order in orders %}
           <tr>
-            <td><a href="{% url supplier_edit_order order.order_id %}">{{ order.order_id }}</a></td>
+            <td><a href="{% url supplier_edit_order order.order_id %}">{{ order.vinely_order_id }}</a></td>
             {% if supplier_all_view %}
               <td>{{ order.get_fulfill_status_display }}</td>
             {% endif %}

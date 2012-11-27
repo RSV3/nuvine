@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('support.views',
+    url(r'^$', 'admin_index', name='admin_index'),
+    url(r'^subscriptions/manage/$', 'manage_subscriptions', name='manage_subscriptions'),
     url(r'^email/list/$', 'list_emails', name='list_emails'),
     url(r'^email/(?P<email_id>\d+)/$', 'view_email', name='view_email'),
     url(r'^download/users/$', 'download_users', name='download_users'),
