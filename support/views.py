@@ -1,9 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Group
+from django.http import HttpResponse
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
@@ -16,6 +14,7 @@ from main.utils import my_pro
 from datetime import datetime
 import csv
 
+
 @staff_member_required
 def admin_index(request):
   """
@@ -25,6 +24,7 @@ def admin_index(request):
   data = {}
 
   return render_to_response("support/admin_index.html", data, context_instance=RequestContext(request))
+
 
 @staff_member_required
 def manage_subscriptions(request):
@@ -54,20 +54,25 @@ def manage_subscriptions(request):
 
   return render_to_response("support/manage_subscriptions.html", data, context_instance=RequestContext(request))
 
+
 @staff_member_required
 def list_emails(request):
 
   data = {}
 
-  emails = Email.objects.all().order_by('-timestamp')
-
+  search_email = request.GET.get('email', '').strip()
+  if search_email:
+    emails = Email.objects.filter(recipients__contains=search_email).order_by('-timestamp')
+  else:
+    emails = Email.objects.all().order_by('-timestamp')
   page_num = request.GET.get('p', 1)
-  paginator = Paginator(emails, 10)
+  paginator = Paginator(emails, 20)
   try:
     page = paginator.page(page_num)
   except:
     page = paginator.page(1)
 
+  data['search_email'] = search_email
   data['page_count'] = paginator.num_pages
   data['page'] = page
   data['emails'] = page.object_list
@@ -351,4 +356,4 @@ def view_orders(request):
 
     # TODO: export orders
 
-  return render_to_response("support/view_orders.html", data, context_instance=RequestContext(request)) 
+  return render_to_response("support/view_orders.html", data, context_instance=RequestContext(request))
