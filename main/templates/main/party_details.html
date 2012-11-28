@@ -149,65 +149,67 @@
         </div>
       {% endif %}
     {% endif %}
-    <div class="row">
-      <div class="span12">
-        <h2>Tasters Attending</h2>
-          {% if pro or host or taster and party.guests_can_invite %}
-            <p><h3>Add Taster</h3></p>
-            {% if pro or host %}
-              <p>{{ taster_form.invitee }}</p>
-              <p><h3>or add new taster</h3></p>
-            {% endif %}
-          {% endif %}
-      </div>
-    </div>
-    {% if pro or host or taster and party.guests_can_invite %}
+    {% if can_add_taster %}
       <div class="row">
-        <div class="span3">
-          <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
-            {{ taster_form.first_name }}
-            {% if taster_form.first_name.errors %}
-              <span class="help-inline">
-                {{ taster_form.first_name.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="span3">
-          <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
-            {{ taster_form.last_name }} 
-            {% if taster_form.last_name.errors %}
-              <span class="help-inline">
-                {{ taster_form.last_name.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="span3">
-          <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
-            {{ taster_form.email }} 
-            {% if taster_form.email.errors %}
-              <span class="help-inline">
-                {{ taster_form.email.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="span2">
-          <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
-            {{ taster_form.phone }} 
-            {% if taster_form.phone.errors %}
-              <span class="help-inline">
-                {{ taster_form.phone.errors }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-        {{ taster_form.response }}
         <div class="span12">
-          <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+          <h2>Tasters Attending</h2>
+            {% if pro or host or taster and party.guests_can_invite %}
+              <p><h3>Add Taster</h3></p>
+              {% if pro or host %}
+                <p>{{ taster_form.invitee }}</p>
+                <p><h3>or add new taster</h3></p>
+              {% endif %}
+            {% endif %}
         </div>
       </div>
+      {% if pro or host or taster and party.guests_can_invite %}
+        <div class="row">
+          <div class="span3">
+            <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+              {{ taster_form.first_name }}
+              {% if taster_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.first_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+              {{ taster_form.last_name }} 
+              {% if taster_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.last_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+              {{ taster_form.email }} 
+              {% if taster_form.email.errors %}
+                <span class="help-inline">
+                  {{ taster_form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span2">
+            <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+              {{ taster_form.phone }} 
+              {% if taster_form.phone.errors %}
+                <span class="help-inline">
+                  {{ taster_form.phone.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {{ taster_form.response }}
+          <div class="span12">
+            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+          </div>
+        </div>
+      {% endif %}
     {% endif %}
     {% if pro or host or taster and party.guests_see_guestlist %}
       <div class="vertical-space"></div>
@@ -221,7 +223,7 @@
           <th>Phone</th>
           <th>RSVP</th>
           <th>Invited</th>
-          {% if host %}
+          {% if host and can_add_taster %}
             <th><!-- Edit --></th>
             {% if not party.confirmed %}
               <th><!-- Remove --></th>
@@ -252,7 +254,7 @@
             <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
             <td>{{ inv.get_response_display }}</td>
             <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
-            {% if host %}
+            {% if host and can_add_taster %}
               <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
               {% if not party.confirmed %}
                 <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
@@ -265,7 +267,11 @@
                 <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
               {% endif %}
               {% if can_shop_for_taster %}
-                <th><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></th>
+                {% if inv.invitee.get_profile.has_personality %}
+                  <td><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></td>
+                {% else %}
+                  <td></td>
+                {% endif %}
               {% endif %}
             {% endif %}
           </tr>
@@ -274,15 +280,27 @@
       </table>
     {% endif %}
     {% if host %}
-      <div class="vertical-space">&nbsp;</div>
-      <div class="row">
-        <div class="span10">
-          <button class="btn btn-primary" name="edit_invite" value="edit_invite">Edit Invite</button>
+      {% if can_add_taster %}
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row">
+          <div class="span10">
+            <a href="#" class="btn btn-primary" name="edit_invite" value="edit_invite">Edit Invite</a>
+          </div>
+          <div class="span2">
+            <button class="btn btn-primary pull-right" name="send_invite" value="send_invite">Send Invite</button>
+          </div>
         </div>
-        <div class="span2">
-          <button class="btn btn-primary pull-right" name="send_invite" value="send_invite">Send Invite</button>
+      {% else %}
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row">
+          <div class="span9">
+            <a class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
+          </div>
+          <div class="span3">
+            <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Send Thank You</button>
+          </div>
         </div>
-      </div>
+      {% endif %}
     {% endif %}
   {% endif %}
   <div class="vertical-space-bottom"></div>

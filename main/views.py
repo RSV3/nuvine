@@ -1272,16 +1272,16 @@ def party_details(request, party_id):
   data["party"] = party
   data["invitees"] = invitees
 
-  # host can order kit upto 10 days before party party
-  today = timezone.now() - timedelta(days=10)
-  can_order_kit = (party.event_date > today)
+  # these checks are only relevant to host or Pro for upcoming parties
+  kit_order_date = party.event_date - timedelta(days=10)
+  can_order_kit = (party.event_date - timezone.now() >= timedelta(days=10))
 
   # these checks are only relevant to host or Pro
-  if party.pro() == u or party.host == u:
+  if can_order_kit and (party.pro() == u or party.host == u):
     if u.get_profile().is_pro():
       if party.confirmed:
         if not party.kit_ordered():
-          msg = 'Your host needs to order their tasting kit by %s' % today.strftime("%m/%d/%Y")
+          msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
           messages.warning(request, msg)
       else:
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
@@ -1293,7 +1293,7 @@ def party_details(request, party_id):
       if party.confirmed:
         if party.invite_sent():
           if not party.kit_ordered():
-            msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (today.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
+            msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
             messages.warning(request, msg)
           # TODO: if kit ordered but number is still higher than kit
           # ask to order another kit
@@ -1313,14 +1313,15 @@ def party_details(request, party_id):
   # pro can only shop for taster upto 24hrs after party
   today = timezone.now() - timedelta(days=1)
   data['can_shop_for_taster'] = (party.event_date > today)
+  data['can_add_taster'] = (party.event_date > today)
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
-  if data['can_order_kit']:
-    return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
-  else:
-    orders = Order.objects.filter(cart__party=party)
-    data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
-    data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
-    return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
+  # if data['can_shop_for_taster']:
+  return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
+  # else:
+  #   orders = Order.objects.filter(cart__party=party)
+  #   data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
+  #   data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
+  #   return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
 
 
 @login_required
