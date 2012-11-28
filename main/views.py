@@ -1886,6 +1886,9 @@ def edit_shipping_address(request):
     if receiver.get_profile().shipping_addresses.all().count() > 0:
       form.fields['shipping_addresses'] = forms.ChoiceField()
       form.fields['shipping_addresses'].widget.queryset = receiver.get_profile().shipping_addresses.all()
+      # only show email field if it's a pro ordering for someone else
+      if not u.get_profile().is_pro() or receiver == u:
+        form.fields['email'].widget = forms.HiddenInput()
 
       current_shipping = receiver.get_profile().shipping_address
 
