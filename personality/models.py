@@ -239,8 +239,8 @@ class WineTaste(models.Model):
   # question 1
   TYPICALLY_DRINK_CHOICES = (
       (1, 'Both red and white wine.'),
-      (2, 'Reds only.'),
-      (3, 'Whites only.')
+      (2, 'Red wines only.'),
+      (3, 'White wines only.')
   )
   typically_drink = models.IntegerField(choices=TYPICALLY_DRINK_CHOICES, default=0, verbose_name='Do you typically drink: (select one):')
 
