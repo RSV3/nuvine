@@ -254,12 +254,13 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  if u.get_profile().is_pro():
-    try:
-      OrganizedParty.objects.get(party=party, pro=u)
-    except OrganizedParty.DoesNotExist:
-      messages.error(request, 'You can only add ratings for your own parties')
-      return HttpResponseRedirect(reverse('party_list'))
+  # if u.get_profile().is_pro():
+  #   try:
+  #     OrganizedParty.objects.get(party=party, pro=u)
+  #   except OrganizedParty.DoesNotExist:
+  if not party.pro() == u:
+    messages.error(request, 'You can only add ratings for your own parties')
+    return HttpResponseRedirect(reverse('party_list'))
 
   if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
     # one can record ratings only if Vinely Pro or Vinely Host/Vinely Taster
@@ -437,6 +438,13 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
     if form.is_valid():
       results = form.save()
+
+      # update response times to 'yes' for users that had given a different response
+      invite = PartyInvite.objects.get(party=party, invitee=taster)
+      if invite.response != 3:
+        invite.response = 3
+        invite.response_timestamp = timezone.now()
+        invite.save()
 
       if np.sum(np.array([results[1].overall, results[2].overall,
                           results[3].overall, results[4].overall,
