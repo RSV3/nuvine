@@ -133,7 +133,7 @@ def send_to_supplier_order_added_email(request, order_id):
   {% load static %}
   Dear Supplier,
 
-  Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
+  Customer ({{ customer }} from {{ state }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 
@@ -150,6 +150,7 @@ def send_to_supplier_order_added_email(request, order_id):
   subject = 'Order ID: %s has been submitted!' % order.vinely_order_id()
 
   c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
+              "state": order.shipping_address.state,
               "host_name": request.get_host(),
               "order_id": order_id,
               "title": subject})
@@ -207,6 +208,7 @@ def send_order_confirmation_email(request, order_id):
 
   c = RequestContext(request, {"customer": order.receiver.first_name if order.receiver.first_name else "Vinely Fan",
               "host_name": request.get_host(),
+              "state": order.shipping_address.state,
               "vinely_order_id": order.vinely_order_id(),
               "order_id": order_id,
               "title": subject})
@@ -232,7 +234,7 @@ def send_order_confirmation_email(request, order_id):
   {% load static %}
   Dear Supplier,
 
-  Customer ({{ customer }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
+  Customer ({{ customer }} from {{ state }}) has completed an order. Please process the order as soon as possible.  You can check the details of their order at:
 
     http://{{ host_name }}{% url supplier_edit_order order_id %}
 

@@ -1,9 +1,12 @@
 =============================
 November 26, 2012 Deployment
 
+- after staging server next_invoice dates have been updated, push to deployment
 - Need to add vinely_order_id in order_confirmation_email e-mail template (http://www.vinely.com/cms/edit/template/order_confirmation_email/)
 - Need to migrate main for updating rsvp
+- python manage.py ingest_master_db -j
 - python manage.py import_backlog_order
+- Need to update order dates from Jayme's e-mail
 - add python manage.py update_orders to scheduler (running once a day)
 
 ==============================
