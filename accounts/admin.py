@@ -186,7 +186,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
     for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
       user = User.objects.get(id=user_id)
       subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
-      subscription_ids.append(subscription.id)
+      if not (subscription.frequency in [0,9] or subscription.quantity == 0):
+        subscription_ids.append(subscription.id)
 
     subscriptions = SubscriptionInfo.objects.filter(id__in=subscription_ids).order_by('next_invoice_date')
     return subscriptions
