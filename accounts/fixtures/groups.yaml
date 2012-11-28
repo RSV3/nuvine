@@ -1,0 +1,25 @@
+- pk: 1
+  fields:
+    name: Vinely Pro
+    permissions: []
+  model: auth.group
+- pk: 2
+  model: auth.group
+  fields:
+    permissions: []
+    name: Vinely Host 
+- fields:
+    name: Vinely Taster
+    permissions: []
+  pk: 3
+  model: auth.group
+- model: auth.group
+  fields:
+    name: Supplier
+    permissions: []
+  pk: 4
+- model: auth.group
+  fields:
+    name: Pending Vinely Pro 
+    permissions: []
+  pk: 5

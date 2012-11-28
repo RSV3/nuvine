@@ -10,7 +10,7 @@ from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from django.http import HttpRequest
 
-from main.utils import send_order_confirmation_email, send_to_supplier_order_added_email
+from main.utils import send_order_confirmation_email
 
 
 class Command(BaseCommand):
@@ -87,12 +87,11 @@ class Command(BaseCommand):
         # send out verification e-mail, create a verification code
         request = HttpRequest()
         request.META['SERVER_NAME'] = "www.vinely.com"
-        request.META['SERVER_PORT'] = 443
+        request.META['SERVER_PORT'] = 80
         request.user = user
         request.session = {}
 
         send_order_confirmation_email(request, order.order_id)
-        send_to_supplier_order_added_email(request, order.order_id)
       else:
         days_left = subscription.next_invoice_date - date.today()
         print "%d days left for %s %s <%s> new order" % (days_left.days, user.first_name, user.last_name, user.email)
