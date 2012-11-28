@@ -5,45 +5,49 @@
   <div class="container">
     <div class="row">
       <div class="span12">
-          <table class="table">
-            <thead>
-              <tr>
-              <th>ID</th>
-              <th>Subject</th>
-              <th>Recipients</th>
-              <th>Date Sent</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for email in emails %}
+        <form method="get" class="form-horizontal" action="">
+          <input type="text" name="email" value="{{ search_email }}" placeholder="Search for email address" />
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        <table class="table">
+          <thead>
             <tr>
-              <td><a href="{% url support:view_email email.id %}">{{ email.id }}</a></td>
-              <td><a href="{% url support:view_email email.id %}">{{ email.subject }}</a></td>
-              <td>
-                {% for address in email.recipients_list %}
-                  {% if forloop.last %}
-                    {{ address }}
-                  {% else %}
-                    {{ address }},
-                  {% endif %}
-                {% endfor %}
-              </td>
-              <td>{{ email.timestamp }}</td>
+            <th>ID</th>
+            <th>Subject</th>
+            <th>Recipients</th>
+            <th>Date Sent</th>
             </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+          </thead>
+          <tbody>
+          {% for email in emails %}
+          <tr>
+            <td><a href="{% url support:view_email email.id %}">{{ email.id }}</a></td>
+            <td><a href="{% url support:view_email email.id %}">{{ email.subject }}</a></td>
+            <td>
+              {% for address in email.recipients_list %}
+                {% if forloop.last %}
+                  {{ address }}
+                {% else %}
+                  {{ address }},
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>{{ email.timestamp }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
 
-          <div class="row">
-            <div class="span12">
-              <a href=".">First</a> | 
-              <a href="{% if page.has_previous %}./?p={{ page.previous_page_number }}{% else %}#{% endif %}">Previous</a> |
-              <span>{{ page }}</span> | 
-              <a href="{% if page.has_next %}./?p={{ page.next_page_number }}{% else %}#{% endif %}">Next</a> | 
-              <a href="{% if page.has_other_pages %}./?p={{ page_count }}{% else %}#{% endif %}">Last</a>
-              <p></p>
-            </div>
+        <div class="row">
+          <div class="span12">
+            <a href=".">First</a> | 
+            <a href="{% if page.has_previous %}./?p={{ page.previous_page_number }}{% else %}#{% endif %}">Previous</a> |
+            <span>{{ page }}</span> | 
+            <a href="{% if page.has_next %}./?p={{ page.next_page_number }}{% else %}#{% endif %}">Next</a> | 
+            <a href="{% if page.has_other_pages %}./?p={{ page_count }}{% else %}#{% endif %}">Last</a>
+            <p></p>
           </div>
+        </div>
       </div>
     </div>
   </div>
