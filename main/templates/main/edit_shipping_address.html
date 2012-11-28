@@ -157,17 +157,21 @@
         </div>
 
         <div class="control-group{% if form.email.errors %} error{% endif %}">
-          <div class="control-label" for="id_email">{{ form.email.label }}</div>
+          {% if pro %} 
+            <div class="control-label" for="id_email">{{ form.email.label }}</div>
+          {% endif %}
           <div class="controls">
-            {{ form.email}} 
-            {% if form.email.errors %}
-              <span class="help-inline">
-                {{ form.email.errors }}
-              </span>
-            {% else %}
-              <span class="help-inline">
-                {{ form.email.help_text }}
-              </span>
+            {{ form.email }}
+            {% if pro %} 
+              {% if form.email.errors %}
+                <span class="help-inline">
+                  {{ form.email.errors }}
+                </span>
+              {% else %}
+                <span class="help-inline">
+                  {{ form.email.help_text }}
+                </span>
+              {% endif %}
             {% endif %}
           </div>
         </div>
