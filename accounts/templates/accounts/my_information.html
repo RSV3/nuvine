@@ -217,6 +217,14 @@
 
         <fieldset>
           <legend>Billing Information</legend>
+           <div class="control-group">
+            <div class="control-label" for="id_billing-same_as_shipping">
+            {{ billing_form.same_as_shipping.label }}
+            </div>
+            <div class="controls">
+              {{ billing_form.same_as_shipping }}
+            </div>
+          </div>         
           <div class="control-group">
             <div class="control-label" for="id_billing-street1">
             {{ billing_form.street1.label }}
