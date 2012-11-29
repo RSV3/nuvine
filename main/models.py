@@ -228,6 +228,9 @@ class LineItem(models.Model):
   frequency = models.IntegerField(choices=SubscriptionInfo.FREQUENCY_CHOICES, default=1)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
+  def __unicode__(self):
+    return "%s - %s - %s" % (self.product, self.get_price_category_display(), self.get_frequency_display())
+
   def subtotal(self):
     if self.price_category in [5, 7, 9]:
       #return 2*float(self.product.unit_price)
