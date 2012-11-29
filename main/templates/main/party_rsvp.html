@@ -60,14 +60,14 @@
           {% if invite.rsvp_code %}
             <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% else %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% endif %}
         </p>
         <p>
           {% if invite.rsvp_code %}
             <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% else %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% endif %}
         </p>
       </div>
