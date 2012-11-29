@@ -46,8 +46,8 @@
       <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
     {% endif %}
   {% elif supplier %}
-    <li><div class="chev"><a href="{% url supplier_pending_orders %}">Pending Orders</a></div></li>
-    <li><div class="chev"><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></div></li>
+    <!-- <li><div class="chev"><a href="{% url supplier_pending_orders %}">Pending Orders</a></div></li>
+    <li><div class="chev"><a href="{% url supplier_fulfilled_orders %}">Fulfilled Orders</a></div></li> -->
     <li><div class="chev"><a href="{% url supplier_all_orders %}">All Orders</a></div></li>
   {% elif taster %}
     {% if party_date %}

@@ -128,6 +128,8 @@ class AgeValidityForm(forms.ModelForm):
 
 class UpdateAddressForm(forms.ModelForm):
 
+  same_as_shipping = forms.BooleanField(required=False, label="Same as shipping address")
+
   class Meta:
     model = Address
 

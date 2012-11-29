@@ -78,40 +78,51 @@ def my_information(request):
       messages.error(request, 'The Date of Birth shows that you are not over 21')
       return HttpResponseRedirect('.')
 
-  if user_form.is_valid():
-    update_user = user_form.save()
-    user_updated = True 
+    if user_form.is_valid():
+      update_user = user_form.save()
+      user_updated = True
 
-  if shipping_form.is_valid(): 
-    shipping_address = shipping_form.save()
-    profile.shipping_address = shipping_address
-    shipping_updated = True 
+    if shipping_form.is_valid():
+      shipping_address = shipping_form.save()
+      profile.shipping_address = shipping_address
+      shipping_updated = True
 
-  if billing_form.is_valid(): 
-    billing_address = billing_form.save()
-    profile.billing_address = billing_address
-    billing_updated = True 
+    if billing_form.is_valid():
+      if billing_form.cleaned_data['same_as_shipping']:
+        profile.billing_address = shipping_address
+        billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
+      else:
+        billing_address = billing_form.save()
+        profile.billing_address = billing_address
+      billing_updated = True
+    else:
+      # check if same_as_shipping is true
+      if request.POST.get('billing-same_as_shipping') and shipping_address:
+        profile.billing_address = shipping_address
+        billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
+        billing_updated = True
 
-  if payment_form.is_valid():
-    credit_card = payment_form.save()
-    profile.credit_card = credit_card
+    if payment_form.is_valid():
+      credit_card = payment_form.save()
+      profile.credit_card = credit_card
+      payment_updated = True
+
     profile.save()
-    payment_updated = True 
 
-  if eligibility_form.is_valid():
-    eligible_profile = eligibility_form.save()
-    eligibility_updated = True
+    if eligibility_form.is_valid():
+      eligible_profile = eligibility_form.save()
+      eligibility_updated = True
 
-  if profile_form.is_valid():
-    new_profile = profile_form.save()
+    if profile_form.is_valid():
+      new_profile = profile_form.save()
 
-  if user_updated or shipping_updated or billing_updated or payment_updated or eligibility_updated:
-    msg = 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p")
-    next = request.GET.get('next')
-    if next:
-      msg += ' <a href="%s">Back</a>' % next
-    messages.success(request, msg)
-    data['updated'] = True
+    if user_updated or shipping_updated or billing_updated or payment_updated or eligibility_updated:
+      msg = 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p")
+      next = request.GET.get('next')
+      if next:
+        msg += ' <a href="%s">Back</a>' % next
+      messages.success(request, msg)
+      data['updated'] = True
 
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
