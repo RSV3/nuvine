@@ -63,11 +63,13 @@ def invoice_created(event_json):
         return
     profile = stripe_card.stripe_owner.all()[0]
     # get latest subscription
-    plan = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')[0]
-    sub_total = data['subtotal']
-    # only need to add shipping and tax info
-    stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
-    stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total), profile), currency='usd', description='Tax')
+    plans = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
+    if plans.exists():
+        plan = plans[0]
+        sub_total = data['subtotal']
+        # only need to add shipping and tax info
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total), profile), currency='usd', description='Tax')
 
 
 # NOTE: invoice_created_old below might be necessary once we allow multiple descriptions
