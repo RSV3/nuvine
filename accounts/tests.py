@@ -253,8 +253,15 @@ class SimpleTest(TestCase):
     response = self.client.login(email="attendee1@example.com", password="hello")
     self.assertEquals(response, True)
 
-    response = self.client.get(reverse("sign_up", args=[2]))
+    response = self.client.get(reverse("make_pro_host", args=['host']))
     self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("make_pro_host", args=['host']), {'first_name': 'attendee1',
+                                                                    'last_name': 'one',
+                                                                    'password1': 'Sign Up',
+                                                                    'password2': 'Sign Up',
+                                                                    'email': 'attendee1@example.com',
+                                                                    'zipcode': '49546'})
 
     self.assertContains(response, "Thank you for your interest in hosting a Vinely Party!")
 
