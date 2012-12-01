@@ -25,7 +25,7 @@
         <tbody>
           {% for order in orders %}
           <tr>
-            <td><a href="{% url order_complete order.order_id %}">{{ order.order_id }}</a></td>
+            <td><a href="{% url order_complete order.order_id %}">{{ order.vinely_order_id }}</a></td>
             <td>{{ order.order_date }}</td>
             <td>{{ order.cart.total|currency }}</td>
             <td>{{ order.get_fulfill_status_display }}</td>
