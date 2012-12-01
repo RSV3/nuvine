@@ -58,7 +58,7 @@ class Command(BaseCommand):
           # first party invite date
           inv = invites[0]
           diff_days = o.order_date - inv.party.event_date
-          if diff_days.days > 5:
+          if diff_days.days > 7:
             if tasting_kit:
               o.order_date = inv.party.event_date - timedelta(days=5)
             elif frequency == [0, 9]:
@@ -72,6 +72,8 @@ class Command(BaseCommand):
                 o.order_date = last_order_date + relativedelta(months=+frequency)
               last_order_date = o.order_date
             o.save()
+          else:
+            print "%s - %s - Order data did not change" % (o.vinely_order_id(), o.receiver.email)
 
           diff_days = o.order_date - inv.party.event_date
           print "\tNew Order date: %s - Party date: %s - Days diff: %s" % (o.order_date, inv.party.event_date, diff_days.days)
