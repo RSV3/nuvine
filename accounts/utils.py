@@ -407,7 +407,7 @@ our new site.
   {% if verification_code %}
   We've integrated your taste data and your personality into an account just for you. Follow the steps below to activate it.
 
-  <h3>Activate Accout:</h3>
+  <h3>Activate Account:</h3>
     <table>
     <tr>
     <td>&nbsp;</td>

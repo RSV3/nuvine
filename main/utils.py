@@ -2,6 +2,7 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User, Group
+from django.utils import timezone
 
 from main.models import Order, EngagementInterest, MyHost, PartyInvite
 from support.models import Email
@@ -412,13 +413,16 @@ def distribute_party_invites_email(request, invitation_sent):
 
   for guest in invitation_sent.guests.all():
     invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
+    invite.invited_timestamp = timezone.now()
+    invite.save()
+
     c = RequestContext(request, {"party": invitation_sent.party,
                 "custom_message": invitation_sent.custom_message,
                 "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
                 "invite_host_email": host_user.email,
                 "host_name": request.get_host(), "rsvp_date": rsvp_date,
                 "rsvp_code": invite.rsvp_code, "plain": True})
-    if guest.is_active is False:
+    if not guest.is_active:
       # new user created through party invitation
       temp_password = User.objects.make_random_password()
       guest.set_password(temp_password)
@@ -433,8 +437,7 @@ def distribute_party_invites_email(request, invitation_sent):
         vque.save()
 
       # include verification code
-      # c.update({'verification_code': verification_code,
-      #           'temp_password': temp_password})
+      c.update({'verification_code': verification_code, 'temp_password': temp_password})
 
     txt_message = txt_template.render(c)
     c.update({'sig': True, 'plain': False})
@@ -483,6 +486,23 @@ def resend_party_invite_email(request, user, invitation_sent):
                 "host_name": request.get_host(), "rsvp_date": rsvp_date,
                 "rsvp_code": invite.rsvp_code, "plain": True})
 
+    # if not guest.is_active:
+    #   # new user created through party invitation
+    #   temp_password = User.objects.make_random_password()
+    #   guest.set_password(temp_password)
+    #   guest.save()
+
+    #   if VerificationQueue.objects.filter(user=guest, verified=False).exists():
+    #     vque = VerificationQueue.objects.filter(user=guest, verified=False).order_by('-created')[0]
+    #     verification_code = vque.verification_code
+    #   else:
+    #     verification_code = str(uuid.uuid4())
+    #     vque = VerificationQueue(user=guest, verification_code=verification_code)
+    #     vque.save()
+
+    #   # include verification code
+    #   c.update({'verification_code': verification_code, 'temp_password': temp_password})
+
     txt_message = txt_template.render(c)
     c.update({'sig': True, 'plain': False})
     html_message = html_template.render(c)
@@ -503,7 +523,7 @@ def resend_party_invite_email(request, user, invitation_sent):
   return msg
 
 
-def send_rsvp_thank_you_email(request, user):
+def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
 
   template = Section.objects.get(template__key='rsvp_thank_you_email', category=0)
   txt_template = Template(template.content)
@@ -511,6 +531,10 @@ def send_rsvp_thank_you_email(request, user):
 
   c = RequestContext(request, {"first_name": user.first_name,
                                 "host_name": request.get_host()})
+
+  if verification_code:
+    c.update({'verification_code': verification_code, 'temp_password': temp_password})
+
   txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)

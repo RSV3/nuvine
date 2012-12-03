@@ -2240,6 +2240,9 @@ def vinely_event_signup(request, party_id, fb_page=0):
 
   party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
 
+  verification_code = ''
+  temp_password = ''
+
   # create users and send e-mail notifications
   form = EventSignupForm(request.POST or None, initial={'account_type': account_type, 'vinely_event': True})
 
@@ -2272,7 +2275,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       vque.save()
 
       # send out verification e-mail, create a verification code
-      send_verification_email(request, verification_code, temp_password, user.email)
+      # send_verification_email(request, verification_code, temp_password, user.email)
 
     data["email"] = user.email
     data["first_name"] = user.first_name
@@ -2310,7 +2313,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       if not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, user, account_type)
-      send_rsvp_thank_you_email(request, user)
+      send_rsvp_thank_you_email(request, user, verification_code, temp_password)
     # messages.success(request, msg)
 
     return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))
