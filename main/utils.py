@@ -115,7 +115,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
   email_log.save()
 
   # notify the receiver that the order has been received
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -169,7 +169,7 @@ def send_to_supplier_order_added_email(request, order_id):
   email_log.save()
 
   # notify the supplier that an order has been received
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -225,7 +225,7 @@ def send_order_confirmation_email(request, order_id):
   email_log.save()
 
   # notify the receiver that the order has been received
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -264,12 +264,13 @@ def send_order_confirmation_email(request, order_id):
   email_log.save()
 
   # notify the supplier that an order has been received
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
   order.fulfill_status = 1
   order.save()
+
 
 def send_order_shipped_email(request, order):
 
@@ -277,8 +278,7 @@ def send_order_shipped_email(request, order):
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"order": order,
-              "host_name": request.get_host()})
+  c = RequestContext(request, {"order": order, "host_name": request.get_host()})
   txt_message = txt_template.render(c)
 
   c.update({'sig': True})
@@ -299,7 +299,7 @@ def send_order_shipped_email(request, order):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['fulfillment@vinely.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['fulfillment@vinely.com', 'vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -343,7 +343,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   if not created:
     interest.update_time()
   else:
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -380,7 +380,7 @@ def send_new_party_scheduled_email(request, party):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -441,7 +441,7 @@ def distribute_party_invites_email(request, invitation_sent):
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -487,7 +487,7 @@ def resend_party_invite_email(request, user, invitation_sent):
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -518,10 +518,11 @@ def send_rsvp_thank_you_email(request, user):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
   return msg
+
 
 def send_contact_request_email(request, contact_request):
   """
@@ -550,6 +551,7 @@ def send_contact_request_email(request, contact_request):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+
 def send_pro_assigned_notification_email(request, pro, host):
 
   template = Section.objects.get(template__key='pro_assigned_notification_email', category=0)
@@ -572,71 +574,74 @@ def send_pro_assigned_notification_email(request, pro, host):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com', 'vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
-  msg.send()  
+  msg.send()
+
 
 def send_mentor_assigned_notification_email(request, mentee, mentor):
-  
+
   template = Section.objects.get(template__key='mentor_assigned_notification_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"mentee": mentee, "mentor": mentor})
+  c = RequestContext(request, {"mentee": mentee, "mentor": mentor})
   txt_message = txt_template.render(c)
-  c.update({'sig':True})
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send e-mail to notify about contact request
   subject = "Congratulations! Vinely Mentor has been assigned to you."
   recipients = [mentee.email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = "Vinely Update <care@vinely.com>"
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com', 'vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
-  msg.send() 
+  msg.send()
+
 
 def send_mentee_assigned_notification_email(request, mentor, mentee):
-  
+
   template = Section.objects.get(template__key='mentee_assigned_notification_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext( request, {"mentor": mentor, "mentee": mentee})
+  c = RequestContext(request, {"mentor": mentor, "mentee": mentee})
   txt_message = txt_template.render(c)
-  c.update({'sig':True})
+  c.update({'sig': True})
   html_message = html_template.render(c)
 
   # send e-mail to notify about contact request
   subject = "Congratulations! Vinely Mentee has been assigned to you."
   recipients = [mentor.email]
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext( request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = "Vinely Update <care@vinely.com>"
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['care@vinely.com', 'vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
-  msg.send() 
+  msg.send()
+
 
 def distribute_party_thanks_note_email(request, note_sent, guests, placed_order):
   template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  
-  c = RequestContext( request, {"party": note_sent.party,
+
+  c = RequestContext(request, {"party": note_sent.party,
               "custom_message": note_sent.custom_message,
-              "invite_host_name": "%s %s"%(request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
-              "invite_host_email": request.user.email, 
+              "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
+              "invite_host_email": request.user.email,
               "host_name": request.get_host(), "placed_order": placed_order,
-              "plain":True})
+              "plain": True})
   txt_message = txt_template.render(c)
-  c.update({'sig':True, 'plain':False})
+  c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
 
   recipients = []
@@ -653,7 +658,7 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients)
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, bcc=['vinelytesting@gmail.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
