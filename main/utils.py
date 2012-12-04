@@ -445,7 +445,7 @@ def distribute_party_invites_email(request, invitation_sent):
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'}])
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -508,7 +508,7 @@ def resend_party_invite_email(request, user, invitation_sent):
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'}])
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
@@ -543,7 +543,7 @@ def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'}])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
   return msg
@@ -572,7 +572,7 @@ def send_contact_request_email(request, contact_request):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': contact_request.email}])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': contact_request.email})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -688,7 +688,7 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'}])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
