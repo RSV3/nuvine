@@ -253,12 +253,15 @@ def send_order_confirmation_email(request, order_id):
   c.update({'sig': True})
   html_message = html_template.render(c)
 
-  subject = 'Order ID: %s has been submitted!' % order.vinely_order_id()
+  subject = 'Order ID: %s has been submitted for %s!' % (order.vinely_order_id(), order.shipping_address.state)
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
 
   from_email = 'Vinely Order <info@vinely.com>'
-  recipients = ['fulfillment@vinely.com']
+  if "mi" in str(order.shipping_address.state).lower():
+    recipients = ['pmfaba@gmail.com']
+  else:
+    recipients = ['fulfillment@vinely.com']
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
