@@ -60,6 +60,7 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  @property
   def pro(self):
     try:
       return OrganizedParty.objects.get(party=self).pro

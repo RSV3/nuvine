@@ -252,7 +252,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   #   try:
   #     OrganizedParty.objects.get(party=party, pro=u)
   #   except OrganizedParty.DoesNotExist:
-  if not party.pro() == u:
+  if not party.pro == u:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 

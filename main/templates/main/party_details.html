@@ -163,6 +163,9 @@
         </div>
       </div>
       {% if pro or host or taster and party.guests_can_invite %}
+      <form class="form-horizontal" method="POST" action="{% url party_add_taster party.id %}?next={{ request.path }}">
+        {% csrf_token %}
+        {{ taster_form.party }}      
         <div class="row">
           <div class="span3">
             <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
@@ -209,99 +212,107 @@
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
           </div>
         </div>
+      </form>
       {% endif %}
     {% endif %}
-    {% if pro or host or taster and party.guests_see_guestlist %}
-      <div class="vertical-space"></div>
-      <table class="table table-striped">
-        <thead>
-          {% if host %}
-            <th><input type="checkbox" class="all-guests"></th>
-          {% endif %}
-          <th>Name</th>
-          <th>E-mail</th>
-          <th>Phone</th>
-          <th>RSVP</th>
-          <th>Invited</th>
-          {% if host and can_add_taster %}
-            <th><!-- Edit --></th>
-            {% if not party.confirmed %}
-              <th><!-- Remove --></th>
-            {% endif %}
-          {% endif %}
-          {% if pro %}
-            <th>Wine Personality</th>
-            {% if can_shop_for_taster %}
-              <th><!-- Shop --></th>
-            {% endif %}
-          {% endif %}
-        </thead>
-        <tbody>
-        {% for inv in invitees %}
-          {# create a table of invitees #}
-          <tr>
+    <form class="form-horizontal" method="POST" action="{% url party_send_invites %}">
+      {% csrf_token %}
+      {{ taster_form.party }}
+      {{ invite_form.custom_subject }}
+      
+      {% if pro or host or taster and party.guests_see_guestlist %}
+        <div class="vertical-space"></div>
+        <table class="table table-striped">
+          <thead>
             {% if host %}
-              <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
+              <th><input type="checkbox" class="all-guests"></th>
             {% endif %}
-            <td>
-              {% if inv.invitee.first_name or inv.invitee.last_name %} 
-                {{ inv.invitee.first_name }} {{ inv.invitee.last_name }}
-              {% else %}
-                Anonymous
-              {% endif %}
-            </td>
-            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-            <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
-            <td>{{ inv.get_response_display }}</td>
-            <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
+            <th>Name</th>
+            <th>E-mail</th>
+            <th>Phone</th>
+            <th>RSVP</th>
+            <th>Invited</th>
             {% if host and can_add_taster %}
-              <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
+              <th><!-- Edit --></th>
               {% if not party.confirmed %}
-                <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+                <th><!-- Remove --></th>
               {% endif %}
             {% endif %}
             {% if pro %}
-              {% if inv.invitee.get_profile.has_personality %}
-                <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
-              {% else %}
-                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
-              {% endif %}
+              <th>Wine Personality</th>
               {% if can_shop_for_taster %}
-                {% if inv.invitee.get_profile.has_personality %}
-                  <td><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></td>
-                {% else %}
-                  <td></td>
-                {% endif %}
+                <th><!-- Shop --></th>
               {% endif %}
             {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% endif %}
-    {% if host %}
-      {% if can_add_taster %}
-        <div class="vertical-space">&nbsp;</div>
-        <div class="row">
-          <div class="span10">
-            <a href="#" class="btn btn-primary" name="edit_invite" value="edit_invite">Edit Invite</a>
-          </div>
-          <div class="span2">
-            <button class="btn btn-primary pull-right" name="send_invite" value="send_invite">Send Invite</button>
-          </div>
-        </div>
-      {% else %}
-        <div class="vertical-space">&nbsp;</div>
-        <div class="row">
-          <div class="span9">
-            <a class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
-          </div>
-          <div class="span3">
-            <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Send Thank You</button>
-          </div>
-        </div>
+          </thead>
+          <tbody>
+          {% for inv in invitees %}
+            {# create a table of invitees #}
+            <tr>
+              {% if host %}
+                <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
+              {% endif %}
+              <td>
+                {% if inv.invitee.first_name or inv.invitee.last_name %} 
+                  {{ inv.invitee.first_name }} {{ inv.invitee.last_name }}
+                {% else %}
+                  Anonymous
+                {% endif %}
+              </td>
+              <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+              <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
+              <td>{{ inv.get_response_display }}</td>
+              <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
+              {% if host and can_add_taster %}
+                <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
+                {% if not party.confirmed %}
+                  <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+                {% endif %}
+              {% endif %}
+              {% if pro %}
+                {% if inv.invitee.get_profile.has_personality %}
+                  <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
+                {% else %}
+                  <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+                {% endif %}
+                {% if can_shop_for_taster %}
+                  {% if inv.invitee.get_profile.has_personality %}
+                    <td><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></td>
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
       {% endif %}
-    {% endif %}
+      {% if host %}
+        {% if can_add_taster %}
+          <div class="vertical-space">&nbsp;</div>
+          <div class="row">
+            <div class="span10">
+              <a href="#" class="btn btn-primary">Edit Invite</a>
+            </div>
+            <div class="span2">
+              <button class="btn btn-primary pull-right" name="send_invite" value="send_invite"
+                     {% if not party.confirmed %}disabled="disabled"{% endif %}>Send Invite</button>
+            </div>
+          </div>
+        {% else %}
+          <div class="vertical-space">&nbsp;</div>
+          <div class="row">
+            <div class="span9">
+              <a class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
+            </div>
+            <div class="span3">
+              <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Send Thank You</button>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </form>
   {% endif %}
   <div class="vertical-space-bottom"></div>
 </div>
@@ -324,7 +335,7 @@
 
         $.ajax({
           type: "GET",
-          url: "{% url party_edit_taster_info 0 't' %}".replace(0, $(this).attr('data-invite')),
+          url: "{% url party_edit_taster_info 0 't' %}?next={{ request.path }}".replace(0, $(this).attr('data-invite')),
           cache: false,
           dataType: "html",
           success: function(html, textStatus) {

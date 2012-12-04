@@ -36,4 +36,5 @@ def vinely_user_info(request):
       del request.session['cart_id']
 
   data['EMAIL_STATIC_URL'] = settings.EMAIL_STATIC_URL
+  data['request'] = request
   return data

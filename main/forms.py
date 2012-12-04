@@ -94,7 +94,7 @@ class PartyCreateForm(forms.ModelForm):
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
-    if self._errors['host']:
+    if self._errors.get('host'):
       self._errors['host'] = 'Pick a Host from the list or Enter the Host details below'
 
     if 'host' in cleaned_data:
@@ -204,7 +204,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     email_validator = Email()
     if 'invitee' not in cleaned_data:
       # create new host and return host ID
-      if email_validator(cleaned_data['email']):
+      if email_validator(cleaned_data.get('email')):
 
         try:
           user = User.objects.get(email=cleaned_data['email'].lower())
@@ -225,7 +225,8 @@ class PartyInviteTasterForm(forms.ModelForm):
         from django.forms.util import ErrorList
         msg = 'Enter valid e-mail for the invitee.'
         self._errors['email'] = ErrorList([msg])
-        del self.cleaned_data['email']
+        if self.cleaned_data.get('email'):
+          del self.cleaned_data['email']
       # delete error if we think user manually being filled out
       del self._errors['invitee']
 
@@ -430,8 +431,8 @@ class CustomizeInvitationForm(forms.ModelForm):
   )
   preview = forms.BooleanField(required=False)
   send = forms.BooleanField(required=False)
-  auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect)
-  auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect)
+  auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect, required=False)
+  auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect, required=False)
   guests_can_invite = forms.MultipleChoiceField(choices=GUEST_INVITE_OPTIONS, widget=forms.CheckboxSelectMultiple, required=False)
 
   class Meta:
@@ -439,7 +440,11 @@ class CustomizeInvitationForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(CustomizeInvitationForm, self).__init__(*args, **kwargs)
-    self.fields['custom_subject'].widget.attrs['class'] = 'span4'
+    initial = kwargs.get('initial', {})
+    if initial.get('subject'):
+      self.fields['custom_subject'].widget = forms.HiddenInput()
+    else:
+      self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5})
 
