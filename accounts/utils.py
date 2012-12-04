@@ -33,8 +33,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -72,8 +71,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
   email_log = Email(subject=subject, sender='support@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'support@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'support@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -111,8 +109,7 @@ def send_account_activation_email(request, verification_code, temp_password, use
   email_log = Email(subject=subject, sender='support@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'support@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'support@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -153,8 +150,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -187,8 +183,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -216,8 +211,7 @@ def send_pro_request_email(request, receiver):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -256,8 +250,7 @@ def send_pro_review_email(request, user):
   email_log.save()
 
   # update our DB that there was repeated interest
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'getstarted@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'getstarted@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -282,8 +275,7 @@ def send_know_pro_party_email(request, user):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -309,8 +301,7 @@ def send_unknown_pro_email(request, user):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -340,7 +331,7 @@ def send_pro_approved_email(request, applicant):
   email_log.save()
 
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'care@vinely.com'}, bcc=['sales@vinely.com', 'vinelytesting@gmail.com'])
+                              headers={'Reply-To': 'care@vinely.com'}, bcc=['sales@vinely.com'])
 
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
@@ -373,8 +364,7 @@ def send_not_in_area_party_email(request, user, account_type):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -482,8 +472,7 @@ Your Tasteful Friends,
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'}, bcc=['vinelytesting@gmail.com'])
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -493,7 +482,7 @@ def check_zipcode(zipcode):
   Check provided zipcode against existing ones to verify if vinely operates in the area
   '''
   try:
-    code = Zipcode.objects.get(code = zipcode, state__in = SUPPORTED_STATES)
+    code = Zipcode.objects.get(code=zipcode, state__in=SUPPORTED_STATES)
     return True
   except Zipcode.DoesNotExist:
     # application for pro/host?
