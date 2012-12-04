@@ -40,3 +40,6 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+initial_data.yaml
+*_old.*
