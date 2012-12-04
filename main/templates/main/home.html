@@ -16,6 +16,9 @@
   {% endfor %}
 
   {% if pro %}
+    {% if not wine_personality and not questionnaire_completed %}
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+    {% endif %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     {% if party %}
@@ -25,6 +28,9 @@
     <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif host %}
+    {% if not wine_personality and not questionnaire_completed %}
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+    {% endif %} 
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
     {% if party_scheduled %}
       <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Guests</a></div></li>
