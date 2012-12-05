@@ -516,3 +516,65 @@ class ChangeTasterRSVPForm(forms.Form):
   )
   party = forms.IntegerField(widget=forms.HiddenInput())
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
+
+
+import django_tables2 as tables
+from django_tables2 import A
+from django_tables2 import Attrs
+from django.utils.safestring import mark_safe
+table_attrs = Attrs({'class': 'table table-striped'})
+from django.core.urlresolvers import reverse
+
+
+class AttendeesTable(tables.Table):
+  select = tables.CheckBoxColumn(Attrs({'name': 'guests', 'td__input': {'class': 'guest'}, 'th__input': {'class': 'all-guests'}}), accessor='id')
+  invitee = tables.TemplateColumn('{{ record.invitee.first_name }} {{ record.invitee.last_name }}', verbose_name='Name',
+                                  order_by=('invitee.first_name', 'invitee.last_name'))
+  email = tables.TemplateColumn('{{ record.invitee.email }}<a href="mailto:{{ record.invitee.email }}">&nbsp;<i class="icon-envelope"></i></a>', orderable=False)
+  phone = tables.TemplateColumn('{% if record.invitee.userprofile.phone %} {{ record.invitee.userprofile.phone }} {% else %} - {% endif %}', orderable=False)
+  response = tables.Column(verbose_name='RSVP')
+  invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
+  wine_personality = tables.Column(accessor='invitee.userprofile.wine_personality', verbose_name='Wine Personality', order_by=('invitee.userprofile.wine_personality.name',))
+  edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
+  shop = tables.TemplateColumn('<a href="{% url start_order record.invitee.id record.party.id %}" class="btn btn-primary">Shop</a>', verbose_name=' ')
+  confirmed = tables.TemplateColumn('<a href="{% url party_remove_taster record.id %}" class="remove-taster" data-invite="{{ record.id }}">X</a>', verbose_name=' ')
+
+  class Meta:
+    model = PartyInvite
+    attrs = table_attrs
+    sequence = ['select', 'invitee', 'email', 'phone', '...']
+    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp']
+    order_by = ['invitee']
+
+  def __init__(self, *args, **kwargs):
+    data = kwargs.pop('data', {})
+    user = kwargs.pop('user')
+    super(AttendeesTable, self).__init__(*args, **kwargs)
+
+    exclude = list(self.exclude)
+    if not user.userprofile.is_host():
+      exclude.append('select')
+    if not data['can_add_taster']:
+      exclude.append('invited')
+    if not user.userprofile.is_pro():
+      exclude.append('wine_personality')
+    if not (user.userprofile.is_host() and data['can_add_taster'] or user.userprofile.is_pro() and data['can_add_taster']):
+      exclude.append('edit')
+    if data['party'].confirmed:
+      exclude.append('confirmed')
+    if not (user.userprofile.is_pro() and data['can_shop_for_taster']):
+      exclude.append('shop')
+
+    self.exclude = exclude
+
+  def render_shop(self, record, column):
+      if record.invitee.userprofile.has_personality():
+        return mark_safe('<a href="%s" class="btn btn-primary">Shop</a>' % reverse('start_order', args=[record.invitee.id, record.party.id]))
+      else:
+        return ''
+
+  def render_wine_personality(self, record, column):
+    if record.invitee.userprofile.has_personality():
+      return mark_safe('<a href="%s">%s</a>' % (reverse('personality_rating_info', args=[record.invitee.email, record.party.id]), record.invitee.userprofile.wine_personality))
+    else:
+      return mark_safe('<a href="%s">Enter ratings</a>' % (reverse('record_all_wine_ratings', args=[record.invitee.email, record.party.id])))

@@ -48,6 +48,9 @@ INSTALLED_APPS = (
     'support',
     'compressor',
     'social',
+    'cms',
+    'stripecard',
+    'django_tables2',
 )
 
 TEMPLATE_DIRS = (

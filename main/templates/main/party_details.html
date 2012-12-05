@@ -215,6 +215,7 @@
       </form>
       {% endif %}
     {% endif %}
+
     <form class="form-horizontal" method="POST" action="{% url party_send_invites %}">
       {% csrf_token %}
       {{ taster_form.party }}
@@ -222,75 +223,8 @@
       
       {% if pro or host or taster and party.guests_see_guestlist %}
         <div class="vertical-space"></div>
-        <table class="table table-striped">
-          <thead>
-            {% if host %}
-              <th><input type="checkbox" class="all-guests"></th>
-            {% endif %}
-            <th>Name</th>
-            <th>E-mail</th>
-            <th>Phone</th>
-            <th>RSVP</th>
-            {% if can_add_taster %}
-              <th>Invited</th>
-            {% endif %}
-            {% if host and can_add_taster %}
-              <th><!-- Edit --></th>
-              {% if not party.confirmed %}
-                <th><!-- Remove --></th>
-              {% endif %}
-            {% endif %}
-            {% if pro %}
-              <th>Wine Personality</th>
-              {% if can_shop_for_taster %}
-                <th><!-- Shop --></th>
-              {% endif %}
-            {% endif %}
-          </thead>
-          <tbody>
-          {% for inv in invitees %}
-            {# create a table of invitees #}
-            <tr>
-              {% if host %}
-                <td><input type="checkbox" value="{{ inv.invitee.id }}" class="guest" name="guests"></td>
-              {% endif %}
-              <td>
-                {% if inv.invitee.first_name or inv.invitee.last_name %} 
-                  {{ inv.invitee.first_name }} {{ inv.invitee.last_name }}
-                {% else %}
-                  Anonymous
-                {% endif %}
-              </td>
-              <td>{{ inv.invitee.email }}<a href="mailto:{{ inv.invitee.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
-              <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
-              <td>{{ inv.get_response_display }}</td>
-              {% if can_add_taster %}
-                <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
-              {% endif %}
-              {% if host and can_add_taster %}
-                <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
-                {% if not party.confirmed %}
-                  <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
-                {% endif %}
-              {% endif %}
-              {% if pro %}
-                {% if inv.invitee.get_profile.has_personality %}
-                  <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
-                {% else %}
-                  <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
-                {% endif %}
-                {% if can_shop_for_taster %}
-                  {% if inv.invitee.get_profile.has_personality %}
-                    <td><a href="{% url start_order inv.invitee.id party.id %}" class="btn btn-primary">Shop</a></td>
-                  {% else %}
-                    <td></td>
-                  {% endif %}
-                {% endif %}
-              {% endif %}
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+        {% load render_table from django_tables2 %}
+        {% render_table table %}
       {% endif %}
       {% if host %}
         {% if can_add_taster %}
@@ -317,6 +251,7 @@
         {% endif %}
       {% endif %}
     </form>
+
   {% endif %}
   <div class="vertical-space-bottom"></div>
 </div>

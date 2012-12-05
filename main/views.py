@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
+from django_tables2 import RequestConfig
+
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
@@ -20,7 +22,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        ChangeTasterRSVPForm, PartyTasterOptionsForm
+                        ChangeTasterRSVPForm, PartyTasterOptionsForm, AttendeesTable
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -1292,7 +1294,7 @@ def party_details(request, party_id):
   data['taster_form'] = PartyInviteTasterForm(initial=initial_data)
   data['invite_form'] = CustomizeInvitationForm(initial={'subject': 'hide'})
 
-  invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+  invitees = PartyInvite.objects.filter(party=party)  # .order_by('invitee__first_name', 'invitee__last_name')
 
   data["party"] = party
   data["invitees"] = invitees
@@ -1339,6 +1341,11 @@ def party_details(request, party_id):
   data['can_shop_for_taster'] = ((party.event_date > today) and (party.event_date - timezone.now() <= timedelta(days=1)))
   data['can_add_taster'] = (party.event_date > today)
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
+
+  table = AttendeesTable(invitees, user=u, data=data)
+  RequestConfig(request).configure(table)
+  data['table'] = table
+
   # if data['can_shop_for_taster']:
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
   # else:
