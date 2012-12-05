@@ -52,7 +52,7 @@
     <section id="add-party">
       {# add new parties form #}
     
-      <form class="form-horizontal" method="POST" action="{% url party_add %}">
+      <form class="form-horizontal" method="POST" action="{{ app_path }}">
         {% csrf_token %}
 
         {# {{ form.errors }} #}
@@ -300,7 +300,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('.datepicker').datepicker();
-      $('.timepicker').timepicker();
+      $('.timepicker').timepicker({'defaultTime': false});
     });
   </script>
 {% endblock additional_scripts %}

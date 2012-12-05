@@ -523,8 +523,8 @@ def sign_up(request, account_type, data):
     data["account_type"] = account_type
     if account_type == 1:
       send_pro_request_email(request, user)
-      messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+      # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:
       # send mail to sales@vinely if no mentor
       mentor_pro = None
@@ -539,11 +539,16 @@ def sign_up(request, account_type, data):
         send_unknown_pro_email(request, user)  # to host
 
       send_host_vinely_party_email(request, user, mentor_pro)  # to pro or vinely
-      messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+      # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
-    data['heard_about_us_form'] = HeardAboutForm()
-    data["get_started_menu"] = True
-    return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+    messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+    return HttpResponseRedirect(reverse('home_page'))
+    # data['heard_about_us_form'] = HeardAboutForm()
+    # data["get_started_menu"] = True
+    # return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
 
   data['form'] = form
   data['role'] = role.name

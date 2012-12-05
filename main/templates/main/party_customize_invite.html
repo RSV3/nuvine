@@ -25,7 +25,7 @@
 {% endblock header %}
 
 {% block content %}
-
+    {% if not party.requested %}
     <div class="menu_wrap main partycrumb">
       <ul class="nav">
         <li class="party-add">&nbsp;</li>
@@ -33,6 +33,7 @@
         <li class="party-invite-friends">&nbsp;</li>
       </ul>
     </div>
+    {% endif %}
 
     {{ form.errors }}
     <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -74,7 +75,9 @@
           <div class="control-group">
             <div class="control-label text-label"><h2>Party Info</h2></div>
             <div class="controls" style="padding-top: 11px;">
-              <a href="{% url party_add party.id %}">Edit</a>
+              {% if not party.requested %}
+                <a href="{% url party_add party.id %}">Edit</a>
+              {% endif %}
             </div>
           </div>
 
@@ -98,77 +101,87 @@
               <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
             </div>
           </div>
-          <hr />
-          <div class="control-group">
-            <div class="control-label text-label"><h2>Invite Options</h2></div>
-            <div class="controls" style="padding-top: 11px;">
-              <p>Do you want vinely to?</p>
-              <hr />
-              <!-- {{ form.invite_options }} -->
-              <div class="row">
-                <div class="span4">
-                  <label>
-                    <input type="radio" name="auto_invite" value="0" {% if party.auto_invite %}checked="checked"{% endif %} /> 
-                    send out the party invite automatically as soon as your Pro confirms the time and date?
-                  </label>
+          {% if not party.requested %}
+            <hr />
+            <div class="control-group">
+              <div class="control-label text-label"><h2>Invite Options</h2></div>
+              <div class="controls" style="padding-top: 11px;">
+                <p>Do you want vinely to?</p>
+                <hr />
+                <!-- {{ form.invite_options }} -->
+                <div class="row">
+                  <div class="span4">
+                    <label>
+                      <input type="radio" name="auto_invite" value="0" {% if party.auto_invite %}checked="checked"{% endif %} /> 
+                      send out the party invite automatically as soon as your Pro confirms the time and date?
+                    </label>
+                  </div>
+                  <div class="span1 center"><h2>OR</h2></div>
+                  <div class="span4">
+                    <label>
+                      <input type="radio" name="auto_invite" value="1" {% if not party.auto_invite %}checked="checked"{% endif %} /> 
+                      allow you to confirm your invite email again before it is sent out?
+                    </label>
+                  </div>
                 </div>
-                <div class="span1 center"><h2>OR</h2></div>
-                <div class="span4">
-                  <label>
-                    <input type="radio" name="auto_invite" value="1" {% if not party.auto_invite %}checked="checked"{% endif %} /> 
-                    allow you to confirm your invite email again before it is sent out?
-                  </label>
+                <div class="row">
+                  <div class="span4">
+                    <label>
+                      <input type="radio" name="auto_thank_you" value="0" {% if party.auto_thank_you %}checked="checked"{% endif %} /> 
+                      send out a Thank You email on your behalf automatically after the party? 
+                      (<a href="#">Preview Email</a>)
+                    </label>
+                  </div>
+                  <div class="span1 center"><h2>OR</h2></div>
+                  <div class="span4">
+                    <label>
+                      <input type="radio" name="auto_thank_you" value="1" {% if not party.auto_thank_you %}checked="checked"{% endif %} /> 
+                      let me send my own Thank You email after the party
+                    </label>
+                  </div>
                 </div>
+                <hr />
+                <div class="row">
+                  <div class="span10">
+                    <label>
+                      <input type="checkbox" name="guests_can_invite" value="1" {% if party.guests_can_invite %}checked="checked"{% endif %} /> 
+                      allow guests to invite friends?
+                    </label>
+                  </div>
+                </div>
+                <!-- <hr /> -->
+                <div class="vertical-space"></div>
+                <div class="row">
+                  <div class="span10">
+                    <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                      The Pro will then need to confirm the date and time before your party invite is sent out.
+                      See Invite Options section below for preferences on when we should deliver your invite.</i>
+                    </p>
+                  </div>
+                </div>              
               </div>
-              <div class="row">
-                <div class="span4">
-                  <label>
-                    <input type="radio" name="auto_thank_you" value="0" {% if party.auto_thank_you %}checked="checked"{% endif %} /> 
-                    send out a Thank You email on your behalf automatically after the party? 
-                    (<a href="#">Preview Email</a>)
-                  </label>
-                </div>
-                <div class="span1 center"><h2>OR</h2></div>
-                <div class="span4">
-                  <label>
-                    <input type="radio" name="auto_thank_you" value="1" {% if not party.auto_thank_you %}checked="checked"{% endif %} /> 
-                    let me send my own Thank You email after the party
-                  </label>
-                </div>
+            </div>
+          
+            <div class="row">
+              <div class="span1">&nbsp;</div>
+              <div class="span7">
+                <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
+                <button class="btn btn-primary" name="save" value="save">Save</button>
               </div>
-              <hr />
-              <div class="row">
-                <div class="span10">
-                  <label>
-                    <input type="checkbox" name="guests_can_invite" value="1" {% if party.guests_can_invite %}checked="checked"{% endif %} /> 
-                    allow guests to invite friends?
-                  </label>
-                </div>
+              <div class="span4">
+                <button class="btn btn-primary" name="preview" value="preview">Preview Invite</button>
+                <button class="btn btn-primary" name="next" value="next">Next</button>
               </div>
-              <!-- <hr /> -->
-              <div class="vertical-space"></div>
-              <div class="row">
-                <div class="span10">
-                  <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
-                    The Pro will then need to confirm the date and time before your party invite is sent out.
-                    See Invite Options section below for preferences on when we should deliver your invite.</i>
-                  </p>
-                </div>
-              </div>              
             </div>
-          </div>
-
-          <div class="row">
-            <div class="span1">&nbsp;</div>
-            <div class="span7">
-              <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
-              <button class="btn btn-primary" name="save" value="save">Save</button>
+          {% else %}
+            <div class="control-group">
+              <div class="control-label">&nbsp;</div>
+              <div class="controls">
+                <a href="javascript:;" class="btn btn-primary">Preview Invite</a>
+                <button class="btn btn-primary" name="save" value="save">Save</button>
+              </div>
             </div>
-            <div class="span4">
-              <button class="btn btn-primary" name="preview" value="preview">Preview Invite</button>
-              <button class="btn btn-primary" name="next" value="next">Next</button>
-            </div>
-          </div>          
+          {% endif %}
         </form>
       </section>
 

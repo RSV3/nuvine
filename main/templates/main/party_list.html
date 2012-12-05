@@ -172,13 +172,7 @@
                     <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                     <td>{{ party.phone }}</td>
                     <td>{{ party.address }}</td>
-                    <td>
-                      {% if party.invitees %}
-                        {{ party.invitees }}
-                      {% else %}
-                        <a href="{% url party_taster_invite party.id %}">Invite Guests</a>
-                      {% endif %}
-                    </td>
+                    <td>{{ party.invitees }}</td>
                   </tr>
                 {% empty %}
                   <div class="center">You've not scheduled any parties as a Pro.</div>
@@ -327,13 +321,7 @@
                       <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                       <td>{{ party.phone }}</td>
                       <td>{{ party.address }}</td>
-                      <td>
-                        {% if party.invitees %}
-                          {{ party.invitees }}
-                        {% else %}
-                          <a href="{% url party_taster_invite party.id %}">Invite Guests</a>
-                        {% endif %}
-                      </td>
+                      <td>{{ party.invitees }}</td>
                     </tr>
                   {% empty %}
                     <div class="center">You are not scheduled to host any parties.</div>

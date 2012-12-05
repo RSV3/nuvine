@@ -231,7 +231,9 @@
             <th>E-mail</th>
             <th>Phone</th>
             <th>RSVP</th>
-            <th>Invited</th>
+            {% if can_add_taster %}
+              <th>Invited</th>
+            {% endif %}
             {% if host and can_add_taster %}
               <th><!-- Edit --></th>
               {% if not party.confirmed %}
@@ -259,10 +261,12 @@
                   Anonymous
                 {% endif %}
               </td>
-              <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+              <td>{{ inv.invitee.email }}<a href="mailto:{{ inv.invitee.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
               <td>{% if inv.invitee.get_profile.phone %} {{ inv.invitee.get_profile.phone }} {% else %} - {% endif %}</td>
               <td>{{ inv.get_response_display }}</td>
-              <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
+              {% if can_add_taster %}
+                <td>{% if inv.invited %}<i class="icon-ok"></i>{% endif %}</td>
+              {% endif %}
               {% if host and can_add_taster %}
                 <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
                 {% if not party.confirmed %}
@@ -293,7 +297,7 @@
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
             <div class="span10">
-              <a href="#" class="btn btn-primary">Edit Invite</a>
+              <a href="{% url party_write_invitation party.id %}" class="btn btn-primary">Edit Invite</a>
             </div>
             <div class="span2">
               <button class="btn btn-primary pull-right" name="send_invite" value="send_invite"
@@ -307,7 +311,7 @@
               <a class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
             </div>
             <div class="span3">
-              <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Send Thank You</button>
+              <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Thank Attendees</button>
             </div>
           </div>
         {% endif %}

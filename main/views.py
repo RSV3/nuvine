@@ -1011,9 +1011,17 @@ def party_add(request, party_id=None):
   party = None
   if party_id:
     party = get_object_or_404(Party, pk=party_id)
+    if party.requested:
+      messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
+      return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+
     initial_data['address'] = party.address
-    initial_data['event_day'] = party.event_date.strftime("%m/%d/%Y")
-    initial_data['event_time'] = party.event_date.time()
+    party_date = timezone.localtime(party.event_date)
+    initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
+    initial_data['event_time'] = party_date.strftime("%I:%M %p")
+  else:
+    party_date = timezone.now() + timedelta(days=7)
+    initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party)
 
@@ -1022,6 +1030,15 @@ def party_add(request, party_id=None):
       new_party = form.save(commit=False)
       if u.get_profile().is_pro():
         new_party.confirmed = True
+        new_party.requested = True
+      if party:
+        old_party = Party.objects.get(pk=party.id)
+        new_party.auto_invite = old_party.auto_invite
+        new_party.auto_thank_you = old_party.auto_thank_you
+        new_party.guests_can_invite = old_party.guests_can_invite
+        new_party.guests_see_guestlist = old_party.guests_see_guestlist
+        new_party.confirmed = old_party.confirmed
+        new_party.requested = old_party.requested
       new_party.save()
       new_host = new_party.host
 
@@ -1062,17 +1079,22 @@ def party_add(request, party_id=None):
         else:
           # existing host needs to notified that party has been arranged
           send_new_party_scheduled_email(request, new_party)
-
-      messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+          messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+      else:
+        messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
 
       data["parties_menu"] = True
 
       if request.POST.get('save'):
         # go to party details page
-        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        if u.get_profile().is_pro():
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        else:
+          return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
       else:
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
   else:
+    # data['dt'] = party.event_date.strftime("%X")
     # GET
     # if the current user is host, display Vinely Pro
     if "host" in data and data["host"]:
@@ -1139,6 +1161,10 @@ def party_find_friends(request, party_id):
 
   party = get_object_or_404(Party, pk=party_id, host=u)
 
+  if party.requested:
+    messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
+    return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+
   data["parties_menu"] = True
   data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
 
@@ -1161,6 +1187,7 @@ def party_find_friends(request, party_id):
     guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
     party.guests_see_guestlist = True if 0 in guest_options else False
     party.guests_can_invite = True if 1 in guest_options else False
+    party.requested = True
     party.save()
 
     if request.POST.get("request"):
@@ -1260,9 +1287,9 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  initial_data = {'party': party}
-  taster_form = PartyInviteTasterForm(initial=initial_data)
-  data['taster_form'] = taster_form
+  initial_data = {'party': party, u.get_profile().role(): u}
+
+  data['taster_form'] = PartyInviteTasterForm(initial=initial_data)
   data['invite_form'] = CustomizeInvitationForm(initial={'subject': 'hide'})
 
   invitees = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
@@ -1309,7 +1336,7 @@ def party_details(request, party_id):
 
   # pro can only shop for taster upto 24hrs after party
   today = timezone.now() - timedelta(days=1)
-  data['can_shop_for_taster'] = (party.event_date > today)
+  data['can_shop_for_taster'] = ((party.event_date > today) and (party.event_date - timezone.now() <= timedelta(days=1)))
   data['can_add_taster'] = (party.event_date > today)
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
   # if data['can_shop_for_taster']:
@@ -1540,7 +1567,9 @@ def party_rsvp(request, party_id, rsvp_code=None, response=None):
 @login_required
 def party_write_invitation(request, party_id):
   data = {}
-  party = get_object_or_404(Party, id=party_id)
+  u = request.user
+
+  party = get_object_or_404(Party, id=party_id, host=u)
   try:
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
   except:
@@ -1557,12 +1586,18 @@ def party_write_invitation(request, party_id):
       invitation = form.save()
       guest_can_invite = [int(x) for x in form.cleaned_data['guests_can_invite']]
       party = invitation.party
-      party.auto_invite = True if int(form.cleaned_data['auto_invite']) == 0 else False
-      party.auto_thank_you = True if int(form.cleaned_data['auto_thank_you']) == 0 else False
-      party.guests_can_invite = bool(guest_can_invite)
+
+      # once party is requested these fields are no longer visible for edit
+      if not party.requested:
+        party.auto_invite = True if int(form.cleaned_data['auto_invite']) == 0 else False
+        party.auto_thank_you = True if int(form.cleaned_data['auto_thank_you']) == 0 else False
+        party.guests_can_invite = bool(guest_can_invite)
       party.save()
       if request.POST.get("next"):
         return HttpResponseRedirect(reverse('party_find_friends', args=[party.id]))
+
+      if request.POST.get("save") and party.requested:
+        return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
   data['party'] = party
   data['form'] = form
@@ -1580,8 +1615,8 @@ def party_customize_invite(request):
   data = {}
 
   # change RSVP uses same form
-  if request.POST.get('change_rsvp'):
-    return party_change_taster_rsvp(request)
+  # if request.POST.get('change_rsvp'):
+  #   return party_change_taster_rsvp(request)
 
   if request.method == 'POST':
     guests = request.POST.getlist('guests')

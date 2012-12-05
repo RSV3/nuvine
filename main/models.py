@@ -53,6 +53,7 @@ class Party(models.Model):
   guests_can_invite = models.BooleanField()
   guests_see_guestlist = models.BooleanField()
   confirmed = models.BooleanField()
+  requested = models.BooleanField()
 
   def __unicode__(self):
     if self.host.first_name:
@@ -88,7 +89,7 @@ class Party(models.Model):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
 
     if invites == 0:
-      return ""
+      return "0 [0]"
     else:
       return "%d [%d]" % (coming, invites)
 

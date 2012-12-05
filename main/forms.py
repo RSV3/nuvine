@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
+from django.utils import timezone
 
 from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
@@ -146,7 +147,10 @@ class PartyCreateForm(forms.ModelForm):
       del self._errors['title']
 
     if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
-      cleaned_data['event_date'] = "%s %s" % (cleaned_data['event_day'], cleaned_data['event_time'])
+      full_date = "%s %s" % (cleaned_data['event_day'], cleaned_data['event_time'])
+      full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
+      cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
+      print cleaned_data['event_date']
       del self._errors['event_date']
     else:
       raise forms.ValidationError("Party date and time are required.")
@@ -192,9 +196,17 @@ class PartyInviteTasterForm(forms.ModelForm):
 
     tas_group = Group.objects.get(name="Vinely Taster")
 
-    # only get users linked to this host
-    my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-    users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
+    if initial.get('host'):
+      # only get users linked to this host
+      my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
+    elif initial.get('pro'):
+      # only get users linked to this host
+      my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
+      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
+    else:
+      # everything
+      users = User.objects.none()
 
     self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
@@ -446,7 +458,7 @@ class CustomizeInvitationForm(forms.ModelForm):
     else:
       self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5})
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 6})
 
 
 class CustomizeThankYouNoteForm(forms.ModelForm):
