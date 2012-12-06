@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'winedora.views.home', name='landing_page'),
+    url(r'^pinterest-868f3.html$', 'winedora.views.pinterest'),
     url(r'^', include('main.urls')),
     url(r'^personality/', include('personality.urls')),
     url(r'^accounts/', include('accounts.urls')),

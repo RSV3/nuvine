@@ -31,3 +31,9 @@ def tos(request):
 
   return render_to_response("winedora/tos.html", data, context_instance=RequestContext(request))
 
+def pinterest(request):
+  """
+    Pinterest verification
+  """
+  data = {}
+  return render_to_response("pinterest-868f3.html", data, context_instance=RequestContext(request))
