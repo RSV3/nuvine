@@ -150,7 +150,7 @@
             <h3>RSVP</h3>
           </div>
           <div class="modal-body">
-            <form method="POST" class="modal-form" action="{% url resend_rsvp %}">{% csrf_token %}
+            <form method="POST" class="modal-form" action="{% url resend_rsvp %}?next={{ request.path }}">{% csrf_token %}
               <p>Enter your email address below and we will send you invites for all upcoming parties that you have been invited to.</p>
               <br />
               <div class="control-label" for="id_description">Your Email:</div>

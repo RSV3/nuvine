@@ -1493,21 +1493,24 @@ def party_taster_invite(request, party_id=0):
 def resend_rsvp(request):
 
   email = request.POST.get('email')
+  next_url = request.GET.get('next', reverse('home_page'))
 
   if email:
     user = None
     try:
       user = User.objects.get(email=email)
     except:
-      messages.error(request, "There are no upcoming parties to which you have been invited.")
+      messages.error(request, "There are no upcoming parties that you have been invited to.")
     today = timezone.now()
 
     invites = InvitationSent.objects.filter(party__event_date__gte=today, guests=user)
     if invites:
       for invite in invites:
         resend_party_invite_email(request, user, invite)
-      messages.info(request, "We've emailed you the info about the upcoming parties.")
-  return HttpResponseRedirect(request.META.get('HTTP_REFERER') or reverse('home_page'))
+      messages.info(request, "We've resent the invitations for all upcoming parties that you've been invited to. Check your email.")
+    else:
+      messages.warning(request, "There are no upcoming parties that you have been invited to")
+  return HttpResponseRedirect(next_url)
 
 
 # @login_required
