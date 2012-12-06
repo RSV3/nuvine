@@ -3,6 +3,11 @@ from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
 
+import django_tables2 as tables
+from django_tables2 import Attrs
+from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
+
 from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
 
@@ -458,7 +463,11 @@ class CustomizeInvitationForm(forms.ModelForm):
     else:
       self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 6})
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 10})
+
+  def clean_custom_message(self):
+    cleaned = self.cleaned_data['custom_message']
+    return cleaned.replace('\r', '')
 
 
 class CustomizeThankYouNoteForm(forms.ModelForm):
@@ -518,16 +527,17 @@ class ChangeTasterRSVPForm(forms.Form):
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
 
 
-import django_tables2 as tables
-from django_tables2 import A
-from django_tables2 import Attrs
-from django.utils.safestring import mark_safe
 table_attrs = Attrs({'class': 'table table-striped'})
-from django.core.urlresolvers import reverse
+
+##############################################################################
+#
+# Django tables
+#
+##############################################################################
 
 
 class AttendeesTable(tables.Table):
-  select = tables.CheckBoxColumn(Attrs({'name': 'guests', 'td__input': {'class': 'guest'}, 'th__input': {'class': 'all-guests'}}), accessor='id')
+  guests = tables.CheckBoxColumn(Attrs({'name': 'guests', 'td__input': {'class': 'guest'}, 'th__input': {'class': 'all-guests'}}), accessor='invitee.id')
   invitee = tables.TemplateColumn('{{ record.invitee.first_name }} {{ record.invitee.last_name }}', verbose_name='Name',
                                   order_by=('invitee.first_name', 'invitee.last_name'))
   email = tables.TemplateColumn('{{ record.invitee.email }}<a href="mailto:{{ record.invitee.email }}">&nbsp;<i class="icon-envelope"></i></a>', orderable=False)
@@ -542,7 +552,7 @@ class AttendeesTable(tables.Table):
   class Meta:
     model = PartyInvite
     attrs = table_attrs
-    sequence = ['select', 'invitee', 'email', 'phone', '...']
+    sequence = ['guests', 'invitee', 'email', 'phone', '...']
     exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp']
     order_by = ['invitee']
 

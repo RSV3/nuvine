@@ -1582,7 +1582,12 @@ def party_write_invitation(request, party_id):
   except:
     invitation = None
 
-  initial_data = {'party': party, 'custom_message': get_default_invite_message(party)}
+  if invitation:
+    custom_message = invitation.custom_message if invitation.custom_message else get_default_invite_message(party)
+  else:
+    custom_message = get_default_invite_message(party)
+
+  initial_data = {'party': party, 'custom_message': custom_message}
   if party.guests_can_invite:
     initial_data['guests_can_invite'] = CustomizeInvitationForm.GUEST_INVITE_OPTIONS[0]
 
@@ -1738,8 +1743,12 @@ def party_send_invites(request):
   form = CustomizeInvitationForm(request.POST or None, instance=invitation)
 
   if form.is_valid():
+    old_invite = InvitationSent.objects.get(pk=invitation.id)
     num_guests = len(request.POST.getlist("guests"))
     invitation_sent = form.save()
+    invitation_sent.custom_message = old_invite.custom_message
+    invitation_sent.custom_subject = old_invite.custom_subject
+    invitation_sent.save()
     party = invitation_sent.party
 
     # send e-mails

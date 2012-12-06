@@ -424,10 +424,8 @@ def send_new_party_scheduled_by_host_email(request, party):
 
 def distribute_party_invites_email(request, invitation_sent):
 
-  template = Section.objects.get(template__key='distribute_party_invites_email', category=0)
-  txt_template = Template(template.content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  rsvp_date = invitation_sent.party.event_date - timedelta(days=5)
+  content = invitation_sent.custom_message
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   host_user = invitation_sent.party.host
   inviting_user = request.user
@@ -445,12 +443,6 @@ def distribute_party_invites_email(request, invitation_sent):
     invite.invited_timestamp = timezone.now()
     invite.save()
 
-    c = RequestContext(request, {"party": invitation_sent.party,
-                "custom_message": invitation_sent.custom_message,
-                "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
-                "invite_host_email": host_user.email,
-                "host_name": request.get_host(), "rsvp_date": rsvp_date,
-                "rsvp_code": invite.rsvp_code, "plain": True})
     if not guest.is_active:
       # new user created through party invitation
       temp_password = User.objects.make_random_password()
@@ -465,12 +457,9 @@ def distribute_party_invites_email(request, invitation_sent):
         vque = VerificationQueue(user=guest, verification_code=verification_code)
         vque.save()
 
-      # include verification code
-      c.update({'verification_code': verification_code, 'temp_password': temp_password})
-
-    txt_message = txt_template.render(c)
-    c.update({'sig': True, 'plain': False})
+    c = Context()
     html_message = html_template.render(c)
+    txt_message = content
 
     # send out party invitation e-mail
     html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
@@ -489,10 +478,9 @@ def distribute_party_invites_email(request, invitation_sent):
 
 def resend_party_invite_email(request, user, invitation_sent):
 
-  template = Section.objects.get(template__key='distribute_party_invites_email', category=0)
-  txt_template = Template(template.content)
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
-  rsvp_date = invitation_sent.party.event_date - timedelta(days=5)
+  content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
+
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   host_user = invitation_sent.party.host
   inviting_user = host_user
@@ -506,34 +494,9 @@ def resend_party_invite_email(request, user, invitation_sent):
     from_email = 'Invitation from %s %s <info@vinely.com>' % (host_user.first_name, host_user.last_name)
 
   for guest in invitation_sent.guests.filter(id=user.id):
-    invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
-    c = RequestContext(request, {"party": invitation_sent.party,
-                "custom_message": invitation_sent.custom_message,
-                "invite_host_name": "%s %s" % (host_user.first_name, host_user.last_name) if host_user.first_name else "Friendly Host",
-                "invite_host_email": host_user.email,
-                "host_name": request.get_host(), "rsvp_date": rsvp_date,
-                "rsvp_code": invite.rsvp_code, "plain": True})
-
-    # if not guest.is_active:
-    #   # new user created through party invitation
-    #   temp_password = User.objects.make_random_password()
-    #   guest.set_password(temp_password)
-    #   guest.save()
-
-    #   if VerificationQueue.objects.filter(user=guest, verified=False).exists():
-    #     vque = VerificationQueue.objects.filter(user=guest, verified=False).order_by('-created')[0]
-    #     verification_code = vque.verification_code
-    #   else:
-    #     verification_code = str(uuid.uuid4())
-    #     vque = VerificationQueue(user=guest, verification_code=verification_code)
-    #     vque.save()
-
-    #   # include verification code
-    #   c.update({'verification_code': verification_code, 'temp_password': temp_password})
-
-    txt_message = txt_template.render(c)
-    c.update({'sig': True, 'plain': False})
+    c = Context()
     html_message = html_template.render(c)
+    txt_message = content
 
     # send out party invitation e-mail
     html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
@@ -961,13 +924,29 @@ def generate_pro_account_number():
 
 def get_default_invite_message(party):
   message_text = '''
+
   What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.
 
-  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstepself.
+  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.
+
+  Party: {{ party.title }}
+
+  Host: {{ party.host.first_name }} {{ party.host.last_name }} <{{ party.host.email }}>
+
+  Date: {{ party.event_date|date:"F j, o" }}
+
+  Time: {{ party.event_date|date:"g:i A" }}
+
+  Location: {{ party.address.full_text }}
 
   Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
   '''
   template = Template(message_text)
   rsvp_date = party.event_date - timedelta(days=5)
-  context = Context({'rsvp_date': rsvp_date})
+  context = Context({'rsvp_date': rsvp_date, 'party': party})
   return template.render(context)
