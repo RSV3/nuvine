@@ -337,8 +337,6 @@ def make_pro_host(request, account_type, data):
       else:
         return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
-      # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
-
     elif profile.is_host():
 
       # can only be pro
@@ -373,8 +371,10 @@ def make_pro_host(request, account_type, data):
           u.groups.add(pro_pending_group)
 
         send_pro_request_email(request, u)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+        # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+      messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+      return HttpResponseRedirect(reverse('home_page'))
 
     elif profile.is_taster():
       data['make_host_or_pro'] = True
@@ -392,8 +392,10 @@ def make_pro_host(request, account_type, data):
         if not pro_group in u.groups.all():
           u.groups.clear()
           u.groups.add(pro_pending_group)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-        return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+        # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+        # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+        messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+        return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type == 2:
         try:
@@ -404,20 +406,19 @@ def make_pro_host(request, account_type, data):
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         u.groups.clear()
         u.groups.add(hos_group)
-        messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-        return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
+        # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+        # return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
+        messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+        return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type > 2:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
 
-        # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
   if account_type == 1:
     return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
   else:
     return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
-
-  # return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
 
 def make_host(request):

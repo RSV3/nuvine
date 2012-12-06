@@ -155,7 +155,6 @@ class PartyCreateForm(forms.ModelForm):
       full_date = "%s %s" % (cleaned_data['event_day'], cleaned_data['event_time'])
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
-      print cleaned_data['event_date']
       del self._errors['event_date']
     else:
       raise forms.ValidationError("Party date and time are required.")

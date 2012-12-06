@@ -11,13 +11,12 @@ class Migration(DataMigration):
         "Write your forwards methods here."
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
         content = """
-        Hey, one of your hosts has setup a party and needs you to confirm it.
 
-        Here are the details of the party:
+        Dear {{ pro_name }},
+
+            Your host, {{ invite_host_name }}, is waiting for you to confirm the following party:
 
         Party: "{{ party.title }}"
-
-        Host: {{ invite_host_name }} <{{ invite_host_name }}>
 
         Date: {{ party.event_date|date:"F j, o" }}
 
@@ -25,9 +24,15 @@ class Migration(DataMigration):
 
         Location: {{ party.address.full_text }}
 
-        {% if party.description %}{{ party.description }}{% endif %}
+        {% if party.description %}Party Details: {{ party.description }}{% endif %}
 
-        Go ahead and <a href="http://{{ host_name }}{% url party_details party.id %}">confirm the party</a>
+        To confirm the party or make changes, click below:
+
+        <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
+
+        Remember that hosts can't send out their party invitation until you take the next step, so confirm their party now!
+
+        If you need to connect with {{ invite_host_name }}, you can email them at <a href="mailto:{{ party.host.email }}">{{ party.host.email }}</a>{% if host_phone %} or call them at {{ host_phone }}{% endif %}.
 
         {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
@@ -41,6 +46,14 @@ class Migration(DataMigration):
         section = orm.Section.objects.create(category=0, template=template)
         section.content = content
         section.save()
+        variable, created = orm.Variable.objects.get_or_create(var="{{ pro_name }}", description="Name of the Vinely Pro")
+        template.variables_legend.add(variable)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
+        template.variables_legend.add(variable)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ party.host.email }}", description="The Host's email address")
+        template.variables_legend.add(variable)
+        variable, created = orm.Variable.objects.get_or_create(var="{{ host_phone }}", description="The Host's phone number")
+        template.variables_legend.add(variable)
         variable, created = orm.Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
         template.variables_legend.add(variable)
         variable, created = orm.Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event took take place")
@@ -57,10 +70,7 @@ class Migration(DataMigration):
 
         {% if has_pro %}
             If any of these details are incorrect, don't worry, your Pro, {{ pro_name }}, can help you fix it.
-            They can be contacted by email at <a href="mailto:{{ pro.email }}">{{ pro.email }}</a>
-            {% if pro_phone %}
-                or by phone at {{ pro_phone }}.
-            {% endif %}
+            They can be contacted by email at <a href="mailto:{{ pro.email }}">{{ pro.email }}</a>{% if pro_phone %} or by phone at {{ pro_phone }}{% endif %}.
         {% else %}
             To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro.
             You will receive confirmation of this match via email within 48 hours.
@@ -69,7 +79,7 @@ class Migration(DataMigration):
 
         Once your Pro confirms your party, your invitations can go out. Log in any time to see the status of your party or use the link below:
 
-        http://{{ host_name }}{% url party_details party.id %}
+        <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
 
         If you have any questions, please contact a Vinely Care Specialist via e-mail at <a href="mailto:care@vinely.com">care@vinely.com</a> or by phone at 888-294-1128 ext. 1.
 

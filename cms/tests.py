@@ -8,6 +8,7 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from cms.models import ContentTemplate, Variable, Section
 
+
 class SimpleTest(TestCase):
   def runTest(self):
     pass
@@ -46,7 +47,115 @@ class SimpleTest(TestCase):
     self.create_mentor_assigned_notification_email_template()
     self.create_mentee_assigned_notification_email_template()
     self.create_distribute_thanks_note_email_template()
+    self.create_new_party_scheduled_by_host_email_template()
+    self.create_host_request_party_email_template()
 
+  def create_new_party_scheduled_by_host_email_template(self):
+    content = """
+
+    Hey {{ invite_host_name }},
+
+    We're thrilled about your interest in hosting a Vinely Taste Party!
+    You have requested <b>{{ party.title }}</b> to be scheduled on <b>{{ party.event_date|date:"F j, o" }}</b> at <b>{{ party.event_date|date:"g:i A" }}</b>.
+
+    {% if has_pro %}
+        If any of these details are incorrect, don't worry, your Pro, {{ pro_name }}, can help you fix it.
+        They can be contacted by email at <a href="mailto:{{ pro.email }}">{{ pro.email }}</a>
+        {% if pro_phone %}
+            or by phone at {{ pro_phone }}.
+        {% endif %}
+    {% else %}
+        To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro.
+        You will receive confirmation of this match via email within 48 hours.
+        If any of these details are incorrect, don't worry, your Pro can help you fix it.
+    {% endif %}
+
+    Once your Pro confirms your party, your invitations can go out. Log in any time to see the status of your party or use the link below:
+
+    <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
+
+    If you have any questions, please contact a Vinely Care Specialist via e-mail at <a href="mailto:care@vinely.com">care@vinely.com</a> or by phone at 888-294-1128 ext. 1.
+
+    We look forward to your party!
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+        - The Vinely Team
+    """
+
+    template = ContentTemplate.objects.create(key="new_party_scheduled_by_host_email", category=0)
+    section = Section.objects.create(category=0, template=template)
+    section.content = content
+    section.save()
+    variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="Name of the party")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date of the event")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ pro.email }}", description="Vinely Pro's email address")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ pro_phone }}", description="Vinely Pro's phone number")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ pro_name }}", description="Name of the Vinely Pro")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_details party.id %}",
+                                            description="Link to party details page")
+    template.variables_legend.add(variable)
+
+  def create_host_request_party_email_template(self):
+    content = """
+
+    Dear {{ pro_name }},
+
+        Your host, {{ invite_host_name }}, is waiting for you to confirm the following party:
+
+    Party: "{{ party.title }}"
+
+    Date: {{ party.event_date|date:"F j, o" }}
+
+    Time: {{ party.event_date|date:"g:i A" }}
+
+    Location: {{ party.address.full_text }}
+
+    {% if party.description %}Party Details: {{ party.description }}{% endif %}
+
+    To confirm the party or make changes, click below:
+
+    <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
+
+    Remember that hosts can't send out their party invitation until you take the next step, so confirm their party now!
+
+    If you need to connect with {{ invite_host_name }}, you can email them at <a href="mailto:{{ party.host.email }}">{{ party.host.email }}</a>{% if host_phone %} or call them at {{ host_phone }}{% endif %}.
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+
+    template = ContentTemplate.objects.create(key="host_request_party_email", category=0)
+    section = Section.objects.create(category=0, template=template)
+    section.content = content
+    section.save()
+    variable, created = Variable.objects.get_or_create(var="{{ pro_name }}", description="Name of the Vinely Pro")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.host.email }}", description="The Host's email address")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ host_phone }}", description="The Host's phone number")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event took take place")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.address.full_text }}", description="Address of the event")
+    template.variables_legend.add(variable)
 
   def create_verification_email_template(self):
     content = """
@@ -57,7 +166,7 @@ class SimpleTest(TestCase):
 
     http://{{ host_name }}{% url verify_account verification_code %}
 
-    Your temporary password is: {{ temp_password }} 
+    Your temporary password is: {{ temp_password }}
 
     Use this password to verify your account.
 
@@ -73,7 +182,7 @@ class SimpleTest(TestCase):
     variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="Account verification link")
-    template.variables_legend.add(variable)    
+    template.variables_legend.add(variable)
 
   def create_password_change_email_template(self):
     content = """
@@ -84,7 +193,7 @@ class SimpleTest(TestCase):
 
     We heard you lost your password. (No prob.  Happens all the time.)
 
-    Here's your temporary password: {{ temp_password }} 
+    Here's your temporary password: {{ temp_password }}
 
     Please update your account with a new password at:
 
@@ -101,7 +210,7 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    
+
     template = ContentTemplate(key="password_change_email", category=0)
     template.save()
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)

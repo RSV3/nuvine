@@ -693,14 +693,16 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
   return msg
 
 
-def host_request_party_email(request, party):
+def send_host_request_party_email(request, party):
   template = Section.objects.get(template__key='host_request_party_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
   c = RequestContext(request, {"party": party,
               "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
-              "invite_host_name": request.user.email,
+              # "host_email": request.user.email,
+              "host_phone": request.user.userprofile.phone,
+              "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
               "host_name": request.get_host(), "plain": True})
   txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})

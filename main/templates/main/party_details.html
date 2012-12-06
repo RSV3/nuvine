@@ -154,6 +154,7 @@
       <form class="form-horizontal" method="POST" action="">
         {% csrf_token %}
         {{ taster_form.party }}
+        {{ taster_form.response }}
         <div class="row">
           <div class="span12">
             <h2>Tasters Attending</h2>
@@ -214,7 +215,6 @@
               {% endif %}
             </div>
           </div>
-          {{ taster_form.response }}
           <div class="span12">
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
           </div>

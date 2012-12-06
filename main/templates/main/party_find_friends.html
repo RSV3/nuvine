@@ -123,7 +123,7 @@
             {% endif %}
 
             <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
-            <td><a href="{% url party_remove_taster inv.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+            <td><a href="{% url party_remove_taster inv.id %}?next={% url party_find_friends party.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
           </tr>
         {% endfor %}
         </tbody>
