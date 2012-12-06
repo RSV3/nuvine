@@ -1133,27 +1133,40 @@ def party_add(request, party_id=None):
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def party_add_taster(request, party_id):
+# @login_required
+def party_add_taster(request, party, taster_form):
   u = request.user
 
-  party = get_object_or_404(Party, pk=party_id)
+  # party_id = request.POST.get('party')
+  # party = get_object_or_404(Party, pk=party_id)
 
-  success_url = request.POST.get('next', reverse('party_details', args=[party.id]))
+  # success_url = request.POST.get('next', reverse('party_details', args=[party.id]))
 
-  initial_data = {'host': u, 'party': party}
-  taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+  # initial_data = {'host': u, 'party': party}
+  # taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
+
+  # if taster_form.is_valid():
+  #   new_invite = taster_form.save()
+  #   new_invite.invited_by = u
+  #   new_invite.rsvp_code = str(uuid.uuid4())
+  #   new_invite.save()
+  #   new_invitee = new_invite.invitee
+  #   messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
+  # else:
+  #   messages.error(request, taster_form.errors)
+  # return HttpResponseRedirect(success_url)
+
+  if taster_form.errors.get('__all__'):
+    messages.error(request, taster_form.errors['__all__'])
 
   if taster_form.is_valid():
     new_invite = taster_form.save()
     new_invite.invited_by = u
     new_invite.rsvp_code = str(uuid.uuid4())
     new_invite.save()
-    new_invitee = new_invite.invitee
-    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
-  else:
-    messages.error(request, taster_form.errors)
-  return HttpResponseRedirect(success_url)
+    invitee = new_invite.invitee
+
+    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
 
 
 @login_required
@@ -1170,7 +1183,7 @@ def party_find_friends(request, party_id):
   data["parties_menu"] = True
   data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
 
-  initial_data = {'host': u, "party": party}
+  initial_data = {'party': party, u.userprofile.role(): u}
 
   allowed_taster_actions = []
 
@@ -1182,8 +1195,13 @@ def party_find_friends(request, party_id):
 
   initial_data['taster_actions'] = allowed_taster_actions
 
-  taster_form = PartyInviteTasterForm(initial=initial_data)
-  options_form = PartyTasterOptionsForm(request.POST or None, initial=initial_data)
+  if request.POST.get('add_taster'):
+    taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
+    options_form = PartyTasterOptionsForm(initial=initial_data)
+    party_add_taster(request, party, taster_form)
+  else:
+    taster_form = PartyInviteTasterForm(initial=initial_data)
+    options_form = PartyTasterOptionsForm(request.POST or None, initial=initial_data)
 
   if options_form.is_valid():
     guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
@@ -1289,12 +1307,15 @@ def party_details(request, party_id):
   if tas_group in u.groups.all():
     data["taster"] = True
 
-  initial_data = {'party': party, u.get_profile().role(): u}
+  initial_data = {'party': party, u.userprofile.role(): u}
 
-  data['taster_form'] = PartyInviteTasterForm(initial=initial_data)
+  taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
   data['invite_form'] = CustomizeInvitationForm(initial={'subject': 'hide'})
 
-  invitees = PartyInvite.objects.filter(party=party)  # .order_by('invitee__first_name', 'invitee__last_name')
+  data['taster_form'] = taster_form
+  party_add_taster(request, party, taster_form)
+
+  invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees

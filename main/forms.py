@@ -181,7 +181,6 @@ class PartyInviteTasterForm(forms.ModelForm):
   last_name = forms.CharField(max_length=30)
   email = forms.EmailField()
   phone = us_forms.USPhoneNumberField(required=False)
-  # taster = forms.ModelChoiceField()
 
   class Meta:
     model = PartyInvite
@@ -219,7 +218,15 @@ class PartyInviteTasterForm(forms.ModelForm):
 
     cleaned_data = super(PartyInviteTasterForm, self).clean()
     email_validator = Email()
-    if 'invitee' not in cleaned_data:
+
+    if 'invitee' in cleaned_data:
+      if self._errors.get('first_name'):
+        del self._errors['first_name']
+      if self._errors.get('last_name'):
+        del self._errors['last_name']
+      if self._errors.get('email'):
+        del self._errors['email']
+    else:
       # create new host and return host ID
       if email_validator(cleaned_data.get('email')):
 
@@ -247,10 +254,14 @@ class PartyInviteTasterForm(forms.ModelForm):
       # delete error if we think user manually being filled out
       del self._errors['invitee']
 
-    # if 'party' in cleaned_data and 'invitee' in cleaned_data:
-    #   party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
-    #   if party_invited.exists():
-    #     raise forms.ValidationError("Invitee already has been invited to the party")
+    # if user did not manually enter or pick from list of attendees
+    if self._errors.get('invitee'):
+      raise forms.ValidationError('Pick a guest from the list or Enter the Attendee details to add')
+
+    if 'party' in cleaned_data and 'invitee' in cleaned_data:
+      party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
+      if party_invited.exists():
+        raise forms.ValidationError("Invitee (%s) has already been invited to the party" % cleaned_data['invitee'].email)
 
     return cleaned_data
 

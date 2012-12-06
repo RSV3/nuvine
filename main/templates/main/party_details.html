@@ -150,22 +150,29 @@
       {% endif %}
     {% endif %}
     {% if can_add_taster %}
-      <div class="row">
-        <div class="span12">
-          <h2>Tasters Attending</h2>
-            {% if pro or host or taster and party.guests_can_invite %}
-              <p><h3>Add Taster</h3></p>
-              {% if pro or host %}
-                <p>{{ taster_form.invitee }}</p>
-                <p><h3>or add new taster</h3></p>
-              {% endif %}
-            {% endif %}
-        </div>
-      </div>
       {% if pro or host or taster and party.guests_can_invite %}
-      <form class="form-horizontal" method="POST" action="{% url party_add_taster party.id %}?next={{ request.path }}">
+      <form class="form-horizontal" method="POST" action="">
         {% csrf_token %}
-        {{ taster_form.party }}      
+        {{ taster_form.party }}
+        <div class="row">
+          <div class="span12">
+            <h2>Tasters Attending</h2>
+              {% if pro or host or taster and party.guests_can_invite %}
+                <p><h3>Add Taster</h3></p>
+                {% if pro or host %}
+                  <div class="control-group {% if taster_form.invitee.errors %}error{% endif %}">
+                    {{ taster_form.invitee }}
+                    {% if taster_form.invitee.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.invitee.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                  <p><h3>or add new taster</h3></p>
+                {% endif %}
+              {% endif %}
+          </div>
+        </div>        
         <div class="row">
           <div class="span3">
             <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
