@@ -151,6 +151,7 @@
         {% endif %}
       {% endif %}
     {% endif %}
+
     {% if can_add_taster %}
       {% if pro or host or taster and party.guests_can_invite %}
       <form class="form-horizontal" method="POST" action="">
@@ -223,6 +224,8 @@
         </div>
       </form>
       {% endif %}
+    {% else %}
+      <h2>Tasters Attended</h2>
     {% endif %}
 
     <form class="form-horizontal" method="POST" action="{% url party_send_invites %}">

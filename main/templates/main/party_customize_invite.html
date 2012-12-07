@@ -37,11 +37,11 @@
 
     {{ form.errors }}
     <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-      <section id="customize-invitation">
+      <!-- <section id="customize-invitation"> -->
 
         <form class="form-horizontal" method="POST" action="{{ app_path }}">
           {% csrf_token %}
-          <hr />
+          <!-- <hr /> -->
            <div class="control-group">
             <div class="control-label text-label"><h2>Invite Email</h2></div>
           </div>
@@ -101,7 +101,7 @@
               <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
             </div>
           </div>
-          {% if not party.requested %}
+          {% if not party.confirmed %}
             <hr />
             <div class="control-group">
               <div class="control-label text-label"><h2>Invite Options</h2></div>
@@ -151,26 +151,29 @@
                 </div>
                 <!-- <hr /> -->
                 <div class="vertical-space"></div>
-                <div class="row">
-                  <div class="span10">
-                    <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
-                      The Pro will then need to confirm the date and time before your party invite is sent out.
-                      See Invite Options section below for preferences on when we should deliver your invite.</i>
-                    </p>
+                {% if not party.requested %}
+                  <div class="row">
+                    <div class="span10">
+                      <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                        The Pro will then need to confirm the date and time before your party invite is sent out.
+                        See Invite Options section above for preferences on when we should deliver your invite.</i>
+                      </p>
+                    </div>
                   </div>
-                </div>              
+                {% endif %}
               </div>
             </div>
-          
+          {% endif %}
+          {% if not party.requested %}
             <div class="row">
               <div class="span1">&nbsp;</div>
               <div class="span7">
                 <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
-                <button class="btn btn-primary" name="save" value="save">Save</button>
+                <button class="btn btn-primary commit" name="save" value="save">Save</button>
               </div>
               <div class="span4">
-                <button class="btn btn-primary" name="preview" value="preview">Preview Invite</button>
-                <button class="btn btn-primary" name="next" value="next">Next</button>
+                <a href="javascript:;" class="btn btn-primary">Preview Invite</a>
+                <button class="btn btn-primary commit" name="next" value="next">Next</button>
               </div>
             </div>
           {% else %}
@@ -178,12 +181,12 @@
               <div class="control-label">&nbsp;</div>
               <div class="controls">
                 <a href="javascript:;" class="btn btn-primary">Preview Invite</a>
-                <button class="btn btn-primary" name="save" value="save">Save</button>
+                <button class="btn btn-primary commit" name="save" value="save">Save</button>
               </div>
             </div>
           {% endif %}
         </form>
-      </section>
+      <!-- </section> -->
 
     </div>
 
@@ -191,8 +194,22 @@
 
 {% block additional_scripts %}
   <script type="text/javascript">
+    var original_form;
+    var saved = false;
     $(document).ready(function() {
-      $('#id_custom_message').autogrow();
+      original_form = $('.form-horizontal').serialize();
+      // $('#id_custom_message').autogrow();
+
+      $('.commit').click(function() {
+        saved = true;
+      });
+    });
+
+    $(window).bind('beforeunload', function(e) {
+      // TODO: figure out how to check if its a save pressed
+      if ($('.form-horizontal').serialize() != original_form && saved == false) {
+        return 'You are about to leave this page even though you have made changes to your invite.';
+      }
     });
   </script>
 {% endblock additional_scripts %}

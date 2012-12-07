@@ -950,7 +950,8 @@ def party_list(request):
   # parties attended
   data['taster_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__gte=today).order_by('event_date')
   data['taster_past_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__lt=today).order_by('-event_date')
-
+  pro, pro_profile = my_pro(u)
+  data['my_pro'] = pro
   data["parties_menu"] = True
 
   return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
@@ -1620,8 +1621,8 @@ def party_write_invitation(request, party_id):
       guest_can_invite = [int(x) for x in form.cleaned_data['guests_can_invite']]
       party = invitation.party
 
-      # once party is requested these fields are no longer visible for edit
-      if not party.requested:
+      # once party is confirmed these fields are no longer visible for edit
+      if not party.confirmed:
         party.auto_invite = True if int(form.cleaned_data['auto_invite']) == 0 else False
         party.auto_thank_you = True if int(form.cleaned_data['auto_thank_you']) == 0 else False
         party.guests_can_invite = bool(guest_can_invite)
