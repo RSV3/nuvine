@@ -6,7 +6,7 @@
 
 {% block header %}
   {% if party.host.first_name %}
-    <h1 class="headline">{% if party.host.first_name|last == 's' %} {{ party.host.first_name }}' {% else%} {{ party.host.first_name }}'s {% endif %} Party: {{ party.title }}</h1>
+    <h1 class="headline">{% if party.host.first_name|last == 's' %} {{ party.host.first_name }}' {% else %} {{ party.host.first_name }}'s {% endif %} Party: {{ party.title }}</h1>
   {% else %}
     <h1 class="headline">Friendly Host's Party: {{ party.title }}</h1>
   {% endif %}
@@ -137,10 +137,10 @@
               <div class="alert alert-error center">
                 <h2>
                   <small>
-                    {% if pro %}
+                    {% if pro and not user.get_profile.events_user %}
                       Low attendance! Remind host to invite more people
                     {% endif %}
-                    {% if host %}
+                    {% if host or user.get_profile.events_user %}
                       Low attendance! Consider inviting more people or RSVP'ing for them
                     {% endif %}
                   </small>
@@ -210,7 +210,7 @@
           </div>
           <div class="span2">
             <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
-              {{ taster_form.phone }} 
+              {{ taster_form.phone }}
               {% if taster_form.phone.errors %}
                 <span class="help-inline">
                   {{ taster_form.phone.errors }}
@@ -219,7 +219,10 @@
             </div>
           </div>
           <div class="span12">
-            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
+            {% if user.get_profile.events_user %}
+              <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
+            {% endif %}
           </div>
         </div>
       </form>
@@ -238,7 +241,7 @@
         {% load render_table from django_tables2 %}
         {% render_table table %}
       {% endif %}
-      {% if host %}
+      {% if host or user.get_profile.events_user %}
         {% if can_add_taster %}
           <div class="vertical-space">&nbsp;</div>
           <div class="row">

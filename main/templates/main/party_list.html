@@ -46,7 +46,7 @@
                     {% endif %}
                   </p>
                   <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
-                  <p><a href="mailto:{{my_pro.email}}">{{ my_pro.email }}</a></p>
+                  <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
                 </td>
               </tr>
             </tbody>
@@ -99,15 +99,15 @@
         <div class="span12">
           <ul class="nav nav-tabs">
             <li class="span3">&nbsp;</li>
-            <li {% if not host_parties and not taster_parties %} class="active" {% endif %}>
+            <li {% if not pro_parties and not host_parties and not taster_parties %} class="active" {% endif %}>
               <a href="#host_guest_past_parties" data-toggle="tab" class="span2 tab-header center"><h2>Past Parties</h2></a>
             </li>
-            <li {% if host_parties or taster_parties %} class="active" {% endif %}>
+            <li {% if pro_parties or host_parties or taster_parties %} class="active" {% endif %}>
               <a href="#host_guest_upcoming_parties" data-toggle="tab" class="span3 tab-header center"><h2>Upcoming Parties</h2></a>
             </li>
           </ul>
           <div class="tab-content">
-            <div class="tab-pane {% if not host_parties and not taster_parties %} fade in active {% endif %}" id="host_guest_past_parties">
+            <div class="tab-pane {% if not pro_parties and not host_parties and not taster_parties %} fade in active {% endif %}" id="host_guest_past_parties">
               <!-- <h1 class="headline">Past Parties</h1> -->
               {% if pro %}
                 <div class="row">
@@ -225,7 +225,7 @@
               {% endif %}
             </div>
 
-            <div class="tab-pane {% if host_parties or taster_parties %} fade in active {% endif %}" id="host_guest_upcoming_parties">
+            <div class="tab-pane {% if pro_parties or host_parties or taster_parties %} fade in active {% endif %}" id="host_guest_upcoming_parties">
               <!-- <h1 class="headline">Upcoming Parties</h1> -->
               {% if pro %}
                 <div class="row">
@@ -252,7 +252,12 @@
                     <tr>
                       <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
                       <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
-                      <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      <!-- <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td> -->
+                      {% if user.get_profile.events_user and not party.confirmed %}
+                        <td><a href="{% url party_add party.id %}">{{ party.title }}</a></td>
+                      {% else %}
+                        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      {% endif %}
                       <td>{{ party.phone }}</td>
                       <td>{{ party.address }}</td>
                       <td>{{ party.invitees }}</td>

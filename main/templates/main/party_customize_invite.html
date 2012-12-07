@@ -206,7 +206,6 @@
     });
 
     $(window).bind('beforeunload', function(e) {
-      // TODO: figure out how to check if its a save pressed
       if ($('.form-horizontal').serialize() != original_form && saved == false) {
         return 'You are about to leave this page even though you have made changes to your invite.';
       }

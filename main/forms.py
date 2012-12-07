@@ -58,6 +58,7 @@ class PartyCreateForm(forms.ModelForm):
     model = Party
 
   def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user')
     super(PartyCreateForm, self).__init__(*args, **kwargs)
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
@@ -68,7 +69,7 @@ class PartyCreateForm(forms.ModelForm):
     initial = kwargs.get('initial')
 
     # if party being organized by host then load previous addresses by host
-    if initial.get('host'):
+    if user.userprofile.is_host():
       parties = Party.objects.filter(host=initial['host'])
     else:
       # else if by pro then load prev organized party addresses
@@ -571,7 +572,7 @@ class AttendeesTable(tables.Table):
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
-    if not user.userprofile.is_host():
+    if not (user.userprofile.is_host() or user.userprofile.events_user()):
       exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')

@@ -176,7 +176,11 @@
             <button class="btn btn-primary" name="save" value="save">Save</button>
           </div>
           <div class="span4">
-            <button class="btn btn-primary" name="request" value="request">Request Party</button>
+            {% if user.get_profile.events_user %}
+              <button class="btn btn-primary" name="add_vinely_party" value="add_vinely_party">Add Party</button>
+            {% else %}
+              <button class="btn btn-primary" name="request" value="request">Request Party</button>
+            {% endif %}
           </div>
         </div>
     </form>

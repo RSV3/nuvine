@@ -40,7 +40,7 @@
       </div>
     </div>
 -->
-    {% if user.get_profile.is_host %}
+    {% if user.get_profile.is_host or user.userprofile.events_user %}
       <div class="menu_wrap main partycrumb">
         <ul class="nav">
           <li class="party-add active">&nbsp;</li>
@@ -272,7 +272,7 @@
             <fieldset>
               <div class="control-group">
                 <div class="controls">
-                  {% if user.get_profile.is_host %}
+                  {% if user.get_profile.is_host or user.userprofile.events_user %}
                     <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
                     <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
                   {% else %}

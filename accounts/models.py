@@ -168,6 +168,12 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
+  def events_user(self):
+    '''
+    Returns True if this is a user that creates Vinely events
+    '''
+    return self.user.is_superuser
+
   def age(self):
     year = 365
     age = (date.today() - self.dob).days / year
