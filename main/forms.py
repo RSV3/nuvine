@@ -548,9 +548,8 @@ table_attrs = Attrs({'class': 'table table-striped'})
 
 class AttendeesTable(tables.Table):
   guests = tables.CheckBoxColumn(Attrs({'name': 'guests', 'td__input': {'class': 'guest'}, 'th__input': {'class': 'all-guests'}}), accessor='invitee.id')
-  invitee = tables.TemplateColumn('{{ record.invitee.first_name }} {{ record.invitee.last_name }}', verbose_name='Name',
-                                  order_by=('invitee.first_name', 'invitee.last_name'))
-  email = tables.TemplateColumn('{{ record.invitee.email }}<a href="mailto:{{ record.invitee.email }}">&nbsp;<i class="icon-envelope"></i></a>', orderable=False)
+  invitee = tables.Column(verbose_name='Name', order_by=('invitee.first_name', 'invitee.last_name'))
+  email = tables.TemplateColumn('<a href="mailto:{{ record.invitee.email }}">{{ record.invitee.email }}</a>', orderable=False)
   phone = tables.TemplateColumn('{% if record.invitee.userprofile.phone %} {{ record.invitee.userprofile.phone }} {% else %} - {% endif %}', orderable=False)
   response = tables.Column(verbose_name='RSVP')
   invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
@@ -573,7 +572,7 @@ class AttendeesTable(tables.Table):
 
     exclude = list(self.exclude)
     if not user.userprofile.is_host():
-      exclude.append('select')
+      exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')
     if not user.userprofile.is_pro():
@@ -586,6 +585,12 @@ class AttendeesTable(tables.Table):
       exclude.append('shop')
 
     self.exclude = exclude
+
+  def render_invitee(self, record, column):
+    if record.invitee.first_name:
+      return "%s %s" % (record.invitee.first_name, record.invitee.last_name)
+    else:
+      return "Anonymous"
 
   def render_shop(self, record, column):
       if record.invitee.userprofile.has_personality():

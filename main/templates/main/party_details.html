@@ -129,24 +129,26 @@
     <hr />
     <div class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
-    {% if party.confirmed %} 
-      {% if party.high_low == '!LOW' %}
-        <div class="message-container">
-          <div class="messages">
-            <div class="alert alert-error center">
-              <h2>
-                <small>
-                  {% if pro %}
-                    Low attendance! Remind host to invite more people
-                  {% endif %}
-                  {% if host %}
-                    Low attendance! Consider inviting more people or RSVP'ing for them
-                  {% endif %}
-                </small>
-              </h2>
+    {% if not party.is_past_party%}
+      {% if party.confirmed %}
+        {% if party.high_low == '!LOW' %}
+          <div class="message-container">
+            <div class="messages">
+              <div class="alert alert-error center">
+                <h2>
+                  <small>
+                    {% if pro %}
+                      Low attendance! Remind host to invite more people
+                    {% endif %}
+                    {% if host %}
+                      Low attendance! Consider inviting more people or RSVP'ing for them
+                    {% endif %}
+                  </small>
+                </h2>
+              </div>
             </div>
           </div>
-        </div>
+        {% endif %}
       {% endif %}
     {% endif %}
     {% if can_add_taster %}

@@ -24,7 +24,7 @@
 <div class="container">
   {% if pro %}
     <div class="row">
-      <div class="span6">
+      <div class="span7">
         <table class="summary-table">
           <tbody>
             <tr>
@@ -59,7 +59,7 @@
         <!-- </div> -->
       </div>
 
-      <div class="span6">
+      <div class="span5">
         <table class="summary-table">
           <tbody>
             <tr>
@@ -128,7 +128,7 @@
                   {# create a table of party and party information #}
                   <tr>
                     <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-                    <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
+                    <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
                     <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                     <td>{{ party.phone }}</td>
                     <td>{{ party.address }}</td>
@@ -166,9 +166,7 @@
                 {% for party in pro_parties %}
                   <tr>
                     <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-                    <td>
-                      <a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a>
-                    </td>
+                    <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
                     <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                     <td>{{ party.phone }}</td>
                     <td>{{ party.address }}</td>
@@ -230,7 +228,6 @@
                     {# create a table of party and party information #}
                     <tr>
                       <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-                      <!-- <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td> -->
                       <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                       <td>{{ party.phone }}</td>
                       <td>{{ party.address }}</td>
@@ -268,16 +265,9 @@
                   {# create a table of party and party information #}
                   <tr>
                     <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-                    <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
-                    {% if taster %}
-                      {% if party.rsvp_code %}
-                        <td><a href="{% url party_rsvp party.id party.rsvp_code %}">{{ party.title }}</a></td>
-                      {% else %}
-                        <td><a href="{% url party_rsvp party.id %}">{{ party.title }}</a></td>
-                      {% endif %}
-                    {% else %}
-                      <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
-                    {% endif %}                  <td>{{ party.phone }}</td>
+                    <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                    <td>{{ party.title }}</td>
+                    <td>{{ party.phone }}</td>
                     <td>{{ party.address }}</td>
                     <td>{{ party.invitees }}</td>
                   </tr>
@@ -355,15 +345,11 @@
                   {# create a table of party and party information #}
                   <tr>
                     <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-                    <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
-                    {% if taster %}
-                      {% if party.rsvp_code %}
-                        <td><a href="{% url party_rsvp party.id party.rsvp_code %}">{{ party.title }}</a></td>
-                      {% else %}
-                        <td><a href="{% url party_rsvp party.id %}">{{ party.title }}</a></td>
-                      {% endif %}
+                    <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                    {% if party.rsvp_code %}
+                      <td><a href="{% url party_rsvp party.id party.rsvp_code %}">{{ party.title }}</a></td>
                     {% else %}
-                      <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      <td><a href="{% url party_rsvp party.id %}">{{ party.title }}</a></td>
                     {% endif %}
                     <td>{{ party.phone }}</td>
                     <td>{{ party.address }}</td>
