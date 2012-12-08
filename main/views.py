@@ -858,7 +858,8 @@ def order_complete(request, order_id):
     # need to send e-mail
     send_order_confirmation_email(request, order_id)
 
-    data["credit_card"] = order.receiver.get_profile().stripe_card if stripe_payment_mode else order.receiver.get_profile().credit_card
+    stripe_card_used = order.stripe_card
+    data["credit_card"] = stripe_card_used if stripe_payment_mode or stripe_card_used else order.credit_card
     data["shop_menu"] = True
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:

@@ -18,6 +18,9 @@
           <tr>
             <th>Order ID</th>
             <th>Order Date</th>
+            {% if pro %}
+            <th>Ordered For</th>
+            {% endif %}
             <th>Order Total</th>
             <th>Order Status</th>
           </tr>
@@ -27,13 +30,15 @@
           <tr>
             <td><a href="{% url order_complete order.order_id %}">{{ order.vinely_order_id }}</a></td>
             <td>{{ order.order_date }}</td>
+            {% if pro %}
+            <td>{% if user == order.receiver %}Myself{% else %}Someone Else{% endif %}
+            {% endif %}
             <td>{{ order.cart.total|currency }}</td>
             <td>{{ order.get_fulfill_status_display }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>  
-
     </div>
   </div>
   </section>
