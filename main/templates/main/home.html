@@ -38,7 +38,7 @@
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
     {% if party_scheduled %}
-      <li><div class="chev"><a href="{% url party_taster_invite %}">Invite Guests</a></div></li>
+      <!-- <li><div class="chev"><a href="{% url party_details party.id %}">Invite Guests</a></div></li> -->
       {# <li><div class="chev"><a href="{% url party_rsvp party.id %}">Your RSVPs</a></div></li> #}
       {% if can_order_kit %}
         <li><div class="chev"><a href="{% url party_select %}">Order A Taste Kit</a></div></li>

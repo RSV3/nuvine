@@ -389,6 +389,59 @@ def send_new_party_scheduled_email(request, party):
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
+  # notify pro and care
+  content = """
+
+  Dear {{ pro_first_name }},
+
+  The following party has been scheduled:
+
+  Party: "{{ party.title }}"
+
+  Host: {{ party.host.first_name }} {{ party.host.last_name }} <{{ party.host.email }}>
+
+  Date: {{ party.event_date|date:"F j, o" }}
+
+  Time: {{ party.event_date|date:"g:i A" }}
+
+  Location: {{ party.address.full_text }}
+
+  {% if party.description %}Party Details: {{ party.description }}{% endif %}
+
+  {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+  Your Tasteful Friends,
+
+  - The Vinely Team
+
+  """
+  # template = Section.objects.get(template__key='new_party_scheduled_email', category=0)
+  txt_template = Template(content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+
+  profile = request.user.get_profile()
+
+  c = RequestContext(request, {"pro_first_name": party.pro.first_name if party.pro.first_name else "Care Specialist",
+              "party": party,
+              "host_name": request.get_host()})
+
+  txt_message = txt_template.render(c)
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # notify about scheduled party
+  recipients = [party.pro.email, 'care@vinely.com']
+  subject = 'Your Vinely Party has been Scheduled!'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = ('Vinely Party <info@vinely.com>')
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
 
 def send_new_party_scheduled_by_host_email(request, party):
 
@@ -424,8 +477,8 @@ def send_new_party_scheduled_by_host_email(request, party):
 
 def distribute_party_invites_email(request, invitation_sent):
 
-  content = invitation_sent.custom_message
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
+  # html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   host_user = invitation_sent.party.host
   inviting_user = request.user
@@ -457,7 +510,11 @@ def distribute_party_invites_email(request, invitation_sent):
         vque = VerificationQueue(user=guest, verification_code=verification_code)
         vque.save()
 
-    c = Context()
+    c = RequestContext(request, {'host_name': request.get_host(), 'invite': invite})
+
+    content += '\n\n<a class="brand-btn" href="http://{{ host_name }}{% url party_rsvp invite.rsvp_code invite.party.id  %}">RSVP for the Party</a> \n'
+
+    html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
     html_message = html_template.render(c)
     txt_message = content
 
@@ -480,7 +537,7 @@ def resend_party_invite_email(request, user, invitation_sent):
 
   content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
 
-  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  # html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
   host_user = invitation_sent.party.host
   inviting_user = host_user
@@ -494,7 +551,13 @@ def resend_party_invite_email(request, user, invitation_sent):
     from_email = 'Invitation from %s %s <info@vinely.com>' % (host_user.first_name, host_user.last_name)
 
   for guest in invitation_sent.guests.filter(id=user.id):
-    c = Context()
+    invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
+
+    c = RequestContext(request, {'host_name': request.get_host(), 'invite': invite})
+
+    content += '\n\n<a class="brand-btn" href="http://{{ host_name }}{% url party_rsvp invite.rsvp_code invite.party.id  %}">RSVP for the Party</a> \n'
+
+    html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
     html_message = html_template.render(c)
     txt_message = content
 

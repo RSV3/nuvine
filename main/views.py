@@ -1789,12 +1789,14 @@ def party_send_invites(request):
   form = CustomizeInvitationForm(request.POST or None, instance=invitation)
 
   if form.is_valid():
-    old_invite = InvitationSent.objects.get(pk=invitation.id)
+    if invitation:
+      old_invite = InvitationSent.objects.get(pk=invitation.id)
     num_guests = len(request.POST.getlist("guests"))
     invitation_sent = form.save()
-    invitation_sent.custom_message = old_invite.custom_message
-    invitation_sent.custom_subject = old_invite.custom_subject
-    invitation_sent.save()
+    if invitation:
+      invitation_sent.custom_message = old_invite.custom_message
+      invitation_sent.custom_subject = old_invite.custom_subject
+      invitation_sent.save()
     party = invitation_sent.party
 
     # send e-mails

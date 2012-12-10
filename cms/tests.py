@@ -629,8 +629,11 @@ class SimpleTest(TestCase):
     The following party has been scheduled:
 
       Party: "{{ party.title }}"
+
       {% if party.description %}{{ party.description }}{% endif %}
+
       Date: {{ party.event_date|date:"F j, o" }}
+
       Time: {{ party.event_date|date:"g:i A" }}
 
 
