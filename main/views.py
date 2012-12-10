@@ -1100,20 +1100,6 @@ def party_details(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  sp_group = Group.objects.get(name='Supplier')
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if hos_group in u.groups.all():
-    data["host"] = True
-  if sp_group in u.groups.all():
-    data["supplier"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
-
   data['rsvp_form'] = ChangeTasterRSVPForm(initial={'party': party_id})
 
   # tasters should only see list of people that they invited
@@ -1135,8 +1121,8 @@ def party_details(request, party_id):
       msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
       messages.warning(request, msg)
 
-  pro = OrganizedParty.objects.get(party=party)
-  data["pro_user"] = pro
+  organized = OrganizedParty.objects.get(party=party)
+  data["pro_user"] = organized.pro
   data["parties_menu"] = True
   data["MYSTERY_PERSONALITY"] = WinePersonality.MYSTERY
   data['can_order_kit'] = (party.event_date > today)
