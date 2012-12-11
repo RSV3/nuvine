@@ -87,6 +87,8 @@ class VerifyEligibilityForm(forms.ModelForm):
     self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years',
                                         'data-date-format': 'yyyy-mm-dd'}
     self.fields['user'].widget = forms.HiddenInput()
+    self.fields['mentor'].widget = forms.HiddenInput()
+    self.fields['gender'].widget = forms.HiddenInput()
 
   def clean(self):
     data = super(VerifyEligibilityForm, self).clean()

@@ -39,7 +39,7 @@
           {{ form.dob }}
         </div>
         <div class="modal-footer">
-          <input type="submit" name="update" class="btn btn-primary" value="Update" />
+          <button type="submit" name="update" class="btn btn-primary" value="update">Update</button>
         </div>
       </form>
     </div>
@@ -51,23 +51,23 @@
         <p>Will you attend?</p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
           {% else %}
-            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active disabled {% endif %}" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
           {% endif %}
         </p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% else %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active disabled {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% endif %}
         </p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% else %}
-            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active disabled {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% endif %}
         </p>
       </div>
@@ -134,33 +134,113 @@
   </section>
 
   <section id="party-attendees">
-    <div class="page-header">
+    <!-- <div class="page-header"> -->
+    {% if party.guests_can_invite or party.guests_see_guestlist %} 
       <div class="row">
         <div class="span2"><h2>Other Guests</h2></div>
-        {% if party.guests_can_invite %} You can also <a href="{% url party_taster_invite party.id %}">invite your friends</a> {% endif %}
+        {% if party.guests_can_invite %} 
+          <p>You can also invite your friends</p>
+          <div class="span12">
+            <form class="form-horizontal" method="POST" action="">
+              {% csrf_token %}
+              {{ taster_form.party }}
+              {{ taster_form.response }}
+              <div class="row">
+                <div class="span12">
+                  <!-- <h2>Tasters Attending</h2> -->
+                    {% if pro or host or taster and party.guests_can_invite %}
+                      <p><h3>Add Taster</h3></p>
+                      {% if pro or host %}
+                        <div class="control-group {% if taster_form.invitee.errors %}error{% endif %}">
+                          {{ taster_form.invitee }}
+                          {% if taster_form.invitee.errors %}
+                            <span class="help-inline">
+                              {{ taster_form.invitee.errors }}
+                            </span>
+                          {% endif %}
+                        </div>
+                        <p><h3>or add new taster</h3></p>
+                      {% endif %}
+                    {% endif %}
+                </div>
+              </div>        
+              <div class="row">
+                <div class="span3">
+                  <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+                    {{ taster_form.first_name }}
+                    {% if taster_form.first_name.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.first_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span3">
+                  <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+                    {{ taster_form.last_name }} 
+                    {% if taster_form.last_name.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.last_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span3">
+                  <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+                    {{ taster_form.email }} 
+                    {% if taster_form.email.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.email.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span2">
+                  <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+                    {{ taster_form.phone }}
+                    {% if taster_form.phone.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.phone.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span12">
+                  <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
+                  {% if user.get_profile.events_user %}
+                    <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
+                  {% endif %}
+                </div>
+              </div>
+            </form>
+          </div>
+        {% endif %}
       </div>
-    </div>
-    <table class="table table-striped">
-      <thead>
-        <th>Name</th>
-        <th>Coming</th>
-        <th>Wine Personality</th>
-      </thead>
-      <tbody>
-      {% for inv in invitees %}
-        {# create a table of invitees #}
-        <tr>
-          {% if inv.invitee.first_name or inv.invitee.last_name %}
-            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
-          {% else %}
-            <td>Anonymous</td>
-          {% endif %}
-          <td>{{ inv.get_response_display }}</td>
-          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    {% endif %}
+    <!-- </div> -->
+    {% if party.guests_see_guestlist %}
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>Coming</th>
+          <th>Wine Personality</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+            <td>{{ inv.get_response_display }}</td>
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
   </section>
 
 </div>

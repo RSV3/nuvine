@@ -1399,6 +1399,11 @@ def party_confirm(request, party_id):
   org_party.pro = u
   org_party.save()
 
+  if party.auto_invite:
+    invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
+    # send e-mails
+    distribute_party_invites_email(request, invitation)
+
   messages.success(request, 'Congratulations! Your party has been scheduled')
   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
@@ -1440,8 +1445,8 @@ def party_taster_list(request, party_id):
   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def party_taster_invite(request, party_id=0):
+# @login_required
+def party_taster_invite(request, rsvp_code=None, party_id=0):
   """
     Invite a new Vinely Taster to a party
 
@@ -1461,6 +1466,9 @@ def party_taster_invite(request, party_id=0):
   hos_group = Group.objects.get(name='Vinely Host')
   tas_group = Group.objects.get(name='Vinely Taster')
 
+  if not rsvp_code and not u.is_authenticated():
+    return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+
   party = None
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
@@ -1471,6 +1479,12 @@ def party_taster_invite(request, party_id=0):
         invite = PartyInvite.objects.get(party=party, invitee=u)
       except PartyInvite.DoesNotExist:
         raise PermissionDenied
+
+  if u.is_authenticated():
+    invite = get_object_or_404(PartyInvite, party=party, invitee=u)
+  else:
+    invite = get_object_or_404(PartyInvite, party=party, rsvp_code=rsvp_code)
+    u = invite.invitee
 
   if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all():
     if u.get_profile().is_host():
@@ -1576,16 +1590,23 @@ def party_rsvp(request, party_id, rsvp_code=None, response=None):
 
   profile = u.get_profile()
 
-  form = VerifyEligibilityForm(request.POST or None, instance=profile)
-  form.fields['mentor'].widget = forms.HiddenInput()
-  form.fields['gender'].widget = forms.HiddenInput()
+  initial_data = {'party': party, u.userprofile.role(): u}
+
+  if request.POST.get('add_taster'):
+    taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
+    form = VerifyEligibilityForm(instance=profile)
+    request.user = u
+    party_add_taster(request, party, taster_form)
+  else:
+    taster_form = PartyInviteTasterForm(initial=initial_data)
+    form = VerifyEligibilityForm(request.POST or None, instance=profile)
+
   if form.is_valid():
-    # profile = form.save(commit=False)
-    # profile = u.get_profile()
     profile = User.objects.get(id=u.id).get_profile()
     profile.dob = form.cleaned_data['dob']
     profile.save()
 
+  data['taster_form'] = taster_form
   data['form'] = form
 
   # if user has not entered DOB ask them to do this first
