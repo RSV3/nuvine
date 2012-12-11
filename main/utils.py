@@ -452,7 +452,7 @@ def send_new_party_scheduled_by_host_email(request, party):
   c = RequestContext(request, {"pro": party.pro,
                               "invite_host_name": request.user.first_name if request.user.first_name else "Friendly Host",
                               "party": party,
-                              "pro_name": "%s %s" % (pro.first_name, pro.last_name) if party.pro.first_name else "Care Specialist",
+                              "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
                               "pro_phone": party.pro.get_profile().phone,
                               "has_pro": party.pro,
                               "host_name": request.get_host()})
