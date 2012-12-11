@@ -312,7 +312,7 @@ def make_pro_host(request, account_type, data):
   pro, pro_profile = my_pro(u)
   pro_email = pro.email if pro else None
   initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
-                  'email': u.email, 'zipcode': profile.zipcode, 'mentor': pro_email}
+                  'email': u.email, 'zipcode': profile.zipcode, 'phone_number': profile.phone, 'mentor': pro_email}
 
   form = MakeHostProForm(request.POST or None, initial=initial_data)
 
