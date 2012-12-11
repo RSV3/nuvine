@@ -109,11 +109,23 @@ def personality_details(request, user_id, order_id=None):
   return render_to_response("personality/personality_details.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def pre_questionnaire_general(request):
+# @login_required
+def pre_questionnaire_general(request, rsvp_code=None):
   data = {}
 
   u = request.user
+
+  # if no rsvp_code then user has to login first
+  if not rsvp_code and not u.is_authenticated():
+    return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+
+  if not u.is_authenticated():
+    invite = get_object_or_404(PartyInvite, rsvp_code=rsvp_code)
+    u = invite.invitee
+
+  if u.is_authenticated():
+    # make sure the authenticated user is not someone else
+    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
 
   try:
     general_taste = GeneralTaste.objects.get(user=u)
