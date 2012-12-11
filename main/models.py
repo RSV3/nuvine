@@ -56,6 +56,9 @@ class Party(models.Model):
   confirmed = models.BooleanField()
   requested = models.BooleanField()
 
+  class Meta:
+    verbose_name_plural = 'Parties'
+
   def __unicode__(self):
     if self.host.first_name:
       return "%s by %s <%s>" % (self.title, self.host.first_name, self.host.email)
