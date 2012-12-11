@@ -2,11 +2,12 @@ from django import forms
 from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
+from datetime import timedelta
 
 import django_tables2 as tables
 from django_tables2 import Attrs
-from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
 
 from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
@@ -157,6 +158,9 @@ class PartyCreateForm(forms.ModelForm):
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
+
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=10):
+        raise forms.ValidationError("Your party needs to be more than 10 days from today to ensure that the tasting kit is received in time for the party.")
     else:
       raise forms.ValidationError("Party date and time are required.")
 

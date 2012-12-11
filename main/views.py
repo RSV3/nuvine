@@ -1032,10 +1032,12 @@ def party_add(request, party_id=None):
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
   else:
-    party_date = timezone.now() + timedelta(days=7)
+    party_date = timezone.now() + timedelta(days=10)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
+  if form.errors.get('__all__'):
+    messages.error(request, form.errors['__all__'])
 
   if request.method == "POST":
     if form.is_valid():
@@ -1336,7 +1338,7 @@ def party_details(request, party_id):
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
     if u.userprofile.is_pro():
-      if u.userprofile.events_user():
+      if not u.userprofile.events_user():
         if party.confirmed:
           if not party.kit_ordered():
             msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
