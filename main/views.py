@@ -1026,7 +1026,7 @@ def party_add(request, party_id=None):
     initial_data['address'] = most_recent_party.address
 
   if party:
-    initial_data['host'] = party.host.id
+    initial_data['host'] = party.host
     initial_data['address'] = party.address
     party_date = timezone.localtime(party.event_date)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
