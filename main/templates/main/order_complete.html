@@ -38,10 +38,12 @@
         <p>Phone: {{ order.receiver.get_profile.phone }}</p>
       </address>
       <p></p>
+      {% if user == order.receiver %}
       <p><h3>Billing Information</h3></p>
       <p></p>
       <p>Credit card ending in {{ credit_card.last_four }}</p>
       <p>Exp Date: {{ credit_card.exp_date }}</p>
+      {% endif %}
     </div>
     <div class="span8">
       <div class="row">
