@@ -122,7 +122,11 @@
           </p>
         {% else %}
           <p>
-            <a href="{% url pre_questionnaire_general %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
+            {% if invite.rsvp_code %}
+              <a href="{% url pre_questionnaire_general invite.rsvp_code %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
+            {% else %}
+              <a href="{% url pre_questionnaire_general %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
+            {% endif %}
           </p>
         {% endif %}
       </div>
