@@ -49,6 +49,9 @@ class Party(models.Model):
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
 
+  class Meta:
+    verbose_name_plural = 'Parties'
+
   def __unicode__(self):
     if self.host.first_name:
       return "%s by %s <%s>" % (self.title, self.host.first_name, self.host.email)
@@ -60,6 +63,10 @@ class Party(models.Model):
       return OrganizedParty.objects.get(party=self).pro
     except OrganizedParty.DoesNotExist:
       return None
+
+  def kit_ordered(self):
+    order = Order.objects.filter(cart__party=self, cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    return order.exists()
 
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()

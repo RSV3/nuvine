@@ -111,7 +111,8 @@ class EngagementInterestAdmin(admin.ModelAdmin):
 
 
 class PartyAdmin(admin.ModelAdmin):
-  list_display = ['title', 'event_date', 'host_info', 'description', 'address', 'created']
+  # list_display = ['title', 'event_date', 'host_info', 'description', 'address', 'created']
+  list_display = ['title', 'event_date', 'host_info', 'pro_info', 'address', 'kit_ordered', 'rsvps', 'created']
   raw_id_fields = ['host']
   #list_editable = ['host']
   search_fields = ['title', 'host__first_name', 'host__last_name']
@@ -119,6 +120,16 @@ class PartyAdmin(admin.ModelAdmin):
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
+  def pro_info(self, instance):
+    return "%s %s <%s>" % (instance.pro().first_name, instance.pro().last_name, instance.pro().email)
+
+  def rsvps(self, instance):
+    return PartyInvite.objects.filter(party=instance, response__in=[2, 3]).count()
+
+  def kit_ordered(self, instance):
+    return "Yes" if instance.kit_ordered() else "No"
+
 
 class OrderAdmin(admin.ModelAdmin):
   list_display = ['id', 'order_id', 'ordered_by_info', 'receiver_info', 'shipping_address_link', 'cart', 'order_date']
