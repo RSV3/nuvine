@@ -33,6 +33,7 @@ modulegraph==0.9.1
 networkx==1.6
 nose==1.1.2
 numpy==1.6.2
+premailer==1.12
 psycopg2==2.4.5
 py2app==0.6.4
 pyOpenSSL==0.13

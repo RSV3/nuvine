@@ -10,6 +10,8 @@ from accounts.models import VinelyProAccount, VerificationQueue
 from datetime import tzinfo, timedelta
 from cms.models import Section
 
+from premailer import Premailer
+
 import uuid
 ZERO = timedelta(0)
 
@@ -340,17 +342,18 @@ def send_host_vinely_party_email(request, user, pro=None):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
 
+  # update our DB that there was repeated interest
+  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[6][0])
+  if not created:
+    interest.update_time()
+
+  # send out e-mail regardless
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  # update our DB that there was repeated interest
-  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[1][0])
-  if not created:
-    interest.update_time()
-  else:
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': user.email})
-    msg.attach_alternative(html_msg, "text/html")
-    msg.send()
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
   # return text message for display
   return txt_message
@@ -376,10 +379,14 @@ def send_new_party_scheduled_email(request, party):
   c.update({'sig': True})
   html_message = html_template.render(c)
 
-  # notify about scheduled party
+  # notify host about scheduled party
   recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   from_email = ('Vinely Party <info@vinely.com>')
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
@@ -761,8 +768,11 @@ def send_host_request_party_email(request, party):
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
+  host_first_name = request.user.first_name if request.user.first_name else "Vinely"
+  host_last_name = request.user.last_name if request.user.last_name else "Host"
+
   c = RequestContext(request, {"party": party,
-              "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
+              "invite_host_name": "%s %s" % (host_first_name, host_last_name) if request.user.first_name else "Friendly Host",
               # "host_email": request.user.email,
               "host_phone": request.user.userprofile.phone,
               "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
@@ -772,7 +782,8 @@ def send_host_request_party_email(request, party):
   html_message = html_template.render(c)
 
   # send out party invitation e-mail
-  subject = "%s %s would like to host a party" % (request.user.first_name, request.user.last_name)
+
+  subject = "%s %s would like to host a party" % (host_first_name, host_last_name)
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
                                                             'header': 'Let\'s get the party started',
                                                             'message': html_message, 'host_name': request.get_host()}))

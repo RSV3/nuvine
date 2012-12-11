@@ -540,6 +540,7 @@ class EngagementInterest(models.Model):
     (3, 'Vinely Taster'),
     (4, 'Unassigned Interest'),
     (5, 'Tasting Kit'),
+    (6, 'Hosting Party'),
   )
 
   user = models.ForeignKey(User)
