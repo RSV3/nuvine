@@ -122,7 +122,7 @@ class PartyAdmin(admin.ModelAdmin):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
 
   def pro_info(self, instance):
-    return "%s %s <%s>" % (instance.pro().first_name, instance.pro().last_name, instance.pro().email)
+    return "%s %s <%s>" % (instance.pro.first_name, instance.pro.last_name, instance.pro.email)
 
   def rsvps(self, instance):
     return PartyInvite.objects.filter(party=instance, response__in=[2, 3]).count()
