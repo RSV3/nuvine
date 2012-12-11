@@ -1824,9 +1824,10 @@ def party_send_invites(request):
     party = invitation_sent.party
 
     # send e-mails
-    distribute_party_invites_email(request, invitation_sent)
-    messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
-    data["parties_menu"] = True
+    if num_guests > 0:
+      distribute_party_invites_email(request, invitation_sent)
+      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
+      data["parties_menu"] = True
 
   return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
 
