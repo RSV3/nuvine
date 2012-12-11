@@ -472,7 +472,10 @@ def send_new_party_scheduled_by_host_email(request, party):
   recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = ('Vinely Party <info@vinely.com>')
+  from_email = ['Vinely Party <info@vinely.com>']
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()

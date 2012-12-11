@@ -115,12 +115,21 @@ class PartyCreateForm(forms.ModelForm):
         # create new host based on e-mail
         try:
           user = User.objects.get(email=cleaned_data['email'].lower())
+          if not user.first_name:
+            user.first_name = cleaned_data['first_name']
+            user.last_name = cleaned_data['last_name']
+            user.save()
         except User.DoesNotExist:
           user = create_user(email=cleaned_data['email'].lower(), password='welcome')
           user.is_active = False
           user.first_name = cleaned_data['first_name']
           user.last_name = cleaned_data['last_name']
           user.save()
+
+        if 'phone' in cleaned_data:
+          prof = user.get_profile()
+          prof.phone = cleaned_data['phone']
+          prof.save()
 
         pro_group = Group.objects.get(name="Vinely Pro")
         ph_group = Group.objects.get(name="Vinely Host")
@@ -133,7 +142,7 @@ class PartyCreateForm(forms.ModelForm):
         cleaned_data['host'] = user
         del self._errors['host']
 
-    if 'address' not in cleaned_data:
+    if len(cleaned_data['street1']) > 0:
       # create new address
       try:
         address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
@@ -147,7 +156,9 @@ class PartyCreateForm(forms.ModelForm):
         address.save()
 
       cleaned_data['address'] = address
-      del self._errors['address']
+      if 'address' in self._errors:
+        # if no address selected, but street info manually filled out, remove error
+        del self._errors['address']
 
     if 'title' not in cleaned_data:
       cleaned_data['title'] = "%s's Party" % cleaned_data['host'].first_name
