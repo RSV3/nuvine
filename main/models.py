@@ -504,7 +504,7 @@ class CustomizeOrder(models.Model):
 
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
                                     default=SPARKLING_CHOICES[1][0])
-  timestamp = models.DateTimeField(auto_now_add=True)
+  timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Last Updated")
 
   def __unicode__(self):
     return "Mix: %s, Sparkling: %s" % (self.get_wine_mix_display(), self.get_sparkling_display())
