@@ -514,10 +514,12 @@ def cart_add_wine(request, level="x"):
     cart.adds += 1
     cart.save()
 
-    # notify user if they are already subscribed and that a new subscription will cancel the existing
-    if cart.items.filter(frequency__in=[1, 2, 3]).exists():
-      if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]):
-        messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
+    # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
+    pro_group = Group.objects.get(name="Vinely Pro")
+    if pro_group not in u.groups.all():
+      if cart.items.filter(frequency__in=[1, 2, 3]).exists():
+        if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]).exists():
+          messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
 
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))

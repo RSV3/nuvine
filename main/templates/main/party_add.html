@@ -111,27 +111,6 @@
 
           <fieldset>
             <legend>Select Host</legend>
-            <div class="control-group {% if form.host.errors %}error{% endif %}">
-              <div class="control-label" for="id_host">{{ form.host.label }}</div>
-              <div class="controls">
-                <select name="host" id="id_host">
-                  <option value selected="selected">----------</option>
-                  {% for value, text in form.host.field.choices %}
-                    <option value="{{ value }}">{{ text }}</option>
-                  {% endfor %}
-                </select>
-                {% if form.host.errors %}
-                  <span class="help-inline">
-                    {{ form.host.errors }}
-                  </span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="control-group">
-              <div class="controls">
-                OR Enter New Host
-              </div>
-            </div>
 
             <div class="control-group {% if form.first_name.errors %}error{% endif %}">
               <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
@@ -166,20 +145,33 @@
                 {% endif %}
               </div>
             </div>
-          </fieldset>
-          <fieldset>
-            <legend>Party Location</legend>
-            <div class="control-group {% if form.address.errors %}error{% endif %}">
-              <div class="control-label" for="id_address">{{ form.address.label }}</div>
+
+            <div class="control-group">
               <div class="controls">
-                {{ form.address }} 
-                {% if form.address.errors %}
+                OR Pick an Existing Host 
+              </div>
+            </div>
+
+            <div class="control-group {% if form.host.errors %}error{% endif %}">
+              <div class="control-label" for="id_host">{{ form.host.label }}</div>
+              <div class="controls">
+                <select name="host" id="id_host">
+                  <option value selected="selected">----------</option>
+                  {% for value, text in form.host.field.choices %}
+                    <option value="{{ value }}">{{ text }}</option>
+                  {% endfor %}
+                </select>
+                {% if form.host.errors %}
                   <span class="help-inline">
-                    {{ form.address.errors }}
+                    {{ form.host.errors }}
                   </span>
                 {% endif %}
               </div>
             </div>
+          </fieldset>
+          <fieldset>
+            <legend>Party Location</legend>
+ 
             <div class="control-group {% if form.street1.errors %}error{% endif %}">
               <div class="control-label" for="id_street1">{{ form.street1.label }}</div>
               <div class="controls">
@@ -235,8 +227,25 @@
                 {% endif %}
               </div>
             </div>
+            <div class="control-group">
+              <div class="controls">
+                OR Pick an Existing Address
+              </div>
+            </div>            
+            <div class="control-group {% if form.address.errors %}error{% endif %}">
+              <div class="control-label" for="id_address">{{ form.address.label }}</div>
+              <div class="controls">
+                {{ form.address }} 
+                {% if form.address.errors %}
+                  <span class="help-inline">
+                    {{ form.address.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>           
           </fieldset>
           <fieldset>
+            <hr>
             <div class="control-group">
               <div class="controls">
                 <button type="submit" class="btn btn-primary">Add Taste Party</button>
