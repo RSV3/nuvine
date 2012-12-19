@@ -19,6 +19,18 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div id="underage" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Age Verification</h3>
+    </div>
+    <div class="modal-body">
+      <p>You need to be at least 21 to use Vinely. Please come back and visit us when you are.</p>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal" value="update">Ok</button>
+      </div>
+    </div>
+  </div>
 
   <div id="update_age" class="modal hide fade">
     <div class="modal-header">
@@ -26,7 +38,7 @@
       <h3>Update Profile Info</h3>
     </div>
     <div class="modal-body">
-      <form method="POST" class="modal-form" action="">{% csrf_token %}
+      <form method="POST" class="modal-form" action="{{ app_path }}?checked=1">{% csrf_token %}
         <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
         <br />
         <div class="control-label" for="id_dob">
@@ -253,9 +265,13 @@
     <script type="text/javascript">
       $(document).ready( function () {
         $(".datepicker").datepicker();
-
-        // uncomment this to enable
-        $("#update_age").modal();
+        {% if age_checked %}
+          // alert('You need to be at least 21 to use Vinely. Please come back and visit us when you are.');
+          $("#underage").modal();
+        {% else %}
+          // uncomment this to enable
+          $("#update_age").modal();
+        {% endif %}
       });
     </script>
   {% endif %}

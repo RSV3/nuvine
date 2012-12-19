@@ -30,7 +30,8 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, send_host_request_party_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message, my_pro, send_new_party_scheduled_by_host_email
+                        resend_party_invite_email, get_default_invite_message, my_pro, send_new_party_scheduled_by_host_email, \
+                        send_new_party_scheduled_by_host_no_pro_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
 
 from cms.models import ContentTemplate
@@ -991,11 +992,11 @@ def party_add(request, party_id=None):
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
-  if u.userprofile.is_host():
-    pro, pro_profile = my_pro(u)
-    if not pro:
-      messages.warning(request, 'You need to be assigned a Vinely Pro before you can start hosting parties. Contact <a href="mailto:care@vinely.com">care@vinely.com</a> to be assigned one.')
-      return HttpResponseRedirect(reverse('party_list'))
+  # if u.userprofile.is_host():
+  #   pro, pro_profile = my_pro(u)
+  #   if not pro:
+  #     messages.warning(request, 'You need to be assigned a Vinely Pro before you can start hosting parties. Contact <a href="mailto:care@vinely.com">care@vinely.com</a> to be assigned one.')
+  #     return HttpResponseRedirect(reverse('party_list'))
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
 
@@ -1063,18 +1064,22 @@ def party_add(request, party_id=None):
         applicable_pro, pro_profile = my_pro(u)
 
       no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
+
       if no_applicable_pro.exists():
-        my_hosts = no_applicable_pro[0]
-        my_hosts.pro = applicable_pro
-        my_hosts.save()
+        if applicable_pro:
+          my_hosts = no_applicable_pro[0]
+          my_hosts.pro = applicable_pro
+          my_hosts.save()
       else:
         my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
-      pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
 
-      # make the pro a mentor to the host
-      host_profile = new_host.get_profile()
-      host_profile.mentor = applicable_pro
-      host_profile.save()
+      # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
+      pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
+      if applicable_pro:
+        # make the pro a mentor to the host
+        host_profile = new_host.get_profile()
+        host_profile.mentor = applicable_pro
+        host_profile.save()
 
       if u.userprofile.is_pro() and not u.userprofile.events_user():
         if not new_host.is_active:
@@ -1212,8 +1217,13 @@ def party_find_friends(request, party_id):
 
       # Send confirmation request to Pro
       send_host_request_party_email(request, party)
-      send_new_party_scheduled_by_host_email(request, party)
-      messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
+      party_has_pro = OrganizedParty.objects.filter(party=party)
+      if party_has_pro.exists():
+        send_new_party_scheduled_by_host_email(request, party)
+        messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
+      else:
+        send_new_party_scheduled_by_host_no_pro_email(request, party)
+        messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
       return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
     elif request.POST.get('add_vinely_party'):
@@ -1608,6 +1618,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=None):
 
   data['taster_form'] = taster_form
   data['form'] = form
+  data['age_checked'] = request.GET.get('checked')
 
   # if user has not entered DOB ask them to do this first
   if response and u.get_profile().is_under_age():

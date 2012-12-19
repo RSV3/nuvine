@@ -481,7 +481,7 @@ class OrganizedParty(models.Model):
   """
     Recorded when a party is organized by a pro
   """
-  pro = models.ForeignKey(User)
+  pro = models.ForeignKey(User, null=True, blank=True)
   party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
 

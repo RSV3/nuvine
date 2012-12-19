@@ -443,6 +443,31 @@ def send_new_party_scheduled_email(request, party):
   msg.send()
 
 
+def send_new_party_scheduled_by_host_no_pro_email(request, party):
+  template = Section.objects.get(template__key='new_party_scheduled_by_host_no_pro_email', category=0)
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  c = RequestContext(request, {"party": party, "host_name": request.get_host()})
+
+  txt_message = txt_template.render(c)
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # notify about scheduled party
+  recipients = [party.host.email]
+  subject = 'Your Vinely Party has been Submitted!'
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = ('Vinely Party <info@vinely.com>')
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+
 def send_new_party_scheduled_by_host_email(request, party):
 
   template = Section.objects.get(template__key='new_party_scheduled_by_host_email', category=0)
@@ -765,7 +790,7 @@ def send_host_request_party_email(request, party):
               "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
               # "host_email": request.user.email,
               "host_phone": request.user.userprofile.phone,
-              "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
+              "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro and party.pro.first_name else "Care Specialist",
               "host_name": request.get_host(), "plain": True})
   txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})
@@ -777,12 +802,18 @@ def send_host_request_party_email(request, party):
                                                             'header': 'Let\'s get the party started',
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Party Request <info@vinely.com>'
-  recipients = [party.pro.email]
+  if party.pro:
+    recipients = [party.pro.email]
+    bcc = ['care@vinely.com']
+  else:
+    recipients = ['care@vinely.com']
+    bcc = []
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'},  bcc=['care@vinely.com'])
+                              headers={'Reply-To': 'welcome@vinely.com'},  bcc=bcc)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 

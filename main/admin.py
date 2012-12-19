@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.utils import timezone
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, OrganizedParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -79,6 +80,13 @@ class MyHostAdmin(admin.ModelAdmin):
 
   def save_model(self, request, obj, form, change):
     if obj.pro and obj.host:
+      # find any upcoming parties by host that have no pro assigned
+      # assign the pro
+      host_parties = Party.objects.filter(host=obj.host, event_date__gte=timezone.now())
+      party_has_pro = OrganizedParty.objects.filter(party__in=host_parties, pro__isnull=True)
+      if party_has_pro:
+        party_has_pro.update(pro=obj.pro)
+
       # new pro was assigned, so send e-mail to the host
       send_pro_assigned_notification_email(request, obj.pro, obj.host)
       send_host_vinely_party_email(request, obj.host, obj.pro)

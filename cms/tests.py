@@ -49,6 +49,45 @@ class SimpleTest(TestCase):
     self.create_distribute_thanks_note_email_template()
     self.create_new_party_scheduled_by_host_email_template()
     self.create_host_request_party_email_template()
+    self.create_new_party_scheduled_by_host_no_pro_email_template()
+
+  def create_new_party_scheduled_by_host_no_pro_email_template(self):
+    content = """
+
+    Your Vinely Party Request Has Been Submitted!
+
+    Hey {{ party.host.first_name }},
+
+    We're thrilled about your interest in hosting a Vinely Taste Party! You have requested <b>{{ party.title }}</b> to be scheduled on <b>{{ party.event_date|date:"F j, o" }}</b> at <b>{{ party.event_date|date:"g:i A" }}</b>.
+
+    To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro. You will receive confirmation of this match via email within 48 hours. If any of these details are incorrect, don't worry, your Pro can help you fix it.
+
+    Once your Pro confirms your party, your invitations can go out. Log in any time to see the status of your party or use the link below:
+
+    <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
+
+    If you have any questions, please contact a Vinely Care Specialist via e-mail at <a href="mailto:care@vinely.com">care@vinely.com</a> or by phone at 888-294-1128 ext. 1.
+
+    We look forward to your party!
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+    template = ContentTemplate.objects.create(key="new_party_scheduled_by_host_no_pro_email", category=0)
+    section = Section.objects.create(category=0, template=template)
+    section.content = content
+    section.save()
+    variable, created = Variable.objects.get_or_create(var="{{ party.host.first_name }}", description="Name of the party host")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="Name of the party")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date of the event")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_details party.id %}",
+                                            description="Link to party details page")
+    template.variables_legend.add(variable)
 
   def create_new_party_scheduled_by_host_email_template(self):
     content = """
