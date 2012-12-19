@@ -48,7 +48,7 @@ class Migration(DataMigration):
         <h2>Help Place Orders</h2>
         <p>Lead guests through the ordering process on Vinely.com. All transactions are then processed by Vinely.</p>
 
-        </h2>Get Paid</h2>
+        <h2>Get Paid</h2>
         <p>You’ll earn based on the success of each party! </p>
         '''
 

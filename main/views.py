@@ -1035,6 +1035,7 @@ def party_add(request, party_id=None):
   else:
     party_date = timezone.now() + timedelta(days=10)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
+    initial_data['event_time'] = party_date.strftime("%I:%M %p")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
   if form.errors.get('__all__'):

@@ -10,6 +10,8 @@ from accounts.models import VinelyProAccount, VerificationQueue
 from datetime import tzinfo, timedelta
 from cms.models import Section
 
+from premailer import Premailer
+
 import uuid
 ZERO = timedelta(0)
 
@@ -111,6 +113,9 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
       {'title': subject, 'message': html_message, 'host_name': request.get_host()}
     ))
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -164,6 +169,9 @@ def send_to_supplier_order_added_email(request, order_id):
 
   from_email = 'Vinely Order <info@vinely.com>'
   recipients = ['fulfillment@vinely.com']
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -221,6 +229,9 @@ def send_order_confirmation_email(request, order_id):
       {'title': subject, 'message': html_message, 'host_name': request.get_host()}
     ))
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -263,6 +274,9 @@ def send_order_confirmation_email(request, order_id):
   else:
     recipients = ['fulfillment@vinely.com']
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -298,6 +312,9 @@ def send_order_shipped_email(request, order):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Order <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -340,17 +357,21 @@ def send_host_vinely_party_email(request, user, pro=None):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
 
+  # update our DB that there was repeated interest
+  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[6][0])
+  if not created:
+    interest.update_time()
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
+  # send out e-mail regardless
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  # update our DB that there was repeated interest
-  interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=EngagementInterest.ENGAGEMENT_CHOICES[1][0])
-  if not created:
-    interest.update_time()
-  else:
-    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': user.email})
-    msg.attach_alternative(html_msg, "text/html")
-    msg.send()
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
   # return text message for display
   return txt_message
@@ -376,10 +397,14 @@ def send_new_party_scheduled_email(request, party):
   c.update({'sig': True})
   html_message = html_template.render(c)
 
-  # notify about scheduled party
+  # notify host about scheduled party
   recipients = [party.host.email]
   subject = 'Your Vinely Party has been Scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   from_email = ('Vinely Party <info@vinely.com>')
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
@@ -435,6 +460,9 @@ def send_new_party_scheduled_email(request, party):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -459,6 +487,9 @@ def send_new_party_scheduled_by_host_no_pro_email(request, party):
   subject = 'Your Vinely Party has been Submitted!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -491,6 +522,9 @@ def send_new_party_scheduled_by_host_email(request, party):
   subject = 'Your Vinely Party has been Scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -548,6 +582,10 @@ def distribute_party_invites_email(request, invitation_sent):
                                                               'header': 'Good wine and good times await',
                                                               'message': html_message, 'host_name': request.get_host()}))
     recipients = [guest.email]
+
+    p = Premailer(html_msg)
+    html_msg = p.transform()
+
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
@@ -591,6 +629,10 @@ def resend_party_invite_email(request, user, invitation_sent):
                                                               'header': 'Good wine and good times await',
                                                               'message': html_message, 'host_name': request.get_host()}))
     recipients = [guest.email]
+
+    p = Premailer(html_msg)
+    html_msg = p.transform()
+
     email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
     email_log.save()
 
@@ -626,6 +668,9 @@ def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Confirmation <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -655,6 +700,9 @@ def send_contact_request_email(request, contact_request):
                                                                                     'host_name': request.get_host()}))
   from_email = ('Vinely <info@vinely.com>')
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -681,6 +729,9 @@ def send_pro_assigned_notification_email(request, pro, host):
                                                                                       'message': html_message,
                                                                                       'host_name': request.get_host()}))
   from_email = "Vinely Update <info@vinely.com>"
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -709,6 +760,9 @@ def send_mentor_assigned_notification_email(request, mentee, mentor):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = "Vinely Update <info@vinely.com>"
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -735,6 +789,9 @@ def send_mentee_assigned_notification_email(request, mentor, mentee):
   recipients = [mentor.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = "Vinely Update <info@vinely.com>"
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -771,6 +828,9 @@ def distribute_party_thanks_note_email(request, note_sent, guests, placed_order)
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Thank You <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -786,8 +846,11 @@ def send_host_request_party_email(request, party):
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
+  host_first_name = request.user.first_name if request.user.first_name else "Vinely"
+  host_last_name = request.user.last_name if request.user.last_name else "Host"
+
   c = RequestContext(request, {"party": party,
-              "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
+              "invite_host_name": "%s %s" % (host_first_name, host_last_name) if request.user.first_name else "Friendly Host",
               # "host_email": request.user.email,
               "host_phone": request.user.userprofile.phone,
               "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro and party.pro.first_name else "Care Specialist",
@@ -797,17 +860,22 @@ def send_host_request_party_email(request, party):
   html_message = html_template.render(c)
 
   # send out party invitation e-mail
-  subject = "%s %s would like to host a party" % (request.user.first_name, request.user.last_name)
+
+  subject = "%s %s would like to host a party" % (host_first_name, host_last_name)
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
                                                             'header': 'Let\'s get the party started',
                                                             'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Party Request <info@vinely.com>'
+
   if party.pro:
     recipients = [party.pro.email]
     bcc = ['care@vinely.com']
   else:
     recipients = ['care@vinely.com']
     bcc = []
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()

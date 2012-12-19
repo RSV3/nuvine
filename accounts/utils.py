@@ -7,6 +7,8 @@ from accounts.models import Zipcode, SUPPORTED_STATES
 from support.models import Email
 from cms.models import Section
 
+from premailer import Premailer
+
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
@@ -29,6 +31,9 @@ def send_verification_email(request, verification_code, temp_password, receiver_
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Welcome to Vinely <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -68,6 +73,9 @@ def send_password_change_email(request, verification_code, temp_password, user):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Support <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender='support@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -105,6 +113,9 @@ def send_account_activation_email(request, verification_code, temp_password, use
   recipients = [receiver_email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Support <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender='support@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -147,6 +158,9 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   if inviter_full_name == "Your friend":
     from_email = 'Vinely Party Invite <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -180,6 +194,9 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Get Started with Vinely <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -207,6 +224,9 @@ def send_pro_request_email(request, receiver):
   recipients = [receiver.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Get Started <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -246,6 +266,9 @@ def send_pro_review_email(request, user):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'New Vinely Pro <info@vinely.com>'
 
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -272,6 +295,10 @@ def send_know_pro_party_email(request, user):
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = "Welcome to Vinely <welcome@vinely.com>"
   recipients = [user.email]
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
@@ -297,6 +324,9 @@ def send_unknown_pro_email(request, user):
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Welcome to Vinely <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -326,6 +356,9 @@ def send_pro_approved_email(request, applicant):
   recipients = [applicant.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely Update <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -360,6 +393,9 @@ def send_not_in_area_party_email(request, user, account_type):
   recipients = [user.email]
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = 'Vinely <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
@@ -468,6 +504,9 @@ Your Tasteful Friends,
                                                                                       'host_name': "www.vinely.com"}))
 
   from_email = 'Welcome to Vinely <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
