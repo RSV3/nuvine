@@ -135,9 +135,10 @@ class PartyCreateForm(forms.ModelForm):
 
     if 'address' not in cleaned_data:
       # create new address
-      try:
-        address = Address.objects.get(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
-      except Address.DoesNotExist:
+      addresses = Address.objects.filter(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
+      if addresses.exists():
+        address = addresses[0] 
+      else:
         # TODO: need to check whether these fields are all filled out
         address = Address(street1=cleaned_data['street1'],
                           street2=cleaned_data['street2'],

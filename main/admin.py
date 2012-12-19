@@ -4,7 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.utils import timezone
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, OrganizedParty
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
+                        CustomizeOrder, OrganizedParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -154,8 +155,20 @@ class OrderAdmin(admin.ModelAdmin):
 
   ordering = ['-order_date']
 
+
+class CustomizeOrderAdmin(admin.ModelAdmin):
+
+  list_display = ['user_info', 'wine_mix', 'sparkling', 'timestamp']
+
+  list_editable = ['wine_mix', 'sparkling']
+
+  def user_info(self, instance):
+    return "%s %s <%s>" % (instance.user.first_name, instance.user.last_name, instance.user.email)
+
+
 admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)
 admin.site.register(Order, OrderAdmin)
+admin.site.register(CustomizeOrder, CustomizeOrderAdmin)
