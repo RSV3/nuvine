@@ -16,6 +16,8 @@ from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeO
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address
 
+from main.utils import add_form_validation
+
 import string
 from lepl.apps.rfc3696 import Email
 
@@ -213,6 +215,8 @@ class PartyInviteTasterForm(forms.ModelForm):
     self.fields['party'].widget = forms.HiddenInput()
     if not initial.get('change_rsvp') == 't':
       self.fields['response'].widget = forms.HiddenInput()
+
+    add_form_validation(self)
 
     tas_group = Group.objects.get(name="Vinely Taster")
 

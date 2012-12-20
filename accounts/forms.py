@@ -8,7 +8,7 @@ from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
 from main.models import CustomizeOrder
 
-from main.utils import UTC
+from main.utils import UTC, add_form_validation
 from datetime import datetime, timedelta
 import math
 
@@ -84,8 +84,7 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years',
-                                        'data-date-format': 'yyyy-mm-dd'}
+    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
     self.fields['user'].widget = forms.HiddenInput()
     self.fields['mentor'].widget = forms.HiddenInput()
     self.fields['gender'].widget = forms.HiddenInput()
@@ -109,8 +108,7 @@ class AgeValidityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years',
-                                                      'data-date-format': 'yyyy-mm-dd'})
+    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years'})
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()
 
@@ -261,13 +259,15 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   mentor = forms.EmailField(required=False, label="Your Vinely Pro Email")
   zipcode = us_forms.USZipCodeField()
-  phone_number = us_forms.USPhoneNumberField(required=False)
+  phone_number = us_forms.USPhoneNumberField()
 
   def __init__(self, *args, **kwargs):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
     self.fields['first_name'].required = True
     self.fields['last_name'].required = True
     self.initial = kwargs['initial']
+    add_form_validation(self)
+    self.fields['password2'].widget.attrs['class'] = "validate[required,equals[id_password1]]"
 
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
@@ -316,6 +316,10 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
     if cleaned.get('email'):
       cleaned['email'] = cleaned['email'].strip().lower()
     return cleaned
+
+
+class MakeTasterForm(MakeHostProForm):
+  pass
 
 
 class HeardAboutForm(forms.Form):

@@ -134,7 +134,7 @@ class UserProfile(models.Model):
   vinely_customer_id = models.CharField(max_length=16, blank=True, null=True)
 
   image = ImageField(upload_to="profiles/", blank=True, null=True)
-  dob = models.DateField(verbose_name="Date of Birth (yyyy-mm-dd)", null=True, blank=True)
+  dob = models.DateField(verbose_name="Date of Birth", null=True, blank=True)
   # drivers license number
   dl_number = models.CharField(verbose_name="Driver's Licence #", max_length=32, null=True, blank=True)
   phone = us_models.PhoneNumberField(max_length=16, null=True, blank=True)

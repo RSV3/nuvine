@@ -32,7 +32,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
                         resend_party_invite_email, get_default_invite_message, my_pro, send_new_party_scheduled_by_host_email, \
                         send_new_party_scheduled_by_host_no_pro_email
-from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm
+from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, NameEmailUserMentorCreationForm, MakeTasterForm
 
 from cms.models import ContentTemplate
 
@@ -1580,7 +1580,7 @@ def resend_rsvp(request):
 
 # @login_required
 
-def party_rsvp(request, party_id, rsvp_code=None, response=None):
+def party_rsvp(request, party_id, rsvp_code=None, response=0):
 
   data = {}
 
@@ -1614,24 +1614,32 @@ def party_rsvp(request, party_id, rsvp_code=None, response=None):
     taster_form = PartyInviteTasterForm(initial=initial_data)
     form = VerifyEligibilityForm(request.POST or None, instance=profile)
 
+  # signing up as taster
+  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
+                                        'last_name': u.last_name}, instance=u)
+
   if form.is_valid():
     profile = User.objects.get(id=u.id).get_profile()
     profile.dob = form.cleaned_data['dob']
     profile.save()
 
+  data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
   data['age_checked'] = request.GET.get('checked')
+  disallow_rsvp = int(response) in [2, 3] and u.userprofile.is_under_age()
+  data['disallow_rsvp'] = disallow_rsvp
 
   # if user has not entered DOB ask them to do this first
-  if response and u.get_profile().is_under_age():
-    msg = 'You MUST be over 21 to attend a taste party.'
-    messages.warning(request, msg)
-    return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, party.id]))
-
+  # only validate if response is yes/maybe
   if response:
-    invite.response = int(response)
-    invite.save()
+    if disallow_rsvp and data['age_checked']:
+      invite.response = 4
+      invite.save()
+
+    if disallow_rsvp == False:
+      invite.response = int(response)
+      invite.save()
 
   invitees = PartyInvite.objects.filter(party=party).exclude(invitee=u)
   data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()

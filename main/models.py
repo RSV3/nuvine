@@ -163,7 +163,8 @@ class PartyInvite(models.Model):
       (0, 'No Answer'),
       (1, 'No'),
       (2, 'Maybe'),
-      (3, 'Yes')
+      (3, 'Yes'),
+      (4, 'Under Age'),
   )
 
   party = models.ForeignKey(Party, verbose_name="Taste Party")

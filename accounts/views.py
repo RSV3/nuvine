@@ -14,7 +14,7 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, C
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm, ProLinkForm
+                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
@@ -451,10 +451,48 @@ def make_pro(request):
     return sign_up(request, 1, data)
 
 
+def make_taster(request, rsvp_code):
+  # data = {}
+
+  success_url = request.GET.get('next') if request.GET.get('next') else reverse('home_page')
+
+  try:
+    user = PartyInvite.objects.get(rsvp_code=rsvp_code).invitee
+  except:
+    messages.error(request, 'We could not find your information in the system. Please contact <a href="mailto:care@vinely.com">care@vinely.com</a>')
+    return HttpResponseRedirect(success_url)
+
+  form = MakeTasterForm(request.POST or None, initial={'account_type': 3}, instance=user)
+
+  if form.is_valid():
+    user.set_password(form.cleaned_data['password1'])
+    user.first_name = form.cleaned_data['first_name']
+    user.last_name = form.cleaned_data['last_name']
+    user.is_active = True
+    user.save()
+
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
+    ok = check_zipcode(profile.zipcode)
+
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, 3)
+
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+  else:
+    messages.error(request, form.errors)
+  return HttpResponseRedirect(success_url)
+
+
 def sign_up(request, account_type, data):
   """
     :param account_type:  1 - Vinely Pro
                           2 - Vinely Host
+                          3 - Vinely Taster
   """
   # data = {}
   role = None
@@ -463,12 +501,15 @@ def sign_up(request, account_type, data):
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
+  tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
 
   if account_type == 1:
     role = pro_group
   elif account_type == 2:
     role = hos_group
+  elif account_type == 3:
+    role = tas_group
 
   # create users and send e-mail notifications
   form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
@@ -546,10 +587,8 @@ def sign_up(request, account_type, data):
     user = authenticate(email=user.email, password=form.cleaned_data['password1'])
     if user is not None:
       login(request, user)
-    return HttpResponseRedirect(reverse('home_page'))
-    # data['heard_about_us_form'] = HeardAboutForm()
-    # data["get_started_menu"] = True
-    # return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
+      success_url = request.GET.get('next') if request.GET.get('next') else reverse('home_page')
+    return HttpResponseRedirect(success_url)
 
   data['form'] = form
   data['role'] = role.name

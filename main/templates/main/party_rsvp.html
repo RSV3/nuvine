@@ -4,7 +4,7 @@
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
-
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
   <style type="text/css">
     h2 {
       margin-top: -14px;
@@ -13,7 +13,7 @@
 {% endblock additional_styles %}
 
 {% block header %}
-  <h1 class="headline">You've been invited to a Vinely Tasting Party!</h1>
+  <h1 class="headline">You're invited to {{ party.title }}!</h1>
 {% endblock header %}
 
 {% block content %}
@@ -25,9 +25,9 @@
       <h3>Age Verification</h3>
     </div>
     <div class="modal-body">
-      <p>You need to be at least 21 to use Vinely. Please come back and visit us when you are.</p>
+      <p>We're so sorry but you're not eligible to attend the event. Come visit us when you're 21!</p>
       <div class="modal-footer">
-        <button class="btn btn-primary" data-dismiss="modal" value="update">Ok</button>
+        <button class="btn btn-primary" data-dismiss="modal">Ok</button>
       </div>
     </div>
   </div>
@@ -39,7 +39,7 @@
     </div>
     <div class="modal-body">
       <form method="POST" class="modal-form" action="{{ app_path }}?checked=1">{% csrf_token %}
-        <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
+        <p>Please verify that you are over 21 and can attend this event.</p>
         <br />
         <div class="control-label" for="id_dob">
           {{ form.dob.label }}
@@ -51,8 +51,73 @@
           {{ form.dob }}
         </div>
         <div class="modal-footer">
-          <button type="submit" name="update" class="btn btn-primary" value="update">Update</button>
+          <button type="submit" name="update" class="btn btn-primary" value="update">Submit</button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="signup" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h2 class="center"><small>You've been invited to a Vinely Party!</small></h2>
+      <p>Create an account by filling out the info below or continue as a guest</p>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="form-validate form-horizontal" action="{% url make_taster invite.rsvp_code %}?next={{ request.path }}">
+        {% csrf_token %}
+        
+        <div class="control-group">
+          <label class="control-label" for="id_first_name">{{ signup_form.first_name.label }}</label>
+          <div class="controls">
+            {{ signup_form.first_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_last_name">{{ signup_form.last_name.label }}</label>
+          <div class="controls">
+            {{ signup_form.last_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_email">{{ signup_form.email.label }}</label>
+          <div class="controls">
+            {{ signup_form.email }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_zipcode">{{ signup_form.zipcode.label }}</label>
+          <div class="controls">
+            {{ signup_form.zipcode }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_phone_number">{{ signup_form.phone_number.label }}</label>
+          <div class="controls">
+            {{ signup_form.phone_number }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_password1">{{ signup_form.password1.label }}</label>
+          <div class="controls">
+            {{ signup_form.password1 }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_password2">{{ signup_form.password2.label }}</label>
+          <div class="controls">
+            {{ signup_form.password2 }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="span8 center">
+            <button type="submit" name="signup" class="btn btn-primary" value="signup">Create Account</button>
+            <!-- <button class="btn btn-warning" data-dismiss="modal">Continue as guest</button> -->
+          </div>
+        </div>
+        <!-- <div class="modal-footer"> -->
+          <!-- <button type="submit" name="signup" class="btn btn-primary" value="signup">Create Account</button> -->
+        <!-- </div> -->
       </form>
     </div>
   </div> 
@@ -90,8 +155,11 @@
           <div class="span4">{{ invite.party.title }}</div>
         </div>
         <div class="row">
-          <div class="span1"><h2 class="pull-right">Who</h2></div>
-          <div class="span4">{{ invite.party.host.first_name }} {{ invite.party.host.last_name }}</div>
+          <div class="span1"><h2 class="pull-right">Host</h2></div>
+          <div class="span4">
+            {{ invite.party.host.first_name }} {{ invite.party.host.last_name }}
+            <a href="mailto:{{ invite.party.host.email }}"> <i class="icon-envelope"></i></a>
+          </div>
         </div>
         <div class="row">
           <div class="span1"><h2 class="pull-right">When</h2></div>
@@ -110,8 +178,10 @@
       </div>
       <div class="span4">
         <div class="vertical-space"></div>
-        <h2>Special Instructions</h2>
+        {% if invite.party.description %}
+          <h2>Special Instructions</h2>
           <p>{{ invite.party.description }}</p>
+        {% endif %}
       </div>
     </div>
     <div class="row">
@@ -127,12 +197,8 @@
  -->
       </div>
       <div class="span4">
-        <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
-        {% if questionnaire_completed %}
-          <p>
-            <a href="javascript:;" class="btn btn-primary btn-large input-large disabled">Take The Survey</a>
-          </p>
-        {% else %}
+        {% if not questionnaire_completed %}
+          <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
           <p>
             {% if invite.rsvp_code %}
               <a href="{% url pre_questionnaire_general invite.rsvp_code %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
@@ -153,7 +219,7 @@
         {% if party.guests_can_invite %} 
           <p>You can also invite your friends</p>
           <div class="span12">
-            <form class="form-horizontal" method="POST" action="">
+            <form class="form-validate form-horizontal" method="POST" action="">
               {% csrf_token %}
               {{ taster_form.party }}
               {{ taster_form.response }}
@@ -260,19 +326,31 @@
 {% endblock content %}
 
 {% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+
   {% if invited_user.get_profile.is_under_age %}
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
         $(".datepicker").datepicker();
-        {% if age_checked %}
-          // alert('You need to be at least 21 to use Vinely. Please come back and visit us when you are.');
-          $("#underage").modal();
-        {% else %}
-          // uncomment this to enable
-          $("#update_age").modal();
+        {% if disallow_rsvp %}
+          {% if invited_user.get_profile.dob %}
+            $("#underage").modal();
+          {% else %}
+            $("#update_age").modal();
+          {% endif %}
         {% endif %}
       });
     </script>
+  {% else %}
+    {% if not invited_user.is_active %}
+      <script type="text/javascript">
+        $(document).ready( function () {  
+          $("#signup").modal();
+        });
+      </script>
+    {% endif %}
   {% endif %}
 {% endblock additional_scripts %}

@@ -1114,3 +1114,18 @@ def get_default_invite_message(party):
   rsvp_date = party.event_date - timedelta(days=5)
   context = Context({'rsvp_date': rsvp_date, 'party': party})
   return template.render(context)
+
+
+def add_form_validation(form):
+  from django import forms
+
+  for field_name in form.fields:
+    if form.fields[field_name].required:
+      if isinstance(form.fields[field_name], forms.EmailField):
+        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[email]"
+      elif isinstance(form.fields[field_name], forms.DateField):
+        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[date]"
+      elif isinstance(form.fields[field_name], forms.IntegerField):
+        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[number]"
+      else:
+        form.fields[field_name].widget.attrs['class'] = "validate[required]"
