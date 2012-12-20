@@ -19,6 +19,7 @@ class SimpleTest(TestCase):
     self.our_story_template()
     self.how_it_works_template()
     self.vinely_event_template()
+    self.rsvp_template()
 
   def create_all_templates(self):
     self.create_web_templates()
@@ -932,9 +933,9 @@ class SimpleTest(TestCase):
 
     Name: {{ mentee.first_name }} {{ mentee.last_name }}
     E-mail: {{ mentee.email }}
-    Phone: {{ mentee.get_profile.phone }} 
+    Phone: {{ mentee.get_profile.phone }}
 
-    Please reach out to your Mentee to share your wisdom! 
+    Please reach out to your Mentee to share your wisdom!
 
     Happy Tasting!
 
@@ -955,7 +956,7 @@ class SimpleTest(TestCase):
     variable, created = Variable.objects.get_or_create(var="{{ mentee.first_name }}", description="Mentee's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.last_name }}", description="Mentee's last name")
-    template.variables_legend.add(variable)    
+    template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.email }}", description="Mentee's email")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.get_profile.phone }}", description="Mentee's phone number")
@@ -988,7 +989,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
-    section = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    section, created = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event is to take place")
@@ -1020,7 +1021,7 @@ class SimpleTest(TestCase):
 
       <p>We're not out to change the things you enjoy. Fact is, we're here to help you embrace them even more! And with a Vinely Personality, there's nothing stopping you from finding wines that entice, excite, and encourage you to taste Your Personality every chance you get.</p>
 
-      <p>What are you waiting for?</p>    
+      <p>What are you waiting for?</p>
     """
     template = ContentTemplate.objects.create(key="our_story", category=1)
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
@@ -1028,22 +1029,22 @@ class SimpleTest(TestCase):
   def how_it_works_template(self):
     content = """
       <h2>What does Vinely do?</h2>
-      <p>By finding your personality, Vinely identifies wines perfectly paired to your taste. 
-      After all, when it comes to choosing wines you love, who wants to play the guessing game? At a Vinely Taste Party you'll sip, savor, and rate different flavors with your friends. 
+      <p>By finding your personality, Vinely identifies wines perfectly paired to your taste.
+      After all, when it comes to choosing wines you love, who wants to play the guessing game? At a Vinely Taste Party you'll sip, savor, and rate different flavors with your friends.
       Using those ratings, your Vinely Pro will reveal your inner personality. From there, it's hello to happier tastes.</p>
 
       <h2>How do I order?</h4>
-      <p>Once you and your wine personality have had some time to bond, you can easily place an order. 
-      Then, wines from near and far will show up at your doorstep. The best part? No guesswork. No research. And no intimidating wall of wines. 
+      <p>Once you and your wine personality have had some time to bond, you can easily place an order.
+      Then, wines from near and far will show up at your doorstep. The best part? No guesswork. No research. And no intimidating wall of wines.
       Not even a trip to the store. Just exceptional wines, delivered right to your home - conveniently, quickly, and best of all, deliciously.</p>
 
       <h2>Great! Then what?</h2>
-      <p>And since you'll love every wine, every time, we give you a variety of ways to keep fully stocked. 
-      Become a VIP and receive your personalized Vinely Collection monthly, bi-monthly or quarterly. Or simply place a single order. 
+      <p>And since you'll love every wine, every time, we give you a variety of ways to keep fully stocked.
+      Become a VIP and receive your personalized Vinely Collection monthly, bi-monthly or quarterly. Or simply place a single order.
       No matter what works for you, we're shipping to wherever you're sipping. All you have to do is ask.</p>
 
       <h2>Where's the party?</h2>
-      <p>If you haven't been invited to a Vinely Taste Party, become a Host and have your own.</p>    
+      <p>If you haven't been invited to a Vinely Taste Party, become a Host and have your own.</p>
     """
     template = ContentTemplate.objects.create(key="how_it_works", category=1)
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
@@ -1051,9 +1052,9 @@ class SimpleTest(TestCase):
   def get_started_template(self):
     general_content = """
 
-      A Vinely Taste Party is a fun, engaging and unique way for you and your friends to learn about the tastes you love. 
-      As a Vinely Host, we'll pair you with a Vinely Pro. Or you can choose your own. 
-      They'll help you set up the event, moderate the sampling, and provide each Taster attending with an official Vinely Personality. 
+      A Vinely Taste Party is a fun, engaging and unique way for you and your friends to learn about the tastes you love.
+      As a Vinely Host, we'll pair you with a Vinely Pro. Or you can choose your own.
+      They'll help you set up the event, moderate the sampling, and provide each Taster attending with an official Vinely Personality.
       Oh, and did we mention? In addition to a great time, we'll provide you with Vinely Credits you can use toward Vinely merchandise!
 
     """
@@ -1061,15 +1062,15 @@ class SimpleTest(TestCase):
 
       <h2>Be the host with the most. Follow these simple steps to host your own Vinely Taste Party.</h2>
 
-      <p>Find a space: A living room, loft, porch, or kitchen make great party spots. 
+      <p>Find a space: A living room, loft, porch, or kitchen make great party spots.
       Truthfully, anywhere wine, food, and 8 - 12 people can fit (without throwing a fit) will work perfectly.</p>
 
-      <p><b>Find some time:</b> You and your Vinely Pro will schedule a party date. 
+      <p><b>Find some time:</b> You and your Vinely Pro will schedule a party date.
       Then, with a little planning, inviting, prepping, and a Vinely Taste Kit, you'll be well on your way to a truly tasteful experience.</p>
 
-      <p><b>Find some friends:</b> You've got 'em. So get 'em to your place! 
-      For your friends who are wine-tasting veterans, it's sure to be an experience unlike any other they've had. 
-      For beginners, it's an exciting, no-pressure way to try new tastes and learn what they love. 
+      <p><b>Find some friends:</b> You've got 'em. So get 'em to your place!
+      For your friends who are wine-tasting veterans, it's sure to be an experience unlike any other they've had.
+      For beginners, it's an exciting, no-pressure way to try new tastes and learn what they love.
       Point being, at a Vinely Taste Party, everyone's welcome and everyone wins!</p>
 
     """
@@ -1077,10 +1078,10 @@ class SimpleTest(TestCase):
     pro_content = """
 
       <h2>Want more? Vinely Pro is the way to go!</h2>
-      <p>Would you like to conduct Taste Parties and help people find their inner Wine Personality? 
-      Do you want to earn by helping others learn? By becoming a Vinely Pro, you'll be able to do all that, and more. 
-      You'll work directly with Vinely Hosts, initiating, scheduling, and conducting Taste Parties. 
-      You'll be able to start multiple Taste Parties and track each one's progress. 
+      <p>Would you like to conduct Taste Parties and help people find their inner Wine Personality?
+      Do you want to earn by helping others learn? By becoming a Vinely Pro, you'll be able to do all that, and more.
+      You'll work directly with Vinely Hosts, initiating, scheduling, and conducting Taste Parties.
+      You'll be able to start multiple Taste Parties and track each one's progress.
       Become a Pro and there's no telling where the party scene will take you.</p>
 
       <p>
@@ -1096,22 +1097,22 @@ class SimpleTest(TestCase):
   def vinely_event_template(self):
     general_content = """
 
-    Join us October 10th, 2012 for a Vinely Taste Party open house from 4:00 pm to 7:00 pm in downtown Grand Rapids 
-    at the <a href="http://www.shopmodiv.com/floorplan.html">Haworth|Interphase Showroom space</a> located on the 
-    corner of Monroe Center and Division. 
-    
+    Join us October 10th, 2012 for a Vinely Taste Party open house from 4:00 pm to 7:00 pm in downtown Grand Rapids
+    at the <a href="http://www.shopmodiv.com/floorplan.html">Haworth|Interphase Showroom space</a> located on the
+    corner of Monroe Center and Division.
+
     <h2>WHAT'S A VINELY TASTE PARTY?</h2>
     <p>Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.</p>
 
-    <p>The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you 
-    could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. 
+    <p>The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you
+    could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities.
     Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
 
     <p>Come early, stay late but promise you will come.</p>
-    
+
     <p>Tell us you'll attend! You know you want to!</p>
 
-    <p>By filling out the information below, an online profile will be created for you and gets you one step closer to 
+    <p>By filling out the information below, an online profile will be created for you and gets you one step closer to
     finding out your Vinely Wine Personality.</p>
     <br />
     {% if fb_view %}
@@ -1122,12 +1123,26 @@ class SimpleTest(TestCase):
     <br /><br />
 
     <h2>But where's the parking?</h2>
-    <p>Don't let parking stand in your way. There are lots of meters, most of which are free after 6:00 pm. 
-    If you arrive before 6:00 pm you can get an hour free in the Monroe Center lot located at 37 Ionia Avenue Northwest 
+    <p>Don't let parking stand in your way. There are lots of meters, most of which are free after 6:00 pm.
+    If you arrive before 6:00 pm you can get an hour free in the Monroe Center lot located at 37 Ionia Avenue Northwest
     (on the corner of Ionia ave and Louis)</p>
     <h2>Questions</h2>
     <p>Contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or call 1.888.294.1128 ext: 1</p>
 
     """
     template = ContentTemplate.objects.create(key="vinely_event", category=1)
+    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)
+
+  def rsvp_template(self):
+    general_content = """
+
+    <p>What's a Vinely Taste Party? Think of it as learning through drinking.
+    It's part wine tasting. Part personality test. And part...well...party.</p>
+
+    <p>The wines you'll sample will give us an idea of your personal taste.
+    The flavors you enjoy and the ones you could do without.
+    After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities.
+    Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
+    """
+    template = ContentTemplate.objects.create(key="rsvp", category=1)
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)

@@ -186,15 +186,8 @@
     </div>
     <div class="row">
       <div class="vertical-space"></div>
-      <div class="span8">
-        <p>What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.</p>
-
-        <p>The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
-<!-- 
-        <blockquote>
-          {{ custom_message }}
-        </blockquote>
- -->
+      <div class="{% if questionnaire_completed %}span12{% else %}span8{% endif %}">
+        {{ rsvp_content }}
       </div>
       <div class="span4">
         {% if not questionnaire_completed %}

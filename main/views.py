@@ -1652,6 +1652,13 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   if invitations.exists():
     data["custom_message"] = invitations[0].custom_message
 
+  sections = ContentTemplate.objects.get(key='rsvp').sections.all()
+  content = sections.get(category=0).content
+  rsvp_template = Template(content)
+  context = RequestContext(request, data)
+  page = rsvp_template.render(context)
+  data['rsvp_content'] = page
+
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
 
