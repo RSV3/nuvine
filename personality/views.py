@@ -182,7 +182,8 @@ def pre_questionnaire_wine(request, rsvp_code=None):
       profile.prequestionnaire = True
       profile.save()
     messages.success(request, "Your wine taste information has been saved.")
-    return HttpResponseRedirect(reverse("home_page"))
+    # return HttpResponseRedirect(reverse("home_page"))
+    return HttpResponseRedirect(reverse("party_rsvp", args=[rsvp_code]))
 
   if wine_taste is None:
     form.initial['user'] = u
