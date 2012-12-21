@@ -7,6 +7,7 @@ from emailusernames.forms import EmailAuthenticationForm
 
 from cms.models import ContentTemplate
 
+
 def home(request):
   """
 
@@ -16,12 +17,13 @@ def home(request):
   form = EmailAuthenticationForm()
   form.fields['email'].widget.attrs['placeholder'] = 'E-mail'
   form.fields['password'].widget.attrs['placeholder'] = 'Password'
-  data['form'] = form 
+  data['form'] = form
   data['general_section'] = ContentTemplate.objects.get(key='landing_page').sections.all()[0].content
-  if request.user.is_authenticated():
-    return HttpResponseRedirect(reverse("home_page"))
+  # if request.user.is_authenticated():
+  #   return HttpResponseRedirect(reverse("home_page"))
 
   return render_to_response("winedora/home.html", data, context_instance=RequestContext(request))
+
 
 def tos(request):
   """
@@ -30,6 +32,7 @@ def tos(request):
   data = {}
 
   return render_to_response("winedora/tos.html", data, context_instance=RequestContext(request))
+
 
 def pinterest(request):
   """
