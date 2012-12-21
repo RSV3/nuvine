@@ -23,7 +23,7 @@ from cms.models import ContentTemplate
 
 from datetime import datetime, timedelta
 import math
-from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
+from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC, send_signed_up_as_host_email
 import uuid
 import logging
 
@@ -404,10 +404,9 @@ def make_pro_host(request, account_type, data):
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
+        send_signed_up_as_host_email(request, u)  # to the current user
         u.groups.clear()
         u.groups.add(hos_group)
-        # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-        # return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
         return HttpResponseRedirect(reverse('home_page'))
 

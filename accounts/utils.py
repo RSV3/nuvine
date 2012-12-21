@@ -10,6 +10,35 @@ from cms.models import Section
 from premailer import Premailer
 
 
+def send_signed_up_as_host_email(request, user):
+  template = Section.objects.get(template__key='signed_up_as_host_email', category=0)
+
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  c = RequestContext(request, {"host": user})
+  txt_message = txt_template.render(c)
+
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  subject = 'Welcome to Vinely!'
+  recipients = [user.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = 'Welcome to Vinely <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
+  email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
   template = Section.objects.get(template__key='verification_email', category=0)

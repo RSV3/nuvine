@@ -51,6 +51,35 @@ class SimpleTest(TestCase):
     self.create_new_party_scheduled_by_host_email_template()
     self.create_host_request_party_email_template()
     self.create_new_party_scheduled_by_host_no_pro_email_template()
+    self.create_signed_up_as_host_email_template()
+
+  def create_signed_up_as_host_email_template(self):
+    content = """
+
+    We are so excited that you want to host a Vinely Taste Party!
+
+    You have already set up your account. Your login is {{ host.email }}.
+
+    The next step, if you haven't done so already, is to schedule the details of your party.
+    Your process is complete when you submit your party for approval by your Vinely Pro.
+    (Don't worry if you don't have a Vinely Pro yet, we will find you the perfect Pro to ensure your are the host with the most!).
+
+    Once your pro confirms your party, the invitation will be sent to attendees you have added.
+    In the meantime, if you have any questions you can always contact a Vinely Care Specialist at (888)294-1128 ext. 1 or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
+
+    PS - Please add <a href="mailto:info@vinely.com">info@vinely.com</a> to your address book to ensure our emails get through!
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+    template = ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
+    section, created = Section.objects.create(category=0, template=template, content=content)
+    variable, created = Variable.objects.get_or_create(var="{{ host.email }}", description="The Host's email address")
+    template.variables_legend.add(variable)
 
   def create_new_party_scheduled_by_host_no_pro_email_template(self):
     content = """
@@ -59,7 +88,7 @@ class SimpleTest(TestCase):
 
     Hey {{ party.host.first_name }},
 
-    We're thrilled about your interest in hosting a Vinely Taste Party! You have requested <b>{{ party.title }}</b> to be scheduled on <b>{{ party.event_date|date:"F j, o" }}</b> at <b>{{ party.event_date|date:"g:i A" }}</b>.
+    We're thrilled about your interest in hosting a Vinely Taste Party!You have requested <b>{{ party.title }}</b> to be scheduled on <b>{{ party.event_date|date:"F j, o" }}</b> at <b>{{ party.event_date|date:"g:i A" }}</b>.
 
     To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro. You will receive confirmation of this match via email within 48 hours. If any of these details are incorrect, don't worry, your Pro can help you fix it.
 
@@ -70,6 +99,8 @@ class SimpleTest(TestCase):
     If you have any questions, please contact a Vinely Care Specialist via e-mail at <a href="mailto:care@vinely.com">care@vinely.com</a> or by phone at 888-294-1128 ext. 1.
 
     We look forward to your party!
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 

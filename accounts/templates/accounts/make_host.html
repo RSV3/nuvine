@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% block additional_styles %}
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+{% endblock additional_styles %}
+
 {% block header %}
   <h1 class="headline">{{ heading|safe }}</h1>
 {% endblock header %}
@@ -31,32 +35,34 @@
       {% if host or pro or pending_pro %}
         <div class="span12">
           {{ content|safe }}
+          <div class="center">
+            <a href="#"><img src="{% static "img/btn_pie_tellmemore.png" %}"></a>
+          </div>
         </div>
       {% else %}
         <div class="span5">
           {{ content|safe }}
+          <div class="center">
+            <a href="#"><img src="{% static "img/btn_pie_tellmemore.png" %}"></a>
+          </div>
         </div>
         <div class="span1">
           &nbsp;
         </div>
 
         <div class="span6">
-<!--           
           <div class="row">
-            <div class="span5">
-              Questions? Contact us at <a href="mailto:care@vinely.com">care@vinely.com</a> or 888-294-1128
-            <p>&nbsp;</p>
-            </div>
-          </div>
- -->
-          <div class="row">
-            <form class="form-horizontal well" method="POST" action="{{ app_path }}">
+            <form class="form-horizontal form-validate well" method="POST" action="{{ app_path }}">
               {% csrf_token %}
               <h2 class="center">Sign up to be a Vinely Host - it's easy</h2>
+              <center>
+                <p>Have questions? Need help? </p>
+                <p>Call us at (888)294-1128 ext. 1 or email us at <a href="mailto:care@vinely.com">care@vinely.com</a></p>
+              </center>
               <fieldset>
                 <div class="control-group {% if form.first_name.errors %} error {% endif %}">
                   <div class="control-label" for="id_first_name">
-                  {{ form.first_name.label }}
+                  {{ form.first_name.label_tag }}
                   </div>
                   <div class="controls">
                     {{ form.first_name }}
@@ -122,7 +128,7 @@
                 {% if not user.is_authenticated %}
                   <div class="control-group {% if form.password1.errors %} error {% endif %}">
                     <div class="control-label" for="id_password1">
-                      <label>{{ form.password1.label_tag }}</label>
+                      {{ form.password1.label_tag }}
                     </div>
                     <div class="controls">
                       {{ form.password1 }}
@@ -135,7 +141,7 @@
                   </div>
                   <div class="control-group {% if form.password2.errors %} error {% endif %}">
                     <div class="control-label" for="id_password2">
-                      <label>{{ form.password2.label_tag }}</label>
+                      {{ form.password2.label_tag }}
                     </div>
                     <div class="controls">
                       {{ form.password2 }}
@@ -152,17 +158,18 @@
                 {% endif %}
                 <div class="control-group {% if form.mentor.errors %} error {% endif %}">
                   <div class="control-label" for="id_mentor">
-                    <label>Your Vinely Pro Email <br />(Just leave this blank if you don't know what it is)</label>
+                    <label>Your Vinely Pro Email</label>
                   </div>
                   <div class="controls">
                     {{ form.mentor }}
-                    <!-- <span>(Just leave this blank if you don't know what it is)<span> -->
                     {% if form.mentor.errors %}
                       <span class="help-inline">
                         {{ form.mentor.errors }}
                       </span>
                     {% endif %}
                   </div>
+                  <br />
+                  <center><i>(Just leave this blank if you don't know what it is)</i></center>
                 </div>
                 <div class="controls">
                   <input class="btn btn-primary" type="submit" value="Sign Up" />
@@ -183,3 +190,8 @@
 
 {% endblock content %}
 
+{% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+{% endblock additional_scripts %}
