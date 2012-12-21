@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
@@ -17,13 +17,14 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm
 from accounts.models import VerificationQueue, SubscriptionInfo
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
+                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
+                          send_signed_up_as_host_email
 
 from cms.models import ContentTemplate
 
 from datetime import datetime, timedelta
 import math
-from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC, send_signed_up_as_host_email
+from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
 import uuid
 import logging
 
@@ -32,11 +33,34 @@ log = logging.getLogger(__name__)
 
 
 @login_required
+def logout(request):
+  u = request.user
+  profile = u.get_profile()
+  profile.last_page = request.GET.get('next')
+  profile.save()
+  auth.logout(request)
+
+  return HttpResponseRedirect('/')
+
+
+@login_required
 def profile(request):
   """
     After user logged in
   """
-  return HttpResponseRedirect(reverse('home_page'))
+  u = request.user
+  profile = u.get_profile()
+
+  if profile.last_page:
+    url = u.userprofile.last_page
+    profile.last_page = None
+    profile.save()
+    return HttpResponseRedirect(url)
+
+  if u.is_host():
+    return HttpResponseRedirect(reverse('party_add'))
+  else:
+    return HttpResponseRedirect(reverse('home_page'))
 
 
 @login_required

@@ -142,6 +142,7 @@ class UserProfile(models.Model):
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
   mentor = models.ForeignKey(User, default=1, verbose_name='Vinely Pro Mentor', related_name='mentor')
+  last_page = models.CharField(max_length=128, null=True, blank=True)
 
   GENDER_CHOICES = (
     (0, 'FEMALE'),

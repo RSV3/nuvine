@@ -33,7 +33,7 @@ class Migration(DataMigration):
 
         """
         template = orm.ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
-        section, created = orm.Section.objects.create(category=0, template=template, content=content)
+        orm.Section.objects.create(category=0, template=template, content=content)
         variable, created = orm.Variable.objects.get_or_create(var="{{ host.email }}", description="The Host's email address")
         template.variables_legend.add(variable)
 

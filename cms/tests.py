@@ -77,7 +77,10 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
-    section, created = Section.objects.create(category=0, template=template, content=content)
+    section, created = Section.objects.create(category=0, template=template)
+    section.content = content
+    section.save()
+
     variable, created = Variable.objects.get_or_create(var="{{ host.email }}", description="The Host's email address")
     template.variables_legend.add(variable)
 
