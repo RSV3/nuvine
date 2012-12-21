@@ -71,7 +71,7 @@
   <section id="wine-taste-questionnaire">
   <div class="row">
     <div class="span12">
-      <form action="{% url pre_questionnaire_wine %}" method="POST">
+      <form action="{{ app_path }}" method="POST">
         {% csrf_token %}
         {{ form.user }}
 

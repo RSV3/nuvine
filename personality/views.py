@@ -136,7 +136,10 @@ def pre_questionnaire_general(request, rsvp_code=None):
   if form.is_valid():
     form.save()
     messages.success(request, "Your general taste information has been saved.")
-    return HttpResponseRedirect(reverse("pre_questionnaire_wine"))
+    if rsvp_code:
+      return HttpResponseRedirect(reverse("pre_questionnaire_wine", args=[rsvp_code]))
+    else:
+      return HttpResponseRedirect(reverse("pre_questionnaire_wine"))
 
   if general_taste is None:
     form.initial['user'] = u
@@ -146,11 +149,24 @@ def pre_questionnaire_general(request, rsvp_code=None):
                                   context_instance=RequestContext(request))
 
 
-@login_required
-def pre_questionnaire_wine(request):
+# @login_required
+def pre_questionnaire_wine(request, rsvp_code=None):
   data = {}
 
   u = request.user
+
+  # if no rsvp_code then user has to login first
+  if not rsvp_code and not u.is_authenticated():
+    return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
+
+  if not u.is_authenticated():
+    invite = get_object_or_404(PartyInvite, rsvp_code=rsvp_code)
+    u = invite.invitee
+
+  if u.is_authenticated():
+    # make sure the authenticated user is not someone else
+    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
+
   profile = u.get_profile()
 
   try:
