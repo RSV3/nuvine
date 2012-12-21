@@ -52,6 +52,34 @@ class SimpleTest(TestCase):
     self.create_host_request_party_email_template()
     self.create_new_party_scheduled_by_host_no_pro_email_template()
     self.create_signed_up_as_host_email_template()
+    self.create_first_time_host_signup_template()
+
+  def create_signed_as_host_email_template_old(self):
+    content = """
+    We're thrilled about your interest in hosting a Vinely Taste Party!
+
+    {% if pro %}
+        You're now a host and can get your party started! Your pro, {{ pro.first_name }}, has been notified and will confirm your party when you complete your setup.
+    {% else %}
+        To ensure you'll be the host with the most, we'll need to pair you with a Vinely Pro.
+        They'll be reaching out soon. If you haven't heard anything within 48 hours, please contact a Vinely Care Specialist at (888) 294-1128 ext 1 or email us.!
+    {% endif %}
+    In the meantime, you can speed things along by setting up your party now.
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+    template = ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
+    section, created = Section.objects.create(category=0, template=template)
+    section.content = content
+    section.save()
+
+    variable, created = Variable.objects.get_or_create(var="{{ host.email }}", description="The Host's email address")
+    template.variables_legend.add(variable)
 
   def create_signed_up_as_host_email_template(self):
     content = """

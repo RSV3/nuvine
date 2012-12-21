@@ -1124,7 +1124,9 @@ def add_form_validation(form):
       if isinstance(form.fields[field_name], forms.EmailField):
         form.fields[field_name].widget.attrs['class'] = "validate[required,custom[email]"
       elif isinstance(form.fields[field_name], forms.DateField):
-        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[date]"
+        form.fields[field_name].widget.attrs['class'] = "datepicker validate[required]"  # ,custom[date]"
+      elif isinstance(form.fields[field_name], forms.TimeField):
+        form.fields[field_name].widget.attrs['class'] = "timepicker validate[required]"
       elif isinstance(form.fields[field_name], forms.IntegerField):
         form.fields[field_name].widget.attrs['class'] = "validate[required,custom[number]"
       else:

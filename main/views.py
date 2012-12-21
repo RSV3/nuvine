@@ -1026,18 +1026,29 @@ def party_add(request, party_id=None):
     most_recent_party = parties[0] if parties.exists() else None
 
   if most_recent_party:
-    initial_data['address'] = most_recent_party.address
+    # initial_data['address'] = most_recent_party.address
+    initial_data['street1'] = most_recent_party.address.street1
+    initial_data['street2'] = most_recent_party.address.street2
+    initial_data['city'] = most_recent_party.address.city
+    initial_data['state'] = most_recent_party.address.state
+    initial_data['zipcode'] = most_recent_party.address.zipcode
 
   if party:
     initial_data['host'] = party.host
-    initial_data['address'] = party.address
+    # initial_data['address'] = party.address
+    initial_data['street1'] = party.address.street1
+    initial_data['street2'] = party.address.street2
+    initial_data['city'] = party.address.city
+    initial_data['state'] = party.address.state
+    initial_data['zipcode'] = party.address.zipcode
+
     party_date = timezone.localtime(party.event_date)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
   else:
-    party_date = timezone.now() + timedelta(days=10)
+    party_date = timezone.now() + timedelta(days=14)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
-    initial_data['event_time'] = party_date.strftime("%I:%M %p")
+    # initial_data['event_time'] = party_date.strftime("%I:%M %p")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
   if form.errors.get('__all__'):
@@ -1148,6 +1159,8 @@ def party_add(request, party_id=None):
         # if no previous party found, just e-mail sales
         send_host_vinely_party_email(request, u)
 
+  applicable_pro, pro_profile = my_pro(u)
+  data["pro_user"] = applicable_pro
   data["form"] = form
   data["parties_menu"] = True
 

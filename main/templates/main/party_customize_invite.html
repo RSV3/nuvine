@@ -101,6 +101,7 @@
               <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
             </div>
           </div>
+          
           {% if not party.confirmed %}
             <hr />
             <div class="control-group">
@@ -156,7 +157,8 @@
                     <div class="span10">
                       <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
                         The Pro will then need to confirm the date and time before your party invite is sent out.
-                        See Invite Options section above for preferences on when we should deliver your invite.</i>
+                        <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
+                      </i>
                       </p>
                     </div>
                   </div>
@@ -164,6 +166,7 @@
               </div>
             </div>
           {% endif %}
+
           {% if not party.requested %}
             <div class="row">
               <div class="span1">&nbsp;</div>

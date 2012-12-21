@@ -2,13 +2,32 @@
 
 {% load static %}
 
+{% load thumbnail %}
+
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
-  <link rel="stylesheet" href="{% static "timepicker/css/timepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "timepicker/css/timepicker.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+  <style type="text/css">
+    .pro-info {
+      margin-top: -50px;
+    }
+    .summary-table tr td:first-child {
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+    .summary-table h2 {
+      text-align: left;
+    }
+  </style>
+
 {% endblock %}
 
 {% block header %}
   <h1 class="headline">Get the Party Started</h1>
+  <center><h2><small>You're a {{ user.get_profile.role }}</small></h2></center>
+
 {% endblock header %}
 
 {% block content %}
@@ -52,7 +71,7 @@
     <section id="add-party">
       {# add new parties form #}
     
-      <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
         {% csrf_token %}
 
         {# {{ form.errors }} #}
@@ -105,50 +124,105 @@
                   </div>
                 </div>
               {% endif %}
+              <div class="row">
+                <div class="span6">
+                  <div class="control-group {% if form.first_name.errors %}error{% endif %}">
+                    <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
+                    <div class="controls">
+                      {{ form.first_name }} 
+                      {% if form.first_name.errors %}
+                        <span class="help-inline">
+                          {{ form.first_name.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="control-group {% if form.last_name.errors %}error{% endif %}">
+                    <div class="control-label" for="id_last_name">{{ form.last_name.label }}</div>
+                    <div class="controls">
+                      {{ form.last_name }} 
+                      {% if form.last_name.errors %}
+                        <span class="help-inline">
+                          {{ form.last_name.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="control-group {% if form.email.errors %}error{% endif %}">
+                    <div class="control-label" for="id_email">{{ form.email.label }}</div>
+                    <div class="controls">
+                      {{ form.email }} 
+                      {% if form.email.errors %}
+                        <span class="help-inline">
+                          {{ form.email.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="control-group {% if form.phone.errors %}error{% endif %}">
+                    <div class="control-label" for="id_phone">{{ form.phone.label }}</div>
+                    <div class="controls">
+                      {{ form.phone }} 
+                      {% if form.phone.errors %}
+                        <span class="help-inline">
+                          {{ form.phone.errors }}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
 
-              <div class="control-group {% if form.first_name.errors %}error{% endif %}">
-                <div class="control-label" for="id_first_name">{{ form.first_name.label }}</div>
-                <div class="controls">
-                  {{ form.first_name }} 
-                  {% if form.first_name.errors %}
-                    <span class="help-inline">
-                      {{ form.first_name.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="control-group {% if form.last_name.errors %}error{% endif %}">
-                <div class="control-label" for="id_last_name">{{ form.last_name.label }}</div>
-                <div class="controls">
-                  {{ form.last_name }} 
-                  {% if form.last_name.errors %}
-                    <span class="help-inline">
-                      {{ form.last_name.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="control-group {% if form.email.errors %}error{% endif %}">
-                <div class="control-label" for="id_email">{{ form.email.label }}</div>
-                <div class="controls">
-                  {{ form.email }} 
-                  {% if form.email.errors %}
-                    <span class="help-inline">
-                      {{ form.email.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="control-group {% if form.phone.errors %}error{% endif %}">
-                <div class="control-label" for="id_phone">{{ form.phone.label }}</div>
-                <div class="controls">
-                  {{ form.phone }} 
-                  {% if form.phone.errors %}
-                    <span class="help-inline">
-                      {{ form.phone.errors }}
-                    </span>
-                  {% endif %}
-                </div>
+                {% if pro_user %}
+                  <div class="span6 pro-info">
+                    <div class="row">
+                      <div class="span2">
+                        <table class="summary-table">
+                          <tbody>
+                            <tr>
+                              <td><h2>Pro Info</h2></td>
+                            </tr>
+                            <tr>
+                              <td>
+                                {% if pro_user.get_profile.image %}
+                                  {% thumbnail pro_user.get_profile.image "90x90" as im %}
+                                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                                  {% endthumbnail %}
+                                {% else %}
+                                  <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                                {% endif %}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="span4">
+                        <table class="summary-table">
+                          <tbody>
+                            <tr>
+                              <td><h2>&nbsp;</h2></td>
+                            </tr>
+                            <tr>
+                              <td>Name</td>
+                              <td>
+                                <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Phone</td>
+                              <td>
+                                <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}---{% endif %}</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Email</td>
+                              <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
             </fieldset>
 
@@ -181,6 +255,7 @@
 
             <fieldset>
               <legend><h2>Location</h2></legend>
+<!-- 
               <div class="control-group {% if form.address.errors %}error{% endif %}">
                 <div class="control-label" for="id_address">{{ form.address.label }}</div>
                 <div class="controls">
@@ -197,6 +272,7 @@
                   OR enter a new address
                 </div>
               </div>
+ -->
               <div class="control-group {% if form.street1.errors %}error{% endif %}">
                 <div class="control-label" for="id_street1">{{ form.street1.label }}</div>
                 <div class="controls">
@@ -265,10 +341,21 @@
                       {{ form.description.errors }}
                     </span>
                   {% endif %}
+                  <div class="vertical-space"></div>
+                  {% if not party.requested %}
+                    <div class="row">
+                      <div class="span10">
+                        <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                          The Pro will then need to confirm the date and time before your party invite is sent out.
+                          <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
+                        </i>
+                        </p>
+                      </div>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
-
-            </fieldset>
+            </fieldset>            
             <fieldset>
               <div class="control-group">
                 <div class="controls">
@@ -281,7 +368,6 @@
                 </div>
               </div>
             </fieldset>
-
           </div>
         </div>
 
@@ -295,6 +381,10 @@
 {% endblock content %}
 
 {% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+
   <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript" src="{% static "timepicker/js/bootstrap-timepicker.js" %}"></script>
   <script type="text/javascript">

@@ -85,8 +85,10 @@ class PartyCreateForm(forms.ModelForm):
     # only show addresses that pro/host has dealt with before
     self.fields['address'].queryset = addresses
 
+    add_form_validation(self)
+
   def clean_email(self):
-    #1. if current user is host dont allow to set new host via
+    #1. if current user is host dont allow to set new host
     if self.initial.get('host'):
       host_email = self.initial['host'].email
     else:
@@ -173,8 +175,8 @@ class PartyCreateForm(forms.ModelForm):
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
 
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=10):
-        raise forms.ValidationError("Your party needs to be more than 10 days from today to ensure that the tasting kit is received in time for the party.")
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
+        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
 

@@ -256,6 +256,9 @@
       {% block header %}
 
       {% endblock header %}
+      {% if user.is_authenticated %}
+        <!-- <h3>You're a {{ user.get_profile.role }}</h3> -->
+      {% endif %}
       <div class="vertical-space"></div>
       <div class="message-container">
 

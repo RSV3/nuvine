@@ -142,7 +142,21 @@
 
         <div class="vertical-space"></div>
         <hr />
+        <div class="vertical-space"></div>
+        {% if not party.requested %}
+          <div class="row">
+            <div class="span10 offset1">
+              <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                The Pro will then need to confirm the date and time before your party invite is sent out.
+                <!-- See Invite Options section for preferences on when we should deliver your invite. -->
+              </i>
+              </p>
+            </div>
+          </div>
+          <div class="vertical-space"></div>
+        {% endif %}
 
+<!-- 
         <div class="control-group">
           <div class="control-label text-label"><h2>Party Info</h2></div>
           <div class="controls" style="padding-top: 11px;">
@@ -169,6 +183,7 @@
             <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
           </div>
         </div>
+ -->
         <div class="row">
           <div class="span1">&nbsp;</div>
           <div class="span7">
