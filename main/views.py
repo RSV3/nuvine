@@ -927,16 +927,22 @@ def party_list(request):
 
   if (pro_group in u.groups.all()):
     # need to filter to parties that a particular user manages
-    my_hosts = MyHost.objects.filter(pro=u).values_list('host', flat=True)
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
-    data['parties'] = Party.objects.filter(host__in=my_hosts, event_date__gte=party_valid_date).order_by('event_date')
-    data['past_parties'] = Party.objects.filter(host__in=my_hosts, event_date__lt=party_valid_date).order_by('-event_date')
+    parties_attended = PartyInvite.objects.filter(invitee=u).values_list('party', flat=True)
+
+    upcoming_party_ids = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True)
+    all_party_ids = list(parties_attended) + list(upcoming_party_ids)
+    data['parties'] = Party.objects.filter(id__in=all_party_ids, event_date__gte=party_valid_date).order_by('event_date')
+
+    past_party_ids = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True)
+    all_party_ids = list(parties_attended) + list(upcoming_party_ids)
+    data['past_parties'] = Party.objects.filter(id__in=all_party_ids, event_date__lt=party_valid_date).order_by('-event_date')
+
     pro_comm, mentee_comm = calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
-
   elif (hos_group in u.groups.all()):
     data['host_credits'] = calculate_host_credit(u)
     data['parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
