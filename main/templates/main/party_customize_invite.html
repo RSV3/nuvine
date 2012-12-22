@@ -17,7 +17,13 @@
     .form-row {
       margin-bottom: 12px;
     }
+    .summary-table tr td:first-child {
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
   </style>
+
 {% endblock additional_styles %}
 
 {% block header %}
@@ -41,17 +47,10 @@
 
         <form class="form-horizontal" method="POST" action="{{ app_path }}">
           {% csrf_token %}
-          <!-- <hr /> -->
-           <div class="control-group">
-            <div class="control-label text-label"><h2>Invite Email</h2></div>
-          </div>
-          
+          <!-- <hr /> -->          
           {{ form.party }}
            <div class="control-group">
-            <div class="control-label text-label">From</div>
-            <div class="controls">
-              <p>{{ party.host.first_name }} {{ party.host.last_name }} (<i>Note: The email will be sent from {{ party.host.email }}</i>)</p>
-            </div>
+            <div class="controls"><i>Email will be sent from info@vinely.com</i></div>
           </div>
           <div class="control-group">
             <div class="control-label text-label">Email subject</div>
@@ -66,42 +65,58 @@
           </div>
 
           <div class="control-group">
-            <div class="control-label text-label">Message</div>
+            <div class="control-label text-label">Message Body</div>
             <div class="controls">
               {{ form.custom_message }}
+              <div class="vertical-space"></div>
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td>Party:</td>
+                    <td><p>"{{ party.title }}"</p></td>
+                  </tr>
+                  <tr>
+                    <td>Host:</td>
+                    <td><p>{{ party.host.first_name }} {{ party.host.last_name }}</p></td>
+                  </tr>
+                  <tr>
+                    <td>Date:</td>
+                    <td><p>{{ party.event_date|date:"F j, o" }}</p></td>
+                  </tr>
+                  <tr>
+                    <td>Time:</td>
+                    <td><p>{{ party.event_date|date:"g:i A" }}</p></td>
+                  </tr>
+                  <tr>
+                    <td>Location:</td>
+                    <td>
+                      <p>{{ party.address.street1 }}</p>
+                      <p>{{ party.address.street2 }}</p>
+                      <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <hr />
           <div class="control-group">
-            <div class="control-label text-label"><h2>Party Info</h2></div>
-            <div class="controls" style="padding-top: 11px;">
+            <div class="control-label text-label">Signature</div>
+            <div class="controls">
+              {{ form.signature }}
+              <div class="vertical-space"></div>
               {% if not party.requested %}
-                <a href="{% url party_add party.id %}">Edit</a>
+                <div class="row">
+                  <div class="span8">
+                    <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                      The Pro will then need to confirm the date and time before your party invite is sent out.
+                    </i>
+                    </p>
+                  </div>
+                </div>
               {% endif %}
             </div>
           </div>
-
-          <div class="control-group">
-            <div class="control-label text-label">Date/Time</div>
-            <div class="controls">
-              <p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p>
-            </div>
-          </div>
-          <div class="control-group">
-            <div class="control-label text-label">Party Name</div>
-            <div class="controls">
-              {{ party.title }}
-            </div>
-          </div>
-          <div class="control-group">
-            <div class="control-label text-label">Location</div>
-            <div class="controls">
-              <p>{{ party.address.street1 }}</p>
-              <p>{{ party.address.street2 }}</p>
-              <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
-            </div>
-          </div>
-          
+<!-- 
           {% if not party.confirmed %}
             <hr />
             <div class="control-group">
@@ -109,7 +124,6 @@
               <div class="controls" style="padding-top: 11px;">
                 <p>Do you want vinely to?</p>
                 <hr />
-                <!-- {{ form.invite_options }} -->
                 <div class="row">
                   <div class="span4">
                     <label>
@@ -150,14 +164,12 @@
                     </label>
                   </div>
                 </div>
-                <!-- <hr /> -->
                 <div class="vertical-space"></div>
                 {% if not party.requested %}
                   <div class="row">
                     <div class="span10">
                       <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
                         The Pro will then need to confirm the date and time before your party invite is sent out.
-                        <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
                       </i>
                       </p>
                     </div>
@@ -166,7 +178,7 @@
               </div>
             </div>
           {% endif %}
-
+ -->
           {% if not party.requested %}
             <div class="row">
               <div class="span1">&nbsp;</div>
@@ -175,7 +187,8 @@
                 <button class="btn btn-primary commit" name="save" value="save">Save</button>
               </div>
               <div class="span4">
-                <a href="javascript:;" class="btn btn-primary">Preview Invite</a>
+                <!-- <a href="javascript:;" class="btn btn-primary">Preview Invite</a> -->
+                <button class="btn btn-primary preview" name="preview" value="preview">Preview Invite</button>
                 <button class="btn btn-primary commit" name="next" value="next">Next</button>
               </div>
             </div>
@@ -183,7 +196,7 @@
             <div class="control-group">
               <div class="control-label">&nbsp;</div>
               <div class="controls">
-                <a href="javascript:;" class="btn btn-primary">Preview Invite</a>
+                <a href="javascript:;" class="btn btn-primary preview">Preview Invite</a>
                 <button class="btn btn-primary commit" name="save" value="save">Save</button>
               </div>
             </div>
@@ -205,6 +218,10 @@
 
       $('.commit').click(function() {
         saved = true;
+      });
+      var form = $('.form-horizontal');
+      $('.preview').click(function(e) {
+        this.form.target = '_blank';
       });
     });
 

@@ -1,6 +1,9 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load static %}
+
 {% block additional_styles %}
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
   <style type="text/css">
     .control-group .text-label, h2 {
       margin-top: -4px;
@@ -27,7 +30,7 @@
   {{ form.errors }}
   <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
     <section id="customize-invitation">
-      <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
         {% csrf_token %}
         {{ taster_form.party }}
         <div class="row">
@@ -41,6 +44,7 @@
             </i>
           </div>
         </div>
+<!-- 
         <div class="row">
           <div class="span12">
             <p><h3>Select Taster</h3></p>
@@ -48,6 +52,7 @@
             <p><h3>or add new taster</h3></p>
           </div>
         </div>
+ -->
         <div class="row">
           <div class="span3">
             <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
@@ -130,10 +135,12 @@
       </table>      
     </section>
     <div class="vertical-space"></div>
+
     <hr />
     <form class="form-horizontal" method="POST" action="{{ app_path }}">
       {% csrf_token %}
       <div class="control-group">
+<!-- 
         <div class="control-label text-label"><h2>Taster Options</h2></div>
         <div class="controls" style="padding-top: 11px;">
           <p>{{ options_form.taster_actions.label }}</p>
@@ -142,68 +149,43 @@
 
         <div class="vertical-space"></div>
         <hr />
+ -->
         <div class="vertical-space"></div>
         {% if not party.requested %}
           <div class="row">
             <div class="span10 offset1">
               <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
                 The Pro will then need to confirm the date and time before your party invite is sent out.
-                <!-- See Invite Options section for preferences on when we should deliver your invite. -->
               </i>
               </p>
             </div>
           </div>
           <div class="vertical-space"></div>
         {% endif %}
-
-<!-- 
-        <div class="control-group">
-          <div class="control-label text-label"><h2>Party Info</h2></div>
-          <div class="controls" style="padding-top: 11px;">
-            <a href="{% url party_add party.id %}">Edit</a>
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label text-label">Date/Time</div>
-          <div class="controls">
-            <p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p>
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label text-label">Party Name</div>
-          <div class="controls">
-            {{ party.title }}
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label text-label">Location</div>
-          <div class="controls">
-            <p>{{ party.address.street1 }}</p>
-            <p>{{ party.address.street2 }}</p>
-            <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
-          </div>
-        </div>
- -->
         <div class="row">
           <div class="span1">&nbsp;</div>
           <div class="span7">
             <a href="{% url party_write_invitation party.id %}" class="btn btn-primary">Back</a>
-            <button class="btn btn-primary" name="save" value="save">Save</button>
+            <!-- <button class="btn btn-primary" name="save" value="save">Save</button> -->
           </div>
           <div class="span4">
             {% if user.get_profile.events_user %}
               <button class="btn btn-primary" name="add_vinely_party" value="add_vinely_party">Add Party</button>
             {% else %}
-              <button class="btn btn-primary" name="request" value="request">Request Party</button>
+              <button class="btn btn-primary" name="next" value="next">Next</button>
             {% endif %}
           </div>
         </div>
+      </div>
     </form>
-  </div>
 
+  </div>
 {% endblock %}
 
 {% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.edit-taster').click(function(e) {

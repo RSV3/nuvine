@@ -45,11 +45,11 @@ class PartyCreateForm(forms.ModelForm):
   last_name = forms.CharField(max_length=30)
   email = forms.EmailField()
 
-  street1 = forms.CharField(label="Street 1", max_length=128, required=False)
+  street1 = forms.CharField(label="Street 1", max_length=128)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
-  city = forms.CharField(label="City", max_length=64, required=False)
-  state = us_forms.USStateField(required=False)
-  zipcode = us_forms.USZipCodeField(required=False)
+  city = forms.CharField(label="City", max_length=64)
+  state = us_forms.USStateField()
+  zipcode = us_forms.USZipCodeField()
 
   event_day = forms.DateField(label="Party Date")
   event_time = forms.TimeField(input_formats=valid_time_formats, label="Party Time")
@@ -498,7 +498,12 @@ class CustomizeInvitationForm(forms.ModelForm):
     else:
       self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 10})
+    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 10, 'style': 'width: 70%'})
+    self.fields['signature'].widget = forms.Textarea(attrs={'rows': 6, 'style': 'width: 70%'})
+
+  def clean_signature(self):
+    cleaned = self.cleaned_data['signature']
+    return cleaned.replace('\r', '')
 
   def clean_custom_message(self):
     cleaned = self.cleaned_data['custom_message']
@@ -576,8 +581,8 @@ class AttendeesTable(tables.Table):
   invitee = tables.Column(verbose_name='Name', order_by=('invitee.first_name', 'invitee.last_name'))
   email = tables.TemplateColumn('<a href="mailto:{{ record.invitee.email }}">{{ record.invitee.email }}</a>', orderable=False)
   phone = tables.TemplateColumn('{% if record.invitee.userprofile.phone %} {{ record.invitee.userprofile.phone }} {% else %} - {% endif %}', orderable=False)
-  response = tables.Column(verbose_name='RSVP')
   invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
+  response = tables.Column(verbose_name='RSVP')
   wine_personality = tables.Column(accessor='invitee.userprofile.wine_personality', verbose_name='Wine Personality', order_by=('invitee.userprofile.wine_personality.name',))
   edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
   shop = tables.TemplateColumn('<a href="{% url start_order record.invitee.id record.party.id %}" class="btn btn-primary">Shop</a>', verbose_name=' ')

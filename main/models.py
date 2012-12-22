@@ -564,6 +564,7 @@ class InvitationSent(models.Model):
   party = models.ForeignKey(Party)
   custom_subject = models.CharField(max_length=128, default="You're invited to a Vinely Party!")
   custom_message = models.CharField(max_length=1024, blank=True, null=True)
+  signature = models.CharField(max_length=1024, blank=True, null=True)
   guests = models.ManyToManyField(User, blank=True, null=True)
   timestamp = models.DateTimeField(auto_now_add=True)
 

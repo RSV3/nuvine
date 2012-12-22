@@ -1,0 +1,30 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .text-label {
+      text-align: right;
+    }
+  </style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">Get The Party Started</h1>
+{% endblock header %}
+
+{% block content %}
+  <div class="menu_wrap main partycrumb">
+    <ul class="nav">
+      <li class="party-add">&nbsp;</li>
+      <li class="party-write-invitation">&nbsp;</li>
+      <li class="party-invite-friends active">&nbsp;</li>
+    </ul>
+  </div>
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  </div>
+{% endblock content %}

@@ -544,6 +544,12 @@ def distribute_party_invites_email(request, invitation_sent):
 
   subject = invitation_sent.custom_subject
 
+  party_info = get_party_info(invitation_sent.party)
+  content += "\n\n" + party_info
+
+  signature = invitation_sent.signature if invitation_sent.signature else get_default_signature(invitation_sent.party)
+  content += "\n\n" + signature
+
   from_email = 'Vinely Party Invite <info@vinely.com>'
   if inviting_user.first_name:
     from_email = 'Invitation from %s %s <info@vinely.com>' % (inviting_user.first_name, inviting_user.last_name)
@@ -594,6 +600,32 @@ def distribute_party_invites_email(request, invitation_sent):
     msg.send()
 
   return msg
+
+
+def preview_party_invites_email(request, invitation_sent):
+
+  content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
+
+  subject = invitation_sent.custom_subject
+
+  party_info = get_party_info(invitation_sent.party)
+  content += "\n\n" + party_info
+
+  signature = invitation_sent.signature
+  content += "\n\n" + signature
+
+  c = RequestContext(request, {'host_name': request.get_host()})
+
+  content += '\n\n<a class="brand-btn" href="#">RSVP for the Party</a> \n'
+
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  html_message = html_template.render(c)
+
+  # send out party invitation e-mail
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Good wine and good times await',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+  return html_msg
 
 
 def resend_party_invite_email(request, user, invitation_sent):
@@ -1093,6 +1125,16 @@ def get_default_invite_message(party):
 
   The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.
 
+  '''
+  template = Template(message_text)
+  rsvp_date = party.event_date - timedelta(days=5)
+  context = Context({'rsvp_date': rsvp_date, 'party': party})
+  return template.render(context)
+
+
+def get_party_info(party):
+  info = """
+
   Party: {{ party.title }}
 
   Host: {{ party.host.first_name }} {{ party.host.last_name }} <{{ party.host.email }}>
@@ -1102,17 +1144,24 @@ def get_default_invite_message(party):
   Time: {{ party.event_date|date:"g:i A" }}
 
   Location: {{ party.address.full_text }}
+  """
+  template = Template(info)
+  context = Context({'party': party})
+  return template.render(context)
+
+
+def get_default_signature(party):
+  sig_text = """
 
   Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
 
   Your Tasteful Friends,
 
   - The Vinely Team
-
-  '''
-  template = Template(message_text)
+  """
+  template = Template(sig_text)
   rsvp_date = party.event_date - timedelta(days=5)
-  context = Context({'rsvp_date': rsvp_date, 'party': party})
+  context = Context({'rsvp_date': rsvp_date})
   return template.render(context)
 
 
