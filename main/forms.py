@@ -68,7 +68,9 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_date'].widget = forms.HiddenInput()
     # self.fields['email'].widget.attrs['readonly'] = True
     self.fields['description'].required = False
+    self.fields['description'].widget = forms.Textarea(attrs={'rows': 10, 'cols': 100, 'style': 'width: 80%;'})
     self.fields['title'].initial = 'First Taste Party'
+
     initial = kwargs.get('initial')
 
     # if party being organized by host then load previous addresses by host
