@@ -1,4 +1,11 @@
 =============================
+December 28, 2012
+
+x - /party/add/ : date/time should be pre populated
+- http://localhost:8000/party/find/friends/58/ : need to save phone number to UserProfile
+- update create_know_pro_party_email_template
+
+=============================
 November 26, 2012 Deployment
 
 - after staging server next_invoice dates have been updated, push to deployment

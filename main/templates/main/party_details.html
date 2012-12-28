@@ -1,7 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load thumbnail %}
-
+{% load render_table from django_tables2 %}
 {% load static %}
 
 {% block header %}
@@ -22,6 +22,10 @@
       padding-right: 15px;
       text-align: right;
       font-weight: bold;
+    }
+
+    .pagination {
+      display:none;
     }
   </style>
 {% endblock additional_styles %}
@@ -137,10 +141,10 @@
               <div class="alert alert-error center">
                 <h2>
                   <small>
-                    {% if pro and not user.get_profile.events_user %}
+                    {% if pro and not user.get_profile.events_manager %}
                       Low attendance! Remind host to invite more people
                     {% endif %}
-                    {% if host or user.get_profile.events_user %}
+                    {% if host or user.get_profile.events_manager %}
                       Low attendance! Consider inviting more people or RSVP'ing for them
                     {% endif %}
                   </small>
@@ -220,7 +224,7 @@
           </div>
           <div class="span12">
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
-            {% if user.get_profile.events_user %}
+            {% if user.get_profile.events_manager %}
               <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
             {% endif %}
           </div>
@@ -237,11 +241,11 @@
       {{ invite_form.custom_subject }}
       
       {% if pro or host or taster and party.guests_see_guestlist %}
-        <div class="vertical-space"></div>
-        {% load render_table from django_tables2 %}
+        <div class="vertical-space">&nbsp;</div>
         {% render_table table %}
       {% endif %}
-      {% if host or user.get_profile.events_user %}
+
+      {% if host or user.get_profile.events_manager %}
         {% if can_add_taster %}
           <div class="vertical-space">&nbsp;</div>
           <div class="row">

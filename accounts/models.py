@@ -169,7 +169,7 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
-  def events_user(self):
+  def events_manager(self):
     '''
     Returns True if this is a user that creates Vinely events
     '''

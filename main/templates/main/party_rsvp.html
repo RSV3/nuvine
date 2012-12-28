@@ -278,7 +278,7 @@
                 </div>
                 <div class="span12">
                   <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
-                  {% if user.get_profile.events_user %}
+                  {% if user.get_profile.events_manager %}
                     <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
                   {% endif %}
                 </div>

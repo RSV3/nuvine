@@ -256,12 +256,21 @@ class PartyInviteTasterForm(forms.ModelForm):
 
         try:
           user = User.objects.get(email=cleaned_data['email'].lower())
+          if not user.first_name:
+            user.first_name = cleaned_data['first_name']
+            user.last_name = cleaned_data['last_name']
+            user.save()
         except User.DoesNotExist:
           user = create_user(email=cleaned_data['email'].lower(), password='welcome')
           user.first_name = cleaned_data['first_name']
           user.last_name = cleaned_data['last_name']
           user.is_active = False
           user.save()
+
+        if cleaned_data['phone']:
+          profile = user.get_profile()
+          profile.phone = cleaned_data['phone']
+          profile.save()
 
         if user.groups.all().count() == 0:
           # add the user to Party Taster group
@@ -273,8 +282,8 @@ class PartyInviteTasterForm(forms.ModelForm):
         from django.forms.util import ErrorList
         msg = 'Enter valid e-mail for the invitee.'
         self._errors['email'] = ErrorList([msg])
-        if self.cleaned_data.get('email'):
-          del self.cleaned_data['email']
+        if cleaned_data.get('email'):
+          del cleaned_data['email']
       # delete error if we think user manually being filled out
       del self._errors['invitee']
 
@@ -591,7 +600,7 @@ class AttendeesTable(tables.Table):
   class Meta:
     model = PartyInvite
     attrs = table_attrs
-    sequence = ['guests', 'invitee', 'email', 'phone', '...']
+    sequence = ['guests', 'invitee', 'email', 'phone', 'invited', '...']
     exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp']
     order_by = ['invitee']
 
@@ -601,7 +610,7 @@ class AttendeesTable(tables.Table):
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
-    if not (user.userprofile.is_host() or user.userprofile.events_user()):
+    if not (user.userprofile.is_host() or user.userprofile.events_manager()):
       exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')

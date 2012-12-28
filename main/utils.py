@@ -337,7 +337,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   c = RequestContext(request, {"first_name": user.first_name if user.first_name else "Vinely",
                                 "last_name": user.last_name if user.last_name else "Fan",
                                 "email": user.email,
-                                "pro_first_name": pro.first_name if pro else "Care Specialist",
+                                "pro_first_name": pro.first_name if pro.first_name else "Care Specialist",
                                 "phone": profile.phone,
                                 "host_name": request.get_host(),
                                 "zipcode": user.get_profile().zipcode})
@@ -614,7 +614,8 @@ def preview_party_invites_email(request, invitation_sent):
   signature = invitation_sent.signature
   content += "\n\n" + signature
 
-  c = RequestContext(request, {'host_name': request.get_host()})
+  c = RequestContext(request, {'host_name': request.get_host(),
+                                'sig': True})
 
   content += '\n\n<a class="brand-btn" href="#">RSVP for the Party</a> \n'
 
@@ -1154,6 +1155,8 @@ def get_default_signature(party):
   sig_text = """
 
   Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
+
+  {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
   Your Tasteful Friends,
 

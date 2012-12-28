@@ -313,7 +313,8 @@ def send_know_pro_party_email(request, user):
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext(request, {"host_first_name": user.first_name if user.first_name else "Vinely Host"})
+  c = RequestContext(request, {"host_first_name": user.first_name if user.first_name else "Vinely Host",
+                              "host_email": user.email})
 
   txt_message = txt_template.render(c)
 
@@ -322,7 +323,7 @@ def send_know_pro_party_email(request, user):
 
   subject = 'Get the party started with Vinely'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
-  from_email = "Welcome to Vinely <welcome@vinely.com>"
+  from_email = "Welcome to Vinely <info@vinely.com>"
   recipients = [user.email]
 
   p = Premailer(html_msg)
@@ -331,7 +332,7 @@ def send_know_pro_party_email(request, user):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'info@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 

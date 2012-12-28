@@ -57,7 +57,7 @@ def profile(request):
     profile.save()
     return HttpResponseRedirect(url)
 
-  if u.is_host():
+  if profile.is_host():
     return HttpResponseRedirect(reverse('party_add'))
   else:
     return HttpResponseRedirect(reverse('home_page'))

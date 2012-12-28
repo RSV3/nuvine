@@ -44,6 +44,9 @@
             </i>
           </div>
         </div>
+        <div class="vertical-space">
+          &nbsp;
+        </div>
 <!-- 
         <div class="row">
           <div class="span12">
@@ -101,6 +104,10 @@
         </div>
       </form>
 
+      <div class="vertical-space">
+        &nbsp;
+      </div>     
+
       <table class="table table-striped">
         <thead>
           <th>Name</th>
@@ -154,8 +161,7 @@
         {% if not party.requested %}
           <div class="row">
             <div class="span10 offset1">
-              <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
-                The Pro will then need to confirm the date and time before your party invite is sent out.
+              <p><i>Your customized invitation will be sent to all tasters in the system upon confirmation of your party.  Don't worry, you can add tasters at any time by logging into your account.
               </i>
               </p>
             </div>
@@ -169,7 +175,7 @@
             <!-- <button class="btn btn-primary" name="save" value="save">Save</button> -->
           </div>
           <div class="span4">
-            {% if user.get_profile.events_user %}
+            {% if user.get_profile.events_manager %}
               <button class="btn btn-primary" name="add_vinely_party" value="add_vinely_party">Add Party</button>
             {% else %}
               <button class="btn btn-primary" name="next" value="next">Next</button>

@@ -259,7 +259,7 @@ def host_vinely_party(request):
   data = {}
   # check for pro
   pro = None
-  pros = MyHost.objects.filter(host=request.user)
+  pros = MyHost.objects.filter(host=request.user).order_by('-timestamp')
   if pros.exists():
     pro = pros[0].pro
   else:
@@ -977,19 +977,10 @@ def party_add(request, party_id=None):
 
   pending_pro = Group.objects.get(name="Pending Vinely Pro")
 
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if hos_group in u.groups.all():
-    data["host"] = True
-  if sp_group in u.groups.all():
-    data["supplier"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
-
   data["no_perms"] = False
 
-  if u.userprofile.is_pro() and u.userprofile.is_host():
-    # if not a Vinely Pro, one does not have permissions
+  if sp_group in u.groups.all() or tas_group in u.groups.all() or pending_pro in u.groups.all():
+    # if not a Vinely Pro or Host, one does not have permissions
     data["no_perms"] = True
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
@@ -1005,7 +996,7 @@ def party_add(request, party_id=None):
   party = None
   if party_id:
     party = get_object_or_404(Party, pk=party_id)
-    if party.requested and not u.userprofile.events_user():
+    if party.requested and not u.userprofile.events_manager():
       messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
@@ -1047,8 +1038,10 @@ def party_add(request, party_id=None):
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
   else:
     party_date = timezone.now() + timedelta(days=14)
+    party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day+1,
+                                    hour=19, minute=0)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
-    # initial_data['event_time'] = party_date.strftime("%I:%M %p")
+    initial_data['event_time'] = party_date.strftime("%I:%M %p")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
   if form.errors.get('__all__'):
@@ -1057,7 +1050,7 @@ def party_add(request, party_id=None):
   if request.method == "POST":
     if form.is_valid():
       new_party = form.save(commit=False)
-      if u.userprofile.is_pro() and not u.userprofile.events_user():
+      if u.userprofile.is_pro() and not u.userprofile.events_manager():
         new_party.confirmed = True
         new_party.requested = True
       if party:
@@ -1095,7 +1088,7 @@ def party_add(request, party_id=None):
         host_profile.mentor = applicable_pro
         host_profile.save()
 
-      if u.userprofile.is_pro() and not u.userprofile.events_user():
+      if u.userprofile.is_pro() and not u.userprofile.events_manager():
         if not new_host.is_active:
           # new host, so send password and invitation
           temp_password = User.objects.make_random_password()
@@ -1111,7 +1104,7 @@ def party_add(request, party_id=None):
           send_new_party_scheduled_email(request, new_party)
         else:
           # existing host needs to notified that party has been arranged
-          if not u.userprofile.events_user():
+          if not u.userprofile.events_manager():
             send_new_party_scheduled_email(request, new_party)
             messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
       # else:
@@ -1122,7 +1115,7 @@ def party_add(request, party_id=None):
       if request.POST.get('save'):
         # go to party details page
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
-        if u.userprofile.is_pro() and not u.userprofile.events_user():
+        if u.userprofile.is_pro() and not u.userprofile.events_manager():
           return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
         else:
           return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
@@ -1189,12 +1182,12 @@ def party_find_friends(request, party_id):
   data = {}
   u = request.user
 
-  if u.userprofile.events_user():
+  if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
 
-  if party.requested and not u.userprofile.events_user():
+  if party.requested and not u.userprofile.events_manager():
     messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
     return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
@@ -1373,7 +1366,7 @@ def party_details(request, party_id):
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
     if u.userprofile.is_pro():
-      if not u.userprofile.events_user():
+      if not u.userprofile.events_manager():
         if party.confirmed:
           if not party.kit_ordered():
             msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
@@ -1414,6 +1407,7 @@ def party_details(request, party_id):
   RequestConfig(request).configure(table)
   data['table'] = table
 
+  data['invitees_table'] = invitees
   # if data['can_shop_for_taster']:
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
   # else:
@@ -1669,7 +1663,6 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data["invitees"] = invitees
   data["invite"] = invite
   data["parties_menu"] = True
-  InvitationSent.objects.filter
   invitations = party.invitationsent_set.all().order_by("-timestamp")
   if invitations.exists():
     data["custom_message"] = invitations[0].custom_message
@@ -1689,7 +1682,7 @@ def party_write_invitation(request, party_id):
   data = {}
   u = request.user
 
-  if u.userprofile.events_user():
+  if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
@@ -1752,7 +1745,7 @@ def party_write_invitation(request, party_id):
 def party_preview_invitation(request, party_id):
   u = request.user
 
-  if u.userprofile.events_user():
+  if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
@@ -2648,7 +2641,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['fb_view'] = fb_page
   today = timezone.now()
 
-  if u.userprofile.events_user():
+  if u.userprofile.events_manager():
     party = get_object_or_404(Party, pk=party_id)
   else:
     party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
@@ -2729,7 +2722,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       send_rsvp_thank_you_email(request, user, verification_code, temp_password)
     # messages.success(request, msg)
 
-    if u.userprofile.events_user():
+    if u.userprofile.events_manager():
       return HttpResponseRedirect(reverse('party_details', args=[party.id]))
     else:
       return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))

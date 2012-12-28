@@ -505,13 +505,26 @@ class SimpleTest(TestCase):
 
     {% load static %}
 
+
     Hey {{ host_first_name }}!
 
-    We're thrilled about your interest in hosting a Vinely Taste Party!  
-    Since you already have a Vinely Pro in mind, they will soon be in contact to set a date and time.
-    If you haven't heard anything in 48 hours, please contact a Vinely Care Specialist at:
+    We are so excited that you want to host a Vinely Taste Party!
+    You have already set up your account. Your login is {{ host_email }}.
 
-      (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us. 
+    The next step, if you haven’t done so already, is to schedule
+    the details of your party. Your process is complete when you
+    submit your party for approval by your Vinely Pro. (Don’t worry
+    if you don’t have a Vinely Pro yet, we will find you the perfect
+    Pro to ensure your are the host with the most!).
+
+    Once your pro confirms your party, the invitation will be sent
+    to attendees you have added. In the meantime, if you have any
+    questions you can always contact a Vinely Care Specialist at
+    (888) 294-1128 ext. 1 or email us at <a href="mailto:care@vinely.com">email</a>.
+
+    PS- Please add info@vinely.com to your address book to
+    ensure our emails get through!
+
 
     {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
@@ -524,7 +537,9 @@ class SimpleTest(TestCase):
     template = ContentTemplate(key="know_pro_party_email", category=0)
     template.save()
     Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
-    variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's First name")
+    variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's First Name")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ host_email }}", description="Host's E-mail")
     template.variables_legend.add(variable)
 
   def create_unknown_pro_email_template(self):
