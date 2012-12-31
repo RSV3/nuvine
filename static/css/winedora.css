@@ -68,6 +68,10 @@ legend {
   font-size: 18px;
 }
 
+table .row-label-bold {
+  font-weight: bold;
+}
+
 /* side navigation */
 .nav-header {
   margin-top: 20px;

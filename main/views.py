@@ -77,10 +77,8 @@ def home(request):
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
-    pro_group = Group.objects.get(name='Vinely Pro')
     hos_group = Group.objects.get(name='Vinely Host')
     sp_group = Group.objects.get(name='Supplier')
-    tas_group = Group.objects.get(name='Vinely Taster')
 
     # suppliers go directly to orders page
     # if sp_group in u.groups.all():
@@ -925,8 +923,6 @@ def party_list(request):
 
   pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
-  sp_group = Group.objects.get(name='Supplier')
-  tas_group = Group.objects.get(name='Vinely Taster')
 
   today = timezone.now()
 
@@ -970,8 +966,6 @@ def party_add(request, party_id=None):
 
   u = request.user
 
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
@@ -1258,8 +1252,43 @@ def party_find_friends(request, party_id):
 @login_required
 def party_review_request(request, party_id):
   data = {}
+  u = request.user
+
+  # need to show all the party information
+
+  if u.userprofile.events_manager():
+    party = get_object_or_404(Party, id=party_id)
+  else:
+    party = get_object_or_404(Party, id=party_id, host=u)
+
+  data['party'] = party
+  data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+
+  applicable_pro, pro_profile = my_pro(u)
+  data["pro_user"] = applicable_pro
+
   return render_to_response("main/party_review_request.html", data, context_instance=RequestContext(request))
 
+@login_required
+def party_cancel(request, party_id):
+
+  u = request.user
+
+  # TODO: display warning that all party information will be destroyed
+  if u.userprofile.events_manager():
+    party = get_object_or_404(Party, id=party_id)
+  else:
+    party = get_object_or_404(Party, id=party_id, host=u)
+
+  # TODO: remove partyinvites
+  # for inv in PartyInvite.objects.filter(party=party):
+  #   inv.delete()
+  # TODO: remove OrganizedParty record
+  # organizer = OrganizedParty.objects.get(party=party)
+  # organizer.delete()
+  # Does deleting party cascade delete all of above?
+  party.delete()
+  return HttpResponseRedirect(reverse('party_add'))
 
 @login_required
 def party_remove_taster(request, invite_id):
@@ -1331,20 +1360,6 @@ def party_details(request, party_id):
   party = None
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  sp_group = Group.objects.get(name='Supplier')
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if hos_group in u.groups.all():
-    data["host"] = True
-  if sp_group in u.groups.all():
-    data["supplier"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
 
   initial_data = {'party': party, u.userprofile.role(): u}
 
@@ -1436,7 +1451,6 @@ def party_confirm(request, party_id):
   messages.success(request, 'Congratulations! Your party has been scheduled')
   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
-
 @login_required
 def party_taster_list(request, party_id):
   """
@@ -1450,20 +1464,6 @@ def party_taster_list(request, party_id):
   party = None
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  sp_group = Group.objects.get(name='Supplier')
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  if pro_group in u.groups.all():
-    data["pro"] = True
-  if hos_group in u.groups.all():
-    data["host"] = True
-  if sp_group in u.groups.all():
-    data["supplier"] = True
-  if tas_group in u.groups.all():
-    data["taster"] = True
 
   invitees = PartyInvite.objects.filter(party=party)
 

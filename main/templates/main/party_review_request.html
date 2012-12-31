@@ -1,6 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load static %}
+{% load thumbnail %}
 
 {% block additional_styles %}
   <style type="text/css">
@@ -9,6 +10,10 @@
     }
     .text-label {
       text-align: right;
+    }
+    .header-append-edit {
+      display: inline;
+      margin-right: 10px;
     }
   </style>
 {% endblock additional_styles %}
@@ -26,5 +31,192 @@
     </ul>
   </div>
   <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+    <section id="party-information">
+      <div class="row">
+        <div class="span6">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td><h2 class="header-append-edit">Party Info</h2> <a href="{% url party_add party.id %}">edit</a></td>
+              </tr>
+              <tr>
+                <td class="row-label-bold">Date</td>
+                <td><p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p></td>
+              </tr>
+              <tr>
+                <td class="row-label-bold">Location</td>
+                <td>
+                  <p>{{ party.address.street1 }}</p>
+                  <p>{{ party.address.street2 }}</p>
+                  <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+                </td>
+              </tr>
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+                <td class="row-label-bold">Host Name</td>
+                <td>
+                  <p>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</p>
+                </td>
+              </tr>
+              <tr>
+                <td class="row-label-bold">Host Phone</td>
+                <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}---{% endif %}</p></td>
+              </tr>
+              <tr>
+                <td class="row-label-bold">Host E-mail</td>
+                <td><a href="mailto:{{ party.host.email }}">{{ party.host.email }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- .span6 -->
+
+        <div class="span6">
+          <div class="row">
+            <div class="span2">
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td><h2>Pro Info</h2></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if pro_user.get_profile.image %}
+                        {% thumbnail pro_user.get_profile.image "90x90" as im %}
+                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                      {% else %}
+                        <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                      {% endif %}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="span4">
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td><h2>&nbsp;</h2></td>
+                  </tr>
+                  <tr>
+                    <td class="row-label-bold">Name</td>
+                    <td>
+                      <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="row-label-bold">Phone</td>
+                    <td>
+                      <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}---{% endif %}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="row-label-bold">Email</td>
+                    <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div> <!-- .span2 -->
+          </div> <!-- .row -->
+          <div class="vertical-space"></div>
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="row-label-bold">Special Instructions</td>
+                <td>{{ party.description }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- .span6 -->
+      </div> <!-- .row -->
+    </section>
+
+    <hr />
+    <!-- Invitation preview -->
+
+    <section>
+      <div class="row">
+        <div class="span2">
+          <h2 class="header-append-edit">Invitation</h2> <a href="{% url party_write_invitation party.id %}">edit</a>
+        </div>
+        <!-- party invitation preview -->
+        <div class="span8">
+        </div>
+        <!-- empty space -->
+        <div class="span2">
+        </div>
+      </div> <!-- .row -->
+    </section>
+
+    <hr />
+    <!-- Taster's attending -->
+    <section>
+      <div class="row">
+        <div class="span12">
+          <h2 class="header-append-edit">Tasters Attending</h2> <a href="{% url party_find_friends party.id %}">edit</a>
+        </div>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
+            {% if inv.invitee.get_profile.phone %}
+              <td>{{ inv.invitee.get_profile.phone }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>    
+    </section>
+
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="control-group">
+        <div class="vertical-space"></div>
+        {% if not party.requested %}
+          <div class="row">
+            <div class="span10 offset1">
+              <p>
+                <i>Note: By clicking "Request Party" you will send out your invitation to the attendees listed above and your Vinely Pro will be notified of your party request.  You should hear form them within 48 hours or receive a party confirmation e-mail letting you know your party is scheduled and ready to go!
+                </i>
+              </p>
+            </div>
+          </div>
+          <div class="vertical-space"></div>
+        {% endif %}
+
+        <div class="row">
+          <div class="span1">&nbsp;</div>
+          <div class="span7">
+            <a href="{% url party_find_friends party.id %}" class="btn btn-primary">Back</a>
+            <button class="btn btn-primary" name="save" value="save">Save</button>
+          </div>
+          <div class="span4">
+            {% if user.get_profile.events_manager %}
+              <button class="btn btn-primary" name="add_vinely_party" value="add_vinely_party">Add Party</button>
+            {% else %}
+              <button class="btn btn-primary" name="request_party" value="request_party">Request Party</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </form>
+
   </div>
 {% endblock content %}
