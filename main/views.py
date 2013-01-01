@@ -1256,6 +1256,10 @@ def party_review_request(request, party_id):
 
   # need to show all the party information
 
+  if request.POST.get('request_party'):
+    # party request made
+    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
+
   if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
@@ -1267,6 +1271,13 @@ def party_review_request(request, party_id):
   applicable_pro, pro_profile = my_pro(u)
   data["pro_user"] = applicable_pro
 
+  try:
+    invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
+  except:
+    raise Http404
+
+  preview = preview_party_invites_email(request, invitation, embed=True)
+  data["invite_preview"] = preview
   return render_to_response("main/party_review_request.html", data, context_instance=RequestContext(request))
 
 @login_required

@@ -319,6 +319,14 @@ table .row-label-bold {
   margin: 0;
   padding: 10px 0 10px 0;
 }
+
+#badges-email {
+  width: 580px;
+  height: 130px;
+  margin: 0;
+  padding: 10px 0 10px 0;
+}
+
 .pie a {
     display: block;
     background: url('../img/badges_sprite.png') no-repeat 0px 0px; 

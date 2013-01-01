@@ -602,7 +602,7 @@ def distribute_party_invites_email(request, invitation_sent):
   return msg
 
 
-def preview_party_invites_email(request, invitation_sent):
+def preview_party_invites_email(request, invitation_sent, embed=False):
 
   content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
 
@@ -623,7 +623,12 @@ def preview_party_invites_email(request, invitation_sent):
   html_message = html_template.render(c)
 
   # send out party invitation e-mail
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+  if embed:
+    html_msg = render_to_string("email/base_email_embed.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Good wine and good times await',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+  else:
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
                                                             'header': 'Good wine and good times await',
                                                             'message': html_message, 'host_name': request.get_host()}))
   return html_msg
