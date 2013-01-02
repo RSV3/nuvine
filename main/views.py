@@ -77,6 +77,7 @@ def home(request):
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
+    pro_group = Group.objects.get(name='Vinely Pro')
     hos_group = Group.objects.get(name='Vinely Host')
     sp_group = Group.objects.get(name='Supplier')
 
