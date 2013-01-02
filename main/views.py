@@ -1256,14 +1256,14 @@ def party_review_request(request, party_id):
 
   # need to show all the party information
 
-  if request.POST.get('request_party'):
-    # party request made
-    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
-
   if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
+
+  if request.POST.get('request_party'):
+    # party request made
+    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
   data['party'] = party
   data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
@@ -1372,7 +1372,7 @@ def party_details(request, party_id):
   if party_id and int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-  initial_data = {'party': party, u.userprofile.role(): u}
+  initial_data = {'party': party}
 
   taster_form = PartyInviteTasterForm(request.POST or None, initial=initial_data)
   data['invite_form'] = CustomizeInvitationForm(initial={'subject': 'hide'})
