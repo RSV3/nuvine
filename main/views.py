@@ -694,7 +694,7 @@ def place_order(request):
     receiver = get_object_or_404(User, id=request.session['receiver_id'])
     profile = receiver.get_profile()
 
-    current_shipping = receiver.get_profile().shipping_address
+    current_shipping = profile.shipping_address
     receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
 
     data["receiver_state"] = receiver_state
