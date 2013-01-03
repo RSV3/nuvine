@@ -1253,6 +1253,14 @@ def party_find_friends(request, party_id):
   if request.POST.get("next"):
     return HttpResponseRedirect(reverse('party_review_request', args=[party.id]))
 
+  if request.POST.get('add_vinely_party'):
+    # added as vinely event - only possible by pro
+    party.requested = True
+    party.confirmed = True
+    party.save()
+
+    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
+
   data['party'] = party
   data['taster_form'] = taster_form
   # data['options_form'] = options_form
