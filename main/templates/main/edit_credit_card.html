@@ -18,8 +18,8 @@
       <form id="payment-form" class="form-horizontal" method="POST" action="{% url edit_credit_card %}">
         {% csrf_token %}
 
-        <h3>Using {{ receiver_state }} token: {{ publish_token }}</h3>
-        
+        <!-- <h3>DEBUGGING - Using {{ receiver_state }} token: {{ publish_token }}</h3> -->
+
         <fieldset>
           {% if use_stripe %}
             <div class="control-group">
