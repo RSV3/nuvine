@@ -22,21 +22,21 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        ChangeTasterRSVPForm, PartyTasterOptionsForm, AttendeesTable
+                        AttendeesTable
 
-from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
+from accounts.utils import send_verification_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
-                        distribute_party_invites_email, UTC, send_rsvp_thank_you_email, send_host_request_party_email, \
+                        distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message, my_pro, send_new_party_scheduled_by_host_email, \
-                        send_new_party_scheduled_by_host_no_pro_email, preview_party_invites_email, get_default_signature
-from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, NameEmailUserMentorCreationForm, MakeTasterForm
+                        resend_party_invite_email, get_default_invite_message, my_pro, \
+                        preview_party_invites_email, get_default_signature
+from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
 
-import json, uuid, math
+import json, uuid
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -79,7 +79,6 @@ def home(request):
 
     pro_group = Group.objects.get(name='Vinely Pro')
     hos_group = Group.objects.get(name='Vinely Host')
-    sp_group = Group.objects.get(name='Supplier')
 
     # suppliers go directly to orders page
     # if sp_group in u.groups.all():
@@ -695,6 +694,11 @@ def place_order(request):
     receiver = get_object_or_404(User, id=request.session['receiver_id'])
     profile = receiver.get_profile()
 
+    current_shipping = receiver.get_profile().shipping_address
+    receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+
+    data["receiver_state"] = receiver_state
+
     if request.method == "POST":
       # finalize order
 
@@ -731,7 +735,12 @@ def place_order(request):
 
       if request.session['stripe_payment']:
         # charge card to stripe
-        stripe.api_key = settings.STRIPE_SECRET
+
+        if receiver_state == "MI":
+          stripe.api_key = settings.STRIPE_SECRET
+        elif receiver_state == "CA":
+          stripe.api_key = settings.STRIPE_SECRET_CA
+
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
@@ -1033,7 +1042,7 @@ def party_add(request, party_id=None):
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
   else:
     party_date = timezone.now() + timedelta(days=14)
-    party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day+1,
+    party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day + 1,
                                     hour=19, minute=0)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
@@ -1301,6 +1310,7 @@ def party_cancel(request, party_id):
   # Does deleting party cascade delete all of above?
   party.delete()
   return HttpResponseRedirect(reverse('party_add'))
+
 
 @login_required
 def party_remove_taster(request, invite_id):
@@ -2342,8 +2352,10 @@ def edit_credit_card(request):
     # the receiver has not been specified
     raise PermissionDenied
 
+  data["receiver_state"] = receiver_state
+
   # stripe only supported in Michigan
-  if receiver_state == 'MI':
+  if receiver_state == 'MI' or receiver_state == 'CA':
     data['use_stripe'] = True
 
     if request.method == 'POST':
@@ -2392,7 +2404,7 @@ def edit_credit_card(request):
       return HttpResponseRedirect(reverse("place_order"))
 
   else:
-    # other states use Processed through Vinely - MA, CA
+    # other states use Processed through Vinely - MA
     form = PaymentForm(request.POST or None)
 
     if form.is_valid():
@@ -2433,7 +2445,11 @@ def edit_credit_card(request):
       # display different set of buttons if currently in address update stage
       data['update'] = True
 
-  data['publish_token'] = settings.STRIPE_PUBLISHABLE
+  if receiver_state == 'MI':
+    data['publish_token'] = settings.STRIPE_PUBLISHABLE
+  elif receiver_state == 'CA':
+    data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
+
   data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
@@ -2476,8 +2492,6 @@ def party_select(request):
   u = request.user
 
   data = {}
-
-  hos_group = Group.objects.get(name="Vinely Host")
 
   today = timezone.now()
 
