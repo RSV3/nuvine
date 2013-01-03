@@ -2359,7 +2359,11 @@ def edit_credit_card(request):
     data['use_stripe'] = True
 
     if request.method == 'POST':
-      stripe.api_key = settings.STRIPE_SECRET
+      if receiver_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif receiver_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
+
       stripe_token = request.POST.get('stripe_token')
       stripe_card = receiver.get_profile().stripe_card
 
