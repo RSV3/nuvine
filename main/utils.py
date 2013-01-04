@@ -337,7 +337,7 @@ def send_host_vinely_party_email(request, user, pro=None):
   c = RequestContext(request, {"first_name": user.first_name if user.first_name else "Vinely",
                                 "last_name": user.last_name if user.last_name else "Fan",
                                 "email": user.email,
-                                "pro_first_name": pro.first_name if pro.first_name else "Care Specialist",
+                                "pro_first_name": pro.first_name if pro and pro.first_name else "Care Specialist",
                                 "phone": profile.phone,
                                 "host_name": request.get_host(),
                                 "zipcode": user.get_profile().zipcode})
