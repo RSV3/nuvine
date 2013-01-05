@@ -22,7 +22,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        AttendeesTable
+                        AttendeesTable, PartyTasterOptionsForm
 
 from accounts.utils import send_verification_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -31,7 +31,8 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
                         resend_party_invite_email, get_default_invite_message, my_pro, \
-                        preview_party_invites_email, get_default_signature
+                        preview_party_invites_email, get_default_signature, send_host_request_party_email, \
+                        send_new_party_scheduled_by_host_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
@@ -1199,7 +1200,7 @@ def party_find_friends(request, party_id):
   data["parties_menu"] = True
   data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
 
-  initial_data = {'party': party, u.userprofile.role(): u}
+  initial_data = {'party': party}
 
   # allowed_taster_actions = []
 
@@ -1213,7 +1214,6 @@ def party_find_friends(request, party_id):
 
   if request.POST.get('add_taster'):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
-    # options_form = PartyTasterOptionsForm(initial=initial_data)
     party_add_taster(request, party, taster_form)
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
@@ -1230,7 +1230,6 @@ def party_find_friends(request, party_id):
 
   data['party'] = party
   data['taster_form'] = taster_form
-  # data['options_form'] = options_form
   return render_to_response("main/party_find_friends.html", data, context_instance=RequestContext(request))
 
 
@@ -1246,11 +1245,37 @@ def party_review_request(request, party_id):
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
 
+  options_form = PartyTasterOptionsForm(request.POST or None)
+
+  if options_form.is_valid():
+    # once party is confirmed these fields are no longer visible for edit
+    if not party.confirmed:
+      party.auto_invite = options_form.cleaned_data['auto_invite']
+      party.auto_thank_you = options_form.cleaned_data['auto_thank_you']
+      print "Auto thank you: ", party.auto_thank_you
+
+    guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
+    party.guests_see_guestlist = True if 0 in guest_options else False
+    party.guests_can_invite = True if 1 in guest_options else False
+    party.save()
+  else:
+    print options_form.errors
+
   if request.POST.get('request_party'):
+
     # party request made
     party.requested = True
     party.save()
-    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
+    # Send confirmation request to Pro
+    send_host_request_party_email(request, party)
+    party_has_pro = OrganizedParty.objects.filter(party=party)
+    if party_has_pro.exists():
+      send_new_party_scheduled_by_host_email(request, party)
+      messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
+    else:
+      send_new_party_scheduled_by_host_no_pro_email(request, party)
+      messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+    return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data['party'] = party
   data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
@@ -1263,52 +1288,9 @@ def party_review_request(request, party_id):
   except:
     raise Http404
 
-
-  options_form = PartyTasterOptionsForm(request.POST or None, initial=initial_data)
-
-  if options_form.is_valid():
-    guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
-    party.guests_see_guestlist = True if 0 in guest_options else False
-    party.guests_can_invite = True if 1 in guest_options else False
-    party.save()
-
-  #   if request.POST.get("request"):
-  #     party.requested = True
-  #     party.save()
-
-  #     # Send confirmation request to Pro
-  #     send_host_request_party_email(request, party)
-  #     party_has_pro = OrganizedParty.objects.filter(party=party)
-  #     if party_has_pro.exists():
-  #       send_new_party_scheduled_by_host_email(request, party)
-  #       messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
-  #     else:
-  #       send_new_party_scheduled_by_host_no_pro_email(request, party)
-  #       messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
-  #     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
-
-  #   elif request.POST.get('add_vinely_party'):
-  #     # added as vinely event
-  #     party.requested = True
-  #     party.confirmed = True
-  #     party.save()
-
-  #     messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
-  #     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
-  #   else:
-  #     messages.success(request, "The Party taster options were successfully saved.")
-
-  # if party.guests_can_invite:
-  #   initial_data['guests_can_invite'] = CustomizeInvitationForm.GUEST_INVITE_OPTIONS[0]
-
-      # guest_can_invite = [int(x) for x in form.cleaned_data['guests_can_invite']]
-      # once party is confirmed these fields are no longer visible for edit
-      # if not party.confirmed:
-      #   party.auto_invite = True if int(form.cleaned_data['auto_invite']) == 0 else False
-      #   party.auto_thank_you = True if int(form.cleaned_data['auto_thank_you']) == 0 else False
-      #   party.guests_can_invite = bool(guest_can_invite)
   preview = preview_party_invites_email(request, invitation, embed=True)
   data["invite_preview"] = preview
+  data['options_form'] = options_form
   return render_to_response("main/party_review_request.html", data, context_instance=RequestContext(request))
 
 @login_required

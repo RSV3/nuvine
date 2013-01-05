@@ -147,16 +147,7 @@
     <form class="form-horizontal" method="POST" action="{{ app_path }}">
       {% csrf_token %}
       <div class="control-group">
-<!-- 
-        <div class="control-label text-label"><h2>Taster Options</h2></div>
-        <div class="controls" style="padding-top: 11px;">
-          <p>{{ options_form.taster_actions.label }}</p>
-          <p>{{ options_form.taster_actions }}</p>
-        </div>
 
-        <div class="vertical-space"></div>
-        <hr />
- -->
         <div class="vertical-space"></div>
         {% if not party.requested %}
           <div class="row">
@@ -180,9 +171,9 @@
             {% else %}
               <button class="btn btn-primary" name="next" value="next">Next</button>
             {% endif %}
-          </div>
-        </div>
-      </div>
+          </div> <!-- .span4 -->
+        </div> <!-- .row -->
+      </div> <!-- .control-group -->
     </form>
 
   </div>

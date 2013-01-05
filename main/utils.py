@@ -494,7 +494,7 @@ def send_new_party_scheduled_by_host_no_pro_email(request, party):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'care@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -529,7 +529,7 @@ def send_new_party_scheduled_by_host_email(request, party):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'care@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
@@ -919,7 +919,7 @@ def send_host_request_party_email(request, party):
   email_log.save()
 
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
-                              headers={'Reply-To': 'welcome@vinely.com'},  bcc=bcc)
+                              headers={'Reply-To': request.user.email},  bcc=bcc)
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 

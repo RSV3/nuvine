@@ -116,7 +116,7 @@
                   </tr>
                 </tbody>
               </table>
-            </div> <!-- .span2 -->
+            </div> <!-- .span4 -->
           </div> <!-- .row -->
           <div class="vertical-space"></div>
           <table class="summary-table">
@@ -200,8 +200,32 @@
 
     <form class="form-horizontal" method="POST" action="{{ app_path }}">
       {% csrf_token %}
-      <div class="control-group">
+      <section>
+        <div class="row">
+          <div class="span12">
+            <h2>Invite Options</h2> 
+          </div>
+        </div>      
         <div class="vertical-space"></div>
+        <div class="control-group">
+          <label class="control-label">
+            Do you want Vinely to:
+          </label>
+          <div class="controls">
+            <p>{{ options_form.auto_thank_you }}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ options_form.taster_actions.label }}:</label>
+          <div class="controls" style="padding-top: 11px;">
+            <p>{{ options_form.taster_actions }}</p>
+          </div>
+          <div class="vertical-space"></div>
+          <hr />
+        </div>     
+      </section>
+
+      <section>
         {% if not party.requested %}
           <div class="row">
             <div class="span10 offset1">
@@ -228,8 +252,10 @@
             {% endif %}
           </div>
         </div>
-      </div>
+      </section>
+      
     </form>
 
-  </div>
+  </div> <!-- .container -->
+
 {% endblock content %}

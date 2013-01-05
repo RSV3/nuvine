@@ -186,6 +186,19 @@ class PartyCreateForm(forms.ModelForm):
 
 
 class PartyTasterOptionsForm(forms.Form):
+
+  AUTO_INVITE_OPTIONS = (
+    (1, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
+    (0, 'allow you to confirm your invite email again before it is sent out?')
+  )
+  AUTO_THANK_OPTIONS = (
+    #(1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
+    (1, 'send out a Thank You email on your behalf automatically after the party?'),
+    (0, 'let me send my own Thank You email after the party')
+  )
+  auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect, required=False)
+  auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect, required=False, initial=1)
+
   TASTER_OPTIONS = (
     (0, "see the guest list?"),
     (1, "be able to invite friends?"),
@@ -479,22 +492,8 @@ class ShippingForm(forms.ModelForm):
 
 class CustomizeInvitationForm(forms.ModelForm):
 
-  AUTO_INVITE_OPTIONS = (
-    (0, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
-    (1, 'allow you to confirm your invite email again before it is sent out?')
-  )
-  AUTO_THANK_OPTIONS = (
-    (0, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
-    (1, 'let me send my own Thank You email after the party')
-  )
-  GUEST_INVITE_OPTIONS = (
-    (1, 'allow guests to invite friends?'),
-  )
   preview = forms.BooleanField(required=False)
   send = forms.BooleanField(required=False)
-  auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect, required=False)
-  auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect, required=False)
-  guests_can_invite = forms.MultipleChoiceField(choices=GUEST_INVITE_OPTIONS, widget=forms.CheckboxSelectMultiple, required=False)
 
   class Meta:
     model = InvitationSent
