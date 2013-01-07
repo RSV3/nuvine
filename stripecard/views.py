@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 import stripe
 import json
-from main.models import Product
+from main.models import Product, Cart
 from accounts.models import SubscriptionInfo, Zipcode
 
 from stripecard.models import StripeCard
@@ -22,7 +22,7 @@ def shipping(plan):
 
 
 def tax(sub_total, profile):
-    if profile.shipping_address.state == 'MA':
+    if profile.shipping_address.state in Cart.NO_TAX_STATES:
         tax = 0
     else:
         tax = float(sub_total) * 0.06

@@ -328,9 +328,6 @@ class Cart(models.Model):
     # For tasting kit quantity is the number if kits ordered
 
     shipping = 0
-    # for item in self.items.all():
-    #   # always $16 - August 2, 2012
-    #   shipping += 16
     for item in self.items.all():
       # tasting kits
       if item.price_category == 11:
@@ -349,7 +346,6 @@ class Cart(models.Model):
     return shipping
 
   def tax(self):
-    # TODO: tax needs to be calculated based on the state
     if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
     elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
@@ -359,7 +355,6 @@ class Cart(models.Model):
     return tax
 
   def total(self):
-    # TODO: total everything including shipping and tax
     return self.shipping() + self.tax() + self.subtotal()
 
   def items_str(self):

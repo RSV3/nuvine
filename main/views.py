@@ -747,12 +747,16 @@ def place_order(request):
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
         non_sub_orders = order.cart.items.filter(frequency=0)
+        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         for item in non_sub_orders:
-          # one-time only charged immediately at this point
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
+        # create invoice manually if there's no subscription
+        if non_sub_orders.exists() and not sub_orders.exists():
+          invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
+          invoice.pay()
+
         # if subscription exists then create plan
-        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
