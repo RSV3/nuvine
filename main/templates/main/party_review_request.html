@@ -15,6 +15,15 @@
       display: inline;
       margin-right: 10px;
     }
+    .summary-table tr td:first-child {
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+    .summary-table h2 {
+      text-align: left;
+    }
+
   </style>
 {% endblock additional_styles %}
 
@@ -37,7 +46,8 @@
           <table class="summary-table">
             <tbody>
               <tr>
-                <td><h2 class="header-append-edit">Party Info</h2> <a href="{% url party_add party.id %}">edit</a></td>
+                <td><h2>Party Info</h2></td>
+                <td><a href="{% url party_add party.id %}">edit</a></td>
               </tr>
               <tr>
                 <td class="row-label-bold">Date</td>
@@ -152,8 +162,10 @@
         <div class="span2">
           &nbsp; 
         </div>
-        <div class="span8">
+        <div class="span9 framed">
+          <center>
           {{ invite_preview }}
+          </center>
         </div>
         <div class="span2">
           &nbsp; 
@@ -197,9 +209,9 @@
         </tbody>
       </table>    
     </section>
-
     <form class="form-horizontal" method="POST" action="{{ app_path }}">
       {% csrf_token %}
+      <hr />
       <section>
         <div class="row">
           <div class="span12">

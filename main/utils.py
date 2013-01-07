@@ -611,7 +611,7 @@ def preview_party_invites_email(request, invitation_sent, embed=False):
   party_info = get_party_info(invitation_sent.party)
   content += "\n\n" + party_info
 
-  signature = invitation_sent.signature
+  signature = invitation_sent.signature if invitation_sent.signature else get_default_signature(invitation_sent.party)
   content += "\n\n" + signature
 
   c = RequestContext(request, {'host_name': request.get_host(),

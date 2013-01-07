@@ -509,3 +509,11 @@ footer .container .navbar {
 #party-tasters .icon-plus {
   margin-top: 4px;
 }
+
+.framed {
+  margin-bottom: 10px;
+  border: 10px solid #FFF;
+  -moz-box-shadow: 0 0 7px #CCC;
+  -webkit-box-shadow: 0 0 7px #CCC;
+  box-shadow: 0 0 7px #CCC;
+}
