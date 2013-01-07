@@ -196,7 +196,7 @@
             <div class="control-group">
               <div class="control-label">&nbsp;</div>
               <div class="controls">
-                <a href="javascript:;" class="btn btn-primary preview">Preview Invite</a>
+                <button class="btn btn-primary preview" name="preview" value="preview">Preview Invite</button>
                 <button class="btn btn-primary commit" name="save" value="save">Save</button>
               </div>
             </div>
@@ -218,6 +218,7 @@
 
       $('.commit').click(function() {
         saved = true;
+        this.form.target = '_self';
       });
       var form = $('.form-horizontal');
       $('.preview').click(function(e) {
