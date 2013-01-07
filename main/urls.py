@@ -13,6 +13,8 @@ urlpatterns = patterns('main.views',
     url(r'^resend/invite/$', 'resend_rsvp', name='resend_rsvp'),
 
     url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
+    url(r'^host/list/(?P<host_name_email>[@\w\+\-\.]+)/$', 'party_host_list', name='party_host_list'),
+    url(r'^host/info/(?P<host_email>[@\w\+\-\.]+)/$', 'party_host_info', name='party_host_info'),
 
     url(r'^party/list/$', 'party_list', name='party_list'),
     url(r'^party/select/$', 'party_select', name='party_select'),

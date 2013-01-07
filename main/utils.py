@@ -1178,13 +1178,18 @@ def add_form_validation(form):
 
   for field_name in form.fields:
     if form.fields[field_name].required:
+      attrs = form.fields[field_name].widget.attrs
+      attrs['class'] = attrs.get('class', '')
       if isinstance(form.fields[field_name], forms.EmailField):
-        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[email]"
+        attrs['class'] += " validate[required,custom[email]"
       elif isinstance(form.fields[field_name], forms.DateField):
-        form.fields[field_name].widget.attrs['class'] = "datepicker validate[required]"  # ,custom[date]"
+        attrs['class'] += " datepicker validate[required]"  # ,custom[date]"
       elif isinstance(form.fields[field_name], forms.TimeField):
-        form.fields[field_name].widget.attrs['class'] = "timepicker validate[required]"
+        attrs['class'] += " timepicker validate[required]"
       elif isinstance(form.fields[field_name], forms.IntegerField):
-        form.fields[field_name].widget.attrs['class'] = "validate[required,custom[number]"
+        attrs['class'] += " validate[required,custom[number]"
       else:
-        form.fields[field_name].widget.attrs['class'] = "validate[required]"
+        attrs['class'] += " validate[required]"
+
+    if attrs['class']:
+      form.fields[field_name].widget.attrs['class'] = attrs['class']

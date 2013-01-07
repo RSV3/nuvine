@@ -157,7 +157,7 @@
             <fieldset>
               <legend><h2>Host Contact Info</h2></legend>
               {% if pro %}
-                <div class="control-group {% if form.host.errors %}error{% endif %}">
+<!--                 <div class="control-group {% if form.host.errors %}error{% endif %}">
                   <div class="control-label" for="id_host">{{ form.host.label }}</div>
                   <div class="controls">
 
@@ -180,7 +180,7 @@
                   <div class="controls">
                     OR Enter New Host
                   </div>
-                </div>
+                </div> -->
               {% endif %}
               <div class="row">
                 <div class="span5">
@@ -401,7 +401,50 @@
     $(document).ready(function() {
       $('.datepicker').datepicker();
       $('.timepicker').timepicker({'defaultTime': false});
+      $('.typeahead').typeahead({
+        source: function (query, process){
+          console.log("query: " + query);
+          var url = "{% url party_host_list -1 %}".replace(-1, query);
+          console.log("url: " + url);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              return process(json);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              // alert("error: " + errorThrown);
+              console.log("error" + errorThrown)
+            }
+          });
+          return [];
+        },
+        updater: function(item) {
+          console.log('Ze item: ' + item);
+          var host_email = item.split(",")[1].trim()
+          var url = "{% url party_host_info -1 %}".replace(-1, host_email);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              console.log('updater: ' + json);
+              $('#id_first_name').val(json.first_name);
+              $('#id_last_name').val(json.last_name);
+              $('#id_email').val(json.email);
+              $('#id_phone').val(json.phone);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              // alert("error: " + errorThrown);
+              console.log("error" + errorThrown)
+            }
+          });
+        }
+      });
     });
+
   </script>
+
 {% endblock additional_scripts %}
 

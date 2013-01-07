@@ -63,6 +63,8 @@ class PartyCreateForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
     super(PartyCreateForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].widget.attrs['class'] = 'typeahead'
+    self.fields['first_name'].widget.attrs['data-provide'] = 'typeahead'
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()

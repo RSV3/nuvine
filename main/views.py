@@ -973,6 +973,34 @@ def party_list(request):
 
 
 @login_required
+def party_host_list(request, host_name_email):
+  pro = request.user
+  host_name_email = host_name_email.strip()
+
+  # show people who RSVP'ed to the party
+  my_hosts = MyHost.objects.filter(pro=pro)
+  users = User.objects.filter(id__in=[x.host.id for x in my_hosts])
+  users = users.filter(Q(first_name__icontains=host_name_email) | Q(last_name__icontains=host_name_email) | Q(email__icontains=host_name_email)).order_by('first_name')
+  data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
+
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+@login_required
+def party_host_info(request, host_email):
+  data = {}
+  user = User.objects.get(email=host_email)
+  data['first_name'] = user.first_name
+  data['last_name'] = user.last_name
+  data['email'] = user.email
+  data['phone'] = user.userprofile.phone
+
+  # TODO: use most recent address used for this host
+
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+@login_required
 def party_add(request, party_id=None):
   """
     Add a new party
