@@ -455,10 +455,30 @@ table .row-label-bold {
   margin-top: -2px;
 }
 */
+/*
 .partycrumb li {
   height: 190px;
 }
-
+.party-add {
+  background: url('../img/create_party_nav.png') no-repeat 0 -84px; 
+  width: 296px;
+}
+.party-write-invitation {
+  background: url('../img/create_party_nav.png') no-repeat -302px -84px; 
+  width: 256px;
+}
+.party-invite-friends {
+  background: url('../img/create_party_nav.png') no-repeat -562px -84px; 
+  width: 243px;
+}
+.party-review-request {
+  background: url('../img/create_party_nav.png') no-repeat -810px -84px; 
+  width: 260px;
+}
+*/
+.partycrumb li {
+  height: 190px;
+}
 .party-add {
   background: url('../img/create_party_nav.png') no-repeat 0 -82px; 
   width: 298px;
