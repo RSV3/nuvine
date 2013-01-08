@@ -324,7 +324,7 @@ class SubscriptionInfo(models.Model):
   # matrix of frequency x quantity
   STRIPE_PLAN = (
     ('', ),  # one time purchase
-    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly'),  # monthly
+    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
     ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
     ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
   )
@@ -332,8 +332,8 @@ class SubscriptionInfo(models.Model):
   FREQUENCY_CHOICES = (
     (0, 'One-time purchase'),
     (1, 'Monthly'),
-    (2, 'Bi-Monthly'),
-    (3, 'Quarterly'),
+    # (2, 'Bi-Monthly'),
+    # (3, 'Quarterly'),
     (9, 'No Subscription'),
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
@@ -347,6 +347,9 @@ class SubscriptionInfo(models.Model):
     (8, 'Superior: Half Case (6 bottles)'),
     (9, 'Divine: Full Case (12 bottles)'),
     (10, 'Divine: Half Case (6 bottles)'),
+    (12, '3 Bottles'),
+    (13, '6 Bottles'),
+    (14, '12 Bottles'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField()
@@ -354,6 +357,7 @@ class SubscriptionInfo(models.Model):
 
   def __unicode__(self):
     return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
+
 
 class Zipcode(models.Model):
   '''

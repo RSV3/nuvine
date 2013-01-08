@@ -357,7 +357,8 @@ def start_order(request, receiver_id=None, party_id=None):
       messages.error(request, "You can only order for a taster up to 24 hours after the party.")
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
-  return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+  # return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+  return HttpResponseRedirect(reverse('cart_add_wine', args=['divine']))
 
 
 def cart_add_tasting_kit(request, party_id=0):
@@ -437,7 +438,7 @@ def cart_add_tasting_kit(request, party_id=0):
     return HttpResponseRedirect(reverse("cart"))
 
   if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
-    products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).order_by('unit_price')
+    products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).order_by('unit_price')
     data["product"] = products[0]
     form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
     data["form"] = form
@@ -470,6 +471,7 @@ def cart_add_wine(request, level="x"):
   form = AddWineToCartForm(request.POST or None)
 
   if form.is_valid():
+    # raise Exception
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -527,15 +529,15 @@ def cart_add_wine(request, level="x"):
   # big image of wine
   # TODO: need to check wine personality and choose the right product
   try:
-    product = Product.objects.get(cart_tag=level)
-  except Product.DoesNotExist:
+    product = Product.objects.filter(cart_tag=level, active=True)[0]
+  except:
     # not a valid product
     raise Http404
 
   description_template = Template(product.description)
   product.description = description_template.render(Context({'personality': personality.name}))
   product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  product.unit_price = product.full_case_price
+  # product.unit_price = product.full_case_price
   data["product"] = product
   data["personality"] = personality
 
@@ -691,6 +693,11 @@ def place_order(request):
     receiver = get_object_or_404(User, id=request.session['receiver_id'])
     profile = receiver.get_profile()
 
+    current_shipping = profile.shipping_address
+    receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+
+    data["receiver_state"] = receiver_state
+
     if request.method == "POST":
       # finalize order
 
@@ -727,21 +734,32 @@ def place_order(request):
 
       if request.session['stripe_payment']:
         # charge card to stripe
-        stripe.api_key = settings.STRIPE_SECRET
+
+        if receiver_state == "MI":
+          stripe.api_key = settings.STRIPE_SECRET
+        elif receiver_state == "CA":
+          stripe.api_key = settings.STRIPE_SECRET_CA
+
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
         non_sub_orders = order.cart.items.filter(frequency=0)
+        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         for item in non_sub_orders:
-          # one-time only charged immediately at this point
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
 
+        # create invoice manually if there's no subscription
+        if non_sub_orders.exists() and not sub_orders.exists():
+          invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
+          invoice.pay()
+
         # if subscription exists then create plan
-        sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          print "freq", item.frequency
+          print "category", item.price_category
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
@@ -1923,12 +1941,15 @@ def edit_credit_card(request):
     # the receiver has not been specified
     raise PermissionDenied
 
-  # stripe only supported in Michigan
-  if receiver_state == 'MI':
+  # stripe only supported in MI, CA
+  if receiver_state in Cart.STRIPE_STATES:
     data['use_stripe'] = True
 
     if request.method == 'POST':
-      stripe.api_key = settings.STRIPE_SECRET
+      if receiver_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif receiver_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
       stripe_token = request.POST.get('stripe_token')
       stripe_card = receiver.get_profile().stripe_card
 
@@ -1973,7 +1994,7 @@ def edit_credit_card(request):
       return HttpResponseRedirect(reverse("place_order"))
 
   else:
-    # other states use Processed through Vinely - MA, CA
+    # other states use Processed through Vinely - MA
     form = PaymentForm(request.POST or None)
 
     if form.is_valid():
@@ -2014,7 +2035,11 @@ def edit_credit_card(request):
       # display different set of buttons if currently in address update stage
       data['update'] = True
 
-  data['publish_token'] = settings.STRIPE_PUBLISHABLE
+  if receiver_state == 'MI':
+    data['publish_token'] = settings.STRIPE_PUBLISHABLE
+  elif receiver_state == 'CA':
+    data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
+
   data["shop_menu"] = True
   return render_to_response("main/edit_credit_card.html", data, context_instance=RequestContext(request))
 
@@ -2033,17 +2058,27 @@ def cart_kit_detail(request, kit_id):
 def cart_quantity(request, level, quantity):
   '''
   Quantity:
-  1 = full case
-  2 = half case
+  1 = 3 bottles
+  2 = 6 bottles
+  3 = 12 bottles
   '''
+  data = {}
+  quantity = int(quantity)
+
+  if quantity == 1:
+    name = "3 Bottles"
+  elif quantity == 2:
+    name = "6 Bottles"
+  elif quantity == 3:
+    name = "12 Bottles"
 
   try:
-    product = Product.objects.get(cart_tag=level)
+    product = Product.objects.get(cart_tag=level, name=name)
   except Product.DoesNotExist:
     # not a valid product
     raise Http404
-  data = {}
-  data['price'] = "%.2f" % (product.full_case_price if int(quantity) == 1 else product.unit_price)
+
+  data['price'] = "%.2f" % product.unit_price
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
 

@@ -231,6 +231,10 @@ class LineItem(models.Model):
       (9, 'Divine: Full Case (12 bottles)'),
       (10, 'Divine: Half Case (6 bottles)'),
       (11, 'Host Tasting Kit'),
+      (12, '3 Bottles'),
+      (13, '6 Bottles'),
+      (14, '12 Bottles'),
+
   )
 
   product = models.ForeignKey(Product, null=True)
@@ -256,6 +260,8 @@ class LineItem(models.Model):
   def quantity_str(self):
     if self.price_category in [5, 6, 7, 8, 9, 10]:
       return "Full Case" if self.quantity == 1 else "Half Case"
+    elif self.price_category in [12, 13, 14]:
+      return self.product.name
     else:
       return str(self.quantity)
 
@@ -284,6 +290,8 @@ class Cart(models.Model):
 
   NO_TAX_STATES = ('MA',)
 
+  STRIPE_STATES = ('MI', 'CA')
+
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
 
   # tracks activity in the carts
@@ -310,21 +318,35 @@ class Cart(models.Model):
 
     shipping = 0
     # for item in self.items.all():
-    #   # always $16 - August 2, 2012
     #   shipping += 16
     for item in self.items.all():
       # tasting kits
       if item.price_category == 11:
         shipping += 16 * item.quantity
 
-      # wine cases
-      elif (item.price_category in [5, 7, 9]):
-        # full case
+      if item.price_category == 14:
         shipping += 16
 
-    # calculate for half cases
-    half_case_count = self.items.filter(price_category__in=[6, 8, 10]).count()
+      # wine cases
+    #   elif (item.price_category in [5, 7, 9]):
+    #     # full case
+    #     shipping += 16
 
+    # # calculate for half cases
+    # half_case_count = self.items.filter(price_category__in=[6, 8, 10]).count()
+
+    # shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
+
+    quarter_case_count = self.items.filter(price_category=12).count()
+    x = (quarter_case_count * 4) / 12
+    y = (quarter_case_count * 4) % 12
+    if y == 0:
+      ship = x * 16
+    else:
+      ship = (x + 1) * 16
+    shipping += ship
+
+    half_case_count = self.items.filter(price_category=13).count()
     shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
 
     return shipping
