@@ -825,7 +825,7 @@ def order_complete(request, order_id):
     order = Order.objects.get(order_id=order_id)
   except Order.DoesNotExist:
     raise Http404
-
+  print 'fulfill_status', order.fulfill_status
   if order.fulfill_status == 0:
     # update subscription information if new order
     for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
@@ -841,7 +841,7 @@ def order_complete(request, order_id):
         subscription = SubscriptionInfo(user=order.receiver,
                                       quantity=item.price_category,
                                       frequency=item.frequency)
-
+      print 'subscription', subscription
       if item.frequency == 1:
         next_invoice = from_date + relativedelta(months=+1)
       elif item.frequency == 2:
