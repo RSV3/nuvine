@@ -192,7 +192,7 @@
 
         $.ajax({
           type: "GET",
-          url: "{% url party_edit_taster_info 0 %}".replace(0, $(this).attr('data-invite')),
+          url: "{% url party_edit_taster_info 0 %}?next={{ request.path }}".replace(0, $(this).attr('data-invite')),
           cache: false,
           dataType: "html",
           success: function(html, textStatus) {

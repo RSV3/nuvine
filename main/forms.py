@@ -237,21 +237,21 @@ class PartyInviteTasterForm(forms.ModelForm):
 
     add_form_validation(self)
 
-    tas_group = Group.objects.get(name="Vinely Taster")
+    # tas_group = Group.objects.get(name="Vinely Taster")
 
-    if initial.get('host'):
-      # only get users linked to this host
-      my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    elif initial.get('pro'):
-      # only get users linked to this host
-      my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
-      users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    else:
-      # everything
-      users = User.objects.none()
+    # if initial.get('host'):
+    #   # only get users linked to this host
+    #   my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
+    #   users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
+    # elif initial.get('pro'):
+    #   # only get users linked to this host
+    #   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
+    #   users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
+    # else:
+    #   # everything
+    #   users = User.objects.none()
 
-    self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+    # self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
   def clean(self):
 
@@ -306,7 +306,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     if self._errors.get('invitee'):
       raise forms.ValidationError('Pick a guest from the list or Enter the Attendee details to add')
 
-    if 'party' in cleaned_data and 'invitee' in cleaned_data:
+    if 'party' in cleaned_data and 'invitee' in cleaned_data and not self.initial.get('change_rsvp'):
       party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
       if party_invited.exists():
         raise forms.ValidationError("Invitee (%s) has already been invited to the party" % cleaned_data['invitee'].email)

@@ -5,7 +5,8 @@
       <h3 class="center">Edit Taster Info</h3>
     </div>
     <div class="modal-body">
-      <form method="POST" class="form-horizontal" action="{% url party_edit_taster_info invite.id %}">{% csrf_token %}
+      <form method="POST" class="form-horizontal" action="{% url party_edit_taster_info invite.id 't' %}?next={{ previous_page }}">
+        {% csrf_token %}
         <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
         {{ taster_form.party }}
         <br />
@@ -40,6 +41,8 @@
               {{ taster_form.response }}
             </div>
           </div>
+        {% else %}
+          {{ taster_form.response }}
         {% endif %}
         <div class="modal-footer">
           <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>

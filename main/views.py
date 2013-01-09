@@ -1409,8 +1409,10 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
 
   form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
 
+  previous_page = request.GET.get('next', reverse('party_details', args=[invite.party.id]))
+  data['previous_page'] = previous_page
+
   if request.method == 'POST':
-    previous_page = request.POST.get('next', reverse('party_details', args=[invite.party.id]))
     if form.is_valid():
       old_invite = PartyInvite.objects.get(id=invite_id)
       invite = form.save()
