@@ -758,8 +758,6 @@ def place_order(request):
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          print "freq", item.frequency
-          print "category", item.price_category
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
