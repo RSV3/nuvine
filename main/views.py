@@ -361,7 +361,8 @@ def start_order(request, receiver_id=None, party_id=None):
       messages.error(request, "You can only order for a taster up to 24 hours after the party.")
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
-  return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+  # return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
+  return HttpResponseRedirect(reverse('cart_add_wine', args=['divine']))
 
 
 def cart_add_tasting_kit(request, party_id=0):
@@ -441,7 +442,7 @@ def cart_add_tasting_kit(request, party_id=0):
     return HttpResponseRedirect(reverse("cart"))
 
   if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
-    products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).order_by('unit_price')
+    products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).order_by('unit_price')
     data["product"] = products[0]
     form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
     data["form"] = form
@@ -474,6 +475,7 @@ def cart_add_wine(request, level="x"):
   form = AddWineToCartForm(request.POST or None)
 
   if form.is_valid():
+    # raise Exception
     # if ordering tasting kit make sure thats the only thing in the cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -531,15 +533,15 @@ def cart_add_wine(request, level="x"):
   # big image of wine
   # TODO: need to check wine personality and choose the right product
   try:
-    product = Product.objects.get(cart_tag=level)
-  except Product.DoesNotExist:
+    product = Product.objects.filter(cart_tag=level, active=True)[0]
+  except:
     # not a valid product
     raise Http404
 
   description_template = Template(product.description)
   product.description = description_template.render(Context({'personality': personality.name}))
   product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  product.unit_price = product.full_case_price
+  # product.unit_price = product.full_case_price
   data["product"] = product
   data["personality"] = personality
 
@@ -2394,7 +2396,7 @@ def edit_credit_card(request):
   data["receiver_state"] = receiver_state
 
   # stripe only supported in Michigan
-  if receiver_state == 'MI' or receiver_state == 'CA':
+  if receiver_state in Cart.STRIPE_STATES:
     data['use_stripe'] = True
 
     if request.method == 'POST':
@@ -2511,17 +2513,27 @@ def cart_kit_detail(request, kit_id):
 def cart_quantity(request, level, quantity):
   '''
   Quantity:
-  1 = full case
-  2 = half case
+  1 = 3 bottles
+  2 = 6 bottles
+  3 = 12 bottles
   '''
+  data = {}
+  quantity = int(quantity)
+
+  if quantity == 1:
+    name = "3 Bottles"
+  elif quantity == 2:
+    name = "6 Bottles"
+  elif quantity == 3:
+    name = "12 Bottles"
 
   try:
-    product = Product.objects.get(cart_tag=level)
+    product = Product.objects.get(cart_tag=level, name=name)
   except Product.DoesNotExist:
     # not a valid product
     raise Http404
-  data = {}
-  data['price'] = "%.2f" % (product.full_case_price if int(quantity) == 1 else product.unit_price)
+
+  data['price'] = "%.2f" % product.unit_price
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
 

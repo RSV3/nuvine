@@ -357,12 +357,14 @@ class VinelyProSignupForm(EmailUserCreationForm):
 
 class AddWineToCartForm(forms.ModelForm):
   level = forms.CharField(widget=forms.HiddenInput)
+  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[1][0], active=True))
 
   def __init__(self, *args, **kwargs):
     super(AddWineToCartForm, self).__init__(*args, **kwargs)
-    self.fields['quantity'].widget = forms.Select()
-    self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')]
-    self.fields['product'].widget = forms.HiddenInput()
+    # self.fields['product'].widget = forms.Select()
+    # self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')]
+    # self.fields['quantity'].widget.choices = [(1, '3 Bottles'), (2, '6 Bottles'), (3, '12 Bottles')]
+    self.fields['quantity'].widget = forms.HiddenInput()
     self.fields['total_price'].widget = forms.HiddenInput()
 
   class Meta:
@@ -371,23 +373,29 @@ class AddWineToCartForm(forms.ModelForm):
 
   def clean(self):
     cleaned_data = super(AddWineToCartForm, self).clean()
-
-    quantity = int(cleaned_data['quantity'])
-    if cleaned_data['level'] == "basic":
-      if quantity == 1:
-        price_category = 5
-      elif quantity == 2:
-        price_category = 6
-    elif cleaned_data['level'] == "superior":
-      if quantity == 1:
-        price_category = 7
-      elif quantity == 2:
-        price_category = 8
-    elif cleaned_data['level'] == "divine":
-      if quantity == 1:
-        price_category = 9
-      elif quantity == 2:
-        price_category = 10
+    print "cleaned_data", cleaned_data
+    # quantity = int(cleaned_data['quantity'])
+    # if cleaned_data['level'] == "basic":
+    #   if quantity == 1:
+    #     price_category = 5
+    #   elif quantity == 2:
+    #     price_category = 6
+    # elif cleaned_data['level'] == "superior":
+    #   if quantity == 1:
+    #     price_category = 7
+    #   elif quantity == 2:
+    #     price_category = 8
+    # elif cleaned_data['level'] == "divine":
+      # if quantity == 1:
+      #   price_category = 9
+      # elif quantity == 2:
+      #   price_category = 10
+    if cleaned_data['product'].name == '3 Bottles':
+      price_category = 12
+    elif cleaned_data['product'].name == '6 Bottles':
+      price_category = 13
+    elif cleaned_data['product'].name == '12 Bottles':
+      price_category = 14
 
     cleaned_data['price_category'] = price_category
     del self._errors['price_category']
@@ -396,7 +404,7 @@ class AddWineToCartForm(forms.ModelForm):
 
 
 class AddTastingKitToCartForm(forms.ModelForm):
-  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]))
+  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True))
   #quantity = forms.ChoiceField(choices=((0, 1), (1, 2)))
 
   def __init__(self, *args, **kwargs):

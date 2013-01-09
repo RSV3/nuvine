@@ -63,33 +63,35 @@
           <h2>You dont have a Pro yet</h2>
         </div>
       {% endif %}
-    {% if pro %}
-      <div class="span5">
-        <table class="summary-table">
-          <tbody>
-            <tr>
-              <td><h2>&nbsp;</h2></td>
-            </tr>
-            <tr>
-              <td><u>Commission</u></td>
-              <td><p>{% if my_pro.first_name %} {{ my_pro.first_name }} {{ my_pro.last_name }}{% else %}Friendly Pro{% endif %} </p></td>
-            </tr>
-            <tr>
-              <td>My Parties</td>
-              <td><p>{{ pro_commission|currency }}</p></td>
-            </tr>
-            <tr>
-              <td>Mentee Parties</td>
-              <td><p>{{ mentee_commission|currency }}</p></td>
-            </tr>
-            <tr>
-              <td>Total</td>
-              <td><p>{{ total_commission|currency }}</p></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    {% endif %}
+    {% comment %}
+      {% if pro %}
+        <div class="span5">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td><h2>&nbsp;</h2></td>
+              </tr>
+              <tr>
+                <td><u>Commission</u></td>
+                <td><p>{% if my_pro.first_name %} {{ my_pro.first_name }} {{ my_pro.last_name }}{% else %}Friendly Pro{% endif %} </p></td>
+              </tr>
+              <tr>
+                <td>My Parties</td>
+                <td><p>{{ pro_commission|currency }}</p></td>
+              </tr>
+              <tr>
+                <td>Mentee Parties</td>
+                <td><p>{{ mentee_commission|currency }}</p></td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td><p>{{ total_commission|currency }}</p></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    {% endcomment %}
   </div>
   <!-- <hr /> -->
   {# pro should ony see this section if they have something to see #}
@@ -127,7 +129,7 @@
                       <th>Phone</th>
                       <th>Location</th>
                       <th>Tasters</th>
-                      <th>Commission</th>
+                      {# <th>Commission</th> #}
                     </thead>
                   {% endif %}
                   <tbody>
@@ -140,7 +142,7 @@
                       <td>{{ party.phone }}</td>
                       <td>{{ party.address }}</td>
                       <td>{{ party.invitees }}</td>
-                      <td>{{ party.pro_commission|currency }}</td>
+                      {# <td>{{ party.pro_commission|currency }}</td> #}
                     </tr>
                   {% empty %}
                     <div class="center">You have not managed any parties yet.</div>

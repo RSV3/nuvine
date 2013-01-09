@@ -54,6 +54,7 @@ PyYAML==3.1
 sorl-thumbnail==11.12
 -e git://github.com/jamstooks/django-s3-folder-storage.git#egg=django_s3_folder_storage-dev
 xlrd==0.8.0
+requests==1.0.4
 stripe==1.7.7
 newrelic
 pyPdf==1.13
