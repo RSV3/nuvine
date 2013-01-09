@@ -12,10 +12,12 @@ class Migration(DataMigration):
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
         orm.Product.objects.all().update(active=False)
         orm.Product.objects.create(name="Vinely Taste Kit",
-                                    description="<p>This is the official Vinely First Taste Kit that will help Vinely Tasters \
-                                        discover their true wine personality. Included are six carefully-selected wines, which offer \
-                                        an unmatched, unforgettable experience</p>",
-                                    unit_price=225.00,
+                                    description="<p>The Vinely First Taste Kit helps Vinely Tasters discover their true wine \
+                                                personality. It includes six bottles of wine, each carefully selected for \
+                                                certain attributes to help Vinely understand your taste in wine.</p> \
+                                                <p>The kit also includes materials needed to conduct a Vinely tasting and \
+                                                record each taster’s preferences.</p>",
+                                    unit_price=139.00,
                                     category=0,
                                     cart_tag="tasting_kit")
 
