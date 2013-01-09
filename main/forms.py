@@ -227,10 +227,10 @@ class PartyInviteTasterForm(forms.ModelForm):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
     initial = kwargs.get('initial')
 
-    self.fields['first_name'].widget.attrs = {"placeholder": "First Name"}
-    self.fields['last_name'].widget.attrs = {"placeholder": "Last Name"}
-    self.fields['email'].widget.attrs = {"placeholder": "Email"}
-    self.fields['phone'].widget.attrs = {"placeholder": "Phone"}
+    self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead'}
+    self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead'}
+    self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead'}
+    self.fields['phone'].widget.attrs = {'placeholder': 'Phone'}
     self.fields['party'].widget = forms.HiddenInput()
     if not initial.get('change_rsvp') == 't':
       self.fields['response'].widget = forms.HiddenInput()

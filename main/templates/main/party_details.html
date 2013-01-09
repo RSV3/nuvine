@@ -165,6 +165,7 @@
         <div class="row">
           <div class="span12">
             <h2>Tasters Attending</h2>
+            {% comment %}
               {% if pro or host or taster and party.guests_can_invite %}
                 <p><h3>Add Taster</h3></p>
                 {% if pro or host %}
@@ -179,6 +180,7 @@
                   <p><h3>or add new taster</h3></p>
                 {% endif %}
               {% endif %}
+            {% endcomment %}
           </div>
         </div>        
         <div class="row">
@@ -304,7 +306,47 @@
             console.log("errorThrown:" + XMLHttpRequest);
           }
         });
-      });      
+      });
+
+      //typeahead
+      $('.typeahead').typeahead({
+        source: function (query, process){
+          // console.log("query: " + query);
+          var url = "{% url my_taster_list -1 %}".replace(-1, query);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              return process(json);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+          return [];
+        },
+        updater: function(item) {
+          console.log('Ze item: ' + item);
+          var host_email = item.split(",")[1].trim()
+          var url = "{% url party_user_info -1 %}".replace(-1, host_email);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              console.log('updater: ' + json);
+              $('#id_first_name').val(json.first_name);
+              $('#id_last_name').val(json.last_name);
+              $('#id_email').val(json.email);
+              $('#id_phone').val(json.phone);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+        }
+      });
     });
   </script>
 {% endblock additional_scripts %}

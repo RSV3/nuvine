@@ -989,9 +989,31 @@ def party_host_list(request, host_name_email):
 
 
 @login_required
-def party_host_info(request, host_email):
+def my_taster_list(request, taster_name_email):
+  u = request.user
+  taster_name_email = taster_name_email.strip()
+
+  if u.userprofile.is_host():
+    # only get users linked to this host
+    my_guests = PartyInvite.objects.filter(party__host=u)
+    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')
+  elif u.userprofile.is_pro():
+    # only get users linked to this pro
+    my_guests = PartyInvite.objects.filter(party__organizedparty__pro=u)
+    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')
+  else:
+    # nothing
+    users = User.objects.none()
+
+  data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
+
+  return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+@login_required
+def party_user_info(request, user_email):
   data = {}
-  user = User.objects.get(email=host_email)
+  user = User.objects.get(email=user_email)
   data['first_name'] = user.first_name
   data['last_name'] = user.last_name
   data['email'] = user.email
@@ -1523,27 +1545,28 @@ def party_confirm(request, party_id):
   messages.success(request, 'Congratulations! Your party has been scheduled')
   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
-@login_required
-def party_taster_list(request, party_id):
-  """
-    Show Vinely Tasters of a party
-  """
 
-  data = {}
+# @login_required
+# def party_taster_list(request, party_id):
+#   """
+#     Show Vinely Tasters of a party
+#   """
 
-  u = request.user
+#   data = {}
 
-  party = None
-  if party_id and int(party_id) != 0:
-    party = get_object_or_404(Party, pk=party_id)
+#   u = request.user
 
-  invitees = PartyInvite.objects.filter(party=party)
+#   party = None
+#   if party_id and int(party_id) != 0:
+#     party = get_object_or_404(Party, pk=party_id)
 
-  data["party"] = party
-  data["invitees"] = invitees
-  data["parties_menu"] = True
+#   invitees = PartyInvite.objects.filter(party=party)
 
-  return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
+#   data["party"] = party
+#   data["invitees"] = invitees
+#   data["parties_menu"] = True
+
+#   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
 
 # @login_required

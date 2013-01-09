@@ -423,7 +423,7 @@
         updater: function(item) {
           console.log('Ze item: ' + item);
           var host_email = item.split(",")[1].trim()
-          var url = "{% url party_host_info -1 %}".replace(-1, host_email);
+          var url = "{% url party_user_info -1 %}".replace(-1, host_email);
           $.ajax({
             url: url,
             cache: true,
