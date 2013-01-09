@@ -1831,6 +1831,8 @@ def party_write_invitation(request, party_id):
 def party_preview_invitation(request, party_id):
   u = request.user
 
+  data = {}
+
   if u.userprofile.events_manager():
     party = get_object_or_404(Party, id=party_id)
   else:
@@ -1842,7 +1844,9 @@ def party_preview_invitation(request, party_id):
     raise Http404
 
   preview = preview_party_invites_email(request, invitation)
-  return HttpResponse(preview)
+  data['invite_preview'] = preview
+  # return HttpResponse(preview)
+  return render_to_response("main/party_preview_invitation.html", data, context_instance=RequestContext(request))
 
 
 @login_required
