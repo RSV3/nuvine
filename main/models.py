@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
@@ -55,6 +56,7 @@ class Party(models.Model):
   guests_see_guestlist = models.BooleanField()
   confirmed = models.BooleanField()
   requested = models.BooleanField()
+  setup_stage = models.IntegerField(default=1)
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -64,6 +66,19 @@ class Party(models.Model):
       return "%s by %s <%s>" % (self.title, self.host.first_name, self.host.email)
     else:
       return "%s by <%s>" % (self.title, self.host.email)
+
+  def party_setup_url(self):
+    url = 'party_details'
+    if not self.requested and not self.confirmed:
+      if self.setup_stage == 1:
+        url = 'party_add'
+      elif self.setup_stage == 2:
+        url = 'party_write_invitation'
+      elif self.setup_stage == 3:
+        url = 'party_find_friends'
+      elif self.setup_stage == 4:
+        url = 'party_review_request'
+    return reverse(url, args=[self.id])
 
   @property
   def pro(self):

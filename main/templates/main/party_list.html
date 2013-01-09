@@ -23,6 +23,15 @@
   <div class="row">
       {% if my_pro %}
         <div class="span7">
+          <div class="vertical-space">&nbsp;</div>
+          <p>
+            <a href="{% url start_order %}" class="btn btn-primary btn-large">Shop</a>
+          </p>
+          <p>
+            <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
+          </p>
+        </div>
+        <div class="span5">
           <table class="summary-table">
             <tbody>
               <tr>
@@ -53,9 +62,11 @@
           </table>
           <!-- <div class="span3"> -->
           <br />
+<!-- 
           <p>
             <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
           </p>
+ -->
           <!-- </div> -->
         </div>
       {% else %}
@@ -255,8 +266,8 @@
                       <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
                       <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
                       <!-- <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td> -->
-                      {% if user.get_profile.events_manager and not party.confirmed %}
-                        <td><a href="{% url party_add party.id %}">{{ party.title }}</a></td>
+                      {% if user.get_profile.events_manager and not party.requested %}
+                        <td><a href="{{ party.party_setup_url }}">{{ party.title }}</a></td>
                       {% else %}
                         <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                       {% endif %}
@@ -296,7 +307,7 @@
                     <tr>
                       <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
                       {% if host and not party.requested %}
-                        <td><a href="{% url party_add party.id %}">{{ party.title }}</a></td>
+                        <td><a href="{{ party.party_setup_url }}">{{ party.title }}</a></td>
                       {% else %}
                         <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
                       {% endif %}

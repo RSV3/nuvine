@@ -1097,6 +1097,9 @@ def party_add(request, party_id=None):
     party_date = timezone.localtime(party.event_date)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
+    party.setup_stage = 1
+    party.save()
+
   else:
     party_date = timezone.now() + timedelta(days=14)
     party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day + 1,
@@ -1122,6 +1125,7 @@ def party_add(request, party_id=None):
         new_party.guests_see_guestlist = old_party.guests_see_guestlist
         new_party.confirmed = old_party.confirmed
         new_party.requested = old_party.requested
+        # new_party.setup_stage = 1
       new_party.save()
       new_host = new_party.host
 
@@ -1249,6 +1253,9 @@ def party_find_friends(request, party_id):
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
 
+  party.setup_stage = 3
+  party.save()
+
   if party.requested and not u.userprofile.events_manager():
     messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
     return HttpResponseRedirect(reverse('party_details', args=[party_id]))
@@ -1280,6 +1287,7 @@ def party_find_friends(request, party_id):
     # added as vinely event - only possible by pro
     party.requested = True
     party.confirmed = True
+    # party.setup_stage = 3
     party.save()
 
     return HttpResponseRedirect(reverse('party_details', args=[party.id]))
@@ -1300,6 +1308,9 @@ def party_review_request(request, party_id):
     party = get_object_or_404(Party, id=party_id)
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
+
+  party.setup_stage = 4
+  party.save()
 
   initial_data = {'party': party}
 
@@ -1325,6 +1336,7 @@ def party_review_request(request, party_id):
     guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
     party.guests_see_guestlist = True if 0 in guest_options else False
     party.guests_can_invite = True if 1 in guest_options else False
+    # party.setup_stage = 4
     party.save()
   # else:
   #   print options_form.errors
@@ -1784,6 +1796,9 @@ def party_write_invitation(request, party_id):
   else:
     party = get_object_or_404(Party, id=party_id, host=u)
 
+  party.setup_stage = 2
+  party.save()
+
   try:
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
   except:
@@ -1807,7 +1822,7 @@ def party_write_invitation(request, party_id):
     if form.is_valid():
       invitation = form.save()
       party = invitation.party
-
+      # party.setup_stage = 2
       party.save()
 
       # messages.success(request, "Your invitation message was successfully saved.")

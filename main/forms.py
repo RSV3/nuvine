@@ -59,6 +59,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
+    exclude = ['setup_stage']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
