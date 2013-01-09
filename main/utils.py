@@ -1127,14 +1127,28 @@ def generate_pro_account_number():
 def get_default_invite_message(party):
   message_text = '''
 
-  What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.
+  Please join me for a Vinely Taste Party. Vinely is part wine tasting, part wine club, and part, well... party.
 
-  The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.
+  We won't be...
+  <ul>
+    <li>Sniffing, swirling, spitting</li>
+    <li>Using words like 'silky blackberry woodchips', 'wet dog', or 'notes of grass'</li>
+    <li>Studying wine regions of the world</li>
+  </ul>
+
+  We will be...
+  <ul>
+    <li>Blind tasting 6 wines. Don't worry only the wine is blindfolded.</li>
+    <li>Using our tastebuds to rate those wines, no degree required.</li>
+    <li>Discovering our wine personalities. We'll separate the Moxies from the Sensational, the Exuberant from the Easygoing, and the Whimsical from the Serendipitous.</li>
+    <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
+  </ul>
+
+  With Vinely, the more you drink, the more they learn about what you like. So lets start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
 
   '''
   template = Template(message_text)
-  rsvp_date = party.event_date - timedelta(days=5)
-  context = Context({'rsvp_date': rsvp_date, 'party': party})
+  context = Context()
   return template.render(context)
 
 
@@ -1191,5 +1205,5 @@ def add_form_validation(form):
       else:
         attrs['class'] += " validate[required]"
 
-    if attrs['class']:
-      form.fields[field_name].widget.attrs['class'] = attrs['class']
+      if attrs['class']:
+        form.fields[field_name].widget.attrs['class'] = attrs['class']

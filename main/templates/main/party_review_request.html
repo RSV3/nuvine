@@ -50,11 +50,11 @@
                 <td><a href="{% url party_add party.id %}">edit</a></td>
               </tr>
               <tr>
-                <td class="row-label-bold">Date</td>
+                <td>Date</td>
                 <td><p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p></td>
               </tr>
               <tr>
-                <td class="row-label-bold">Location</td>
+                <td>Location</td>
                 <td>
                   <p>{{ party.address.street1 }}</p>
                   <p>{{ party.address.street2 }}</p>
@@ -63,17 +63,17 @@
               </tr>
               <tr><td>&nbsp;</td></tr>
               <tr>
-                <td class="row-label-bold">Host Name</td>
+                <td>Host Name</td>
                 <td>
                   <p>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</p>
                 </td>
               </tr>
               <tr>
-                <td class="row-label-bold">Host Phone</td>
+                <td>Host Phone</td>
                 <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}---{% endif %}</p></td>
               </tr>
               <tr>
-                <td class="row-label-bold">Host E-mail</td>
+                <td>Host E-mail</td>
                 <td><a href="mailto:{{ party.host.email }}">{{ party.host.email }}</td>
               </tr>
             </tbody>
@@ -109,19 +109,19 @@
                     <td><h2>&nbsp;</h2></td>
                   </tr>
                   <tr>
-                    <td class="row-label-bold">Name</td>
+                    <td>Name</td>
                     <td>
                       <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
                     </td>
                   </tr>
                   <tr>
-                    <td class="row-label-bold">Phone</td>
+                    <td>Phone</td>
                     <td>
                       <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}---{% endif %}</p>
                     </td>
                   </tr>
                   <tr>
-                    <td class="row-label-bold">Email</td>
+                    <td>Email</td>
                     <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
                   </tr>
                 </tbody>
@@ -132,7 +132,7 @@
           <table class="summary-table">
             <tbody>
               <tr>
-                <td class="row-label-bold">Special Instructions</td>
+                <td>Special Instructions</td>
                 <td>{{ party.description }}</td>
               </tr>
             </tbody>
@@ -252,11 +252,11 @@
 
         <div class="row">
           <div class="span1">&nbsp;</div>
-          <div class="span7">
+          <div class="span8">
             <a href="{% url party_find_friends party.id %}" class="btn btn-primary">Back</a>
             <button class="btn btn-primary" name="save" value="save">Save</button>
           </div>
-          <div class="span4">
+          <div class="span3">
             {% if user.get_profile.events_manager %}
               <button class="btn btn-primary" name="add_vinely_party" value="add_vinely_party">Add Party</button>
             {% else %}
