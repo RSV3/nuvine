@@ -232,7 +232,9 @@ class PartyInviteTasterForm(forms.ModelForm):
     self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead'}
     self.fields['phone'].widget.attrs = {'placeholder': 'Phone'}
     self.fields['party'].widget = forms.HiddenInput()
-    if not initial.get('change_rsvp') == 't':
+    if initial.get('change_rsvp') == 't':
+      self.fields['response'].widget.choices = PartyInvite.RESPONSE_CHOICES[:4]
+    else:
       self.fields['response'].widget = forms.HiddenInput()
 
     add_form_validation(self)
