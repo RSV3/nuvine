@@ -27,21 +27,21 @@ class Migration(DataMigration):
                                         appreciating every sip, every scent, and every penny paid.",
                                     unit_price=54.00,
                                     category=1,
-                                    cart_tag="divine")
+                                    cart_tag="3")
         orm.Product.objects.create(name="6 Bottles",
                                     description="Excite your senses each and every time you pour a glass. \
                                         The unmatched experience each bottle provides will have you \
                                         appreciating every sip, every scent, and every penny paid.",
                                     unit_price=97.00,
                                     category=1,
-                                    cart_tag="divine")
+                                    cart_tag="6")
         orm.Product.objects.create(name="12 Bottles",
                                     description="Excite your senses each and every time you pour a glass. \
                                         The unmatched experience each bottle provides will have you \
                                         appreciating every sip, every scent, and every penny paid.",
                                     unit_price=173.00,
                                     category=1,
-                                    cart_tag="divine")
+                                    cart_tag="12")
 
     def backwards(self, orm):
         "Write your backwards methods here."

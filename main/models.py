@@ -212,6 +212,7 @@ class Product(models.Model):
 
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
+    # return "%s" % (self.name)
 
 
 class LineItem(models.Model):
@@ -513,10 +514,13 @@ class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-      (0, 'Your Vinely recommendation'),
-      (1, 'Send me a mix of red & white wine'),
-      (2, 'Send me red wine only'),
-      (3, 'Send me white wine only')
+    (0, 'Your Vinely recommendation'),
+    (1, 'Send me a mix of red & white wine'),
+    (2, 'Send me red wine only'),
+    (3, 'Send me white wine only')
+      # (1, 'Both'),
+      # (2, 'Red'),
+      # (3, 'White')
   )
 
   wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.",
@@ -528,8 +532,8 @@ class CustomizeOrder(models.Model):
   )
 
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
-                                    default=SPARKLING_CHOICES[1][0])
-  timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Last Updated")
+                                    default=SPARKLING_CHOICES[0][0])
+  timestamp = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
 
   def __unicode__(self):
     return "Mix: %s, Sparkling: %s" % (self.get_wine_mix_display(), self.get_sparkling_display())

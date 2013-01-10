@@ -358,7 +358,7 @@ def start_order(request, receiver_id=None, party_id=None):
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
   # return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
-  return HttpResponseRedirect(reverse('cart_add_wine', args=['divine']))
+  return HttpResponseRedirect(reverse('cart_add_wine'))
 
 
 def cart_add_tasting_kit(request, party_id=0):
@@ -448,7 +448,8 @@ def cart_add_tasting_kit(request, party_id=0):
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
-def cart_add_wine(request, level="x"):
+@login_required
+def cart_add_wine(request):
   """
 
     Add item to cart
@@ -465,11 +466,14 @@ def cart_add_wine(request, level="x"):
 
   # TODO: check user personality and select the frequency recommendation and case size
   if 'receiver_id' in request.session:
-    personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
+    receiver = User.objects.get(id=request.session['receiver_id'])
   else:
-    personality = u.get_profile().wine_personality
-  form = AddWineToCartForm(request.POST or None)
+    receiver = u
 
+  personality = receiver.get_profile().wine_personality
+
+  form = AddWineToCartForm(request.POST or None)
+  # print 'form.errors', form.errors
   if form.is_valid():
     # raise Exception
     # if ordering tasting kit make sure thats the only thing in the cart
@@ -490,7 +494,7 @@ def cart_add_wine(request, level="x"):
     else:
       # create new cart
       if u.is_authenticated():
-        cart = Cart(user=u)
+        cart = Cart(user=receiver)
       else:
         # anonymous cart
         cart = Cart()
@@ -498,8 +502,8 @@ def cart_add_wine(request, level="x"):
       request.session['cart_id'] = cart.id
 
     # can only order make one subscription at a time
-    if (item.frequency in [1, 2, 3]) and cart:
-      if cart.items.filter(frequency__in=[1, 2, 3]).exists():
+    if (item.frequency == 1) and cart:
+      if cart.items.filter(frequency=1).exists():
         alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
@@ -512,9 +516,18 @@ def cart_add_wine(request, level="x"):
     # udpate cart status
     if party:
       cart.party = party
-    cart.status = Cart.CART_STATUS_CHOICES[1][0]
+    cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
     cart.save()
+
+    # update customization options
+    custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
+
+    if int(form.cleaned_data['mix_selection']) == 0:
+      custom.wine_mix = int(form.cleaned_data['mix_selection'])
+    else:
+      custom.wine_mix = int(form.cleaned_data['wine_mix'])
+    custom.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
     pro_group = Group.objects.get(name="Vinely Pro")
@@ -528,24 +541,22 @@ def cart_add_wine(request, level="x"):
 
   # big image of wine
   # TODO: need to check wine personality and choose the right product
-  try:
-    product = Product.objects.filter(cart_tag=level, active=True)[0]
-  except:
-    # not a valid product
-    raise Http404
+  # try:
+  #   product = Product.objects.filter(active=True)[0]
+  # except:
+  #   # not a valid product
+  #   raise Http404
 
-  description_template = Template(product.description)
-  product.description = description_template.render(Context({'personality': personality.name}))
-  product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  # product.unit_price = product.full_case_price
+  # description_template = Template(product.description)
+  # product.description = description_template.render(Context({'personality': personality.name}))
+  # product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
+  # # product.unit_price = product.full_case_price
+  product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
-
-  form.initial = {'level': level,
-                'total_price': product.unit_price,
-                'product': product}
+  form.initial = {'total_price': product.unit_price, 'product': product}
   data["form"] = form
-  data["level"] = level
+  # data["level"] = level
 
   data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))

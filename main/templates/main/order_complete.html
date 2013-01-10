@@ -8,6 +8,14 @@
   <h1 class="headline">Your order was placed successfully!</h1>
 {% endblock header %}
 
+{% block additional_styles %}
+  <style type="text/css">
+    .table td { 
+      vertical-align: middle;
+    }
+  </style>
+{% endblock additional_styles %}
+
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -70,7 +78,9 @@
                   {% endif %}
                   </div>
                   <div class="cart-item-name">
-                    {{ item.product.name }} {# (Vinely product ID: {{ item.product.id }}) #}
+                    {% if item.product.category == 0 %} {# only show this for taste-kits #}
+                      {{ item.product.name }}
+                    {% endif %}
                   </div>
                 </div>
               </td>
