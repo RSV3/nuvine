@@ -25,21 +25,21 @@ class Migration(DataMigration):
                                     description="Excite your senses each and every time you pour a glass. \
                                         The unmatched experience each bottle provides will have you \
                                         appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=120.00,
+                                    unit_price=54.00,
                                     category=1,
                                     cart_tag="divine")
         orm.Product.objects.create(name="6 Bottles",
                                     description="Excite your senses each and every time you pour a glass. \
                                         The unmatched experience each bottle provides will have you \
                                         appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=225.00,
+                                    unit_price=97.00,
                                     category=1,
                                     cart_tag="divine")
         orm.Product.objects.create(name="12 Bottles",
                                     description="Excite your senses each and every time you pour a glass. \
                                         The unmatched experience each bottle provides will have you \
                                         appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=420.00,
+                                    unit_price=173.00,
                                     category=1,
                                     cart_tag="divine")
 

@@ -316,38 +316,41 @@ class Cart(models.Model):
     #
     # For tasting kit quantity is the number if kits ordered
 
+    # Subscriptions get free shipping
+    STANDARD_SHIPPING = 15.95
+
     shipping = 0
     # for item in self.items.all():
     #   shipping += 16
     for item in self.items.all():
       # tasting kits
       if item.price_category == 11:
-        shipping += 16 * item.quantity
+        shipping += STANDARD_SHIPPING * item.quantity
 
-      if item.price_category == 14:
-        shipping += 16
+      if item.price_category == 14 and item.frequency != 1:
+        shipping += STANDARD_SHIPPING
 
       # wine cases
     #   elif (item.price_category in [5, 7, 9]):
     #     # full case
-    #     shipping += 16
+    #     shipping += STANDARD_SHIPPING
 
     # # calculate for half cases
     # half_case_count = self.items.filter(price_category__in=[6, 8, 10]).count()
 
-    # shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
+    # shipping += ((half_case_count / 2) + (half_case_count % 2)) * STANDARD_SHIPPING
 
-    quarter_case_count = self.items.filter(price_category=12).count()
+    quarter_case_count = self.items.filter(price_category=12).exclude(frequency=1).count()
     x = (quarter_case_count * 4) / 12
     y = (quarter_case_count * 4) % 12
     if y == 0:
-      ship = x * 16
+      ship = x * STANDARD_SHIPPING
     else:
-      ship = (x + 1) * 16
+      ship = (x + 1) * STANDARD_SHIPPING
     shipping += ship
 
-    half_case_count = self.items.filter(price_category=13).count()
-    shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
+    half_case_count = self.items.filter(price_category=13).exclude(frequency=1).count()
+    shipping += ((half_case_count / 2) + (half_case_count % 2)) * STANDARD_SHIPPING
 
     return shipping
 
