@@ -825,29 +825,19 @@ def order_complete(request, order_id):
     order = Order.objects.get(order_id=order_id)
   except Order.DoesNotExist:
     raise Http404
-  print 'fulfill_status', order.fulfill_status
+
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
+    for item in order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1]):
       # check if item contains subscription
       from_date = datetime.date(datetime.now(tz=UTC()))
-      subscriptions = SubscriptionInfo.objects.filter(user=order.receiver).order_by("-updated_datetime")
-      if subscriptions.exists() and subscriptions[0].quantity == item.price_category and subscriptions[0].frequency == item.frequency:
-        # latest subscription info is valid and use it to update
-        subscription = subscriptions[0]
-        from_date = subscription.next_invoice_date
-      else:
-        # create new subscription info
-        subscription = SubscriptionInfo(user=order.receiver,
-                                      quantity=item.price_category,
-                                      frequency=item.frequency)
-      print 'subscription', subscription
+      # create new subscription info
+      subscription = SubscriptionInfo(user=order.receiver,
+                                    quantity=item.price_category,
+                                    frequency=item.frequency)
+
       if item.frequency == 1:
         next_invoice = from_date + relativedelta(months=+1)
-      elif item.frequency == 2:
-        next_invoice = from_date + relativedelta(months=+2)
-      elif item.frequency == 3:
-        next_invoice = from_date + relativedelta(months=+3)
       else:
         # set it to yesterday since subscription cancelled or was one time purchase
         # this way, celery task won't pick things up

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo, Zipcode
 from accounts.utils import send_pro_approved_email
@@ -13,7 +14,8 @@ from main.utils import send_mentor_assigned_notification_email, send_mentee_assi
 from main.models import MyHost, Cart
 
 from emailusernames.admin import EmailUserAdmin
-import stripe
+from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
 
 
 def approve_pro(modeladmin, request, queryset):
@@ -70,9 +72,14 @@ change_to_taster.short_description = "Change user to a taster"
 
 
 def cancel_subscription(modeladmin, request, queryset):
+  users = []
   for obj in queryset:
-    obj.cancel_subscription()
-    messages.warning(request, "Subscription has been cancelled for %s" % obj.user.email)
+    if isinstance(modeladmin, SubscriptionAdmin):
+      obj.user.userprofile.cancel_subscription()
+    else:  # instanceof userprofile
+      obj.cancel_subscription()
+    users.append(obj.user.email)
+  messages.warning(request, "Subscription has been cancelled for %s" % ", ".join(users))
 
 cancel_subscription.short_description = "Cancel subscription"
 
@@ -214,32 +221,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
     receiver = obj.user
     current_shipping = receiver.userprofile.shipping_address
     receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
-    stripe_card = receiver.userprofile.stripe_card
-    # print 'stripe_card.stripe_user', stripe_card.stripe_user
+
+    if form.cleaned_data['frequency'] == 1:
+      from_date = datetime.date(timezone.now())
+      next_invoice = from_date + relativedelta(months=+1)
+    else:
+      # set it to yesterday since subscription cancelled or was one time purchase
+      # this way, celery task won't pick things up
+      next_invoice = timezone.now() - timedelta(days=1)
+    obj.next_invoice_date = next_invoice
+    obj.save()
+
     if receiver_state in Cart.STRIPE_STATES:
-      if receiver_state == 'MI':
-        stripe.api_key = settings.STRIPE_SECRET
-      elif receiver_state == 'CA':
-        stripe.api_key = settings.STRIPE_SECRET_CA
-
-      try:
-        customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-
-        if customer.get('deleted'):
-          raise Exception('Customer Deleted')
-        # stripe_user_id = customer.id
-        frequency = form.cleaned_data['frequency']
-        quantity = form.cleaned_data['quantity']
-
-        if frequency == 1 and quantity != 0:
-          stripe_plan = SubscriptionInfo.STRIPE_PLAN[frequency][quantity - 5]
-          customer.update_subscription(plan=stripe_plan)
-        else:
-          receiver.userprofile.cancel_subscription()
-      except Exception, e:
-        # print 'error:', e
-        messages.error(request, "The user's information could be found on stripe.")
-        return
+      receiver.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
 
     super(SubscriptionAdmin, self).save_model(request, obj, form, change)
 
