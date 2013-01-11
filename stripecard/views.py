@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 
 
 def shipping(plan):
-    shipping = 16
+    # Subscriptions get free shipping
+    shipping = 0
     return shipping
 
 

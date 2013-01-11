@@ -2,18 +2,21 @@ from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
-from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo
+from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo, Zipcode
 from accounts.utils import send_pro_approved_email
 from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
 
-from main.models import MyHost
+from main.models import MyHost, Cart
 
 from emailusernames.admin import EmailUserAdmin
+from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
+
 
 def approve_pro(modeladmin, request, queryset):
   for obj in queryset:
@@ -21,15 +24,16 @@ def approve_pro(modeladmin, request, queryset):
     user.groups.clear()
     pro_group = Group.objects.get(name="Vinely Pro")
     user.groups.add(pro_group)
-    if not VinelyProAccount.objects.filter(users__in = [user]).exists():
+    if not VinelyProAccount.objects.filter(users__in=[user]).exists():
       pro_account_number = generate_pro_account_number()
-      account, created = VinelyProAccount.objects.get_or_create(account_number = pro_account_number)
+      account, created = VinelyProAccount.objects.get_or_create(account_number=pro_account_number)
       account.users.add(user)
 
     # TODO: need to send out e-mail to the user
     send_pro_approved_email(request, user)
 
 approve_pro.short_description = "Approve selected users as Vinely Pro"
+
 
 def remove_pro_privileges(modeladmin, request, queryset):
   for obj in queryset:
@@ -39,6 +43,7 @@ def remove_pro_privileges(modeladmin, request, queryset):
     user.groups.add(pro_group)
 
 remove_pro_privileges.short_description = "Remove Vinely Pro permissions for selected users"
+
 
 def change_to_host(modeladmin, request, queryset):
   for obj in queryset:
@@ -53,6 +58,7 @@ def change_to_host(modeladmin, request, queryset):
 
 change_to_host.short_description = "Change user to a host"
 
+
 def change_to_taster(modeladmin, request, queryset):
   for obj in queryset:
     user = obj.user
@@ -64,12 +70,19 @@ def change_to_taster(modeladmin, request, queryset):
 
 change_to_taster.short_description = "Change user to a taster"
 
+
 def cancel_subscription(modeladmin, request, queryset):
+  users = []
   for obj in queryset:
-    obj.cancel_subscription()
-    messages.warning(request, "Subscription has been cancelled for %s" % obj.user.email)
+    if isinstance(modeladmin, SubscriptionAdmin):
+      obj.user.userprofile.cancel_subscription()
+    else:  # instanceof userprofile
+      obj.cancel_subscription()
+    users.append(obj.user.email)
+  messages.warning(request, "Subscription has been cancelled for %s" % ", ".join(users))
 
 cancel_subscription.short_description = "Cancel subscription"
+
 
 class MentorAssignedFilter(SimpleListFilter):
 
@@ -79,8 +92,8 @@ class MentorAssignedFilter(SimpleListFilter):
 
   def lookups(self, request, model_admin):
     return (
-        ( 'Yes', 'Mentor Assigned'),
-        ( 'No', 'No Mentor Assigned'),
+        ('Yes', 'Mentor Assigned'),
+        ('No', 'No Mentor Assigned'),
       )
 
   def queryset(self, request, queryset):
@@ -89,6 +102,7 @@ class MentorAssignedFilter(SimpleListFilter):
       return queryset.exclude(mentor__isnull=True)
     if mentor_assigned == 'No':
       return queryset.filter(mentor__isnull=True)
+
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
@@ -143,6 +157,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
 admin.site.unregister(User)
 
+
 class VinelyUserAdmin(EmailUserAdmin):
 
   list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number')
@@ -162,12 +177,19 @@ class VinelyUserAdmin(EmailUserAdmin):
   def pro_number(self, instance):
     return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance)])
 
+
 class SubscriptionAdmin(admin.ModelAdmin):
 
   list_display = ('email', 'full_name', 'state', 'quantity', 'frequency', 'next_invoice_date', 'updated_datetime')
   search_fields = ('user__email', 'user__first_name', 'user__last_name')
   list_editable = ['next_invoice_date']
   raw_id_fields = ['user']
+  actions = [cancel_subscription]
+
+  def get_actions(self, request):
+    actions = super(SubscriptionAdmin, self).get_actions(request)
+    del actions['delete_selected']
+    return actions
 
   def email(self, instance):
     return instance.user.email
@@ -186,11 +208,35 @@ class SubscriptionAdmin(admin.ModelAdmin):
     for user_id in SubscriptionInfo.objects.exclude(frequency__in=[0, 9]).filter(quantity__gt=0).values_list('user', flat=True).distinct():
       user = User.objects.get(id=user_id)
       subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')[0]
-      if not (subscription.frequency in [0,9] or subscription.quantity == 0):
+      if not (subscription.frequency in [0, 9] or subscription.quantity == 0):
         subscription_ids.append(subscription.id)
 
     subscriptions = SubscriptionInfo.objects.filter(id__in=subscription_ids).order_by('next_invoice_date')
     return subscriptions
+
+  def save_model(self, request, obj, form, change):
+    # TODO:
+    # 1. how to deal with user changing states from admin/my_information
+    # 2. Deleting subscriptions from drop down in list_display does not go through model
+    receiver = obj.user
+    current_shipping = receiver.userprofile.shipping_address
+    receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+
+    if form.cleaned_data['frequency'] == 1:
+      from_date = datetime.date(timezone.now())
+      next_invoice = from_date + relativedelta(months=+1)
+    else:
+      # set it to yesterday since subscription cancelled or was one time purchase
+      # this way, celery task won't pick things up
+      next_invoice = timezone.now() - timedelta(days=1)
+    obj.next_invoice_date = next_invoice
+    obj.save()
+
+    if receiver_state in Cart.STRIPE_STATES:
+      receiver.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+
+    super(SubscriptionAdmin, self).save_model(request, obj, form, change)
+
 
 class AddressAdmin(admin.ModelAdmin):
   pass
