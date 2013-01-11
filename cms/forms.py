@@ -1,6 +1,6 @@
 from django import forms
 from cms.models import ContentTemplate, Section
-# from tinymce.widgets import TinyMCE
+from tinymce.widgets import TinyMCE
 
 
 class EditSectionForm(forms.ModelForm):
@@ -9,7 +9,7 @@ class EditSectionForm(forms.ModelForm):
   class Meta:
     model = Section
     fields = ['sections', 'content']
-    widgets = {'content': forms.TextArea(attrs={'class': 'span8', 'rows': 20})}
+    widgets = {'content': TinyMCE(attrs={'class': 'span8', 'rows': 20}, mce_attrs={'theme': 'advanced', 'relative_urls': True})}
 
   def __init__(self, *args, **kwargs):
     super(EditSectionForm, self).__init__(*args, **kwargs)
