@@ -29,6 +29,7 @@
 
 {% block header %}
   <h1 class="headline">Get The Party Started</h1>
+  <h2 class="center">You're a {{ user.get_profile.role }}</h2>
 {% endblock header %}
 
 {% block content %}
@@ -36,7 +37,8 @@
     <ul class="nav">
       <li class="party-add">&nbsp;</li>
       <li class="party-write-invitation">&nbsp;</li>
-      <li class="party-invite-friends active">&nbsp;</li>
+      <li class="party-invite-friends">&nbsp;</li>
+      <li class="party-review-request active">&nbsp;</li>
     </ul>
   </div>
   <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">

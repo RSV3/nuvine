@@ -1370,6 +1370,7 @@ def party_review_request(request, party_id):
     raise Http404
 
   preview = preview_party_invites_email(request, invitation, embed=True)
+  data["parties_menu"] = True
   data["invite_preview"] = preview
   data['options_form'] = options_form
   return render_to_response("main/party_review_request.html", data, context_instance=RequestContext(request))

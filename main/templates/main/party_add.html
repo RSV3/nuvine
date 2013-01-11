@@ -22,16 +22,25 @@
     }
   </style>
 
-{% endblock %}
+{% endblock additional_styles %}
 
 {% block header %}
   <h1 class="headline">Get the Party Started</h1>
-  <center><h2><small>You're a {{ user.get_profile.role }}</small></h2></center>
-
+  <h2 class="center">You're a {{ user.get_profile.role }}</h2>
 {% endblock header %}
 
 {% block content %}
 
+{% if user.get_profile.is_host or user.userprofile.events_manager %}
+  <div class="menu_wrap main partycrumb">
+    <ul class="nav">
+      <li class="party-add active">&nbsp;</li>
+      <li class="party-write-invitation">&nbsp;</li>
+      <li class="party-invite-friends">&nbsp;</li>
+      <li class="party-review-request">&nbsp;</li>
+    </ul>
+  </div>
+{% endif %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
   {% if no_perms %}
@@ -65,16 +74,7 @@
       </div>
     </div>
 -->
-    {% if user.get_profile.is_host or user.userprofile.events_manager %}
-      <div class="menu_wrap main partycrumb">
-        <ul class="nav">
-          <li class="party-add active">&nbsp;</li>
-          <li class="party-write-invitation">&nbsp;</li>
-          <li class="party-invite-friends">&nbsp;</li>
-          <li class="party-review-request">&nbsp;</li>
-        </ul>
-      </div>
-    {% endif %}
+
     <section id="add-party">
       {# add new parties form #}
     

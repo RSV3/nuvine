@@ -446,8 +446,8 @@ table .row-label-bold {
  }
  
 .menu_wrap.partycrumb ul.nav, .menu_wrap.partycrumb ul.nav li {
-  margin: 10px 0;
-  height: 90px;
+  /*margin: 10px 0;*/
+  height: 76px;
 }
 
 /*.menu_wrap.partycrumb ul.nav li a { 
@@ -457,25 +457,40 @@ table .row-label-bold {
 */
 /*
 .partycrumb li {
-  height: 190px;
-}
-.party-add {
-  background: url('../img/create_party_nav.png') no-repeat 0 -84px; 
-  width: 296px;
-}
-.party-write-invitation {
-  background: url('../img/create_party_nav.png') no-repeat -302px -84px; 
-  width: 256px;
-}
-.party-invite-friends {
-  background: url('../img/create_party_nav.png') no-repeat -562px -84px; 
-  width: 243px;
-}
-.party-review-request {
-  background: url('../img/create_party_nav.png') no-repeat -810px -84px; 
-  width: 260px;
+  height: 76px;
 }
 */
+.party-add {
+  background: url('../img/create_party_nav.png') no-repeat 0 -74px; 
+  width: 257px;
+}
+.party-write-invitation {
+  background: url('../img/create_party_nav.png') no-repeat -261px -74px; 
+  width: 226px;
+}
+.party-invite-friends {
+  background: url('../img/create_party_nav.png') no-repeat -489px -74px; 
+  width: 215px;
+}
+.party-review-request {
+  background: url('../img/create_party_nav.png') no-repeat -707px -74px; 
+  width: 227px;
+}
+
+.party-add.active {
+  background-position: 0 0;
+}
+.party-write-invitation.active {
+  background-position: -261px 0; 
+}
+.party-invite-friends.active {
+  background-position: -489px 0; 
+}
+.party-review-request.active {
+  background-position: -707px 0; 
+}
+
+/*
 .partycrumb li {
   height: 190px;
 }
@@ -505,6 +520,7 @@ table .row-label-bold {
   width: 300px;
   margin-top: 15px;
 }
+*/
 
 footer {
   font-family: "Avenir LT W01 85 Heavy";
