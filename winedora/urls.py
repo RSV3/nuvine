@@ -27,4 +27,5 @@ urlpatterns = patterns('',
     url(r'^social/', include('social.urls')),
     url(r'^cms/', include('cms.urls', namespace="cms")),
     url(r'^stripe/', include('stripecard.urls')),
+    url(r'^tinymce/', include('tinymce.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + staticfiles_urlpatterns() 

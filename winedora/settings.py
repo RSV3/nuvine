@@ -231,6 +231,7 @@ INSTALLED_APPS = (
     'cms',
     'stripecard',
     'django_tables2',
+    'tinymce',
 )
 
 
@@ -335,3 +336,11 @@ else:
   STRIPE_PUBLISHABLE = "pk_0B7BHz0y806TkUPZgpOBepr4dVngO"
   STRIPE_SECRET_CA = "sk_test_eNRrnFXyqS6pQmNuKnI8HWIO"
   STRIPE_PUBLISHABLE_CA = "pk_test_KXVrxVwsOQ6359kaGhrwUyrG"
+
+# TINYMCE_DEFAULT_CONFIG = {
+#   'content_css': STATIC_URL + 'fonts/AlternateGothicKit/MyFontsWebfontsOrderM3947119.css',
+#   'theme_advanced_fonts': STATIC_URL + 'fonts/AlternateGothicKit/MyFontsWebfontsOrderM3947119.css',
+#   'theme': 'simple',
+#   'font_size_style_values': 'medium',
+#   'theme_advanced_font_sizes': 'medium',
+# }

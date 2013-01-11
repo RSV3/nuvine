@@ -20,7 +20,7 @@ from main.utils import add_form_validation
 
 import string
 from lepl.apps.rfc3696 import Email
-
+from tinymce.widgets import TinyMCE
 
 valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 
@@ -569,8 +569,8 @@ class CustomizeInvitationForm(forms.ModelForm):
     else:
       self.fields['custom_subject'].widget.attrs['class'] = 'span4'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 10, 'style': 'width: 70%'})
-    self.fields['signature'].widget = forms.Textarea(attrs={'rows': 6, 'style': 'width: 70%'})
+    self.fields['custom_message'].widget = TinyMCE(attrs={'rows': 10, 'style': 'width: 70%'})
+    self.fields['signature'].widget = TinyMCE(attrs={'rows': 6, 'style': 'width: 70%'})
 
   def clean_signature(self):
     cleaned = self.cleaned_data['signature']
@@ -593,7 +593,7 @@ class CustomizeThankYouNoteForm(forms.ModelForm):
     super(CustomizeThankYouNoteForm, self).__init__(*args, **kwargs)
     self.fields['custom_subject'].widget.attrs['class'] = 'span5'
     self.fields['party'].widget = forms.HiddenInput()
-    self.fields['custom_message'].widget = forms.Textarea(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
+    self.fields['custom_message'].widget = TinyMCE(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
 
 
 class OrderFulfillForm(forms.ModelForm):

@@ -61,3 +61,4 @@ newrelic
 pyPdf==1.13
 lepl
 django-tables2==0.13.0
+django-tinymce==1.5.1b4
