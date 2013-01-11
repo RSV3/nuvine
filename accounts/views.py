@@ -33,15 +33,15 @@ import logging
 log = logging.getLogger(__name__)
 
 
-@login_required
-def logout(request):
-  u = request.user
-  profile = u.get_profile()
-  profile.last_page = request.GET.get('next')
-  profile.save()
-  auth.logout(request)
+# @login_required
+# def logout(request):
+#   u = request.user
+#   profile = u.get_profile()
+#   profile.last_page = request.GET.get('next')
+#   profile.save()
+#   auth.logout(request)
 
-  return HttpResponseRedirect('/')
+#   return HttpResponseRedirect('/')
 
 
 @login_required
@@ -52,14 +52,22 @@ def profile(request):
   u = request.user
   profile = u.get_profile()
 
-  if profile.last_page:
-    url = u.userprofile.last_page
-    profile.last_page = None
-    profile.save()
-    return HttpResponseRedirect(url)
+  # if profile.last_page:
+  #   url = u.userprofile.last_page
+  #   profile.last_page = None
+  #   profile.save()
+  #   return HttpResponseRedirect(url)
 
-  if profile.is_host():
-    return HttpResponseRedirect(reverse('party_add'))
+  if profile.is_host() or profile.is_pro():
+    return HttpResponseRedirect(reverse('party_list'))
+  elif profile.is_taster():
+    # if you have new RSVP not responded to
+    invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
+    if invites.exists():
+      invite = invites[0]
+      return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
+    else:
+      return HttpResponseRedirect(reverse('party_list'))
   else:
     return HttpResponseRedirect(reverse('home_page'))
 
