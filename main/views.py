@@ -282,7 +282,7 @@ def how_it_works(request):
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
-
+@login_required
 def start_order(request, receiver_id=None, party_id=None):
   """
     Show wine subscription order page

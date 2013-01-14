@@ -232,8 +232,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
     obj.next_invoice_date = next_invoice
     obj.save()
 
+    subscription_updated = False
     if receiver_state in Cart.STRIPE_STATES:
-      receiver.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+      subscription_updated = receiver.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+
+    if subscription_updated:
+      messages.success(request, "Stripe subscription successfully updated.")
+    else:
+      messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
     super(SubscriptionAdmin, self).save_model(request, obj, form, change)
 
