@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">When do you want it?</h1>
+  <h1 class="headline">What would you like to order?</h1>
 {% endblock header %}
 
 {% block additional_styles %}
@@ -14,9 +14,8 @@
       margin-top: 15px;
       margin-left: -10;
     }
-    select {
-      margin-top: 8px;
-      margin-left: 45px;
+    td {
+      vertical-align: middle;
     }
   </style>
 {% endblock %}
@@ -24,147 +23,168 @@
 {% block content %}
 
 <div class="container">
-  <section id="product-item-info">
-  <form action="{{ app_path }}" method="POST">
-    {% csrf_token %}
-    <!-- <section id="product-item-info"> -->
-      <div class="row">
-        <div class="span3"><h1>Step 1: Quantity</h1></div>
-        <div class="select-label">Select one from below</div>
-      </div>
-      <div class="row">
-        <div class="span4 center">
-          <h1>3 Bottles</h1>
-          <div class="row">
-            <div class="span4">
-              <img height="400" src="{{ STATIC_URL }}img/{{ personality.suffix }}_3_prodimg.png">
-            </div>
-          </div>
-        </div>
-        <div class="span4 center">
-          <h1>6 Bottles</h1>
-          <div class="row">
-            <div class="span4">
-              <img height="400" src="{{ STATIC_URL }}img/{{ personality.suffix }}_6_prodimg.png">
-            </div>
-          </div>
-        </div>
-        <div class="span4 center">
-          <h1>12 Bottles</h1>
-          <div class="row">
-            <div class="span4">
-              <img height="400" src="{{ STATIC_URL }}img/{{ personality.suffix }}_12_prodimg.png">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        {{ form.product }}
-      </div>
-    <!-- </section> -->
-    <hr />
-    <!-- <section id="order-membership"> -->
+  {% if not user.get_profile.has_personality %}
+    <div class="vertical-space">&nbsp;</div>
     <div class="row">
-      <div class="span12">
+      <div id="sub-heading" class="offset2 span8 center">
+        You need to first participate in a tasting party to find out your wine personality.
+      </div>
+    </div>
+    <div class="vertical-space">&nbsp;</div>
+  {% else %}
+    <section id="product-item-info">
+      <h3 class="center">All orders have our money-back guarantee!</h3>
+      <!-- <p class="center"><strong>All orders have our money-back guarantee!<strong></p> -->
+      <hr />
+      <form action="{{ app_path }}" method="POST">
+        {% csrf_token %}
+        <!-- <section id="product-item-info"> -->
         <div class="row">
-          <div class="span3"><h1>Step 2: Membership</h1></div>
+          <div class="span3"><h1>Step 1: Quantity</h1></div>
           <div class="select-label">Select one from below</div>
         </div>
-      </div>
-      <div class="span4">
-        <div class="vertical-space">&nbsp;</div>
-        <h1>One-time Order</h1>
-        <strong>
-          <ul>
-            <li>Satisfaction guaranteed</li>
-            <li>One-time shipment to your door</li>
-            <li>Discovery of 3, 6 or 12 new wines matched to your tastes</li>
-          </ul>
-        </strong>
-      </div>
-      <div class="span1">&nbsp;</div>
-      <div class="span7">
         <div class="row">
-          <div class="span3">
-            <img height="200" src="{% static "img/VIP-Badge.png" %}">
+          <div class="span4 center">
+            <!-- <h1>3 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_3_prodimg.png">
+              </div>
+            </div>
+          </div>
+          <div class="span4 center">
+            <!-- <h1>6 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_6_prodimg.png">
+              </div>
+            </div>
+          </div>
+          <div class="span4 center">
+            <!-- <h1>12 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_12_prodimg.png">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          {{ form.product }}
+        </div>
+        <!-- </section> -->
+        <hr />
+        <!-- <section id="order-membership"> -->
+        <div class="row">
+          <div class="span12">
+            <div class="row">
+              <div class="span3"><h1>Step 2: Membership</h1></div>
+              <div class="select-label">Do you want to become a Vinely VIP?</div>
+            </div>
           </div>
           <div class="span4">
-            <h1>Vinely VIP</h1>
-            <strong>
-              <ul>
-                <li>Satisfaction guaranteed</li>
-                <li>Monthly shipment to your door</li>
-                <li>Discovery of new wines matched to your tastes - up to 144 a year</li>
-                <li>Continually improved selection</li>
-                <li>Cancel anytime</li>
-                <li><a href="javascript:;" class="free-shipping" rel="popover" data-trigger="hover"
-                      data-content="Shipping charge for a one-time order is $15.95. If a VIP cancels prior to receiving the third order, the shipping fee will be charged on the first two orders">Free shipping</a></li>
-              </ul>
-            </strong>
+            <div class="vertical-space">&nbsp;</div>
+            <!-- <h1>One-time Order</h1> -->
+            <table>
+              <tr>
+                <td><h1 class="span1">Yes</h1></td>
+                <td><input type="radio" class="span1" name="frequency" value="1"></td>
+                <td>Send me a new shipment every month</td>
+              </tr>
+              <tr>
+                <td><h1 class="span1">No</h1></td>
+                <td><input type="radio" class="span1" checked="checked" name="frequency" value="0"></td>
+                <td>Send me a one-time order</td>
+              </tr>
+            </table>
           </div>
-        </div>
-      </div>
-      <div class="span1">&nbsp;</div>
-      {% for item in form.frequency %}
-        <div class="{% if item.index == 0 %}span4{% else %}span6 center{% endif %}">
-          {{ item.tag }}
-        </div>
-      {% endfor %}
-    </div>
-    <!-- </section> -->
-    <hr />
-    <!-- <section id="order-mix"> -->
-      <div class="row">
-        <div class="span3"><h1>Step 3: Mix (Optional)</h1></div>
-        <div class="select-label">Select one from below</div>
-      </div>
-      <div class="row">
-        <!-- <div class="span1">&nbsp;</div> -->
-        <div class="span4 center">
-          <div class="row">
-            <div class="span4">
-              <h1>Surprise Me!</h1>
-              <img height="150" src="{% static "img/VinelyRecommendation.png" %}">
+          <div class="span1">&nbsp;</div>
+          <div class="span7">
+            <div class="row">
+              <div class="span3">
+                <img height="180" src="{% static "img/VIP-Badge.png" %}">
+              </div>
+              <div class="span4">
+                <h2><small>Benefits of Membership</small></h2>
+                <!-- <p>BENEFITS OF MEMBERSHIP</p> -->
+                <strong>
+                  <ul>
+                    <li><a href="javascript:;" class="free-shipping" rel="popover" data-trigger="hover" data-placement="bottom"
+                          data-content="Shipping charge for a one-time order is $15.95. If a VIP cancels prior to receiving the third order, the shipping fee will be charged on the first two orders">Free shipping to your door
+                        </a>
+                    </li>
+                    <li>Discover new wines every month</li>
+                    <li>Cancel anytime</li>
+                  </ul>
+                </strong>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- <div class="span2">&nbsp;</div> -->
-        <div class="span6 offset2 center">
-          <div class="row">
-            <div class="span6">
-              <h1>I'm Choosy</h1>
-              <img height="150" src="{% static "img/RedWhiteBoth.png" %}">
-            </div>
-            <!-- <div class="span1">&nbsp;</div> -->
-            <!-- <div class="vertical-space">&nbsp;</div> -->
-          </div>
-        </div>
-      </div>
-      <div class="vertical-space">&nbsp;</div>
-      <div class="row center">
-        {% for item in form.mix_selection %}
-          {% if item.index == 0 %}
-            <div class="span4">
+<!-- 
+          <div class="span1">&nbsp;</div>
+          {% for item in form.frequency %}
+            <div class="{% if item.index == 0 %}span4{% else %}span6 center{% endif %}">
               {{ item.tag }}
             </div>
-          {% else %}
-            <div class="span6 pull-right">
-              &nbsp;&nbsp;&nbsp;
-              {{ item.tag }}
-              {{ form.wine_mix }}
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-      <div class="vertical-space">&nbsp;</div>
-      <div class="row">
-        <div class="span11">
-          <button class="btn btn-primary btn-large pull-right">Add to Cart</button>
+          {% endfor %}
         </div>
-      </div>
+ -->
+        <!-- </section> -->
+        <hr />
+        {% comment %}
+        <!-- <section id="order-mix"> -->
+        <div class="row">
+          <div class="span4"><h1>Step 3: Mix (Optional)</h1></div>
+          <div class="select-label">Select one from below</div>
+        </div>
+        <div class="row">
+          <!-- <div class="span1">&nbsp;</div> -->
+          <div class="span4 center">
+            <div class="row">
+              <div class="span4">
+                <h1>Surprise Me!</h1>
+                <img height="150" src="{% static "img/VinelyRecommendation.png" %}">
+              </div>
+            </div>
+          </div>
+          <!-- <div class="span2">&nbsp;</div> -->
+          <div class="span6 offset2 center">
+            <div class="row">
+              <div class="span6">
+                <h1>I'm Choosy</h1>
+                <img height="150" src="{% static "img/RedWhiteBoth.png" %}">
+              </div>
+              <!-- <div class="span1">&nbsp;</div> -->
+              <!-- <div class="vertical-space">&nbsp;</div> -->
+            </div>
+          </div>
+        </div>
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row center">
+          {% for item in form.mix_selection %}
+            {% if item.index == 0 %}
+              <div class="span4">
+                {{ item.tag }}
+              </div>
+            {% else %}
+              <div class="span6 pull-right">
+                &nbsp;&nbsp;&nbsp;
+                {{ item.tag }}
+                {{ form.wine_mix }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endcomment %}
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row">
+          <div class="span11">
+            <button class="btn btn-primary btn-large pull-right">Add to Cart</button>
+          </div>
+        </div>
+      </form>
     </section>
-  </form>
-
+  {% endif %}  
 </div>
 {% endblock %}
 

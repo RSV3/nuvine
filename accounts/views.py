@@ -237,8 +237,15 @@ def edit_subscription(request):
     current_shipping = u.userprofile.shipping_address
     user_state = Zipcode.objects.get(code=current_shipping.zipcode).state
 
+    subscription_updated = False
     if user_state in Cart.STRIPE_STATES:
-      u.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+      subscription_updated = u.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+
+    if subscription_updated:
+      messages.success(request, "Stripe subscription successfully updated.")
+    else:
+      messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
+
 
   data['invited_by'] = my_host(u)
   data['pro_user'], data['pro_profile'] = my_pro(u)

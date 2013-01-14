@@ -187,17 +187,23 @@ class UserProfile(models.Model):
       elif user_state == 'CA':
         stripe.api_key = settings.STRIPE_SECRET_CA
 
-      customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-      print 'customer.subscription', customer.subscription
-      if frequency == 1 and quantity != 0:
-        stripe_plan = SubscriptionInfo.STRIPE_PLAN[frequency][quantity - 5]
-        customer.update_subscription(plan=stripe_plan)
-      else:
-        if customer.subscription:
-          # in order to keep track of subscription history, we add new entry with no subscription
-          subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
-          subscription.save()
-          customer.cancel_subscription()
+      if stripe_card:
+        customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+        #print 'customer.subscription', customer.subscription
+        if frequency == 1 and quantity != 0:
+          # for now only have monthly subscription
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[frequency][quantity - 5]
+          customer.update_subscription(plan=stripe_plan)
+        else:
+          if customer.subscription:
+            # in order to keep track of subscription history, we add new entry with no subscription
+            subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
+            subscription.save()
+            customer.cancel_subscription()
+        return True
+
+      # there's no stripe subscription that can be updated
+      return False
 
   def age(self):
     year = 365
