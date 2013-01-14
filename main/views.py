@@ -361,6 +361,7 @@ def start_order(request, receiver_id=None, party_id=None):
   return HttpResponseRedirect(reverse('cart_add_wine'))
 
 
+@login_required
 def cart_add_tasting_kit(request, party_id=0):
   """
 
@@ -564,6 +565,7 @@ def cart_add_wine(request):
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
 
+@login_required
 def cart(request):
   """
 
@@ -607,7 +609,7 @@ def cart(request):
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
-
+@login_required
 def cart_remove_item(request, cart_id, item_id):
   """
     Delete an item from cart
@@ -630,6 +632,7 @@ def cart_remove_item(request, cart_id, item_id):
   return HttpResponseRedirect(request.GET.get("next"))
 
 
+@login_required
 def customize_checkout(request):
   """
     Customize checkout to specify the receiver's preferences on wine mix and sparkling
