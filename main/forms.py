@@ -321,12 +321,12 @@ class AddWineToCartForm(forms.ModelForm):
   # product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[1][0], active=True))
   product = forms.ModelChoiceField(widget=forms.RadioSelect(renderer=ProductRadioField), queryset=Product.objects.filter(category=1, active=True).order_by('id'), empty_label=None)
   frequency = forms.ChoiceField(widget=forms.RadioSelect, choices=SubscriptionInfo.FREQUENCY_CHOICES[:2], initial=1)
-  mix_selection = forms.ChoiceField(widget=forms.RadioSelect, choices=((0, 'Vinely Recommendation'), (1, 'Choose')), initial=0)
-  wine_mix = forms.ChoiceField(widget=forms.Select, choices=CustomizeOrder.MIX_CHOICES[1:4], required=False)
+  # mix_selection = forms.ChoiceField(widget=forms.RadioSelect, choices=((0, 'Vinely Recommendation'), (1, 'Choose')), initial=0)
+  # wine_mix = forms.ChoiceField(widget=forms.Select, choices=CustomizeOrder.MIX_CHOICES[1:4], required=False)
 
   def __init__(self, *args, **kwargs):
     super(AddWineToCartForm, self).__init__(*args, **kwargs)
-    self.fields['mix_selection'].widget.attrs['class'] = 'mix-selection'
+    # self.fields['mix_selection'].widget.attrs['class'] = 'mix-selection'
     # product = Product.objects.filter(category=1, active=True).order_by('id')
     # self.fields['product'].choices = [(product.id, "$%s" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 

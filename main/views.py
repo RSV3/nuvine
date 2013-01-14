@@ -394,6 +394,8 @@ def cart_add_tasting_kit(request, party_id=0):
   elif invites.count() > 24:
     messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
 
+  request.session['taste_kit_order'] = True
+
   form = AddTastingKitToCartForm(request.POST or None)
 
   if form.is_valid():
@@ -437,7 +439,7 @@ def cart_add_tasting_kit(request, party_id=0):
 
     return HttpResponseRedirect(reverse("cart"))
 
-  if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
+  if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).exists():
     products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).order_by('unit_price')
     data["product"] = products[0]
     form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
@@ -521,13 +523,13 @@ def cart_add_wine(request):
     cart.save()
 
     # update customization options
-    custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
+    # custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
 
-    if int(form.cleaned_data['mix_selection']) == 0:
-      custom.wine_mix = int(form.cleaned_data['mix_selection'])
-    else:
-      custom.wine_mix = int(form.cleaned_data['wine_mix'])
-    custom.save()
+    # if int(form.cleaned_data['mix_selection']) == 0:
+    #   custom.wine_mix = int(form.cleaned_data['mix_selection'])
+    # else:
+    #   custom.wine_mix = int(form.cleaned_data['wine_mix'])
+    # custom.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
     pro_group = Group.objects.get(name="Vinely Pro")
@@ -615,7 +617,8 @@ def cart_remove_item(request, cart_id, item_id):
 
   cart = Cart.objects.get(id=cart_id)
   item = LineItem.objects.get(id=item_id)
-
+  if item.product.category == 0 and 'taste_kit_order' in request.session:
+    del request.session['taste_kit_order']
   cart.items.remove(item)
 
   # track cart activity
@@ -708,6 +711,12 @@ def place_order(request):
     receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
 
     data["receiver_state"] = receiver_state
+    try:
+      data["customization"] = CustomizeOrder.objects.get(user=receiver)
+    except CustomizeOrder.DoesNotExist:
+      pass
+
+    data['taste_kit_order'] = request.session.get('taste_kit_order')
 
     if request.method == "POST":
       # finalize order
