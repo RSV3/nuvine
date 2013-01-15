@@ -1053,6 +1053,13 @@ def party_add(request):
       host_profile.mentor = u
       host_profile.save()
 
+      # Add host as invitee
+      invited_host, created = PartyInvite.objects.get_or_create(invitee=new_host, party=new_party)
+      if created:
+        invited_host.response = 3
+        invited_host.rsvp_code = str(uuid.uuid4())
+        invited_host.save()
+
       if not new_host.is_active:
         # new host, so send password and invitation
         temp_password = User.objects.make_random_password()
@@ -1472,7 +1479,7 @@ def party_send_thanks_note(request):
       party = note_sent.party
       # send e-mails
       guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party)
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
       orders = Order.objects.filter(cart__party=party)
       buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
       non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
@@ -1518,7 +1525,7 @@ def party_send_invites(request):
       party = invitation_sent.party
 
       # send e-mails
-      distribute_party_invites_email(request, invitation_sent)
+      num_guests = distribute_party_invites_email(request, invitation_sent)
       messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
