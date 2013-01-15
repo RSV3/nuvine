@@ -55,7 +55,9 @@
       <input type="hidden" name="party" value="{{ party.id }}">
       <table class="table table-striped">
         <thead>
-          <th>Select</th>
+          {% if host %}
+            <th>Select</th>
+          {% endif %}
           <th>Name</th>
           <th>E-mail</th>
           <th>Personality</th>
@@ -64,20 +66,23 @@
         {% for inv in buyers %}
           {# create a table of invitees #}
           <tr>
-            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% if host %}
+              <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% endif %}
             {% if inv.invitee.first_name or inv.invitee.last_name %}
             <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
             {% else %}
             <td>Anonymous</td>
             {% endif %}
             <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-            <!-- <td>{{ inv.invitee.get_profile.wine_personality }}</td> -->
             {% if pro %}
               {% if not inv.invitee.get_profile.has_personality %}
                 <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
               {% else %}
                 <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
               {% endif %}
+            {% else %}
+              <td>{{ inv.invitee.get_profile.wine_personality }}</td>
             {% endif %}            
           </tr>
         {% endfor %}
@@ -86,7 +91,9 @@
       <div class="page-header">Yet to order wine?</div>
       <table class="table table-striped">
         <thead>
-          <th>Select</th>
+          {% if host %}
+            <th>Select</th>
+          {% endif %}
           <th>Name</th>
           <th>E-mail</th>
           <th>Personality</th>
@@ -95,7 +102,9 @@
         {% for inv in non_buyers %}
           {# create a table of invitees #}
           <tr>
-            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% if host %}
+              <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
+            {% endif %}
             {% if inv.invitee.first_name or inv.invitee.last_name %}
             <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
             {% else %}
@@ -109,14 +118,18 @@
               {% else %}
                 <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
               {% endif %}
+            {% else %}
+              <td>{{ inv.invitee.get_profile.wine_personality }}</td>
             {% endif %}            
           </tr>
         {% endfor %}
         </tbody>
       </table>
-      <div class="control-group">
-        <button type="submit" class="btn btn-success btn-large">Thank Attendees</button> <span class="alert">Please select guests from the above list and send your personalized thank you note.</span>        
-      </div>
+      {% if host %}
+        <div class="control-group">
+          <button type="submit" class="btn btn-success btn-large">Thank Attendees</button> <span class="alert">Please select guests from the above list and send your personalized thank you note.</span>        
+        </div>
+      {% endif %}
     </form>
 
   </section>
