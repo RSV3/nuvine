@@ -23,6 +23,7 @@
             <div class="control-group">
               <div class="control-label">Card Number</div>
               <div class="controls">
+                <input type="hidden" class="card-name" value="{{ receiver.first_name }} {{ receiver.last_name }}" />
                 <input type="text" size="20" autocomplete="off" class="card-number" />
               </div>
             </div>
@@ -159,6 +160,7 @@
           form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
           form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
           form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+          // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
           // and submit
           form$.get(0).submit();
         }
@@ -170,11 +172,12 @@
           $('.submit-button').attr("disabled", "disabled");
           // createToken returns immediately - the supplied callback submits the form if there are no errors
           Stripe.createToken({
+            name: $('.card-name').val(),
             number: $('.card-number').val(),
             cvc: $('.card-cvc').val(),
             exp_month: $('.card-expiry-month').val(),
             exp_year: $('.card-expiry-year').val(),
-            address_zip: $('.card-address-zip').val()
+            address_zip: $('.card-address-zip').val(),
           }, stripeResponseHandler);
           return false; // submit from callback
         });

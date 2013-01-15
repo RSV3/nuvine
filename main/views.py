@@ -282,6 +282,7 @@ def how_it_works(request):
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def start_order(request, receiver_id=None, party_id=None):
   """
@@ -297,6 +298,9 @@ def start_order(request, receiver_id=None, party_id=None):
   party = None
   receiver = None
   u = request.user
+
+  if 'receiver_id' in request.session:
+    del request.session['receiver_id']
 
   # both receiver and party_id must be present or none at all
   if receiver_id or party_id:
@@ -472,9 +476,9 @@ def cart_add_wine(request):
     receiver = User.objects.get(id=request.session['receiver_id'])
   else:
     receiver = u
-
+  # print 'receiver.email', receiver.email
   personality = receiver.get_profile().wine_personality
-
+  # print personality
   form = AddWineToCartForm(request.POST or None)
   # print 'form.errors', form.errors
   if form.is_valid():
@@ -557,6 +561,7 @@ def cart_add_wine(request):
   product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
+  data["has_personality"] = receiver.get_profile().has_personality()
   form.initial = {'total_price': product.unit_price, 'product': product}
   data["form"] = form
   # data["level"] = level
@@ -755,7 +760,7 @@ def place_order(request):
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         # charge card to stripe
 
         if receiver_state == "MI":
@@ -1951,6 +1956,7 @@ def edit_credit_card(request):
   except:
     # the receiver has not been specified
     raise PermissionDenied
+  data['receiver'] = receiver
 
   # stripe only supported in MI, CA
   if receiver_state in Cart.STRIPE_STATES:
@@ -1977,7 +1983,7 @@ def edit_credit_card(request):
       except:
         # no record of this customer-card mapping so create
         try:
-          customer = stripe.Customer.create(card=stripe_token, email=u.email)
+          customer = stripe.Customer.create(card=stripe_token, email=receiver.email)
           stripe_user_id = customer.id
 
           # create on vinely
@@ -2028,7 +2034,7 @@ def edit_credit_card(request):
       return HttpResponseRedirect(reverse("place_order"))
 
     # display form: prepopulate with previous credit card used
-    current_user_profile = u.get_profile()
+    current_user_profile = receiver.get_profile()
     if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
       card_info = current_user_profile.credit_card
       form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,

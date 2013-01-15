@@ -89,18 +89,21 @@
       <p><a href="{% url edit_credit_card %}">Edit</a></p>
     </div>
     <div class="span3">
-      {% if taste_kit_order %}
-        <p>&nbsp;</p>
-      {% else %}
-        {% if not items %}
+      <p>&nbsp;</p>
+      {% comment %}
+        {% if taste_kit_order %}
           <p>&nbsp;</p>
         {% else %}
-          <p><h3>Wine Preference</h3></p>
-          <!-- <p></p> -->
-          <p>Red/White: {{ receiver.userprofile.order_customization_pref }}</p>
-          <p>Bubbles: {{ customization.get_sparkling_display }}</p>
+          {% if not items %}
+            <p>&nbsp;</p>
+          {% else %}
+            <p><h3>Wine Preference</h3></p>
+            <!-- <p></p> -->
+            <p>Red/White: {{ receiver.userprofile.order_customization_pref }}</p>
+            <p>Bubbles: {{ customization.get_sparkling_display }}</p>
+          {% endif %}
         {% endif %}
-      {% endif %}
+      {% endcomment %}
     </div>
     <div class="span3">
       <p>&nbsp;</p>

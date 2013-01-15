@@ -23,7 +23,7 @@
 {% block content %}
 
 <div class="container">
-  {% if not user.get_profile.has_personality %}
+  {% if not has_personality %}
     <div class="vertical-space">&nbsp;</div>
     <div class="row">
       <div id="sub-heading" class="offset2 span8 center">
@@ -88,13 +88,13 @@
             <table>
               <tr>
                 <td><h1 class="span1">Yes</h1></td>
-                <td><input type="radio" class="span1" name="frequency" value="1"></td>
-                <td>Send me a new shipment every month</td>
+                <td><input id="id_frequency_1" type="radio" class="span1" name="frequency" value="1"></td>
+                <td><label for="id_frequency_1">Send me a new shipment every month</label></td>
               </tr>
               <tr>
                 <td><h1 class="span1">No</h1></td>
-                <td><input type="radio" class="span1" checked="checked" name="frequency" value="0"></td>
-                <td>Send me a one-time order</td>
+                <td><input id="id_frequency_0" type="radio" class="span1" checked="checked" name="frequency" value="0"></td>
+                <td><label for="id_frequency_0">Send me a one-time order</label></td>
               </tr>
             </table>
           </div>
