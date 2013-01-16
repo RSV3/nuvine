@@ -1,15 +1,19 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, render
+from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
+from django.conf import settings
 
-from support.models import Email
+from support.models import Email, WineInventory, Wine
 from main.models import Party, PartyInvite, Order, MyHost
 from personality.models import WineRatingData
 from accounts.models import SubscriptionInfo
+
+from support.forms import InventoryUploadForm
 from main.utils import my_pro
 from datetime import datetime
 import csv
@@ -344,16 +348,163 @@ def view_parties(request):
 
 
 @staff_member_required
-def view_orders(request):
-  for order in Order.objects.all():
-    pass
+def update_wine_inventory(request):
 
-    # export user profile
-    # export current subscription information
-    # export wine personality
-    # export pro
+  # present a form to upload wine data
+
+  # after upload, show the wine that have been uploaded and current inventory
+  import xlrd
+
+  form = InventoryUploadForm(request.POST or None, request.FILES or None)
+  if form.is_valid():
+    upload_info = form.save()
+
+    file_name = upload_info.inventory_file.name
+    print "Uploaded filename:", file_name
+
+    from boto.s3.connection import S3Connection
+
+    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+
+    bucket = conn.lookup(settings.AWS_STORAGE_BUCKET_NAME)
+    # access the S3 file for processing
+    key = bucket.get_key('/media/%s' % file_name)
+
+    key.get_contents_to_filename("inventory_excel.xlsx")
+    workbook = xlrd.open_workbook("inventory_excel.xlsx")
+
+    worksheet = workbook.sheet_by_name('Sheet1')
+
+    num_rows = worksheet.nrows - 1
+    curr_row = -1
+
+    total_wines = 0
+    total_wine_types = 0
+    while curr_row < num_rows:
+      curr_row += 1
+      row = worksheet.row(curr_row)
+      # TODO: create wine inventory
+
+      if row[0].ctype is 2:
+        print "Inventory ID: %d" % int(row[0].value)
+        if row[1].value and row[2].value and row[3].value and row[4].value and row[5].value:
+          if Wine.objects.filter(sku=row[3].value).exists():
+            wine = Wine.objects.get(sku=row[3].value)
+          else:
+            wine = Wine(name=row[1].value,
+                              year=row[2].value,
+                              sku=row[3].value,
+                              vinely_category=row[4].value)
+            wine.save()
+
+          inv, created = WineInventory.objects.get_or_create(wine=wine)
+          if created:
+            inv.on_hand = row[5].value
+          else:
+            inv.on_hand += row[5].value
+
+          inv.save()
+
+          total_wines += row[5].value
+          total_wine_types += 1
+
+    messages.success(request, "%s wine types and %s wine bottles have been uploaded to inventory." % (total_wine_types, total_wines))
+    return HttpResponseRedirect(reverse("support:view_orders"))
+
+  return render(request, "support/update_wine_inventory.html")
 
 
-    # TODO: export orders
+@staff_member_required
+def view_orders(request, order_id=None):
 
-  return render_to_response("support/view_orders.html", data, context_instance=RequestContext(request))
+  # show orders that have not been fulfilled
+  orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[5][0])
+
+  # could search and filter by order_id
+  for o in orders:
+    receiver = o.receiver
+    # get wine personality
+    personality = receiver.get_profile().wine_personality
+    rating_data = WineRatingData.objects.filter(user=receiver)
+
+    # algorithm based on the rating data
+
+    u3 = User.objects.get(email="attendee3@example.com")
+
+    if o.receiver == u3:
+      o.fulfill_status = Order.FULFILL_CHOICES[5][0]
+    else:
+      o.fulfill_status = Order.FULFILL_CHOICES[6][0]
+    o.save()
+
+  # shows the orders and the wines that have been assigned to it
+
+  # allows one to modify the orders
+
+  # POST: update the wine assignment by running the algorithm
+
+  return render(request, "support/view_orders.html")
+
+
+@staff_member_required
+def edit_order(request, order_id):
+
+  # GET: show details of order, show the ratings on past orders
+
+  # POST: save the order modification
+
+  return render(request, "support/edit_order.html")
+
+@staff_member_required
+def download_ready_orders(request):
+
+  # check that the orders are all approved
+
+  # download to csv
+
+  # update those downloaded into completed orders
+
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=vinely_ready_orders.csv'
+
+  fieldnames = ['ID', 'Order ID', 'Ordered By', 'Receiver', 'Wine Personality', 'Items', 'Total Price',
+                        'Shipping Address', 'Order Date']
+
+  writer = csv.DictWriter(response, fieldnames)
+
+  writer.writeheader()
+
+  # most recent orders first
+  for order in Order.objects.all().order_by('-order_date'):
+    data = {}
+    data['ID'] = order.id
+    data['Order ID'] = order.order_id
+    data['Ordered By'] = "%s %s (%s)" % (order.ordered_by.first_name, order.ordered_by.last_name, order.ordered_by.email)
+    data['Receiver'] = "%s %s (%s)" % (order.receiver.first_name, order.receiver.last_name, order.receiver.email)
+    data['Wine Personality'] = order.receiver.get_profile().wine_personality
+    data['Items'] = order.cart.items_str()
+    data['Total Price'] = order.cart.total()
+    data['Shipping Address'] = order.shipping_address
+    data['Order Date'] = order.order_date.strftime("%m/%d/%Y")
+
+    writer.writerow(data)
+
+  return response
+
+@staff_member_required
+def view_past_orders(request, order_id=None):
+
+  # show the completed orders
+
+  # allow search of an order, so we can enter rating
+
+  return render(request, "support/view_past_orders.html")
+
+@staff_member_required
+def edit_rating(request, order_id):
+
+  # GET: show details of order
+
+  # POST: save rating for this wine
+
+  return render(request, "support/edit_rating.html")

@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
 
+from support.models import WineInventory
+
 # Create your models here.
 
 
@@ -398,9 +400,11 @@ class Order(models.Model):
       (2, 'Processing'),
       (3, 'Delayed'),
       (4, 'Out of Stock'),
-      (5, 'Wine Selected'),
-      (6, 'Shipped'),
-      (7, 'Received'),
+      (5, 'Need Manual Review'),
+      (6, 'Wine Selected'),
+      (7, 'Fulfilling'),
+      (8, 'Shipped'),
+      (9, 'Received'),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
@@ -415,6 +419,8 @@ class Order(models.Model):
   tracking_number = models.CharField(max_length=128, null=True, blank=True)
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
+
+  selected_wines = models.ManyToManyField(WineInventory)
 
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
