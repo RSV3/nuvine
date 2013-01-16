@@ -30,6 +30,11 @@ class Command(BaseCommand):
 
     # 2. Unconfirmed parties
     two_ago = timezone.now() - timedelta(days=2)
-    unconfirmed_parties = Party.objects.filter(confirmed=False, created__lt=two_ago)
+    confirmed_parties = Party.objects.filter(confirmed=True)
+    UnconfirmedParty.objects.filter(party__in=confirmed_parties).delete()
+    already_listed = UnconfirmedParty.objects.values_list('party', flat=True)
+    unconfirmed_parties = Party.objects.filter(confirmed=False, created__lt=two_ago).exclude(id__in=already_listed)
+
     for party in unconfirmed_parties:
       UnconfirmedParty.objects.create(party=party)
+

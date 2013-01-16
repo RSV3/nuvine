@@ -1043,13 +1043,19 @@ def party_user_info(request, user_email):
 
 
 @login_required
-def party_add(request, party_id=None):
+def party_add(request, party_id=None, party_pro=None):
   """
     Add a new party
   """
   data = {}
 
   u = request.user
+
+  self_hosting = True
+  if party_pro != 'pro':
+    self_hosting = False
+
+  data['self_hosting'] = self_hosting
 
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
@@ -1073,7 +1079,7 @@ def party_add(request, party_id=None):
       messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
-  if u.userprofile.is_host():
+  if u.userprofile.is_host() or self_hosting:
     initial_data['first_name'] = u.first_name
     initial_data['last_name'] = u.last_name
     initial_data['email'] = u.email
@@ -1197,13 +1203,13 @@ def party_add(request, party_id=None):
 
       data["parties_menu"] = True
 
-      if request.POST.get('save'):
+      if request.POST.get('create'):
         # go to party details page
-        if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
-          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
-        else:
-          messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
-          return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
+        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+
+      if request.POST.get('save'):
+        messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
+        return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
       else:
         # messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))

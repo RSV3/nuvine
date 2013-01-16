@@ -31,17 +31,16 @@
 
 {% block content %}
 
-{% if user.get_profile.is_host or user.userprofile.events_manager %}
+{% if self_hosting %}
+  <div class="menu_wrap main partycrumb">
+    <ul class="nav">
+      <li class="party-add active">&nbsp;</li>
+      <li class="party-write-invitation">&nbsp;</li>
+      <li class="party-invite-friends">&nbsp;</li>
+      <li class="party-review-request">&nbsp;</li>
+    </ul>
+  </div>
 {% endif %}
-
-<div class="menu_wrap main partycrumb">
-  <ul class="nav">
-    <li class="party-add active">&nbsp;</li>
-    <li class="party-write-invitation">&nbsp;</li>
-    <li class="party-invite-friends">&nbsp;</li>
-    <li class="party-review-request">&nbsp;</li>
-  </ul>
-</div>
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
@@ -350,15 +349,16 @@
             </fieldset>  
             <div class="row">
               <div class="span1">&nbsp;</div>
+<!-- 
                 <div class="span9">
                   <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
                 </div>
                 <div class="span2">
                   <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
                 </div>
+ -->
 
-<!-- 
-              {% if user.get_profile.is_host or user.userprofile.events_manager %}
+              {% if self_hosting %}
                 <div class="span9">
                   <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
                 </div>
@@ -367,10 +367,10 @@
                 </div>
               {% else %}
                 <div class="span2">
-                  <button type="submit" name="save" value="save" class="btn btn-primary">Create</button>
+                  <button type="submit" name="create" value="create" class="btn btn-primary">Create</button>
                 </div>
               {% endif %}
- -->
+
             </div>
           </div>
         </div>

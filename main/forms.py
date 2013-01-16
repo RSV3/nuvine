@@ -66,6 +66,7 @@ class PartyCreateForm(forms.ModelForm):
     super(PartyCreateForm, self).__init__(*args, **kwargs)
     self.fields['first_name'].widget.attrs['class'] = 'typeahead'
     self.fields['first_name'].widget.attrs['data-provide'] = 'typeahead'
+    self.fields['first_name'].widget.attrs['autocomplete'] = 'off'
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
@@ -233,9 +234,9 @@ class PartyInviteTasterForm(forms.ModelForm):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
     initial = kwargs.get('initial')
 
-    self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead'}
-    self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead'}
-    self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead'}
+    self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
+    self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
+    self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['phone'].widget.attrs = {'placeholder': 'Phone'}
     self.fields['party'].widget = forms.HiddenInput()
     if initial.get('change_rsvp') == 't':

@@ -15,6 +15,10 @@
       text-align: right;
       font-weight: bold;
     }
+    a:visited {
+      color: #DD4040;
+      text-decoration: none;
+    }
   </style>
 {% endblock additional_styles %}
 
@@ -30,6 +34,11 @@
       {% if pro or host %}
         <p>
           <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
+        </p>
+      {% endif %}
+      {% if pro %}
+        <p>
+          <a href="{% url party_add 'pro' %}">or Host your own party</a>
         </p>
       {% endif %}
     </div>
