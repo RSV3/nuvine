@@ -480,6 +480,10 @@ table .row-label-bold {
   background: url('../img/create_party_nav.png') no-repeat -707px -74px; 
   width: 227px;
 }
+.party-review-create {
+  background: url('../img/create_party_nav.png') no-repeat -946px -74px; 
+  width: 227px;
+}
 
 .party-add.active {
   background-position: 0 0;
@@ -492,6 +496,9 @@ table .row-label-bold {
 }
 .party-review-request.active {
   background-position: -707px 0; 
+}
+.party-review-create.active {
+  background-position: -946px 0; 
 }
 
 /*

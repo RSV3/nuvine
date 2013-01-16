@@ -38,7 +38,11 @@
       <li class="party-add">&nbsp;</li>
       <li class="party-write-invitation">&nbsp;</li>
       <li class="party-invite-friends">&nbsp;</li>
-      <li class="party-review-request active">&nbsp;</li>
+      {% if pro or user.get_profile.events_manager %}
+        <li class="party-review-create active">&nbsp;</li>
+      {% else %}
+        <li class="party-review-request active">&nbsp;</li>
+      {% endif %}
     </ul>
   </div>
   <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">

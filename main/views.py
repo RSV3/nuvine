@@ -1051,12 +1051,6 @@ def party_add(request, party_id=None, party_pro=None):
 
   u = request.user
 
-  self_hosting = True
-  if party_pro != 'pro':
-    self_hosting = False
-
-  data['self_hosting'] = self_hosting
-
   sp_group = Group.objects.get(name='Supplier')
   tas_group = Group.objects.get(name='Vinely Taster')
 
@@ -1078,6 +1072,12 @@ def party_add(request, party_id=None, party_pro=None):
     if party.requested and not u.userprofile.events_manager():
       messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+
+  self_hosting = True
+  if u.userprofile.is_pro() and party_pro != 'pro' and not party_id:
+    self_hosting = False
+
+  data['self_hosting'] = self_hosting
 
   if u.userprofile.is_host() or self_hosting:
     initial_data['first_name'] = u.first_name
@@ -1358,6 +1358,7 @@ def party_review_request(request, party_id):
   if request.POST.get('request_party'):
 
     # party request made
+    party.created = timezone.now()
     party.requested = True
     party.save()
     # Send confirmation request to Pro

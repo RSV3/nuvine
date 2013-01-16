@@ -19,7 +19,7 @@ urlpatterns = patterns('main.views',
 
     url(r'^party/list/$', 'party_list', name='party_list'),
     url(r'^party/select/$', 'party_select', name='party_select'),
-    url(r'^party/add/(?P<party_pro>\w+)/$', 'party_add', name='party_add'),
+    url(r'^party/add/(?P<party_pro>[a-z]{3})/$', 'party_add', name='party_add'),
     url(r'^party/add/$', 'party_add', name='party_add'),
     url(r'^party/add/(?P<party_id>\d+)/$', 'party_add', name='party_add'),
     # url(r'^party/taster/add/$', 'party_add_taster', name='party_add_taster'),

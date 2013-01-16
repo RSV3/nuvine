@@ -174,10 +174,10 @@ class UnconfirmedPartyAdmin(admin.ModelAdmin):
     return instance.party.title
 
   def pro(self, instance):
-    return "%s %s" % (instance.party.host.first_name, instance.party.host.last_name)
+    return "%s %s <%s>" % (instance.party.pro.first_name, instance.party.pro.last_name, instance.party.pro.email)
 
   def host(self, instance):
-    return "%s %s" % (instance.party.host.first_name, instance.party.host.last_name)
+    return "%s %s <%s>" % (instance.party.host.first_name, instance.party.host.last_name, instance.party.host.email)
 
   def created(self, instance):
     return instance.party.created
@@ -188,10 +188,10 @@ class UnconfirmedPartyAdmin(admin.ModelAdmin):
 
 class NewHostNoPartyAdmin(admin.ModelAdmin):
   # list of people who signed up as hosts but 7days later havent created a party
-  list_display = ['host', 'date_joined']
+  list_display = ['host_info', 'date_joined']
 
-  def host(self, instance):
-    return "%s %s" % (instance.host.first_name, instance.host.last_name)
+  def host_info(self, instance):
+    return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
 
   def date_joined(self, instance):
     return instance.host.date_joined

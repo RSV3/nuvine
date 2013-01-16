@@ -25,7 +25,11 @@
       <li class="party-add">&nbsp;</li>
       <li class="party-write-invitation">&nbsp;</li>
       <li class="party-invite-friends active">&nbsp;</li>
-      <li class="party-review-request">&nbsp;</li>
+      {% if pro or user.get_profile.events_manager %}
+        <li class="party-review-create">&nbsp;</li>
+      {% else %}
+        <li class="party-review-request">&nbsp;</li>
+      {% endif %}
     </ul>
   </div>
 
