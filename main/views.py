@@ -1031,6 +1031,12 @@ def party_add(request):
 
   initial_data = {'pro': u}
 
+  party_date = timezone.now() + timedelta(days=14)
+  party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day + 1,
+                                  hour=19, minute=0)
+  initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
+  initial_data['event_time'] = party_date.strftime("%I:%M %p")
+
   if request.method == "POST":
     form = PartyCreateForm(request.POST, initial=initial_data)
     if form.is_valid():
@@ -1113,7 +1119,7 @@ def party_add(request):
         # if no previous party found, just e-mail sales
         send_host_vinely_party_email(request, u)
 
-    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
+    # initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
     form = PartyCreateForm(initial=initial_data)
 
   data["form"] = form
@@ -1164,7 +1170,7 @@ def party_details(request, party_id):
   # these messages are only relevant to host or Pro
   if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
     if party.event_date > today and party.high_low() == '!LOW':
-      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
+      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">adding more</a> tasters.' % reverse('party_taster_invite', args=[party.id])
       messages.warning(request, msg)
     elif party.event_date > today and party.high_low() == '!HIGH':
       msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
