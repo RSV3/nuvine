@@ -555,8 +555,8 @@ def distribute_party_invites_email(request, invitation_sent):
     from_email = 'Invitation from %s %s <info@vinely.com>' % (inviting_user.first_name, inviting_user.last_name)
   else:
     from_email = 'Invitation from %s %s <info@vinely.com>' % (host_user.first_name, host_user.last_name)
-
-  for guest in invitation_sent.guests.all():
+  guests = invitation_sent.guests.exclude(id=host_user.id)
+  for guest in guests:
     invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
     invite.invited_timestamp = timezone.now()
     invite.save()
@@ -599,7 +599,8 @@ def distribute_party_invites_email(request, invitation_sent):
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
-  return msg
+  # return msg
+  return guests.count()
 
 
 def preview_party_invites_email(request, invitation_sent, embed=False):
@@ -678,7 +679,7 @@ def resend_party_invite_email(request, user, invitation_sent):
     msg.attach_alternative(html_msg, "text/html")
     msg.send()
 
-  return msg
+  # return msg
 
 
 def send_rsvp_thank_you_email(request, user, verification_code, temp_password):

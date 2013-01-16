@@ -286,6 +286,7 @@ def how_it_works(request):
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
+
 @login_required
 def start_order(request, receiver_id=None, party_id=None):
   """
@@ -301,6 +302,9 @@ def start_order(request, receiver_id=None, party_id=None):
   party = None
   receiver = None
   u = request.user
+
+  if 'receiver_id' in request.session:
+    del request.session['receiver_id']
 
   # both receiver and party_id must be present or none at all
   if receiver_id or party_id:
@@ -365,6 +369,7 @@ def start_order(request, receiver_id=None, party_id=None):
   return HttpResponseRedirect(reverse('cart_add_wine'))
 
 
+@login_required
 def cart_add_tasting_kit(request, party_id=0):
   """
 
@@ -475,9 +480,9 @@ def cart_add_wine(request):
     receiver = User.objects.get(id=request.session['receiver_id'])
   else:
     receiver = u
-
+  # print 'receiver.email', receiver.email
   personality = receiver.get_profile().wine_personality
-
+  # print personality
   form = AddWineToCartForm(request.POST or None)
   # print 'form.errors', form.errors
   if form.is_valid():
@@ -560,6 +565,7 @@ def cart_add_wine(request):
   product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
+  data["has_personality"] = receiver.get_profile().has_personality()
   form.initial = {'total_price': product.unit_price, 'product': product}
   data["form"] = form
   # data["level"] = level
@@ -568,6 +574,7 @@ def cart_add_wine(request):
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
 
+@login_required
 def cart(request):
   """
 
@@ -611,7 +618,7 @@ def cart(request):
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
-
+@login_required
 def cart_remove_item(request, cart_id, item_id):
   """
     Delete an item from cart
@@ -634,6 +641,7 @@ def cart_remove_item(request, cart_id, item_id):
   return HttpResponseRedirect(request.GET.get("next"))
 
 
+@login_required
 def customize_checkout(request):
   """
     Customize checkout to specify the receiver's preferences on wine mix and sparkling
@@ -756,7 +764,7 @@ def place_order(request):
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         # charge card to stripe
 
         if receiver_state == "MI":
@@ -1162,6 +1170,13 @@ def party_add(request, party_id=None):
         host_profile = new_host.get_profile()
         host_profile.mentor = applicable_pro
         host_profile.save()
+
+      # Add host as invitee
+      invited_host, created = PartyInvite.objects.get_or_create(invitee=new_host, party=new_party)
+      if created:
+        invited_host.response = 3
+        invited_host.rsvp_code = str(uuid.uuid4())
+        invited_host.save()
 
       if u.userprofile.is_pro() and not u.userprofile.events_manager():
         if not new_host.is_active:
@@ -1965,7 +1980,7 @@ def party_send_thanks_note(request):
       party = note_sent.party
       # send e-mails
       guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party)
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
       orders = Order.objects.filter(cart__party=party)
       buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
       non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
@@ -2015,8 +2030,8 @@ def party_send_invites(request):
     party = invitation_sent.party
 
     # send e-mails
+    num_guests = distribute_party_invites_email(request, invitation_sent)
     if num_guests > 0:
-      distribute_party_invites_email(request, invitation_sent)
       messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
@@ -2447,6 +2462,7 @@ def edit_credit_card(request):
   except:
     # the receiver has not been specified
     raise PermissionDenied
+  data['receiver'] = receiver
 
   data["receiver_state"] = receiver_state
 
@@ -2476,7 +2492,7 @@ def edit_credit_card(request):
       except:
         # no record of this customer-card mapping so create
         try:
-          customer = stripe.Customer.create(card=stripe_token, email=u.email)
+          customer = stripe.Customer.create(card=stripe_token, email=receiver.email)
           stripe_user_id = customer.id
 
           # create on vinely
@@ -2527,7 +2543,7 @@ def edit_credit_card(request):
       return HttpResponseRedirect(reverse("place_order"))
 
     # display form: prepopulate with previous credit card used
-    current_user_profile = u.get_profile()
+    current_user_profile = receiver.get_profile()
     if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
       card_info = current_user_profile.credit_card
       form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,
