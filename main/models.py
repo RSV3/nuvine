@@ -615,6 +615,14 @@ class ProSignupLog(models.Model):
   mentor_email = models.CharField(max_length=75, blank=True, null=True, verbose_name="Typed Mentor Email")
   timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Pro Request Date")
 
+
+class NewHostNoParty(models.Model):
+  host = models.ForeignKey(User)
+
+
+class UnconfirmedParty(models.Model):
+  party = models.ForeignKey(Party)
+
 # class SupplierWine(models.Model):
 #   '''
 #   This stores the wine casings for suppliers

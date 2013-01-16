@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 
 from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
-                        CustomizeOrder, OrganizedParty
+                        CustomizeOrder, OrganizedParty, UnconfirmedParty, NewHostNoParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -166,6 +166,38 @@ class CustomizeOrderAdmin(admin.ModelAdmin):
     return "%s %s <%s>" % (instance.user.first_name, instance.user.last_name, instance.user.email)
 
 
+class UnconfirmedPartyAdmin(admin.ModelAdmin):
+  # Parties that have not been confirmed 48hrs after being created
+  list_display = ['title', 'pro', 'host', 'created', 'event_date']
+
+  def title(self, instance):
+    return instance.party.title
+
+  def pro(self, instance):
+    return "%s %s" % (instance.party.host.first_name, instance.party.host.last_name)
+
+  def host(self, instance):
+    return "%s %s" % (instance.party.host.first_name, instance.party.host.last_name)
+
+  def created(self, instance):
+    return instance.party.created
+
+  def event_date(self, instance):
+    return instance.party.event_date
+
+
+class NewHostNoPartyAdmin(admin.ModelAdmin):
+  # list of people who signed up as hosts but 7days later havent created a party
+  list_display = ['host', 'date_joined']
+
+  def host(self, instance):
+    return "%s %s" % (instance.host.first_name, instance.host.last_name)
+
+  def date_joined(self, instance):
+    return instance.host.date_joined
+
+admin.site.register(NewHostNoParty, NewHostNoPartyAdmin)
+admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
 admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
