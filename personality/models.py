@@ -105,6 +105,9 @@ class WineRatingData(models.Model):
   sizzle_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
   timestamp = models.DateTimeField(auto_now_add=True)
 
+  class Meta:
+    ordering = ['wine__number']
+
 
 class WinePersonality(models.Model):
   """
