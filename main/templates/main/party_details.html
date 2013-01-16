@@ -133,7 +133,7 @@
     <hr />
     <div class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
-    {% if not party.is_past_party%}
+    {% if not party.is_past_party %}
       {% if party.confirmed %}
         {% if party.high_low == '!LOW' %}
           <div class="message-container">
@@ -141,11 +141,10 @@
               <div class="alert alert-error center">
                 <h2>
                   <small>
-                    {% if pro and not user.get_profile.events_manager %}
-                      Low attendance! Remind host to invite more people
-                    {% endif %}
-                    {% if host or user.get_profile.events_manager %}
+                    {% if user.get_profile.events_manager or party.host == user %}
                       Low attendance! Consider inviting more people or RSVP'ing for them
+                    {% else %}
+                      Low attendance! Remind host to invite more people
                     {% endif %}
                   </small>
                 </h2>
@@ -247,12 +246,12 @@
         {% render_table table %}
       {% endif %}
 
-      {% if host or user.get_profile.events_manager %}
+      {% if party.host == user or user.get_profile.events_manager %}
         {% if can_add_taster %}
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
             <div class="span10">
-              <a href="{% url party_write_invitation party.id %}" class="btn btn-primary">Edit Invite</a>
+              <a href="{% url party_write_invitation party.id %}" target="_blank" class="btn btn-primary">Edit Invite</a>
             </div>
             <div class="span2">
               <button class="btn btn-primary pull-right" name="send_invite" value="send_invite"
@@ -263,7 +262,7 @@
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
             <div class="span9">
-              <a class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
+              <a target="_blank" class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
             </div>
             <div class="span3">
               <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Thank Attendees</button>

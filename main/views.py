@@ -1064,12 +1064,6 @@ def party_add(request, party_id=None):
     data["pending_pro"] = pending_pro in u.groups.all()
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
-  # if u.userprofile.is_host():
-  #   pro, pro_profile = my_pro(u)
-  #   if not pro:
-  #     messages.warning(request, 'You need to be assigned a Vinely Pro before you can start hosting parties. Contact <a href="mailto:care@vinely.com">care@vinely.com</a> to be assigned one.')
-  #     return HttpResponseRedirect(reverse('party_list'))
-
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
 
   party = None
@@ -1132,7 +1126,7 @@ def party_add(request, party_id=None):
   if request.method == "POST":
     if form.is_valid():
       new_party = form.save(commit=False)
-      if u.userprofile.is_pro() and not u.userprofile.events_manager():
+      if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
         new_party.confirmed = True
         new_party.requested = True
       if party:
@@ -1192,11 +1186,12 @@ def party_add(request, party_id=None):
           # send an invitation e-mail if new host created
           send_new_party_email(request, verification_code, temp_password, new_host.email)
           send_new_party_scheduled_email(request, new_party)
-        else:
-          # existing host needs to notified that party has been arranged
-          if not u.userprofile.events_manager():
-            send_new_party_scheduled_email(request, new_party)
-            messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+        # else:
+        #   # existing host needs to notified that party has been arranged
+        #   if not u.userprofile.events_manager() and new_host != u:
+        #     send_new_party_scheduled_email(request, new_party)
+        #     messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+
       # else:
       #   messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
 
@@ -1204,18 +1199,18 @@ def party_add(request, party_id=None):
 
       if request.POST.get('save'):
         # go to party details page
-        if u.userprofile.is_pro() and not u.userprofile.events_manager():
+        if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
           return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
         else:
           messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
           return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
       else:
-        messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
+        # messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
   else:
     # GET
     # if the current user is host, display Vinely Pro
-    if "host" in data and data["host"]:
+    if data.get("host"):
       pros = MyHost.objects.filter(host=u)
       if pros.exists():
         pro = pros[0].pro
@@ -1225,23 +1220,23 @@ def party_add(request, party_id=None):
         send_host_vinely_party_email(request, u)
 
     # if the current user is Vinely Taster, display Vinely Pro
-    if "taster" in data and data["taster"]:
-      # find the latest party that guest attended and then through the host to find the Vinely Pro
-      party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
-      if party_invites.exists():
-        party = party_invites[0].party
-        primary_host = party.host
-        pros = MyHost.objects.filter(host=primary_host)
-        if pros.exists():
-          pro = pros[0].pro
-          data["my_pro"] = pro
-          send_host_vinely_party_email(request, u, pro)
-        else:
-          # if no pro found, just e-mail sales
-          send_host_vinely_party_email(request, u)
-      else:
-        # if no previous party found, just e-mail sales
-        send_host_vinely_party_email(request, u)
+    # if "taster" in data and data["taster"]:
+    #   # find the latest party that guest attended and then through the host to find the Vinely Pro
+    #   party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
+    #   if party_invites.exists():
+    #     party = party_invites[0].party
+    #     primary_host = party.host
+    #     pros = MyHost.objects.filter(host=primary_host)
+    #     if pros.exists():
+    #       pro = pros[0].pro
+    #       data["my_pro"] = pro
+    #       send_host_vinely_party_email(request, u, pro)
+    #     else:
+    #       # if no pro found, just e-mail sales
+    #       send_host_vinely_party_email(request, u)
+    #   else:
+    #     # if no previous party found, just e-mail sales
+    #     send_host_vinely_party_email(request, u)
 
   applicable_pro, pro_profile = my_pro(u)
   data["pro_user"] = applicable_pro
@@ -1281,7 +1276,7 @@ def party_find_friends(request, party_id):
   party.setup_stage = 3
   party.save()
 
-  if party.requested and not u.userprofile.events_manager():
+  if party.requested and not (u.userprofile.events_manager() or u.userprofile.is_pro):
     messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
     return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
@@ -1290,32 +1285,23 @@ def party_find_friends(request, party_id):
 
   initial_data = {'party': party}
 
-  # allowed_taster_actions = []
-
-  # if party.guests_can_invite:
-  #   allowed_taster_actions.append(PartyTasterOptionsForm.TASTER_OPTIONS[1][0])
-
-  # if party.guests_see_guestlist:
-  #   allowed_taster_actions.append(PartyTasterOptionsForm.TASTER_OPTIONS[0][0])
-
-  # initial_data['taster_actions'] = allowed_taster_actions
-
   if request.POST.get('add_taster'):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
     party_add_taster(request, party, taster_form)
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
+
   if request.POST.get("next"):
     return HttpResponseRedirect(reverse('party_review_request', args=[party.id]))
 
-  if request.POST.get('add_vinely_party'):
-    # added as vinely event - only possible by pro
-    party.requested = True
-    party.confirmed = True
-    # party.setup_stage = 3
-    party.save()
+  # if request.POST.get('add_vinely_party'):
+  #   # added as vinely event - only possible by pro
+  #   party.requested = True
+  #   party.confirmed = True
+  #   # party.setup_stage = 3
+  #   party.save()
 
-    return HttpResponseRedirect(reverse('party_details', args=[party.id]))
+  #   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
 
   data['party'] = party
   data['taster_form'] = taster_form
@@ -1361,10 +1347,7 @@ def party_review_request(request, party_id):
     guest_options = [int(x) for x in options_form.cleaned_data['taster_actions']]
     party.guests_see_guestlist = True if 0 in guest_options else False
     party.guests_can_invite = True if 1 in guest_options else False
-    # party.setup_stage = 4
     party.save()
-  # else:
-  #   print options_form.errors
 
   if request.POST.get('request_party'):
 
@@ -1380,6 +1363,15 @@ def party_review_request(request, party_id):
     else:
       send_new_party_scheduled_by_host_no_pro_email(request, party)
       messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+    return HttpResponseRedirect(reverse("party_details", args=[party.id]))
+
+  if request.POST.get('add_party'):
+    # only possible by pro
+    party.requested = True
+    party.confirmed = True
+    party.save()
+
+    messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data['party'] = party
@@ -1514,17 +1506,17 @@ def party_details(request, party_id):
 
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
-    if u.userprofile.is_pro():
-      if not u.userprofile.events_manager():
-        if party.confirmed:
-          if not party.kit_ordered():
-            msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
-            messages.warning(request, msg)
-        else:
-          pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
-          pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
-          msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
+    if party.host != u and not u.userprofile.events_manager():
+      # if not u.userprofile.events_manager():
+      if party.confirmed:
+        if not party.kit_ordered():
+          msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
           messages.warning(request, msg)
+      else:
+        pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
+        pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
+        msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
+        messages.warning(request, msg)
     else:
       # for host
       if party.confirmed:
@@ -1837,18 +1829,17 @@ def party_write_invitation(request, party_id):
     custom_message = get_default_invite_message(party)
     signature = get_default_signature(party)
 
-  host_full_name = "Your friend"
-  if party.host.first_name:
-    host_full_name = "%s %s" % (party.host.first_name, party.host.last_name)
-
-  initial_data = {'party': party, 'custom_message': custom_message, 'signature': signature, 'custom_subject': '%s invites you to a Vinely Party!' % host_full_name}
+  # host_full_name = "Your friend"
+  # if party.host.first_name:
+  #   host_full_name = "%s %s" % (party.host.first_name, party.host.last_name)
+  # initial_data = {'party': party, 'custom_message': custom_message, 'signature': signature, 'custom_subject': '%s invites you to a Vinely Party!' % host_full_name}
+  initial_data = {'party': party, 'custom_message': custom_message, 'signature': signature, 'custom_subject': "You've been invited to a Vinely Party"}
   form = CustomizeInvitationForm(request.POST or None, initial=initial_data, instance=invitation)
 
   if request.POST.get("next") or request.POST.get("save") or request.POST.get('preview'):
     if form.is_valid():
       invitation = form.save()
       party = invitation.party
-      # party.setup_stage = 2
       party.save()
 
       # messages.success(request, "Your invitation message was successfully saved.")

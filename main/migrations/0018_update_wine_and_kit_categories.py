@@ -140,8 +140,8 @@ class Migration(DataMigration):
         'main.customizeorder': {
             'Meta': {'object_name': 'CustomizeOrder'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sparkling': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'sparkling': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'}),
             'wine_mix': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },
@@ -157,9 +157,10 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'InvitationSent'},
             'custom_message': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
             'custom_subject': ('django.db.models.fields.CharField', [], {'default': '"You\'re invited to a Vinely Party!"', 'max_length': '128'}),
-            'guests': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'symmetrical': 'False'}),
+            'guests': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
+            'signature': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         'main.lineitem': {
@@ -208,25 +209,32 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'OrganizedParty'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
-            'pro': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'pro': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         'main.party': {
             'Meta': {'object_name': 'Party'},
             'address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Address']"}),
+            'auto_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'auto_thank_you': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'event_date': ('django.db.models.fields.DateTimeField', [], {}),
+            'guests_can_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'guests_see_guestlist': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'host': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
+            'requested': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'setup_stage': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         'main.partyinvite': {
             'Meta': {'object_name': 'PartyInvite'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'invited_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'my_guests'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'invitee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'my_invites'", 'to': "orm['auth.User']"}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'}),

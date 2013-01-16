@@ -93,20 +93,25 @@ class PartyCreateForm(forms.ModelForm):
     add_form_validation(self)
 
   def clean_email(self):
-    #1. if current user is host dont allow to set new host
+    # 1. if current user is host dont allow to set new host
     if self.initial.get('host'):
       host_email = self.initial['host'].email
     else:
       host_email = self.cleaned_data['email']
-    try:
-      user = User.objects.get(email=host_email)
-        # check if host is not a pro
-      pro_group = Group.objects.get(name="Vinely Pro")
-      if pro_group in user.groups.all():
-        self._errors['email'] = "The host e-mail is associated with a Vinely Pro and cannot host a party."
-    except User.DoesNotExist:
-      # user with this new e-mail will be created in clean
-      pass
+
+    # 2. other than themselves, a pro cannot set another pro as host
+    if self.initial.get('pro'):
+      try:
+        user = User.objects.get(email=host_email)
+        # check that host is not another pro
+        if user.id != self.initial['pro'].id:
+          pro_group = Group.objects.get(name="Vinely Pro")
+          if pro_group in user.groups.all():
+            self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
+      except User.DoesNotExist:
+        # user with this new e-mail will be created in clean
+        pass
+
     return host_email
 
   def clean(self):
@@ -672,14 +677,16 @@ class AttendeesTable(tables.Table):
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
-    if not (user.userprofile.is_host() or user.userprofile.events_manager()):
+    if not (data['party'].host == user or user.userprofile.events_manager()):
       exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')
     if not user.userprofile.is_pro():
       exclude.append('wine_personality')
-    if not (user.userprofile.is_host() and data['can_add_taster'] or user.userprofile.is_pro() and data['can_add_taster']):
+    if not (data['party'].host == user and data['can_add_taster'] or user.userprofile.is_pro() and data['can_add_taster']):
       exclude.append('edit')
+    if not data['party'].host == user:
+      exclude.append('confirmed')
     if data['party'].confirmed:
       exclude.append('confirmed')
     if not (user.userprofile.is_pro() and data['can_shop_for_taster']):

@@ -49,7 +49,7 @@
 
       <form class="form-horizontal" method="POST" action="{{ app_path }}">
         {% csrf_token %}
-        <!-- <hr /> -->          
+        <!-- <hr /> -->
         {{ form.party }}
          <div class="control-group">
           <div class="controls"><i>Email will be sent from info@vinely.com</i></div>
@@ -106,7 +106,7 @@
           <div class="controls">
             {{ form.signature }}
             <div class="vertical-space"></div>
-            {% if not party.requested %}
+            {% if not party.requested and not pro and not user.get_profile.events_manager %}
               <div class="row">
                 <div class="span8">
                   <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
