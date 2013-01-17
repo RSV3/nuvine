@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 
 from support.models import Email, WineInventory, Wine
-from main.models import Party, PartyInvite, Order, MyHost
+from main.models import Party, PartyInvite, Order, MyHost, SelectedWine
 from personality.models import WineRatingData
 from accounts.models import SubscriptionInfo
 
@@ -429,12 +429,32 @@ def view_orders(request, order_id=None):
 
     # algorithm based on the rating data
 
+    # for testing, fulfill with only wine 1
+    w1 = Wine.objects.get(sku="VW200101-1")
     u3 = User.objects.get(email="attendee3@example.com")
+    inv1 = WineInventory.objects.get(wine=w1)
 
     if o.receiver == u3:
+      # couldn't fulfill
       o.fulfill_status = Order.FULFILL_CHOICES[5][0]
     else:
-      o.fulfill_status = Order.FULFILL_CHOICES[6][0]
+      # fulfilled wine
+      num_slots = o.num_slots()
+      wine_added = 0
+      for i in range(num_slots):
+        if inv1.on_hand > 0:
+          wine_selected = SelectedWine(order=o, wine=w1)
+          wine_selected.save()
+          inv1.on_hand -= 1
+          inv1.save()
+          wine_added += 1
+
+      # if not enough wines we cannot fulfill
+      if wine_added == num_slots:
+        o.fulfill_status = Order.FULFILL_CHOICES[6][0]
+      else:
+        o.fulfill_status = Order.FULFILL_CHOICES[5][0]
+
     o.save()
 
   # shows the orders and the wines that have been assigned to it
@@ -494,17 +514,21 @@ def download_ready_orders(request):
 @staff_member_required
 def view_past_orders(request, order_id=None):
 
-  # show the completed orders
+  data = {}
+
+  if order_id:
+    form = RateWineForm(request.POST or None)
+    if form.is_valid():
+      form.save()
+
+    # GET: show details of the order
+  else:
+    # show the completed orders
+    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0])
+
+    data['fulfilled_orders'] = fulfilled_orders
 
   # allow search of an order, so we can enter rating
 
   return render(request, "support/view_past_orders.html")
 
-@staff_member_required
-def edit_rating(request, order_id):
-
-  # GET: show details of order
-
-  # POST: save rating for this wine
-
-  return render(request, "support/edit_rating.html")

@@ -20,5 +20,4 @@ urlpatterns = patterns('support.views',
     url(r'^download/ready/orders/$', 'download_ready_orders', name='download_ready_orders'),
     url(r'^orders/past/$', 'view_past_orders', name='view_past_orders'),
     url(r'^orders/past/(?P<order_id>\d+)/$', 'view_past_orders', name='view_past_orders'),
-    url(r'^rating/edit/(?P<order_id>\d+)/$', 'edit_rating', name='edit_rating'),
 )

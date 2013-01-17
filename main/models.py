@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
 
-from support.models import WineInventory
+from support.models import Wine
 
 # Create your models here.
 
@@ -411,8 +411,6 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
-  selected_wines = models.ManyToManyField(WineInventory)
-
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -465,6 +463,37 @@ class Order(models.Model):
 
   def ships_to(self):
     return self.shipping_address.state
+
+  def num_slots(self):
+    total_slots = 0
+    items = self.cart.items.filter(price_category__in=[12, 13, 14])
+    if items.exists():
+      for item in items:
+        if item.price_category == 12:
+          total_slots += 3
+        elif item.price_category == 13:
+          total_slots += 6
+        elif item.price_category == 14:
+          total_slots += 12
+    return total_slots
+
+  def selected_wines(self):
+    wine_list = []
+    for s in SelectedWine.objects.filter(order=self):
+      data = {}
+      data['name'] = s.wine.name
+      data['year'] = s.wine.year
+      data['vinely_category'] = s.wine.vinely_category
+      wine_list.append(data)
+
+    return wine_list
+
+
+class SelectedWine(models.Model):
+
+  order = models.ForeignKey(Order)
+  wine = models.ForeignKey(Wine)
+  timestamp = models.DateTimeField(auto_now=True)
 
 
 class OrderReview(models.Model):
