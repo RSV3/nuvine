@@ -168,6 +168,36 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
+  def update_stripe_subscription(self, frequency, quantity):
+    from main.models import Cart
+    current_shipping = self.shipping_address
+    user_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+    stripe_card = self.stripe_card
+
+    if user_state in Cart.STRIPE_STATES:
+      if user_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif user_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
+
+      if stripe_card:
+        customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+        #print 'customer.subscription', customer.subscription
+        if frequency == 1 and quantity != 0:
+          # for now only have monthly subscription
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[frequency][quantity - 5]
+          customer.update_subscription(plan=stripe_plan)
+        else:
+          if customer.subscription:
+            # in order to keep track of subscription history, we add new entry with no subscription
+            subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
+            subscription.save()
+            customer.cancel_subscription()
+        return True
+
+      # there's no stripe subscription that can be updated
+      return False
+
   def age(self):
     year = 365
     age = (date.today() - self.dob).days / year
@@ -352,7 +382,7 @@ class SubscriptionInfo(models.Model):
     (14, '12 Bottles'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
-  next_invoice_date = models.DateField()
+  next_invoice_date = models.DateField(null=True, blank=True)
   updated_datetime = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):

@@ -283,6 +283,7 @@ def how_it_works(request):
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
 
+@login_required
 def start_order(request, receiver_id=None, party_id=None):
   """
     Show wine subscription order page
@@ -297,6 +298,9 @@ def start_order(request, receiver_id=None, party_id=None):
   party = None
   receiver = None
   u = request.user
+
+  if 'receiver_id' in request.session:
+    del request.session['receiver_id']
 
   # both receiver and party_id must be present or none at all
   if receiver_id or party_id:
@@ -358,9 +362,10 @@ def start_order(request, receiver_id=None, party_id=None):
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
   # return render_to_response("main/start_order.html", data, context_instance=RequestContext(request))
-  return HttpResponseRedirect(reverse('cart_add_wine', args=['divine']))
+  return HttpResponseRedirect(reverse('cart_add_wine'))
 
 
+@login_required
 def cart_add_tasting_kit(request, party_id=0):
   """
 
@@ -393,6 +398,8 @@ def cart_add_tasting_kit(request, party_id=0):
     messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
   elif invites.count() > 24:
     messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
+
+  request.session['taste_kit_order'] = True
 
   form = AddTastingKitToCartForm(request.POST or None)
 
@@ -437,7 +444,7 @@ def cart_add_tasting_kit(request, party_id=0):
 
     return HttpResponseRedirect(reverse("cart"))
 
-  if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0]).exists():
+  if Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).exists():
     products = Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True).order_by('unit_price')
     data["product"] = products[0]
     form.initial = {'product': products[0], 'total_price': products[0].unit_price, 'quantity': 1}
@@ -448,7 +455,8 @@ def cart_add_tasting_kit(request, party_id=0):
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
-def cart_add_wine(request, level="x"):
+@login_required
+def cart_add_wine(request):
   """
 
     Add item to cart
@@ -465,11 +473,14 @@ def cart_add_wine(request, level="x"):
 
   # TODO: check user personality and select the frequency recommendation and case size
   if 'receiver_id' in request.session:
-    personality = User.objects.get(id=request.session['receiver_id']).get_profile().wine_personality
+    receiver = User.objects.get(id=request.session['receiver_id'])
   else:
-    personality = u.get_profile().wine_personality
+    receiver = u
+  # print 'receiver.email', receiver.email
+  personality = receiver.get_profile().wine_personality
+  # print personality
   form = AddWineToCartForm(request.POST or None)
-
+  # print 'form.errors', form.errors
   if form.is_valid():
     # raise Exception
     # if ordering tasting kit make sure thats the only thing in the cart
@@ -490,7 +501,7 @@ def cart_add_wine(request, level="x"):
     else:
       # create new cart
       if u.is_authenticated():
-        cart = Cart(user=u)
+        cart = Cart(user=receiver)
       else:
         # anonymous cart
         cart = Cart()
@@ -498,8 +509,8 @@ def cart_add_wine(request, level="x"):
       request.session['cart_id'] = cart.id
 
     # can only order make one subscription at a time
-    if (item.frequency in [1, 2, 3]) and cart:
-      if cart.items.filter(frequency__in=[1, 2, 3]).exists():
+    if (item.frequency == 1) and cart:
+      if cart.items.filter(frequency=1).exists():
         alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
@@ -512,9 +523,18 @@ def cart_add_wine(request, level="x"):
     # udpate cart status
     if party:
       cart.party = party
-    cart.status = Cart.CART_STATUS_CHOICES[1][0]
+    cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
     cart.save()
+
+    # update customization options
+    # custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
+
+    # if int(form.cleaned_data['mix_selection']) == 0:
+    #   custom.wine_mix = int(form.cleaned_data['mix_selection'])
+    # else:
+    #   custom.wine_mix = int(form.cleaned_data['wine_mix'])
+    # custom.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
     pro_group = Group.objects.get(name="Vinely Pro")
@@ -528,29 +548,29 @@ def cart_add_wine(request, level="x"):
 
   # big image of wine
   # TODO: need to check wine personality and choose the right product
-  try:
-    product = Product.objects.filter(cart_tag=level, active=True)[0]
-  except:
-    # not a valid product
-    raise Http404
+  # try:
+  #   product = Product.objects.filter(active=True)[0]
+  # except:
+  #   # not a valid product
+  #   raise Http404
 
-  description_template = Template(product.description)
-  product.description = description_template.render(Context({'personality': personality.name}))
-  product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  # product.unit_price = product.full_case_price
+  # description_template = Template(product.description)
+  # product.description = description_template.render(Context({'personality': personality.name}))
+  # product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
+  # # product.unit_price = product.full_case_price
+  product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
-
-  form.initial = {'level': level,
-                'total_price': product.unit_price,
-                'product': product}
+  data["has_personality"] = receiver.get_profile().has_personality()
+  form.initial = {'total_price': product.unit_price, 'product': product}
   data["form"] = form
-  data["level"] = level
+  # data["level"] = level
 
   data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
 
+@login_required
 def cart(request):
   """
 
@@ -594,7 +614,7 @@ def cart(request):
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
 
-
+@login_required
 def cart_remove_item(request, cart_id, item_id):
   """
     Delete an item from cart
@@ -604,7 +624,8 @@ def cart_remove_item(request, cart_id, item_id):
 
   cart = Cart.objects.get(id=cart_id)
   item = LineItem.objects.get(id=item_id)
-
+  if item.product.category == 0 and 'taste_kit_order' in request.session:
+    del request.session['taste_kit_order']
   cart.items.remove(item)
 
   # track cart activity
@@ -616,6 +637,7 @@ def cart_remove_item(request, cart_id, item_id):
   return HttpResponseRedirect(request.GET.get("next"))
 
 
+@login_required
 def customize_checkout(request):
   """
     Customize checkout to specify the receiver's preferences on wine mix and sparkling
@@ -697,6 +719,12 @@ def place_order(request):
     receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
 
     data["receiver_state"] = receiver_state
+    try:
+      data["customization"] = CustomizeOrder.objects.get(user=receiver)
+    except CustomizeOrder.DoesNotExist:
+      pass
+
+    data['taste_kit_order'] = request.session.get('taste_kit_order')
 
     if request.method == "POST":
       # finalize order
@@ -732,7 +760,7 @@ def place_order(request):
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         # charge card to stripe
 
         if receiver_state == "MI":
@@ -758,8 +786,6 @@ def place_order(request):
         if sub_orders.exists():
           item = sub_orders[0]
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          print "freq", item.frequency
-          print "category", item.price_category
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
@@ -830,26 +856,16 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in=range(5, 11), frequency__in=[1, 2, 3]):
+    for item in order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1]):
       # check if item contains subscription
       from_date = datetime.date(datetime.now(tz=UTC()))
-      subscriptions = SubscriptionInfo.objects.filter(user=order.receiver).order_by("-updated_datetime")
-      if subscriptions.exists() and subscriptions[0].quantity == item.price_category and subscriptions[0].frequency == item.frequency:
-        # latest subscription info is valid and use it to update
-        subscription = subscriptions[0]
-        from_date = subscription.next_invoice_date
-      else:
-        # create new subscription info
-        subscription = SubscriptionInfo(user=order.receiver,
-                                      quantity=item.price_category,
-                                      frequency=item.frequency)
+      # create new subscription info
+      subscription = SubscriptionInfo(user=order.receiver,
+                                    quantity=item.price_category,
+                                    frequency=item.frequency)
 
       if item.frequency == 1:
         next_invoice = from_date + relativedelta(months=+1)
-      elif item.frequency == 2:
-        next_invoice = from_date + relativedelta(months=+2)
-      elif item.frequency == 3:
-        next_invoice = from_date + relativedelta(months=+3)
       else:
         # set it to yesterday since subscription cancelled or was one time purchase
         # this way, celery task won't pick things up
@@ -1015,6 +1031,12 @@ def party_add(request):
 
   initial_data = {'pro': u}
 
+  party_date = timezone.now() + timedelta(days=14)
+  party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day + 1,
+                                  hour=19, minute=0)
+  initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
+  initial_data['event_time'] = party_date.strftime("%I:%M %p")
+
   if request.method == "POST":
     form = PartyCreateForm(request.POST, initial=initial_data)
     if form.is_valid():
@@ -1036,6 +1058,13 @@ def party_add(request):
       host_profile = new_host.get_profile()
       host_profile.mentor = u
       host_profile.save()
+
+      # Add host as invitee
+      invited_host, created = PartyInvite.objects.get_or_create(invitee=new_host, party=new_party)
+      if created:
+        invited_host.response = 3
+        invited_host.rsvp_code = str(uuid.uuid4())
+        invited_host.save()
 
       if not new_host.is_active:
         # new host, so send password and invitation
@@ -1090,7 +1119,7 @@ def party_add(request):
         # if no previous party found, just e-mail sales
         send_host_vinely_party_email(request, u)
 
-    initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
+    # initial_data = {'event_day': datetime.today().strftime("%m/%d/%Y"), 'pro': u}
     form = PartyCreateForm(initial=initial_data)
 
   data["form"] = form
@@ -1141,7 +1170,7 @@ def party_details(request, party_id):
   # these messages are only relevant to host or Pro
   if OrganizedParty.objects.filter(party=party, pro=u).exists() or party.host == u:
     if party.event_date > today and party.high_low() == '!LOW':
-      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">inviting more</a> people.' % reverse('party_taster_invite', args=[party.id])
+      msg = 'The number of people that have RSVP\'ed to the party is quite low. You should consider <a href="%s">adding more</a> tasters.' % reverse('party_taster_invite', args=[party.id])
       messages.warning(request, msg)
     elif party.event_date > today and party.high_low() == '!HIGH':
       msg = 'The number of people that have RSVP\'ed exceed the number recommended for a party. Consider ordering more tasting kits so that everyone has a great tasting experience.'
@@ -1456,7 +1485,7 @@ def party_send_thanks_note(request):
       party = note_sent.party
       # send e-mails
       guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party)
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
       orders = Order.objects.filter(cart__party=party)
       buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
       non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
@@ -1502,7 +1531,7 @@ def party_send_invites(request):
       party = invitation_sent.party
 
       # send e-mails
-      distribute_party_invites_email(request, invitation_sent)
+      num_guests = distribute_party_invites_email(request, invitation_sent)
       messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
@@ -1940,6 +1969,7 @@ def edit_credit_card(request):
   except:
     # the receiver has not been specified
     raise PermissionDenied
+  data['receiver'] = receiver
 
   # stripe only supported in MI, CA
   if receiver_state in Cart.STRIPE_STATES:
@@ -1966,7 +1996,7 @@ def edit_credit_card(request):
       except:
         # no record of this customer-card mapping so create
         try:
-          customer = stripe.Customer.create(card=stripe_token, email=u.email)
+          customer = stripe.Customer.create(card=stripe_token, email=receiver.email)
           stripe_user_id = customer.id
 
           # create on vinely
@@ -2017,7 +2047,7 @@ def edit_credit_card(request):
       return HttpResponseRedirect(reverse("place_order"))
 
     # display form: prepopulate with previous credit card used
-    current_user_profile = u.get_profile()
+    current_user_profile = receiver.get_profile()
     if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
       card_info = current_user_profile.credit_card
       form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,

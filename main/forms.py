@@ -7,7 +7,7 @@ from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationFor
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote, MyHost
-from accounts.models import Address
+from accounts.models import Address, SubscriptionInfo
 
 import string
 from lepl.apps.rfc3696 import Email
@@ -251,42 +251,92 @@ class VinelyProSignupForm(EmailUserCreationForm):
 
     return instance
 
+from django.utils.safestring import mark_safe
+
+
+class ExtraRadioInput(forms.widgets.RadioInput):
+  def tag(self):
+    items = []
+    for i, x in enumerate(self):
+      if i == 0:
+        price = '$54'
+      elif i == 1:
+        price = '<strike>$108</strike> $97'
+      elif i == 2:
+        price = '<strike>$216</strike> $173'
+
+      radio_html = '''
+        <div class="span4 center">
+          <div class="row">
+            <div class="span4">
+              <label>%s</label>
+            </div>
+            <div class="span4">
+              <input type="radio" id="%s" value="%s" name="%s" %s />
+            </div>
+        </div>
+      ''' % (price, x.attrs['id'], x.choice_value, x.name, 'checked="checked"' if x.is_checked() else "")
+
+      items.append(radio_html)
+    # return mark_safe(
+    #    u'<input%s /><span class="description">%s</span>' % \
+    #    (flatatt(final_attrs),self.choice_description ))
+    return mark_safe(u'\n'.join(items))
+
+
+class ProductRadioField(forms.RadioSelect.renderer):
+  # def __iter__(self):
+  #   for i, choice in enumerate(self.choices):
+  #     yield ExtraRadioInput(self.name, self.value,
+  #                           self.attrs.copy(), choice, i)
+
+  def render(self):
+    # return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
+    items = []
+    for i, x in enumerate(self):
+      # product = Product.objects.get(id=x.choice_value)
+
+      if i == 0:
+        price = '$54'
+      elif i == 1:
+        price = '<strike>$108</strike> $97'
+      elif i == 2:
+        price = '<strike>$216</strike> $173'
+
+      radio_html = '''
+            <div class="span4 center">
+              <h1>%s</h1>
+              <input type="radio" id="%s" value="%s" name="%s" %s />
+            </div>
+
+      ''' % (price, x.attrs['id'], x.choice_value, x.name, 'checked="checked"' if x.is_checked() else "")
+
+      items.append(radio_html)
+
+    return mark_safe(u'\n'.join(items))
+
 
 class AddWineToCartForm(forms.ModelForm):
-  level = forms.CharField(widget=forms.HiddenInput)
-  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[1][0], active=True))
+  # level = forms.CharField(widget=forms.HiddenInput)
+  # product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[1][0], active=True))
+  product = forms.ModelChoiceField(widget=forms.RadioSelect(renderer=ProductRadioField), queryset=Product.objects.filter(category=1, active=True).order_by('id'), empty_label=None)
+  frequency = forms.ChoiceField(widget=forms.RadioSelect, choices=SubscriptionInfo.FREQUENCY_CHOICES[:2], initial=1)
+  # mix_selection = forms.ChoiceField(widget=forms.RadioSelect, choices=((0, 'Vinely Recommendation'), (1, 'Choose')), initial=0)
+  # wine_mix = forms.ChoiceField(widget=forms.Select, choices=CustomizeOrder.MIX_CHOICES[1:4], required=False)
 
   def __init__(self, *args, **kwargs):
     super(AddWineToCartForm, self).__init__(*args, **kwargs)
-    # self.fields['product'].widget = forms.Select()
-    # self.fields['quantity'].widget.choices = [(1, 'Full Case'), (2, 'Half Case')]
-    # self.fields['quantity'].widget.choices = [(1, '3 Bottles'), (2, '6 Bottles'), (3, '12 Bottles')]
-    self.fields['quantity'].widget = forms.HiddenInput()
-    self.fields['total_price'].widget = forms.HiddenInput()
+    # self.fields['mix_selection'].widget.attrs['class'] = 'mix-selection'
+    # product = Product.objects.filter(category=1, active=True).order_by('id')
+    # self.fields['product'].choices = [(product.id, "$%s" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
 
   class Meta:
     model = LineItem
-    exclude = ['sku']
+    exclude = ['sku', 'total_price', 'quantity']
 
   def clean(self):
     cleaned_data = super(AddWineToCartForm, self).clean()
-    print "cleaned_data", cleaned_data
-    # quantity = int(cleaned_data['quantity'])
-    # if cleaned_data['level'] == "basic":
-    #   if quantity == 1:
-    #     price_category = 5
-    #   elif quantity == 2:
-    #     price_category = 6
-    # elif cleaned_data['level'] == "superior":
-    #   if quantity == 1:
-    #     price_category = 7
-    #   elif quantity == 2:
-    #     price_category = 8
-    # elif cleaned_data['level'] == "divine":
-      # if quantity == 1:
-      #   price_category = 9
-      # elif quantity == 2:
-      #   price_category = 10
+
     if cleaned_data['product'].name == '3 Bottles':
       price_category = 12
     elif cleaned_data['product'].name == '6 Bottles':

@@ -35,6 +35,7 @@ nose==1.1.2
 numpy==1.6.2
 psycopg2==2.4.5
 py2app==0.6.4
+pycurl==7.19.0
 pyOpenSSL==0.13
 pygraphviz==1.0
 pycrypto==2.6
@@ -53,7 +54,8 @@ PyYAML==3.1
 sorl-thumbnail==11.12
 -e git://github.com/jamstooks/django-s3-folder-storage.git#egg=django_s3_folder_storage-dev
 xlrd==0.8.0
-stripe==1.7.4
+requests==1.0.4
+stripe==1.7.7
 newrelic
 pyPdf==1.13
 lepl

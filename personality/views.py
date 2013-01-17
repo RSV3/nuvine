@@ -516,7 +516,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         messages.success(request, msg)
 
     # set active tab to be next wine where 'feeling' is not filled
-    ratings = taster.wineratingdata_set.exclude(overall__in=range(1, 6))
+    ratings = taster.wineratingdata_set.exclude(overall__in=range(1, 6)).order_by('wine__number')
     data['active_tab'] = ratings[0].wine.number if ratings else 1
     data["rate_wines_menu"] = True
     data["form"] = form
