@@ -517,3 +517,5 @@ class ChangeTasterRSVPForm(forms.Form):
   )
   party = forms.IntegerField(widget=forms.HiddenInput())
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
+
+

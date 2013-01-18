@@ -1,2 +1,17 @@
-Edit Order
-Saved order details.
+{% extends "winedora/base_html5.html" %}
+
+{% block header %}
+  <h1 class="headline">Edit Order</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <form method="POST" action="">
+    <table>
+      {{ formset }}
+    </table>
+  </form>
+</div>
+
+{% endblock content %}

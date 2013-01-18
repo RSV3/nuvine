@@ -1,13 +1,24 @@
 {% extends "winedora/base_html5.html" %}
 
 {% block content %}
-  <table>
-    {% for o in fulfilled_orders %}
-    <tr>
-      <td><a href="{% url support:edit_rating o.id %}">{{ o.vinely_order_id }}</a></td>
-      <td>{{ o.receiver.email }}</td>
-      <td>{{ o.num_slots }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+
+  {% if formset %}
+    {{ formset.management_form }}
+    <table>
+      {% for form in formset %}
+        {{ form }}
+      {% endfor %}
+    </table>
+  {% else %}
+    <table>
+      {% for o in fulfilled_orders %}
+      <tr>
+        <td><a href="{% url support:view_past_orders o.id %}">{{ o.vinely_order_id }}</a></td>
+        <td>{{ o.receiver.email }}</td>
+        <td>{{ o.num_slots }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <!-- endif just listing orders -->
+  {% endif %}
 {% endblock content %}

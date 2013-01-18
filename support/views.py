@@ -7,13 +7,14 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.forms.formsets import formset_factory
 
 from support.models import Email, WineInventory, Wine
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine
 from personality.models import WineRatingData
 from accounts.models import SubscriptionInfo
 
-from support.forms import InventoryUploadForm
+from support.forms import InventoryUploadForm, SelectedWineRatingForm
 from main.utils import my_pro
 from datetime import datetime
 import csv
@@ -417,13 +418,24 @@ def update_wine_inventory(request):
 @staff_member_required
 def view_orders(request, order_id=None):
 
+  """
+    order_id is used to filter the orders list
+
+    one should be able to click the order and update wines
+  """
+
+  data = {}
+
   # show orders that have not been fulfilled
-  orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[5][0])
+  if order_id:
+    orders = Order.objects.get(id=order_id)
+  else:
+    orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[5][0])
 
   # could search and filter by order_id
   for o in orders:
     receiver = o.receiver
-    # get wine personality
+    # get wine personality and rating data to filter wine
     personality = receiver.get_profile().wine_personality
     rating_data = WineRatingData.objects.filter(user=receiver)
 
@@ -459,21 +471,51 @@ def view_orders(request, order_id=None):
 
   # shows the orders and the wines that have been assigned to it
 
-  # allows one to modify the orders
+  data["orders"] = orders
 
-  # POST: update the wine assignment by running the algorithm
-
-  return render(request, "support/view_orders.html")
+  return render(request, "support/view_orders.html", data)
 
 
 @staff_member_required
 def edit_order(request, order_id):
+  """
+    Allows one to modify the order
+  """
+
+  data = {}
+
+  order = get_object_or_404(Order, pk=order_id)
+
+  num_slots = order.num_slots()
+
+  from support.forms import SelectWineForm
+
+  SelectedWineFormSet = formset_factory(SelectWineForm, max_num=num_slots)
+
+  formset = SelectedWineFormSet(request.POST or None)
+  if formset.is_valid():
+    # POST: save the order modification
+    formset.save()
+    messages.success(request, "Saved order details.")
 
   # GET: show details of order, show the ratings on past orders
+  form_data = {
+    'form-TOTAL_FORMS': str(order.num_slots()),
+    'form-INITIAL_FORMS': u'0',
+    'form-MAX_NUM_FORMS': u''
+  }
 
-  # POST: save the order modification
+  selected_wines = SelectedWine.objects.filter(order=order)
 
-  return render(request, "support/edit_order.html")
+  for w in range(order.num_slots()):
+    form_data['form-%d-order' % w] = order.id
+    if w < selected_wines.count():
+      form_data['form-%d-wine' % w] = selected_wines[w].wine.id
+
+  formset.initial = form_data
+  data['formset'] = formset
+  return render(request, "support/edit_order.html", data)
+
 
 @staff_member_required
 def download_ready_orders(request):
@@ -487,7 +529,7 @@ def download_ready_orders(request):
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=vinely_ready_orders.csv'
 
-  fieldnames = ['ID', 'Order ID', 'Ordered By', 'Receiver', 'Wine Personality', 'Items', 'Total Price',
+  fieldnames = ['ID', 'Order ID', 'Ordered By', 'Receiver', 'Wine Personality', 'Items', 'Wine SKU', 'Total Price',
                         'Shipping Address', 'Order Date']
 
   writer = csv.DictWriter(response, fieldnames)
@@ -503,6 +545,7 @@ def download_ready_orders(request):
     data['Receiver'] = "%s %s (%s)" % (order.receiver.first_name, order.receiver.last_name, order.receiver.email)
     data['Wine Personality'] = order.receiver.get_profile().wine_personality
     data['Items'] = order.cart.items_str()
+    data['Wine SKU'] = [selected.wine.sku for selected in SelectedWine.objects.filter(order=order)]
     data['Total Price'] = order.cart.total()
     data['Shipping Address'] = order.shipping_address
     data['Order Date'] = order.order_date.strftime("%m/%d/%Y")
@@ -511,24 +554,46 @@ def download_ready_orders(request):
 
   return response
 
+
 @staff_member_required
 def view_past_orders(request, order_id=None):
+  """
+    If order_id is valid, then view the order and edit the ratings
+
+    else just show the list
+  """
 
   data = {}
 
   if order_id:
-    form = RateWineForm(request.POST or None)
-    if form.is_valid():
-      form.save()
+    order = get_object_or_404(Order, pk=order_id)
+    num_slots = order.num_slots()
+    SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, max_num=num_slots)
+    formset = SelectedWineRatingFormSet(request.POST or None)
+    if formset.is_valid():
+      formset.save()
 
-    # GET: show details of the order
+      # GET: show details of the order
+
+    initial_data = []
+    selected_wines = SelectedWine.objects.filter(order=order)
+
+    for w in range(num_slots):
+      form_data = {}
+      form_data['order'] = order.id
+      if w < selected_wines.count():
+        form_data['wine'] = selected_wines[w].wine.name
+      initial_data.append(form_data)
+
+    formset.initial = initial_data
+    data['formset'] = formset
   else:
     # show the completed orders
-    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0])
+    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[5][0])
 
     data['fulfilled_orders'] = fulfilled_orders
 
   # allow search of an order, so we can enter rating
 
-  return render(request, "support/view_past_orders.html")
+  return render(request, "support/view_past_orders.html", data)
 

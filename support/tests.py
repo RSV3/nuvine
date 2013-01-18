@@ -210,15 +210,86 @@ class SimpleTest(TestCase):
 
     def test_rate_the_wine(self):
 
+      # generate orders
+      product = Product.objects.get(id=4)   # superior wine
+
+      today = datetime.now(tz=UTC())
+
+      user1 = User.objects.get(email='attendee1@example.com')
+      prof1 = user1.get_profile()
+
+      user2 = User.objects.get(email='attendee2@example.com')
+      prof2 = user2.get_profile()
+
+      user3 = User.objects.get(email='attendee3@example.com')
+      prof3 = user3.get_profile()
+
+      shipping_address1 = Address(street1="369 Franklin St. 101", city="Cambridge", state="MA", zipcode="02139")
+      shipping_address1.save()
+      shipping_address2 = Address(street1="369 Franklin St. 102", city="Cambridge", state="MA", zipcode="02139")
+      shipping_address2.save()
+      shipping_address3 = Address(street1="369 Franklin St. 103", city="Cambridge", state="MA", zipcode="02139")
+      shipping_address3.save()
+
+      card1 = CreditCard(card_number="4444111144441111", exp_month=12, exp_year=15)
+      card1.save()
+
+      card2 = CreditCard(card_number="4444111144441111", exp_month=12, exp_year=15)
+      card2.save()
+
+      card3 = CreditCard(card_number="4444111144441111", exp_month=12, exp_year=15)
+      card3.save()
+
+      item1 = LineItem(product=product, price_category=12, quantity=1, frequency=1, total_price=36.00)
+      item1.save()
+
+      item2 = LineItem(product=product, price_category=13, quantity=1, frequency=1, total_price=72.00)
+      item2.save()
+
+      item3 = LineItem(product=product, price_category=14, quantity=1, frequency=1, total_price=144.00)
+      item3.save()
+
+      cart1 = Cart(user=user1, receiver=user1, adds=1)
+      cart1.save()
+      cart1.items.add(item1)
+
+      cart2 = Cart(user=user2, receiver=user2, adds=1)
+      cart2.save()
+      cart2.items.add(item2)
+
+      cart3 = Cart(user=user3, receiver=user3, adds=1)
+      cart3.save()
+      cart3.items.add(item3)
+
+      order1 = Order(ordered_by=user1, receiver=user1, cart=cart1, shipping_address=shipping_address1,
+                    credit_card=card1, order_date=today)
+      order1.assign_new_order_id()
+      order1.save()
+
+      order2 = Order(ordered_by=user2, receiver=user2, cart=cart2, shipping_address=shipping_address2,
+                    credit_card=card2, order_date=today)
+      order2.assign_new_order_id()
+      order2.save()
+
+      order3 = Order(ordered_by=user3, receiver=user3, cart=cart3, shipping_address=shipping_address3,
+                    credit_card=card3, order_date=today)
+      order3.assign_new_order_id()
+      order3.save()
+
+      self.client.login(email='jayme@vinely.com', password='hello')
+      # look at the inventory and fulfill
+      response = self.client.get(reverse("support:view_orders"))
+
       self.client.login(email='bethany@vinely.com', password='hello')
 
       # check the edit order view to see if past ratings are showing up
       response = self.client.get(reverse("support:view_past_orders"))
-      print response.content
       self.assertContains(response, "OR0000001")
 
       # open the wine rating page
       response = self.client.get(reverse("support:view_past_orders", args=(1,)))
+
+      print response.content
 
       # should be able to see the wines that shipped
       self.assertContains(response, "2011 Loca Macabeo")
@@ -254,8 +325,11 @@ class SimpleTest(TestCase):
       user2 = User.objects.get(email='attendee2@example.com')
       prof2 = user2.get_profile()
 
-      shipping_address1 = Address.objects.get(street1="369 Franklin St. 101")
-      shipping_address2 = Address.objects.get(street1="369 Franklin St. 102")
+
+      shipping_address1 = Address(street1="369 Franklin St. 101", city="Cambridge", state="MA", zipcode="02139")
+      shipping_address1.save()
+      shipping_address2 = Address(street1="369 Franklin St. 102", city="Cambridge", state="MA", zipcode="02139")
+      shipping_address2.save()
 
       card1 = CreditCard(card_number="4444111144441111", exp_month=12, exp_year=15)
       card1.save()

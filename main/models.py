@@ -411,6 +411,9 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
+  def __unicode__(self):
+    return "OR%s ordered for %s" % (str(self.id).zfill(7), self.receiver.email)
+
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -493,6 +496,7 @@ class SelectedWine(models.Model):
 
   order = models.ForeignKey(Order)
   wine = models.ForeignKey(Wine)
+  overall_rating = models.IntegerField(default=0)
   timestamp = models.DateTimeField(auto_now=True)
 
 

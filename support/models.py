@@ -35,6 +35,10 @@ class Wine(models.Model):
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
 
+  def __unicode__(self):
+    return "%s (%s)" % (self.name, self.year)
+
+
 class WineInventory(models.Model):
   wine = models.ForeignKey(Wine)
   on_hand = models.IntegerField(default=0)
