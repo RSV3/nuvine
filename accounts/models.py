@@ -168,6 +168,36 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
+  def update_stripe_subscription(self, frequency, quantity):
+    from main.models import Cart
+    current_shipping = self.shipping_address
+    user_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+    stripe_card = self.stripe_card
+
+    if user_state in Cart.STRIPE_STATES:
+      if user_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif user_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
+
+      if stripe_card:
+        customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+        #print 'customer.subscription', customer.subscription
+        if frequency == 1 and quantity != 0:
+          # for now only have monthly subscription
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[frequency][quantity - 5]
+          customer.update_subscription(plan=stripe_plan)
+        else:
+          if customer.subscription:
+            # in order to keep track of subscription history, we add new entry with no subscription
+            subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
+            subscription.save()
+            customer.cancel_subscription()
+        return True
+
+      # there's no stripe subscription that can be updated
+      return False
+
   def age(self):
     year = 365
     age = (date.today() - self.dob).days / year
@@ -324,7 +354,7 @@ class SubscriptionInfo(models.Model):
   # matrix of frequency x quantity
   STRIPE_PLAN = (
     ('', ),  # one time purchase
-    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly'),  # monthly
+    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
     ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
     ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
   )
@@ -332,8 +362,8 @@ class SubscriptionInfo(models.Model):
   FREQUENCY_CHOICES = (
     (0, 'One-time purchase'),
     (1, 'Monthly'),
-    (2, 'Bi-Monthly'),
-    (3, 'Quarterly'),
+    # (2, 'Bi-Monthly'),
+    # (3, 'Quarterly'),
     (9, 'No Subscription'),
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
@@ -347,13 +377,17 @@ class SubscriptionInfo(models.Model):
     (8, 'Superior: Half Case (6 bottles)'),
     (9, 'Divine: Full Case (12 bottles)'),
     (10, 'Divine: Half Case (6 bottles)'),
+    (12, '3 Bottles'),
+    (13, '6 Bottles'),
+    (14, '12 Bottles'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
-  next_invoice_date = models.DateField()
+  next_invoice_date = models.DateField(null=True, blank=True)
   updated_datetime = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
     return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
+
 
 class Zipcode(models.Model):
   '''

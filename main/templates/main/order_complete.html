@@ -8,6 +8,14 @@
   <h1 class="headline">Your order was placed successfully!</h1>
 {% endblock header %}
 
+{% block additional_styles %}
+  <style type="text/css">
+    .table td { 
+      vertical-align: middle;
+    }
+  </style>
+{% endblock additional_styles %}
+
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -15,7 +23,7 @@
   <div class="row">
     <div class="span12 center">
       <p>Success! Your delicious surprise will soon be on its way.</p>
-      <p>A copy of your order will be sent to your email and can be referenced any time in <a href="{% url order_history %}">My Account</a></p>
+      <p>A copy of your order will be sent to your email and can be referenced any time in the <a href="{% url order_history %}">Order History</a> tab within My Account.</p>
     </div>
   </div>
 
@@ -64,13 +72,15 @@
                 <div class="cart-item">
                   <div class="cart-item-image">
                   {% if item.img_file_name %}
-                    <img src="{{ STATIC_URL }}img/{{ item.img_file_name }}" width="100" height="100">
+                    <img src="{{ STATIC_URL }}img/{{ item.img_file_name }}" height="100">
                   {% else %}
-                      <img src="{% static "img/firsthostkit_prodimg.png" %}" width="100">
+                      <img src="{% static "img/firsthostkit_prodimg.png" %}" height="100">
                   {% endif %}
                   </div>
                   <div class="cart-item-name">
-                    {{ item.product.name }} {# (Vinely product ID: {{ item.product.id }}) #}
+                    {% if item.product.category == 0 %} {# only show this for taste-kits #}
+                      {{ item.product.name }}
+                    {% endif %}
                   </div>
                 </div>
               </td>
@@ -83,7 +93,7 @@
           </table>
         </div>
       </div>
-      <hr>
+      <hr />
       <div class="row">
         <div class="span6">
           &nbsp;
