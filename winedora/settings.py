@@ -321,9 +321,14 @@ try:
 except Exception as e:
   print e
 
+
 if DEPLOY:
   STRIPE_SECRET = "sk_0B7BUorM8xQM2qwao7dZCqxtPzjDA"
   STRIPE_PUBLISHABLE = "pk_0B7BkfhSTrZvTa6F4fCis0RCNPnbd"
+  STRIPE_SECRET_CA = "sk_live_60XINxPEMjcCqCewtAif2q29"
+  STRIPE_PUBLISHABLE_CA = "pk_live_5lRoqyXhbwPFHjlvbT7k9C16"
 else:
   STRIPE_SECRET = "sk_0B7BJP63oAFG6ZwL0TcbWPUWU0LuM"
   STRIPE_PUBLISHABLE = "pk_0B7BHz0y806TkUPZgpOBepr4dVngO"
+  STRIPE_SECRET_CA = "sk_test_eNRrnFXyqS6pQmNuKnI8HWIO"
+  STRIPE_PUBLISHABLE_CA = "pk_test_KXVrxVwsOQ6359kaGhrwUyrG"

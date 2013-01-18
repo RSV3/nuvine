@@ -212,6 +212,7 @@ class Product(models.Model):
 
   def __unicode__(self):
     return "%s - $ %s" % (self.name, self.unit_price)
+    # return "%s" % (self.name)
 
 
 class LineItem(models.Model):
@@ -231,6 +232,10 @@ class LineItem(models.Model):
       (9, 'Divine: Full Case (12 bottles)'),
       (10, 'Divine: Half Case (6 bottles)'),
       (11, 'Host Tasting Kit'),
+      (12, '3 Bottles'),
+      (13, '6 Bottles'),
+      (14, '12 Bottles'),
+
   )
 
   product = models.ForeignKey(Product, null=True)
@@ -256,6 +261,8 @@ class LineItem(models.Model):
   def quantity_str(self):
     if self.price_category in [5, 6, 7, 8, 9, 10]:
       return "Full Case" if self.quantity == 1 else "Half Case"
+    elif self.price_category in [12, 13, 14]:
+      return self.product.name
     else:
       return str(self.quantity)
 
@@ -284,6 +291,8 @@ class Cart(models.Model):
 
   NO_TAX_STATES = ('MA',)
 
+  STRIPE_STATES = ('MI', 'CA')
+
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
 
   # tracks activity in the carts
@@ -308,24 +317,28 @@ class Cart(models.Model):
     #
     # For tasting kit quantity is the number if kits ordered
 
+    # Subscriptions get free shipping
+    STANDARD_SHIPPING = 15.95
+
     shipping = 0
-    # for item in self.items.all():
-    #   # always $16 - August 2, 2012
-    #   shipping += 16
     for item in self.items.all():
       # tasting kits
       if item.price_category == 11:
-        shipping += 16 * item.quantity
+        shipping += STANDARD_SHIPPING * item.quantity
 
-      # wine cases
-      elif (item.price_category in [5, 7, 9]):
-        # full case
-        shipping += 16
+      if item.price_category == 14 and item.frequency != 1:
+        shipping += STANDARD_SHIPPING
 
-    # calculate for half cases
-    half_case_count = self.items.filter(price_category__in=[6, 8, 10]).count()
-
-    shipping += ((half_case_count / 2) + (half_case_count % 2)) * 16
+    quarter_case_count = self.items.filter(price_category=12).exclude(frequency=1).count()
+    half_case_count = self.items.filter(price_category=13).exclude(frequency=1).count()
+    case_count = (quarter_case_count * 3) + (half_case_count * 6)
+    x = case_count / 12
+    y = case_count % 12
+    if y == 0:
+      ship = x * STANDARD_SHIPPING
+    else:
+      ship = (x + 1) * STANDARD_SHIPPING
+    shipping += ship
 
     return shipping
 
@@ -488,10 +501,13 @@ class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-      (0, 'Your Vinely recommendation'),
-      (1, 'Send me a mix of red & white wine'),
-      (2, 'Send me red wine only'),
-      (3, 'Send me white wine only')
+    (0, 'Your Vinely recommendation'),
+    (1, 'Send me a mix of red & white wine'),
+    (2, 'Send me red wine only'),
+    (3, 'Send me white wine only')
+      # (1, 'Both'),
+      # (2, 'Red'),
+      # (3, 'White')
   )
 
   wine_mix = models.IntegerField(choices=MIX_CHOICES, verbose_name="Tell us a little more about what you would like in your shipment.",
@@ -503,8 +519,8 @@ class CustomizeOrder(models.Model):
   )
 
   sparkling = models.IntegerField(choices=SPARKLING_CHOICES, verbose_name="Can we include sparkling wine?",
-                                    default=SPARKLING_CHOICES[1][0])
-  timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Last Updated")
+                                    default=SPARKLING_CHOICES[0][0])
+  timestamp = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
 
   def __unicode__(self):
     return "Mix: %s, Sparkling: %s" % (self.get_wine_mix_display(), self.get_sparkling_display())

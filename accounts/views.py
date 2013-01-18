@@ -9,16 +9,19 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.conf import settings
+import stripe
 
-from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder
+from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
                            HeardAboutForm, MakeHostProForm, ProLinkForm
-from accounts.models import VerificationQueue, SubscriptionInfo
+from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
 
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 import math
 from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
@@ -178,15 +181,39 @@ def edit_subscription(request):
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
+
     # create new subscription info object to track subscription change
     info = SubscriptionInfo(user=u, frequency=form.cleaned_data['frequency'],
                               quantity=form.cleaned_data['quantity'])
+
+    if form.cleaned_data['frequency'] == 1:
+      from_date = datetime.date(timezone.now())
+      next_invoice = from_date + relativedelta(months=+1)
+    else:
+      # set it to yesterday since subscription cancelled or was one time purchase
+      # this way, celery task won't pick things up
+      next_invoice = timezone.now() - timedelta(days=1)
+    info.next_invoice_date = next_invoice
     info.save()
+
     custom_order, created = CustomizeOrder.objects.get_or_create(user=u)
     custom_order.wine_mix = form.cleaned_data['wine_mix']
     custom_order.sparkling = form.cleaned_data['sparkling']
     custom_order.save()
     messages.success(request, "Your subscription will be updated for the next month.")
+
+    current_shipping = u.userprofile.shipping_address
+    user_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+
+    subscription_updated = False
+    if user_state in Cart.STRIPE_STATES:
+      subscription_updated = u.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
+
+    if subscription_updated:
+      messages.success(request, "Stripe subscription successfully updated.")
+    else:
+      messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
+
 
   data['invited_by'] = my_host(u)
   data['pro_user'], data['pro_profile'] = my_pro(u)

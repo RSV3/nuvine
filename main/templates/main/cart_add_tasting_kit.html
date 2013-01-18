@@ -100,7 +100,8 @@
       		$('#unit_price').data('price', json.price);
   	    },
   	    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert("error: " + errorThrown);
+            // alert("error: " + errorThrown);
+            console.log("error: " + errorThrown)
   	    }
       });
       return false;

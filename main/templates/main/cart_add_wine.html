@@ -5,106 +5,207 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">When do you want it?</h1>
+  <h1 class="headline">What would you like to order?</h1>
 {% endblock header %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .select-label {
+      margin-top: 15px;
+      margin-left: -10;
+    }
+    td {
+      vertical-align: middle;
+    }
+  </style>
+{% endblock %}
 
 {% block content %}
 
 <div class="container">
-
-  <section id="product-item-info">
-  <div class="row">
-
-    <div class="span6">
-      <!--
-      {% thumbnail product.image "500" as im %}
-        <img height="500" src="{{ im.url }}" /> 
-      {% endthumbnail %}
-      -->
-      <img height="500" src="{{ STATIC_URL }}img/{{ product.img_file_name }}">
+  {% if not has_personality %}
+    <div class="vertical-space">&nbsp;</div>
+    <div class="row">
+      <div id="sub-heading" class="offset2 span8 center">
+        You need to first participate in a tasting party to find out your wine personality.
+      </div>
     </div>
-
-    <div class="span6">
-      <form class="form-horizontal" action="{{ app_path }}" method="POST">
+    <div class="vertical-space">&nbsp;</div>
+  {% else %}
+    <section id="product-item-info">
+      <h3 class="center">All orders have our money-back guarantee!</h3>
+      <!-- <p class="center"><strong>All orders have our money-back guarantee!<strong></p> -->
+      <hr />
+      <form action="{{ app_path }}" method="POST">
         {% csrf_token %}
-        {{ form.errors }}
-        {{ form.level }}
-        {{ form.product }}
-        <p><h3>{{ personality.name }} {{ product.name }}</h3></p>
-        <p>{{ product.description }}</p>
-        <div class="control-group {% if form.quantity.errors %}error{% endif %}">
-          <div class="control-label" for="id_quantity">{{ form.quantity.label }}</div>
-          <div class="controls">
-            {{ form.quantity }} 
-            {% if form.quantity.errors %}
-              <span class="help-inline">
-                {{ form.quantity.errors }}
-              </span>
-            {% endif %}
+        <!-- <section id="product-item-info"> -->
+        <div class="row">
+          <div class="span3"><h1>Step 1: Quantity</h1></div>
+          <div class="select-label">Select one from below</div>
+        </div>
+        <div class="row">
+          <div class="span4 center">
+            <!-- <h1>3 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_3_prodimg.png">
+              </div>
+            </div>
+          </div>
+          <div class="span4 center">
+            <!-- <h1>6 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_6_prodimg.png">
+              </div>
+            </div>
+          </div>
+          <div class="span4 center">
+            <!-- <h1>12 Bottles</h1> -->
+            <div class="row">
+              <div class="span4">
+                <img height="320" src="{{ STATIC_URL }}img/{{ personality.suffix }}_12_prodimg.png">
+              </div>
+            </div>
           </div>
         </div>
-        <p></p>
-        <p><h3>Here's our recommendation</h3></p>
-        <dl class="dl-horizontal">
-          <dt>Monthly: </dt>
-          <dd>If you drink 3 bottles/week</dd>
-          <dt>Bi-Monthly: </dt>
-          <dd>If you drink 1-2 bottles/week</dd>
-          <dt>Quarterly: </dt>
-          <dd>If you dink less than one bottle/week</dd>
-        </dl>
-        <p>
-        <p>
-        <p></p>
-        <div class="control-group {% if form.frequency.errors %}error{% endif %}">
-          <div class="control-label" for="id_frequency">{{ form.frequency.label }}</div>
-          <div class="controls">
-            {{ form.frequency }} 
-            {% if form.frequency.errors %}
-              <span class="help-inline">
-                {{ form.frequency.errors }}
-              </span>
-            {% endif %}
+        <div class="row">
+          {{ form.product }}
+        </div>
+        <!-- </section> -->
+        <hr />
+        <!-- <section id="order-membership"> -->
+        <div class="row">
+          <div class="span12">
+            <div class="row">
+              <div class="span3"><h1>Step 2: Membership</h1></div>
+              <div class="select-label">Do you want to become a Vinely VIP?</div>
+            </div>
+          </div>
+          <div class="span4">
+            <div class="vertical-space">&nbsp;</div>
+            <!-- <h1>One-time Order</h1> -->
+            <table>
+              <tr>
+                <td><h1 class="span1">Yes</h1></td>
+                <td><input id="id_frequency_1" type="radio" class="span1" name="frequency" value="1"></td>
+                <td><label for="id_frequency_1">Send me a new shipment every month</label></td>
+              </tr>
+              <tr>
+                <td><h1 class="span1">No</h1></td>
+                <td><input id="id_frequency_0" type="radio" class="span1" checked="checked" name="frequency" value="0"></td>
+                <td><label for="id_frequency_0">Send me a one-time order</label></td>
+              </tr>
+            </table>
+          </div>
+          <div class="span1">&nbsp;</div>
+          <div class="span7">
+            <div class="row">
+              <div class="span3">
+                <img height="180" src="{% static "img/VIP-Badge.png" %}">
+              </div>
+              <div class="span4">
+                <h2><small>Benefits of Membership</small></h2>
+                <!-- <p>BENEFITS OF MEMBERSHIP</p> -->
+                <strong>
+                  <ul>
+                    <li><a href="javascript:;" class="free-shipping" rel="popover" data-trigger="hover" data-placement="bottom"
+                          data-content="Shipping charge for a one-time order is $15.95. If a VIP cancels prior to receiving the third order, the shipping fee will be charged on the first two orders">Free shipping to your door
+                        </a>
+                    </li>
+                    <li>Discover new wines every month</li>
+                    <li>Cancel anytime</li>
+                  </ul>
+                </strong>
+              </div>
+            </div>
+          </div>
+<!-- 
+          <div class="span1">&nbsp;</div>
+          {% for item in form.frequency %}
+            <div class="{% if item.index == 0 %}span4{% else %}span6 center{% endif %}">
+              {{ item.tag }}
+            </div>
+          {% endfor %}
+        </div>
+ -->
+        <!-- </section> -->
+        <hr />
+        {% comment %}
+        <!-- <section id="order-mix"> -->
+        <div class="row">
+          <div class="span4"><h1>Step 3: Mix (Optional)</h1></div>
+          <div class="select-label">Select one from below</div>
+        </div>
+        <div class="row">
+          <!-- <div class="span1">&nbsp;</div> -->
+          <div class="span4 center">
+            <div class="row">
+              <div class="span4">
+                <h1>Surprise Me!</h1>
+                <img height="150" src="{% static "img/VinelyRecommendation.png" %}">
+              </div>
+            </div>
+          </div>
+          <!-- <div class="span2">&nbsp;</div> -->
+          <div class="span6 offset2 center">
+            <div class="row">
+              <div class="span6">
+                <h1>I'm Choosy</h1>
+                <img height="150" src="{% static "img/RedWhiteBoth.png" %}">
+              </div>
+              <!-- <div class="span1">&nbsp;</div> -->
+              <!-- <div class="vertical-space">&nbsp;</div> -->
+            </div>
           </div>
         </div>
-        <p>&nbsp;</p>
-        <div class="download">
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row center">
+          {% for item in form.mix_selection %}
+            {% if item.index == 0 %}
+              <div class="span4">
+                {{ item.tag }}
+              </div>
+            {% else %}
+              <div class="span6 pull-right">
+                &nbsp;&nbsp;&nbsp;
+                {{ item.tag }}
+                {{ form.wine_mix }}
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        <p class="price-label"><b>Unit Price:</b> <span id="unit_price">{{ product.unit_price|currency }}</span></p>
-        {{ form.total_price }}
-        <div class="form-actions">
-          <div class="controls">
-            <button type="submit" class="btn btn-primary">Add to Cart</button>
+        {% endcomment %}
+        <div class="vertical-space">&nbsp;</div>
+        <div class="row">
+          <div class="span11">
+            <button class="btn btn-primary btn-large pull-right">Add to Cart</button>
           </div>
         </div>
       </form>
-    </div>
-
-  </div>
-  </section>
-
+    </section>
+  {% endif %}  
 </div>
 {% endblock %}
 
 {% block additional_scripts %}
-<script>
-$(document).ready(function(){
-    $('#id_quantity').change(function(e) {
-	var val = $('#id_quantity option:selected').val();
-	var url = "{% url cart_quantity level 1 %}".replace(1, parseInt(val));
-        $.ajax({
-	    url: url,
-	    cache: true,
-	    dataType: "json",
-	    success: function(json, textStatus) {
-		$('#unit_price').text("$" + json.price);
-	    },
-	    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert("error: " + errorThrown);
-	    }
-        });
-        return false;
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('.free-shipping').popover();
+      $('.mix-selection').click(function() {
+        var mix_selection = $('.mix-selection:checked').val();
+        if (mix_selection == "0") {
+          $('select').attr('disabled', true);
+        }
+        else {
+          $('select').attr('disabled', false);
+        }
+      });
+      var mix_selection = $('.mix-selection:checked').val();
+      if (mix_selection == "0") {
+        $('select').attr('disabled', true);
+      }
+
     });
-});
-</script>
+  </script>
 {% endblock additional_scripts %}
