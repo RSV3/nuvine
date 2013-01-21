@@ -13,10 +13,11 @@ urlpatterns = patterns('support.views',
     url(r'^parties/$', 'view_parties', name='view_parties'),
 
     url(r'^orders/$', 'view_orders', name='view_orders'),
+    url(r'^orders/(?P<order_id>\d+)/$', 'view_orders', name='view_orders'),
     url(r'^order/edit/$', 'edit_order', name='edit_order'),
     url(r'^order/edit/(?P<order_id>\d+)/$', 'edit_order', name='edit_order'),
 
-    url(r'^update/wine/inventory/$', 'update_wine_inventory', name='update_wine_inventory'),
+    url(r'^wine/inventory/$', 'wine_inventory', name='wine_inventory'),
     url(r'^download/ready/orders/$', 'download_ready_orders', name='download_ready_orders'),
     url(r'^orders/past/$', 'view_past_orders', name='view_past_orders'),
     url(r'^orders/past/(?P<order_id>\d+)/$', 'view_past_orders', name='view_past_orders'),

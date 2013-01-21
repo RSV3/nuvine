@@ -38,6 +38,7 @@ import django.conf.global_settings as DEFAULT_SETTINGS
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
   "main.context_processors.vinely_user_info",
+  "django.core.context_processors.request",
 )
 
 

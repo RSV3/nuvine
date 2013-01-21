@@ -1,0 +1,67 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <!-- upload file -->
+  <div class="row">
+    <div class="span6">
+      <form class="form-horizontal" method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        <span class="help-inline">{{ form.inventory_file.help_text }}</span>
+        <div class="control-group">
+            {{ form.non_field_errors }}
+          <label class="control-label" for="id_inventory_file">
+            {{ form.inventory_file.label_tag }} 
+          </label>
+          <div class="controls">
+            {{ form.inventory_file.errors }}
+            {{ form.inventory_file }}
+          </div>
+        </div>
+        <div class="control-group">
+           <label class="control-label" for="id_comment">
+            {{ form.comment.label_tag }} 
+          </label>         
+           <div class="controls">
+            {{ form.comment.errors }}
+            {{ form.comment }}
+          </div>         
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Upload</button>
+          <button type="reset" class="btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+    <div class="span6">
+      <div class="pull-right">
+        <a href="{% url support:view_orders %}">Fulfill Orders</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+
+  <div class="row">
+    <div class="span12">
+      <h2>Current Wine Inventory</h2>
+    </div>
+    <div class="span12">
+      {% render_table wine_inventory %}
+    </div>
+  </div>
+
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+
+</div>
+
+{% endblock content %}

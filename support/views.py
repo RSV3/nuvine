@@ -349,7 +349,9 @@ def view_parties(request):
 
 
 @staff_member_required
-def update_wine_inventory(request):
+def wine_inventory(request):
+
+  data = {}
 
   # present a form to upload wine data
 
@@ -378,16 +380,17 @@ def update_wine_inventory(request):
 
     num_rows = worksheet.nrows - 1
     curr_row = -1
+    invalid_rows = []
 
     total_wines = 0
     total_wine_types = 0
     while curr_row < num_rows:
       curr_row += 1
       row = worksheet.row(curr_row)
-      # TODO: create wine inventory
 
+      # if first column value is a valid numeric ID
       if row[0].ctype is 2:
-        print "Inventory ID: %d" % int(row[0].value)
+        #print "Inventory ID: %d" % int(row[0].value)
         if row[1].value and row[2].value and row[3].value and row[4].value and row[5].value:
           if Wine.objects.filter(sku=row[3].value).exists():
             wine = Wine.objects.get(sku=row[3].value)
@@ -408,11 +411,22 @@ def update_wine_inventory(request):
 
           total_wines += row[5].value
           total_wine_types += 1
+      else:
+        invalid_rows.append(curr_row)
+
+    if invalid_rows:
+      messages.warning(request, "Rows %s had invalid data" % invalid_rows)
 
     messages.success(request, "%s wine types and %s wine bottles have been uploaded to inventory." % (total_wine_types, total_wines))
-    return HttpResponseRedirect(reverse("support:view_orders"))
 
-  return render(request, "support/update_wine_inventory.html")
+  from django_tables2 import RequestConfig
+  from support.tables import WineInventoryTable
+
+  table = WineInventoryTable(WineInventory.objects.all())
+  RequestConfig(request, paginate={"per_page": 25}).configure(table)
+  data["wine_inventory"] = table
+  data["form"] = form
+  return render(request, "support/wine_inventory.html", data)
 
 
 @staff_member_required
@@ -499,21 +513,25 @@ def edit_order(request, order_id):
     messages.success(request, "Saved order details.")
 
   # GET: show details of order, show the ratings on past orders
-  form_data = {
-    'form-TOTAL_FORMS': str(order.num_slots()),
-    'form-INITIAL_FORMS': u'0',
-    'form-MAX_NUM_FORMS': u''
-  }
-
   selected_wines = SelectedWine.objects.filter(order=order)
 
+  initial_data = []
   for w in range(order.num_slots()):
-    form_data['form-%d-order' % w] = order.id
+    form_data = {}
+    form_data['order'] = order.id
     if w < selected_wines.count():
-      form_data['form-%d-wine' % w] = selected_wines[w].wine.id
+      form_data['wine'] = selected_wines[w].wine.id
+    initial_data.append(form_data)
 
   formset.initial = form_data
   data['formset'] = formset
+
+  # need to get the past orders for this user
+  receiver = order.receiver
+  past_orders = Order.objects.filter(receiver=receiver)
+  past_ratings = SelectedWine.objects.filter(order__in=past_orders, overal_rating__gt=0)
+
+  data['past_ratings'] = past_ratings
   return render(request, "support/edit_order.html", data)
 
 
@@ -573,8 +591,10 @@ def view_past_orders(request, order_id=None):
     if formset.is_valid():
       formset.save()
 
-      # GET: show details of the order
+      messages.success("Saved ratings for order ID: %s" % order.vinely_order_id())
+      return HttpResponseRedirect(reverse("view_past_orders"))
 
+    # GET: show details of the order
     initial_data = []
     selected_wines = SelectedWine.objects.filter(order=order)
 
