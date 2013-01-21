@@ -3,11 +3,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
 
 from emailusernames.utils import create_user
-from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
+from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address, SubscriptionInfo
+
+from accounts.forms import NameEmailUserCreationForm
 
 import string
 from lepl.apps.rfc3696 import Email

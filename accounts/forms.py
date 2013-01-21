@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
+from django.utils.translation import ugettext_lazy as _
 
-from emailusernames.forms import EmailUserChangeForm
+from emailusernames.forms import EmailUserChangeForm, UserCreationForm
+from emailusernames.utils import user_exists
 
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
@@ -11,6 +13,27 @@ from main.models import CustomizeOrder
 from main.utils import UTC
 from datetime import datetime, timedelta
 import math
+
+
+class NameEmailUserCreationForm(UserCreationForm):
+    """
+    Override the default UserCreationForm to force email-as-username behavior.
+    """
+    email = forms.EmailField(label=_("Email"), max_length=75)
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email",)
+
+    def __init__(self, *args, **kwargs):
+        super(NameEmailUserCreationForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if user_exists(email):
+            raise forms.ValidationError(_("A user with that email already exists."))
+        return email
 
 
 class UserInfoForm(EmailUserChangeForm):
@@ -248,7 +271,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 
 from django.contrib.auth.models import Group
-from emailusernames.forms import NameEmailUserCreationForm, EmailAuthenticationForm
+from emailusernames.forms import EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
