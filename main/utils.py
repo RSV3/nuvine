@@ -505,13 +505,22 @@ def send_new_party_scheduled_by_host_email(request, party):
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext(request, {"pro": party.pro,
-                              "invite_host_name": request.user.first_name if request.user.first_name else "Friendly Host",
-                              "party": party,
-                              "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
-                              "pro_phone": party.pro.get_profile().phone,
-                              "has_pro": party.pro,
-                              "host_name": request.get_host()})
+  if party.pro:
+    c = RequestContext(request, {"pro": party.pro,
+                                "invite_host_name": request.user.first_name if request.user.first_name else "Friendly Host",
+                                "party": party,
+                                "pro_name": "%s %s" % (party.pro.first_name, party.pro.last_name) if party.pro.first_name else "Care Specialist",
+                                "pro_phone": party.pro.get_profile().phone,
+                                "has_pro": party.pro,
+                                "host_name": request.get_host()})
+  else:
+    c = RequestContext(request, {"pro": "No pro",
+                                "invite_host_name": request.user.first_name if request.user.first_name else "Friendly Host",
+                                "party": party,
+                                "pro_name": "Care Specialist",
+                                "pro_phone": "No phone number",
+                                "has_pro": party.pro,
+                                "host_name": request.get_host()})
 
   txt_message = txt_template.render(c)
   c.update({'sig': True})
