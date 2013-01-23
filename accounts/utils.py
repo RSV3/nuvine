@@ -479,11 +479,11 @@ our new site.
     </tr>
     <tr>
     <td>&nbsp;</td>
-    <td>Click the following <a href="https://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</td>
+    <td>Click the following <a href="http://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</td>
     </tr>
     <tr>
     <td>&nbsp;</td>
-    <td><a href="https://{{ host_name }}{% url verify_account verification_code %}">https://{{ host_name }}{% url verify_account verification_code %}</a></td>
+    <td><a href="http://{{ host_name }}{% url verify_account verification_code %}">http://{{ host_name }}{% url verify_account verification_code %}</a></td>
     </tr>
     </table>
     {% endif %}

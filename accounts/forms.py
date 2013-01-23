@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
+from django.utils.translation import ugettext_lazy as _
 
-from emailusernames.forms import EmailUserChangeForm
+from emailusernames.forms import EmailUserChangeForm, UserCreationForm
+from emailusernames.utils import user_exists
 
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
@@ -11,6 +13,27 @@ from main.models import CustomizeOrder
 from main.utils import UTC, add_form_validation
 from datetime import datetime, timedelta
 import math
+
+
+class NameEmailUserCreationForm(UserCreationForm):
+    """
+    Override the default UserCreationForm to force email-as-username behavior.
+    """
+    email = forms.EmailField(label=_("Email"), max_length=75)
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email",)
+
+    def __init__(self, *args, **kwargs):
+        super(NameEmailUserCreationForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if user_exists(email):
+            raise forms.ValidationError(_("A user with that email already exists."))
+        return email
 
 
 class UserInfoForm(EmailUserChangeForm):
@@ -136,6 +159,29 @@ class UpdateAddressForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(UpdateAddressForm, self).__init__(*args, **kwargs)
 
+  def save(self, commit=True):
+    data = self.cleaned_data
+    print 'data', data
+    address_values = ['street1', 'street2', 'city', 'state', 'zipcode', 'company_co']
+    address_set = set(address_values)
+    address_changed = address_set.intersection(self.changed_data)
+    if address_changed:
+      new_shipping = Address(street1=data['street1'],
+                            street2=data['street2'],
+                            city=data['city'],
+                            state=data['state'],
+                            zipcode=data['zipcode'])
+      if data['company_co']:
+        new_shipping.company_co = data['company_co']
+      new_shipping.save()
+
+      self.user_profile.shipping_address = new_shipping
+      self.user_profile.shipping_addresses.add(new_shipping)
+    else:
+      new_shipping = self.instance
+
+    return new_shipping
+
 
 class ForgotPasswordForm(forms.Form):
 
@@ -248,7 +294,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 
 from django.contrib.auth.models import Group
-from emailusernames.forms import NameEmailUserCreationForm, EmailAuthenticationForm
+from emailusernames.forms import EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")
