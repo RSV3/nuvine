@@ -15,6 +15,8 @@ class Migration(SchemaMigration):
             ('year', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('sku', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
             ('vinely_category', self.gf('django.db.models.fields.IntegerField')(default=1)),
+            ('sparkling', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('color', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('comment', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
@@ -72,11 +74,13 @@ class Migration(SchemaMigration):
         },
         'support.wine': {
             'Meta': {'object_name': 'Wine'},
+            'color': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'sparkling': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'vinely_category': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'year': ('django.db.models.fields.IntegerField', [], {'default': '0'})

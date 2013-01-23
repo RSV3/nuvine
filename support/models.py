@@ -31,12 +31,21 @@ class Wine(models.Model):
   year = models.IntegerField(default=0)
   sku = models.CharField(max_length=32, blank=True, null=True)
   vinely_category = models.IntegerField(default=1)
+  sparkling = models.BooleanField(default=False)
+
+  WINE_COLOR = (
+    (0, u'Red'),
+    (1, u'White'),
+    (2, u'Ros\xc3')
+  )
+
+  color = models.IntegerField(choices=WINE_COLOR, default=WINE_COLOR[0][0])
   comment = models.CharField(max_length=255, blank=True, null=True)
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
 
   def __unicode__(self):
-    return "%s (%s)" % (self.name, self.year)
+    return "%s [%d, %s, %s]" % (self.name, self.vinely_category, self.get_color_display(), "Sparkling" if self.sparkling else "Regular")
 
 
 class WineInventory(models.Model):

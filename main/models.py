@@ -391,7 +391,7 @@ class Order(models.Model):
       (2, 'Processing'),
       (3, 'Delayed'),
       (4, 'Out of Stock'),
-      (5, 'Need Manual Review'),
+      (5, 'Needs Manual Review'),
       (6, 'Wine Selected'),
       (7, 'Fulfilling'),
       (8, 'Shipped'),
@@ -414,6 +414,14 @@ class Order(models.Model):
   def __unicode__(self):
     return "OR%s ordered for %s" % (str(self.id).zfill(7), self.receiver.email)
 
+  @property
+  def receiver_info(self):
+    if self.receiver.first_name:
+      return "%s %s (%s)" % (self.receiver.first_name, self.receiver.last_name, self.receiver.email)
+    else:
+      return self.receiver.email
+
+  @property
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -490,6 +498,13 @@ class Order(models.Model):
       wine_list.append(data)
 
     return wine_list
+
+  def filled_slots(self):
+    return SelectedWine.objects.filter(order=self).count()
+
+  @property
+  def slot_summary(self):
+    return "%s [%s]" % (self.num_slots(), self.filled_slots())
 
 
 class SelectedWine(models.Model):

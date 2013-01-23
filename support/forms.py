@@ -36,12 +36,12 @@ class SelectWineForm(forms.ModelForm):
   """
     Used to manually fulfill wine for an order
   """
+  record_id = forms.IntegerField(required=False)
 
   class Meta:
     model = SelectedWine
-    exclude = ['overall_rating']
+    exclude = ['order', 'overall_rating']
 
   def __init__(self, *args, **kwargs):
     super(SelectWineForm, self).__init__(*args, **kwargs)
-    self.fields['order'].widget = forms.HiddenInput()
-
+    self.fields['record_id'].widget = forms.HiddenInput()

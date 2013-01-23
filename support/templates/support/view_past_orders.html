@@ -1,33 +1,40 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load django_tables2 %}
+
+{% block header %}
+  <h1 class="headline">Order History</h1>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+{% endblock header %}
+
 {% block content %}
 
-  {% if formset %}
-    <!-- rate individual wines in an order -->
-    <form method="POST" action="">
-      {{ formset.management_form }}
-      <table>
-        {% for form in formset %}
-          {{ form }}
-        {% endfor %}
-      </table>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save changes</button>
-        <button type="button" class="btn">Cancel</button>
-      </div>
-    </form>
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
 
-  {% else %}
-    <table>
-      {% for o in fulfilled_orders %}
-      <tr>
-        <td><a href="{% url support:view_past_orders o.id %}">{{ o.vinely_order_id }}</a></td>
-        <td>{{ o.receiver.email }}</td>
-        <td>{{ o.num_slots }}</td>
-        <td>{{ o.get_fulfill_status_display }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <!-- endif just listing orders -->
-  {% endif %}
+  <div class="row">
+    <div class="span12">
+
+      {% if formset %}
+        <!-- rate individual wines in an order -->
+        <form method="POST" action="">
+          {{ formset.management_form }}
+          <table>
+            {% for form in formset %}
+              {{ form }}
+            {% endfor %}
+          </table>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn">Cancel</button>
+          </div>
+        </form>
+      {% else %}
+        {% render_table fulfilled_orders %}
+      {% endif %}
+
+    </div>
+  </div>
+</div>
 {% endblock content %}

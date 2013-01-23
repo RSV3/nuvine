@@ -2,6 +2,10 @@
 
 {% load render_table from django_tables2 %}
 
+{% block header %}
+  <h1 class="headline">Wine Inventory</h1>
+{% endblock header %}
+
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -40,7 +44,8 @@
     </div>
     <div class="span6">
       <div class="pull-right">
-        <a href="{% url support:view_orders %}">Fulfill Orders</a>
+        <a href="{% url support:view_past_orders %}">Past Orders</a> |
+        <a href="{% url support:view_orders %}">Fulfill Orders</a>       
       </div>
     </div>
   </div>

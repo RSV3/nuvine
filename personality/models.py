@@ -122,7 +122,10 @@ class WinePersonality(models.Model):
   description = models.TextField()
 
   def __unicode__(self):
-    return self.name
+    if self.name:
+      return self.name
+    else:
+      return WinePersonality.MYSTERY
 
 
 class SurveyWine(models.Model):
