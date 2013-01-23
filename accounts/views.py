@@ -17,7 +17,7 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, C
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
                            HeardAboutForm, MakeHostProForm, ProLinkForm
-from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
+from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
 
@@ -84,11 +84,12 @@ def my_information(request):
       user_updated = True
 
     if shipping_form.is_valid():
+      shipping_form.user_profile = profile
       shipping_address = shipping_form.save()
-      profile.shipping_address = shipping_address
       shipping_updated = True
 
     if billing_form.is_valid():
+      billing_form.user_profile = profile
       if billing_form.cleaned_data['same_as_shipping']:
         profile.billing_address = shipping_address
         billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
