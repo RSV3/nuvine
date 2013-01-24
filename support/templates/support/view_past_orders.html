@@ -5,11 +5,11 @@
 {% block additional_styles %}
 <style type="text/css">
 
-  ul {
+  table ul {
     list-style-type: none;
   }
 
-  li {
+  table li {
     float: left;
     margin-right: 20px;
     margin-bottom: 20px;
@@ -94,11 +94,25 @@
         <div class="span12">
           <section id="rating-form">
             <legend>Record Ratings</legend>
-            <form class="form-horizontal" method="POST" action="">
+            <form class="form-horizontal" method="POST" action="{% url support:view_past_orders order.id %}">
+              {% csrf_token %}
+              {{ formset.non_form_errors }}
               {{ formset.management_form }}
               <table class="table table-striped">
                 {% for form in formset %}
-                  {{ form }}
+                  <tr>
+                    <td>Wine Name</td>
+                    <td>{{ form.wine.label_tag }}</td>
+                  </tr>
+                  {{ form.non_field_errors }}
+                  {{ form.errors }}
+                  {{ form.record_id }}
+                  {{ form.wine }}
+                  {{ form.order }}
+                  <tr>
+                    <td>{{ form.overall_rating.label_tag }}</td>
+                    <td>{{ form.overall_rating }}</td>
+                  </tr>
                 {% endfor %}
               </table>
               <div class="form-actions">

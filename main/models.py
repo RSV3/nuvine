@@ -346,6 +346,9 @@ class Cart(models.Model):
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
+    if self.receiver.get_profile().shipping_address is None:
+      return -1
+
     if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
     elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
