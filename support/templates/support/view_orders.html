@@ -4,15 +4,27 @@
 
 {% block header %}
   <h1 class="headline">Live Orders</h1>
-  <div class="vertical-space">
-    &nbsp;
-  </div> 
+
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-
+  <div class="row">
+    <div class="span6">
+      &nbsp;
+    </div>
+    <div class="span6">
+      <div class="pull-right">
+        <a href="{% url support:admin_index %}">Support Home</a> |
+        <a href="{% url support:view_past_orders %}">Past Orders</a>
+      </div>
+    </div>
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div> 
+  <hr>
   <div class="row">
     <div class="span12">
       {% render_table orders %}

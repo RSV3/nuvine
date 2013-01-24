@@ -3,11 +3,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
 
 from emailusernames.utils import create_user
-from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
+from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address, SubscriptionInfo
+
+from accounts.forms import NameEmailUserCreationForm
 
 import string
 from lepl.apps.rfc3696 import Email
@@ -405,7 +407,7 @@ class ShippingForm(forms.ModelForm):
 
   class Meta:
     model = User
-    exclude = ['username', 'password', 'last_login', 'date_joined']
+    exclude = ['username', 'password', 'last_login', 'date_joined', 'is_active', 'groups']
 
   def save(self, commit=True):
     data = self.cleaned_data
@@ -425,20 +427,25 @@ class ShippingForm(forms.ModelForm):
       user.first_name = data['first_name']
       user.last_name = data['last_name']
       user.save()
-
-    new_shipping = Address(street1=data['address1'],
-                          street2=data['address2'],
-                          city=data['city'],
-                          state=data['state'],
-                          zipcode=data['zipcode'])
-    if data['company_co']:
-      new_shipping.company_co = data['company_co']
-
-    new_shipping.save()
-
     profile = user.get_profile()
-    profile.shipping_address = new_shipping
-    profile.shipping_addresses.add(new_shipping)
+
+    address_values = ['address1', 'address2', 'city', 'state', 'zipcode', 'company_co']
+    address_set = set(address_values)
+    address_changed = address_set.intersection(self.changed_data)
+
+    if address_changed:
+      new_shipping = Address(street1=data['address1'],
+                            street2=data['address2'],
+                            city=data['city'],
+                            state=data['state'],
+                            zipcode=data['zipcode'])
+      if data['company_co']:
+        new_shipping.company_co = data['company_co']
+      new_shipping.save()
+
+      profile.shipping_address = new_shipping
+      profile.shipping_addresses.add(new_shipping)
+
     profile.news_optin = data['news_optin']
     if data['phone']:
       profile.phone = data['phone']

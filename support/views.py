@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -454,6 +454,7 @@ def view_orders(request, order_id=None):
   """
 
   data = {}
+  fulfilled_orders = []
 
   # show orders that have not been fulfilled
   if order_id:
@@ -494,6 +495,7 @@ def view_orders(request, order_id=None):
         # if not enough wines we cannot fulfill
         if wine_added == num_slots:
           o.fulfill_status = Order.FULFILL_CHOICES[6][0]
+          fulfilled_orders.append(o.vinely_order_id())
         else:
           o.fulfill_status = Order.FULFILL_CHOICES[5][0]
 
@@ -501,6 +503,9 @@ def view_orders(request, order_id=None):
 
   if not orders.exists():
     messages.warning(request, "No live orders are currently in the queue.")
+
+  if fulfilled_orders:
+    messages.success(request, "Fullfilled orders: %s" % fulfilled_orders)
 
   # shows the orders and the wines that have been assigned to it
   table = OrderTable(orders)
@@ -625,32 +630,37 @@ def view_past_orders(request, order_id=None):
   data = {}
 
   if order_id:
-    order = get_object_or_404(Order, pk=order_id)
+    try:
+      order = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).get(id=order_id)
+    except Order.DoesNotExist:
+      raise Http404
     num_slots = order.num_slots()
-    SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, max_num=num_slots)
-    formset = SelectedWineRatingFormSet(request.POST or None)
-    if formset.is_valid():
-      formset.save()
+    SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
+    if request.method == "POST":
+      formset = SelectedWineRatingFormSet(request.POST or None)
+      if formset.is_valid():
+        formset.save()
 
-      messages.success("Saved ratings for order ID: %s" % order.vinely_order_id())
-      return HttpResponseRedirect(reverse("support:view_past_orders"))
+        messages.success("Saved ratings for order ID: %s" % order.vinely_order_id())
+        return HttpResponseRedirect(reverse("support:view_past_orders"))
 
-    # GET: show details of the order
-    initial_data = []
-    selected_wines = SelectedWine.objects.filter(order=order)
+    else:
+      # GET: show details of the order
+      initial_data = []
+      selected_wines = SelectedWine.objects.filter(order=order)
 
-    for w in range(num_slots):
-      form_data = {}
-      form_data['order'] = order.id
-      if w < selected_wines.count():
-        form_data['wine'] = selected_wines[w].wine.name
-      initial_data.append(form_data)
+      for w in range(num_slots):
+        form_data = {}
+        form_data['order'] = order.id
+        if w < selected_wines.count():
+          form_data['wine'] = selected_wines[w].wine.name
+        initial_data.append(form_data)
 
-    formset.initial = initial_data
-    data['formset'] = formset
+      formset = SelectedWineRatingFormSet(request.POST or None, initial=initial_data)
+      data['formset'] = formset
   else:
     # show the completed orders
-    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[5][0]).order_by("-order_date")
+    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).order_by("-order_date")
 
     table = PastOrderTable(fulfilled_orders)
     RequestConfig(request, paginate={"per_page": 10}).configure(table)

@@ -16,8 +16,8 @@ dj-database-url==0.2.1
 django-appconf==0.5
 django-compressor==1.2
 django-debug-toolbar==0.9.4
--e git+https://github.com/kwantopia/django-email-as-username.git#egg=django-email-as-username==1.5.2
-#django-email-as-username==1.5.1
+#-e git+https://github.com/kwantopia/django-email-as-username.git#egg=django-email-as-username==1.5.2
+django-email-as-username==1.6.2
 #django-storages==1.1.5
 django-sslify==0.2
 -e hg+https://bitbucket.org/yuchant/django-storages#egg=django-storages

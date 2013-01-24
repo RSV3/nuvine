@@ -2,25 +2,63 @@
 
 {% load django_tables2 %}
 
+{% block additional_styles %}
+<style type="text/css">
+
+  ul {
+    list-style-type: none;
+  }
+
+  li {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .inline-radio {
+    vertical-align: top;
+    margin-bottom: 20px;
+  }
+
+</style>
+{% endblock %}
+
 {% block header %}
   <h1 class="headline">Order History</h1>
-  <div class="vertical-space">
-    &nbsp;
-  </div>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span6">
+      &nbsp;
+    </div>
+    <div class="span6">
+      <div class="pull-right">
+        <a href="{% url support:admin_index %}">Support Home</a> |
+        {% if formset %}
+          <a href="{% url support:view_past_orders %}">Past Orders</a>
+        {% else %}
+          <a href="{% url support:view_orders %}">Current Orders</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+  <hr>
 
   <div class="row">
     <div class="span12">
 
       {% if formset %}
         <!-- rate individual wines in an order -->
-        <form method="POST" action="">
+        <form class="form-horizontal" method="POST" action="">
           {{ formset.management_form }}
-          <table>
+          <table class="table table-striped">
             {% for form in formset %}
               {{ form }}
             {% endfor %}

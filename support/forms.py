@@ -1,14 +1,9 @@
 from django import forms
-from django.contrib.auth.models import User, Group
-from django.contrib.localflavor.us import forms as us_forms
-from django.contrib.admin import widgets
-
-import string
-from lepl.apps.rfc3696 import Email
 
 from support.models import InventoryUpload
 from main.models import SelectedWine
 from personality.models import WineRatingData
+
 
 class InventoryUploadForm(forms.ModelForm):
 
@@ -28,8 +23,10 @@ class SelectedWineRatingForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(SelectedWineRatingForm, self).__init__(*args, **kwargs)
     self.fields['order'].widget = forms.HiddenInput()
-    self.fields['wine'].widget = forms.HiddenInput()
+    self.fields['wine'].widget = forms.TextInput()
+    self.fields['wine'].widget.attrs['disabled'] = True
     self.fields['overall_rating'].widget = forms.RadioSelect(choices=WineRatingData.LIKENESS_CHOICES)
+    self.fields['overall_rating'].widget.attrs['class'] = "inline-radio"
 
 
 class SelectWineForm(forms.ModelForm):
