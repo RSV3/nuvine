@@ -212,7 +212,9 @@ class UserProfile(models.Model):
 
   def is_under_age(self):
     today = timezone.now().date()
-    if not self.dob or ((today - self.dob) < timedelta(math.ceil(365.25 * 21))):
+    if not self.dob:
+      return True
+    if (today - self.dob) < timedelta(math.ceil(365.25 * 21)):
       return True
     return False
 

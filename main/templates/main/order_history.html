@@ -1,6 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load currency %}
+{% load render_table from django_tables2 %}
 
 {% block header %}
   <h1 class="headline">Your Order History</h1>
@@ -13,6 +14,8 @@
   <section id="order-history">
   <div class="row">
     <div class="span12">
+      {% render_table table %}
+<!--
       <table class="table">
         <thead>
           <tr>
@@ -31,14 +34,25 @@
             <td><a href="{% url order_complete order.order_id %}">{{ order.vinely_order_id }}</a></td>
             <td>{{ order.order_date }}</td>
             {% if pro %}
-            <td>{% if user == order.receiver %}Myself{% else %}Someone Else{% endif %}
+              <td>{% if user == order.receiver %}
+                  Myself
+                {% else %}
+                  {% if order.receiver.first_name %}
+                    {{ order.receiver.first_name }} {{ order.receiver.last_name }}
+                  {% else %}
+                    Someone Else
+                  {% endif %}
+                {% endif %}
+              </td>
             {% endif %}
             <td>{{ order.cart.total|currency }}</td>
             <td>{{ order.get_fulfill_status_display }}</td>
           </tr>
           {% endfor %}
         </tbody>
-      </table>  
+      </table>
+-->
+    
     </div>
   </div>
   </section>

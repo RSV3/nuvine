@@ -439,6 +439,7 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
+  @property
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -459,7 +460,7 @@ class Order(models.Model):
       return "-"
 
   def quantity_summary(self):
-    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10])
+    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10, 12, 13, 14])
     if items.exists():
       return items[0].quantity_str()
     else:

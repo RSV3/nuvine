@@ -18,7 +18,7 @@
       <form enctype="multipart/form-data" class="form-horizontal well" method="POST" action="{{ app_path }}">
         {% csrf_token %}
 
-
+<!-- 
         {% if not updated %}
           {% if error %}
             <div class="alert alert-error">
@@ -55,9 +55,9 @@
             </div>
           {% endif %}
         {% endif %}
-
+ -->
         <fieldset>
-          <div class="control-group">
+          <div class="control-group {% if profile.image.errors %} error{% endif %}">
             <div class="controls">
               {% if profile.image %}
                 {% thumbnail profile.image "120x120" as im %}
@@ -72,38 +72,63 @@
             </div>
             <div class="controls">
               {{ profile_form.image }}
+              {% if profile.image.errors %}
+                <span class="help-inline">
+                  {{ profile.image.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.first_name.errors %} error{% endif %}">
             <div class="control-label" for="id_user-first_name">
             {{ user_form.first_name.label }}
             </div>
             <div class="controls">
               {{ user_form.first_name }}
+              {% if user_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ user_form.first_name.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.last_name.errors %} error{% endif %}">
             <div class="control-label" for="id_user-last_name">
             {{ user_form.last_name.label }}
             </div>
             <div class="controls">
               {{ user_form.last_name}}
+              {% if user_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ user_form.last_name.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.email.errors %} error{% endif %}">
             <div class="control-label" for="id_user-email">
             {{ user_form.email.label }}
             </div>
             <div class="controls">
               {{ user_form.email}}
+              {% if user_form.email.errors %}
+                <span class="help-inline">
+                  {{ user_form.email.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>         
-          <div class="control-group">
+          <div class="control-group {% if profile_form.phone.errors %} error{% endif %}">
             <div class="control-label" for="id_profile-phone">
             {{ profile_form.phone.label }}
             </div>
             <div class="controls">
               {{ profile_form.phone }}
+              {% if profile_form.phone.errors %}
+                <span class="help-inline">
+                  {{ profile_form.phone.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>         
         </fieldset>
@@ -117,54 +142,84 @@
             </div>
           </div>
 
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.dob.errors %} error{% endif %}">
             <div class="control-label" for="id_dob">
             {{ eligibility_form.dob.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.dob }}
+              {% if eligibility_form.dob.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.dob.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.gender.errors %} error{% endif %}">
             <div class="control-label" for="id_gender">
             {{ eligibility_form.gender.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.gender }}
+              {% if eligibility_form.gender.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.gender.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.dl_number.errors %} error{% endif %}">
             <div class="control-label" for="id_dl_number">
             {{ eligibility_form.dl_number.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.dl_number }}
+              {% if eligibility_form.dl_number.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.dl_number.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.zipcode.errors %} error{% endif %}">
             <div class="control-label" for="id_zipcode">
             {{ eligibility_form.zipcode.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.zipcode }}
+              {% if eligibility_form.zipcode.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.zipcode.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
           <!-- TODO: need to put terms of service -->
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.accepted_tos.errors %} error{% endif %}">
             <div class="controls">
               <label class="checkbox inline">
               {{ eligibility_form.accepted_tos }}
               {{ eligibility_form.accepted_tos.label }}
               [<a href="{% url terms %}">Terms</a>]
               </label>
+              {% if eligibility_form.accepted_tos.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.accepted_tos.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.above_21.errors %} error{% endif %}">
             <div class="controls">
               <label class="checkbox inline">
               {{ eligibility_form.above_21 }}
               {{ eligibility_form.above_21.label }}
               </label>
+              {% if eligibility_form.above_21.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.above_21.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
         </fieldset>
@@ -173,48 +228,73 @@
         <fieldset>
           <legend>Shipping Information</legend>
 
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.street1.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-street1">
             {{ shipping_form.street1.label }}
             </div>
             <div class="controls">
               {{ shipping_form.street1 }}
+              {% if shipping_form.street1.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.street1.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.street2.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-street2">
             {{ shipping_form.street2.label }}
             </div>
             <div class="controls">
               {{ shipping_form.street2 }}
+              {% if shipping_form.street2.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.street2.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.city.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-city">
             {{ shipping_form.city.label }}
             </div>
             <div class="controls">
               {{ shipping_form.city }}
+              {% if shipping_form.city.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.city.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.state.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-state">
             {{ shipping_form.state.label }}
             </div>
             <div class="controls">
               {{ shipping_form.state }}
+              {% if shipping_form.state.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.state.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.zipcode.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-zipcode">
             {{ shipping_form.zipcode.label }}
             </div>
             <div class="controls">
               {{ shipping_form.zipcode }}
+              {% if shipping_form.zipcode.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.zipcode.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
         </fieldset>
-
+<!-- 
         <fieldset>
           <legend>Billing Information</legend>
            <div class="control-group">
@@ -266,37 +346,57 @@
             </div>
           </div>
         </fieldset>
-
+ -->
         <fieldset>
           <legend>Payment Information</legend>
           <div class="payment-form">
             {{ payment_form.card_type }}
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.card_number.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-card_number">{{ payment_form.card_number.label }}</div>
               <div class="controls">
-                {{ payment_form.card_number}} 
+                {{ payment_form.card_number}}
+                {% if payment_form.card_number.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.card_number.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.exp_month.errors or payment_form.exp_year.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-exp_month">{{ payment_form.exp_month.label }}</div>
               <div class="controls">
                 {{ payment_form.exp_month}} {{ payment_form.exp_year }}
+                {% if payment_form.exp_year.errors or payment_form.exp_year.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.exp_month.errors }} {{ payment_form.exp_year.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.verification_code.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-verification_code">{{ payment_form.verification_code.label }}</div>
               <div class="controls">
                 {{ payment_form.verification_code}} 
+                {% if payment_form.verification_code.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.verification_code.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.billing_zipcode.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-billing_zipcode">{{ payment_form.billing_zipcode.label }}</div>
               <div class="controls">
-                {{ payment_form.billing_zipcode}} 
+                {{ payment_form.billing_zipcode}}
+                {% if payment_form.billing_zipcode.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.billing_zipcode.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>          
           </div>
@@ -311,3 +411,65 @@
       </form>
 {% endblock right_content %}
 
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(".payment-errors").hide();
+  </script>
+
+  {% if use_stripe %}
+    <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+    <script type="text/javascript">
+
+      // this identifies your website in the createToken call below
+      Stripe.setPublishableKey('{{ publish_token }}');
+
+      function stripeResponseHandler(status, response) {
+        if (response.error) {
+          // re-enable the submit button
+          $('.submit-button').removeAttr("disabled");
+          // show the errors on the form
+          $(".payment-errors").text(response.error.message);
+          $(".payment-errors").show();
+        } else {
+          var form$ = $("#payment-form");
+          // token contains id, last4, and card type
+          var token = response['id'];
+          var card = response['card'];
+
+          // insert the token into the form so it gets submitted to the server
+          form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+          form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
+          form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
+          form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
+          form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
+          form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+          // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+          // and submit
+          form$.get(0).submit();
+        }
+      }
+
+      $(document).ready(function() {
+        $("#payment-form").submit(function(e) {
+          // disable the submit button to prevent repeated clicks
+          $('.submit-button').attr("disabled", "disabled");
+          // createToken returns immediately - the supplied callback submits the form if there are no errors
+          Stripe.createToken({
+            name: $('.card-name').val(),
+            number: $('.card-number').val(),
+            cvc: $('.card-cvc').val(),
+            exp_month: $('.card-expiry-month').val(),
+            exp_year: $('.card-expiry-year').val(),
+            address_zip: $('.card-address-zip').val(),
+          }, stripeResponseHandler);
+          return false; // submit from callback
+        });
+      });
+
+      if (window.location.protocol === 'file:') {
+          alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+      }
+    </script>
+  {% endif %}
+{% endblock additional_scripts %}

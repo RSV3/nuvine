@@ -30,6 +30,7 @@ def tax(sub_total, profile):
     return tax
 
 
+# deprecated
 def subtotal(plan):
     if plan.quantity in [5, 6]:
         product = Product.objects.get(name="Basic Collection")
@@ -77,11 +78,12 @@ def invoice_created(event_json):
     # get latest subscription
     plans = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
     if plans.exists():
-        plan = plans[0]
+        # plan = plans[0]
         sub_total = data['subtotal']
         # only need to add shipping and tax info
-        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
-        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total), profile), currency='usd', description='Tax')
+        # deprecated: shipping on subscriptions is 0
+        # stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(shipping(plan) * 100), currency='usd', description='Shipping')
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total, profile)), currency='usd', description='Tax')
 
 
 # NOTE: invoice_created_old below might be necessary once we allow multiple descriptions

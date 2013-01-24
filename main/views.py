@@ -13,7 +13,6 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
 
-
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
 from personality.models import WineTaste, GeneralTaste, WinePersonality
@@ -22,7 +21,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        AttendeesTable, PartyTasterOptionsForm
+                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable
 
 from accounts.utils import send_verification_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -912,7 +911,12 @@ def order_history(request):
   data = {}
   u = request.user
 
-  data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  # data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  orders = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+
+  table = OrderHistoryTable(orders, user=u)
+  RequestConfig(request).configure(table)
+  data['table'] = table
 
   data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
@@ -1764,6 +1768,8 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
     taster_form = PartyInviteTasterForm(initial=initial_data)
     form = VerifyEligibilityForm(request.POST or None, instance=profile)
 
+  form.fields['gender'].widget = forms.HiddenInput()
+
   # signing up as taster
   signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
                                         'last_name': u.last_name}, instance=u)
@@ -1777,9 +1783,8 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['taster_form'] = taster_form
   data['form'] = form
   data['age_checked'] = request.GET.get('checked')
-  disallow_rsvp = int(response) in [2, 3] and u.userprofile.is_under_age()
+  disallow_rsvp = int(response) in [2, 3] and u.get_profile().is_under_age()
   data['disallow_rsvp'] = disallow_rsvp
-
   # if user has not entered DOB ask them to do this first
   # only validate if response is yes/maybe
   if response:
@@ -2145,6 +2150,8 @@ def supplier_all_orders(request):
 
 def supplier_orders_filter(request, history_list=False):
   sort_field = {
+    'order_id': 'id',
+    '-order_id': '-id',
     'status': 'fulfill_status',
     '-status': '-fulfill_status',
     'order_date': 'order_date',
