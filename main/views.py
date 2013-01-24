@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
+from django_tables2 import RequestConfig
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
@@ -20,7 +21,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        ChangeTasterRSVPForm
+                        ChangeTasterRSVPForm, OrderHistoryTable
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -908,7 +909,12 @@ def order_history(request):
   data = {}
   u = request.user
 
-  data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  # data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  orders = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+
+  table = OrderHistoryTable(orders, user=u)
+  RequestConfig(request).configure(table)
+  data['table'] = table
 
   data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))

@@ -407,6 +407,7 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
+  @property
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
