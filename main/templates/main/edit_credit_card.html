@@ -44,7 +44,7 @@
             <div class="control-group">
               <div class="control-label">Billing zipcode</div>
               <div class="controls">
-                <input type="text" size="5" class="card-address-zip" />
+                <input type="text" size="5" value="{{ receiver.get_profile.stripe_card.billing_zipcode }}" class="card-address-zip" />
               </div>
             </div>            
           {% else %}
@@ -128,6 +128,7 @@
 </div>
 
 {% endblock %}
+
 {% block additional_scripts %}
   <script type="text/javascript">
     $(".payment-errors").hide();

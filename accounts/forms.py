@@ -42,12 +42,21 @@ class UserInfoForm(EmailUserChangeForm):
     model = User
     exclude = ['last_login', 'groups', 'date_joined', 'is_active', 'is_staff', 'is_superuser']
 
+  def __init__(self, *args, **kwargs):
+      super(UserInfoForm, self).__init__(*args, **kwargs)
+      self.fields['first_name'].required = True
+      self.fields['last_name'].required = True
+
 
 class ImagePhoneForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
     fields = ['image', 'phone']
+
+  def __init__(self, *args, **kwargs):
+      super(ImagePhoneForm, self).__init__(*args, **kwargs)
+      self.fields['phone'].required = True
 
 
 class ChangePasswordForm(forms.Form):
@@ -102,13 +111,13 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
-    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address',
-              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses']
+    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone',
+              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
     self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years',
-                                        'data-date-format': 'yyyy-mm-dd'}
+                                        'data-date-format': 'mm/dd/yyyy'}
     self.fields['user'].widget = forms.HiddenInput()
 
   def clean(self):
@@ -156,12 +165,8 @@ class UpdateAddressForm(forms.ModelForm):
   class Meta:
     model = Address
 
-  def __init__(self, *args, **kwargs):
-    super(UpdateAddressForm, self).__init__(*args, **kwargs)
-
   def save(self, commit=True):
     data = self.cleaned_data
-    print 'data', data
     address_values = ['street1', 'street2', 'city', 'state', 'zipcode', 'company_co']
     address_set = set(address_values)
     address_changed = address_set.intersection(self.changed_data)
