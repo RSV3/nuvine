@@ -59,3 +59,4 @@ stripe==1.7.7
 newrelic
 pyPdf==1.13
 lepl
+django-tables2==0.13.0

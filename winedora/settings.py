@@ -232,6 +232,7 @@ INSTALLED_APPS = (
     'social',
     'cms',
     'stripecard',
+    'django_tables2',
 )
 
 
