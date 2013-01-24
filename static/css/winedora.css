@@ -64,7 +64,7 @@ legend {
 }
 
 input[type="checkbox"], input[type="radio"] {
-  font-size: 2em;
+  font-size: 12em;
 }
 
 /* for table */
@@ -465,23 +465,23 @@ table .row-label-bold {
 }
 */
 .party-add {
-  background: url('../img/create_party_nav.png') no-repeat 0 -74px; 
+  background: url('../img/create_party_nav.png') no-repeat 0 -72px; 
   width: 257px;
 }
 .party-write-invitation {
-  background: url('../img/create_party_nav.png') no-repeat -261px -74px; 
+  background: url('../img/create_party_nav.png') no-repeat -261px -72px; 
   width: 226px;
 }
 .party-invite-friends {
-  background: url('../img/create_party_nav.png') no-repeat -489px -74px; 
+  background: url('../img/create_party_nav.png') no-repeat -489px -72px; 
   width: 215px;
 }
 .party-review-request {
-  background: url('../img/create_party_nav.png') no-repeat -707px -74px; 
+  background: url('../img/create_party_nav.png') no-repeat -706px -72px; 
   width: 227px;
 }
 .party-review-create {
-  background: url('../img/create_party_nav.png') no-repeat -946px -74px; 
+  background: url('../img/create_party_nav.png') no-repeat -946px -72px; 
   width: 227px;
 }
 
@@ -495,7 +495,7 @@ table .row-label-bold {
   background-position: -489px 0; 
 }
 .party-review-request.active {
-  background-position: -707px 0; 
+  background-position: -706px 0; 
 }
 .party-review-create.active {
   background-position: -946px 0; 

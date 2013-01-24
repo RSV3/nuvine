@@ -1287,7 +1287,7 @@ def party_find_friends(request, party_id):
     return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
   data["parties_menu"] = True
-  data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+  data['invitees'] = PartyInvite.objects.filter(party=party).exclude(invitee=party.host).order_by('invitee__first_name', 'invitee__last_name')
 
   initial_data = {'party': party}
 
@@ -1382,7 +1382,7 @@ def party_review_request(request, party_id):
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data['party'] = party
-  data['invitees'] = PartyInvite.objects.filter(party=party).order_by('invitee__first_name', 'invitee__last_name')
+  data['invitees'] = PartyInvite.objects.filter(party=party).exclude(invitee=party.host).order_by('invitee__first_name', 'invitee__last_name')
 
   applicable_pro, pro_profile = my_pro(u)
   data["pro_user"] = applicable_pro
