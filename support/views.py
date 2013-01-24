@@ -658,6 +658,10 @@ def view_past_orders(request, order_id=None):
 
       formset = SelectedWineRatingFormSet(request.POST or None, initial=initial_data)
       data['formset'] = formset
+      data['order'] = order
+      receiver_profile = order.receiver.get_profile()
+      data['receiver_profile'] = receiver_profile
+      data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
   else:
     # show the completed orders
     fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).order_by("-order_date")
