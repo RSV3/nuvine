@@ -1660,6 +1660,8 @@ def supplier_all_orders(request):
 
 def supplier_orders_filter(request, history_list=False):
   sort_field = {
+    'order_id': 'id',
+    '-order_id': '-id',
     'status': 'fulfill_status',
     '-status': '-fulfill_status',
     'order_date': 'order_date',
