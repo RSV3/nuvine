@@ -604,7 +604,7 @@ def edit_order(request, order_id):
 
 
 @staff_member_required
-def download_ready_orders(request):
+def download_ready_orders_past(request):
 
   # check that the orders are all approved
 
@@ -635,6 +635,99 @@ def download_ready_orders(request):
     data['Total Price'] = order.cart.total()
     data['Shipping Address'] = order.shipping_address
     data['Order Date'] = order.order_date.strftime("%m/%d/%Y")
+
+    writer.writerow(data)
+
+  return response
+
+@staff_member_required
+def download_ready_orders(request):
+
+  # check that the orders are all approved
+
+  # download to csv
+
+  # update those downloaded into completed orders
+
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=vinely_ready_orders.csv'
+
+  fieldnames = ['Format Version', 'Client Code', 'Order No', 'Invoice Number', 'Onsite', 'License to License', 'Do not reconfigure', 
+                        'Force 3-tier', 'Order Type', 'Sub-Club', 'Order Date', 'Courier/Ship Method', 'Courier Tracking No',
+                        'Fulfiller', 'Requested Ship Date', 'Compliance ID', 'Age Verification ID', 'Recipient ID',
+                        'Recipient First Name', 'Recipient Last Name', 'Recipient Company', 'Recipient Address 1',
+                        'Recipient Address 2', 'Recipient City', 'Recipient State', 'Recipient Postal Code',
+                        'Recipient Country', 'Recipient Work Phone', 'Recipient Home Phone', 'Recipient Mobile Phone',
+                        'Recipient Email', 'Recipient DOB', 'Cutomer ID', 'Customer First Name', 'Customer Last Name',
+                        'Customer Company', 'Customer Address 1', 'Customer Address 2', 'Customer City', 'Customer State',
+                        'Customer Postal Code', 'Customer Country', 'Customer Work Phone', 'Customer Home Phone',
+                        'Customer Mobile Phone', 'Customer Email', 'Customer DOB', 'Credit Card Number',
+                        'Credit Card Exp Date', 'Payment Authorization Code', 'Special Instructions',
+                        'Gift?', 'Gift Message', 'Shipping Total', 'Handling Fees', 'Discount Amount', 'Insurance (if more than Carrier Std)',
+                        'Retail Amt (Products Only)',
+                        'Prod 1 Supplier', 'Prod 1 SKU', 'Prod 1 Quantity', 'Prod 1 Name', 'Prod 1 Tax',
+                        'Prod 1 Price', 'Prod 1 Alcohol %', 'Prod 1 Weight', 'Prod 1 Inventory Location',
+                        'Prod 2 Supplier', 'Prod 2 SKU', 'Prod 2 Quantity', 'Prod 2 Name', 'Prod 2 Tax',
+                        'Prod 2 Price', 'Prod 2 Alcohol %', 'Prod 2 Weight', 'Prod 2 Inventory Location',
+                        'Prod 3 Supplier', 'Prod 3 SKU', 'Prod 3 Quantity', 'Prod 3 Name', 'Prod 3 Tax',
+                        'Prod 3 Price', 'Prod 3 Alcohol %', 'Prod 3 Weight', 'Prod 3 Inventory Location',
+                        'Prod 4 Supplier', 'Prod 4 SKU', 'Prod 4 Quantity', 'Prod 4 Name', 'Prod 4 Tax',
+                        'Prod 4 Price', 'Prod 4 Alcohol %', 'Prod 4 Weight', 'Prod 4 Inventory Location',
+                        'Prod 5 Supplier', 'Prod 5 SKU', 'Prod 5 Quantity', 'Prod 5 Name', 'Prod 5 Tax',
+                        'Prod 5 Price', 'Prod 5 Alcohol %', 'Prod 5 Weight', 'Prod 5 Inventory Location',
+                        'Prod 6 Supplier', 'Prod 6 SKU', 'Prod 6 Quantity', 'Prod 6 Name', 'Prod 6 Tax',
+                        'Prod 6 Price', 'Prod 6 Alcohol %', 'Prod 6 Weight', 'Prod 6 Inventory Location',
+                        'Prod 7 Supplier', 'Prod 7 SKU', 'Prod 7 Quantity', 'Prod 7 Name', 'Prod 7 Tax',
+                        'Prod 7 Price', 'Prod 7 Alcohol %', 'Prod 7 Weight', 'Prod 7 Inventory Location',
+                        'Prod 8 Supplier', 'Prod 8 SKU', 'Prod 8 Quantity', 'Prod 8 Name', 'Prod 8 Tax',
+                        'Prod 8 Price', 'Prod 8 Alcohol %', 'Prod 8 Weight', 'Prod 8 Inventory Location',
+                        'Prod 9 Supplier', 'Prod 9 SKU', 'Prod 9 Quantity', 'Prod 9 Name', 'Prod 9 Tax',
+                        'Prod 9 Price', 'Prod 9 Alcohol %', 'Prod 9 Weight', 'Prod 9 Inventory Location',
+                        'Prod 10 Supplier', 'Prod 10 SKU', 'Prod 10 Quantity', 'Prod 10 Name', 'Prod 10 Tax',
+                        'Prod 10 Price', 'Prod 10 Alcohol %', 'Prod 10 Weight', 'Prod 10 Inventory Location',
+                        'Prod 11 Supplier', 'Prod 11 SKU', 'Prod 11 Quantity', 'Prod 11 Name', 'Prod 11 Tax',
+                        'Prod 11 Price', 'Prod 11 Alcohol %', 'Prod 11 Weight', 'Prod 11 Inventory Location',
+                        'Prod 12 Supplier', 'Prod 12 SKU', 'Prod 12 Quantity', 'Prod 12 Name', 'Prod 12 Tax',
+                        'Prod 12 Price', 'Prod 12 Alcohol %', 'Prod 12 Weight', 'Prod 12 Inventory Location']
+
+  print "All fields: %s" % len(fieldnames) == 166
+
+  writer = csv.DictWriter(response, fieldnames)
+
+  writer.writeheader()
+
+  # most recent orders first
+  for order in Order.objects.filter(fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
+    data = {}
+    data['Format Version'] = 205
+    data['Client Code'] = 'Vinely'
+    data['Order No'] = order.vinely_order_id
+    data['Order Date'] = order.order_date.strftime("%m/%d/%Y")
+    data['Courier/Ship Method'] = 'FEX'
+    data['Recipient First Name'] = order.receiver.first_name
+    data['Recipient Last Name'] = order.receiver.last_name
+    receiver_profile = order.receiver.get_profile()
+    data['Recipient Company'] = order.shipping_address.company_co
+    data['Recipient Address 1'] = order.shipping_address.street1
+    data['Recipient Address 2'] = order.shipping_address.street2
+    data['Recipient City'] = order.shipping_address.city
+    data['Recipient State'] = order.shipping_address.state
+    data['Recipient Postal Code'] = order.shipping_address.zipcode
+    data['Recipient Country'] = 'USA'
+    data['Recipient Work Phone'] = receiver_profile.work_phone
+    data['Recipient Home Phone'] = receiver_profile.phone
+    data['Special Instructions'] = receiver_profile.wine_personality
+
+    i = 0
+    for selected in SelectedWine.objects.filter(order=order):
+      i += 1
+      data['Prod %d SKU' % i] = selected.wine.sku
+      data['Prod %d Quantity' % i] = 1
+      data['Prod %d Name' % i] = selected.wine.name
+      data['Prod %d Price' % i] = selected.wine.price
+
+    order.fulfill_status = Order.FULFILL_CHOICES[7][0]
+    order.save()
 
     writer.writerow(data)
 

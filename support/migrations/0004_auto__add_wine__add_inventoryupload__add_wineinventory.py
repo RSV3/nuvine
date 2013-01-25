@@ -18,6 +18,7 @@ class Migration(SchemaMigration):
             ('sparkling', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('color', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('comment', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('price', self.gf('django.db.models.fields.DecimalField')(max_digits=7, decimal_places=2)),
             ('updated', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
@@ -79,6 +80,7 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'price': ('django.db.models.fields.DecimalField', [], {'max_digits': '7', 'decimal_places': '2'}),
             'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'sparkling': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
