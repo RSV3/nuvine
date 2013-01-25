@@ -604,7 +604,7 @@ def edit_order(request, order_id):
 
 
 @staff_member_required
-def download_ready_orders_past(request):
+def download_ready_orders_old(request):
 
   # check that the orders are all approved
 
