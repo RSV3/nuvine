@@ -449,3 +449,16 @@ footer .container .navbar {
 #party-tasters .icon-plus {
   margin-top: 4px;
 }
+
+/* pagination django-tables2 */
+
+.pagination .current {
+  font-size: 1.4em;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.pagination .cardinality {
+  margin-left: 10px;
+  margin-right: 10px;
+}

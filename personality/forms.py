@@ -253,3 +253,5 @@ class WineTasteQuestionnaire(forms.ModelForm):
 
     return cleaned_data
 
+
+  

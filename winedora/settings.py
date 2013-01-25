@@ -38,6 +38,7 @@ import django.conf.global_settings as DEFAULT_SETTINGS
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
   "main.context_processors.vinely_user_info",
+  "django.core.context_processors.request",
 )
 
 
@@ -157,6 +158,9 @@ if DEBUG is False:
   STATIC_ROOT = '/%s/' % STATIC_S3_PATH
   STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
   ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+else:
+  DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
+  DEFAULT_S3_PATH = 'media'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
@@ -228,6 +232,7 @@ INSTALLED_APPS = (
     'social',
     'cms',
     'stripecard',
+    'django_tables2',
 )
 
 

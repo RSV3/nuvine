@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
 
+from support.models import Wine
+
 # Create your models here.
 
 
@@ -344,6 +346,9 @@ class Cart(models.Model):
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
+    if self.receiver.get_profile().shipping_address is None:
+      return -1
+
     if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
     elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
@@ -389,9 +394,11 @@ class Order(models.Model):
       (2, 'Processing'),
       (3, 'Delayed'),
       (4, 'Out of Stock'),
-      (5, 'Wine Selected'),
-      (6, 'Shipped'),
-      (7, 'Received'),
+      (5, 'Needs Manual Review'),
+      (6, 'Wine Selected'),
+      (7, 'Fulfilling'),
+      (8, 'Shipped'),
+      (9, 'Received'),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
@@ -407,6 +414,17 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
+  def __unicode__(self):
+    return "OR%s ordered for %s" % (str(self.id).zfill(7), self.receiver.email)
+
+  @property
+  def receiver_info(self):
+    if self.receiver.first_name:
+      return "%s %s (%s)" % (self.receiver.first_name, self.receiver.last_name, self.receiver.email)
+    else:
+      return self.receiver.email
+
+  @property
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -427,7 +445,7 @@ class Order(models.Model):
       return "-"
 
   def quantity_summary(self):
-    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10])
+    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10, 12, 13, 14])
     if items.exists():
       return items[0].quantity_str()
     else:
@@ -459,6 +477,45 @@ class Order(models.Model):
 
   def ships_to(self):
     return self.shipping_address.state
+
+  def num_slots(self):
+    total_slots = 0
+    items = self.cart.items.filter(price_category__in=[12, 13, 14])
+    if items.exists():
+      for item in items:
+        if item.price_category == 12:
+          total_slots += 3
+        elif item.price_category == 13:
+          total_slots += 6
+        elif item.price_category == 14:
+          total_slots += 12
+    return total_slots
+
+  def selected_wines(self):
+    wine_list = []
+    for s in SelectedWine.objects.filter(order=self):
+      data = {}
+      data['name'] = s.wine.name
+      data['year'] = s.wine.year
+      data['vinely_category'] = s.wine.vinely_category
+      wine_list.append(data)
+
+    return wine_list
+
+  def filled_slots(self):
+    return SelectedWine.objects.filter(order=self).count()
+
+  @property
+  def slot_summary(self):
+    return "%s [%s]" % (self.num_slots(), self.filled_slots())
+
+
+class SelectedWine(models.Model):
+
+  order = models.ForeignKey(Order)
+  wine = models.ForeignKey(Wine)
+  overall_rating = models.IntegerField(default=0)
+  timestamp = models.DateTimeField(auto_now=True)
 
 
 class OrderReview(models.Model):

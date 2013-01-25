@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
+from django.utils.translation import ugettext_lazy as _
 
-from emailusernames.forms import EmailUserChangeForm
+from emailusernames.forms import EmailUserChangeForm, UserCreationForm
+from emailusernames.utils import user_exists
 
 from accounts.models import Address, UserProfile, CreditCard, SubscriptionInfo
 from creditcard.fields import *
@@ -13,11 +15,37 @@ from datetime import datetime, timedelta
 import math
 
 
+class NameEmailUserCreationForm(UserCreationForm):
+    """
+    Override the default UserCreationForm to force email-as-username behavior.
+    """
+    email = forms.EmailField(label=_("Email"), max_length=75)
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email",)
+
+    def __init__(self, *args, **kwargs):
+        super(NameEmailUserCreationForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if user_exists(email):
+            raise forms.ValidationError(_("A user with that email already exists."))
+        return email
+
+
 class UserInfoForm(EmailUserChangeForm):
 
   class Meta:
     model = User
     exclude = ['last_login', 'groups', 'date_joined', 'is_active', 'is_staff', 'is_superuser']
+
+  def __init__(self, *args, **kwargs):
+      super(UserInfoForm, self).__init__(*args, **kwargs)
+      self.fields['first_name'].required = True
+      self.fields['last_name'].required = True
 
 
 class ImagePhoneForm(forms.ModelForm):
@@ -25,6 +53,10 @@ class ImagePhoneForm(forms.ModelForm):
   class Meta:
     model = UserProfile
     fields = ['image', 'phone']
+
+  def __init__(self, *args, **kwargs):
+      super(ImagePhoneForm, self).__init__(*args, **kwargs)
+      self.fields['phone'].required = True
 
 
 class ChangePasswordForm(forms.Form):
@@ -79,13 +111,13 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
-    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address',
-              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses']
+    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone',
+              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
     self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years',
-                                        'data-date-format': 'yyyy-mm-dd'}
+                                        'data-date-format': 'mm/dd/yyyy'}
     self.fields['user'].widget = forms.HiddenInput()
 
   def clean(self):
@@ -133,8 +165,27 @@ class UpdateAddressForm(forms.ModelForm):
   class Meta:
     model = Address
 
-  def __init__(self, *args, **kwargs):
-    super(UpdateAddressForm, self).__init__(*args, **kwargs)
+  def save(self, commit=True):
+    data = self.cleaned_data
+    address_values = ['street1', 'street2', 'city', 'state', 'zipcode', 'company_co']
+    address_set = set(address_values)
+    address_changed = address_set.intersection(self.changed_data)
+    if address_changed:
+      new_shipping = Address(street1=data['street1'],
+                            street2=data['street2'],
+                            city=data['city'],
+                            state=data['state'],
+                            zipcode=data['zipcode'])
+      if data['company_co']:
+        new_shipping.company_co = data['company_co']
+      new_shipping.save()
+
+      self.user_profile.shipping_address = new_shipping
+      self.user_profile.shipping_addresses.add(new_shipping)
+    else:
+      new_shipping = self.instance
+
+    return new_shipping
 
 
 class ForgotPasswordForm(forms.Form):
@@ -248,7 +299,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
 
 
 from django.contrib.auth.models import Group
-from emailusernames.forms import NameEmailUserCreationForm, EmailAuthenticationForm
+from emailusernames.forms import EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
 ERROR_MESSAGE_INACTIVE = _("Your account has not been verified.  Please verify your account by clicking the link in your \"Welcome to Vinely\" or \"Join Vinely Party!\" e-mail.")

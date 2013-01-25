@@ -1,13 +1,19 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.contrib.localflavor.us import forms as us_forms
+from django.core.urlresolvers import reverse
+
+import django_tables2 as tables
+from django_tables2 import Attrs
 
 from emailusernames.utils import create_user
-from emailusernames.forms import EmailUserCreationForm, NameEmailUserCreationForm
+from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address, SubscriptionInfo
+
+from accounts.forms import NameEmailUserCreationForm
 
 import string
 from lepl.apps.rfc3696 import Email
@@ -405,7 +411,7 @@ class ShippingForm(forms.ModelForm):
 
   class Meta:
     model = User
-    exclude = ['username', 'password', 'last_login', 'date_joined']
+    exclude = ['username', 'password', 'last_login', 'date_joined', 'is_active', 'groups']
 
   def save(self, commit=True):
     data = self.cleaned_data
@@ -425,20 +431,25 @@ class ShippingForm(forms.ModelForm):
       user.first_name = data['first_name']
       user.last_name = data['last_name']
       user.save()
-
-    new_shipping = Address(street1=data['address1'],
-                          street2=data['address2'],
-                          city=data['city'],
-                          state=data['state'],
-                          zipcode=data['zipcode'])
-    if data['company_co']:
-      new_shipping.company_co = data['company_co']
-
-    new_shipping.save()
-
     profile = user.get_profile()
-    profile.shipping_address = new_shipping
-    profile.shipping_addresses.add(new_shipping)
+
+    address_values = ['address1', 'address2', 'city', 'state', 'zipcode', 'company_co']
+    address_set = set(address_values)
+    address_changed = address_set.intersection(self.changed_data)
+
+    if address_changed:
+      new_shipping = Address(street1=data['address1'],
+                            street2=data['address2'],
+                            city=data['city'],
+                            state=data['state'],
+                            zipcode=data['zipcode'])
+      if data['company_co']:
+        new_shipping.company_co = data['company_co']
+      new_shipping.save()
+
+      profile.shipping_address = new_shipping
+      profile.shipping_addresses.add(new_shipping)
+
     profile.news_optin = data['news_optin']
     if data['phone']:
       profile.phone = data['phone']
@@ -517,3 +528,36 @@ class ChangeTasterRSVPForm(forms.Form):
   )
   party = forms.IntegerField(widget=forms.HiddenInput())
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
+
+table_attrs = Attrs({'class': 'table table-striped'})
+
+
+class OrderHistoryTable(tables.Table):
+  order_id = tables.Column(verbose_name='Order ID', order_by=('id'))
+  order_date = tables.TemplateColumn('{{ record.order_date|date:"F j, o" }} at {{ record.order_date|date:"g:i A" }}', order_by=('order_date'))
+  receiver = tables.Column(verbose_name='Ordered For', order_by=('receiver.first_name', 'receiver.last_name'))
+  order_total = tables.Column(verbose_name='Order Total', accessor='cart.total')
+  fulfill_status = tables.Column(verbose_name='Order Status')
+
+  class Meta:
+    model = Order
+    attrs = table_attrs
+    sequence = ['order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status', '...']
+    exclude = ['id', 'ordered_by', 'cart', 'shipping_address', 'credit_card', 'stripe_card', 'carrier', 'tracking_number', 'ship_date', 'last_updated']
+    order_by = ['-order_id']
+    orderable = True
+
+  def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop('user')
+    super(OrderHistoryTable, self).__init__(*args, **kwargs)
+
+  def render_order_id(self, record, column):
+    return mark_safe('<a href="%s">%s</a>' % (reverse('order_complete', args=[record.order_id]), record.vinely_order_id()))
+
+  def render_receiver(self, record, column):
+    if self.user == record.receiver:
+      return "Myself"
+    if record.receiver.first_name:
+      return "%s %s" % (record.receiver.first_name, record.receiver.last_name)
+    else:
+      return "Anonymous"

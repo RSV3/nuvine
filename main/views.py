@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
+from django_tables2 import RequestConfig
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
@@ -20,7 +21,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        ChangeTasterRSVPForm
+                        ChangeTasterRSVPForm, OrderHistoryTable
 
 from accounts.utils import send_verification_email, send_new_invitation_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -84,7 +85,7 @@ def home(request):
 
     today = timezone.now()
 
-    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
+    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today, response=0)
     invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
     if invites.exists():
       event_date = invites[0].party.event_date
@@ -908,7 +909,12 @@ def order_history(request):
   data = {}
   u = request.user
 
-  data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  # data["orders"] = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+  orders = Order.objects.filter(Q(ordered_by=u) | Q(receiver=u))
+
+  table = OrderHistoryTable(orders, user=u)
+  RequestConfig(request).configure(table)
+  data['table'] = table
 
   data["shop_menu"] = True
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
@@ -1654,6 +1660,8 @@ def supplier_all_orders(request):
 
 def supplier_orders_filter(request, history_list=False):
   sort_field = {
+    'order_id': 'id',
+    '-order_id': '-id',
     'status': 'fulfill_status',
     '-status': '-fulfill_status',
     'order_date': 'order_date',
@@ -1810,20 +1818,40 @@ def edit_shipping_address(request):
   u = request.user
 
   receiver = None
-  if u.is_anonymous():
-    form = ShippingForm(request.POST or None)
+  # if u.is_anonymous():
+  #   form = ShippingForm(request.POST or None)
+  # else:
+
+  if 'receiver_id' in request.session:
+    receiver = User.objects.get(id=request.session['receiver_id'])
   else:
-    if 'receiver_id' in request.session:
-      receiver = User.objects.get(id=request.session['receiver_id'])
-    else:
-      receiver = u
-    form = ShippingForm(request.POST or None, instance=receiver)
+    receiver = u
+
+  receiver_profile = receiver.get_profile()
+
+  initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name,
+                  'email': receiver.email, 'phone': receiver_profile.phone}
+
+  current_shipping = receiver_profile.shipping_address
+
+  initial_data['address1'] = current_shipping.street1
+  initial_data['address2'] = current_shipping.street2
+  initial_data['company_co'] = current_shipping.company_co
+  initial_data['city'] = current_shipping.city
+  initial_data['state'] = current_shipping.state
+  initial_data['zipcode'] = current_shipping.zipcode
+  initial_data['news_optin'] = receiver.get_profile().news_optin
+
+  form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
+  if not u.get_profile().is_pro() or receiver == u:
+    form.fields['email'].widget = forms.HiddenInput()
 
   age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 
   data['age_validity_form'] = age_validity_form
+  data['form'] = form
 
   # check zipcode is ok
   if request.method == 'POST':
@@ -1831,7 +1859,7 @@ def edit_shipping_address(request):
     ok = check_zipcode(zipcode)
     if not ok:
       messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
-      return render_to_response("main/edit_shipping_address.html", {'form': form}, context_instance=RequestContext(request))
+      return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
   if form.is_valid() and valid_age:
     receiver = form.save()
@@ -1869,25 +1897,6 @@ def edit_shipping_address(request):
       # send out verification e-mail, create a verification code
       send_verification_email(request, verification_code, temp_password, receiver.email)
 
-      if not u.is_authenticated():
-        # if no user is currently authenticated
-        # authenticate the new user and replace with the logged in user
-        u = authenticate(email=receiver.email, password=temp_password)
-
-        # return authenticated user
-        if u is not None:
-          login(request, u)
-        else:
-          raise Http404
-
-    if u.is_authenticated() and u != receiver:
-      # if receiver is already an active user and receiver is not currently logged in user
-      receiver_profile = receiver.get_profile()
-      profile = u.get_profile()
-      profile.shipping_address = receiver_profile.shipping_address
-      profile.shipping_addresses.add(receiver_profile.shipping_address)
-      profile.save()
-
     if 'ordering' in request.session and request.session['ordering']:
       # only happens when user decided to edit the shipping address
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -1920,30 +1929,7 @@ def edit_shipping_address(request):
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("edit_credit_card"))
 
-  # display form: populate with initial data if user is authenticated
-  initial_data = {}
-  if receiver:
-    initial_data = {'first_name': receiver.first_name, 'last_name': receiver.last_name,
-                    'email': receiver.email, 'phone': receiver.get_profile().phone}
-    if receiver.get_profile().shipping_addresses.all().count() > 0:
-      form.fields['shipping_addresses'] = forms.ChoiceField()
-      form.fields['shipping_addresses'].widget.queryset = receiver.get_profile().shipping_addresses.all()
-      # only show email field if it's a pro ordering for someone else
-      if not u.get_profile().is_pro() or receiver == u:
-        form.fields['email'].widget = forms.HiddenInput()
-
-      current_shipping = receiver.get_profile().shipping_address
-
-      initial_data['address1'] = current_shipping.street1
-      initial_data['address2'] = current_shipping.street2
-      initial_data['company_co'] = current_shipping.company_co
-      initial_data['city'] = current_shipping.city
-      initial_data['state'] = current_shipping.state
-      initial_data['zipcode'] = current_shipping.zipcode
-      initial_data['news_optin'] = receiver.get_profile().news_optin
-
-  form.initial = initial_data
-  data['form'] = form
+  # data['form'] = form
 
   if 'ordering' in request.session and request.session['ordering']:
     # display different set of buttons if currently in address update stage

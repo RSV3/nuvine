@@ -11,5 +11,8 @@ class StripeCard(models.Model):
   last_four = models.CharField(max_length=4)
   billing_zipcode = models.CharField(max_length=5)
 
+  def __unicode__(self):
+    return "%s, ends with: %s" % (self.stripe_user, self.last_four)
+
   def exp_date(self):
     return "%s/%s" % (self.exp_month, self.exp_year)
