@@ -745,7 +745,7 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id()
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
@@ -829,7 +829,7 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id()
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
@@ -911,7 +911,7 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id()
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
@@ -1073,7 +1073,7 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'buyer@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id()
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 

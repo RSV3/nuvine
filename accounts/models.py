@@ -330,6 +330,22 @@ class UserProfile(models.Model):
     except CustomizeOrder.DoesNotExist:
       return "-"
 
+  def find_neutral_wines(self):
+    neutrals = WineRatingData.objects.filter(user=self.user, overall__gte=3).values_list('wine__number', flat=True)
+    if len(neutrals) > 0:
+      return neutrals
+    else:
+      # all wines can be used since no rating
+      return [1, 2, 3, 4, 5, 6]
+
+  def find_like_wines(self):
+    likes = WineRatingData.objects.filter(user=self.user, overall__gte=4).values_list('wine__number', flat=True)
+    if len(likes) > 0:
+      return likes
+    else:
+      # all wines can be used since no rating
+      return [1, 2, 3, 4, 5, 6]
+
 
 def create_user_profile(sender, instance, created, **kwargs):
   if created:
