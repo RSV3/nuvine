@@ -122,7 +122,7 @@ class Command(BaseCommand):
           elif receiver_state == 'CA':
             stripe.api_key = settings.STRIPE_SECRET_CA
           credit_card = prof.credit_card
-          print 'card_number', credit_card.decrypt_card_num(), 'cvv', credit_card.decrypt_cvv()
+
           if settings.DEPLOY:
             card_number = credit_card.decrypt_card_num()
             cvc = credit_card.decrypt_cvv()
