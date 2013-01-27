@@ -1,8 +1,12 @@
 {% extends "winedora/base_html5.html" %}
 
-{% load django_tables2 %}
+{% load render_table from django_tables2 %}
+{% load static %}
 
 {% block additional_styles %}
+
+<link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+
 <style type="text/css">
 
   table ul {
