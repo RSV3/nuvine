@@ -20,7 +20,7 @@ class OrderTable(tables.Table):
 
   class Meta:
     model = Order
-    fields = ("vinely_order_id", "receiver_info", "order_date", "slot_summary", "fulfill_status")
+    fields = ("vinely_order_id", "receiver_info", "order_date", "slot_summary", "fulfill_status", )
     attrs = {"class": "paleblue table table-striped"}
 
 
@@ -32,5 +32,5 @@ class PastOrderTable(tables.Table):
 
   class Meta:
     model = Order
-    fields = ("vinely_order_id", "receiver_info", "order_date", "slot_summary", "fulfill_status")
+    fields = ("vinely_order_id", "receiver_info", "order_date", "slot_summary", "fulfill_status", )
     attrs = {"class": "paleblue table table-striped"}
