@@ -15,7 +15,7 @@ class WineInventoryTable(tables.Table):
 class OrderTable(tables.Table):
 
   vinely_order_id = columns.LinkColumn("support:edit_order", args=[A('pk')], verbose_name="Order ID", order_by=('id',))
-  receiver_info = columns.Column(verbose_name="Ordered By", order_by=('receiver.first_name', 'receiver.last_name', 'receiver.email'))
+  receiver_info = columns.Column(verbose_name="Ordered By", order_by=('receiver.first_name', 'receiver.last_name', 'receiver.email',))
   slot_summary = columns.Column(verbose_name="# Slots [Selected]", order_by=('slots_filled',))
 
   class Meta:
@@ -27,7 +27,7 @@ class OrderTable(tables.Table):
 class PastOrderTable(tables.Table):
 
   vinely_order_id = columns.LinkColumn("support:view_past_orders", args=[A('pk')], verbose_name="Order ID", order_by=('id',))
-  receiver_info = columns.Column(verbose_name="Ordered By", order_by=('receiver.first_name', 'receiver.last_name', 'receiver.email'))
+  receiver_info = columns.Column(verbose_name="Ordered By", order_by=('receiver.first_name', 'receiver.last_name', 'receiver.email',))
   slot_summary = columns.Column(verbose_name="# Slots [Selected]", order_by=('slots_filled',))
 
   class Meta:
