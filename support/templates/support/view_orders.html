@@ -32,7 +32,25 @@
   <hr>
   <div class="row">
     <div class="span12">
-      {% render_table orders %}
+      {% for o in orders %}
+      <div class="row">
+        <div class="span2">
+          {{ o.vinely_order_id }}
+        </div>
+        <div class="span2">
+          {{ o.receiver_info }}
+        </div>
+        <div class="span2">
+          {{ o.slot_summary }}
+        </div>
+        <div class="span2">
+          {{ o.order_date }}
+        </div>
+        <div class="span2">
+          {{ o.get_fulfill_status_display }}
+        </div>
+      </div>
+      {% endfor %}
     </div>
   </div>
 
