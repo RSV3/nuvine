@@ -149,30 +149,31 @@ class SimpleTest(TestCase):
       self.client.login(email="jayme@vinely.com", password="hello")
 
       # upload a sample wine inventory data
-      with open("data/wine_inventory_good.xlsx") as fp:
+      with open("data/wine_db_125.xlsx") as fp:
         response = self.client.post(reverse("support:wine_inventory"), {"inventory_file": fp,
                                                                                 "comment": "This is good inventory"})
 
       # check that the models have been updated
-      self.assertEqual(WineInventory.objects.all().count(), 2)
+      self.assertEqual(WineInventory.objects.all().count(), 34)
 
       sum_on_hand = 0
       for w in WineInventory.objects.all():
         sum_on_hand += w.on_hand
 
-      self.assertEqual(sum_on_hand, 34)
+      self.assertEqual(sum_on_hand, 298)
 
       with open("data/wine_inventory_bad.xlsx") as fp:
         response = self.client.post(reverse("support:wine_inventory"), {"inventory_file": fp,
                                                                                 "comment": "This is a bad inventory"})
 
+      self.assertContains(response, "Not a valid inventory")
       # test some corner and abnormal cases
-      self.assertEqual(WineInventory.objects.all().count(), 2)
+      self.assertEqual(WineInventory.objects.all().count(), 34)
 
       total_wines = 0
       for w in WineInventory.objects.all():
         total_wines += w.on_hand
-      self.assertEqual(total_wines, 46)
+      self.assertEqual(total_wines, 298)
 
 
     def test_wine_order_processing(self):

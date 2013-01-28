@@ -379,63 +379,67 @@ def wine_inventory(request):
     key.get_contents_to_filename("inventory_excel.xlsx")
     workbook = xlrd.open_workbook("inventory_excel.xlsx")
 
-    worksheet = workbook.sheet_by_name('Sheet1')
+    try:
+      worksheet = workbook.sheet_by_name('Sheet2')
 
-    num_rows = worksheet.nrows - 1
-    curr_row = -1
-    invalid_rows = []
+      num_rows = worksheet.nrows - 1
+      curr_row = -1
+      invalid_rows = []
 
-    total_wines = 0
-    total_wine_types = 0
-    while curr_row < num_rows:
-      curr_row += 1
-      row = worksheet.row(curr_row)
+      total_wines = 0
+      total_wine_types = 0
+      while curr_row < num_rows:
+        curr_row += 1
+        row = worksheet.row(curr_row)
 
-      # if first column value is a valid numeric ID
-      if row[0].ctype is 2:
-        #print "Inventory ID: %d" % int(row[0].value)
-        if row[1].value and row[2].value and row[3].value and row[4].value and row[7].value:
+        # if first column value is a Vinely SKU
+        print "Valid SKU: %s" % (row[0].value[0] == 'V', ) 
+        if row[0].value and row[0].value[0] == 'V':
+          print "Inventory ID: %s" % row[0].value
+          if row[1].value and row[2].value and row[6].value and row[7].value:
 
-          color = row[5].value
-          color_code = Wine.WINE_COLOR[0][0]
-          if 'white' in color.lower():
-            color_code = Wine.WINE_COLOR[1][0]
-          elif 'rose' in color.lower() or u'ros\xc3' in color.lower():
-            color_code = Wine.WINE_COLOR[2][0]
+            color = row[1].value
+            color_code = Wine.WINE_COLOR[0][0]
+            if 'white' in color.lower():
+              color_code = Wine.WINE_COLOR[1][0]
+            elif 'rose' in color.lower() or u'ros\xc3' in color.lower():
+              color_code = Wine.WINE_COLOR[2][0]
 
-          sparkling = str(row[6].value).lower()
-          sparkling_code = False
-          if 'yes' in sparkling or '1' in sparkling:
-            sparkling_code = True
+            sparkling = str(row[6].value).lower()
+            sparkling_code = False
+            if 'yes' in sparkling or '1' in sparkling:
+              sparkling_code = True
 
-          if Wine.objects.filter(sku=row[3].value).exists():
-            wine = Wine.objects.get(sku=row[3].value)
-          else:
-            wine = Wine(name=row[1].value,
-                              year=row[2].value,
-                              sku=row[3].value,
-                              vinely_category=row[4].value,
-                              color=color_code,
-                              sparkling=sparkling_code)
-            wine.save()
+            if Wine.objects.filter(sku=row[0].value).exists():
+              wine = Wine.objects.get(sku=row[0].value)
+            else:
+              wine = Wine(name=row[1].value,
+                                year=row[3].value if row[3].value else 0,
+                                sku=row[0].value,
+                                vinely_category=row[6].value,
+                                color=color_code,
+                                sparkling=sparkling_code)
+              wine.save()
 
-          inv, created = WineInventory.objects.get_or_create(wine=wine)
-          if created:
-            inv.on_hand = row[7].value
-          else:
-            inv.on_hand += row[7].value
+            inv, created = WineInventory.objects.get_or_create(wine=wine)
+            if created:
+              inv.on_hand = row[7].value
+            else:
+              inv.on_hand += row[7].value
 
-          inv.save()
+            inv.save()
 
-          total_wines += row[7].value
-          total_wine_types += 1
-      else:
-        invalid_rows.append(curr_row)
+            total_wines += row[7].value
+            total_wine_types += 1
+        else:
+          invalid_rows.append(curr_row)
 
-    if invalid_rows:
-      messages.warning(request, "Rows %s had invalid data" % invalid_rows)
+      if invalid_rows:
+        messages.warning(request, "Rows %s had invalid data" % invalid_rows)
 
-    messages.success(request, "%s wine types and %d wine bottles have been uploaded to inventory." % (total_wine_types, int(total_wines)))
+      messages.success(request, "%s wine types and %d wine bottles have been uploaded to inventory." % (total_wine_types, int(total_wines)))
+    except xlrd.XLRDError:
+      messages.warning(request, "Not a valid inventory file.")
 
   table = WineInventoryTable(WineInventory.objects.all())
   RequestConfig(request, paginate={"per_page": 25}).configure(table)
