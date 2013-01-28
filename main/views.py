@@ -1130,7 +1130,7 @@ def party_add(request, party_id=None, party_pro=None):
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
-  print form.errors
+
   if form.errors.get('__all__'):
     messages.error(request, form.errors['__all__'])
 
