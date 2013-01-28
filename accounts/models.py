@@ -418,6 +418,57 @@ class SubscriptionInfo(models.Model):
 
     user = self.user
 
+    prof = user.get_profile()
+    shipping_address = prof.shipping_address
+
+    # determine if need to use stripe or native processing
+    receiver_state = shipping_address.state
+
+    if (receiver_state in Cart.STRIPE_STATES) and charge_stripe:
+      if receiver_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif receiver_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
+      credit_card = prof.credit_card
+
+      if settings.DEPLOY:
+        card_number = credit_card.decrypt_card_num()
+        cvc = credit_card.decrypt_cvv()
+      else:
+        cvc = '111'
+        if credit_card.card_type == 'American Express':
+          card_number = '378282246310005'
+        elif credit_card.card_type == 'Master Card':
+          card_number = '5105105105105100'
+        else:
+          card_number = '4242424242424242'
+
+      card = {'number': card_number, 'exp_month': credit_card.exp_month, 'exp_year': credit_card.exp_year,
+              'name': '%s %s' % (user.first_name, user.last_name), 'address_zip': credit_card.billing_zipcode,
+              }
+
+      # some cards dont have a verification code so only include cvc for those that have
+      if cvc:
+        card['cvc'] = cvc
+
+      # no record of this customer-card mapping so create
+      try:
+        customer = stripe.Customer.create(card=card, email=user.email)
+        # up profile
+        stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
+                            exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
+                            card_type=customer.active_card.type, billing_zipcode=credit_card.billing_zipcode)
+
+        prof.stripe_card = stripe_card
+        prof.save()
+        prof.stripe_cards.add(stripe_card)
+        log.info('Created stripe profile for %s %s <%s>' % (user.first_name, user.last_name, user.email))
+      except Exception, e:
+        # TODO: send email to care/support if card is declined
+        log.error("Error creating stripe card %s" % e)
+        log.error('Card was declined by stripe for %s %s <%s>' % (user.first_name, user.last_name, user.email))
+        return
+
     product = None
     if self.quantity in [5, 7, 9]:
       # full case
@@ -485,66 +536,28 @@ class SubscriptionInfo(models.Model):
     cart.items.add(item)
     cart.save()
 
-    prof = user.get_profile()
-    shipping_address = prof.shipping_address
-
-    card = prof.credit_card
-    today = datetime.now(tz=UTC())
     order = Order(ordered_by=user, receiver=user, cart=cart,
-          shipping_address=shipping_address, credit_card=card, order_date=today)
+          shipping_address=shipping_address, order_date=timezone.now())
+
+    if prof.stripe_card:
+      order.stripe_card = prof.stripe_card
+    else:
+      order.credit_card = prof.credit_card
+
     order.assign_new_order_id()
     order.save()
     log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
 
-    # determine if need to use stripe or native processing
-    receiver_state = shipping_address.state
-
     if (receiver_state in Cart.STRIPE_STATES) and charge_stripe:
-      if receiver_state == 'MI':
-        stripe.api_key = settings.STRIPE_SECRET
-      elif receiver_state == 'CA':
-        stripe.api_key = settings.STRIPE_SECRET_CA
-      credit_card = prof.credit_card
-
-      if settings.DEPLOY:
-        card_number = credit_card.decrypt_card_num()
-        cvc = credit_card.decrypt_cvv()
-      else:
-        cvc = '111'
-        if credit_card.card_type == 'American Express':
-          card_number = '378282246310005'
-        elif credit_card.card_type == 'Master Card':
-          card_number = '5105105105105100'
-        else:
-          card_number = '4242424242424242'
-
-      card = {'number': card_number, 'exp_month': credit_card.exp_month, 'exp_year': credit_card.exp_year,
-              'name': '%s %s' % (user.first_name, user.last_name), 'address_zip': credit_card.billing_zipcode,
-              }
-
-      # some cards dont have a verification code so only include cvc for those that have
-      if cvc:
-        card['cvc'] = cvc
-
-      # no record of this customer-card mapping so create
       try:
-        customer = stripe.Customer.create(card=card, email=user.email)
-        # up profile
-        stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
-                            exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
-                            card_type=customer.active_card.type, billing_zipcode=credit_card.billing_zipcode)
-
-        prof.stripe_card = stripe_card
-        prof.save()
-        prof.stripe_cards.add(stripe_card)
-
         stripe.InvoiceItem.create(customer=customer.id, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
         stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
         customer.update_subscription(plan=stripe_plan)
-        log.info("Subscription charged on stripe for: %s %s <%s>" % (user.first_name, user.last_name, user.email))
+        log.info("Subscription updated on stripe for: %s %s <%s>" % (user.first_name, user.last_name, user.email))
       except Exception, e:
-        log.error("Error processing card with stripe", e)
-        log.error('Card was declined by stripe for %s %s <%s>' % (user.first_name, user.last_name, user.email))
+        # TODO: send email to care/support if card is declined
+        log.error("Error processing subscription on stripe %s" % e)
+        log.error('Could not create subscruption on stripe for %s %s <%s>' % (user.first_name, user.last_name, user.email))
 
     # need to update next invoice date on subscription
     if self.frequency == 1:

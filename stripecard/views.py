@@ -54,11 +54,38 @@ def webhooks(request):
     return HttpResponse('sweet', status=200)
 
 
+def test_webhook_invoice_created(event_json):
+    from accounts.models import UserProfile
+
+    data = event_json['data']['object']
+    prof = UserProfile.objects.get(user__email='erik@mail.com')
+    stripe_card = prof.stripe_card
+
+    # try:
+    #     stripe_card = StripeCard.objects.get(stripe_user=customer)
+    # except StripeCard.DoesNotExist:
+    #     return
+    profile = stripe_card.stripe_owner.all()[0]
+    # get latest subscription
+    subscriptions = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
+    if subscriptions.exists():
+        subscription = subscriptions[0]
+        sub_total = data['subtotal']
+        # only need to add tax info
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total, profile)), currency='usd', description='Tax')
+        subscription.update_subscription_order(charge_stripe=False)
+
+
 def invoice_created(event_json):
     data = event_json['data']['object']
     customer = data['customer']
-    # TODO: Verify that this is actually from stripe
 
+    # test webhook
+    if event_json['id'] == 'evt_00000000000000':
+        test_webhook_invoice_created(event_json)
+        return
+
+    # TODO: Verify that this is actually from stripe
     try:
         stripe_card = StripeCard.objects.get(stripe_user=customer)
     except StripeCard.DoesNotExist:
