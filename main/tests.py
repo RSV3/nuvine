@@ -1022,8 +1022,8 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted" % order.vinely_order_id()
-    vinely_email = Email.objects.filter(subject__icontains=subject, recipients="['fulfillment@vinely.com']")
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
   def test_attendee_ordering_online(self):
@@ -1106,8 +1106,8 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted" % order.vinely_order_id()
-    vinely_email = Email.objects.filter(subject__icontains=subject, recipients="['fulfillment@vinely.com']")
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
     ##########################################################
@@ -1188,8 +1188,8 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted" % order.vinely_order_id()
-    vinely_email = Email.objects.filter(subject__icontains=subject, recipients="['pmfaba@gmail.com']")
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
     stripe_customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
@@ -1350,8 +1350,8 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'buyer@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted" % order.vinely_order_id()
-    vinely_email = Email.objects.filter(subject__icontains=subject, recipients="['fulfillment@vinely.com']")
+    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
     self.client.logout()

@@ -743,7 +743,7 @@ class OrderHistoryTable(tables.Table):
     super(OrderHistoryTable, self).__init__(*args, **kwargs)
 
   def render_order_id(self, record, column):
-    return mark_safe('<a href="%s">%s</a>' % (reverse('order_complete', args=[record.order_id]), record.vinely_order_id))
+    return mark_safe('<a href="%s">%s</a>' % (reverse('order_complete', args=[record.order_id]), record.vinely_order_id()))
 
   def render_receiver(self, record, column):
     if self.user == record.receiver:

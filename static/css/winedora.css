@@ -64,7 +64,7 @@ legend {
 }
 
 input[type="checkbox"], input[type="radio"] {
-  font-size: 12em;
+  font-size: 2em;
 }
 
 /* for table */
@@ -566,6 +566,15 @@ footer .container .navbar {
 }
 
 /*AvG*/
+/* pagination django-tables2 */
 
+.pagination .current {
+  font-size: 1.4em;
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
-
+.pagination .cardinality {
+  margin-left: 10px;
+  margin-right: 10px;
+}
