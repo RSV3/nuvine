@@ -50,7 +50,7 @@ class PartyCreateForm(forms.ModelForm):
   street1 = forms.CharField(label="Street 1", max_length=128)
   street2 = forms.CharField(label="Street 2", max_length=128, required=False)
   city = forms.CharField(label="City", max_length=64)
-  state = us_forms.USStateField()
+  state = us_forms.USStateField(widget=us_forms.USStateSelect())
   zipcode = us_forms.USZipCodeField()
 
   event_day = forms.DateField(label="Party Date")
@@ -159,18 +159,21 @@ class PartyCreateForm(forms.ModelForm):
         cleaned_data['host'] = user
         del self._errors['host']
 
-    if len(cleaned_data['street1']) > 0:
+    if cleaned_data.get('street1') and cleaned_data.get('street1') and cleaned_data.get('city') \
+        and cleaned_data.get('state') and cleaned_data.get('zipcode'):
       # create new address
-      addresses = Address.objects.filter(street1=cleaned_data['street1'], street2=cleaned_data['street2'], city=cleaned_data['city'], state=cleaned_data['state'], zipcode=cleaned_data['zipcode'])
+      addresses = Address.objects.filter(street1=cleaned_data['street1'], street2=cleaned_data['street2'],
+                                        city=cleaned_data['city'], state=cleaned_data['state'],
+                                        zipcode=cleaned_data['zipcode'])
       if addresses.exists():
         address = addresses[0]
       else:
         # TODO: need to check whether these fields are all filled out
-        address = Address(street1=cleaned_data['street1'],
-                          street2=cleaned_data['street2'],
-                          city=cleaned_data['city'],
-                          state=cleaned_data['state'],
-                          zipcode=cleaned_data['zipcode'])
+        address = Address(street1=cleaned_data.get('street1'),
+                          street2=cleaned_data.get('street2'),
+                          city=cleaned_data.get('city'),
+                          state=cleaned_data.get('state'),
+                          zipcode=cleaned_data.get('zipcode'))
         address.save()
 
       cleaned_data['address'] = address
