@@ -514,7 +514,7 @@ def view_orders(request, order_id=None):
   table = OrderTable(orders)
   RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
-  data["orders"] = orders 
+  data["orders"] = table
 
   return render(request, "support/view_orders.html", data)
 
