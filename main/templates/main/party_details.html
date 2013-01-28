@@ -1,6 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load thumbnail %}
+{% load currency %}
 {% load render_table from django_tables2 %}
 {% load static %}
 
@@ -119,6 +120,12 @@
         <div class="vertical-space"></div>
         <table class="summary-table">
           <tbody>
+            {% if party.is_past_party %}
+              <tr>
+                <td>Total Sales</td>
+                <td>{{ party.total_sales|currency }}</td>
+              </tr>
+            {% endif %}
             <tr>
               <td>Special Instructions</td>
               <td>{{ party.description }}</td>
