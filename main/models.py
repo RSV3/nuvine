@@ -69,6 +69,13 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  def total_sales(self):
+    orders = Order.objects.filter(cart__party=self)
+    # should not be tasting kit
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+    return aggregate['total'] if aggregate['total'] else 0
+
   def party_setup_url(self):
     url = 'party_details'
     if not self.requested and not self.confirmed:
