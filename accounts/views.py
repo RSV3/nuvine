@@ -136,37 +136,38 @@ def my_information(request):
         if customer.get('deleted'):
           raise Exception('Customer Deleted')
 
-        # if exists update it in stripe and create new entry in StripeCard
+        # if exists update it in stripe and update entry in StripeCard
         customer.email = updated_user.email
         customer.card = card
         customer.save()
 
         active_card = customer.active_card
-        if active_card.last4 == stripe_card.last_four and active_card.exp_year == stripe_card.exp_year and \
-            active_card.exp_month == stripe_card.exp_month and active_card.type == stripe_card.card_type and \
-            active_card.address_zip == stripe_card.billing_zipcode:
-          card_updated = False
-        else:
-          card_updated = True
+        if active_card.last4 != stripe_card.last_four or active_card.exp_year != stripe_card.exp_year or \
+            active_card.exp_month != stripe_card.exp_month or active_card.type != stripe_card.card_type or \
+            active_card.address_zip != stripe_card.billing_zipcode:
+          stripe_card.exp_month = customer.active_card.exp_month
+          stripe_card.exp_year = customer.active_card.exp_year
+          stripe_card.last_four = customer.active_card.last4
+          stripe_card.card_type = customer.active_card.type
+          stripe_card.billing_zipcode = customer.active_card.address_zip
+          stripe_card.save()
       except Exception, e:
         # print 'error', e
         # no record of this customer-card mapping so create
         try:
           customer = stripe.Customer.create(card=card, email=updated_user.email)
-          card_updated = True
+          # create on vinely
+          stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
+                                  exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
+                                  card_type=customer.active_card.type, billing_zipcode=customer.active_card.address_zip)
+          profile.stripe_card = stripe_card
+          profile.save()
+          profile.stripe_cards.add(stripe_card)
+
         except:
           messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
           return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
-      if card_updated:
-        # create on vinely
-        stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
-                                exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
-                                card_type=customer.active_card.type, billing_zipcode=payment['billing_zipcode'])
-
-      profile.stripe_card = stripe_card
-      profile.save()
-      profile.stripe_cards.add(stripe_card)
     else:
       # if not a stripe state
       credit_card = payment_form.save()
