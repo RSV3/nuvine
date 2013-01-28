@@ -145,11 +145,10 @@
       {% if host %}
         <th>My Credit</th>
       {% endif %}
-      {% comment %}
-        {% if pro %}
-          <th>Commission</th>
-        {% endif %}
-      {% endcomment %}
+      {% if pro %}
+        <th>Total Sales</th>
+        {# <th>Commission</th> #}
+      {% endif %}
     </thead>
     <tbody>
     {% for party in past_parties %}
@@ -164,11 +163,10 @@
         {% if host %}
           <td>{{ party.credit|currency }}</td>
         {% endif %}
-        {% comment %}
-          {% if pro %}
-            <td>{{ party.pro_commission|currency }}</td>
-          {% endif %}
-        {% endcomment %}
+        {% if pro %}
+          <td>{{ party.total_sales|currency }}</td>
+          {# <td>{{ party.pro_commission|currency }}</td> #}
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>

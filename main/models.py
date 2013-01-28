@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.utils import timezone
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
@@ -60,11 +61,22 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  def total_sales(self):
+    orders = Order.objects.filter(cart__party=self)
+    # should not be tasting kit
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+    return aggregate['total'] if aggregate['total'] else 0
+
   def pro(self):
     try:
       return OrganizedParty.objects.get(party=self).pro
     except OrganizedParty.DoesNotExist:
       return None
+
+  def is_past_party(self):
+    party_valid_date = timezone.now() - timedelta(hours=24)
+    return self.event_date < party_valid_date
 
   def kit_ordered(self):
     order = Order.objects.filter(cart__party=self, cart__items__product__category=Product.PRODUCT_TYPE[0][0])
