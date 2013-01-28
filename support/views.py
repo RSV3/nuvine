@@ -396,7 +396,7 @@ def wine_inventory(request):
         print "Valid SKU: %s" % (row[0].value[0] == 'V', ) 
         if row[0].value and row[0].value[0] == 'V':
           print "Inventory ID: %s" % row[0].value
-          if row[1].value and row[2].value and row[6].value and row[7].value:
+          if row[1].value and row[2].value and row[5].value and row[6].value and row[7].value:
 
             color = row[1].value
             color_code = Wine.WINE_COLOR[0][0]
@@ -416,7 +416,8 @@ def wine_inventory(request):
               wine = Wine(name=row[1].value,
                                 year=row[3].value if row[3].value else 0,
                                 sku=row[0].value,
-                                vinely_category=row[6].value,
+                                vinely_category=row[5].value,
+                                vinely_category2=row[6].value,
                                 color=color_code,
                                 sparkling=sparkling_code)
               wine.save()
