@@ -288,6 +288,9 @@ LOGGING = {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
+        'normal': {
+            'format': '[%(asctime)s]:[%(levelname)s][%(module)s:%(lineno)d] %(message)s'
+        },
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
@@ -301,7 +304,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'normal'
         },
     },
     'loggers': {
