@@ -131,7 +131,7 @@
       <div class="row">
         <div class="span12">
           {% with ratings=invitee.wineratingdata_set.all %}
-            <ul id="wine-ratings-tabs" class="nav nav-tabs">
+            <ul id="wine-ratings-tabs" class="nav nav-tabs nav-tabs-clean">
               <li {% if active_tab == 1 %} class="active" {% endif %}><a href="#wine1" data-toggle="tab" 
                 class="span1 tab-header {% if ratings.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
               <li {% if active_tab == 2 %} class="active" {% endif %}><a href="#wine2" data-toggle="tab" 

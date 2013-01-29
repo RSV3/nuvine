@@ -472,10 +472,17 @@ footer .container .navbar {
 .ratings-shadow {
   background:#FFF;
   box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
+  padding-top: 30px;
 }
 
 /* Ratings Page nav bar */
-.span12 ul li a {
+.span12 ul li a, .span12 ul li a:active {
   background:#FFF;
   box-shadow:6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
 }
+
+.nav-tabs-clean {
+
+  margin-bottom:0px;
+}
+
