@@ -473,3 +473,9 @@ footer .container .navbar {
   background:#FFF;
   box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
 }
+
+/* Ratings Page nav bar */
+.span12 ul li a {
+  background:#FFF;
+  box-shadow:6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
+}
