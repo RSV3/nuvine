@@ -478,6 +478,7 @@ class Order(models.Model):
   def ships_to(self):
     return self.shipping_address.state
 
+  @property
   def num_slots(self):
     total_slots = 0
     items = self.cart.items.filter(price_category__in=[12, 13, 14])
@@ -507,7 +508,7 @@ class Order(models.Model):
 
   @property
   def slot_summary(self):
-    return "%s [%s]" % (self.num_slots(), self.filled_slots())
+    return "%s [%s]" % (self.num_slots, self.filled_slots())
 
 
 class SelectedWine(models.Model):

@@ -64,7 +64,7 @@ class Wine(models.Model):
 
 
 class WineInventory(models.Model):
-  wine = models.ForeignKey(Wine)
+  wine = models.OneToOneField(Wine)
   on_hand = models.IntegerField(default=0)
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
