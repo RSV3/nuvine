@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from main.models import Product, Order, Cart, LineItem, CustomizeOrder
 from accounts.models import Address, CreditCard
 from support.models import Wine, WineInventory
-
+from personality.models import WineRatingData
 from main.utils import UTC
 
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from datetime import datetime
 
 class SimpleTest(TestCase):
 
-    fixtures = ['initial_data.yaml']
+    fixtures = ['test_data.yaml']
 
     def runTest(self):
       pass
@@ -31,12 +31,12 @@ class SimpleTest(TestCase):
       self.client = Client()
 
       # add wine inventory
-      wine = Wine(name="2011 Loca Macabeo", year=2011, sku="VW200101-1", vinely_category=1)
+      wine = Wine(name="2011 Loca Macabeo", year=2011, sku="VW200101-1", vinely_category=1, vinely_category2=1)
       wine.save()
       inv = WineInventory(wine=wine, on_hand=12)
       inv.save()
 
-      wine = Wine(name="2009 Pinot Noir", year=2011, sku="VW200901-1", vinely_category=1)
+      wine = Wine(name="2009 Pinot Noir", year=2009, sku="VW200901-1", vinely_category=2, vinely_category2=2)
       wine.save()
       inv = WineInventory(wine=wine, on_hand=4)
       inv.save()
@@ -77,6 +77,54 @@ class SimpleTest(TestCase):
 
       user3 = User.objects.get(email='attendee3@example.com')
       prof3 = user3.get_profile()
+
+      from personality.models import Wine
+      tasting_wine1 = Wine.objects.get(id=1)
+      tasting_wine2 = Wine.objects.get(id=2)
+      tasting_wine3 = Wine.objects.get(id=3)
+      tasting_wine4 = Wine.objects.get(id=4)
+      tasting_wine5 = Wine.objects.get(id=5)
+      tasting_wine6 = Wine.objects.get(id=6)
+
+      # create wine rating data
+      user1_rating1 = WineRatingData(user=user1, wine=tasting_wine1, overall=4)
+      user1_rating1.save()
+      user1_rating2 = WineRatingData(user=user1, wine=tasting_wine2, overall=3)
+      user1_rating2.save()
+      user1_rating3 = WineRatingData(user=user1, wine=tasting_wine3, overall=4)
+      user1_rating3.save()
+      user1_rating4 = WineRatingData(user=user1, wine=tasting_wine4, overall=2)
+      user1_rating4.save()
+      user1_rating5 = WineRatingData(user=user1, wine=tasting_wine5, overall=4)
+      user1_rating5.save()
+      user1_rating6 = WineRatingData(user=user1, wine=tasting_wine6, overall=1)
+      user1_rating6.save()
+
+      user2_rating1 = WineRatingData(user=user2, wine=tasting_wine1, overall=3)
+      user2_rating1.save()
+      user2_rating2 = WineRatingData(user=user2, wine=tasting_wine2, overall=4)
+      user2_rating2.save()
+      user2_rating3 = WineRatingData(user=user2, wine=tasting_wine3, overall=3)
+      user2_rating3.save()
+      user2_rating4 = WineRatingData(user=user2, wine=tasting_wine4, overall=4)
+      user2_rating4.save()
+      user2_rating5 = WineRatingData(user=user2, wine=tasting_wine5, overall=1)
+      user2_rating5.save()
+      user2_rating6 = WineRatingData(user=user2, wine=tasting_wine6, overall=4)
+      user2_rating6.save()
+
+      user3_rating1 = WineRatingData(user=user3, wine=tasting_wine1, overall=3)
+      user3_rating1.save()
+      user3_rating2 = WineRatingData(user=user3, wine=tasting_wine2, overall=3)
+      user3_rating2.save()
+      user3_rating3 = WineRatingData(user=user3, wine=tasting_wine3, overall=3)
+      user3_rating3.save()
+      user3_rating4 = WineRatingData(user=user3, wine=tasting_wine4, overall=3)
+      user3_rating4.save()
+      user3_rating5 = WineRatingData(user=user3, wine=tasting_wine5, overall=3)
+      user3_rating5.save()
+      user3_rating6 = WineRatingData(user=user3, wine=tasting_wine6, overall=3)
+      user3_rating6.save()
 
       custom1 = CustomizeOrder(user=user1, wine_mix=0, sparkling=0)
       custom1.save()
@@ -175,7 +223,6 @@ class SimpleTest(TestCase):
         total_wines += w.on_hand
       self.assertEqual(total_wines, 298)
 
-
     def test_wine_order_processing(self):
       # generate orders
       self.test_create_orders()
@@ -193,7 +240,7 @@ class SimpleTest(TestCase):
 
       # check wine quantities have been updated
       inv = WineInventory.objects.filter(wine__name="2011 Loca Macabeo")[0]
-      self.assertEqual(inv.on_hand, 3)
+      self.assertEqual(inv.on_hand, 9)
 
     def test_manual_edit_order(self):
 
@@ -300,7 +347,6 @@ class SimpleTest(TestCase):
 
       self.assertContains(response, "Saved ratings for")
 
-
     def test_wine_order_processing_post_rating(self):
 
       self.client.login(email='jayme@vinely.com', password='hello')
@@ -312,4 +358,4 @@ class SimpleTest(TestCase):
 
       # check wine quantities have been updated
       inv = WineInventory.objects.filter(wine__name="2011 Loca Macabeo")[0]
-      self.assertEqual(inv.on_hand, 3)
+      self.assertEqual(inv.on_hand, 9)

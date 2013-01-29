@@ -93,6 +93,19 @@
       <section id="past-ratings">
         <legend>Past Ratings</legend>
         <div class="span12">
+          {% for rating in past_ratings %} 
+            <div class="row">
+              <div class="span4">
+                {{ rating.wine }}
+              </div>
+              <div class="span2">
+                {{ rating.overall_rating }}
+              </div>
+              <div class="span4">
+                {{ rating.timestamp }}
+              </div>
+            </div>
+          {% endfor %}
         </div>
       </section>
     </div>

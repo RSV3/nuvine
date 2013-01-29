@@ -462,3 +462,20 @@ footer .container .navbar {
   margin-left: 10px;
   margin-right: 10px;
 }
+
+/* Ratings Page span12 additional class */
+
+.span4 ul {
+  list-style:none;
+}
+
+.ratings-shadow {
+  background:#FFF;
+  box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
+}
+
+/* Ratings Page nav bar */
+.span12 ul li a {
+  background:#FFF;
+  box-shadow:6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
+}

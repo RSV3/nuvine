@@ -393,9 +393,8 @@ def wine_inventory(request):
         row = worksheet.row(curr_row)
 
         # if first column value is a Vinely SKU
-        print "Valid SKU: %s" % (row[0].value[0] == 'V', ) 
         if row[0].value and row[0].value[0] == 'V':
-          print "Inventory ID: %s" % row[0].value
+          #print "Inventory ID: %s" % row[0].value
           if row[1].value and row[2].value and row[5].value and row[6].value and row[7].value:
 
             color = row[1].value
@@ -440,13 +439,37 @@ def wine_inventory(request):
 
       messages.success(request, "%s wine types and %d wine bottles have been uploaded to inventory." % (total_wine_types, int(total_wines)))
     except xlrd.XLRDError:
-      messages.warning(request, "Not a valid inventory file.")
+      messages.warning(request, "Not a valid inventory file: needs Sheet2.")
 
   table = WineInventoryTable(WineInventory.objects.all())
   RequestConfig(request, paginate={"per_page": 25}).configure(table)
   data["wine_inventory"] = table
   data["form"] = form
   return render(request, "support/wine_inventory.html", data)
+
+
+def fill_slots_in_order(order, wine_choices, slots_remaining):
+  """
+    return the vinely_order_id if the order was completely fulfilled
+  """
+  for wine_id in wine_choices:
+    picked_wine = Wine.objects.get(id=wine_id)
+    # make sure we are not adding duplicate wines
+    if not SelectedWine.objects.filter(order=order, wine=picked_wine).exists():
+      wine_selected = SelectedWine(order=order, wine=picked_wine)
+      wine_selected.save()
+      # reduce inventory
+      wine_inv = picked_wine.wineinventory
+      wine_inv.on_hand -= 1
+      wine_inv.save()
+      slots_remaining -= 1
+      if slots_remaining == 0:
+        order.fulfill_status = Order.FULFILL_CHOICES[6][0]
+        order.save()
+        # completely fulfilled
+        return slots_remaining, order.vinely_order_id
+  # not completely fulfilled
+  return slots_remaining, None
 
 
 @staff_member_required
@@ -473,41 +496,50 @@ def view_orders(request, order_id=None):
     else:
       # fulfill wine
       for o in orders:
+        slots_remaining = o.num_slots
         receiver = o.receiver
         # get wine personality and rating data to filter wine
         personality = receiver.get_profile().wine_personality
-        rating_data = WineRatingData.objects.filter(user=receiver)
+        like_categories = WineRatingData.objects.filter(user=receiver, overall__gt=3).values_list("wine__number", flat=True)
 
         # algorithm based on the rating data
+        wine_choices = Wine.objects.filter(vinely_category__in=like_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
 
-        # for testing, fulfill with only wine 1
-        w1 = Wine.objects.get(sku="VW200101-1")
-        u3 = User.objects.get(email="attendee3@example.com")
-        inv1 = WineInventory.objects.get(wine=w1)
+        # if enough wine in the inventory, fulfill
+        # fulfill likes only
+        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, wine_choices, slots_remaining)
+        if fulfilled_vinely_order_id:
+          fulfilled_orders.append(fulfilled_vinely_order_id)
 
-        if o.receiver == u3:
-          # couldn't fulfill
+        if slots_remaining:
+          # else find the liked wines from past orders that are in inventory
+          liked_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating__gt=3).values_list('wine', flat=True)
+
+          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, liked_past_choices, slots_remaining)
+          if fulfilled_vinely_order_id:
+            fulfilled_orders.append(fulfilled_vinely_order_id)
+
+        if slots_remaining:
+          # if not enough likes, then fulfill neutral
+          neutral_categories = WineRatingData.objects.filter(user=receiver, overall=3).values_list("wine__number", flat=True)
+          neutral_choices = Wine.objects.filter(vinely_category__in=neutral_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+
+          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_choices, slots_remaining)
+          if fulfilled_vinely_order_id:
+            fulfilled_orders.append(fulfilled_vinely_order_id)
+
+        if slots_remaining:
+          # if not enough wines fulfill with neutral from past wines
+          neutral_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating=3).values_list('wine', flat=True)
+
+          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_past_choices, slots_remaining)
+          if fulfilled_vinely_order_id:
+            fulfilled_orders.append(fulfilled_vinely_order_id)
+
+        if slots_remaining > 0:
+          # else need to leave for manual review
           o.fulfill_status = Order.FULFILL_CHOICES[5][0]
-        else:
-          # fulfilled wine
-          num_slots = o.num_slots()
-          wine_added = 0
-          for i in range(num_slots):
-            if inv1.on_hand > 0:
-              wine_selected = SelectedWine(order=o, wine=w1)
-              wine_selected.save()
-              inv1.on_hand -= 1
-              inv1.save()
-              wine_added += 1
-
-          # if not enough wines we cannot fulfill
-          if wine_added == num_slots:
-            o.fulfill_status = Order.FULFILL_CHOICES[6][0]
-            fulfilled_orders.append(o.vinely_order_id)
-          else:
-            o.fulfill_status = Order.FULFILL_CHOICES[5][0]
-
-        o.save()
+          o.save()
 
   if not orders.exists():
     messages.warning(request, "No live orders are currently in the queue.")
@@ -547,7 +579,7 @@ def edit_order(request, order_id):
   data['past_orders'] = past_orders
   data['past_ratings'] = past_ratings
 
-  num_slots = order.num_slots()
+  num_slots = order.num_slots
 
   from support.forms import SelectWineForm
 
@@ -754,7 +786,7 @@ def view_past_orders(request, order_id=None):
       order = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).get(id=order_id)
     except Order.DoesNotExist:
       raise Http404
-    num_slots = order.num_slots()
+    num_slots = order.num_slots
     SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
     if request.method == "POST":
       formset = SelectedWineRatingFormSet(request.POST or None)

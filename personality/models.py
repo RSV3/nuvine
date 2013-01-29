@@ -6,6 +6,9 @@ from django.utils import timezone
 
 
 class Wine(models.Model):
+  """
+    Wine for tasting
+  """
   name = models.CharField(max_length=128)
   year = models.IntegerField(default=0)
   sip_bits = models.TextField()
