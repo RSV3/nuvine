@@ -473,11 +473,13 @@ footer .container .navbar {
   background:#FFF;
   box-shadow: 6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
   padding-top: 30px;
+  padding-left: 30px;
 }
 
 /* Ratings Page nav bar */
 .span12 ul li a, .span12 ul li a:active {
   background:#FFF;
+  border-top:1px solid #F0F0F0;
   box-shadow:6px 0px 10px -7px #888, -6px 0px 10px -7px #888;
 }
 
@@ -486,3 +488,6 @@ footer .container .navbar {
   margin-bottom:0px;
 }
 
+.span2 wine-ratings {
+  margin-left:40px;
+}
