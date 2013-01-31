@@ -6,9 +6,13 @@ from main.models import Order
 
 
 class WineInventoryTable(tables.Table):
+  sku = columns.Column(accessor='wine.sku')
+  wine = columns.Column(order_by=('wine__name'))
 
   class Meta:
     model = WineInventory
+    fields = ('sku', 'wine', 'on_hand', 'updated',)
+    order_by = ['sku']
     attrs = {"class": "paleblue table table-striped"}
 
 

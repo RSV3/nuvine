@@ -320,6 +320,10 @@ LOGGING = {
         'accounts': {
             'handlers': ['console'],
             'level': 'INFO'
+        },
+        'support': {
+            'handlers': ['console'],
+            'level': 'INFO'
         }
     },
 }

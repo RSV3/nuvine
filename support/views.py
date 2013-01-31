@@ -11,10 +11,10 @@ from django.forms.formsets import formset_factory
 
 from django_tables2 import RequestConfig
 
-from support.models import Email, WineInventory, Wine
+from support.models import Email, WineInventory
 from support.tables import WineInventoryTable, OrderTable, PastOrderTable
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder
-from personality.models import WineRatingData
+from personality.models import WineRatingData, Wine
 from accounts.models import SubscriptionInfo
 
 from support.forms import InventoryUploadForm, SelectedWineRatingForm
@@ -22,6 +22,10 @@ from main.utils import my_pro
 from datetime import datetime
 import csv
 
+
+import logging
+
+log = logging.getLogger(__name__)
 
 @staff_member_required
 def admin_index(request):
@@ -362,28 +366,33 @@ def wine_inventory(request):
   import xlrd
 
   form = InventoryUploadForm(request.POST or None, request.FILES or None)
+
   if form.is_valid():
     upload_info = form.save()
 
     file_name = upload_info.inventory_file.name
-    #print "Uploaded filename:", file_name
+    log.info("Uploaded filename: %s" % file_name)
 
-    from boto.s3.connection import S3Connection
+    if settings.MEDIA_URL.startswith("http"):
+      from boto.s3.connection import S3Connection
 
-    conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
+      conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
 
-    bucket = conn.lookup(settings.AWS_STORAGE_BUCKET_NAME)
-    # access the S3 file for processing
-    key = bucket.get_key('/media/%s' % file_name)
+      bucket = conn.lookup(settings.AWS_STORAGE_BUCKET_NAME)
+      # access the S3 file for processing
+      key = bucket.get_key('/media/%s' % file_name)
 
-    key.get_contents_to_filename("inventory_excel.xlsx")
-    workbook = xlrd.open_workbook("inventory_excel.xlsx")
+      key.get_contents_to_filename("inventory_excel.xlsx")
+      workbook = xlrd.open_workbook("inventory_excel.xlsx")
+    else:
+      # we're dealing with local
+      workbook = xlrd.open_workbook(settings.MEDIA_ROOT + file_name)
 
     try:
       worksheet = workbook.sheet_by_name('Sheet2')
 
       num_rows = worksheet.nrows - 1
-      curr_row = -1
+      curr_row = 0
       invalid_rows = []
 
       total_wines = 0

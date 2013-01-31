@@ -1,8 +1,8 @@
 from django import forms
 
-from support.models import InventoryUpload, Wine
+from support.models import InventoryUpload
 from main.models import SelectedWine
-from personality.models import WineRatingData
+from personality.models import WineRatingData, Wine
 
 
 class InventoryUploadForm(forms.ModelForm):

@@ -15,10 +15,38 @@ class Wine(models.Model):
   number = models.IntegerField(default=0)
   active = models.BooleanField(default=False)
   price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-  # the date this wine was added
-  added = models.DateField(auto_now_add=True)
   # the date this wine is no longer used for tasting
-  deactivated = models.DateField(null=True, blank=True)
+  deactivated = models.DateTimeField(null=True, blank=True)
+  is_taste_kit_wine = models.BooleanField(default=False)
+
+  sku = models.CharField(max_length=32, blank=True, null=True)
+  vinely_category = models.IntegerField(default=1)
+  vinely_category2 = models.FloatField(default=1.0)
+  vintage = models.CharField(max_length=64, blank=True, null=True)
+  varietal = models.CharField(max_length=32, blank=True, null=True)
+  region = models.CharField(max_length=64, blank=True, null=True)
+  alcohol = models.FloatField(default=0.0)
+  residual_sugar = models.FloatField(default=0.0)
+  acidity = models.FloatField(default=0.0)
+  ph = models.FloatField(default=0.0)
+  oak = models.FloatField(default=0.0)
+  body = models.FloatField(default=0.0)
+  fruit = models.FloatField(default=0.0)
+  tannin = models.FloatField(default=0.0)
+  supplier = models.CharField(max_length=64, blank=True, null=True)
+
+  sparkling = models.BooleanField(default=False)
+
+  WINE_COLOR = (
+    (0, u'Red'),
+    (1, u'White'),
+    (2, u'Ros\xc3')
+  )
+
+  color = models.IntegerField(choices=WINE_COLOR, default=WINE_COLOR[0][0])
+  comment = models.CharField(max_length=255, blank=True, null=True)
+  updated = models.DateTimeField(null=True)
+  created = models.DateTimeField(null=True)
 
   def deactivate(self):
     self.active = False
@@ -29,8 +57,11 @@ class Wine(models.Model):
     self.active = True
     self.save()
 
+  # def __unicode__(self):
+  #   return "%s: %s" % (self.number, self.name)
+
   def __unicode__(self):
-    return "%s: %s" % (self.number, self.name)
+    return "%s [%.1f, %s, %s]" % (self.name, self.vinely_category2, self.get_color_display(), "Sparkling" if self.sparkling else "Regular")
 
 
 class WineRatingData(models.Model):
