@@ -366,7 +366,7 @@ def wine_inventory(request):
     upload_info = form.save()
 
     file_name = upload_info.inventory_file.name
-    print "Uploaded filename:", file_name
+    #print "Uploaded filename:", file_name
 
     from boto.s3.connection import S3Connection
 
@@ -412,7 +412,7 @@ def wine_inventory(request):
             if Wine.objects.filter(sku=row[0].value).exists():
               wine = Wine.objects.get(sku=row[0].value)
             else:
-              wine = Wine(name=row[1].value,
+              wine = Wine(name=row[2].value,
                                 year=row[3].value if row[3].value else 0,
                                 sku=row[0].value,
                                 vinely_category=row[5].value,
@@ -560,6 +560,9 @@ def view_orders(request, order_id=None):
 def edit_order(request, order_id):
   """
     Allows one to modify the order
+
+    - wines don't appear even though selected
+    - wine names don't appear
   """
 
   data = {}
