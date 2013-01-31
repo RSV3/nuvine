@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}">  
   <style type="text/css">
     .payment-form select {
       width: 110px;
@@ -401,7 +401,7 @@
             </div>          
           </div>
         </fieldset>
-        
+
         <div class="form-actions">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Update</button>
@@ -413,63 +413,14 @@
 
 
 {% block additional_scripts %}
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript">
-    $(".payment-errors").hide();
+    $(document).ready( function () {
+      var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+      if (!$('.datepicker').val()) {
+        options.startView = 'decade';
+      }
+      $('.datepicker').datepicker(options);
+    });
   </script>
-
-  {% if use_stripe %}
-    <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
-    <script type="text/javascript">
-
-      // this identifies your website in the createToken call below
-      Stripe.setPublishableKey('{{ publish_token }}');
-
-      function stripeResponseHandler(status, response) {
-        if (response.error) {
-          // re-enable the submit button
-          $('.submit-button').removeAttr("disabled");
-          // show the errors on the form
-          $(".payment-errors").text(response.error.message);
-          $(".payment-errors").show();
-        } else {
-          var form$ = $("#payment-form");
-          // token contains id, last4, and card type
-          var token = response['id'];
-          var card = response['card'];
-
-          // insert the token into the form so it gets submitted to the server
-          form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-          form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
-          form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
-          form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
-          form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
-          form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
-          // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
-          // and submit
-          form$.get(0).submit();
-        }
-      }
-
-      $(document).ready(function() {
-        $("#payment-form").submit(function(e) {
-          // disable the submit button to prevent repeated clicks
-          $('.submit-button').attr("disabled", "disabled");
-          // createToken returns immediately - the supplied callback submits the form if there are no errors
-          Stripe.createToken({
-            name: $('.card-name').val(),
-            number: $('.card-number').val(),
-            cvc: $('.card-cvc').val(),
-            exp_month: $('.card-expiry-month').val(),
-            exp_year: $('.card-expiry-year').val(),
-            address_zip: $('.card-address-zip').val(),
-          }, stripeResponseHandler);
-          return false; // submit from callback
-        });
-      });
-
-      if (window.location.protocol === 'file:') {
-          alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
-      }
-    </script>
-  {% endif %}
 {% endblock additional_scripts %}

@@ -59,12 +59,13 @@ def my_information(request):
     initial_card_data = {'card_number': card_number, 'exp_month': profile.stripe_card.exp_month,
                         'exp_year': profile.stripe_card.exp_year, 'billing_zipcode': profile.stripe_card.billing_zipcode}
 
+  initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
   user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
   # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
   payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment', initial=initial_card_data)
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
-  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, prefix='eligibility')
+  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
 
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
