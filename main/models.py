@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
 
-from support.models import Wine
+from personality.models import Wine
 
 # Create your models here.
 
@@ -493,14 +493,15 @@ class Order(models.Model):
   @property
   def num_slots(self):
     total_slots = 0
-    items = self.cart.items.filter(price_category__in=[12, 13, 14])
+    wines_categories = range(5, 11) + [12, 13, 14]
+    items = self.cart.items.filter(price_category__in=wines_categories)
     if items.exists():
       for item in items:
         if item.price_category == 12:
           total_slots += 3
-        elif item.price_category == 13:
+        elif item.price_category in [5, 7, 9, 13]:
           total_slots += 6
-        elif item.price_category == 14:
+        elif item.price_category in [6, 8, 10, 14]:
           total_slots += 12
     return total_slots
 

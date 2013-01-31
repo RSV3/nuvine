@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table('main_selectedwine', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('order', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Order'])),
-            ('wine', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['support.Wine'])),
+            ('wine', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['personality.Wine'])),
             ('overall_rating', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
@@ -251,7 +251,7 @@ class Migration(SchemaMigration):
             'order': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Order']"}),
             'overall_rating': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'wine': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['support.Wine']"})
+            'wine': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['personality.Wine']"})
         },
         'main.thankyounote': {
             'Meta': {'object_name': 'ThankYouNote'},
@@ -264,14 +264,34 @@ class Migration(SchemaMigration):
         },
         'personality.wine': {
             'Meta': {'object_name': 'Wine'},
+            'acidity': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'added': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'deactivated': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'alcohol': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'body': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'color': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'deactivated': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'fruit': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_taste_kit_wine': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'oak': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'ph': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'}),
+            'region': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'residual_sugar': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'sip_bits': ('django.db.models.fields.TextField', [], {}),
+            'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'sparkling': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'supplier': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'tannin': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'varietal': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'vinely_category': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'vinely_category2': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
+            'vintage': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'year': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },
         'personality.wineratingdata': {
@@ -299,18 +319,8 @@ class Migration(SchemaMigration):
             'exp_year': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_four': ('django.db.models.fields.CharField', [], {'max_length': '4'}),
+            'last_updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'stripe_user': ('django.db.models.fields.CharField', [], {'max_length': '20'})
-        },
-        'support.wine': {
-            'Meta': {'object_name': 'Wine'},
-            'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
-            'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'vinely_category': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'year': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         }
     }
 

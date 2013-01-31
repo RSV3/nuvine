@@ -506,6 +506,9 @@ def view_orders(request, order_id=None):
       # fulfill wine
       for o in orders:
         slots_remaining = o.num_slots
+        if slots_remaining == 0:
+          continue
+
         receiver = o.receiver
         # get wine personality and rating data to filter wine
         personality = receiver.get_profile().wine_personality
@@ -556,6 +559,13 @@ def view_orders(request, order_id=None):
   if fulfilled_orders:
     messages.success(request, "Fullfilled orders: %s" % fulfilled_orders)
 
+  # Refresh orders queryset after this update
+  if order_id:
+    # show particular order
+    orders = Order.objects.filter(id=order_id, fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
+  else:
+    orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
+
   # shows the orders and the wines that have been assigned to it
   table = OrderTable(orders)
   RequestConfig(request, paginate={"per_page": 10}).configure(table)
@@ -586,8 +596,9 @@ def edit_order(request, order_id):
   data['order'] = order
   receiver_profile = order.receiver.get_profile()
   data['receiver_profile'] = receiver_profile
-  customization = CustomizeOrder.objects.get(user=order.receiver)
-  data['customization'] = customization
+  # users that have only ordered taste kits will not have customization record
+  customization = CustomizeOrder.objects.filter(user=order.receiver)
+  data['customization'] = customization[0] if customization else None
   data['past_orders'] = past_orders
   data['past_ratings'] = past_ratings
 
