@@ -816,6 +816,8 @@ def download_ready_orders(request):
       data['Prod %d Quantity' % i] = 1
       data['Prod %d Name' % i] = selected.wine.name
       data['Prod %d Price' % i] = selected.wine.price
+      if i == 12:
+        break
 
     order.fulfill_status = Order.FULFILL_CHOICES[7][0]
     order.save()
