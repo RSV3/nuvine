@@ -6,6 +6,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pa
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = PROJECT_ROOT+'/emails/'
 
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 import dj_database_url
 
 DATABASES = {'default': dj_database_url.config(default='sqlite:///%s/winedora.test.db' % PROJECT_ROOT)}

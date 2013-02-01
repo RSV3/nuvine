@@ -597,8 +597,9 @@ def edit_order(request, order_id):
   receiver_profile = order.receiver.get_profile()
   data['receiver_profile'] = receiver_profile
   # users that have only ordered taste kits will not have customization record
-  customization = CustomizeOrder.objects.filter(user=order.receiver)
-  data['customization'] = customization[0] if customization else None
+  customizations = CustomizeOrder.objects.filter(user=order.receiver)
+  customization = customizations[0] if customizations.exists() else None
+  data['customization'] = customization
   data['past_orders'] = past_orders
   data['past_ratings'] = past_ratings
 
