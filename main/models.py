@@ -499,9 +499,9 @@ class Order(models.Model):
       for item in items:
         if item.price_category == 12:
           total_slots += 3
-        elif item.price_category in [5, 7, 9, 13]:
+        elif item.price_category in [6, 8, 10, 13]:
           total_slots += 6
-        elif item.price_category in [6, 8, 10, 14]:
+        elif item.price_category in [5, 7, 9, 14]:
           total_slots += 12
     return total_slots
 
