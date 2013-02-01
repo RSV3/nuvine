@@ -21,6 +21,10 @@ from lepl.apps.rfc3696 import Email
 
 valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class ContactRequestForm(forms.ModelForm):
 
@@ -69,10 +73,9 @@ class PartyCreateForm(forms.ModelForm):
     addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
     # only show addresses that pro has dealt with before
     self.fields['address'].queryset = addresses
-
     my_hosts = MyHost.objects.filter(pro=initial.get('pro'))
     users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
-    self.fields['host'].choices = [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
+    self.fields['host'].choices = [(uid, "%s %s (%s)" % (first_name, last_name, email)) for uid, first_name, last_name, email in users.values_list('id', 'first_name', 'last_name', 'email')]
 
   def clean_email(self):
     host_email = self.cleaned_data['email']

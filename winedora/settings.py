@@ -324,7 +324,11 @@ LOGGING = {
         'support': {
             'handlers': ['console'],
             'level': 'INFO'
-        }
+        },
+        'main': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
     },
 }
 
