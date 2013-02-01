@@ -8,6 +8,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.forms.formsets import formset_factory
+from django.db import transaction
 
 from django_tables2 import RequestConfig
 
@@ -325,6 +326,7 @@ def download_orders(request):
 
 @staff_member_required
 def view_users(request):
+  data = {}
   for user in User.objects.all():
     pass
     # export user profile
@@ -341,6 +343,7 @@ def view_users(request):
 
 @staff_member_required
 def view_parties(request):
+  data = {}
   for party in Party.objects.all():
     pass
     # export user profile
@@ -350,7 +353,6 @@ def view_parties(request):
     # export host
 
     # TODO: export party information
-
 
   return render_to_response("support/view_parties.html", data, context_instance=RequestContext(request))
 
@@ -576,6 +578,7 @@ def view_orders(request, order_id=None):
 
 
 @staff_member_required
+@transaction.commit_on_success
 def edit_order(request, order_id):
   """
     Allows one to modify the order
@@ -601,6 +604,7 @@ def edit_order(request, order_id):
   customization = customizations[0] if customizations.exists() else None
   data['customization'] = customization
   data['past_orders'] = past_orders
+  # show the ratings on past orders
   data['past_ratings'] = past_ratings
 
   num_slots = order.num_slots
@@ -609,54 +613,80 @@ def edit_order(request, order_id):
 
   SelectedWineFormSet = formset_factory(SelectWineForm, extra=num_slots, max_num=num_slots)
 
+  enough_inventory = True
   if request.method == "POST":
     formset = SelectedWineFormSet(request.POST or None)
-    if formset.is_valid():
-      # POST: save the order modification
-      for form in formset:
-        if form.has_changed():
+    # POST: save the order modification
+    for form in formset:
+      try:
+        if form.has_changed() and form.is_valid():
+          print "Form has has_changedd"
           selected_wine = form.save(commit=False)
           if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
             past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
-            past_selection.wine = selected_wine.wine
-            past_selection.save()
+            # update inventory
+            old_inv = WineInventory.objects.get(wine=past_selection.wine)
+            old_inv.on_hand += 1
+            old_inv.save()
+            new_inv = WineInventory.objects.get(wine=selected_wine.wine)
+            if new_inv.on_hand > 0:
+              new_inv.on_hand -= 1
+              new_inv.save()
+            else:
+              messages.warning(request, "There are not enough %s in the inventory." % selected_wine.wine)
+              enough_inventory = False
+            if enough_inventory:
+              past_selection.wine = selected_wine.wine
+              past_selection.save()
+            else:
+              past_selection.delete()
           else:
-            selected_wine.order = order
-            selected_wine.save()
-      if num_slots == SelectedWine.objects.filter(order=order).count():
-        order.fulfill_status = Order.FULFILL_CHOICES[6][0]
-        order.save()
-        messages.success(request, "Wine selection has been completed for order #%s." % order.vinely_order_id)
-      else:
-        messages.success(request, "Saved order details.")
-  else:
-    # GET: show details of order, show the ratings on past orders
-    selected_wines = SelectedWine.objects.filter(order=order)
+            new_inv = WineInventory.objects.get(wine=selected_wine.wine)
+            if new_inv.on_hand > 0:
+              new_inv.on_hand -= 1
+              new_inv.save()
+            else:
+              messages.warning(request, "There are not enough %s in the inventory." % selected_wine.wine)
+              enough_inventory = False
+            if enough_inventory:
+              selected_wine.order = order
+              selected_wine.save()
+      except ValueError:
+        continue
+    if num_slots == SelectedWine.objects.filter(order=order).count():
+      order.fulfill_status = Order.FULFILL_CHOICES[6][0]
+      order.save()
+      messages.success(request, "Wine selection has been completed for order #%s." % order.vinely_order_id)
+    elif enough_inventory:
+      messages.success(request, "Saved order details.")
 
-    initial_data = []
-    for w in selected_wines:
-      form_data = {}
-      form_data['record_id'] = w.id
-      form_data['wine'] = w.wine.id
-      if customization.wine_mix == 2:
-        form_data['color_filter'] = 0
-      elif customization.wine_mix == 3:
-        form_data['color_filter'] = 1
-      form_data['sparkling_filter'] = True if customization.sparkling else False
-      form_data['category_filter'] = receiver_profile.find_neutral_wines()
-      initial_data.append(form_data)
+  # GET: already selected wines
+  selected_wines = SelectedWine.objects.filter(order=order)
 
-    for i in range(0, num_slots - len(initial_data)):
-      form_data = {}
-      if customization.wine_mix == 2:
-        form_data['color_filter'] = 0
-      elif customization.wine_mix == 3:
-        form_data['color_filter'] = 1
-      form_data['sparkling_filter'] = True if customization.sparkling else False
-      form_data['category_filter'] = receiver_profile.find_neutral_wines()
-      initial_data.append(form_data)
+  initial_data = []
+  for w in selected_wines:
+    form_data = {}
+    form_data['record_id'] = w.id
+    form_data['wine'] = w.wine.id
+    if customization.wine_mix == 2:
+      form_data['color_filter'] = 0
+    elif customization.wine_mix == 3:
+      form_data['color_filter'] = 1
+    form_data['sparkling_filter'] = True if customization.sparkling else False
+    form_data['category_filter'] = receiver_profile.find_neutral_wines()
+    initial_data.append(form_data)
 
-    formset = SelectedWineFormSet(initial=initial_data)
+  for i in range(0, num_slots - len(initial_data)):
+    form_data = {}
+    if customization.wine_mix == 2:
+      form_data['color_filter'] = 0
+    elif customization.wine_mix == 3:
+      form_data['color_filter'] = 1
+    form_data['sparkling_filter'] = True if customization.sparkling else False
+    form_data['category_filter'] = receiver_profile.find_neutral_wines()
+    initial_data.append(form_data)
+
+  formset = SelectedWineFormSet(initial=initial_data)
 
   data['formset'] = formset
 
