@@ -511,3 +511,6 @@ footer .container .navbar {
   margin-left:100px;
 }
 
+.border-double {
+  border-top:1px solid #DCDCDC;
+}

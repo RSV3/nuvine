@@ -3,7 +3,12 @@
 {% load static %}
 
 {% block additional_styles %}
-  <style type="text/css">
+  <style type="text/css">    
+    hr {
+      width: 920px;
+      margin: 1.3em -20px;
+      border: 2px solid #DCDCDC;
+    }
     .shaded {
       background-color: #EAEAE3;
     }
@@ -27,6 +32,12 @@
      .tab-pane .row {
       margin-bottom:40px;
       border-bottom:1px solid #DCDCDC;
+      margin-right: 10px;
+      }
+
+      .tab-pane .last {
+      margin-bottom:20px;
+      border-bottom:0px;
       margin-right: 10px;
       }
     .span5 {
@@ -240,7 +251,7 @@
                   {{ form.wine1_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
                     <center>
@@ -263,7 +274,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
                     <center>
@@ -361,7 +372,7 @@
                   {{ form.wine2_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
                     <center>
@@ -384,7 +395,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
                     <center>
@@ -483,7 +494,7 @@
                   {{ form.wine3_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
                     <center>
@@ -506,7 +517,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
                     <center>
@@ -604,7 +615,7 @@
                   {{ form.wine4_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
                     <center>
@@ -627,7 +638,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
                     <center>
@@ -725,7 +736,7 @@
                   {{ form.wine5_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
                     <center>
@@ -748,7 +759,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
                     <center>
@@ -846,7 +857,7 @@
                   {{ form.wine6_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
                     <center>
@@ -869,7 +880,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
                     <center>
