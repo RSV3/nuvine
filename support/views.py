@@ -817,6 +817,8 @@ def download_ready_orders(request):
       data['Prod %d Name' % i] = selected.wine.name
       data['Prod %d Price' % i] = selected.wine.price
       if i == 12:
+        # since its an abnormal order if there are more than 12 bottles
+        # and since the order form only supports up to 12 bottles
         break
 
     order.fulfill_status = Order.FULFILL_CHOICES[7][0]
