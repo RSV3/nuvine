@@ -235,7 +235,7 @@ class GeneralTaste(models.Model):
   EARTHY_CHOICES = (
       (1, 'Love, love, love\'em.'),
       (2, 'I\'ll take them as an addition to a dish.'),
-      (3, 'A touch will do, bu that\'s it.'),
+      (3, 'A touch will do, but that\'s it.'),
       (4, 'Not really a fan.'),
       (5, 'I\'d rather walk on them than eat them.'),
   )
