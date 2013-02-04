@@ -323,7 +323,15 @@ LOGGING = {
         'accounts': {
             'handlers': ['console'],
             'level': 'INFO'
-        }
+        },
+        'support': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
+        'main': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
     },
 }
 

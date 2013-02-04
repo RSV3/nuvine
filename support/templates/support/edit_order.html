@@ -14,7 +14,7 @@
     </div>
     <div class="span6">
       <div class="pull-right">
-        <a href="{% url support:view_past_orders %}">Past Orders</a> |
+        <a href="{% url support:view_past_orders %}">Ready and Past Orders</a> |
         <a href="{% url support:view_orders %}">Fulfill Orders</a>
       </div>
     </div>
@@ -71,8 +71,8 @@
               <div class="row">
             {% endif %}
               <div class="span6">
-                {{ form.non_field_errors }}
-                {{ form.errors }}
+                <!-- {{ form.non_field_errors }} -->
+                <!-- {{ form.errors }} -->
                 {{ form.title }}
                 {{ form.description }}
                 {{ form.as_table }}
@@ -93,6 +93,19 @@
       <section id="past-ratings">
         <legend>Past Ratings</legend>
         <div class="span12">
+          {% for rating in past_ratings %} 
+            <div class="row">
+              <div class="span4">
+                {{ rating.wine }}
+              </div>
+              <div class="span2">
+                {{ rating.overall_rating }}
+              </div>
+              <div class="span4">
+                {{ rating.timestamp }}
+              </div>
+            </div>
+          {% endfor %}
         </div>
       </section>
     </div>

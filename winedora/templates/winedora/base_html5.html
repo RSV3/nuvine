@@ -71,7 +71,18 @@
   <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static "html5/img/apple-touch-icon-114x114-precomposed.png" %}">
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static "html5/img/apple-touch-icon-72x72-precomposed.png" %}">
   <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static "html5/img/apple-touch-icon-57x57-precomposed.png" %}">
+  <style type="text/css">
+    /* make the like button smaller */
+    .fb_edge_widget_with_comment iframe
+    {
+        width:48px !important;
+    }
 
+    /* but make the span that holds the comment box larger */
+    span.fb_edge_comment_widget.fb_iframe_widget iframe
+    {
+        width:401px !important;
+    }  </style>
   {% block additional_styles %}
   
   {% endblock %}

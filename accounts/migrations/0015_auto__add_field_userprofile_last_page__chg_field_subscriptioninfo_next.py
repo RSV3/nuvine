@@ -13,10 +13,6 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True),
                       keep_default=False)
 
-
-        # Changing field 'SubscriptionInfo.next_invoice_date'
-        db.alter_column('accounts_subscriptioninfo', 'next_invoice_date', self.gf('django.db.models.fields.DateField')())
-
     def backwards(self, orm):
         # Deleting field 'UserProfile.last_page'
         db.delete_column('accounts_userprofile', 'last_page')
@@ -52,7 +48,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'SubscriptionInfo'},
             'frequency': ('django.db.models.fields.IntegerField', [], {'default': '9'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'next_invoice_date': ('django.db.models.fields.DateField', [], {}),
+            'next_invoice_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'quantity': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'updated_datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})

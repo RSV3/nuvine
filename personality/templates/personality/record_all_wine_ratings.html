@@ -3,7 +3,12 @@
 {% load static %}
 
 {% block additional_styles %}
-  <style type="text/css">
+  <style type="text/css">    
+    hr {
+      width: 920px;
+      margin: 1.3em -20px;
+      border: 2px solid #DCDCDC;
+    }
     .shaded {
       background-color: #EAEAE3;
     }
@@ -11,7 +16,7 @@
       color: #00C245;
     }
     .tab-header.completed h2 {
-      color: #F12636;
+      color: #DCDCDC;
     }    
     #personality-exists-error {
       {% if not personality_exists %}
@@ -20,11 +25,38 @@
       color: #F00;
     }
     .tab-pane .control-group h2{
-      top: 50%; margin-top: 1em;
+      top: 50%; margin-top: 0.5em; 
+      font-size:2em;
+      padding-left:20px;
+      text-align:left;
     }
+     .tab-pane .row {
+      margin-bottom:40px;
+      border-bottom:1px solid #DCDCDC;
+      margin-right: 10px;
+      font-family:"AlternateGothicNo2BT-Regular";
+      text-transform:uppercase;
+      }
+
+      .tab-pane .last {
+      margin-bottom:20px;
+      border-bottom:0px;
+      margin-right: 10px;
+      }
+    .span5 {
+      width: 400px;
+    }
+    .tab-pane .row .span5 {
+      padding-left:40px;
+      }
     .tab-pane .span5 .row {
       top: 50%; margin-top: 2em;
+      border:0px;
     }
+    .tab-pane .row .span4 {
+      width:200px;
+      padding-left:20px;
+      }
     #email-invalid-error {
       display: none;
       color: #F00;
@@ -131,7 +163,7 @@
       <div class="row">
         <div class="span12">
           {% with ratings=invitee.wineratingdata_set.all %}
-            <ul id="wine-ratings-tabs" class="nav nav-tabs">
+            <ul id="wine-ratings-tabs" class="nav nav-tabs nav-tabs-clean">
               <li {% if active_tab == 1 %} class="active" {% endif %}><a href="#wine1" data-toggle="tab" 
                 class="span1 tab-header {% if ratings.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
               <li {% if active_tab == 2 %} class="active" {% endif %}><a href="#wine2" data-toggle="tab" 
@@ -146,7 +178,7 @@
                 class="span1 tab-header {% if ratings.5.overall %} completed {% endif %}"><h2>Wine 6</h2></a></li>
             </ul>
           {% endwith %}
-          <div class="tab-content">
+          <div class="tab-content ratings-shadow">
             <!--
             ########################################
             # 
@@ -155,7 +187,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 1 %}in active {% endif %}" id="wine1">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-1">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
                     {{ form.wine1 }}
@@ -200,7 +240,7 @@
                   {{ form.wine1_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
                     <center>
@@ -222,7 +262,7 @@
                   {{ form.wine1_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
                     <center>
@@ -245,7 +285,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
                     <center>
@@ -276,7 +316,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 2 %}in active {% endif %}" id="wine2">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-2">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
                     {{ form.wine2 }}
@@ -321,7 +369,7 @@
                   {{ form.wine2_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_texture.errors %}error{% endif %}">
                     <center>
@@ -343,7 +391,7 @@
                   {{ form.wine2_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
                     <center>
@@ -366,7 +414,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
                     <center>
@@ -398,7 +446,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 3 %}in active {% endif %}" id="wine3">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-3">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
                     {{ form.wine3 }}
@@ -443,7 +499,7 @@
                   {{ form.wine3_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_texture.errors %}error{% endif %}">
                     <center>
@@ -465,7 +521,7 @@
                   {{ form.wine3_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
                     <center>
@@ -488,7 +544,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
                     <center>
@@ -519,7 +575,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 4 %}in active {% endif %}" id="wine4">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-4">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
                     {{ form.wine4 }}
@@ -564,7 +628,7 @@
                   {{ form.wine4_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_texture.errors %}error{% endif %}">
                     <center>
@@ -586,7 +650,7 @@
                   {{ form.wine4_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
                     <center>
@@ -609,7 +673,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
                     <center>
@@ -640,7 +704,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 5 %}in active {% endif %}" id="wine5">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-5">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
                     {{ form.wine5 }}
@@ -685,7 +757,7 @@
                   {{ form.wine5_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_texture.errors %}error{% endif %}">
                     <center>
@@ -707,7 +779,7 @@
                   {{ form.wine5_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
                     <center>
@@ -730,7 +802,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
                     <center>
@@ -761,7 +833,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 6 %}in active {% endif %}" id="wine6">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-6">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
                     {{ form.wine6 }}
@@ -806,7 +886,7 @@
                   {{ form.wine6_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_texture.errors %}error{% endif %}">
                     <center>
@@ -828,7 +908,7 @@
                   {{ form.wine6_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
                     <center>
@@ -851,7 +931,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
                     <center>

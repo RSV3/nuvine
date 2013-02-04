@@ -49,6 +49,10 @@ import stripe
 
 from stripecard.models import StripeCard
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 def suppliers_only(request):
   """

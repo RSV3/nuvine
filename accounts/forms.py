@@ -138,7 +138,8 @@ class AgeValidityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years'})
+    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years',
+                                                      'data-date-format': 'mm/dd/yyyy'})
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()
 

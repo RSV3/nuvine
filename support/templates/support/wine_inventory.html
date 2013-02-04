@@ -13,7 +13,7 @@
   <!-- upload file -->
   <div class="row">
     <div class="span6">
-      <form class="form-horizontal" method="POST" action="" enctype="multipart/form-data">
+      <form class="form-horizontal" method="POST" action="{{ app_path }}" enctype="multipart/form-data">
         {% csrf_token %}
         <span class="help-inline">{{ form.inventory_file.help_text }}</span>
         <div class="control-group">
@@ -45,7 +45,7 @@
     <div class="span6">
       <div class="pull-right">
         <a href="{% url support:admin_index %}">Support Home</a> |
-        <a href="{% url support:view_past_orders %}">Past Orders</a> |
+        <a href="{% url support:view_past_orders %}">Ready and Past Orders</a> |
         <a href="{% url support:view_orders %}">Fulfill Orders</a>       
       </div>
     </div>

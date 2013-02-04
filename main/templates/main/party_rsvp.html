@@ -327,14 +327,14 @@
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
-        $(".datepicker").datepicker();
-        {% if disallow_rsvp %}
-          {% if invited_user.get_profile.dob %}
-            $("#underage").modal();
-          {% else %}
-            $("#update_age").modal();
-          {% endif %}
-        {% endif %}
+        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+        if (!$('.datepicker').val()) {
+          options.startView = 'decade';
+        }
+        $('.datepicker').datepicker(options);
+
+        // uncomment this to enable
+        $("#update_age").modal();
       });
     </script>
   {% else %}
