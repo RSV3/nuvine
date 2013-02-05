@@ -330,7 +330,7 @@ class SimpleTest(TestCase):
 
       # rate the wine by going to the completed order (ratings 1 through 5)
       # save the wine order
-      response = self.client.post(reverse("support:view_past_orders", args=(order.id, )), {
+      response = self.client.post(reverse("support:rate_order", args=(order.id, )), {
                                                                         "form-TOTAL_FORMS": 3,
                                                                         "form-INITIAL_FORMS": 3,
                                                                         "form-MAX_NUM_FORMS": 3,
@@ -358,4 +358,4 @@ class SimpleTest(TestCase):
 
       # check wine quantities have been updated
       inv = WineInventory.objects.filter(wine__name="2011 Loca Macabeo")[0]
-      self.assertEqual(inv.on_hand, 9)
+      self.assertEqual(inv.on_hand, 12)

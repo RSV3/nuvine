@@ -408,7 +408,7 @@ class Order(models.Model):
       (4, 'Out of Stock'),
       (5, 'Needs Manual Review'),
       (6, 'Wine Selected'),
-      (7, 'Fulfilling'),
+      (7, 'Exported'),
       (8, 'Shipped'),
       (9, 'Received'),
   )

@@ -62,7 +62,10 @@ class Wine(models.Model):
   #   return "%s: %s" % (self.number, self.name)
 
   def __unicode__(self):
-    return "%s [%.1f, %s, %s]" % (self.name, self.vinely_category2, self.get_color_display(), "Sparkling" if self.sparkling else "Regular")
+    return "%s [%.1f]" % (self.name, self.vinely_category2,)
+
+  def full_display(self):
+    return "%s [%.1f, %s, %s]" % (self.name, self.vinely_category2, self.get_color_display(), "Sparkling" if self.sparkling else "Regular", )
 
 
 class WineRatingData(models.Model):

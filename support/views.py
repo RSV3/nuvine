@@ -484,6 +484,75 @@ def fill_slots_in_order(order, wine_choices, slots_remaining):
 
 
 @staff_member_required
+def fulfill_orders(request, order_id=None):
+  data = {}
+  fulfilled_orders = []
+
+  orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
+
+  if Wine.objects.all().count() == 0 or WineInventory.objects.filter(on_hand__gt=0).count() == 0:
+    messages.warning(request, "No wine in the inventory")
+  else:
+    # fulfill wine
+    for o in orders:
+      slots_remaining = o.num_slots
+      if slots_remaining == 0:
+        continue
+
+      receiver = o.receiver
+      # get wine personality and rating data to filter wine
+      personality = receiver.get_profile().wine_personality
+      like_categories = WineRatingData.objects.filter(user=receiver, overall__gt=3).values_list("wine__number", flat=True)
+
+      # algorithm based on the rating data
+      wine_choices = Wine.objects.filter(vinely_category__in=like_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+
+      # if enough wine in the inventory, fulfill
+      # fulfill likes only
+      slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, wine_choices, slots_remaining)
+      if fulfilled_vinely_order_id:
+        fulfilled_orders.append(fulfilled_vinely_order_id)
+
+      if slots_remaining:
+        # else find the liked wines from past orders that are in inventory
+        liked_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating__gt=3).values_list('wine', flat=True)
+
+        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, liked_past_choices, slots_remaining)
+        if fulfilled_vinely_order_id:
+          fulfilled_orders.append(fulfilled_vinely_order_id)
+
+      if slots_remaining:
+        # if not enough likes, then fulfill neutral
+        neutral_categories = WineRatingData.objects.filter(user=receiver, overall=3).values_list("wine__number", flat=True)
+        neutral_choices = Wine.objects.filter(vinely_category__in=neutral_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+
+        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_choices, slots_remaining)
+        if fulfilled_vinely_order_id:
+          fulfilled_orders.append(fulfilled_vinely_order_id)
+
+      if slots_remaining:
+        # if not enough wines fulfill with neutral from past wines
+        neutral_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating=3).values_list('wine', flat=True)
+
+        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_past_choices, slots_remaining)
+        if fulfilled_vinely_order_id:
+          fulfilled_orders.append(fulfilled_vinely_order_id)
+
+      if slots_remaining > 0:
+        # else need to leave for manual review
+        o.fulfill_status = Order.FULFILL_CHOICES[5][0]
+        o.save()
+
+  if not orders.exists():
+    messages.warning(request, "No pending orders are currently in the queue.")
+
+  if fulfilled_orders:
+    messages.success(request, "Fullfilled orders: %s" % fulfilled_orders)
+
+  return HttpResponseRedirect(reverse("support:view_orders"))
+
+
+@staff_member_required
 def view_orders(request, order_id=None):
 
   """
@@ -493,84 +562,20 @@ def view_orders(request, order_id=None):
   """
 
   data = {}
-  fulfilled_orders = []
 
   # show orders that have not been fulfilled
   if order_id:
     # show particular order
-    orders = Order.objects.filter(id=order_id, fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
+    orders = Order.objects.filter(id=order_id)
   else:
-    orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
-
-    if Wine.objects.all().count() == 0 or WineInventory.objects.filter(on_hand__gt=0).count() == 0:
-      messages.warning(request, "No wine in the inventory")
-    else:
-      # fulfill wine
-      for o in orders:
-        slots_remaining = o.num_slots
-        if slots_remaining == 0:
-          continue
-
-        receiver = o.receiver
-        # get wine personality and rating data to filter wine
-        personality = receiver.get_profile().wine_personality
-        like_categories = WineRatingData.objects.filter(user=receiver, overall__gt=3).values_list("wine__number", flat=True)
-
-        # algorithm based on the rating data
-        wine_choices = Wine.objects.filter(vinely_category__in=like_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
-
-        # if enough wine in the inventory, fulfill
-        # fulfill likes only
-        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, wine_choices, slots_remaining)
-        if fulfilled_vinely_order_id:
-          fulfilled_orders.append(fulfilled_vinely_order_id)
-
-        if slots_remaining:
-          # else find the liked wines from past orders that are in inventory
-          liked_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating__gt=3).values_list('wine', flat=True)
-
-          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, liked_past_choices, slots_remaining)
-          if fulfilled_vinely_order_id:
-            fulfilled_orders.append(fulfilled_vinely_order_id)
-
-        if slots_remaining:
-          # if not enough likes, then fulfill neutral
-          neutral_categories = WineRatingData.objects.filter(user=receiver, overall=3).values_list("wine__number", flat=True)
-          neutral_choices = Wine.objects.filter(vinely_category__in=neutral_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
-
-          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_choices, slots_remaining)
-          if fulfilled_vinely_order_id:
-            fulfilled_orders.append(fulfilled_vinely_order_id)
-
-        if slots_remaining:
-          # if not enough wines fulfill with neutral from past wines
-          neutral_past_choices = SelectedWine.objects.filter(order__receiver=receiver, overall_rating=3).values_list('wine', flat=True)
-
-          slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_past_choices, slots_remaining)
-          if fulfilled_vinely_order_id:
-            fulfilled_orders.append(fulfilled_vinely_order_id)
-
-        if slots_remaining > 0:
-          # else need to leave for manual review
-          o.fulfill_status = Order.FULFILL_CHOICES[5][0]
-          o.save()
+    orders = Order.objects.filter()
 
   if not orders.exists():
     messages.warning(request, "No live orders are currently in the queue.")
 
-  if fulfilled_orders:
-    messages.success(request, "Fullfilled orders: %s" % fulfilled_orders)
-
-  # Refresh orders queryset after this update
-  if order_id:
-    # show particular order
-    orders = Order.objects.filter(id=order_id, fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
-  else:
-    orders = Order.objects.filter(fulfill_status__lt=Order.FULFILL_CHOICES[6][0])
-
   # shows the orders and the wines that have been assigned to it
   table = OrderTable(orders)
-  RequestConfig(request, paginate={"per_page": 10}).configure(table)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
   data["orders"] = table
 
@@ -590,6 +595,9 @@ def edit_order(request, order_id):
   data = {}
 
   order = get_object_or_404(Order, pk=order_id)
+
+  if order.fulfill_status >= Order.FULFILL_CHOICES[7][0]:
+    return HttpResponseRedirect(reverse("support:rate_order", args=(order_id,)))
 
   # need to get the past orders for this user
   receiver = order.receiver
@@ -620,7 +628,7 @@ def edit_order(request, order_id):
     for form in formset:
       try:
         if form.has_changed() and form.is_valid():
-          print "Form has has_changedd"
+          print "Form has has_changed"
           selected_wine = form.save(commit=False)
           if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
             past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
@@ -690,8 +698,63 @@ def edit_order(request, order_id):
 
   data['formset'] = formset
 
-
   return render(request, "support/edit_order.html", data)
+
+
+@staff_member_required
+def rate_order(request, order_id):
+  data = {}
+
+  try:
+    order = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).get(id=order_id)
+  except Order.DoesNotExist:
+    raise Http404
+  num_slots = order.num_slots
+  SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
+  if request.method == "POST":
+    formset = SelectedWineRatingFormSet(request.POST or None)
+    if formset.is_valid():
+      for form in formset:
+        if form.has_changed():
+          selected_wine = form.save(commit=False)
+          if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
+            past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
+            past_selection.overall_rating = selected_wine.overall_rating
+            past_selection.save()
+          else:
+            selected_wine.save()
+
+      messages.success(request, "Saved ratings for order ID: %s" % order.vinely_order_id)
+      
+    data['formset'] = formset
+    data['order'] = order
+    receiver_profile = order.receiver.get_profile()
+    data['receiver_profile'] = receiver_profile
+    data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+  else:
+    # GET: show details of the order
+    initial_data = []
+    selected_wines = SelectedWine.objects.filter(order=order)
+
+    for selected_wine in selected_wines:
+      form_data = {}
+      form_data['order'] = order.id
+      form_data['record_id'] = selected_wine.id
+      form_data['wine'] = selected_wine.wine.id
+      form_data['wine_name'] = selected_wine.wine.name
+      form_data['overall_rating'] = selected_wine.overall_rating
+      initial_data.append(form_data)
+
+    print initial_data
+
+    formset = SelectedWineRatingFormSet(initial=initial_data)
+    data['formset'] = formset
+    data['order'] = order
+    receiver_profile = order.receiver.get_profile()
+    data['receiver_profile'] = receiver_profile
+    data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+
+  return render(request, "support/rate_order.html", data)
 
 
 @staff_member_required
@@ -839,70 +902,13 @@ def view_past_orders(request, order_id=None):
 
   data = {}
 
-  if order_id:
-    try:
-      order = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).get(id=order_id)
-    except Order.DoesNotExist:
-      raise Http404
-    num_slots = order.num_slots
-    SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
-    if request.method == "POST":
-      formset = SelectedWineRatingFormSet(request.POST or None)
-      if formset.is_valid():
-        for form in formset:
-          if form.has_changed():
-            selected_wine = form.save(commit=False)
-            if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
-              past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
-              past_selection.overall_rating = selected_wine.overall_rating
-              past_selection.save()
-            else:
-              selected_wine.save()
+  # show the completed orders
+  fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[7][0]).order_by("-order_date")
 
-        messages.success(request, "Saved ratings for order ID: %s" % order.vinely_order_id)
-      else:
-        data['formset'] = formset
-        data['order'] = order
-        receiver_profile = order.receiver.get_profile()
-        data['receiver_profile'] = receiver_profile
-        data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+  table = PastOrderTable(fulfilled_orders)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-      # show the completed orders
-      fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).order_by("-order_date")
-
-      table = PastOrderTable(fulfilled_orders)
-      RequestConfig(request, paginate={"per_page": 10}).configure(table)
-
-      data['fulfilled_orders'] = table
-
-    else:
-      # GET: show details of the order
-      initial_data = []
-      selected_wines = SelectedWine.objects.filter(order=order)
-
-      for selected_wine in selected_wines:
-        form_data = {}
-        form_data['order'] = order.id
-        form_data['record_id'] = selected_wine.id
-        form_data['wine'] = selected_wine.wine.id
-        form_data['wine_name'] = selected_wine.wine.name
-        form_data['overall_rating'] = selected_wine.overall_rating
-        initial_data.append(form_data)
-
-      formset = SelectedWineRatingFormSet(initial=initial_data)
-      data['formset'] = formset
-      data['order'] = order
-      receiver_profile = order.receiver.get_profile()
-      data['receiver_profile'] = receiver_profile
-      data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
-  else:
-    # show the completed orders
-    fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).order_by("-order_date")
-
-    table = PastOrderTable(fulfilled_orders)
-    RequestConfig(request, paginate={"per_page": 10}).configure(table)
-
-    data['fulfilled_orders'] = table
+  data['fulfilled_orders'] = table
 
   # allow search of an order, so we can enter rating
 
