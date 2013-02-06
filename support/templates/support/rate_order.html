@@ -1,0 +1,126 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block additional_styles %}
+
+<style type="text/css">
+
+  table ul {
+    list-style-type: none;
+  }
+
+  table li {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .inline-radio {
+    vertical-align: top;
+    margin-bottom: 20px;
+  }
+
+</style>
+
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">Rate Order</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span6">
+      &nbsp;
+    </div>
+    <div class="span6">
+      <div class="pull-right">
+        <a href="{% url support:admin_index %}">Support Home</a> |
+        <a href="{% url support:wine_inventory %}">Wine Inventory</a> |
+        <a href="{% url support:view_orders %}">Orders</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <section id="past-orders">
+
+      <div class="span12">
+        <section id="order-details">
+          <legend>Order Details</legend>
+          <div class="span12">
+            <div class="row">
+              <div class="span4">
+                Order ID: {{ order.vinely_order_id }}
+              </div>
+              <div class="span4">
+                Ordered By: {{ order.receiver_info }}
+              </div>
+              <div class="span4">
+                Wine Personality: {{ receiver_profile.wine_personality }}
+              </div>
+            </div>
+            <div class="vertical-space-20">
+              &nbsp;
+            </div>
+            <div class="row">
+              <div class="span4">
+                      Taste Code: 
+                        {% with rating_summary=receiver_profile.personality_rating_code %}
+                          <a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
+                              data-content="{{ rating_summary.1 }}">
+                            {{ rating_summary.0 }}</a>
+                        {% endwith %}                
+              </div>
+              <div class="span4">
+                Red/White: {{ receiver_profile.order_customization_pref }}
+              </div>
+              <div class="span4">
+                Bubbles: {{ customization.get_sparkling_display }}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- rate individual wines in an order -->
+      <div class="span12">
+        <section id="rating-form">
+          <legend>Record Ratings</legend>
+          <form class="form-horizontal" method="POST" action="{% url support:rate_order order.id %}">
+            {% csrf_token %}
+            {{ formset.non_form_errors }}
+            {{ formset.management_form }}
+            <table class="table table-striped">
+              {% for form in formset %}
+                <tr>
+                  <td>Wine Name</td>
+                  <td>{{ form.wine.label_tag }}</td>
+                </tr>
+                {{ form.non_field_errors }}
+                {{ form.errors }}
+                {{ form.record_id }}
+                {{ form.wine }}
+                {{ form.order }}
+                <tr>
+                  <td>{{ form.overall_rating.label_tag }}</td>
+                  <td>{{ form.overall_rating }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="reset" class="btn">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section> <!-- section -->
+  </div> <!-- .row -->
+
+</div>
+{% endblock content %}

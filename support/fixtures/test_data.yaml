@@ -1,8 +1,8 @@
-- model: auth.group
+- pk: 1
+  model: auth.group
   fields:
     permissions: []
     name: Vinely Pro
-  pk: 1
 - pk: 2
   model: auth.group
   fields:
@@ -13,56 +13,23 @@
   fields:
     name: Vinely Taster
     permissions: []
-- model: auth.group
+- pk: 4
+  model: auth.group
   fields:
     name: Supplier
     permissions: []
-  pk: 4
-- pk: 5
-  model: auth.group
-  fields:
-    permissions: []
+- fields:
     name: Pending Vinely Pro
-- fields: {full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2013-01-18
-      19:58:25.718656', active: true, category: 0, image: '', description: "<p>The\
-      \ Vinely First Taste Kit helps Vinely Tasters discover their true wine     \
-      \                                            personality. It includes six bottles\
-      \ of wine, each carefully selected for                                     \
-      \            certain attributes to help Vinely understand your taste in wine.</p>\
-      \                                                 <p>The kit also includes materials\
-      \ needed to conduct a Vinely tasting and                                   \
-      \              record each taster\u2019s preferences.</p>", cart_tag: tasting_kit,
-    unit_price: '139.00', name: Vinely Taste Kit}
-  pk: 25
-  model: main.product
+    permissions: []
+  pk: 5
+  model: auth.group
 - model: main.product
-  fields: {timestamp: !!timestamp '2013-01-18 19:58:25.724417', active: true, category: 1,
-    image: '', description: 'Excite your senses each and every time you pour a glass.                                         The
-      unmatched experience each bottle provides will have you                                         appreciating
-      every sip, every scent, and every penny paid.', cart_tag: '3', unit_price: '54.00',
-    name: 3 Bottles, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx}
-  pk: 26
-- pk: 27
-  model: main.product
-  fields: {active: true, category: 1, image: '', description: 'Excite your senses
-      each and every time you pour a glass.                                         The
-      unmatched experience each bottle provides will have you                                         appreciating
-      every sip, every scent, and every penny paid.', cart_tag: '6', unit_price: '97.00',
-    name: 6 Bottles, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2013-01-18
-      19:58:25.725953'}
-- fields: {image: '', description: 'Excite your senses each and every time you pour
-      a glass.                                         The unmatched experience each
-      bottle provides will have you                                         appreciating
-      every sip, every scent, and every penny paid.', cart_tag: '12', unit_price: '173.00',
-    name: 12 Bottles, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2013-01-18
-      19:58:25.727378', active: true, category: 1}
-  pk: 28
-  model: main.product
-- pk: 1
-  model: main.product
-  fields: {description: '<p>This is the official Vinely First Taste Kit that will
-      help Vinely Tasters                                         discover their true
-      wine personality. Included are six carefully-selected wines, offered                                         in
+  fields: {unit_price: '75.00', name: Vinely's First Taste Kit, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    full_case_price: '0.00', timestamp: !!timestamp '2012-10-19 18:56:24.430877',
+    category: 0, active: false, image: products/firsthostkit_prodimg.png, cart_tag: tasting_kit,
+    description: '<p>This is the official Vinely First Taste Kit that will help Vinely
+      Tasters                                         discover their true wine personality.
+      Included are six carefully-selected wines, offered                                         in
       three unique tasting experiences.</p>                                        <p>Choose
       the Basic First Taste Kit ($75) and get great tastes without a great investment.                                             Take
       your Tasters to exciting new places with the Superior First Taste Kit ($120).
@@ -70,16 +37,13 @@
       experience with the Divine First Taste Kit ($225).</p>                                        <p>Each
       kit will reveal each Taster''s personality. The only difference is in the quality
       of wine.                                            You know who you invited!
-      Select based on their taste or yours.</p>', cart_tag: tasting_kit, unit_price: '75.00',
-    name: Vinely's First Taste Kit, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
-    timestamp: !!timestamp '2012-10-19 22:56:24.430877', active: true, category: 0,
-    image: products/firsthostkit_prodimg.png}
+      Select based on their taste or yours.</p>'}
+  pk: 1
 - pk: 2
   model: main.product
-  fields: {unit_price: '120.00', name: Vinely's Superior Taste Kit, full_case_price: '0.00',
-    sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2012-10-19 22:56:25.375803',
-    active: true, category: 0, image: '', description: '<p>This is the official Vinely
-      First Taste Kit that will help Vinely Tasters                                         discover
+  fields: {full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2012-10-19
+      18:56:25.375803', active: false, category: 0, image: '', description: '<p>This
+      is the official Vinely First Taste Kit that will help Vinely Tasters                                         discover
       their true wine personality. Included are six carefully-selected wines, offered                                         in
       three unique tasting experiences.</p>                                        <p>Choose
       the Basic First Taste Kit ($75) and get great tastes without a great investment.                                             Take
@@ -88,13 +52,12 @@
       experience with the Divine First Taste Kit ($225).</p>                                        <p>Each
       kit will reveal each Taster''s personality. The only difference is in the quality
       of wine.                                            You know who you invited!
-      Select based on their taste or yours.</p>', cart_tag: tasting_kit}
-- model: main.product
-  fields: {name: Vinely's Divine Taste Kit, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
-    timestamp: !!timestamp '2012-10-19 22:56:25.448045', active: true, category: 0,
-    image: '', description: '<p>This is the official Vinely First Taste Kit that will
-      help Vinely Tasters                                         discover their true
-      wine personality. Included are six carefully-selected wines, offered                                         in
+      Select based on their taste or yours.</p>', cart_tag: tasting_kit, unit_price: '120.00',
+    name: Vinely's Superior Taste Kit}
+- fields: {full_case_price: '0.00', timestamp: !!timestamp '2012-10-19 18:56:25.448045',
+    category: 0, active: false, image: '', cart_tag: tasting_kit, description: '<p>This
+      is the official Vinely First Taste Kit that will help Vinely Tasters                                         discover
+      their true wine personality. Included are six carefully-selected wines, offered                                         in
       three unique tasting experiences.</p>                                        <p>Choose
       the Basic First Taste Kit ($75) and get great tastes without a great investment.                                             Take
       your Tasters to exciting new places with the Superior First Taste Kit ($120).
@@ -102,76 +65,378 @@
       experience with the Divine First Taste Kit ($225).</p>                                        <p>Each
       kit will reveal each Taster''s personality. The only difference is in the quality
       of wine.                                            You know who you invited!
-      Select based on their taste or yours.</p>', cart_tag: tasting_kit, unit_price: '225.00'}
+      Select based on their taste or yours.</p>', unit_price: '225.00', name: Vinely's
+      Divine Taste Kit, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx}
   pk: 3
+  model: main.product
 - pk: 4
   model: main.product
-  fields: {full_case_price: '140.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, timestamp: !!timestamp '2012-10-19
-      22:56:25.462959', active: true, category: 1, image: products/SP_basic_prodimg.png,
-    description: 'The {{ personality }} Basic Collection is lively, yet                                     laid-back
+  fields: {active: false, category: 1, image: products/SP_basic_prodimg.png, description: 'The
+      {{ personality }} Basic Collection is lively, yet                                     laid-back
       - just like life should be. It offers a dynamic medley                                     of
       flavors you won''t be able to resist. For those new to the world                                     of
       wine, it provides great taste without requiring a great investment.', cart_tag: basic,
-    unit_price: '75.00', name: Basic Collection}
-- fields: {timestamp: !!timestamp '2012-10-19 22:56:25.545973', active: true, category: 1,
-    image: products/SP_superior_prodimg.png, description: 'Great for enjoying alone
-      or with friends, each                                     bottle is filled with
-      the potential to take your wine experience                                     to
+    unit_price: '75.00', name: Basic Collection, full_case_price: '140.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    timestamp: !!timestamp '2012-10-19 18:56:25.462959'}
+- pk: 5
+  model: main.product
+  fields: {active: false, image: products/SP_superior_prodimg.png, cart_tag: superior,
+    description: 'Great for enjoying alone or with friends, each                                     bottle
+      is filled with the potential to take your wine experience                                     to
       exciting new places. The {{personality}} Superior Collection                                     is
       the perfect choice for those with a passion for wine and its                                     ability
-      to enhance any mood or setting.', cart_tag: superior, unit_price: '120.00',
-    name: Superior Collection, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, full_case_price: '220.00'}
-  pk: 5
-  model: main.product
+      to enhance any mood or setting.', unit_price: '120.00', name: Superior Collection,
+    sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, full_case_price: '220.00', timestamp: !!timestamp '2012-10-19
+      18:56:25.545973', category: 1}
 - pk: 6
   model: main.product
-  fields: {active: true, category: 1, image: products/SP_divine_prodimg.png, description: 'Captivating.
-      Balanced. Brilliant. You''re full                                     of depth
-      and so is the {{personality}} Divine Collection.                                     Excite
+  fields: {description: 'Captivating. Balanced. Brilliant. You''re full                                     of
+      depth and so is the {{personality}} Divine Collection.                                     Excite
       your senses each and every time you pour a glass.                                     The
       unmatched experience each bottle provides will have you                                     appreciating
       every sip, every scent, and every penny paid.', cart_tag: divine, unit_price: '225.00',
     name: Divine Collection, full_case_price: '420.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
-    timestamp: !!timestamp '2012-10-19 22:56:25.625191'}
+    timestamp: !!timestamp '2012-10-19 18:56:25.625191', active: false, category: 1,
+    image: products/SP_divine_prodimg.png}
+- pk: 25
+  model: main.product
+  fields: {description: "<p>The Vinely First Taste Kit helps Vinely Tasters discover\
+      \ their true wine                                                 personality.\
+      \ It includes six bottles of wine, each carefully selected for             \
+      \                                    certain attributes to help Vinely understand\
+      \ your taste in wine.</p>                                                 <p>The\
+      \ kit also includes materials needed to conduct a Vinely tasting and       \
+      \                                          record each taster\u2019s preferences.</p>",
+    unit_price: '139.00', name: Vinely Taste Kit, sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    full_case_price: '0.00', timestamp: !!timestamp '2013-01-18 19:58:25.718656',
+    category: 0, active: true, image: '', cart_tag: tasting_kit}
+- pk: 26
+  model: main.product
+  fields: {name: 3 Bottles, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx,
+    timestamp: !!timestamp '2013-01-18 19:58:25.724417', active: true, category: 1,
+    image: '', description: 'Excite your senses each and every time you pour a glass.                                         The
+      unmatched experience each bottle provides will have you                                         appreciating
+      every sip, every scent, and every penny paid.', cart_tag: '3', unit_price: '54.00'}
+- pk: 27
+  model: main.product
+  fields: {sku: xxxxxxxxxxxxxxxxxxxxxxxxxx, full_case_price: '0.00', timestamp: !!timestamp '2013-01-18
+      19:58:25.725953', category: 1, active: true, image: '', cart_tag: '6', description: 'Excite
+      your senses each and every time you pour a glass.                                         The
+      unmatched experience each bottle provides will have you                                         appreciating
+      every sip, every scent, and every penny paid.', unit_price: '97.00', name: 6
+      Bottles}
+- pk: 28
+  model: main.product
+  fields: {timestamp: !!timestamp '2013-01-18 19:58:25.727378', active: true, category: 1,
+    image: '', description: 'Excite your senses each and every time you pour a glass.                                         The
+      unmatched experience each bottle provides will have you                                         appreciating
+      every sip, every scent, and every penny paid.', cart_tag: '12', unit_price: '173.00',
+    name: 12 Bottles, full_case_price: '0.00', sku: xxxxxxxxxxxxxxxxxxxxxxxxxx}
 - pk: 1
   model: personality.wine
-  fields: {added: 2012-07-28, deactivated: null, year: 0, price: '0.00', sip_bits: 'Light,
-      "clean" blend of four regional varietals                             from the
-      Loire Valley (France), predominantly Uni Blanc and Columbard.', active: true,
-    number: 1, name: Domaine De Pellehaut "Harmonie De Gascogne"}
+  fields: {active: true, sku: null, name: Domaine De Pellehaut "Harmonie De Gascogne",
+    alcohol: 0.0, created: !!timestamp '2012-07-28 04:00:00', vintage: null, region: null,
+    oak: 0.0, residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 1,
+    comment: null, supplier: null, sip_bits: 'Light, "clean" blend of four regional
+      varietals                             from the Loire Valley (France), predominantly
+      Uni Blanc and Columbard.', ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: !!timestamp '2012-07-28
+      04:00:00', deactivated: null, is_taste_kit_wine: true, vinely_category2: 1.0,
+    price: '0.00', number: 1, varietal: null, year: 0, fruit: 0.0}
 - pk: 2
   model: personality.wine
-  fields: {number: 2, name: Contrada Chardonnay, added: 2012-07-28, deactivated: null,
-    year: 0, price: '0.00', active: true, sip_bits: Classic California chard. Made
-      by respected wine-maker Michael                                 Pozzan.  This
+  fields: {price: '0.00', vinely_category2: 1.0, varietal: null, number: 2, fruit: 0.0,
+    year: 0, active: true, sku: null, name: Contrada Chardonnay, alcohol: 0.0, created: !!timestamp '2012-07-28
+      04:00:00', vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 1, comment: null, supplier: null, sip_bits: Classic
+      California chard. Made by respected wine-maker Michael                                 Pozzan.  This
       wine has limited availability and crated for the                                 restaurant
-      industry.}
+      industry., ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: !!timestamp '2012-07-28
+      04:00:00', deactivated: null, is_taste_kit_wine: true}
 - pk: 3
   model: personality.wine
-  fields: {price: '0.00', sip_bits: 'This wine defines "aromatics on the nose"; "Frizzante"
+  fields: {ph: 0.0, sip_bits: 'This wine defines "aromatics on the nose"; "Frizzante"
       is                             Italian that refers to the slight effervescence,
       paying homage to this                             varietal''s roots, although
-      this wine hails from Oregon.', active: true, number: 3, name: Foris Vineyards
-      Muscat Frizzante, added: 2012-07-28, deactivated: null, year: 0}
+      this wine hails from Oregon.', body: 0.0, acidity: 0.0, updated: !!timestamp '2012-07-28
+      04:00:00', color: 0, is_taste_kit_wine: true, deactivated: null, price: '0.00',
+    vinely_category2: 1.0, varietal: null, number: 3, fruit: 0.0, year: 0, active: true,
+    sku: null, name: Foris Vineyards Muscat Frizzante, alcohol: 0.0, created: !!timestamp '2012-07-28
+      04:00:00', vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 1, comment: null, supplier: null}
 - pk: 4
   model: personality.wine
-  fields: {deactivated: null, year: 0, price: '0.00', active: true, sip_bits: 'Light
-      bodied Italian red that can be served slight chilled (really)                             perfect
-      for people just getting into the "world of red";                             translates
+  fields: {sparkling: false, residual_sugar: 0.0, vinely_category: 1, tannin: 0.0,
+    supplier: null, comment: null, ph: 0.0, sip_bits: 'Light bodied Italian red that
+      can be served slight chilled (really)                             perfect for
+      people just getting into the "world of red";                             translates
       to "wine for everyday"; believe it or not, this is                             mad
-      from 100% Merlot!', number: 4, name: Giuseppe Savine Rondineto "Vino Quotidinao",
-    added: 2012-07-28}
+      from 100% Merlot!', body: 0.0, acidity: 0.0, updated: !!timestamp '2012-07-28
+      04:00:00', color: 0, is_taste_kit_wine: true, deactivated: null, price: '0.00',
+    vinely_category2: 1.0, varietal: null, number: 4, fruit: 0.0, year: 0, active: true,
+    sku: null, name: Giuseppe Savine Rondineto "Vino Quotidinao", alcohol: 0.0, created: !!timestamp '2012-07-28
+      04:00:00', vintage: null, region: null, oak: 0.0}
 - pk: 5
   model: personality.wine
-  fields: {name: Lange Twins Zinfandel, added: 2012-07-28, deactivated: null, year: 0,
-    price: '0.00', active: true, sip_bits: 'Small Produced, Classic for the style.
-      Fantastic, respected family-owned                             operation from
-      Lodi, California.', number: 5}
+  fields: {sku: null, active: true, alcohol: 0.0, name: Lange Twins Zinfandel, vintage: null,
+    created: !!timestamp '2012-07-28 04:00:00', oak: 0.0, region: null, sparkling: false,
+    residual_sugar: 0.0, vinely_category: 1, tannin: 0.0, supplier: null, comment: null,
+    ph: 0.0, sip_bits: 'Small Produced, Classic for the style. Fantastic, respected
+      family-owned                             operation from Lodi, California.',
+    body: 0.0, acidity: 0.0, updated: !!timestamp '2012-07-28 04:00:00', color: 0,
+    is_taste_kit_wine: true, deactivated: null, price: '0.00', vinely_category2: 1.0,
+    varietal: null, number: 5, fruit: 0.0, year: 0}
 - pk: 6
   model: personality.wine
-  fields: {price: '0.00', active: true, sip_bits: 'Awesome wine from South America.
-      This line is special and only 3000                             cases of this
-      wine is produced. Bold, dark - might stain your teeth purple                             for
-      a while - grab a steak or some Roquefort Bleu!', number: 6, name: Carlos Basso
-      Dos Fincas Cabernet Sauvignon/Merlot, added: 2012-07-28, deactivated: null,
-    year: 0}
+  fields: {vinely_category2: 1.0, price: '0.00', number: 6, varietal: null, year: 0,
+    fruit: 0.0, sku: null, active: true, alcohol: 0.0, name: Carlos Basso Dos Fincas
+      Cabernet Sauvignon/Merlot, vintage: null, created: !!timestamp '2012-07-28 04:00:00',
+    oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0, vinely_category: 1,
+    tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: 'Awesome wine from
+      South America. This line is special and only 3000                             cases
+      of this wine is produced. Bold, dark - might stain your teeth purple                             for
+      a while - grab a steak or some Roquefort Bleu!', body: 0.0, acidity: 0.0, updated: !!timestamp '2012-07-28
+      04:00:00', color: 0, is_taste_kit_wine: true, deactivated: null}
+- pk: 7
+  model: personality.wine
+  fields: {sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0, color: 1, updated: null,
+    deactivated: null, is_taste_kit_wine: false, vinely_category2: 1.5, price: '0.00',
+    number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100001, active: false, alcohol: 0.0,
+    name: ALBAMAR SB, vintage: null, created: null, oak: 0.0, region: null, sparkling: true,
+    residual_sugar: 0.0, vinely_category: 1, tannin: 0.0, supplier: null, comment: null}
+- pk: 8
+  model: personality.wine
+  fields: {residual_sugar: 0.0, sparkling: true, tannin: 0.0, vinely_category: 1,
+    comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0,
+    color: 1, updated: null, deactivated: null, is_taste_kit_wine: false, vinely_category2: 1.0,
+    price: '0.00', number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100002, active: false,
+    alcohol: 0.0, name: WEIBEL SB, vintage: null, created: null, oak: 0.0, region: null}
+- pk: 9
+  model: personality.wine
+  fields: {active: false, sku: V100003, name: LOCA MACABEO***, alcohol: 0.0, created: null,
+    vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: true, tannin: 0.0,
+    vinely_category: 1, comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0,
+    body: 0.0, color: 1, updated: null, deactivated: null, is_taste_kit_wine: false,
+    vinely_category2: 1.0, price: '0.00', number: 0, varietal: null, year: 0, fruit: 0.0}
+- pk: 10
+  model: personality.wine
+  fields: {price: '0.00', vinely_category2: 1.5, varietal: null, number: 0, fruit: 0.0,
+    year: 0, active: false, sku: V100004, name: ROERO ARNEIS, alcohol: 0.0, created: null,
+    vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: true, tannin: 0.0,
+    vinely_category: 1, comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0,
+    body: 0.0, color: 1, updated: null, deactivated: null, is_taste_kit_wine: false}
+- pk: 11
+  model: personality.wine
+  fields: {ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0, updated: null, color: 1,
+    is_taste_kit_wine: false, deactivated: null, price: '0.00', vinely_category2: 1.0,
+    varietal: null, number: 0, fruit: 0.0, year: 0, active: false, sku: V100005, name: MELI
+      RIESLING, alcohol: 0.0, created: null, vintage: null, region: null, oak: 0.0,
+    residual_sugar: 0.0, sparkling: true, tannin: 0.0, vinely_category: 1, comment: null,
+    supplier: null}
+- pk: 12
+  model: personality.wine
+  fields: {sparkling: false, residual_sugar: 0.0, vinely_category: 2, tannin: 0.0,
+    supplier: null, comment: null, ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0,
+    updated: null, color: 1, is_taste_kit_wine: false, deactivated: null, price: '0.00',
+    vinely_category2: 2.0, varietal: null, number: 0, fruit: 0.0, year: 0, active: false,
+    sku: V100006, name: WEIBEL CHARDONNAY WHITE, alcohol: 0.0, created: null, vintage: null,
+    region: null, oak: 0.0}
+- pk: 13
+  model: personality.wine
+  fields: {sku: V100007, active: false, alcohol: 0.0, name: LABERINTO TORRONTES, vintage: null,
+    created: null, oak: 0.0, region: null, sparkling: true, residual_sugar: 0.0, vinely_category: 2,
+    tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '', body: 0.0,
+    acidity: 0.0, updated: null, color: 1, is_taste_kit_wine: false, deactivated: null,
+    price: '0.00', vinely_category2: 1.5, varietal: null, number: 0, fruit: 0.0, year: 0}
+- pk: 14
+  model: personality.wine
+  fields: {vinely_category2: 1.5, price: '0.00', number: 0, varietal: null, year: 0,
+    fruit: 0.0, sku: V100008, active: false, alcohol: 0.0, name: ALBAMAR CHARDONNAY,
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: true, residual_sugar: 0.0,
+    vinely_category: 2, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 1, is_taste_kit_wine: false, deactivated: null}
+- pk: 15
+  model: personality.wine
+  fields: {sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0, color: 1, updated: null,
+    deactivated: null, is_taste_kit_wine: false, vinely_category2: 1.5, price: '0.00',
+    number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100009, active: false, alcohol: 0.0,
+    name: APALTAGUA CHARDONNAY, vintage: null, created: null, oak: 0.0, region: null,
+    sparkling: true, residual_sugar: 0.0, vinely_category: 2, tannin: 0.0, supplier: null,
+    comment: null}
+- pk: 16
+  model: personality.wine
+  fields: {residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 2,
+    comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0,
+    color: 1, updated: null, deactivated: null, is_taste_kit_wine: false, vinely_category2: 2.0,
+    price: '0.00', number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100010, active: false,
+    alcohol: 0.0, name: LISMORE CHARDONNAY, vintage: null, created: null, oak: 0.0,
+    region: null}
+- pk: 17
+  model: personality.wine
+  fields: {active: false, sku: V100011, name: AFRESCO MOSCATO***, alcohol: 0.0, created: null,
+    vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 3, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 1, updated: null, deactivated: null,
+    is_taste_kit_wine: false, vinely_category2: 3.0, price: '0.00', number: 0, varietal: null,
+    year: 0, fruit: 0.0}
+- pk: 18
+  model: personality.wine
+  fields: {price: '0.00', vinely_category2: 3.0, varietal: null, number: 0, fruit: 0.0,
+    year: 0, active: false, sku: V100012, name: WEIBEL ORANGE MUSCAT, alcohol: 0.0,
+    created: null, vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 3, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 1, updated: null, deactivated: null,
+    is_taste_kit_wine: false}
+- pk: 19
+  model: personality.wine
+  fields: {ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0, updated: null, color: 1,
+    is_taste_kit_wine: false, deactivated: null, price: '0.00', vinely_category2: 4.0,
+    varietal: null, number: 0, fruit: 0.0, year: 0, active: false, sku: V100013, name: MONTEPULCIANO
+      STEFANO, alcohol: 0.0, created: null, vintage: null, region: null, oak: 0.0,
+    residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 4, comment: null,
+    supplier: null}
+- pk: 20
+  model: personality.wine
+  fields: {sparkling: false, residual_sugar: 0.0, vinely_category: 4, tannin: 0.0,
+    supplier: null, comment: null, ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0,
+    updated: null, color: 0, is_taste_kit_wine: false, deactivated: null, price: '0.00',
+    vinely_category2: 4.0, varietal: null, number: 0, fruit: 0.0, year: 0, active: false,
+    sku: V100014, name: WILLIAM COLE PINOT NOIR, alcohol: 0.0, created: null, vintage: null,
+    region: null, oak: 0.0}
+- pk: 21
+  model: personality.wine
+  fields: {sku: V100015, active: false, alcohol: 0.0, name: WEIBEL CAB BLACK LABEL*,
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 4, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null,
+    price: '0.00', vinely_category2: 4.5, varietal: null, number: 0, fruit: 0.0, year: 0}
+- pk: 22
+  model: personality.wine
+  fields: {vinely_category2: 4.5, price: '0.00', number: 0, varietal: null, year: 0,
+    fruit: 0.0, sku: V100016, active: false, alcohol: 0.0, name: 'COTES DU RHONE ',
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 4, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null}
+- pk: 23
+  model: personality.wine
+  fields: {sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null,
+    deactivated: null, is_taste_kit_wine: false, vinely_category2: 4.5, price: '0.00',
+    number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100017, active: false, alcohol: 0.0,
+    name: MALBEC LABERINTO, vintage: null, created: null, oak: 0.0, region: null,
+    sparkling: false, residual_sugar: 0.0, vinely_category: 4, tannin: 0.0, supplier: null,
+    comment: null}
+- pk: 24
+  model: personality.wine
+  fields: {residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 4,
+    comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0,
+    color: 0, updated: null, deactivated: null, is_taste_kit_wine: false, vinely_category2: 4.0,
+    price: '0.00', number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100018, active: false,
+    alcohol: 0.0, name: ALBAMAR PINOT NOIR, vintage: null, created: null, oak: 0.0,
+    region: null}
+- pk: 25
+  model: personality.wine
+  fields: {active: false, sku: V100019, name: DRAGONIA OLD VINE GARNACHA, alcohol: 0.0,
+    created: null, vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 5, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null, deactivated: null,
+    is_taste_kit_wine: false, vinely_category2: 5.5, price: '0.00', number: 0, varietal: null,
+    year: 0, fruit: 0.0}
+- pk: 26
+  model: personality.wine
+  fields: {price: '0.00', vinely_category2: 5.0, varietal: null, number: 0, fruit: 0.0,
+    year: 0, active: false, sku: V100020, name: BONARDA MELI, alcohol: 0.0, created: null,
+    vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 5, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null, deactivated: null,
+    is_taste_kit_wine: false}
+- pk: 27
+  model: personality.wine
+  fields: {ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0, updated: null, color: 0,
+    is_taste_kit_wine: false, deactivated: null, price: '0.00', vinely_category2: 5.5,
+    varietal: null, number: 0, fruit: 0.0, year: 0, active: false, sku: V100021, name: WEIBEL
+      MERLOT BLACK LABEL*, alcohol: 0.0, created: null, vintage: null, region: null,
+    oak: 0.0, residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 5,
+    comment: null, supplier: null}
+- pk: 28
+  model: personality.wine
+  fields: {sparkling: false, residual_sugar: 0.0, vinely_category: 5, tannin: 0.0,
+    supplier: null, comment: null, ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0,
+    updated: null, color: 0, is_taste_kit_wine: false, deactivated: null, price: '0.00',
+    vinely_category2: 5.0, varietal: null, number: 0, fruit: 0.0, year: 0, active: false,
+    sku: V100022, name: CALCU MALBEC, alcohol: 0.0, created: null, vintage: null,
+    region: null, oak: 0.0}
+- pk: 29
+  model: personality.wine
+  fields: {sku: V100023, active: false, alcohol: 0.0, name: PICCININI CHIANTI, vintage: null,
+    created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 5, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null,
+    price: '0.00', vinely_category2: 5.0, varietal: null, number: 0, fruit: 0.0, year: 0}
+- pk: 30
+  model: personality.wine
+  fields: {vinely_category2: 5.5, price: '0.00', number: 0, varietal: null, year: 0,
+    fruit: 0.0, sku: V100024, active: false, alcohol: 0.0, name: 96 POINTS SHIRAZ***,
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 5, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null}
+- pk: 31
+  model: personality.wine
+  fields: {sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null,
+    deactivated: null, is_taste_kit_wine: false, vinely_category2: 4.5, price: '0.00',
+    number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100025, active: false, alcohol: 0.0,
+    name: TOSCANA SANGIOVESE, vintage: null, created: null, oak: 0.0, region: null,
+    sparkling: false, residual_sugar: 0.0, vinely_category: 5, tannin: 0.0, supplier: null,
+    comment: null}
+- pk: 32
+  model: personality.wine
+  fields: {residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 6,
+    comment: null, supplier: null, sip_bits: '', ph: 0.0, acidity: 0.0, body: 0.0,
+    color: 0, updated: null, deactivated: null, is_taste_kit_wine: false, vinely_category2: 5.5,
+    price: '0.00', number: 0, varietal: null, year: 0, fruit: 0.0, sku: V100026, active: false,
+    alcohol: 0.0, name: CALCU CARMENERE***, vintage: null, created: null, oak: 0.0,
+    region: null}
+- pk: 33
+  model: personality.wine
+  fields: {active: false, sku: V100027, name: WEIBEL ZIN, alcohol: 0.0, created: null,
+    vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 6, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null, deactivated: null,
+    is_taste_kit_wine: false, vinely_category2: 6.0, price: '0.00', number: 0, varietal: null,
+    year: 0, fruit: 0.0}
+- pk: 34
+  model: personality.wine
+  fields: {price: '0.00', vinely_category2: 6.0, varietal: null, number: 0, fruit: 0.0,
+    year: 0, active: false, sku: V100028, name: WEIBEL CAB White Label, alcohol: 0.0,
+    created: null, vintage: null, region: null, oak: 0.0, residual_sugar: 0.0, sparkling: false,
+    tannin: 0.0, vinely_category: 6, comment: null, supplier: null, sip_bits: '',
+    ph: 0.0, acidity: 0.0, body: 0.0, color: 0, updated: null, deactivated: null,
+    is_taste_kit_wine: false}
+- pk: 35
+  model: personality.wine
+  fields: {ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0, updated: null, color: 0,
+    is_taste_kit_wine: false, deactivated: null, price: '0.00', vinely_category2: 6.0,
+    varietal: null, number: 0, fruit: 0.0, year: 0, active: false, sku: V100029, name: CASTILLO
+      SANTA BARBARA CRIANZA, alcohol: 0.0, created: null, vintage: null, region: null,
+    oak: 0.0, residual_sugar: 0.0, sparkling: false, tannin: 0.0, vinely_category: 6,
+    comment: null, supplier: null}
+- pk: 36
+  model: personality.wine
+  fields: {sparkling: false, residual_sugar: 0.0, vinely_category: 6, tannin: 0.0,
+    supplier: null, comment: null, ph: 0.0, sip_bits: '', body: 0.0, acidity: 0.0,
+    updated: null, color: 0, is_taste_kit_wine: false, deactivated: null, price: '0.00',
+    vinely_category2: 5.5, varietal: null, number: 0, fruit: 0.0, year: 0, active: false,
+    sku: V100030, name: NERO D'AVOLA PICCININI, alcohol: 0.0, created: null, vintage: null,
+    region: null, oak: 0.0}
+- pk: 37
+  model: personality.wine
+  fields: {sku: V100031, active: false, alcohol: 0.0, name: PICCININI CHIANTI CLASSICO***,
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 6, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null,
+    price: '0.00', vinely_category2: 5.5, varietal: null, number: 0, fruit: 0.0, year: 0}
+- pk: 38
+  model: personality.wine
+  fields: {vinely_category2: 5.5, price: '0.00', number: 0, varietal: null, year: 0,
+    fruit: 0.0, sku: V100032, active: false, alcohol: 0.0, name: TORO ROBLE TEMPRANILLO,
+    vintage: null, created: null, oak: 0.0, region: null, sparkling: false, residual_sugar: 0.0,
+    vinely_category: 6, tannin: 0.0, supplier: null, comment: null, ph: 0.0, sip_bits: '',
+    body: 0.0, acidity: 0.0, updated: null, color: 0, is_taste_kit_wine: false, deactivated: null}
