@@ -147,7 +147,14 @@
             </p>
           </div>
         </div>
+          <br />
+          <div class="ratings-button-container">
+            <div class="ratings-button-left">
+            <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
+            </div>
+          </div>
       </div>
+
       <div class="span4">
         <h3>Quick Search:</h3>
         <p>
@@ -155,8 +162,10 @@
           <button id="load_taster" type="submit" name="go" value="go" class="btn btn-primary">Go</button>
         </p>
         <p>&nbsp;</p>
-        <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
-        <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Save Ratings</button></p>        
+        
+        <div class="ratings-button-right">
+          <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary" style="margin-top:175px;">Save Ratings</button></p>  
+        </div>
       </div>
     </div>
     {% if form.errors %}
