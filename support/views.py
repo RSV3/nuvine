@@ -18,7 +18,7 @@ from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, Customi
 from personality.models import WineRatingData, Wine
 from accounts.models import SubscriptionInfo
 
-from support.forms import InventoryUploadForm, SelectedWineRatingForm
+from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm
 from main.utils import my_pro
 from datetime import datetime
 import csv
@@ -615,6 +615,7 @@ def edit_order(request, order_id):
   # show the ratings on past orders
   data['past_ratings'] = past_ratings
 
+  order_status_updated = False
   num_slots = order.num_slots
 
   from support.forms import SelectWineForm
@@ -628,7 +629,7 @@ def edit_order(request, order_id):
     for form in formset:
       try:
         if form.has_changed() and form.is_valid():
-          print "Form has has_changed"
+          #print "Form has has_changed"
           selected_wine = form.save(commit=False)
           if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
             past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
@@ -661,14 +662,26 @@ def edit_order(request, order_id):
               selected_wine.save()
       except ValueError:
         continue
-    if num_slots == SelectedWine.objects.filter(order=order).count():
+    if order.fulfill_status < Order.FULFILL_CHOICES[6][0] and num_slots == SelectedWine.objects.filter(order=order).count():
       order.fulfill_status = Order.FULFILL_CHOICES[6][0]
       order.save()
+      # override the currently selected fulfill status
+      order_status_updated = True
       messages.success(request, "Wine selection has been completed for order #%s." % order.vinely_order_id)
     elif enough_inventory:
       messages.success(request, "Saved order details.")
 
-  # GET: already selected wines
+  if order_status_updated:
+    status_form = ChangeFulfillStatusForm(instance=order)
+  else:
+    # form for changing fulfill status of the order
+    status_form = ChangeFulfillStatusForm(request.POST or None, instance=order)
+    if status_form.is_valid():
+      status_form.save()
+
+  data['status_change_form'] = status_form
+
+  # show already selected wines
   selected_wines = SelectedWine.objects.filter(order=order)
 
   initial_data = []
@@ -725,7 +738,7 @@ def rate_order(request, order_id):
             selected_wine.save()
 
       messages.success(request, "Saved ratings for order ID: %s" % order.vinely_order_id)
-      
+
     data['formset'] = formset
     data['order'] = order
     receiver_profile = order.receiver.get_profile()
@@ -745,7 +758,7 @@ def rate_order(request, order_id):
       form_data['overall_rating'] = selected_wine.overall_rating
       initial_data.append(form_data)
 
-    print initial_data
+    #print initial_data
 
     formset = SelectedWineRatingFormSet(initial=initial_data)
     data['formset'] = formset
@@ -844,7 +857,7 @@ def download_ready_orders(request):
                         'Prod 12 Supplier', 'Prod 12 SKU', 'Prod 12 Quantity', 'Prod 12 Name', 'Prod 12 Tax',
                         'Prod 12 Price', 'Prod 12 Alcohol %', 'Prod 12 Weight', 'Prod 12 Inventory Location']
 
-  print "All fields: %s" % len(fieldnames) == 166
+  #print "All fields: %s" % len(fieldnames) == 166
 
   writer = csv.DictWriter(response, fieldnames)
 

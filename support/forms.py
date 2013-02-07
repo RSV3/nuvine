@@ -2,14 +2,22 @@ from django import forms
 from django.db.models import Q
 
 from support.models import InventoryUpload
-from main.models import SelectedWine
+from main.models import SelectedWine, Order
 from personality.models import WineRatingData, Wine
+
 
 class InventoryUploadForm(forms.ModelForm):
 
   class Meta:
     model = InventoryUpload
     exclude = ['created']
+
+
+class ChangeFulfillStatusForm(forms.ModelForm):
+
+  class Meta:
+    model = Order
+    fields = ['fulfill_status']
 
 
 class SelectedWineRatingForm(forms.ModelForm):
@@ -60,7 +68,7 @@ class SelectWineForm(forms.ModelForm):
 
     # in order filter the qualified wines by one's personal preferences
     if 'color_filter' in self.initial:
-      print self.initial['color_filter']
+      #print self.initial['color_filter']
       wines = wines.filter(color=self.initial['color_filter'])
     if 'sparkling_filter' in self.initial:
       if not self.initial['sparkling_filter']:

@@ -54,14 +54,31 @@
               Bubbles: {{ customization.get_sparkling_display }}
             </div>
           </div>
+
         </div>
       </section>
     </div>
 
     <div class="span12">
+      <form method="POST" action="">
+      <section id="status-change">
+        <legend>Update Order Status</legend>
+        <div class="row">
+          <div class="span12">
+              {{ status_change_form.errors }}
+              <div class="control-group">
+                <div class="control-label span2">
+                  {{ status_change_form.fulfill_status.label_tag }}
+                </div>
+                <div class="controls span2">
+                  {{ status_change_form.fulfill_status }}
+                </div>
+              </div>
+          </div>
+        </div>
+      </section>
       <section id="select-wine">
         <legend>Select Wine</legend>
-        <form method="POST" action="">
           {% csrf_token %}
 
           {{ formset.management_form }}
@@ -86,8 +103,8 @@
           <div class="form-actions">
             <input type="submit" class="btn btn-primary" value="Save">
           </div>
-        </form>
       </section>
+      </form>
     </div>
 
     <div class="span12">
