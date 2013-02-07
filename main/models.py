@@ -526,9 +526,18 @@ class Order(models.Model):
 
 class SelectedWine(models.Model):
 
+  LIKENESS_CHOICES = (
+      (0, 'Not Answered'),
+      (1, 'Hate'),
+      (2, 'Dislike'),
+      (3, 'Neutral'),
+      (4, 'Like'),
+      (5, 'Love'),
+  )
+
   order = models.ForeignKey(Order)
   wine = models.ForeignKey(Wine)
-  overall_rating = models.IntegerField(default=0)
+  overall_rating = models.IntegerField(choices=LIKENESS_CHOICES, default=0)
   timestamp = models.DateTimeField(auto_now=True)
 
 

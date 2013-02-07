@@ -111,19 +111,28 @@
       <section id="past-ratings">
         <legend>Past Ratings</legend>
         <div class="span12">
-          {% for rating in past_ratings %} 
-            <div class="row">
-              <div class="span4">
-                {{ rating.wine }}
-              </div>
-              <div class="span2">
-                {{ rating.overall_rating }}
-              </div>
-              <div class="span4">
-                {{ rating.timestamp }}
-              </div>
-            </div>
-          {% endfor %}
+          <table class="table table-striped">
+            <thead>
+              <th>Wine Name</th>
+              <th>Rating</th>
+              <th>Date</th>
+            </thead>
+            <tbody>
+              {% for rating in past_ratings %} 
+                <tr>
+                  <td>
+                    {{ rating.wine }}
+                  </td>
+                  <td>
+                    [{{ rating.overall_rating }}] {{ rating.get_overall_rating_display }} 
+                  </td>
+                  <td>
+                    {{ rating.timestamp }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>
