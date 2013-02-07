@@ -696,3 +696,21 @@ footer .container .navbar {
   background:url('../img/WINE-BADGE-SIX.png') no-repeat;
   border-right: 1px solid #DCDCDC;
 }
+}
+
+
+/*Ratings Form Button Custom Classes*/
+
+.ratings-button-container{
+  width:960px;
+}
+
+.ratings-button-left {
+  width:300px;
+  float:left;
+}
+
+.ratings-button-right {
+  width:50%;
+  float:right;
+}
