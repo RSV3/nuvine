@@ -723,49 +723,51 @@ def rate_order(request, order_id):
   except Order.DoesNotExist:
     raise Http404
   num_slots = order.num_slots
-  SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
-  if request.method == "POST":
-    formset = SelectedWineRatingFormSet(request.POST or None)
-    if formset.is_valid():
-      for form in formset:
-        if form.has_changed():
-          selected_wine = form.save(commit=False)
-          if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
-            past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
-            past_selection.overall_rating = selected_wine.overall_rating
-            past_selection.save()
-          else:
-            selected_wine.save()
 
-      messages.success(request, "Saved ratings for order ID: %s" % order.vinely_order_id)
+  data['order'] = order
+  receiver_profile = order.receiver.get_profile()
+  data['receiver_profile'] = receiver_profile
+  data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
 
-    data['formset'] = formset
-    data['order'] = order
-    receiver_profile = order.receiver.get_profile()
-    data['receiver_profile'] = receiver_profile
-    data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+  if num_slots == SelectedWine.objects.filter(order=order).count():
+    SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)
+    if request.method == "POST":
+      formset = SelectedWineRatingFormSet(request.POST or None)
+      if formset.is_valid():
+        for form in formset:
+          if form.has_changed():
+            selected_wine = form.save(commit=False)
+            if 'record_id' in form.cleaned_data and form.cleaned_data['record_id']:
+              past_selection = SelectedWine.objects.get(id=form.cleaned_data['record_id'])
+              past_selection.overall_rating = selected_wine.overall_rating
+              past_selection.save()
+            else:
+              selected_wine.save()
+
+        messages.success(request, "Saved ratings for order ID: %s" % order.vinely_order_id)
+
+      data['formset'] = formset
+    else:
+      # GET: show details of the order
+      initial_data = []
+      selected_wines = SelectedWine.objects.filter(order=order)
+
+      for selected_wine in selected_wines:
+        form_data = {}
+        form_data['order'] = order.id
+        form_data['record_id'] = selected_wine.id
+        form_data['wine'] = selected_wine.wine.id
+        form_data['wine_name'] = selected_wine.wine.name
+        form_data['overall_rating'] = selected_wine.overall_rating
+        initial_data.append(form_data)
+
+      #print initial_data
+
+      formset = SelectedWineRatingFormSet(initial=initial_data)
+      data['formset'] = formset
   else:
-    # GET: show details of the order
-    initial_data = []
-    selected_wines = SelectedWine.objects.filter(order=order)
-
-    for selected_wine in selected_wines:
-      form_data = {}
-      form_data['order'] = order.id
-      form_data['record_id'] = selected_wine.id
-      form_data['wine'] = selected_wine.wine.id
-      form_data['wine_name'] = selected_wine.wine.name
-      form_data['overall_rating'] = selected_wine.overall_rating
-      initial_data.append(form_data)
-
-    #print initial_data
-
-    formset = SelectedWineRatingFormSet(initial=initial_data)
-    data['formset'] = formset
-    data['order'] = order
-    receiver_profile = order.receiver.get_profile()
-    data['receiver_profile'] = receiver_profile
-    data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+    # not emough wines have been selected
+    messages.warning(request, "The order is an outdated order or not enough wines have been fulfilled.")
 
   return render(request, "support/rate_order.html", data)
 

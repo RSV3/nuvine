@@ -20,66 +20,65 @@
       </div>
     </div>
 
-    <div class="span12">
-      <section id="order-details">
-        <legend>Order Details</legend>
-        <div class="span12">
-          <div class="row">
-            <div class="span4">
-              Order ID: {{ order.vinely_order_id }}
-            </div>
-            <div class="span4">
-              Ordered By: {{ order.receiver_info }}
-            </div>
-            <div class="span4">
-              Wine Personality: {{ receiver_profile.wine_personality }}
-            </div>
-          </div>
-          <div class="vertical-space-20">
-            &nbsp;
-          </div>
-          <div class="row">
-            <div class="span4">
-                    Taste Code: 
-                      {% with rating_summary=receiver_profile.personality_rating_code %}
-                        <a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
-                            data-content="{{ rating_summary.1 }}">
-                          {{ rating_summary.0 }}</a>
-                      {% endwith %}                
-            </div>
-            <div class="span4">
-              Red/White: {{ receiver_profile.order_customization_pref }}
-            </div>
-            <div class="span4">
-              Bubbles: {{ customization.get_sparkling_display }}
-            </div>
-          </div>
+    <form method="POST" action="">
+      {% csrf_token %}
+      <!-- include most content in the form --> 
 
-        </div>
-      </section>
-    </div>
-
-    <div class="span12">
-      <form method="POST" action="">
-      <section id="status-change">
-        <legend>Update Order Status</legend>
-        <div class="row">
+      <div class="span12">
+        <section id="order-details">
+          <legend>Order Details</legend>
           <div class="span12">
-              {{ status_change_form.errors }}
-              <div class="control-group">
-                <div class="control-label span2">
-                  {{ status_change_form.fulfill_status.label_tag }}
-                </div>
-                <div class="controls span2">
-                  {{ status_change_form.fulfill_status }}
-                </div>
+            <div class="row">
+              <div class="span4">
+                Order ID: {{ order.vinely_order_id }}
               </div>
+              <div class="span4">
+                Ordered By: {{ order.receiver_info }}
+              </div>
+              <div class="span4">
+                Order Date: {{ order.order_date }}
+              </div>
+            </div>
+            <div class="vertical-space-20">
+              &nbsp;
+            </div>
+            <div class="row">
+              <div class="span4">
+                      Taste Code: 
+                        {% with rating_summary=receiver_profile.personality_rating_code %}
+                          <a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
+                              data-content="{{ rating_summary.1 }}">
+                            {{ rating_summary.0 }}</a>
+                        {% endwith %}                
+              </div>
+              <div class="span4">
+                Red/White: {{ receiver_profile.order_customization_pref }}
+              </div>
+              <div class="span4">
+                Bubbles: {{ customization.get_sparkling_display }}
+              </div>
+            </div>
+            <div class="vertical-space-20">
+              &nbsp;
+            </div>            
+            <div class="row">
+              <div class="span4">
+                Wine Personality: {{ receiver_profile.wine_personality }}
+              </div>
+              <div class="span2">
+                {{ status_change_form.fulfill_status.label_tag }} 
+              </div>
+              <div class="span6">
+                {{ status_change_form.fulfill_status }}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-      <section id="select-wine">
-        <legend>Select Wine</legend>
-          {% csrf_token %}
+        </section>
+      </div>
+
+      <div class="span12">
+        <section id="select-wine">
+          <legend>Select Wine</legend>
 
           {{ formset.management_form }}
           {{ formset.non_form_errors }}
@@ -103,9 +102,10 @@
           <div class="form-actions">
             <input type="submit" class="btn btn-primary" value="Save">
           </div>
-      </section>
-      </form>
-    </div>
+        </section>
+      </div>
+
+    </form>
 
     <div class="span12">
       <section id="past-ratings">
@@ -113,9 +113,11 @@
         <div class="span12">
           <table class="table table-striped">
             <thead>
-              <th>Wine Name</th>
-              <th>Rating</th>
-              <th>Date</th>
+              <tr>
+                <th>Wine Name</th>
+                <th>Rating</th>
+                <th>Date</th>
+              </tr>
             </thead>
             <tbody>
               {% for rating in past_ratings %} 
