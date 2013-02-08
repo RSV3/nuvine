@@ -81,85 +81,19 @@ def home(request):
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
-    pro_group = Group.objects.get(name='Vinely Pro')
-    hos_group = Group.objects.get(name='Vinely Host')
+    data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
 
-    # suppliers go directly to orders page
-    # if sp_group in u.groups.all():
-    #   return HttpResponseRedirect(reverse('supplier_all_orders'))
+    pro, pro_profile = my_pro(u)
+    data['my_pro'] = pro
 
-    today = timezone.now()
-
-    data["invites"] = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today, response=0)
-    invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
-    if invites.exists():
-      event_date = invites[0].party.event_date
-      if event_date > today:
-        data['party_date'] = invites[0].party.event_date
-
-    if hos_group in u.groups.all():
-      parties = Party.objects.filter(host=u).order_by('-event_date')
-      if parties.exists():
-        party_date = parties[0].event_date
-        if today > party_date:
-          # set if the party was hosted in the past
-          data['party_date'] = party_date
-        else:
-          # set if this is an upcoming party
-          parties = parties.filter(event_date__gte=today)
-          data['party_scheduled'] = True
-          data['party'] = parties[0]
-          # check if there's a party that has not ordered a kit, exclude completed orders
-          cart = Cart.objects.filter(user=u, party__in=parties, status=Cart.CART_STATUS_CHOICES[5][0])
-          parties = parties.exclude(id__in=[x.party.id for x in cart])
-          data['can_order_kit'] = parties.exists()
-
-    if pro_group in u.groups.all():
-      parties = OrganizedParty.objects.filter(pro=u).order_by('-party__event_date')
-      if parties.exists():
-        party_date = parties[0].party.event_date
-        if today > party_date:
-          # set if the party was hosted in the past
-          data['party_date'] = party_date
-          data['party'] = parties[0].party
-        else:
-          # set if this is an upcoming party
-          data['party_scheduled'] = True
-          data['party'] = parties[0].party
-
+    # TODO: if there are orders pending
+    data['pending_ratings'] = False
     profile = u.get_profile()
 
     if profile.wine_personality and profile.wine_personality.name != WinePersonality.MYSTERY:
       data['wine_personality'] = profile.wine_personality
     else:
       data['wine_personality'] = False
-
-    data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
-
-    # TODO: if there are orders pending
-    data['pending_ratings'] = False
-
-    data['has_orders'] = Order.objects.filter(ordered_by = u).exists()
-    # go to home page
-
-    # if user is Vinely Pro
-    # - be able to add new users and send them e-mail
-    # - see users registered at a party
-    # - add a new host
-    # - be able to order for a user
-    # - be able to enter ratings for a user
-
-    # if user is host
-    # - list of parties (aggregate view of orders placed)
-    # - list of Vinely Tasters in each party (aggregate of what each Vinely Taster ordered)
-    # - see orders placed by each Vinely Taster in detail
-    # - create party
-    # - invite Vinely Tasters
-
-    # if user is Vinely Taster
-    # - my wine personality
-    # - order wine
-
     # if user is admin
   else:
     data["output"] = "User is not authenticated"

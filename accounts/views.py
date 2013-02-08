@@ -60,7 +60,7 @@ def profile(request):
   #   profile.save()
   #   return HttpResponseRedirect(url)
 
-  if profile.is_host() or profile.is_pro():
+  if profile.is_pro():
     return HttpResponseRedirect(reverse('party_list'))
   elif profile.is_taster():
     # if you have new RSVP not responded to
@@ -71,6 +71,7 @@ def profile(request):
     else:
       return HttpResponseRedirect(reverse('party_list'))
   else:
+    # host
     return HttpResponseRedirect(reverse('home_page'))
 
 
