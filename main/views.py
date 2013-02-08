@@ -1011,7 +1011,7 @@ def party_add(request, party_id=None, party_pro=None):
   party = None
   if party_id:
     party = get_object_or_404(Party, pk=party_id)
-    if party.requested and not u.userprofile.events_manager():
+    if party.requested and not (u.userprofile.events_manager() or party.host != u):
       messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
@@ -1037,15 +1037,16 @@ def party_add(request, party_id=None, party_pro=None):
     parties = Party.objects.filter(organizedparty__pro=u).order_by('-id')
     most_recent_party = parties[0] if parties.exists() else None
 
-  if most_recent_party:
-    # initial_data['address'] = most_recent_party.address
-    initial_data['street1'] = most_recent_party.address.street1
-    initial_data['street2'] = most_recent_party.address.street2
-    initial_data['city'] = most_recent_party.address.city
-    initial_data['state'] = most_recent_party.address.state
-    initial_data['zipcode'] = most_recent_party.address.zipcode
+  if self_hosting:
+    if most_recent_party and most_recent_party.address:
+      # initial_data['address'] = most_recent_party.address
+      initial_data['street1'] = most_recent_party.address.street1
+      initial_data['street2'] = most_recent_party.address.street2
+      initial_data['city'] = most_recent_party.address.city
+      initial_data['state'] = most_recent_party.address.state
+      initial_data['zipcode'] = most_recent_party.address.zipcode
 
-  if party:
+  if party and party.address:
     initial_data['host'] = party.host
     # initial_data['address'] = party.address
     initial_data['street1'] = party.address.street1
@@ -1066,6 +1067,7 @@ def party_add(request, party_id=None, party_pro=None):
                                     hour=19, minute=0)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
+  initial_data['self_hosting'] = self_hosting
 
   form = PartyCreateForm(request.POST or None, initial=initial_data, instance=party, user=u)
 
@@ -1075,6 +1077,7 @@ def party_add(request, party_id=None, party_pro=None):
   if request.method == "POST":
     if form.is_valid():
       new_party = form.save(commit=False)
+
       if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
         new_party.confirmed = True
         new_party.requested = True
@@ -1114,12 +1117,13 @@ def party_add(request, party_id=None, party_pro=None):
         host_profile.mentor = applicable_pro
         host_profile.save()
 
-      # Add host as invitee
-      invited_host, created = PartyInvite.objects.get_or_create(invitee=new_host, party=new_party)
-      if created:
-        invited_host.response = 3
-        invited_host.rsvp_code = str(uuid.uuid4())
-        invited_host.save()
+      if self_hosting:
+        # Add host as invitee
+        invited_host, created = PartyInvite.objects.get_or_create(invitee=new_host, party=new_party)
+        if created:
+          invited_host.response = 3
+          invited_host.rsvp_code = str(uuid.uuid4())
+          invited_host.save()
 
       if u.userprofile.is_pro() and not u.userprofile.events_manager():
         if not new_host.is_active:
@@ -1167,25 +1171,6 @@ def party_add(request, party_id=None, party_pro=None):
         send_host_vinely_party_email(request, u, pro)
       else:
         send_host_vinely_party_email(request, u)
-
-    # if the current user is Vinely Taster, display Vinely Pro
-    # if "taster" in data and data["taster"]:
-    #   # find the latest party that guest attended and then through the host to find the Vinely Pro
-    #   party_invites = PartyInvite.objects.filter(invitee=u).order_by('-party__event_date')
-    #   if party_invites.exists():
-    #     party = party_invites[0].party
-    #     primary_host = party.host
-    #     pros = MyHost.objects.filter(host=primary_host)
-    #     if pros.exists():
-    #       pro = pros[0].pro
-    #       data["my_pro"] = pro
-    #       send_host_vinely_party_email(request, u, pro)
-    #     else:
-    #       # if no pro found, just e-mail sales
-    #       send_host_vinely_party_email(request, u)
-    #   else:
-    #     # if no previous party found, just e-mail sales
-    #     send_host_vinely_party_email(request, u)
 
   applicable_pro, pro_profile = my_pro(u)
   data["pro_user"] = applicable_pro
@@ -1297,6 +1282,9 @@ def party_review_request(request, party_id):
     party.guests_see_guestlist = True if 0 in guest_options else False
     party.guests_can_invite = True if 1 in guest_options else False
     party.save()
+
+    if request.POST.get('preview'):
+      return HttpResponseRedirect(reverse('party_preview_invitation', args=[party.id]))
 
   if request.POST.get('request_party'):
 

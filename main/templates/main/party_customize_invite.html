@@ -127,19 +127,19 @@
             <div class="span1">&nbsp;</div>
             <div class="span7">
               <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
-              <button class="btn btn-primary commit" name="save" value="save">Save</button>
+              {# <button class="btn btn-primary commit" name="save" value="save">Save</button> #}
             </div>
             <div class="span4">
               <!-- <a href="javascript:;" class="btn btn-primary">Preview Invite</a> -->
-              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invite</button>
-              <button class="btn btn-primary commit" name="next" value="next">Next</button>
+              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invitation</button>
+              <button class="btn btn-success commit" name="next" value="next">Next</button>
             </div>
           </div>
         {% else %}
           <div class="control-group">
             <div class="control-label">&nbsp;</div>
             <div class="controls">
-              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invite</button>
+              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invitation</button>
               <button class="btn btn-primary commit" name="save" value="save">Save</button>
             </div>
           </div>

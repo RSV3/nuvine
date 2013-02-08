@@ -106,7 +106,7 @@
                     </div>
                   </div>
                 </div>
-                {% if pro_user %}
+                {% if not pro and pro_user %}
                   <div class="span6 pro-info">
                     <div class="row">
                       <div class="span2">
@@ -161,34 +161,6 @@
               </div>
             <fieldset>
               <legend><h2>Host Contact Info</h2></legend>
-              {% comment%}
-                {% if pro %}
-                  <div class="control-group {% if form.host.errors %}error{% endif %}">
-                    <div class="control-label" for="id_host">{{ form.host.label }}</div>
-                    <div class="controls">
-
-                      <select name="host" id="id_host">
-                        <option value selected="selected">----------</option>
-                        {% for value, text in form.host.field.choices %}
-                          <option value="{{ value }}">{{ text }}</option>
-                        {% endfor %}
-                      </select>
-
-                      {% if form.host.errors %}
-                        <span class="help-inline">
-                          {{ form.host.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                
-                  <div class="control-group">
-                    <div class="controls">
-                      OR Enter New Host
-                    </div>
-                  </div>
-                {% endif %}
-              {% endcomment %}
               <div class="row">
                 <div class="span5">
                   <div class="control-group {% if form.first_name.errors %}error{% endif %}">
@@ -236,121 +208,151 @@
                     </div>
                   </div>
                 </div>
-                <div class="span6 pro-info">
-                  <div class="span1">&nbsp;</div>
-                  <h2>Location</h2>
-                  <div class="control-group {% if form.street1.errors %}error{% endif %}">
-                    <div class="control-label" for="id_street1">{{ form.street1.label }}</div>
-                    <div class="controls">
-                      {{ form.street1 }} 
-                      {% if form.street1.errors %}
-                        <span class="help-inline">
-                          {{ form.street1.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="control-group {% if form.street2.errors %}error{% endif %}">
-                    <div class="control-label" for="id_street2">{{ form.street2.label }}</div>
-                    <div class="controls">
-                      {{ form.street2 }} 
-                      {% if form.street2.errors %}
-                        <span class="help-inline">
-                          {{ form.street2.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="control-group {% if form.city.errors %}error{% endif %}">
-                    <div class="control-label" for="id_city">{{ form.city.label }}</div>
-                    <div class="controls">
-                      {{ form.city }} 
-                      {% if form.city.errors %}
-                        <span class="help-inline">
-                          {{ form.city.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="control-group {% if form.state.errors %}error{% endif %}">
-                    <div class="control-label" for="id_state">{{ form.state.label }}</div>
-                    <div class="controls">
-                      {{ form.state }} 
-                      {% if form.state.errors %}
-                        <span class="help-inline">
-                          {{ form.state.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
-                    <div class="control-label" for="id_zipcode">{{ form.zipcode.label }}</div>
-                    <div class="controls">
-                      {{ form.zipcode }} 
-                      {% if form.zipcode.errors %}
-                        <span class="help-inline">
-                          {{ form.zipcode.errors }}
-                        </span>
-                      {% endif %}
-                    </div>
-                  </div>                  
-                </div>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend><h2>Date/Time</h2></legend>
-
-              <div class="control-group {% if form.event_day.errors %}error{% endif %}">
-                <div class="control-label" for="id_event_day">{{ form.event_day.label }}</div>
-                <div class="controls">
-                  {{ form.event_day }} 
-                  {% if form.event_day.errors %}
-                    <span class="help-inline">
-                      {{ form.event_day.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>
-              <div class="control-group {% if form.event_time.errors %}error{% endif %}">
-                <div class="control-label" for="id_event_time">{{ form.event_time.label }}</div>
-                <div class="controls">
-                  {{ form.event_time }} 
-                  {% if form.event_time.errors %}
-                    <span class="help-inline">
-                      {{ form.event_time.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>              
-            </fieldset>
-
-            <fieldset>
-              <legend><h2>{{ form.description.label }}</h2></legend>
-              <div class="control-group {% if form.description.errors %}error{% endif %}">
-                <!-- <h2 class="control-label" for="id_description">{{ form.description.label }}</h2> -->
-                <div class="controls">
-                  {{ form.description }} 
-                  {% if form.description.errors %}
-                    <span class="help-inline">
-                      {{ form.description.errors }}
-                    </span>
-                  {% endif %}
-                  <div class="vertical-space"></div>
-                  {% if not party.requested and not pro and not user.get_profile.events_manager %}
-                    <div class="row">
-                      <div class="span10">
-                        <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
-                          The Pro will then need to confirm the date and time before your party invite is sent out.
-                          <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
-                        </i>
-                        </p>
+                {% if self_hosting %}
+                  <div class="span6 pro-info">
+                    <div class="span1">&nbsp;</div>
+                    <h2>Location</h2>
+                    <div class="control-group {% if form.street1.errors %}error{% endif %}">
+                      <div class="control-label" for="id_street1">{{ form.street1.label }}</div>
+                      <div class="controls">
+                        {{ form.street1 }} 
+                        {% if form.street1.errors %}
+                          <span class="help-inline">
+                            {{ form.street1.errors }}
+                          </span>
+                        {% endif %}
                       </div>
                     </div>
-                  {% endif %}
-                </div>
+                    <div class="control-group {% if form.street2.errors %}error{% endif %}">
+                      <div class="control-label" for="id_street2">{{ form.street2.label }}</div>
+                      <div class="controls">
+                        {{ form.street2 }} 
+                        {% if form.street2.errors %}
+                          <span class="help-inline">
+                            {{ form.street2.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="control-group {% if form.city.errors %}error{% endif %}">
+                      <div class="control-label" for="id_city">{{ form.city.label }}</div>
+                      <div class="controls">
+                        {{ form.city }} 
+                        {% if form.city.errors %}
+                          <span class="help-inline">
+                            {{ form.city.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="control-group {% if form.state.errors %}error{% endif %}">
+                      <div class="control-label" for="id_state">{{ form.state.label }}</div>
+                      <div class="controls">
+                        {{ form.state }} 
+                        {% if form.state.errors %}
+                          <span class="help-inline">
+                            {{ form.state.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
+                      <div class="control-label" for="id_zipcode">{{ form.zipcode.label }}</div>
+                      <div class="controls">
+                        {{ form.zipcode }} 
+                        {% if form.zipcode.errors %}
+                          <span class="help-inline">
+                            {{ form.zipcode.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>                  
+                  </div>
+                {% else %}
+                  <div class="span6 pro-info">
+                    <div class="span1">&nbsp;</div>
+                    <h2>Date/Time</h2>
+                    <div class="control-group {% if form.event_day.errors %}error{% endif %}">
+                      <div class="control-label" for="id_event_day">{{ form.event_day.label }}</div>
+                      <div class="controls">
+                        {{ form.event_day }} 
+                        {% if form.event_day.errors %}
+                          <span class="help-inline">
+                            {{ form.event_day.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="control-group {% if form.event_time.errors %}error{% endif %}">
+                      <div class="control-label" for="id_event_time">{{ form.event_time.label }}</div>
+                      <div class="controls">
+                        {{ form.event_time }} 
+                        {% if form.event_time.errors %}
+                          <span class="help-inline">
+                            {{ form.event_time.errors }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
-            </fieldset>  
+            </fieldset>
+            {% if self_hosting %}
+              <fieldset>
+                <legend><h2>Date/Time</h2></legend>
+
+                <div class="control-group {% if form.event_day.errors %}error{% endif %}">
+                  <div class="control-label" for="id_event_day">{{ form.event_day.label }}</div>
+                  <div class="controls">
+                    {{ form.event_day }} 
+                    {% if form.event_day.errors %}
+                      <span class="help-inline">
+                        {{ form.event_day.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="control-group {% if form.event_time.errors %}error{% endif %}">
+                  <div class="control-label" for="id_event_time">{{ form.event_time.label }}</div>
+                  <div class="controls">
+                    {{ form.event_time }} 
+                    {% if form.event_time.errors %}
+                      <span class="help-inline">
+                        {{ form.event_time.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>              
+              </fieldset>
+
+              <fieldset>
+                <legend><h2>{{ form.description.label }}</h2></legend>
+                <div class="control-group {% if form.description.errors %}error{% endif %}">
+                  <!-- <h2 class="control-label" for="id_description">{{ form.description.label }}</h2> -->
+                  <div class="controls">
+                    {{ form.description }} 
+                    {% if form.description.errors %}
+                      <span class="help-inline">
+                        {{ form.description.errors }}
+                      </span>
+                    {% endif %}
+                    <div class="vertical-space"></div>
+                    {% if not party.requested and not pro and not user.get_profile.events_manager %}
+                      <div class="row">
+                        <div class="span10">
+                          <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
+                            The Pro will then need to confirm the date and time before your party invite is sent out.
+                            <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
+                          </i>
+                          </p>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </fieldset>
+            {% endif %}
             <div class="row">
               <div class="span1">&nbsp;</div>
 <!-- 
@@ -370,8 +372,8 @@
                   <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
                 </div>
               {% else %}
-                <div class="span2">
-                  <button type="submit" name="create" value="create" class="btn btn-primary">Create</button>
+                <div class="span3">
+                  <button type="submit" name="create" value="create" class="btn btn-success">Confirm with host</button>
                 </div>
               {% endif %}
 

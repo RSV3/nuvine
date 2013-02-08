@@ -82,6 +82,14 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['title'].initial = 'First Taste Party'
 
     initial = kwargs.get('initial')
+    self.self_hosting = initial.get('self_hosting')
+
+    if not self.self_hosting:
+      self.fields['street1'].required = False
+      self.fields['city'].required = False
+      self.fields['state'].required = False
+      self.fields['zipcode'].required = False
+      self.fields['address'].required = False
 
     # if party being organized by host then load previous addresses by host
     if user.userprofile.is_host():
@@ -93,9 +101,9 @@ class PartyCreateForm(forms.ModelForm):
       # users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
       # self.fields['host'].choices = [(uid, "%s %s (%s)" % (first_name, last_name, email)) for uid, first_name, last_name, email in users.values_list('id', 'first_name', 'last_name', 'email')]
 
-    addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
+    # addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
     # only show addresses that pro/host has dealt with before
-    self.fields['address'].queryset = addresses
+    # self.fields['address'].queryset = addresses
 
     add_form_validation(self)
 
@@ -172,13 +180,16 @@ class PartyCreateForm(forms.ModelForm):
       if addresses.exists():
         address = addresses[0]
       else:
-        # TODO: need to check whether these fields are all filled out
-        address = Address(street1=cleaned_data.get('street1'),
-                          street2=cleaned_data.get('street2'),
-                          city=cleaned_data.get('city'),
-                          state=cleaned_data.get('state'),
-                          zipcode=cleaned_data.get('zipcode'))
-        address.save()
+        if self.self_hosting:
+          # TODO: need to check whether these fields are all filled out
+          address = Address(street1=cleaned_data.get('street1'),
+                            street2=cleaned_data.get('street2'),
+                            city=cleaned_data.get('city'),
+                            state=cleaned_data.get('state'),
+                            zipcode=cleaned_data.get('zipcode'))
+          address.save()
+        else:
+          address = None
 
       cleaned_data['address'] = address
       if 'address' in self._errors:
@@ -246,7 +257,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
-    self.fields['phone'].widget.attrs = {'placeholder': 'Phone'}
+    self.fields['phone'].widget.attrs = {'placeholder': 'Phone number (optional)'}
     self.fields['party'].widget = forms.HiddenInput()
     if initial.get('change_rsvp') == 't':
       self.fields['response'].widget.choices = PartyInvite.RESPONSE_CHOICES[:4]

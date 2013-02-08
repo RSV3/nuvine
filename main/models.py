@@ -48,7 +48,7 @@ class Party(models.Model):
   host = models.ForeignKey(User)
   title = models.CharField(max_length=128)
   description = models.TextField(verbose_name="Special Instructions")
-  address = models.ForeignKey(Address)
+  address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
