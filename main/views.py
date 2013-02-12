@@ -31,10 +31,12 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
                         resend_party_invite_email, get_default_invite_message, my_pro, \
                         preview_party_invites_email, get_default_signature, send_host_request_party_email, \
-                        send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email
+                        send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email, \
+                        send_new_party_host_confirm_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
+from support.models import Email
 
 import json, uuid
 from datetime import datetime, timedelta
@@ -985,6 +987,7 @@ def party_user_info(request, user_email):
 
 
 @login_required
+# @user_passes_test(if_pro, login_url="/pros/only/")
 def party_add(request, party_id=None, party_pro=None):
   """
     Add a new party
@@ -1008,12 +1011,24 @@ def party_add(request, party_id=None, party_pro=None):
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
 
+  if u.userprofile.is_host() and not party_id:
+    return HttpResponseRedirect(reverse('pros_only'))
+
   party = None
+
   if party_id:
-    party = get_object_or_404(Party, pk=party_id)
-    if party.requested and not (u.userprofile.events_manager() or party.host != u):
-      messages.warning(request, "You cannot change party details once the party request has been sent to the Pro")
+    if u.userprofile.is_host():
+      party = get_object_or_404(Party, pk=party_id, host=u)
+    else:
+      party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+
+    if party.event_date < timezone.now():
+      messages.warning(request, "You cannot change party details for a past event.")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+
+    # if party.confirmed and not (u.userprofile.events_manager() or party.host != u):
+    #   messages.warning(request, "You cannot change party details once the party confirmation request has been sent out")
+    #   return HttpResponseRedirect(reverse('party_details', args=[party_id]))
 
   self_hosting = True
   if u.userprofile.is_pro() and party_pro != 'pro' and not party_id:
@@ -1079,7 +1094,7 @@ def party_add(request, party_id=None, party_pro=None):
       new_party = form.save(commit=False)
 
       if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
-        new_party.confirmed = True
+        # new_party.confirmed = True
         new_party.requested = True
       if party:
         old_party = Party.objects.get(pk=party.id)
@@ -1152,7 +1167,9 @@ def party_add(request, party_id=None, party_pro=None):
 
       if request.POST.get('create'):
         # go to party details page
-        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        email = send_new_party_host_confirm_email(request, new_party)
+        return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
+        # return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
@@ -1291,6 +1308,7 @@ def party_review_request(request, party_id):
     # party request made
     party.created = timezone.now()
     party.requested = True
+    party.confirmed = True
     party.save()
     # Send confirmation request to Pro
     send_host_request_party_email(request, party)
@@ -1300,7 +1318,8 @@ def party_review_request(request, party_id):
       # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
     else:
       send_new_party_scheduled_by_host_no_pro_email(request, party)
-      messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+      # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+    messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   if request.POST.get('add_party'):
@@ -1468,7 +1487,7 @@ def party_details(request, party_id):
           msg = 'Your party date and time have been confirmed! Let\'s get this party started and send out your invite!'
           messages.warning(request, msg)
       else:
-        msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for your Pro to confirm your date and time.'
+        msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for you to complete the invitation process.'
         messages.info(request, msg)
 
   data["pro_user"] = party.pro
@@ -1820,6 +1839,24 @@ def party_preview_invitation(request, party_id):
   data['invite_preview'] = preview
   # return HttpResponse(preview)
   return render_to_response("main/party_preview_invitation.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_host_confirmation_preview(request, party_id, email_id):
+  u = request.user
+
+  data = {}
+
+  party = get_object_or_404(Party, id=party_id, organizedparty__pro=u)
+
+  email = get_object_or_404(Email, pk=email_id)
+  data["party"] = party
+  email_template = Template(email.html)
+  context = RequestContext(request, data)
+  page = email_template.render(context)
+  data["preview"] = page
+
+  return render_to_response("main/party_host_confirmation_preview.html", data, context_instance=RequestContext(request))
 
 
 @login_required

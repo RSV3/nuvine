@@ -32,7 +32,7 @@
 {% endblock header %}
 
 {% block content %}
-  {% if not party.requested %}
+  {% if not party.confirmed %}
   <div class="menu_wrap main partycrumb">
     <ul class="nav">
       <li class="party-add">&nbsp;</li>
@@ -110,7 +110,7 @@
           <div class="controls">
             {{ form.signature }}
             <div class="vertical-space"></div>
-            {% if not party.requested and not pro and not user.get_profile.events_manager %}
+            {% if not party.confirmed and not pro and not user.get_profile.events_manager %}
               <div class="row">
                 <div class="span8">
                   <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
@@ -122,7 +122,7 @@
             {% endif %}
           </div>
         </div>
-        {% if not party.requested %}
+        {% if not party.confirmed %}
           <div class="row">
             <div class="span1">&nbsp;</div>
             <div class="span7">

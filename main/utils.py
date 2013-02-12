@@ -935,6 +935,47 @@ def send_host_request_party_email(request, party):
 
   return msg
 
+
+def send_new_party_host_confirm_email(request, party):
+  template = Section.objects.get(template__key='new_party_host_confirm_email', category=0)
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  host_first_name = party.host.first_name if party.host.first_name else "Friendly Host"
+
+  c = RequestContext(request, {"party": party,
+              "invite_host_name": "%s" % host_first_name,
+              "pro": party.pro,
+              "pro_phone": party.pro.userprofile.phone,
+              "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
+              "host_name": request.get_host(), "plain": True})
+  txt_message = txt_template.render(c)
+  c.update({'sig': True, 'plain': False})
+  html_message = html_template.render(c)
+
+  # send out party invitation e-mail
+
+  subject = "Your Vinely Taste Party has been scheduled!"
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Let\'s get the party started',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+  from_email = 'Party Confirmation <sales@vinely.com>'
+
+  recipients = [request.user.email]
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
+                              headers={'Reply-To': request.user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+  return email_log
+
 ##############################################################################
 # Utility methods for finding out user relations and party relations
 ##############################################################################

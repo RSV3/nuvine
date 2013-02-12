@@ -238,15 +238,11 @@
       </section>
 
       <section>
-        {% if not party.requested and not pro and not user.get_profile.events_manager %}
+        {% if not party.confirmed and not pro and not user.get_profile.events_manager %}
           <div class="row">
             <div class="span10 offset1">
               <p>
-                <i>Note: By clicking "Request Party" you will send out your invitation to the attendees listed above and your Vinely Pro will be notified of your party request.  You should hear form them within 48 hours or receive a party confirmation e-mail letting you know your party is scheduled and ready to go!
-                </i>
-              </p>
-              <p>
-                <i>Your customized invitation will be sent to all tasters in the system upon confirmation of your party.</i>
+                <i>Note: Your customized invitation will be sent to all tasters in the system upon confirmation of your party.</i>
               </p>
             </div>
           </div>

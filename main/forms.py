@@ -81,31 +81,38 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['description'].widget = forms.Textarea(attrs={'rows': 10, 'cols': 100, 'style': 'width: 80%;'})
     self.fields['title'].initial = 'First Taste Party'
 
-    initial = kwargs.get('initial')
-    self.self_hosting = initial.get('self_hosting')
-
-    if not self.self_hosting:
-      self.fields['street1'].required = False
-      self.fields['city'].required = False
-      self.fields['state'].required = False
-      self.fields['zipcode'].required = False
-      self.fields['address'].required = False
-
-    # if party being organized by host then load previous addresses by host
-    if user.userprofile.is_host():
-      parties = Party.objects.filter(host=initial['host'])
-    else:
-      # else if by pro then load prev organized party addresses
-      parties = Party.objects.filter(organizedparty__pro=initial.get('pro'))
-      # my_hosts = MyHost.objects.filter(pro=initial.get('pro'))
-      # users = User.objects.filter(id__in=[x.host.id for x in my_hosts]).order_by('first_name')
-      # self.fields['host'].choices = [(uid, "%s %s (%s)" % (first_name, last_name, email)) for uid, first_name, last_name, email in users.values_list('id', 'first_name', 'last_name', 'email')]
-
-    # addresses = Address.objects.filter(id__in=[p.address.id for p in parties]).order_by('street1')
-    # only show addresses that pro/host has dealt with before
-    # self.fields['address'].queryset = addresses
-
     add_form_validation(self)
+
+    if self.instance and user.userprofile.is_host():
+      self.fields['first_name'].widget.attrs['readonly'] = True
+      self.fields['last_name'].widget.attrs['readonly'] = True
+      self.fields['email'].widget.attrs['readonly'] = True
+      self.fields['phone'].widget.attrs['readonly'] = True
+      self.fields['event_day'].widget.attrs['readonly'] = True
+      self.fields['event_time'].widget.attrs['readonly'] = True
+      self.fields['event_day'].widget.attrs['class'] = ''
+      self.fields['event_time'].widget.attrs['class'] = ''
+
+  def clean_event_date(self):
+    if self.instance:
+      event_date = timezone.localtime(self.instance.event_date)
+    else:
+      event_date = self.cleaned_data['event_date']
+    return event_date
+
+  def clean_event_day(self):
+    if self.instance:
+      event_day = timezone.localtime(self.instance.event_date).date()
+    else:
+      event_day = self.cleaned_data['event_day']
+    return event_day
+
+  def clean_event_time(self):
+    if self.instance:
+      event_time = timezone.localtime(self.instance.event_date).time()
+    else:
+      event_time = self.cleaned_data['event_time']
+    return event_time
 
   def clean_email(self):
     # 1. if current user is host dont allow to set new host
@@ -180,16 +187,13 @@ class PartyCreateForm(forms.ModelForm):
       if addresses.exists():
         address = addresses[0]
       else:
-        if self.self_hosting:
-          # TODO: need to check whether these fields are all filled out
-          address = Address(street1=cleaned_data.get('street1'),
-                            street2=cleaned_data.get('street2'),
-                            city=cleaned_data.get('city'),
-                            state=cleaned_data.get('state'),
-                            zipcode=cleaned_data.get('zipcode'))
-          address.save()
-        else:
-          address = None
+        # TODO: need to check whether these fields are all filled out
+        address = Address(street1=cleaned_data.get('street1'),
+                          street2=cleaned_data.get('street2'),
+                          city=cleaned_data.get('city'),
+                          state=cleaned_data.get('state'),
+                          zipcode=cleaned_data.get('zipcode'))
+        address.save()
 
       cleaned_data['address'] = address
       if 'address' in self._errors:

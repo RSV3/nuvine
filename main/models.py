@@ -78,7 +78,7 @@ class Party(models.Model):
 
   def party_setup_url(self):
     url = 'party_details'
-    if not self.requested and not self.confirmed:
+    if not self.confirmed:
       if self.setup_stage == 1:
         url = 'party_add'
       elif self.setup_stage == 2:
