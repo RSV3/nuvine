@@ -449,56 +449,91 @@ table .row-label-bold {
     background: url('../img/btn_pie_from225.png') no-repeat right top;
  }
  
-.menu_wrap.partycrumb ul.nav, .menu_wrap.partycrumb ul.nav li {
-  /*margin: 10px 0;*/
-  height: 76px;
+ .partycrumb {
+  text-align: center;
+  padding-top: 20px;
 }
 
-/*.menu_wrap.partycrumb ul.nav li a { 
-  padding: 100px 90px;
+.partycrumb ul.nav li {
+  display: inline;
+  margin-right: 20px;
+}
+
+.partycrumb.main {
+  padding-top: 0;
+}
+
+/* shop */
+
+.partycrumb.main ul.nav, .partycrumb.main ul.nav li {
+    height: 76px;
+    margin: 0;
+    padding: 0;
+}
+
+.partycrumb.main ul.nav li { 
+  display: inline-block;
+}
+
+.partycrumb.main ul.nav li a { 
+  padding: 1px 20px 20px 20px;
   margin-top: -2px;
 }
-*/
-/*
-.partycrumb li {
-  height: 76px;
-}
-*/
-.party-add {
+
+#party_add {
   background: url('../img/create_party_nav.png') no-repeat 0 -72px; 
   width: 257px;
 }
-.party-write-invitation {
+#party_add a{
+  padding: 0px 130px 50px 126px;
+}
+#party_write_invitation {
   background: url('../img/create_party_nav.png') no-repeat -261px -72px; 
   width: 226px;
 }
-.party-invite-friends {
+#party_write_invitation a {
+  padding: 0px 110px 50px 115px;
+}
+#party_invite_friends {
   background: url('../img/create_party_nav.png') no-repeat -489px -72px; 
   width: 215px;
+}
+#party_invite_friends a{
+  padding: 0px 110px 50px 105px;
 }
 .party-review-request {
   background: url('../img/create_party_nav.png') no-repeat -706px -72px; 
   width: 227px;
 }
-.party-review-create {
-  background: url('../img/create_party_nav.png') no-repeat -946px -72px; 
-  width: 227px;
+#party_review_create {
+  background: url('../img/create_party_nav.png') no-repeat -706px -72px; 
+  width: 204px;
+}
+#party_review_create a{
+  padding: 0px 102px 50px 102px;
 }
 
-.party-add.active {
-  background-position: 0 0;
+
+#party_add a:hover, 
+#party_add.active {
+  background: url('../img/create_party_nav.png') no-repeat 0 0;
 }
-.party-write-invitation.active {
-  background-position: -261px 0; 
+#party_write_invitation a:hover, 
+#party_write_invitation.active {
+  background: url('../img/create_party_nav.png') no-repeat -261px 0; 
 }
-.party-invite-friends.active {
-  background-position: -489px 0; 
+#party_invite_friends a:hover, 
+#party_invite_friends.active {
+  background: url('../img/create_party_nav.png') no-repeat -489px 0; 
 }
-.party-review-request.active {
-  background-position: -706px 0; 
+#party_review_request a:hover, 
+#party_review_request.active {
+  background: url('../img/create_party_nav.png') no-repeat -706px 0; 
 }
-.party-review-create.active {
-  background-position: -946px 0; 
+#party_review_create a:hover, 
+#party_review_create.active {
+  /*background-position: -946px 0; */
+  background: url('../img/create_party_nav.png') no-repeat -706px 0; 
 }
 
 /*

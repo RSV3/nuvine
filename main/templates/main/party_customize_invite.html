@@ -33,16 +33,12 @@
 
 {% block content %}
   {% if not party.confirmed %}
-  <div class="menu_wrap main partycrumb">
+  <div class="partycrumb main">
     <ul class="nav">
-      <li class="party-add">&nbsp;</li>
-      <li class="party-write-invitation active">&nbsp;</li>
-      <li class="party-invite-friends">&nbsp;</li>
-      {% if pro or user.get_profile.events_manager %}
-        <li class="party-review-create">&nbsp;</li>
-      {% else %}
-        <li class="party-review-request">&nbsp;</li>
-      {% endif %}
+      <li id="party_add"><a href="{% url party_add party.id %}" title="Edit Party details"></a></li>
+      <li id="party_write_invitation" class="active">&nbsp;</li>
+      <li id="party_invite_friends">&nbsp;</li>
+      <li id="party_review_create">&nbsp;</li>
     </ul>
   </div>
   {% endif %}

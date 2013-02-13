@@ -94,21 +94,21 @@ class PartyCreateForm(forms.ModelForm):
       self.fields['event_time'].widget.attrs['class'] = ''
 
   def clean_event_date(self):
-    if self.instance:
+    if self.instance.event_date:
       event_date = timezone.localtime(self.instance.event_date)
     else:
       event_date = self.cleaned_data['event_date']
     return event_date
 
   def clean_event_day(self):
-    if self.instance:
+    if self.instance.event_date:
       event_day = timezone.localtime(self.instance.event_date).date()
     else:
       event_day = self.cleaned_data['event_day']
     return event_day
 
   def clean_event_time(self):
-    if self.instance:
+    if self.instance.event_date:
       event_time = timezone.localtime(self.instance.event_date).time()
     else:
       event_time = self.cleaned_data['event_time']

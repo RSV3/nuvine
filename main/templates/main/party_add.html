@@ -32,16 +32,12 @@
 {% block content %}
 
 {% if self_hosting %}
-  <div class="menu_wrap main partycrumb">
+  <div class="partycrumb main">
     <ul class="nav">
-      <li class="party-add active">&nbsp;</li>
-      <li class="party-write-invitation">&nbsp;</li>
-      <li class="party-invite-friends">&nbsp;</li>
-      {% if pro or user.get_profile.events_manager %}
-        <li class="party-review-create">&nbsp;</li>
-      {% else %}
-        <li class="party-review-request">&nbsp;</li>
-      {% endif %}
+      <li id="party_add" class="active">&nbsp;</li>
+      <li id="party_write_invitation">&nbsp;</li>
+      <li id="party_invite_friends">&nbsp;</li>
+      <li id="party_review_create">&nbsp;</li>
     </ul>
   </div>
 {% endif %}

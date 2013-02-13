@@ -20,16 +20,12 @@
 {% endblock header %}
 
 {% block content %}
-  <div class="menu_wrap main partycrumb">
+  <div class="partycrumb main">
     <ul class="nav">
-      <li class="party-add">&nbsp;</li>
-      <li class="party-write-invitation">&nbsp;</li>
-      <li class="party-invite-friends active">&nbsp;</li>
-      {% if pro or user.get_profile.events_manager %}
-        <li class="party-review-create">&nbsp;</li>
-      {% else %}
-        <li class="party-review-request">&nbsp;</li>
-      {% endif %}
+      <li id="party_add"><a href="{% url party_add party.id %}" title="Edit Party details"></a></li>
+      <li id="party_write_invitation"><a href="{% url party_write_invitation party.id %}" title="Customize Invitations"></a></li>
+      <li id="party_invite_friends" class="active">&nbsp;</li>
+      <li id="party_review_create">&nbsp;</li>
     </ul>
   </div>
 
