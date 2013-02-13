@@ -8,6 +8,19 @@
   <h1 class="headline">Order Your First Taste Kit</h1>
 {% endblock header %}
 
+
+{% block additional_styles %}
+  <style type="text/css">
+    .select-quantity {
+      margin-top: 10px;
+      margin-left: -50px;
+    }
+    .quantity-label {
+      margin-left: -2px;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
@@ -16,8 +29,8 @@
     {% if product %}
     <div class="row">
 
-      <div class="span6">
-        <img src="{% static "img/firsthostkit_prodimg.png" %}" height="400">
+      <div class="span7">
+        <img src="{% static "img/firsthostkit_prodimg.png" %}" height="500">
         <!--
         {% thumbnail product.image "400" as im %}
           <img height="400" src="{{ im.url }}" /> 
@@ -25,25 +38,16 @@
         -->
       </div>
 
-      <div class="span6">
+      <div class="span5">
         <form class="form-horizontal" action="{{ app_path }}" method="POST">
           {% csrf_token %}
           {{ form.errors }}
           <p><h3 id="product_name">{{ product.name }}</h3></p>
           <p id="product-description"> {{ product.description|safe }}
           </p>
-          <div class="control-group {% if form.quantity.errors %}error{% endif %}">
-            <div class="control-label" for="id_product">{{ form.product.label }}</div>
-            <div class="controls">
-              {{ form.product }} 
-              {% if form.product.errors %}
-                <span class="help-inline">
-                  {{ form.product.errors }}
-                </span>
-              {% endif %}
-            </div>
-	    <p></p>
-            <div class="control-label" for="id_quantity">{{ form.quantity.label }}</div>
+          <div class="vertical-space"></div>
+          <!-- <div class="control-group {% if form.quantity.errors %}error{% endif %}"> -->
+            <h2 class="quantity-label span1">{{ form.quantity.label }}</h2>
             <div class="controls">
               {{ form.quantity }} 
               {% if form.quantity.errors %}
@@ -52,20 +56,24 @@
                 </span>
               {% endif %}
             </div>
-          </div>
-          <p></p>
+          <!-- </div> -->
+          <!-- <div class="vertical-space"></div> -->
           <p>
+          {{ form.product }}
           {{ form.frequency }}
           {{ form.price_category }}
           </p>
           <p>&nbsp;</p>
-          <p class="price-label"><b>From:</b> <span id="unit_price" data-price="{{ product.unit_price }}">{{ product.unit_price|currency }}</span></p>
+          <p class="price-label"><b>From:</b>
+            <span id="unit_price" data-price="{{ product.unit_price }}"><strike>$139</strike> $99<!-- {{ product.unit_price|currency }} --></span>
+          </p>
           {{ form.total_price }}
-          <div class="form-actions">
-            <div class="controls">
-              <button type="submit" class="btn btn-primary">Add to Cart</button>
-            </div>
-          </div>
+          <!-- <div class="form-actions"> -->
+            <!-- <div class="controls"> -->
+              <hr />
+              <button type="submit" class="btn btn-large btn-success">Add to Cart</button>
+            <!-- </div> -->
+          <!-- </div> -->
         </form>
       </div>
 
@@ -85,7 +93,7 @@
 {% block additional_scripts %}
 <script type="text/javascript">
   $(document).ready(function(){
-    $('#id_product').change(function(e) {
+    $('#id_product_old').change(function(e) {
       var val = $('#id_product option:selected').val();
       var qty = parseInt($('#id_quantity option:selected').val());
       var url = "{% url cart_kit_detail 1 %}".replace(1, parseInt(val));
@@ -107,7 +115,7 @@
       return false;
     });
  
-    $('#id_quantity').change(function(e) {
+    $('#id_quantity_old').change(function(e) {
       var price = parseInt($('#unit_price').data('price'));
       var qty = parseInt($('#id_quantity option:selected').val());
       $('#unit_price').text("$" + (price * qty).toFixed(2));

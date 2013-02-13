@@ -487,7 +487,7 @@ class AddWineToCartForm(forms.ModelForm):
 
 
 class AddTastingKitToCartForm(forms.ModelForm):
-  product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True))
+  # product = forms.ModelChoiceField(queryset=Product.objects.filter(category=Product.PRODUCT_TYPE[0][0], active=True))
   #quantity = forms.ChoiceField(choices=((0, 1), (1, 2)))
 
   def __init__(self, *args, **kwargs):
@@ -495,9 +495,10 @@ class AddTastingKitToCartForm(forms.ModelForm):
     self.fields['total_price'].widget = forms.HiddenInput()
     self.fields['frequency'].widget = forms.HiddenInput()
     self.fields['price_category'].widget = forms.HiddenInput()
-    #self.fields['quantity'].widget = forms.HiddenInput()
+    self.fields['product'].widget = forms.HiddenInput()
     self.fields['quantity'].widget = forms.Select()
     self.fields['quantity'].widget.choices = [(1, 1), (2, 2)]
+    self.fields['quantity'].widget.attrs['class'] = 'select-quantity'
 
   class Meta:
     model = LineItem
