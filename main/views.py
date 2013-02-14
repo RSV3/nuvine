@@ -1077,8 +1077,8 @@ def party_add(request, party_id=None, party_pro=None):
     party.save()
 
   else:
-    party_date = timezone.now() + timedelta(days=14)
-    party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day + 1,
+    party_date = timezone.now() + timedelta(days=15)
+    party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day,
                                     hour=19, minute=0)
     initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
     initial_data['event_time'] = party_date.strftime("%I:%M %p")
