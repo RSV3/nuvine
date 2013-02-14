@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.forms.formsets import formset_factory
 from django.db import transaction
+from django.views.decorators.http import require_POST
 
 from django_tables2 import RequestConfig
 
@@ -27,6 +28,7 @@ import csv
 import logging
 
 log = logging.getLogger(__name__)
+
 
 @staff_member_required
 def admin_index(request):
@@ -809,6 +811,8 @@ def download_ready_orders_old(request):
 
   return response
 
+
+@require_POST
 @staff_member_required
 def download_ready_orders(request):
 
@@ -817,7 +821,6 @@ def download_ready_orders(request):
   # download to csv
 
   # update those downloaded into completed orders
-
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=vinely_ready_orders.csv'
 
@@ -861,12 +864,22 @@ def download_ready_orders(request):
 
   #print "All fields: %s" % len(fieldnames) == 166
 
+  try:
+    orders = [int(x) for x in request.POST.getlist("orders")]
+    if not orders:
+      messages.warning(request, 'You did not select any orders')
+      return HttpResponseRedirect(reverse("support:view_orders"))
+  except:
+    messages.warning(request, 'There was an error in the orders you selected')
+    return HttpResponseRedirect(reverse("support:view_orders"))
+
   writer = csv.DictWriter(response, fieldnames)
 
   writer.writeheader()
 
   # most recent orders first
-  for order in Order.objects.filter(fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
+  # for order in Order.objects.filter(fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
+  for order in Order.objects.filter(id__in=orders, fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
     data = {}
     data['Format Version'] = 205
     data['Client Code'] = 'Vinely'

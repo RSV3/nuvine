@@ -22,7 +22,7 @@ class Email(models.Model):
 
 
 class InventoryUpload(models.Model):
-  inventory_file = models.FileField(verbose_name="Upload File:", help_text="Select inventory file to upload", upload_to="wine_inventory")
+  inventory_file = models.FileField(verbose_name="Upload File:", help_text="Select inventory file to upload", upload_to="profiles")
   comment = models.CharField(blank=True, null=True, max_length=128)
   created = models.DateTimeField(auto_now_add=True)
 
