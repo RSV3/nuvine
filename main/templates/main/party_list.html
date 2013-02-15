@@ -15,9 +15,32 @@
       text-align: right;
       font-weight: bold;
     }
+    .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
+      background:#F0F0F0;
+    }
+    .nav {
+      margin-bottom:0px;
+    }
+    .tab-content {
+        background:#FFF;
+        padding-top: 30px;
+        -moz-box-shadow: 0px 2px 6px rgb(100,100,100);
+        -webkit-box-shadow: 0px 2px 6px rgb(100,100,100);
+        box-shadow: 0px 2px 6px rgb(100,100,100);
+    }
     a:visited {
       color: #DD4040;
       text-decoration: none;
+    }
+    hr {
+      margin:0.25em 0;
+    }
+    .span12 ul li a, .span12 ul li a:active {
+      width:auto;
+      color:#DCDCDC;
+    }
+    .nav-tabs li.active a, .nav-tabs li.active a:hover {
+      color:none;
     }
   </style>
 {% endblock additional_styles %}
