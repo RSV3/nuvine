@@ -173,12 +173,13 @@ def my_information(request):
       # if not a stripe state
       credit_card = payment_form.save()
       profile.credit_card = credit_card
+      profile.stripecard = None
       profile.save()
 
     msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
     messages.success(request, msg)
 
-  if profile.stripe_card:
+  if profile.stripe_card and (receiver_state in Cart.STRIPE_STATES):
     card_number = '*' * 10 + profile.stripe_card.last_four
     payment_form.initial['card_number'] = card_number
   elif profile.credit_card:
