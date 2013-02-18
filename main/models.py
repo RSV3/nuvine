@@ -334,7 +334,7 @@ class Cart(models.Model):
 
   NO_TAX_STATES = ('MA',)
 
-  STRIPE_STATES = ('MI', 'CA')
+  STRIPE_STATES = ('CA')
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
 

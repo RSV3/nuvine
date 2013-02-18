@@ -556,3 +556,19 @@ def check_zipcode(zipcode):
   except Zipcode.DoesNotExist:
     # application for pro/host?
     return False
+
+
+def reassign_pro(pro):
+  '''
+  If the pro leaves link their users (hosts, tasters, mentees) to next higher pro
+  i.e this Pro's pro
+  '''
+  from main.models import MyHost
+  from accounts.models import UserProfile
+
+  # 1. reassign tasters and hosts
+  new_pro = pro.userprofile.mentor
+  MyHost.objects.filter(pro=pro).update(pro=new_pro)
+
+  # 2. reassign my mentees
+  UserProfile.objects.filter(mentor=pro).update(mentor=new_pro)

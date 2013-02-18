@@ -393,7 +393,7 @@ def wine_inventory(request):
       workbook = xlrd.open_workbook(settings.MEDIA_ROOT + file_name)
 
     try:
-      worksheet = workbook.sheet_by_name('Sheet2')
+      worksheet = workbook.sheet_by_name('Wine DB')
 
       num_rows = worksheet.nrows - 1
       curr_row = 0
@@ -408,41 +408,48 @@ def wine_inventory(request):
         # if first column value is a Vinely SKU
         if row[0].value and row[0].value[0] == 'V':
           #print "Inventory ID: %s" % row[0].value
-          if row[1].value and row[2].value and row[5].value and row[6].value and row[7].value:
-
+          if row[1].value and row[3].value and row[4].value and row[5].value and row[6].value:
+            sku = row[0].value
             color = row[1].value
+            name = row[3].value
+            on_hand = row[4].value
+            cat_1 = row[5].value
+            cat_2 = row[6].value
+            year = row[9].value
+            sparkling = row[19].value
+
             color_code = Wine.WINE_COLOR[0][0]
             if 'white' in color.lower():
               color_code = Wine.WINE_COLOR[1][0]
             elif 'rose' in color.lower() or u'ros\xc3' in color.lower():
               color_code = Wine.WINE_COLOR[2][0]
 
-            sparkling = str(row[6].value).lower()
+            sparkling = str(sparkling).lower()
             sparkling_code = False
             if 'yes' in sparkling or '1' in sparkling:
               sparkling_code = True
 
-            if Wine.objects.filter(sku=row[0].value).exists():
-              wine = Wine.objects.get(sku=row[0].value)
+            if Wine.objects.filter(sku=sku).exists():
+              wine = Wine.objects.get(sku=sku)
             else:
-              wine = Wine(name=row[2].value,
-                                year=row[3].value if row[3].value else 0,
-                                sku=row[0].value,
-                                vinely_category=row[5].value,
-                                vinely_category2=row[6].value,
+              wine = Wine(name=name,
+                                year=year if year else 0,
+                                sku=sku,
+                                vinely_category=cat_1,
+                                vinely_category2=cat_2,
                                 color=color_code,
                                 sparkling=sparkling_code)
               wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)
             if created:
-              inv.on_hand = row[7].value
+              inv.on_hand = on_hand
             else:
-              inv.on_hand += row[7].value
+              inv.on_hand += on_hand
 
             inv.save()
 
-            total_wines += row[7].value
+            total_wines += on_hand
             total_wine_types += 1
         else:
           invalid_rows.append(curr_row)
@@ -452,7 +459,7 @@ def wine_inventory(request):
 
       messages.success(request, "%s wine types and %d wine bottles have been uploaded to inventory." % (total_wine_types, int(total_wines)))
     except xlrd.XLRDError:
-      messages.warning(request, "Not a valid inventory file: needs Sheet2.")
+      messages.warning(request, "Not a valid inventory file: needs 'Wine DB' sheet.")
 
   table = WineInventoryTable(WineInventory.objects.all())
   RequestConfig(request, paginate={"per_page": 25}).configure(table)

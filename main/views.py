@@ -706,10 +706,9 @@ def place_order(request):
       if request.session.get('stripe_payment'):
         # charge card to stripe
 
-        if receiver_state == "MI":
-          stripe.api_key = settings.STRIPE_SECRET
-        elif receiver_state == "CA":
-          stripe.api_key = settings.STRIPE_SECRET_CA
+        if receiver_state in Cart.STRIPE_STATES:
+          if receiver_state == "CA":
+            stripe.api_key = settings.STRIPE_SECRET_CA
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
@@ -2418,9 +2417,7 @@ def edit_credit_card(request):
     data['use_stripe'] = True
 
     if request.method == 'POST':
-      if receiver_state == 'MI':
-        stripe.api_key = settings.STRIPE_SECRET
-      elif receiver_state == 'CA':
+      if receiver_state == 'CA':
         stripe.api_key = settings.STRIPE_SECRET_CA
 
       stripe_token = request.POST.get('stripe_token')
@@ -2508,9 +2505,7 @@ def edit_credit_card(request):
       # display different set of buttons if currently in address update stage
       data['update'] = True
 
-  if receiver_state == 'MI':
-    data['publish_token'] = settings.STRIPE_PUBLISHABLE
-  elif receiver_state == 'CA':
+  if receiver_state == 'CA':
     data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
 
   data["shop_menu"] = True
