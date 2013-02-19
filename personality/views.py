@@ -463,7 +463,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       results = form.save()
 
       # update response times to 'yes' for users that had given a different response
-      if taster != party.host:
+      if taster != party.host and taster != party.pro:
         invite = PartyInvite.objects.get(party=party, invitee=taster)
         if invite.response != 3:
           invite.response = 3
