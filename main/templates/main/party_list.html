@@ -151,7 +151,7 @@
             </li>
           </ul>
           <div class="tab-content">
-            <div class="tab-pane {% if not pro_parties and not host_parties and not taster_parties %} fade in active {% endif %}" id="host_guest_past_parties">
+            <div class="tab-pane fade {% if not pro_parties and not host_parties and not taster_parties %} active in {% endif %}" id="host_guest_past_parties">
               <!-- <h1 class="headline">Past Parties</h1> -->
               {% if pro %}
                 <div class="row">
@@ -271,7 +271,7 @@
               {% endif %}
             </div>
 
-            <div class="tab-pane {% if pro_parties or host_parties or taster_parties %} fade in active {% endif %}" id="host_guest_upcoming_parties">
+            <div class="tab-pane fade {% if pro_parties or host_parties or taster_parties %} active in {% endif %}" id="host_guest_upcoming_parties">
               <!-- <h1 class="headline">Upcoming Parties</h1> -->
               {% if pro %}
                 <div class="row">
