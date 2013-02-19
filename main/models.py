@@ -68,6 +68,7 @@ class Party(models.Model):
     aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
     return aggregate['total'] if aggregate['total'] else 0
 
+  @property
   def pro(self):
     try:
       return OrganizedParty.objects.get(party=self).pro

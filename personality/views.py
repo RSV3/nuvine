@@ -280,7 +280,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   #   try:
   #     OrganizedParty.objects.get(party=party, pro=u)
   #   except OrganizedParty.DoesNotExist:
-  if not party.pro() == u:
+  if not party.pro == u:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 
@@ -462,7 +462,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       results = form.save()
 
       # update response times to 'yes' for users that had given a different response
-      if taster != party.host:
+      if taster != party.host and taster != party.pro:
         invite = PartyInvite.objects.get(party=party, invitee=taster)
         if invite.response != 3:
           invite.response = 3
