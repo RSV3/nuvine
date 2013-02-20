@@ -2286,13 +2286,13 @@ def edit_shipping_address(request):
                   'email': receiver.email, 'phone': receiver_profile.phone}
 
   current_shipping = receiver_profile.shipping_address
-
-  initial_data['address1'] = current_shipping.street1
-  initial_data['address2'] = current_shipping.street2
-  initial_data['company_co'] = current_shipping.company_co
-  initial_data['city'] = current_shipping.city
-  initial_data['state'] = current_shipping.state
-  initial_data['zipcode'] = current_shipping.zipcode
+  if current_shipping:
+    initial_data['address1'] = current_shipping.street1
+    initial_data['address2'] = current_shipping.street2
+    initial_data['company_co'] = current_shipping.company_co
+    initial_data['city'] = current_shipping.city
+    initial_data['state'] = current_shipping.state
+    initial_data['zipcode'] = current_shipping.zipcode
   initial_data['news_optin'] = receiver.get_profile().news_optin
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
