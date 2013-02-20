@@ -41,6 +41,9 @@
           <tbody>
             <tr>
               <td><h2>Party Info</h2></td>
+              {% if pro and can_add_taster %}
+                <!-- <td><a href="{% url party_add party.id %}">edit</a></td> -->
+              {% endif %}
             </tr>
             <tr>
               <td>Date</td>

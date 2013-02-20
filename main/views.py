@@ -1471,8 +1471,8 @@ def party_details(request, party_id):
       else:
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
         pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
-        msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
-        messages.warning(request, msg)
+        # msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
+        # messages.warning(request, msg)
     else:
       # for host
       if party.confirmed:
