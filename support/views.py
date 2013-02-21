@@ -442,11 +442,7 @@ def wine_inventory(request):
               wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)
-            if created:
-              inv.on_hand = on_hand
-            else:
-              inv.on_hand += on_hand
-
+            inv.on_hand = on_hand
             inv.save()
 
             total_wines += on_hand
