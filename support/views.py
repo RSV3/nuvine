@@ -733,6 +733,12 @@ def rate_order(request, order_id):
   receiver_profile = order.receiver.get_profile()
   data['receiver_profile'] = receiver_profile
   data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+  # raise Exception
+  status_form = ChangeFulfillStatusForm(request.POST or None, instance=order)
+  if status_form.is_valid():
+    status_form.save()
+
+  data['status_change_form'] = status_form
 
   if num_slots == SelectedWine.objects.filter(order=order).count():
     SelectedWineRatingFormSet = formset_factory(SelectedWineRatingForm, extra=num_slots, max_num=num_slots)

@@ -36,7 +36,7 @@
                 Ordered By: {{ order.receiver_info }}
               </div>
               <div class="span4">
-                Order Date: {{ order.order_date }}
+                Order Date: {{ order.order_date|date:"M d, Y" }}
               </div>
             </div>
             <div class="vertical-space-20">
