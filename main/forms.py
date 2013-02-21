@@ -694,6 +694,7 @@ class AttendeesTable(tables.Table):
   edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
   shop = tables.TemplateColumn('<a href="{% url start_order record.invitee.id record.party.id %}" class="btn btn-primary">Shop</a>', verbose_name=' ')
   confirmed = tables.TemplateColumn('<a href="{% url party_remove_taster record.id %}" class="remove-taster" data-invite="{{ record.id }}">X</a>', verbose_name=' ')
+  sales = tables.Column(orderable=False)
 
   class Meta:
     model = PartyInvite
@@ -716,6 +717,8 @@ class AttendeesTable(tables.Table):
       exclude.append('wine_personality')
     if not (data['party'].host == user and data['can_add_taster'] or user.userprofile.is_pro() and data['can_add_taster']):
       exclude.append('edit')
+    if not user.userprofile.is_pro() and data['can_add_taster'] == False:
+      exclude.append('sales')
     if not data['party'].host == user:
       exclude.append('confirmed')
     if data['party'].confirmed:

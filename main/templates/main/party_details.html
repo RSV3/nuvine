@@ -68,6 +68,12 @@
               <td>Host Phone</td>
               <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}-{% endif %}</p></td>
             </tr>
+            {% if party.is_past_party %}
+              <tr>
+                <td>Total Sales</td>
+                <td>{{ party.total_sales|currency }}</td>
+              </tr>
+            {% endif %}            
           </tbody>
         </table>
       </div>
@@ -123,12 +129,6 @@
         <div class="vertical-space"></div>
         <table class="summary-table">
           <tbody>
-            {% if party.is_past_party %}
-              <tr>
-                <td>Total Sales</td>
-                <td>{{ party.total_sales|currency }}</td>
-              </tr>
-            {% endif %}
             <tr>
               <td>Special Instructions</td>
               <td>{{ party.description }}</td>

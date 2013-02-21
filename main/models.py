@@ -14,6 +14,10 @@ import uuid
 
 from personality.models import Wine
 
+import logging
+
+log = logging.getLogger(__name__)
+
 # Create your models here.
 
 
@@ -213,6 +217,13 @@ class PartyInvite(models.Model):
       return "%s invited by %s to %s" % (self.invitee.email, self.invited_by.email, self.party.title)
     else:
       return "%s invited to %s" % (self.invitee.email, self.party.title)
+
+  @property
+  def sales(self):
+    orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+    return "$%s" % aggregate['total'] if aggregate['total'] else 0
 
 
 class PersonaLog(models.Model):
