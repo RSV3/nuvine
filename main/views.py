@@ -798,7 +798,8 @@ def order_complete(request, order_id):
 
   if order.fulfill_status == 0:
     # update subscription information if new order
-    for item in order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1]):
+    items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+    for item in items:
       # check if item contains subscription
       from_date = datetime.date(datetime.now(tz=UTC()))
       # create new subscription info
@@ -815,6 +816,12 @@ def order_complete(request, order_id):
       subscription.next_invoice_date = next_invoice
       subscription.updated_datetime = datetime.now(tz=UTC())
       subscription.save()
+
+    if items.exists() and order.cart.party:
+      # if subsciption order made at a party, then update receivers to be the party pro
+      receiver_profile = order.receiver.get_profile()
+      receiver_profile.mentor = order.cart.party.pro
+      receiver_profile.save()
 
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving

@@ -22,26 +22,52 @@
           <legend>Edit Subscription</legend>
 
           <table class="table">
-            <tr>
-              <td><b>Invited By</b></td>
-              <td>
+            {% comment %}
+              <tr>
+                <td><b>Invited By</b></td>
+                <td>
+                  {% if invited_by %}
+                    {{ invited_by.first_name }} {{ invited_by.last_name }}
+                  {% else %}
+                    Self invited
+                  {% endif %}
+                </td>
+                <td>
                 {% if invited_by %}
-                  {{ invited_by.first_name }} {{ invited_by.last_name }}
-                {% else %}
-                  Self invited
+                <!-- <a href="">unlink</a> -->
                 {% endif %}
-              </td>
-              <td>
-              {% if invited_by %}
-              <!-- <a href="">unlink</a> -->
-              {% endif %}
-              </td>
-            </tr>
+                </td>
+              </tr>
+            {% endcomment %}
             <tr>
-              <td><b>Vinely Pro</b></td>
+              {% if pro %}
+                <td><b>Sponsoring Pro</b></td>
+              {% else %}
+                <td><b>Vinely Pro</b></td>
+              {% endif %}
               <td>
                 {% if pro %}
-                  You are a pro
+                 <div class="pro-info">
+                  <div class="pro-photo">
+                    {% thumbnail user.get_profile.mentor.get_profile.image "100x100" format="PNG" as im %}
+                      <img src="{{ im.url }}"/>
+                    {% endthumbnail %}            
+                  </div>
+                  <div class="pro-name">
+                    {{ user.get_profile.mentor.get_full_name }}
+                  </div>
+                  <!-- 
+                  <div class="pro-bio">
+                    Biography~~~
+                  </div> -->
+
+                  <div class="pro-email">
+                    <a href="mailto:{{ user.get_profile.mentor.email }}">{{ user.get_profile.mentor.email }}</a>
+                  </div>
+                  <div class="pro-phone">
+                    <i class="icon-user"></i>{{ user.get_profile.mentor.get_profile.phone }}
+                  </div>
+                </div>
                 {% elif pro_user %}
                  <div class="pro-info">
                   <div class="pro-photo">
@@ -52,9 +78,11 @@
                   <div class="pro-name">
                     {{ pro_user.get_full_name }}
                   </div>
+                  <!-- 
                   <div class="pro-bio">
                     Biography~~~
-                  </div>
+                  </div> -->
+
                   <div class="pro-email">
                     <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
                   </div>
@@ -68,7 +96,7 @@
               </td> 
               <td>
             		{% if not pro %}
-                  {% if pro_user%}
+                  {% if pro_user %}
             		    <a id="unlink_pro" href="{% url pro_unlink %}">unlink</a>
                   {% else %}
                     <a id="link_pro" href="javascript:;">Link to pro</a>

@@ -994,11 +994,7 @@ def first_party(user):
 
 def my_host(user):
 
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  # first host that invited me 
+  # first host that invited me
   invitation = PartyInvite.objects.filter(invitee=user).order_by('invited_timestamp')
   if invitation.exists():
     return invitation[0].party.host
@@ -1007,35 +1003,7 @@ def my_host(user):
 
 
 def my_pro(user):
-
-  ps_group = Group.objects.get(name="Vinely Pro")
-  ph_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  if ps_group in user.groups.all():
-    # I am the pro
-    return user, user.get_profile()
-
-  if ph_group in user.groups.all():
-      mypros = MyHost.objects.filter(host=user, pro__isnull=False).order_by('-timestamp')
-      if mypros.exists():
-        pro = mypros[0].pro
-        pro_profile = mypros[0].pro.get_profile()
-        return pro, pro_profile
-  elif tas_group in user.groups.all():
-    # find pro and host who invited first
-    invitation = PartyInvite.objects.filter(invitee=user).order_by('invited_timestamp')
-    if invitation.exists():
-      host = invitation[0].party.host
-      # find pro that arranged party for my host
-      mypros = MyHost.objects.filter(host=host).order_by('-timestamp')
-      if mypros.exists():
-        pro = mypros[0].pro
-        pro_profile = mypros[0].pro.get_profile()
-        return pro, pro_profile
-
-  # no parties, so no pros
-  return None, None
+  return user.userprofile.mentor, user.userprofile.mentor.get_profile()
 
 from django.db.models import Sum
 from main.models import *

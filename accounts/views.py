@@ -494,6 +494,13 @@ def make_pro_host(request, account_type, data):
         send_not_in_area_party_email(request, u, account_type)
 
       if account_type == 1:
+        try:
+          mentor = User.objects.get(email=form.cleaned_data.get('mentor'))
+          profile.mentor = mentor
+          profile.save()
+        except User.DoesNotExist:
+          mentor = None
+
         send_pro_request_email(request, u)
         # if not already in pro_pending_group, add them
         if not pro_group in u.groups.all():
