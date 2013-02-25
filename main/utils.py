@@ -644,6 +644,32 @@ def preview_party_invites_email(request, invitation_sent, embed=False):
   return html_msg
 
 
+def preview_party_thanks_note_email(request, thanks_note, embed=False):
+  template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+  content = thanks_note.custom_message if thanks_note.custom_message else template.content
+
+  subject = thanks_note.custom_subject
+
+  c = RequestContext(request, {'party': thanks_note.party,
+                              'host_name': request.get_host(),
+                              "pro_email": thanks_note.party.pro.email,
+                              'sig': True})
+
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+  html_message = html_template.render(c)
+
+  # send out party thanks e-mail
+  if embed:
+    html_msg = render_to_string("email/base_email_embed.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Thanks for being part of the amazing Vinely experience',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+  else:
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Thanks for being part of the amazing Vinely experience',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+  return html_msg
+
+
 def resend_party_invite_email(request, user, invitation_sent):
 
   content = invitation_sent.custom_message if invitation_sent.custom_message else get_default_invite_message(invitation_sent.party)
@@ -850,43 +876,44 @@ def send_mentee_assigned_notification_email(request, mentor, mentee):
   msg.send()
 
 
-def distribute_party_thanks_note_email(request, note_sent, guests, placed_order):
+def distribute_party_thanks_note_email(request, note_sent, guest_invites, placed_order):
   template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
-  c = RequestContext(request, {"party": note_sent.party,
-              "custom_message": note_sent.custom_message,
-              "invite_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
-              "invite_host_email": request.user.email,
-              "host_name": request.get_host(), "placed_order": placed_order,
-              "plain": True})
-  txt_message = txt_template.render(c)
-  c.update({'sig': True, 'plain': False})
-  html_message = html_template.render(c)
+  # recipients = []
+  for invite in guest_invites:
+    recipients = [invite.invitee.email]
+    c = RequestContext(request, {"party": note_sent.party,
+                "taster_first_name": invite.invitee.first_name,
+                "pro_email": invite.party.pro.email,
+                # "custom_message": note_sent.custom_message,
+                "party_host_name": "%s %s" % (request.user.first_name, request.user.last_name) if request.user.first_name else "Friendly Host",
+                "party_host_email": request.user.email,
+                "host_name": request.get_host(), "placed_order": placed_order,
+                "plain": True})
+    txt_message = txt_template.render(c)
+    c.update({'sig': True, 'plain': False})
+    html_message = html_template.render(c)
 
-  recipients = []
-  for invite in guests:
-    recipients.append(invite.invitee.email)
+    # send out party invitation e-mail
+    subject = note_sent.custom_subject
+    html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                              'header': 'Thanks for being part of the amazing Vinely experience',
+                                                              'message': html_message, 'host_name': request.get_host()}))
+    from_email = 'Thank You <info@vinely.com>'
 
-  # send out party invitation e-mail
-  subject = note_sent.custom_subject
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
-                                                            'header': 'Thanks for being part of the amazing Vinely experience',
-                                                            'message': html_message, 'host_name': request.get_host()}))
-  from_email = 'Thank You <info@vinely.com>'
+    p = Premailer(html_msg)
+    html_msg = p.transform()
 
-  p = Premailer(html_msg)
-  html_msg = p.transform()
+    email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+    email_log.save()
 
-  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
-  email_log.save()
+    msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
+    msg.attach_alternative(html_msg, "text/html")
+    msg.send()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
-  msg.attach_alternative(html_msg, "text/html")
-  msg.send()
-
-  return msg
+  # return msg
 
 
 def send_host_request_party_email(request, party):

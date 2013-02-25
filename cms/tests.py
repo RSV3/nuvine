@@ -1090,35 +1090,41 @@ class SimpleTest(TestCase):
     content = """
 
     {% load static %}
-
-    Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.
+    Hi {{ taster_first_name }},
 
     {% if placed_order %}
-        Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.
+    Thank you so much for attending my Vinely Taste Party and ordering some wine! I hope you had a great time and you and your personality are getting along great. Don't forget to rate your wines because the more you drink and rate, the better Vinely gets to know you!
+
+    If you'd like to learn about hosting your own Vinely Party, feel free to reach out to our <a href="mailto:{{ pro_email }}">Pro</a> with any questions or to begin planning right away. Hosting has its perks..as a host, you will receive Vinely credit for each sale from your party!
+
     {% else %}
-        It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It's easy, convenient, and delicious.
+    Thank you so much for attending my Vinely Taste Party! I hope you had a fantastic time and you and your personality are getting along great!
 
-        Again, thanks so much for coming!
+    It is not too late to place an order. Just sign in at <a href="http://www.vinely.com">Vinely.com</a> to order a personalized selection of wine shipped right to your door. It's easy, convenient, delicious and best of all, guaranteed to please your taste buds!
+
+    And if you join as a Vinely VIP you can enjoy new wines each month, with a continually improving selection based on your feedback ratings. Shipping is free, and you can cancel anytime.
+
+    Remember, your satisfaction isn’t just a goal, it’s our guarantee!
     {% endif %}
 
-    {% if custom_message %}
-        {{ custom_message }}
-    {% endif %}
-
-    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
     Tastefully,
 
-    - {{ party.host.first_name }} {{ party.host.last_name }}
+    - {{ party.host.first_name }}
 
     """
     template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
-    section, created = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    section, created = Section.objects.get_or_create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event is to take place")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ custom_message }}", description="Optional custom message added to the invite")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ taster_first_name }}", description="The taster's first name")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ pro_email }}", description="The Vinely Pro's email address")
     template.variables_legend.add(variable)
 
   ######################################

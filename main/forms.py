@@ -627,7 +627,10 @@ class CustomizeThankYouNoteForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(CustomizeThankYouNoteForm, self).__init__(*args, **kwargs)
-    self.fields['custom_subject'].widget.attrs['class'] = 'span5'
+    # self.fields['custom_subject'].widget.attrs['class'] = 'span5'
+    # seems to be using the default custom subject for send invite.
+    # deleting it falls back to default for thank you note
+    del self.fields['custom_subject']
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = TinyMCE(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
 
@@ -719,9 +722,9 @@ class AttendeesTable(tables.Table):
       exclude.append('edit')
     if not user.userprofile.is_pro() and data['can_add_taster'] == False:
       exclude.append('sales')
-    if not data['party'].host == user:
+    if data['party'].host != user:
       exclude.append('confirmed')
-    if data['party'].confirmed:
+    if data['party'].confirmed or data['can_add_taster'] == False:
       exclude.append('confirmed')
     if not (user.userprofile.is_pro() and data['can_shop_for_taster']):
       exclude.append('shop')

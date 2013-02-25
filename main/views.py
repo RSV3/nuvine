@@ -14,7 +14,7 @@ from django.utils import timezone
 from django_tables2 import RequestConfig
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent
+                        CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
 from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue, Zipcode
 
@@ -32,7 +32,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         resend_party_invite_email, get_default_invite_message, my_pro, \
                         preview_party_invites_email, get_default_signature, send_host_request_party_email, \
                         send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email, \
-                        send_new_party_host_confirm_email
+                        send_new_party_host_confirm_email, preview_party_thanks_note_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
@@ -1841,8 +1841,8 @@ def party_preview_invitation(request, party_id):
   except:
     raise Http404
 
-  preview = preview_party_invites_email(request, invitation)
-  data['invite_preview'] = preview
+  preview = preview_party_thanks_note_email(request, invitation)
+  data['thanks_note_preview'] = preview
   # return HttpResponse(preview)
   return render_to_response("main/party_preview_invitation.html", data, context_instance=RequestContext(request))
 
@@ -1930,53 +1930,80 @@ def party_customize_thanks_note(request):
 
 
 @login_required
-def party_send_thanks_note(request):
+def party_preview_thanks_note(request, party_id):
+  u = request.user
+
+  data = {}
+
+  if u.userprofile.events_manager():
+    party = get_object_or_404(Party, id=party_id)
+  else:
+    party = get_object_or_404(Party, id=party_id, host=u)
+
+  notes = ThankYouNote.objects.filter(party=party)
+  if notes.exists():
+    thanks_note = notes[0]
+  else:
+    thanks_note = ThankYouNote.objects.create(party=party)
+
+  preview = preview_party_thanks_note_email(request, thanks_note)
+  data['thanks_note_preview'] = preview
+  # return HttpResponse(preview)
+  return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def party_send_thanks_note(request, party):
   """
-    Preview or send thanks note
+    send thanks note
   """
 
   data = {}
 
-  # send invitation
-  form = CustomizeThankYouNoteForm(request.POST or None)
+  try:
+    note = ThankYouNote.objects.filter(party=party).order_by('-id')[0]
+  except:
+    note = None
+
+  # send note
+  form = CustomizeThankYouNoteForm(request.POST or None, instance=note)
   if form.is_valid():
+    if note:
+      old_note = ThankYouNote.objects.get(pk=note.id)
     num_guests = len(request.POST.getlist("guests"))
-    if form.cleaned_data['preview']:
-      note_sent = form.save(commit=False)
-      party = note_sent.party
-      data["preview"] = True
-      data["party"] = party
-      data["guests"] = request.POST.getlist("guests")
-      data["guest_count"] = num_guests
-    else:
-      note_sent = form.save()
-      party = note_sent.party
-      # send e-mails
-      guests = request.POST.getlist("guests")
-      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
-      orders = Order.objects.filter(cart__party=party)
-      buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
-      non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
-      if non_buyers:
-        distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
-      if buyers:
-        distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
+    note_sent = form.save()
+    if note:
+      note_sent.custom_message = old_note.custom_message
+      note_sent.custom_subject = old_note.custom_subject
+      note_sent.save()
+    party = note_sent.party
 
-      messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
-      data["parties_menu"] = True
+    # send e-mails
+    guests = request.POST.getlist("guests")
+    invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
+    orders = Order.objects.filter(cart__party=party)
+    buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
+    non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
+    if non_buyers:
+      distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
+    if buyers:
+      distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
 
-      return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
+    messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
+    data["parties_menu"] = True
+
+    return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data["form"] = form
   data["parties_menu"] = True
 
-  return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
+  return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
 
 @login_required
 def party_send_invites(request):
   """
-    Preview invitation or send the invites
+    Send the invites
   """
 
   data = {}
@@ -1987,8 +2014,11 @@ def party_send_invites(request):
   except:
     invitation = None
 
-  # send invitation
-  form = CustomizeInvitationForm(request.POST or None, instance=invitation)
+  if request.POST.get('send_thank_you'):
+    return party_send_thanks_note(request, party)
+  else:
+    # send invitation
+    form = CustomizeInvitationForm(request.POST or None, instance=invitation)
 
   if form.is_valid():
     if invitation:
@@ -2008,7 +2038,7 @@ def party_send_invites(request):
       messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
-  return HttpResponseRedirect(reverse("main.views.party_details", args=[party.id]))
+  return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
 
 @login_required

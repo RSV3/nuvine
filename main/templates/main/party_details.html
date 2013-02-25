@@ -272,7 +272,9 @@
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
             <div class="span9">
-              <a target="_blank" class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a>
+              &nbsp;
+              <!-- <a target="_blank" class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a> -->
+              <a target="_blank" href="{% url party_preview_thanks_note party.id %}" class="btn btn-primary">Preview Thank you note</a>
             </div>
             <div class="span3">
               <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Thank Attendees</button>

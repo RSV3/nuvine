@@ -27,9 +27,11 @@
               <tr>
                 <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
               </tr>
+              {% comment %}
               <tr>
                 <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
               </tr>
+              {% endcomment %}
               <tr>
                 <td>Subject:</td><td>{{ form.custom_subject }}</td>
               </tr>
@@ -56,11 +58,13 @@
 
           <p>Again, thanks so much for coming!</p>
           <hr />
+          {% comment %}
           <div class="control-group">
             <div class="controls">
               {{ form.custom_message }}
             </div>
           </div>
+          {% endcomment %}
         </div>
       </div>
 
