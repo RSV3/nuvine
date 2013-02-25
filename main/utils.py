@@ -385,7 +385,8 @@ def send_new_party_scheduled_email(request, party):
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients,
+                                headers={'Reply-To': request.user.email}, bcc=['care@vinely.com'])
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
 
