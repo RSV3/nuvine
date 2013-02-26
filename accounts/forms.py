@@ -312,7 +312,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   mentor = forms.EmailField(required=False, label="Vinely Pro Mentor (Email)")
   zipcode = us_forms.USZipCodeField()
-  phone_number = us_forms.USPhoneNumberField(required=False)
+  phone_number = us_forms.USPhoneNumberField()
 
   def __init__(self, *args, **kwargs):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)

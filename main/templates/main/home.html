@@ -17,7 +17,7 @@
 
   {% if pro %}
     {% if not wine_personality and not questionnaire_completed %}
-      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Taste Survey</a></div></li>
     {% endif %}
     <li><div class="chev"><a href="{% url party_list %}">Your Parties</a></div></li>
     <li><div class="chev"><a href="{% url party_add %}">Create Party</a></div></li>
@@ -29,7 +29,7 @@
     <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
   {% elif host %}
     {% if not wine_personality and not questionnaire_completed %}
-      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Taste Survey</a></div></li>
     {% endif %} 
     <li><div class="chev"><a href="{% url party_list %}">View or Update Parties</a></div></li>
     {% if party_scheduled %}
@@ -51,17 +51,17 @@
       <li><div class="chev"><a href="">Your Invite</a></li>
     {% endif %}
     {% if not wine_personality and not questionnaire_completed %}
-      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Taste Survey</a></div></li>
     {% else %}
       <li><div class="chev"><a href="{% url start_order %}">Place an Order</a></div></li>
       <li><div class="chev"><a href="{% url order_history %}">Order History</a></div></li>
     {% endif %}
     <li><div class="chev"><a href="{% url make_pro_host 'host' %}">Host a Vinely Taste Party</a></div></li>
     <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
-    <li><div class="chev"><a href="{% url get_started %}#get-started-pro">Become a Vinely Pro</a></div></li>
+    <li><div class="chev"><a href="{% url make_pro_host 'pro' %}">Become a Vinely Pro</a></div></li>
   {% elif pending_pro %}
     {% if not wine_personality and not questionnaire_completed %}
-      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Get Started-Taste Survey</a></div></li>
+      <li><div class="chev"><a href="{% url pre_questionnaire_general %}">Taste Survey</a></div></li>
       <li><div class="chev"><a href="{% url how_it_works %}">Learn More about Vinely</a></div></li>
     {% else %}
       <li><div class="chev"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Party To-Do List</a></div></li>
@@ -97,9 +97,9 @@
     </div>
     <div class="sub-welcome">
       {% if wine_personality %}
-      We hope that you and your wine personality are getting along great!
+      We hope that you and your Wine Personality are getting along great!
       {% else %}
-      You don't have a Vinely wine personality quite yet, but we can't wait until you do!
+      You don't have a Vinely Wine Personality quite yet, but we can't wait until you do!
       {% endif %}
     </div>
   </div>
@@ -128,7 +128,7 @@
       	    it gives us a better idea of what you love, so we can deliver better wine, every time. <br /> <br />
             Ready to place a new order? <a href="{% url start_order %}" class="btn btn-primary">Order Now!</a>
           {% else %}
-            We're happy you have a wine personality, but sad you have no wine to show for it. 
+            We're happy you have a Wine Personality, but sad you have no wine to show for it. 
             Why not <a href="{% url start_order %}">place an order</a>? Better yet, <a href="{% url edit_subscription %}">become a Vinely VIP</a>!
           {% endif %}
         {% else %}
@@ -154,7 +154,7 @@
           {% endif %}
         {% else %}
           {% if party_date %}
-            You will learn your wine personality on {{ party_date|date:"n/j" }}. And we can't wait until you do! <br />
+            You will learn your Wine Personality on {{ party_date|date:"n/j" }}. And we can't wait until you do! <br />
             {% if not questionnaire_completed %}
               (In the meantime, take your first step and <a href="{% url pre_questionnaire_general %}">answer a few questions</a>.)
             {% endif %}
@@ -163,10 +163,9 @@
               It's getting closer and closer to party time. To ensure you'll be the host with the most, 
               make sure you're up to date with the <a href="{{ STATIC_URL }}doc/PDF_SocialPartyToDoList.pdf">Vinely Taste Party To-Do List</a>.
             {% else %}
-              You don't have a Vinely wine personality quite yet, but we can't wait until you do! Take your first step and
-              <a href="{% url host_vinely_party %}">schedule a party date</a> with your Vinely Pro! <br />
+              Take your first step and <a href="{% url host_vinely_party %}">schedule a party date</a> with your Vinely Pro! <br />
               {% if not questionnaire_completed %}
-                (In the meantime, take your first step and <a href="{% url pre_questionnaire_general %}">answer a few questions</a>.)
+                In the meantime, fill out our <a href="{% url pre_questionnaire_general %}">taste survey</a> so we can learn more about you and your tastes!
               {% endif %}
             {% endif %}
           {% endif %}
