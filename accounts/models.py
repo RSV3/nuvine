@@ -546,6 +546,7 @@ class SubscriptionInfo(models.Model):
       log.info("There's no party for: %s" % user.email)
     cart.save()
     cart.items.add(item)
+    cart.discount = cart.calculate_discount()
     cart.save()
 
     order = Order(ordered_by=user, receiver=user, cart=cart,
@@ -560,8 +561,16 @@ class SubscriptionInfo(models.Model):
     order.save()
     log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
 
+    if receiver_state in Cart.STRIPE_STATES:
+      if cart.discount > 0:
+        # customer = stripe.Customer.retrieve(id=customer.id)
+        coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
+        customer.coupon = coupon.id
+        customer.save()
+
     if (receiver_state in Cart.STRIPE_STATES) and charge_stripe:
       try:
+
         stripe.InvoiceItem.create(customer=customer.id, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
         stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
         customer.update_subscription(plan=stripe_plan)

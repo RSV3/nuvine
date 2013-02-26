@@ -345,15 +345,41 @@ class Cart(models.Model):
 
   NO_TAX_STATES = ('MA',)
 
-  STRIPE_STATES = ('CA')
+  STRIPE_STATES = ('CA',)
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
+  discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   # tracks activity in the carts
   adds = models.IntegerField(default=0)
   removes = models.IntegerField(default=0)
   # viewing cart
   views = models.IntegerField(default=0)
+
+  def calculate_discount(self):
+    '''
+    Calculate discount based on available credits.
+    '''
+    from main.utils import calculate_host_credit
+    # dont apply when pro ordering for someone
+    if self.user != self.receiver:
+      return 0
+
+    # dont apply for tasting kit
+    items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
+    if items.exists():
+      return 0
+
+    credit = calculate_host_credit(self.user)
+
+    max_discount = self.subtotal() / 2
+
+    if credit <= max_discount:
+      applied_discount = credit
+    else:
+      applied_discount = max_discount
+
+    return applied_discount
 
   def subtotal(self):
     # sum of all line items
@@ -406,11 +432,12 @@ class Cart(models.Model):
     elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
     else:
-      tax = float(self.subtotal()) * 0.06
+      tax = (float(self.subtotal()) - float(self.discount)) * 0.06
     return tax
 
   def total(self):
-    return self.shipping() + self.tax() + self.subtotal()
+    # TODO: total everything including shipping and tax
+    return self.shipping() + self.tax() + self.subtotal() - float(self.discount)
 
   def items_str(self):
     output = []
