@@ -57,7 +57,7 @@
 {% endblock %}
 
 {% block header %}
-  <h1>Wine Tastes and Preferences</h1>
+  <h1>Wine Tastes and Preferences (Page 2 of 2)</h1>
 {% endblock header %}
 
 {% block content %}
@@ -76,7 +76,7 @@
         {{ form.user }}
 
         <div class="control-group{% if form.typically_drink.errors %} error{% endif %}">
-          <div class="control-label" for="id_typically_drink">1. {{ form.typically_drink.label }}</div>
+          <div class="control-label" for="id_typically_drink">10. {{ form.typically_drink.label }}</div>
           <div class="controls">
             {{ form.typically_drink}} 
             {% if form.typically_drink.errors %}
@@ -92,7 +92,7 @@
 
         <div class="control-group">
           <div class="control-label">
-        2. When selecting a RED wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row).
+        11. When selecting a RED wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row).
           </div>
         </div>
 
@@ -139,7 +139,7 @@
         </div>
 
         <div class="control-group{% if form.red_wines_often.errors %} error{% endif %}">
-          <div class="control-label" for="id_red_wines_often">3. {{ form.red_wines_often.label }}</div>
+          <div class="control-label" for="id_red_wines_often">12. {{ form.red_wines_often.label }}</div>
           <div class="controls">
             {{ form.red_wines_often}} 
             {% if form.red_wines_often.errors %}
@@ -163,7 +163,7 @@
 
 
         <div class="control-group{% if form.red_wine_dislike.errors %} error{% endif %}">
-          <div class="control-label" for="id_red_wine_dislike">4. {{ form.red_wine_dislike.label }}</div>
+          <div class="control-label" for="id_red_wine_dislike">13. {{ form.red_wine_dislike.label }}</div>
           <div class="controls">
             {{ form.red_wine_dislike}} 
             {% if form.red_wine_dislike.errors %}
@@ -190,7 +190,7 @@
 
         <div class="control-group">
           <div class="control-label">
-        5. When selecting a WHITE wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row).
+        14. When selecting a WHITE wine, which of the following do you tend to prefer for each wine characteristic? If you have no clue, that's fine! (select one for each row).
           </div>
         </div>
 
@@ -237,7 +237,7 @@
         </div>
 
         <div class="control-group{% if form.white_wines_often.errors %} error{% endif %}">
-          <div class="control-label" for="id_white_wines_often">6. {{ form.white_wines_often.label }}</div>
+          <div class="control-label" for="id_white_wines_often">15. {{ form.white_wines_often.label }}</div>
           <div class="controls">
             {{ form.white_wines_often}} 
             {% if form.white_wines_often.errors %}
@@ -261,7 +261,7 @@
 
 
         <div class="control-group{% if form.white_wine_dislike.errors %} error{% endif %}">
-          <div class="control-label" for="id_white_wine_dislike">7. {{ form.white_wine_dislike.label }}</div>
+          <div class="control-label" for="id_white_wine_dislike">16. {{ form.white_wine_dislike.label }}</div>
           <div class="controls">
             {{ form.white_wine_dislike}} 
             {% if form.white_wine_dislike.errors %}
@@ -284,7 +284,7 @@
         </div>        
         
         <div class="control-group{% if form.other_wines.errors %} error{% endif %}">
-          <div class="control-label" for="id_other_wines">8. {{ form.other_wines.label }}</div>
+          <div class="control-label" for="id_other_wines">17. {{ form.other_wines.label }}</div>
           <div class="controls">
             {{ form.other_wines}} 
             {% if form.other_wines.errors %}

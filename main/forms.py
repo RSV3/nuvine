@@ -762,8 +762,7 @@ class OrderHistoryTable(tables.Table):
   class Meta:
     model = Order
     attrs = table_attrs
-    sequence = ['order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status', '...']
-    exclude = ['id', 'ordered_by', 'cart', 'shipping_address', 'credit_card', 'stripe_card', 'carrier', 'tracking_number', 'ship_date', 'last_updated']
+    fields = ('order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status')
     order_by = ['-order_id']
     orderable = True
 
@@ -772,7 +771,7 @@ class OrderHistoryTable(tables.Table):
     super(OrderHistoryTable, self).__init__(*args, **kwargs)
 
   def render_order_id(self, record, column):
-    return mark_safe('<a href="%s">%s</a>' % (reverse('order_complete', args=[record.order_id]), record.vinely_order_id()))
+    return mark_safe('<a href="%s">%s</a>' % (reverse('order_complete', args=[record.order_id]), record.vinely_order_id))
 
   def render_receiver(self, record, column):
     if self.user == record.receiver:

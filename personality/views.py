@@ -135,7 +135,7 @@ def pre_questionnaire_general(request, rsvp_code=None):
   form = GeneralTasteQuestionnaire(request.POST or None, instance=general_taste)
   if form.is_valid():
     form.save()
-    messages.success(request, "Your general taste information has been saved.")
+    # messages.success(request, "Your general taste information has been saved.")
     if rsvp_code:
       return HttpResponseRedirect(reverse("pre_questionnaire_wine", args=[rsvp_code]))
     else:
