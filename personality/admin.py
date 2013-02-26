@@ -19,11 +19,12 @@ def recalculate_personality(modeladmin, request, queryset):
 
 recalculate_personality.short_description = "Recalculate personality"
 
+
 class WineRatingDataAdmin(admin.ModelAdmin):
 
-  list_display = ('user_email', 'wine_num', 'overall', 'personality'  ) 
+  list_display = ('user_email', 'wine_num', 'overall', 'personality')
   list_editable = ('overall',)
-  actions = [recalculate_personality] 
+  actions = [recalculate_personality]
 
   def user_email(self, instance):
     return instance.user.email
@@ -33,6 +34,5 @@ class WineRatingDataAdmin(admin.ModelAdmin):
 
   def personality(self, instance):
     return instance.user.get_profile().wine_personality
-
 
 admin.site.register(WineRatingData, WineRatingDataAdmin)

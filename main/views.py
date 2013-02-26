@@ -530,8 +530,9 @@ def cart_add_wine(request):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
+    cart.discount = cart.calculate_discount()
     cart.save()
-
+    # raise Exception
     # update customization options
     # custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
 
@@ -729,6 +730,9 @@ def place_order(request):
     except CustomizeOrder.DoesNotExist:
       pass
 
+    cart.discount = cart.calculate_discount()
+    cart.save()
+
     data['taste_kit_order'] = request.session.get('taste_kit_order')
 
     if request.method == "POST":
@@ -771,6 +775,12 @@ def place_order(request):
         if receiver_state in Cart.STRIPE_STATES:
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
+
+        if cart.discount > 0:
+          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          customer.coupon = coupon.id
+          customer.save()
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.

@@ -739,7 +739,7 @@ def calculate_host_credit(host):
   host_parties = Party.objects.filter(host=host, event_date__lt=today)
 
   # only calculate credit if they have hosted a party
-  if host_parties.count() == 0:
+  if not host_parties.exists():
     return 0
 
   total_orders = 0
@@ -752,9 +752,6 @@ def calculate_host_credit(host):
     orders = orders.exclude(ordered_by=host)
     # should not be tasting kit
     orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
-    #print 'party date', party.event_date, 'window', party_window
-    #print 'order date', [(party_window - x.order_date) for x in orders]
-    #print 'order date', [(x.ordered_by.email, x.cart.party.event_date) for x in orders]
     aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
     total_orders += aggregate['total'] if aggregate['total'] else 0
 
@@ -764,18 +761,22 @@ def calculate_host_credit(host):
   # 800 - 999 = 90
   # 1000-1199 = 120
   # 1200-1399 = 150
-  credit = 20 * host_parties.count()
+  available_credit = 20 * host_parties.count()
 
   total = int(total_orders + 1)
   for cost in range(400, total, 200):
     if cost == 400:
-      credit += 40
+      available_credit += 40
     elif cost > 800:
-      credit += 30
+      available_credit += 30
     else:
-      credit += 20
+      available_credit += 20
 
-  return credit
+  # deduct used credit
+  orders = Order.objects.filter(cart__discount__gt=0)
+  credit_aggregate = orders.aggregate(total=Sum('cart__discount'))
+  credit_used = credit_aggregate['total'] if credit_aggregate['total'] else 0
+  return available_credit - credit_used
 
 from accounts.models import SubscriptionInfo
 from main.models import OrganizedParty
