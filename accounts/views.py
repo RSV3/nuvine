@@ -179,7 +179,7 @@ def my_information(request):
     msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
     messages.success(request, msg)
 
-  if profile.stripe_card and (profile.shipping_address.state in Cart.STRIPE_STATES):
+  if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
     card_number = '*' * 10 + profile.stripe_card.last_four
     payment_form.initial['card_number'] = card_number
   elif profile.credit_card:
