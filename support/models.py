@@ -32,3 +32,6 @@ class WineInventory(models.Model):
   on_hand = models.IntegerField(default=0)
   updated = models.DateTimeField(auto_now=True)
   created = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    verbose_name_plural = u'Wine Inventory'
