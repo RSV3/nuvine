@@ -1,5 +1,6 @@
 body {
   background: url('../img/site_background_pattern.png');
+  letter-spacing:0px;
 }
 
 /* utilities */
@@ -525,7 +526,7 @@ footer .container .navbar {
 .wine-exp {
   width: 400px;
   float: left;
-  padding-left: 200px;
+  padding-left: 350px;
 }
 
 .wine-exp h2 {
