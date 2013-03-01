@@ -223,7 +223,7 @@ class PartyInvite(models.Model):
     orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
     orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
     aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
-    return "$%s" % aggregate['total'] if aggregate['total'] else 0
+    return "$%s" % aggregate['total'] if aggregate['total'] else "$0"
 
 
 class PersonaLog(models.Model):

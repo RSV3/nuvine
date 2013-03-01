@@ -116,11 +116,12 @@ def my_information(request):
     today = datetime.date(timezone.now())
     dob = eligibility_form.cleaned_data['dob']
 
-    datediff = today - dob
-    if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
-          (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
-      messages.error(request, 'The Date of Birth shows that you are not over 21')
-      return HttpResponseRedirect('.')
+    if dob:
+      datediff = today - dob
+      if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
+            (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
+        messages.error(request, 'The Date of Birth shows that you are not over 21')
+        return HttpResponseRedirect('.')
 
     # user_form is already validated up-top
     updated_user = user_form.save()
@@ -890,7 +891,9 @@ def verify_account(request, verification_code):
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
     if verification.verified:
-      data["error"] = "You have already been verified"
+      # data["error"] = "You have already been verified"
+      messages.success(request, "You have already been verified.")
+      return HttpResponseRedirect(reverse("home_page"))
     else:
       data["email"] = verification.user.email
   except VerificationQueue.DoesNotExist:

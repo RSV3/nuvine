@@ -51,9 +51,9 @@
       
     <div class="span7">
       <div class="vertical-space">&nbsp;</div>
-      <p>
-        <a href="{% url start_order %}" class="btn btn-primary btn-large">Shop</a>
-      </p>
+        <p>
+          <a href="{% url start_order %}" class="btn btn-primary btn-large">Shop</a>
+        </p>
       {% if pro %}
         <p>
           <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
@@ -72,8 +72,8 @@
             </tr>
             <tr>
               <td>
-                {% if my_pro.userprofile.image %}
-                  {% thumbnail my_pro.userprofile.image "90x90" as im %}
+                {% if my_pro.get_profile.image %}
+                  {% thumbnail my_pro.get_profile.image "90x90" as im %}
                     <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                   {% endthumbnail %}
                 {% else %}
@@ -87,7 +87,7 @@
                     <a href="{% url my_information %}">&nbsp;Edit</a>
                   {% endif %}
                 </p>
-                <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
+                <p>{% if my_pro.get_profile.phone %}{{ my_pro.get_profile.phone }}{% else %}----{% endif %}</p>
                 <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
               </td>
             </tr>

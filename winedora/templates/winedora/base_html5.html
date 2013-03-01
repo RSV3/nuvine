@@ -187,11 +187,9 @@
                 <li id="parties"{% if parties_menu %} class="active"{% endif %}>
                   <a href="{% url party_list %}" title="parties"></a>
                 </li>
-                {% if user.get_profile.has_personality %}
-                  <li id="shop"{% if shop_menu %} class="active"{% endif %}>
-                    <a href="{% url start_order %}" title="shop"></a>
-                  </li>
-                {% endif %}
+                <li id="shop"{% if shop_menu %} class="active"{% endif %}>
+                  <a href="{% url start_order %}" title="shop"></a>
+                </li>
                 {% if user.get_profile.has_orders %}
                   <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
                     <a href="{% url rate_wines %}" title="rate wines"></a>

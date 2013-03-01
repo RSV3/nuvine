@@ -332,14 +332,17 @@
 
               {% if self_hosting %}
                 <div class="span9">
-                  <button type="submit" name="save" value="save" class="btn btn-primary">Save</button>
+                  <button type="submit" name="save" value="save" class="btn btn-primary commit">Save</button>
                 </div>
                 <div class="span2">
-                  <button type="submit" name="next" value="next" class="btn btn-primary">Next</button>
+                  <button type="submit" name="next" value="next" class="btn btn-primary commit">Next</button>
                 </div>
               {% else %}
+                <div class="span8">
+                  <button class="btn btn-primary preview" name="preview" value="preview">Preview Email to Host</button>
+                </div>
                 <div class="span3">
-                  <button type="submit" name="create" value="create" class="btn btn-success">Confirm with host</button>
+                  <button type="submit" name="create" value="create" class="btn btn-success commit">Confirm with host</button>
                 </div>
               {% endif %}
 
@@ -407,6 +410,12 @@
             }
           });
         }
+      });
+      $('.commit').click(function() {
+        this.form.target = '_self';
+      });
+      $('.preview').click(function(e) {
+        this.form.target = '_blank';
       });
     });
 

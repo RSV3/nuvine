@@ -167,7 +167,7 @@
 
     {% if can_add_taster %}
       {% if pro or host or taster and party.guests_can_invite %}
-      <form class="form-horizontal" method="POST" action="">
+      <form id="add_taster_form" class="form-horizontal" method="POST" action="">
         {% csrf_token %}
         {{ taster_form.party }}
         {{ taster_form.response }}
@@ -236,7 +236,7 @@
           <div class="span12">
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
             {% if user.get_profile.events_manager %}
-              <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
+              <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster Self Add</a>
             {% endif %}
           </div>
         </div>
@@ -358,6 +358,7 @@
           });
         }
       });
+      $('#add_taster_form').find('input[type=text]').val("");
     });
   </script>
 {% endblock additional_scripts %}

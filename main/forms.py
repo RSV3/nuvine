@@ -535,7 +535,7 @@ class ShippingForm(forms.ModelForm):
   state = us_forms.USStateField()  # choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
-  email = forms.EmailField(help_text="A new account will be created using this e-mail address if not an active account")
+  email = forms.EmailField()  # help_text="A new account will be created using this e-mail address if not an active account")
 
   news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", \
                                 initial=True, required=False)
@@ -694,10 +694,10 @@ class AttendeesTable(tables.Table):
   invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
   response = tables.Column(verbose_name='RSVP')
   wine_personality = tables.Column(accessor='invitee.userprofile.wine_personality', verbose_name='Wine Personality', order_by=('invitee.userprofile.wine_personality.name',))
-  edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
   shop = tables.TemplateColumn('<a href="{% url start_order record.invitee.id record.party.id %}" class="btn btn-primary">Shop</a>', verbose_name=' ')
-  confirmed = tables.TemplateColumn('<a href="{% url party_remove_taster record.id %}" class="remove-taster" data-invite="{{ record.id }}">X</a>', verbose_name=' ')
   sales = tables.Column(orderable=False)
+  edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
+  confirmed = tables.TemplateColumn('<a href="{% url party_remove_taster record.id %}" class="remove-taster" data-invite="{{ record.id }}">X</a>', verbose_name=' ')
 
   class Meta:
     model = PartyInvite

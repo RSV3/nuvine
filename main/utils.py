@@ -586,12 +586,11 @@ def distribute_party_invites_email(request, invitation_sent):
         vque.save()
 
     c = RequestContext(request, {'host_name': request.get_host(), 'invite': invite})
+    user_content = content + '\n\n<a class="brand-btn" href="http://{{ host_name }}{% url party_rsvp invite.rsvp_code invite.party.id  %}">RSVP for the Party</a> \n'
 
-    content += '\n\n<a class="brand-btn" href="http://{{ host_name }}{% url party_rsvp invite.rsvp_code invite.party.id  %}">RSVP for the Party</a> \n'
-
-    html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
+    html_template = Template('\n'.join(['<p>%s</p>' % x for x in user_content.split('\n\n') if x]))
     html_message = html_template.render(c)
-    txt_message = content
+    txt_message = user_content
 
     # send out party invitation e-mail
     html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
@@ -1003,6 +1002,35 @@ def send_new_party_host_confirm_email(request, party):
   msg.send()
 
   return email_log
+
+
+def preview_host_confirm_email(request, party):
+  template = Section.objects.get(template__key='new_party_host_confirm_email', category=0)
+  # txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  host_first_name = party.host.first_name if party.host.first_name else "Friendly Host"
+
+  pro, pro_profile = my_pro(request.user)
+  party.id = 0
+  c = RequestContext(request, {"party": party,
+              "invite_host_name": "%s" % host_first_name,
+              "pro": pro,
+              "pro_phone": pro.userprofile.phone,
+              "pro_name": "%s" % pro.first_name if pro and pro.first_name else "Care Specialist",
+              "host_name": request.get_host(), "plain": True})
+  # txt_message = txt_template.render(c)
+  c.update({'sig': True, 'plain': False})
+  html_message = html_template.render(c)
+
+  # send out party invitation e-mail
+
+  subject = "Your Vinely Taste Party has been scheduled!"
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
+                                                            'header': 'Let\'s get the party started',
+                                                            'message': html_message, 'host_name': request.get_host()}))
+
+  return html_msg
 
 ##############################################################################
 # Utility methods for finding out user relations and party relations

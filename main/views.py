@@ -32,7 +32,7 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         resend_party_invite_email, get_default_invite_message, my_pro, \
                         preview_party_invites_email, get_default_signature, send_host_request_party_email, \
                         send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email, \
-                        send_new_party_host_confirm_email, preview_party_thanks_note_email
+                        send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
@@ -1109,6 +1109,11 @@ def party_add(request, party_id=None, party_pro=None):
     if form.is_valid():
       new_party = form.save(commit=False)
 
+      if request.POST.get('preview'):
+        preview = preview_host_confirm_email(request, new_party)
+        data['preview'] = preview
+        return render_to_response("main/party_host_confirmation_preview.html", data, context_instance=RequestContext(request))
+
       if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
         # new_party.confirmed = True
         new_party.requested = True
@@ -1183,9 +1188,9 @@ def party_add(request, party_id=None, party_pro=None):
 
       if request.POST.get('create'):
         # go to party details page
-        email = send_new_party_host_confirm_email(request, new_party)
-        return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
-        # return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        send_new_party_host_confirm_email(request, new_party)
+        # return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
+        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
