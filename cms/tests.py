@@ -54,6 +54,57 @@ class SimpleTest(TestCase):
     self.create_signed_up_as_host_email_template()
     self.create_first_time_host_signup_template()
     self.create_new_party_host_confirm_email_template()
+    self.create_welcome_email_template()
+
+  def create_welcome_email_template(self):
+    content = """
+    Hi {{ taster_first_name }},
+
+    {% if verification_code %}
+    To allow you to enjoy all that Vinely has to offer, we have created a new account for you. Follow the following steps to activate your account.
+    <h3>Activate Account:</h3>
+    <table>
+    <tr>
+    <td>&nbsp;</td>
+    <td><b>Step One</b></td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td>Copy your temporary password: {{ temp_password }}</td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td><b>Step Two</b></td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td>Click the following <a href="http://{{ host_name }}{% url verify_account verification_code %}">link</a> and paste you temporary password to verify your account.</td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td><a href="http://{{ host_name }}{% url verify_account verification_code %}">http://{{ host_name }}{% url verify_account verification_code %}</a></td>
+    </tr>
+    </table>
+    {% endif %}
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+    template, created = ContentTemplate.objects.get_or_create(key="welcome_email", category=0)
+    section, created = Section.objects.get_or_create(category=0, template=template)
+    section.content = content
+    section.save()
+
+    variable, created = Variable.objects.get_or_create(var="{{ taster_first_name }}", description="The taster's first name")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="Account verification link")
+    template.variables_legend.add(variable)
 
   def create_new_party_host_confirm_email_template(self):
     content = """

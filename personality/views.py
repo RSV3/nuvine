@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db.models import Q
 from datetime import timedelta
 
-from main.utils import if_supplier
+from main.utils import if_supplier, send_welcome_to_vinely_email
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue
@@ -513,6 +513,19 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
           data['can_order_for_taster'] = (today - party.event_date <= timedelta(hours=24))
 
+        if not taster.is_active:
+          temp_password = User.objects.make_random_password()
+          taster.set_password(temp_password)
+          taster.save()
+
+          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
+            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+            verification_code = vque.verification_code
+          else:
+            verification_code = str(uuid.uuid4())
+            vque = VerificationQueue(user=taster, verification_code=verification_code)
+            vque.save()
+          send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))
