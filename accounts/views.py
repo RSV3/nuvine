@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages, auth
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.conf import settings
 
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
 
