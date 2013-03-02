@@ -292,6 +292,20 @@
               </div>              
             </fieldset>
             {% if self_hosting %}
+              <div class="vertical-space"></div>
+              <div class="controls">
+              {% if not party.requested and not pro and not user.get_profile.events_manager %}
+                <div class="row">
+                  <div class="span10">
+                    <p>
+                      <i>Note: If you need to change the host contact info or the date and time, please contact your pro.</i>
+                    </p>
+                  </div>
+                </div>
+                <div class="vertical-space"></div>
+              {% endif %}
+              </div>
+              {% comment %}
               <fieldset>
                 <legend><h2>{{ form.description.label }}</h2></legend>
                 <div class="control-group {% if form.description.errors %}error{% endif %}">
@@ -303,21 +317,10 @@
                         {{ form.description.errors }}
                       </span>
                     {% endif %}
-                    <div class="vertical-space"></div>
-                    {% if not party.requested and not pro and not user.get_profile.events_manager %}
-                      <div class="row">
-                        <div class="span10">
-                          <p><i>Note: We will notify your Pro of the party request once you complete the setup. 
-                            The Pro will then need to confirm the date and time before your party invite is sent out.
-                            <!-- See Invite Options section above for preferences on when we should deliver your invite. -->
-                          </i>
-                          </p>
-                        </div>
-                      </div>
-                    {% endif %}
                   </div>
                 </div>
               </fieldset>
+              {% endcomment %}
             {% endif %}
             <div class="row">
               <div class="span1">&nbsp;</div>

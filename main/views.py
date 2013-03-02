@@ -1176,7 +1176,7 @@ def party_add(request, party_id=None, party_pro=None):
 
           # send an invitation e-mail if new host created
           send_new_party_email(request, verification_code, temp_password, new_host.email)
-          send_new_party_scheduled_email(request, new_party)
+          # send_new_party_scheduled_email(request, new_party)
         # else:
         #   # existing host needs to notified that party has been arranged
         #   if not u.userprofile.events_manager() and new_host != u:
@@ -1334,7 +1334,7 @@ def party_review_request(request, party_id):
     party.confirmed = True
     party.save()
     # Send confirmation request to Pro
-    send_host_request_party_email(request, party)
+    # send_host_request_party_email(request, party)
     party_has_pro = OrganizedParty.objects.filter(party=party)
     if party_has_pro.exists():
       send_new_party_scheduled_by_host_email(request, party)
