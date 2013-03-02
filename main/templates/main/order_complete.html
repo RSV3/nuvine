@@ -33,6 +33,7 @@
       <p><h3>Order Information</h3></p>
       <p>Order #: {{ order.vinely_order_id}}</p>
       <p>Order Date: {{ order.order_date|date}}</p>
+      <p>Order Status: {{ order.get_fulfill_status_display }}</p>
       <p>&nbsp;</p>
       <p><h3>Shipping Information</h3></p>
       <address>

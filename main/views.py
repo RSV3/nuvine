@@ -333,15 +333,16 @@ def cart_add_tasting_kit(request, party_id=0):
     raise Http404
 
   # check how many invites and recommend number of taste kits
-  invites = PartyInvite.objects.filter(party=party)
-  if invites.count() == 0:
-    messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
-  elif invites.count() < 8:
-    messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
-  elif invites.count() > 12 and invites.count() <= 24:
-    messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
-  elif invites.count() > 24:
-    messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
+  # invites = PartyInvite.objects.filter(party=party)
+  # if invites.count() == 0:
+  #   messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
+  # elif invites.count() < 8:
+  #   messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
+  # elif invites.count() > 12 and invites.count() <= 24:
+  #   messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
+  # elif invites.count() > 24:
+  #   messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
+  # else:
 
   request.session['taste_kit_order'] = True
 
@@ -395,7 +396,7 @@ def cart_add_tasting_kit(request, party_id=0):
     data["form"] = form
 
   data["shop_menu"] = True
-
+  messages.info(request, 'One taste kit can accomodate up to 12 people. If you plan on having more than 12 guests, order two kits.')
   return render_to_response("main/cart_add_tasting_kit.html", data, context_instance=RequestContext(request))
 
 
@@ -1439,7 +1440,7 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
       invite = form.save()
       invite.invited_timestamp = old_invite.invited_timestamp
       invite.invited_by = old_invite.invited_by
-      invite.rsvp_code = str(uuid.uuid4())
+      invite.rsvp_code = old_invite.rsvp_code if old_invite.rsvp_code else str(uuid.uuid4())
       invite.save()
       invitee = invite.invitee
 
@@ -1776,7 +1777,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
       invite.response = int(response)
       invite.save()
 
-  invitees = PartyInvite.objects.filter(party=party).exclude(invitee=u)
+  invitees = PartyInvite.objects.filter(party=party)
   data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
   data["party"] = party
   data["invitees"] = invitees
@@ -2375,7 +2376,7 @@ def edit_shipping_address(request):
   if request.method == 'POST':
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
-    if not ok:
+    if zipcode and not ok:
       messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
       return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
@@ -2875,7 +2876,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       data['attending'] = True
 
       ok = check_zipcode(profile.zipcode)
-      if not ok:
+      if profile.zipcode and not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, user, account_type)
       send_rsvp_thank_you_email(request, user, verification_code, temp_password)
