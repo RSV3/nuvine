@@ -146,6 +146,8 @@ STATICFILES_FINDERS = (
 EMAIL_STATIC_URL = 'http://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 
 if DEBUG is False:
+  # if production
+
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
   #STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
   #DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
@@ -163,6 +165,9 @@ if DEBUG is False:
 else:
   DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
   DEFAULT_S3_PATH = 'media'
+  if NEW_PARTY:
+    MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
+    MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME    
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
