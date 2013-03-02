@@ -22,59 +22,116 @@
 {% block content %}
 <div class="container">
   <div class="row">
-
-    <div class="offset1 span6">
-      We are so excited for you to get started! <br />
-      Here's what you'll need to do: <br />
-      <ol>
-        <li>
-          Talk to your Vinely Pro. Together you will schedule your first party
-          <table class="offset1 summary-table">
-            <tbody>
-              <tr>
-                <td><h2><small>Pro Info</small></h2></td>
-              </tr>
-              <tr>
-                <td>
-                  {% if my_pro %}
-                    {% if my_pro.userprofile.image %}
-                      {% thumbnail my_pro.userprofile.image "90x90" as im %}
-                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                      {% endthumbnail %}
+    {% if pro %}
+      <div class="offset1 span6">
+        <p>Thanks for your interest in joining the team! Follow these simple next steps to begin earning as a Vinely Pro.</p>
+        <ol>
+          <li>
+            Return your contract &amp; payment to officially become a Vinely Pro 
+            (contact <a href="mailto:care@vinely.com">care@vinely.com</a> if you haven't started this process yet).
+          </li>
+          <li>
+            Sign up to attend a Vinely Live Training and find out your wine personality! 
+            Vinely will send you instructions on how to do this after you're approved.
+          </li>
+          <li>
+            Talk to your mentor. They will help you prepare for your first party.
+            <table class="offset1 summary-table">
+              <tbody>
+                <tr>
+                  <td><h2><small>Vinely Buddy Info</small></h2></td>
+                </tr>
+                <tr>
+                  <td>
+                    {% if my_pro %}
+                      {% if my_pro.userprofile.image %}
+                        {% thumbnail my_pro.userprofile.image "90x90" as im %}
+                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                      {% else %}
+                        <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                      {% endif %}
                     {% else %}
-                      <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                      <img src="{% static "img/noprofilephoto_img.png" %}" width="290">
                     {% endif %}
-                  {% else %}
-                    <img src="{% static "img/noprofilephoto_img.png" %}" width="290">
-                  {% endif %}
-                  <br /><br />
-                </td>
-                <td>
-                  {% if my_pro %}
-                    <p>
-                      {{ my_pro.first_name }} {{ my_pro.last_name }}
-                    </p>
-                    <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
-                    <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
-                  {% else %}
-                    <p>
-                      You don't have a Vinely Pro yet but don't worry, we will find you the perfect Pro to ensure you're the host with the most!
-                    </p>
-                  {% endif %} 
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </li>
-        <li>Invite your friends</li>
-        <li>Order your Tasting Kit</li>
-        <li>Enjoy your Vinely Tasting Party and discover your personality!</li>
-      </ol>
-      <br />
-      {% if not questionnaire_completed %}
-        <p>Get started now and <a href="{% url pre_questionnaire_general %}">fill out our survey</a> so we can get to know you better!</p>
-      {% endif %}
-    </div>
+                    <br /><br />
+                  </td>
+                  <td>
+                    {% if my_pro %}
+                      <p>
+                        {{ my_pro.first_name }} {{ my_pro.last_name }}
+                      </p>
+                      <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
+                      <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
+                    {% else %}
+                      <p>
+                        You don't have a Vinely Buddy yet but don't worry, we will find you the perfect Buddy real soon!
+                      </p>
+                    {% endif %} 
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>
+            Recruit hosts and book your first parties!
+          </li>
+        </ol>
+      </div>
+    {% else %}
+      <div class="offset1 span6">
+        We are so excited for you to get started! <br />
+        Here's what you'll need to do: <br />
+        <ol>
+          <li>
+            Talk to your Vinely Pro. Together you will schedule your first party
+            <table class="offset1 summary-table">
+              <tbody>
+                <tr>
+                  <td><h2><small>Pro Info</small></h2></td>
+                </tr>
+                <tr>
+                  <td>
+                    {% if my_pro %}
+                      {% if my_pro.userprofile.image %}
+                        {% thumbnail my_pro.userprofile.image "90x90" as im %}
+                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                      {% else %}
+                        <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                      {% endif %}
+                    {% else %}
+                      <img src="{% static "img/noprofilephoto_img.png" %}" width="290">
+                    {% endif %}
+                    <br /><br />
+                  </td>
+                  <td>
+                    {% if my_pro %}
+                      <p>
+                        {{ my_pro.first_name }} {{ my_pro.last_name }}
+                      </p>
+                      <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
+                      <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
+                    {% else %}
+                      <p>
+                        You don't have a Vinely Pro yet but don't worry, we will find you the perfect Pro to ensure you're the host with the most!
+                      </p>
+                    {% endif %} 
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>Invite your friends</li>
+          <li>Order your Tasting Kit</li>
+          <li>Enjoy your Vinely Tasting Party and discover your personality!</li>
+        </ol>
+        <br />
+        {% if not questionnaire_completed %}
+          <p>Get started now and <a href="{% url pre_questionnaire_general %}">fill out our survey</a> so we can get to know you better!</p>
+        {% endif %}
+      </div>
+    {% endif %}
     <div class="span3 offset1">
       {% if wine_personality %}
         <div class="personality-badge-detail">

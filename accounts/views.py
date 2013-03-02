@@ -54,15 +54,7 @@ def profile(request):
   u = request.user
   profile = u.get_profile()
 
-  # if profile.last_page:
-  #   url = u.userprofile.last_page
-  #   profile.last_page = None
-  #   profile.save()
-  #   return HttpResponseRedirect(url)
-
-  if profile.is_pro():
-    return HttpResponseRedirect(reverse('party_list'))
-  elif profile.is_taster():
+  if profile.is_taster():
     # if you have new RSVP not responded to
     invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
     if invites.exists():
@@ -71,7 +63,6 @@ def profile(request):
     else:
       return HttpResponseRedirect(reverse('party_list'))
   else:
-    # host
     return HttpResponseRedirect(reverse('home_page'))
 
 
