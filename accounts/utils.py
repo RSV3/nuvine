@@ -9,7 +9,6 @@ from cms.models import Section
 
 from premailer import Premailer
 
-
 def send_signed_up_as_host_email(request, user):
   template = Section.objects.get(template__key='signed_up_as_host_email', category=0)
 
@@ -572,3 +571,8 @@ def reassign_pro(pro):
 
   # 2. reassign my mentees
   UserProfile.objects.filter(mentor=pro).update(mentor=new_pro)
+
+
+def get_default_pro():
+  from accounts.models import User
+  return User.objects.get(pk=1)

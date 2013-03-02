@@ -18,7 +18,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                          send_signed_up_as_host_email
+                          send_signed_up_as_host_email, get_default_pro
 
 from cms.models import ContentTemplate
 
@@ -410,7 +410,7 @@ def make_pro_host(request, account_type, data):
 
   pro, pro_profile = my_pro(u)
   pro_email = pro.email if pro else None
-  initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
+  initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,
                   'email': u.email, 'zipcode': profile.zipcode, 'phone_number': profile.phone, 'mentor': pro_email}
 
   form = MakeHostProForm(request.POST or None, initial=initial_data)
@@ -450,8 +450,14 @@ def make_pro_host(request, account_type, data):
       elif account_type == 1:
         data['make_host_or_pro'] = True
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        # if mentor_email is blank then delink the pro and set to default pro
         try:
-          mentor = User.objects.get(email=form.cleaned_data.get('mentor'))
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            mentor = User.objects.get(email=mentor_email)
+          else:
+            mentor = get_default_pro()
+            MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
           profile.mentor = mentor
           profile.save()
         except User.DoesNotExist:
@@ -487,7 +493,11 @@ def make_pro_host(request, account_type, data):
 
       if account_type == 1:
         try:
-          mentor = User.objects.get(email=form.cleaned_data.get('mentor'))
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            mentor = User.objects.get(email=mentor_email)
+          else:
+            mentor = get_default_pro()
           profile.mentor = mentor
           profile.save()
         except User.DoesNotExist:
@@ -498,14 +508,21 @@ def make_pro_host(request, account_type, data):
         if not pro_group in u.groups.all():
           u.groups.clear()
           u.groups.add(pro_pending_group)
-        # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-        # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
         return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type == 2:
         try:
-          pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            pro = User.objects.get(email=mentor_email)
+            profile.mentor = pro
+          else:
+            pro = get_default_pro()
+            profile.mentor = pro
+            # set mentor to default pro but MyHost needs to see that as no pro assigned
+            pro = None
+          profile.save()
         except User.DoesNotExist:
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
@@ -646,6 +663,7 @@ def sign_up(request, account_type, data):
         pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
+        profile.mentor = pro
       except User.DoesNotExist:
         # pro e-mail was not entered
         my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
@@ -670,8 +688,6 @@ def sign_up(request, account_type, data):
     data["account_type"] = account_type
     if account_type == 1:
       send_pro_request_email(request, user)
-      # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
     elif account_type == 2:
       # send mail to sales@vinely if no mentor
       mentor_pro = None
