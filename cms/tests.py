@@ -56,6 +56,51 @@ class SimpleTest(TestCase):
     self.create_new_party_host_confirm_email_template()
     self.create_welcome_email_template()
 
+  def party_setup_completed_email_template(self):
+    content = """
+
+    Dear {{ pro_first_name }},
+
+    Your host, {{ party.host.first_name }}, finished setting up the party below on <a href="http://{{ host_name }}">Vinely.com</a>.
+
+    If they haven't yet, please make sure they order a Party Pack and track the RSVPs to ensure they have enough confirmed attendees.
+    You can monitor the party details at: <a href="http://{{ host_name }}{% url party_details party.id %}">http://{{ host_name }}{% url party_details party.id %}</a>
+
+    Party: "{{ party.title }}"
+
+    Date: {{ party.event_date|date:"F j, o" }}
+
+    Time: {{ party.event_date|date:"g:i A" }}
+
+    Location: {{ party.address.full_text }}
+
+    If you need to connect with {{ party.host.first_name }}, you can e-mail them at <a href="mailto:{{ party.host.email }}">{{ party.host.email }}</a>{% if host_phone %} or call them at {{ host_phone }}{% endif %}.
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="party_setup_completed_email", category=0)
+    section, created = Section.objects.get_or_create(category=0, template=template)
+    section.content = content
+    section.save()
+
+    variable, created = Variable.objects.get_or_create(var="{{ pro_first_name }}", description="First name of the Vinely Pro")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.host.first_name }}", description="Name of the party host")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="Name of the party")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date of the event")
+    template.variables_legend.add(variable)
+    variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url party_details party.id %}",
+                                                    description="Link to party details page")
+    template.variables_legend.add(variable)
+
   def create_welcome_email_template(self):
     content = """
     Hi {{ taster_first_name }},

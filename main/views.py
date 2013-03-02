@@ -32,7 +32,8 @@ from main.utils import send_order_confirmation_email, send_host_vinely_party_ema
                         resend_party_invite_email, get_default_invite_message, my_pro, \
                         preview_party_invites_email, get_default_signature, send_host_request_party_email, \
                         send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email, \
-                        send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email
+                        send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email, \
+                        party_setup_completed_email
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
@@ -1341,6 +1342,8 @@ def party_review_request(request, party_id):
     #   # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
     # else:
     #   send_new_party_scheduled_by_host_no_pro_email(request, party)
+    # send notification to pro
+    party_setup_completed_email(request, party)
 
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
     invites = PartyInvite.objects.filter(party=party).exclude(invitee=party.host)

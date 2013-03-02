@@ -1104,12 +1104,12 @@ def preview_host_confirm_email(request, party):
 
   pro, pro_profile = my_pro(request.user)
   party.id = 0
-  c = RequestContext(request, {"party": party,
-              "invite_host_name": "%s" % host_first_name,
-              "pro": pro,
-              "pro_phone": pro.userprofile.phone,
-              "pro_name": "%s" % pro.first_name if pro and pro.first_name else "Care Specialist",
-              "host_name": request.get_host(), "plain": True})
+  c = RequestContext(request,  {"party": party,
+                                "invite_host_name": "%s" % host_first_name,
+                                "pro": pro,
+                                "pro_phone": pro.userprofile.phone,
+                                "pro_name": "%s" % pro.first_name if pro and pro.first_name else "Care Specialist",
+                                "host_name": request.get_host(), "plain": True})
   # txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
@@ -1117,11 +1117,43 @@ def preview_host_confirm_email(request, party):
   # send out party invitation e-mail
 
   subject = "Your Vinely Taste Party has been scheduled!"
-  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject,
-                                                            'header': 'Let\'s get the party started',
-                                                            'message': html_message, 'host_name': request.get_host()}))
+  html_msg = render_to_string("email/base_email_lite.html",
+                              RequestContext(request,  {'title': subject,
+                                                        'header': 'Let\'s get the party started',
+                                                        'message': html_message, 'host_name': request.get_host()}))
 
   return html_msg
+
+
+def party_setup_completed_email(request, party):
+  template = Section.objects.get(template__key='party_setup_completed_email', category=0)
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  c = RequestContext(request,  {"pro_first_name": party.pro.first_name if party.pro.first_name else "Care Specialist",
+                                "party": party,
+                                "host_phone": party.host.userprofile.phone,
+                                "host_name": request.get_host()})
+
+  txt_message = txt_template.render(c)
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # notify about scheduled party
+  recipients = [party.pro.email, 'care@vinely.com']
+  subject = '%s has completed setting up their party!' % party.host.first_name
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = ('Vinely Party <info@vinely.com>')
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
+  email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': request.user.email})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
 
 ##############################################################################
 # Utility methods for finding out user relations and party relations
