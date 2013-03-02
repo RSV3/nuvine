@@ -432,7 +432,10 @@ class Cart(models.Model):
     elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
     else:
-      tax = (float(self.subtotal()) - float(self.discount)) * 0.06
+      if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
+        tax = (float(self.subtotal()) - float(self.discount)) * 0.0775
+      else:
+        tax = (float(self.subtotal()) - float(self.discount)) * 0.06
     return tax
 
   def total(self):

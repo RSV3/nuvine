@@ -24,8 +24,8 @@
 {% block navbar_menu %}
   <div class="menu_wrap main">
     <ul class="nav">
-      <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="Live Orders">Live</a></li>
-      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url get_started %}" title="Order History"></a></li>
+      <!-- <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="#" title="Live Orders">Live</a></li> -->
+      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url order_history %}" title="Order History"></a></li>
       <li id="your_wine_list"{% if wine_list_menu %} class="active"{% endif %}><a href="{% url our_story %}" title="Your Wine List"></a></li>
     </ul>
   </div>

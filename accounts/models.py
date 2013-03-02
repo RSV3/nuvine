@@ -239,6 +239,7 @@ class UserProfile(models.Model):
     pro_group = Group.objects.get(name="Vinely Pro")
     hos_group = Group.objects.get(name="Vinely Host")
     tas_group = Group.objects.get(name="Vinely Taster")
+    sup_group = Group.objects.get(name="Supplier")
 
     if pro_group in self.user.groups.all():
       return 'pro'
@@ -246,6 +247,8 @@ class UserProfile(models.Model):
       return 'host'
     if tas_group in self.user.groups.all():
       return 'taster'
+    if sup_group in self.user.groups.all():
+      return 'supplier'
 
   def is_pro(self):
     return self.role() == 'pro'
@@ -255,6 +258,9 @@ class UserProfile(models.Model):
 
   def is_taster(self):
     return self.role() == 'taster'
+
+  def is_supplier(self):
+    return self.role() == 'supplier'
 
   def cancel_subscription(self):
     """

@@ -21,8 +21,10 @@ def home(request):
   data['form'] = form
   data['general_section'] = ContentTemplate.objects.get(key='landing_page').sections.all()[0].content
   if u.is_authenticated():
-    if not u.userprofile.is_taster():
+    if u.userprofile.is_host() or u.userprofile.is_pro():
       return HttpResponseRedirect(reverse("home_page"))
+    elif u.userprofile.is_supplier():
+      return HttpResponseRedirect(reverse("supplier_all_orders"))
 
   return render_to_response("winedora/home.html", data, context_instance=RequestContext(request))
 

@@ -26,7 +26,10 @@ def tax(sub_total, profile):
     if profile.shipping_address.state in Cart.NO_TAX_STATES:
         tax = 0
     else:
-        tax = float(sub_total) * 0.06
+        if profile.shipping_address.state == 'CA':
+            tax = float(sub_total) * 0.0775
+        else:
+            tax = float(sub_total) * 0.06
     return tax
 
 
