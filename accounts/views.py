@@ -31,7 +31,7 @@ import math
 from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
 import uuid
 import logging
-
+import stripe
 
 log = logging.getLogger(__name__)
 
