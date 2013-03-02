@@ -32,7 +32,7 @@
   {{ form.errors }}
   <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
     <section id="customize-invitation">
-      <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
+      <form id="add_taster_form" class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
         {% csrf_token %}
         {{ taster_form.party }}
         <div class="row">
@@ -243,6 +243,7 @@
           });
         }
       });
+      $('#add_taster_form').find('input[type=text]').val("");
     });
   </script>
 {% endblock additional_scripts %}

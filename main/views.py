@@ -1335,12 +1335,20 @@ def party_review_request(request, party_id):
     party.save()
     # Send confirmation request to Pro
     # send_host_request_party_email(request, party)
-    party_has_pro = OrganizedParty.objects.filter(party=party)
-    if party_has_pro.exists():
-      send_new_party_scheduled_by_host_email(request, party)
-      # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
-    else:
-      send_new_party_scheduled_by_host_no_pro_email(request, party)
+    # party_has_pro = OrganizedParty.objects.filter(party=party)
+    # if party_has_pro.exists():
+    #   send_new_party_scheduled_by_host_email(request, party)
+    #   # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
+    # else:
+    #   send_new_party_scheduled_by_host_no_pro_email(request, party)
+
+    invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
+    invites = PartyInvite.objects.filter(party=party).exclude(invitee=party.host)
+    for invite in invites:
+      invitation.guests.add(invite.invitee)
+    # send e-mails
+    distribute_party_invites_email(request, invitation)
+
       # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
     messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
