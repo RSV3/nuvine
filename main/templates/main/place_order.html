@@ -124,8 +124,10 @@
         <div class="pull-right">
           <form action="{% url place_order %}" method="POST">
             {% csrf_token %}
+<!-- 
             <a class="btn btn-primary" href="{% url start_order %}">
               <i class="icon-plus-sign icon-white"></i> Continue Shopping</a>
+ -->
             <button type="submit" class="btn btn-success">
               <i class="icon-ok icon-white"></i> Place Order
             </button>

@@ -662,7 +662,8 @@ def place_order(request):
   if 'cart_id' in request.session:
     cart = get_object_or_404(Cart, id=request.session['cart_id'])
 
-    receiver = get_object_or_404(User, id=request.session['receiver_id'])
+    # receiver = get_object_or_404(User, id=request.session['receiver_id'])
+    receiver = cart.receiver
     profile = receiver.get_profile()
 
     current_shipping = profile.shipping_address
@@ -2404,21 +2405,21 @@ def edit_shipping_address(request):
         new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
         new_customization.save()
 
-    if receiver.is_active is False:
-      # if new receiving user created.  happens when receiver never attended a party
-      role = Group.objects.get(name="Vinely Taster")
-      receiver.groups.add(Group.objects.get(name=role))
+    # if receiver.is_active is False:
+    #   # if new receiving user created.  happens when receiver never attended a party
+    #   role = Group.objects.get(name="Vinely Taster")
+    #   receiver.groups.add(Group.objects.get(name=role))
 
-      temp_password = User.objects.make_random_password()
-      receiver.set_password(temp_password)
-      receiver.save()
+    #   temp_password = User.objects.make_random_password()
+    #   receiver.set_password(temp_password)
+    #   receiver.save()
 
-      verification_code = str(uuid.uuid4())
-      vque = VerificationQueue(user=receiver, verification_code=verification_code)
-      vque.save()
+    #   verification_code = str(uuid.uuid4())
+    #   vque = VerificationQueue(user=receiver, verification_code=verification_code)
+    #   vque.save()
 
-      # send out verification e-mail, create a verification code
-      send_verification_email(request, verification_code, temp_password, receiver.email)
+    #   # send out verification e-mail, create a verification code
+    #   send_verification_email(request, verification_code, temp_password, receiver.email)
 
     if 'ordering' in request.session and request.session['ordering']:
       # only happens when user decided to edit the shipping address

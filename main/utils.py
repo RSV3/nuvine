@@ -1229,10 +1229,11 @@ def calculate_host_credit(host):
       available_credit += 20
 
   # deduct used credit
-  orders = Order.objects.filter(cart__discount__gt=0)
+  orders = Order.objects.filter(cart__receiver=host, cart__discount__gt=0)
   credit_aggregate = orders.aggregate(total=Sum('cart__discount'))
   credit_used = credit_aggregate['total'] if credit_aggregate['total'] else 0
-  return available_credit - credit_used
+  applicable_credit = available_credit - credit_used
+  return applicable_credit if applicable_credit > 0 else 0
 
 from accounts.models import SubscriptionInfo
 from main.models import OrganizedParty

@@ -537,12 +537,16 @@ class ShippingForm(forms.ModelForm):
   phone = us_forms.USPhoneNumberField()
   email = forms.EmailField()  # help_text="A new account will be created using this e-mail address if not an active account")
 
-  news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", \
-                                initial=True, required=False)
+  news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.",
+                                  initial=True, required=False)
 
   class Meta:
     model = User
     exclude = ['username', 'password', 'last_login', 'date_joined', 'is_active', 'groups']
+
+  def __init__(self, *args, **kwargs):
+    super(ShippingForm, self).__init__(*args, **kwargs)
+    self.fields['email'].widget.attrs['readonly'] = True
 
   def save(self, commit=True):
     data = self.cleaned_data
