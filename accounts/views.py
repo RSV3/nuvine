@@ -128,31 +128,53 @@ def my_information(request):
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
   eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
 
+  data['user_form'] = user_form
+  data['shipping_form'] = shipping_form
+  # data['billing_form'] = billing_form
+  data['profile_form'] = profile_form
+  data['eligibility_form'] = eligibility_form
+  data['payment_form'] = payment_form
+
   if request.method == 'POST':
 
-    if not (user_form.is_valid() and shipping_form.is_valid() and profile_form.is_valid() and eligibility_form.is_valid()):
+    # user_form is already validated up-top
+    if user_form.is_valid():
+      updated_user = user_form.save()
+    else:
       messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
       return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
-    today = datetime.date(timezone.now())
-    dob = eligibility_form.cleaned_data['dob']
-
-    if dob:
-      datediff = today - dob
-      if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
-            (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
-        messages.error(request, 'The Date of Birth shows that you are not over 21')
-        return HttpResponseRedirect('.')
-
-    # user_form is already validated up-top
-    updated_user = user_form.save()
-
     # eligibility_form is already validated up-top
-    eligibility_form.save()
+    if eligibility_form.is_valid():
+      today = datetime.date(timezone.now())
+      dob = eligibility_form.cleaned_data['dob']
+
+      if dob:
+        datediff = today - dob
+        if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
+              (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
+          messages.error(request, 'The Date of Birth shows that you are not over 21')
+          return HttpResponseRedirect('.')
+
+      eligibility_form.save()
+    else:
+      messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+      return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
+
+    # profile_form is already validated up-top
+    if profile_form.is_valid():
+      profile = profile_form.save()
+    else:
+      messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+      return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
     # user_form is already validated up-top
-    shipping_form.user_profile = profile
-    shipping = shipping_form.save()
+    if shipping_form.is_valid():
+      shipping_form.user_profile = profile
+      shipping = shipping_form.save()
+    else:
+      messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+      return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
     # if billing_form.is_valid():
     #   billing_form.user_profile = profile
@@ -237,13 +259,6 @@ def my_information(request):
         # just present empty form since nothing was entered
         data['payment_form'] = PaymentForm(prefix='payment')
 
-    print request.FILES
-    print profile_form.errors
-    print profile_form.cleaned_data['image']
-    # profile_form is already validated up-top
-    profile = profile_form.save()
-    print profile.image.url
-
     msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
     messages.success(request, msg)
 
@@ -257,12 +272,6 @@ def my_information(request):
   data['card_number'] = card_number
 
   data['profile'] = profile
-  data['user_form'] = user_form
-  data['shipping_form'] = shipping_form
-  # data['billing_form'] = billing_form
-  data['payment_form'] = payment_form
-  data['profile_form'] = profile_form
-  data['eligibility_form'] = eligibility_form
 
   return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
