@@ -93,6 +93,8 @@ AWS_SECRET_ACCESS_KEY = '5zHNLNf8D/x2cDG+6JpgqgM75VzrFd5fQdsCEviV'
 AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 if NEW_PARTY:
   AWS_STORAGE_BUCKET_NAME = 'cdn.newparty.vinely.com'
+  from boto.s3.connection import OrdinaryCallingFormat
+  AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 AWS_PRELOAD_METADATA = True
 
 if DEPLOY:
