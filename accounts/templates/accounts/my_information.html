@@ -349,7 +349,13 @@
  -->
         <fieldset>
           <legend>Payment Information</legend>
+
           <div class="payment-form">
+            <div class="control-group">
+              <div class="control-label">Current Card:</div>
+              <div class="controls">{{ card_number }}</div>
+            </div>
+
             {{ payment_form.card_type }}
 
             <div class="control-group {% if payment_form.card_number.errors %} error{% endif %}">

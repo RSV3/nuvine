@@ -87,6 +87,7 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.logger.LoggingPanel',
 )
 
+MEDIA_ROOT = PROJECT_ROOT + '/sitemedia/'
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 

@@ -78,17 +78,11 @@ def my_information(request):
   u = request.user
   profile = u.get_profile()
 
-  initial_card_data = {}
-  if profile.stripe_card:
-    card_number = '*' * 10 + profile.stripe_card.last_four
-    initial_card_data = {'card_number': card_number, 'exp_month': profile.stripe_card.exp_month,
-                        'exp_year': profile.stripe_card.exp_year, 'billing_zipcode': profile.stripe_card.billing_zipcode}
-
   initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
   user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
   # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
-  payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment', initial=initial_card_data)
+  payment_form = PaymentForm(request.POST or None, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
   eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
 
@@ -101,7 +95,7 @@ def my_information(request):
 
   if request.method == 'POST':
 
-    if not (user_form.is_valid() and shipping_form.is_valid() and payment_form.is_valid() and profile_form.is_valid() and eligibility_form.is_valid()):
+    if not (user_form.is_valid() and shipping_form.is_valid() and profile_form.is_valid() and eligibility_form.is_valid()):
       messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
       return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
@@ -145,73 +139,84 @@ def my_information(request):
     #     billing_updated = True
 
     receiver_state = Zipcode.objects.get(code=shipping.zipcode).state
-    payment = payment_form.cleaned_data
+    if payment_form.is_valid():
+      payment = payment_form.cleaned_data
 
-    if receiver_state in Cart.STRIPE_STATES:
-      if receiver_state == 'MI':
-        stripe.api_key = settings.STRIPE_SECRET
-      elif receiver_state == 'CA':
-        stripe.api_key = settings.STRIPE_SECRET_CA
-      stripe_card = profile.stripe_card
+      if receiver_state in Cart.STRIPE_STATES:
+        if receiver_state == 'MI':
+          stripe.api_key = settings.STRIPE_SECRET
+        elif receiver_state == 'CA':
+          stripe.api_key = settings.STRIPE_SECRET_CA
+        stripe_card = profile.stripe_card
 
-      card = {'number': payment['card_number'], 'exp_month': payment['exp_month'], 'exp_year': payment['exp_year'],
-              'cvc': payment['verification_code'], 'name': '%s %s' % (updated_user.first_name, updated_user.last_name),
-              'address_zip': payment['billing_zipcode'],
-              }
-      try:
-        customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
-        if customer.get('deleted'):
-          raise Exception('Customer Deleted')
-
-        # if exists update it in stripe and update entry in StripeCard
-        customer.email = updated_user.email
-        customer.card = card
-        customer.save()
-
-        active_card = customer.active_card
-        if active_card.last4 != stripe_card.last_four or active_card.exp_year != stripe_card.exp_year or \
-            active_card.exp_month != stripe_card.exp_month or active_card.type != stripe_card.card_type or \
-            active_card.address_zip != stripe_card.billing_zipcode:
-          stripe_card.exp_month = customer.active_card.exp_month
-          stripe_card.exp_year = customer.active_card.exp_year
-          stripe_card.last_four = customer.active_card.last4
-          stripe_card.card_type = customer.active_card.type
-          stripe_card.billing_zipcode = customer.active_card.address_zip
-          stripe_card.save()
-      except Exception, e:
-        # print 'error', e
-        # no record of this customer-card mapping so create
+        card = {'number': payment['card_number'], 'exp_month': payment['exp_month'], 'exp_year': payment['exp_year'],
+                'cvc': payment['verification_code'], 'name': '%s %s' % (updated_user.first_name, updated_user.last_name),
+                'address_zip': payment['billing_zipcode'],
+                }
         try:
-          customer = stripe.Customer.create(card=card, email=updated_user.email)
-          # create on vinely
-          stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
-                                  exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
-                                  card_type=customer.active_card.type, billing_zipcode=customer.active_card.address_zip)
-          profile.stripe_card = stripe_card
-          profile.save()
-          profile.stripe_cards.add(stripe_card)
+          customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+          if customer.get('deleted'):
+            raise Exception('Customer Deleted')
 
-        except:
-          messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
-          return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
+          # if exists update it in stripe and update entry in StripeCard
+          customer.email = updated_user.email
+          customer.card = card
+          customer.save()
 
+          active_card = customer.active_card
+          if active_card.last4 != stripe_card.last_four or active_card.exp_year != stripe_card.exp_year or \
+              active_card.exp_month != stripe_card.exp_month or active_card.type != stripe_card.card_type or \
+              active_card.address_zip != stripe_card.billing_zipcode:
+            stripe_card.exp_month = customer.active_card.exp_month
+            stripe_card.exp_year = customer.active_card.exp_year
+            stripe_card.last_four = customer.active_card.last4
+            stripe_card.card_type = customer.active_card.type
+            stripe_card.billing_zipcode = customer.active_card.address_zip
+            stripe_card.save()
+        except Exception, e:
+          # print 'error', e
+          # no record of this customer-card mapping so create
+          try:
+            customer = stripe.Customer.create(card=card, email=updated_user.email)
+            # create on vinely
+            stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
+                                    exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
+                                    card_type=customer.active_card.type, billing_zipcode=customer.active_card.address_zip)
+            profile.stripe_card = stripe_card
+            profile.save()
+            profile.stripe_cards.add(stripe_card)
+
+          except:
+            messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+            return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
+
+      else:
+        # if not a stripe state
+        credit_card = payment_form.save()
+        profile.credit_card = credit_card
+        profile.stripecard = None
+        profile.save()
+
+      # reset payment form after saving
+      data['payment_form'] = PaymentForm(prefix='payment')
     else:
-      # if not a stripe state
-      credit_card = payment_form.save()
-      profile.credit_card = credit_card
-      profile.stripecard = None
-      profile.save()
+      # if payment form is not valid
+      if len(request.POST.get("payment-card_number", '')) == 0:
+        # just present empty form since nothing was entered
+        data['payment_form'] = PaymentForm(prefix='payment')
 
     msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
     messages.success(request, msg)
 
+  card_number = 'No card currently on file'
   if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
-    card_number = '*' * 10 + profile.stripe_card.last_four
-    payment_form.initial['card_number'] = card_number
+    card_number = '*' * 12 + profile.stripe_card.last_four
+    #payment_form.initial['card_number'] = card_number
   elif profile.credit_card:
-    payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+    #payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+    card_number = '*' * 12 + profile.credit_card.last_four()
+  data['card_number'] = card_number
 
-  data['payment_form'] = payment_form
   data['profile'] = profile
 
   return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
