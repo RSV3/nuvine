@@ -66,6 +66,48 @@ def profile(request):
   else:
     return HttpResponseRedirect(reverse('home_page'))
 
+@login_required
+def fix_my_picture(request):
+  data = {}
+
+  u = request.user
+  profile = u.get_profile()
+  print profile.image.url
+
+  initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+
+  user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
+  shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
+  # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
+  payment_form = PaymentForm(request.POST or None, prefix='payment')
+  profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
+  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
+
+  if profile_form.is_valid():
+    profile = profile_form.save()
+    print profile.image.url
+
+    msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
+    messages.success(request, msg)
+
+  data['profile'] = profile
+  data['user_form'] = user_form
+  data['shipping_form'] = shipping_form
+  # data['billing_form'] = billing_form
+  data['payment_form'] = payment_form
+  data['profile_form'] = profile_form
+  data['eligibility_form'] = eligibility_form
+
+  card_number = 'No card currently on file'
+  if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
+    card_number = '*' * 12 + profile.stripe_card.last_four
+    #payment_form.initial['card_number'] = card_number
+  elif profile.credit_card:
+    #payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+    card_number = '*' * 12 + profile.credit_card.last_four()
+
+  data['card_number'] = card_number
+  return render_to_response("accounts/my_information_test.html", data, context_instance=RequestContext(request))
 
 @login_required
 def my_information(request):
@@ -85,13 +127,6 @@ def my_information(request):
   payment_form = PaymentForm(request.POST or None, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
   eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
-
-  data['user_form'] = user_form
-  data['shipping_form'] = shipping_form
-  # data['billing_form'] = billing_form
-  data['payment_form'] = payment_form
-  data['profile_form'] = profile_form
-  data['eligibility_form'] = eligibility_form
 
   if request.method == 'POST':
 
@@ -114,9 +149,6 @@ def my_information(request):
 
     # eligibility_form is already validated up-top
     eligibility_form.save()
-
-    # profile_form is already validated up-top
-    profile = profile_form.save()
 
     # user_form is already validated up-top
     shipping_form.user_profile = profile
@@ -205,6 +237,13 @@ def my_information(request):
         # just present empty form since nothing was entered
         data['payment_form'] = PaymentForm(prefix='payment')
 
+    print request.FILES
+    print profile_form.errors
+    print profile_form.cleaned_data['image']
+    # profile_form is already validated up-top
+    profile = profile_form.save()
+    print profile.image.url
+
     msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
     messages.success(request, msg)
 
@@ -218,6 +257,12 @@ def my_information(request):
   data['card_number'] = card_number
 
   data['profile'] = profile
+  data['user_form'] = user_form
+  data['shipping_form'] = shipping_form
+  # data['billing_form'] = billing_form
+  data['payment_form'] = payment_form
+  data['profile_form'] = profile_form
+  data['eligibility_form'] = eligibility_form
 
   return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 

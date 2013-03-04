@@ -32,4 +32,7 @@ urlpatterns = patterns('',
   url(r'^unlink/pro/$', 'accounts.views.pro_unlink', name='pro_unlink'),
   url(r'^unlink/host/$', 'accounts.views.host_unlink', name='host_unlink'),
   url(r'^link/pro/$', 'accounts.views.pro_link', name='pro_link'),
+
+  # test
+  url(r'^my/information/test/$', 'accounts.views.fix_my_picture', name='fix_my_picture'),
 )

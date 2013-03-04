@@ -72,9 +72,9 @@
             </div>
             <div class="controls">
               {{ profile_form.image }}
-              {% if profile_form.image.errors %}
+              {% if profile.image.errors %}
                 <span class="help-inline">
-                  {{ profile_form.image.errors }}
+                  {{ profile.image.errors }}
                 </span>
               {% endif %}
             </div>
