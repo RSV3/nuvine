@@ -421,7 +421,7 @@ def cart_add_wine(request):
     receiver = User.objects.get(id=request.session['receiver_id'])
   else:
     receiver = u
-  # print 'receiver.email', receiver.email
+  data['receiver'] = receiver
   personality = receiver.get_profile().wine_personality
   # print personality
   form = AddWineToCartForm(request.POST or None)
@@ -539,6 +539,9 @@ def cart(request):
     else:
       personality = u.get_profile().wine_personality
 
+    if 'receiver_id' in request.session:
+      data['receiver'] = User.objects.get(id=request.session['receiver_id'])
+
     data['items'] = []
     for item in cart.items.all():
       if item.product.category == 1:
@@ -559,6 +562,7 @@ def cart(request):
   data["shop_menu"] = True
 
   return render_to_response("main/cart.html", data, context_instance=RequestContext(request))
+
 
 @login_required
 def cart_remove_item(request, cart_id, item_id):

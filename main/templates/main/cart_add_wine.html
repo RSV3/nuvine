@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline">What would you like to order?</h1>
+  <h1 class="headline">What would {% if pro %}you{% else %}{{ receiver.first_name }}{% endif %} like to order?</h1>
 {% endblock header %}
 
 {% block additional_styles %}

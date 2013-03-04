@@ -96,7 +96,11 @@
       <div class="form-actions">
         <div class="pull-right">
 	       {% if allow_customize %}
-            <a class="btn btn-primary" href="{% url start_order %}">
+            {% if cart.party and receiver %}
+              <a class="btn btn-primary" href="{% url start_order receiver.id cart.party.id %}">
+            {% else %}
+              <a class="btn btn-primary" href="{% url start_order %}">
+            {% endif %}
               <i class="icon-plus-sign icon-white"></i> Continue Shopping
             </a>
 	       {% endif %}
