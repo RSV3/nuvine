@@ -27,7 +27,7 @@ def tax(sub_total, profile):
         tax = 0
     else:
         if profile.shipping_address.state == 'CA':
-            tax = float(sub_total) * 0.0775
+            tax = float(sub_total) * 0.08
         else:
             tax = float(sub_total) * 0.06
     return tax

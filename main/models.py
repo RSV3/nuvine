@@ -433,7 +433,7 @@ class Cart(models.Model):
     #     tax = 0
     else:
       if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
-        tax = (float(self.subtotal()) - float(self.discount)) * 0.0775
+        tax = (float(self.subtotal()) - float(self.discount)) * 0.08
       else:
         tax = (float(self.subtotal()) - float(self.discount)) * 0.06
     return tax
