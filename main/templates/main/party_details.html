@@ -14,6 +14,10 @@
 {% endblock header %}
 
 {% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "timepicker/css/timepicker.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+
   <style type="text/css">
 /*    select, option {
       width: 120px;
@@ -42,7 +46,7 @@
             <tr>
               <td><h2>Party Info</h2></td>
               {% if pro and can_add_taster %}
-                <!-- <td><a href="{% url party_add party.id %}">edit</a></td> -->
+                <td><a href="javascript:;" class="edit-date">edit</a></td>
               {% endif %}
             </tr>
             <tr>
@@ -284,6 +288,50 @@
       {% endif %}
     </form>
 
+    <div id="edit_date" class="modal hide fade">
+  <!--     <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 class="center">Edit Party Info</h3>
+      </div>
+   -->    
+      <div class="modal-body">
+        <form method="POST" class="form-validate form-horizontal" action="{% url party_edit_date party.id %}?next={{ request.path }}">
+          {% csrf_token %}
+          {{ edit_date_form.party }}
+          <br />
+          <fieldset>
+            <legend><h2>Date/Time</h2></legend>
+
+            <div class="control-group {% if edit_date_form.event_day.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_day">{{ edit_date_form.event_day.label }}</div>
+              <div class="controls">
+                {{ edit_date_form.event_day }} 
+                {% if edit_date_form.event_day.errors %}
+                  <span class="help-inline">
+                    {{ edit_date_form.event_day.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group {% if edit_date_form.event_time.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_time">{{ edit_date_form.event_time.label }}</div>
+              <div class="controls">
+                {{ edit_date_form.event_time }} 
+                {% if edit_date_form.event_time.errors %}
+                  <span class="help-inline">
+                    {{ edit_date_form.event_time.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>              
+          </fieldset>
+          <div class="modal-footer">
+            <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>
+          </div>
+        </form>
+      </div>
+    </div> 
+
   {% endif %}
   <div class="vertical-space-bottom"></div>
 </div>
@@ -291,6 +339,13 @@
 {% endblock content %}
 
 {% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script type="text/javascript" src="{% static "timepicker/js/bootstrap-timepicker.js" %}"></script>
+
   <script type="text/javascript">
     $(document).ready(function() {
 
@@ -317,6 +372,14 @@
             console.log("errorThrown:" + XMLHttpRequest);
           }
         });
+      });
+
+      //show modal for editing party date info
+      var options = { startDate: new Date(), autoclose: true };
+      $('.datepicker').datepicker(options);
+      $('.timepicker').timepicker({'defaultTime': false});      
+      $('.edit-date').click(function(e) {
+        $('#edit_date').modal();
       });
 
       //typeahead

@@ -31,6 +31,36 @@ import logging
 log = logging.getLogger(__name__)
 
 
+class PartyEditDateForm(forms.ModelForm):
+  event_day = forms.DateField(label="Party Date")
+  event_time = forms.TimeField(input_formats=valid_time_formats, label="Party Time")
+
+  class Meta:
+    model = Party
+    fields = ('event_day', 'event_time', 'event_date')
+
+  def __init__(self, *args, **kwargs):
+    super(PartyEditDateForm, self).__init__(*args, **kwargs)
+    self.fields['event_date'].widget = forms.HiddenInput()
+    add_form_validation(self)
+
+  def clean(self):
+    cleaned_data = super(PartyEditDateForm, self).clean()
+
+    if 'event_day' in cleaned_data and 'event_time' in cleaned_data:
+      full_date = "%s %s" % (cleaned_data['event_day'], cleaned_data['event_time'])
+      full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
+      cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
+      if self._errors:
+        del self._errors['event_date']
+
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
+        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
+    else:
+      raise forms.ValidationError("Party date and time are required.")
+    return cleaned_data
+
+
 class ContactRequestForm(forms.ModelForm):
 
   zipcode = us_forms.USZipCodeField()

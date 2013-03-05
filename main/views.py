@@ -21,7 +21,7 @@ from accounts.models import VerificationQueue, Zipcode
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable
+                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm
 
 from accounts.utils import send_verification_email, send_new_party_email, check_zipcode, \
                         send_not_in_area_party_email
@@ -139,10 +139,10 @@ def get_started(request):
   u = request.user
   data['get_started_menu'] = True
   sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  data['get_started_general'] = sections.get(category = 0).content
-  data['get_started_host'] = sections.get(category = 2).content
-  data['get_started_pro'] = sections.get(category = 3).content
-  data['heading'] = sections.get(category = 4).content
+  data['get_started_general'] = sections.get(category=0).content
+  data['get_started_host'] = sections.get(category=2).content
+  data['get_started_pro'] = sections.get(category=3).content
+  data['heading'] = sections.get(category=4).content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
@@ -1227,6 +1227,36 @@ def party_add(request, party_id=None, party_pro=None):
   return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
 
+#@require_POST
+@login_required
+def party_edit_date(request, party_id):
+  u = request.user
+
+  data = {}
+  party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+  data['party'] = party
+
+  initial_data = {}
+  party_date = timezone.localtime(party.event_date)
+  initial_data['event_day'] = party_date.strftime("%m/%d/%Y")
+  initial_data['event_time'] = party_date.strftime("%I:%M %p")
+
+  previous_page = request.GET.get('next', reverse('party_details', args=[party.id]))
+  data['previous_page'] = previous_page
+
+  edit_date_form = PartyEditDateForm(request.POST or None, initial=initial_data, instance=party)
+  if edit_date_form.is_valid():
+
+    event_date = edit_date_form.cleaned_data['event_date']
+    log.info('Event Date: %s' % event_date)
+    party.event_date = event_date
+    party.save()
+    return HttpResponseRedirect(previous_page)
+
+  data['edit_date_form'] = edit_date_form
+  return render_to_response("main/party_edit_date_modal.html", data, context_instance=RequestContext(request))
+
+
 # @login_required
 def party_add_taster(request, party, taster_form):
   u = request.user
@@ -1500,6 +1530,15 @@ def party_details(request, party_id):
   # these checks are only relevant to host or Pro for upcoming parties
   kit_order_date = party.event_date - timedelta(days=10)
   can_order_kit = (party.event_date - timezone.now() >= timedelta(days=10))
+
+  # initialize the edit party info form
+  edit_form_data = {}
+  party_date = timezone.localtime(party.event_date)
+  edit_form_data['event_day'] = party_date.strftime("%m/%d/%Y")
+  edit_form_data['event_time'] = party_date.strftime("%I:%M %p")
+
+  edit_date_form = PartyEditDateForm(request.POST or None, initial=edit_form_data, instance=party)
+  data['edit_date_form'] = edit_date_form
 
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
