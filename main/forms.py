@@ -661,10 +661,10 @@ class CustomizeThankYouNoteForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(CustomizeThankYouNoteForm, self).__init__(*args, **kwargs)
-    # self.fields['custom_subject'].widget.attrs['class'] = 'span5'
+    self.fields['custom_subject'].widget.attrs['class'] = 'span5'
     # seems to be using the default custom subject for send invite.
     # deleting it falls back to default for thank you note
-    del self.fields['custom_subject']
+    # del self.fields['custom_subject']
     self.fields['party'].widget = forms.HiddenInput()
     self.fields['custom_message'].widget = TinyMCE(attrs={'rows': 5, 'placeholder': 'Your custom thank you note.'})
 

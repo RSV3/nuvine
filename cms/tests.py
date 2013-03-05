@@ -1203,12 +1203,15 @@ class SimpleTest(TestCase):
     Remember, your satisfaction isn’t just a goal, it’s our guarantee!
     {% endif %}
 
+    {{ custom_message }}
+
     {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
+    {% if show_text_sig %}
     Tastefully,
 
     - {{ party.host.first_name }}
-
+    {% endif %}
     """
     template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
     section, created = Section.objects.get_or_create(category=Section.SECTION_TYPE[0][0], content=content, template=template)

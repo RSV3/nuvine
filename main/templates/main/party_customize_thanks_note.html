@@ -47,24 +47,29 @@
           <div class="page-header">
           Sent to those that placed orders
           </div>
+<!-- 
           <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
           <p>Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.</p>
-
+ -->
+          {{ placed_order }}
           <div class="page-header">
           Sent to those that never placed orders
           </div>
+<!-- 
           <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
           <p>It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It’s easy, convenient, and delicious.</p>
 
           <p>Again, thanks so much for coming!</p>
+ -->
+          {{ not_placed_order }}
           <hr />
-          {% comment %}
+
           <div class="control-group">
             <div class="controls">
               {{ form.custom_message }}
             </div>
           </div>
-          {% endcomment %}
+
         </div>
       </div>
 

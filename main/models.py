@@ -739,25 +739,3 @@ class NewHostNoParty(models.Model):
 
 class UnconfirmedParty(models.Model):
   party = models.ForeignKey(Party)
-
-# class SupplierWine(models.Model):
-#   '''
-#   This stores the wine casings for suppliers
-#   '''
-#   WINE_COLOR = (
-#     (0, "Red"),
-#     (1, "Rose"),
-#     (2, "White")
-#   )
-#   SWEETNESS = (
-
-#   )
-#   name = models.CharField(max_length=128)
-#   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
-#   winery = models.CharField(max_length=128)
-#   color =  models.IntegerField(choices=WINE_COLOR)
-#   sparkling = models.BooleanField()
-#   varietal = models.CharField(max_length=128)
-#   vintage = models.IntegerField()
-#   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
-#   timestamp = models.DateTimeField(auto_now_add=True)

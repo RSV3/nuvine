@@ -250,7 +250,8 @@
       <h2>Tasters Attended</h2>
     {% endif %}
 
-    <form class="form-horizontal" method="POST" action="{% url party_send_invites %}">
+    <form class="form-horizontal" method="POST" 
+      action="{% if can_add_taster %}{% url party_send_invites %}{% else %}{% url party_customize_thanks_note %}{% endif%}">
       {% csrf_token %}
       {{ taster_form.party }}
       {{ invite_form.custom_subject }}
@@ -278,7 +279,8 @@
             <div class="span9">
               &nbsp;
               <!-- <a target="_blank" class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a> -->
-              <a target="_blank" href="{% url party_preview_thanks_note party.id %}" class="btn btn-primary">Preview Thank you note</a>
+              <!-- <button class="btn btn-primary edit-note" name="edit-note" value="edit-note">Edit Thank You Note</button> -->
+              <!-- <a target="_blank" href="{% url party_preview_thanks_note party.id %}" class="btn btn-primary">Preview Thank you note</a> -->
             </div>
             <div class="span3">
               <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Thank Attendees</button>

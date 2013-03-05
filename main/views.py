@@ -1980,13 +1980,12 @@ def party_customize_thanks_note(request):
   """
     Customize thank you note by host to attendees
   """
-
+  from cms.models import Section
   data = {}
 
   if request.method == 'POST':
     guests = request.POST.getlist('guests')
     party = Party.objects.get(id=request.POST.get('party'))
-    #print "Selected guests:", guests
 
     form = CustomizeThankYouNoteForm()
     form.initial = {'party': party}
@@ -1997,9 +1996,89 @@ def party_customize_thanks_note(request):
     data["parties_menu"] = True
     data['rsvp_date'] = party.event_date - timedelta(days=5)
 
+    template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+
+    c = RequestContext(request, {'party': party, 'host_name': request.get_host(), 'taster_first_name': 'Taster',
+                                'pro_email': party.pro.email, 'placed_order': False, 'show_text_sig': False})
+
+    html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+    data['not_placed_order'] = html_template.render(c)
+    c.update({'placed_order': True})
+    data['placed_order'] = html_template.render(c)
+
     return render_to_response("main/party_customize_thanks_note.html", data, context_instance=RequestContext(request))
   else:
     return PermissionDenied
+
+
+@login_required
+def party_send_thanks_note(request):
+  """
+    Preview or send thanks note
+  """
+
+  data = {}
+
+  # send invitation
+  form = CustomizeThankYouNoteForm(request.POST or None)
+  if form.is_valid():
+    num_guests = len(request.POST.getlist("guests"))
+    if form.cleaned_data['preview']:
+      note_sent = form.save(commit=False)
+      party = note_sent.party
+      data["preview"] = True
+      data["party"] = party
+      data["guests"] = request.POST.getlist("guests")
+      data["guest_count"] = num_guests
+    else:
+      note_sent = form.save()
+      party = note_sent.party
+      # send e-mails
+      guests = request.POST.getlist("guests")
+      invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
+      orders = Order.objects.filter(cart__party=party)
+      buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
+      non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
+      if non_buyers:
+        distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
+      if buyers:
+        distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
+
+      messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
+      data["parties_menu"] = True
+
+      return HttpResponseRedirect(reverse("party_details", args=[party.id]))
+
+  data["form"] = form
+  data["parties_menu"] = True
+
+  return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
+
+# @login_required
+# def party_customize_thanks_note(request):
+#   """
+#     Customize thank you note by host to attendees
+#   """
+
+#   data = {}
+
+#   if request.method == 'POST':
+#     guests = request.POST.getlist('guests')
+#     party = Party.objects.get(id=request.POST.get('party'))
+#     #print "Selected guests:", guests
+
+#     form = CustomizeThankYouNoteForm()
+#     form.initial = {'party': party}
+#     data["party"] = party
+#     data["guests"] = guests
+#     data["form"] = form
+#     data["guest_count"] = len(guests)
+#     data["parties_menu"] = True
+#     data['rsvp_date'] = party.event_date - timedelta(days=5)
+
+#     return render_to_response("main/party_customize_thanks_note.html", data, context_instance=RequestContext(request))
+#   else:
+#     return PermissionDenied
 
 
 @login_required
@@ -2025,52 +2104,52 @@ def party_preview_thanks_note(request, party_id):
   return render_to_response("main/party_preview_thanks_note.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def party_send_thanks_note(request, party):
-  """
-    send thanks note
-  """
+# @login_required
+# def party_send_thanks_note(request, party):
+#   """
+#     send thanks note
+#   """
 
-  data = {}
+#   data = {}
 
-  try:
-    note = ThankYouNote.objects.filter(party=party).order_by('-id')[0]
-  except:
-    note = None
+#   try:
+#     note = ThankYouNote.objects.filter(party=party).order_by('-id')[0]
+#   except:
+#     note = None
 
-  # send note
-  form = CustomizeThankYouNoteForm(request.POST or None, instance=note)
-  if form.is_valid():
-    if note:
-      old_note = ThankYouNote.objects.get(pk=note.id)
-    num_guests = len(request.POST.getlist("guests"))
-    note_sent = form.save()
-    if note:
-      note_sent.custom_message = old_note.custom_message
-      note_sent.custom_subject = old_note.custom_subject
-      note_sent.save()
-    party = note_sent.party
+#   # send note
+#   form = CustomizeThankYouNoteForm(request.POST or None, instance=note)
+#   if form.is_valid():
+#     if note:
+#       old_note = ThankYouNote.objects.get(pk=note.id)
+#     num_guests = len(request.POST.getlist("guests"))
+#     note_sent = form.save()
+#     if note:
+#       note_sent.custom_message = old_note.custom_message
+#       note_sent.custom_subject = old_note.custom_subject
+#       note_sent.save()
+#     party = note_sent.party
 
-    # send e-mails
-    guests = request.POST.getlist("guests")
-    invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
-    orders = Order.objects.filter(cart__party=party)
-    buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
-    non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
-    if non_buyers:
-      distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
-    if buyers:
-      distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
+#     # send e-mails
+#     guests = request.POST.getlist("guests")
+#     invitees = PartyInvite.objects.filter(invitee__id__in=guests, party=party).exclude(invitee=party.host)
+#     orders = Order.objects.filter(cart__party=party)
+#     buyers = invitees.filter(invitee__in=[x.receiver for x in orders])
+#     non_buyers = invitees.exclude(invitee__in=[x.receiver for x in orders])
+#     if non_buyers:
+#       distribute_party_thanks_note_email(request, note_sent, non_buyers, placed_order=False)
+#     if buyers:
+#       distribute_party_thanks_note_email(request, note_sent, buyers, placed_order=True)
 
-    messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
-    data["parties_menu"] = True
+#     messages.success(request, "Your thank you note was sent successfully to %d Tasters!" % num_guests)
+#     data["parties_menu"] = True
 
-    return HttpResponseRedirect(reverse("party_details", args=[party.id]))
+#     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
-  data["form"] = form
-  data["parties_menu"] = True
+#   data["form"] = form
+#   data["parties_menu"] = True
 
-  return HttpResponseRedirect(reverse("party_details", args=[party.id]))
+#   return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
 
 @login_required
