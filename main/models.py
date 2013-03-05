@@ -188,7 +188,7 @@ class Party(models.Model):
 class PartyInvite(models.Model):
 
   RESPONSE_CHOICES = (
-      (0, 'No Answer'),
+      (0, '--'),
       (1, 'No'),
       (2, 'Maybe'),
       (3, 'Yes'),
