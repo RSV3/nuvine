@@ -253,6 +253,10 @@ class UserProfile(models.Model):
   def is_pro(self):
     return self.role() == 'pro'
 
+  def is_pending_pro(self):
+    pending_pro = Group.objects.get(name="Pending Vinely Pro")
+    return pending_pro in self.user.groups.all()
+
   def is_host(self):
     return self.role() == 'host'
 

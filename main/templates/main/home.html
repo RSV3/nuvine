@@ -22,7 +22,7 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    {% if pro %}
+    {% if pro or pending_pro %}
       <div class="offset1 span6">
         <p>Thanks for your interest in joining the team! Follow these simple next steps to begin earning as a Vinely Pro.</p>
         <ol>
@@ -35,7 +35,7 @@
             Vinely will send you instructions on how to do this after you're approved.
           </li>
           <li>
-            Talk to your mentor. They will help you prepare for your first party.
+            Talk to your Vinely Buddy. They will help you prepare for your first party.
             <table class="offset1 summary-table">
               <tbody>
                 <tr>
@@ -57,7 +57,7 @@
                     <br /><br />
                   </td>
                   <td>
-                    {% if my_pro %}
+                    {% if pro and my_pro %}
                       <p>
                         {{ my_pro.first_name }} {{ my_pro.last_name }}
                       </p>

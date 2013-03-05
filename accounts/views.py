@@ -979,7 +979,7 @@ def verify_account(request, verification_code):
       user.save()
       # accepted tos is True
       profile = user.get_profile()
-      profile.accepted_tos = True
+      # profile.accepted_tos = True
       profile.save()
 
       user = authenticate(email=user.email, password=form.cleaned_data['new_password'])
