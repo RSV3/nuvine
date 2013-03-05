@@ -1555,7 +1555,7 @@ def party_details(request, party_id):
         # messages.warning(request, msg)
     else:
       # for host
-      if party.confirmed:
+      if party.confirmed and not u.userprofile.events_manager():
         if party.invite_sent():
           if not party.kit_ordered():
             msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))

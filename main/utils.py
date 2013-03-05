@@ -1344,7 +1344,7 @@ def get_default_invite_message(party):
     <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
   </ul>
 
-  With Vinely, the more you drink, the more we learn about what you like. So lets start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
+  With Vinely, the more you drink, the more we learn about what you like. So let's start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
 
   '''
   template = Template(message_text)

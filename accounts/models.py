@@ -185,6 +185,8 @@ class UserProfile(models.Model):
     return self.user.is_superuser
 
   def update_stripe_subscription(self, frequency, quantity):
+    from main.models import Cart
+
     current_shipping = self.shipping_address
     user_state = Zipcode.objects.get(code=current_shipping.zipcode).state
     stripe_card = self.stripe_card

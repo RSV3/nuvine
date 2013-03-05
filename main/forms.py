@@ -257,7 +257,7 @@ class PartyTasterOptionsForm(forms.Form):
   AUTO_THANK_OPTIONS = (
     #(1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
     (1, 'send out a Thank You email on your behalf automatically after the party?'),
-    (0, 'let me send my own Thank You email after the party')
+    (0, 'let me send my own Thank You email after the party?')
   )
   auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect, required=False)
   auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect, required=False, initial=1)
