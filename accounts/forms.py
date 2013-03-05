@@ -85,7 +85,7 @@ class VerifyAccountForm(forms.Form):
   temp_password = forms.CharField(label="Temporary Password (from e-mail)", max_length=64, widget=forms.PasswordInput)
   new_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
   retype_password = forms.CharField(max_length=64, widget=forms.PasswordInput)
-  accepted_tos = forms.BooleanField(label="I accept the terms of service")
+  # accepted_tos = forms.BooleanField(label="I accept the terms of service")
 
   def clean(self):
     cleaned_data = super(VerifyAccountForm, self).clean()
