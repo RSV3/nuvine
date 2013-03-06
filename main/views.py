@@ -1159,7 +1159,8 @@ def party_add(request, party_id=None, party_pro=None):
       if applicable_pro:
         # make the pro a mentor to the host
         host_profile = new_host.get_profile()
-        host_profile.mentor = applicable_pro
+        # TODO: dont overwrite host's pro
+        # host_profile.mentor = applicable_pro
         host_profile.save()
 
       if self_hosting:
@@ -1389,7 +1390,7 @@ def party_review_request(request, party_id):
     distribute_party_invites_email(request, invitation)
 
       # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
-    messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
+    messages.success(request, "Your invitations were sent successfully to your tasters.")
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   if request.POST.get('add_party'):
@@ -1565,9 +1566,9 @@ def party_details(request, party_id):
         else:
           msg = 'Your party date and time have been confirmed! Let\'s get this party started and send out your invite!'
           messages.warning(request, msg)
-      else:
-        msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for you to complete the invitation process.'
-        messages.info(request, msg)
+      # else:
+      #   msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for you to complete the invitation process.'
+      #   messages.info(request, msg)
 
   data["pro_user"] = party.pro
   data["parties_menu"] = True
@@ -1866,10 +1867,6 @@ def party_write_invitation(request, party_id):
     custom_message = get_default_invite_message(party)
     signature = get_default_signature(party)
 
-  # host_full_name = "Your friend"
-  # if party.host.first_name:
-  #   host_full_name = "%s %s" % (party.host.first_name, party.host.last_name)
-  # initial_data = {'party': party, 'custom_message': custom_message, 'signature': signature, 'custom_subject': '%s invites you to a Vinely Party!' % host_full_name}
   initial_data = {'party': party, 'custom_message': custom_message, 'signature': signature, 'custom_subject': "You've been invited to a Vinely Party"}
   form = CustomizeInvitationForm(request.POST or None, initial=initial_data, instance=invitation)
 
@@ -1915,7 +1912,7 @@ def party_preview_invitation(request, party_id):
     raise Http404
 
   preview = preview_party_thanks_note_email(request, invitation)
-  data['thanks_note_preview'] = preview
+  data['invite_preview'] = preview
   # return HttpResponse(preview)
   return render_to_response("main/party_preview_invitation.html", data, context_instance=RequestContext(request))
 

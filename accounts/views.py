@@ -66,6 +66,7 @@ def profile(request):
   else:
     return HttpResponseRedirect(reverse('home_page'))
 
+
 @login_required
 def fix_my_picture(request):
   data = {}
@@ -87,7 +88,7 @@ def fix_my_picture(request):
     profile = profile_form.save()
     print profile.image.url
 
-    msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
+    msg = 'Your information has been updated'
     messages.success(request, msg)
 
   data['profile'] = profile
@@ -139,7 +140,7 @@ def my_information(request):
   if request.method == 'POST':
 
     # user_form is already validated up-top
-    msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
+    msg = 'Your information has been updated'
 
     if request.POST.get('user_form'):
       if user_form.is_valid() and profile_form.is_valid():
