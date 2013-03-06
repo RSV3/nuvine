@@ -530,7 +530,7 @@ def fulfill_orders(request, order_id=None):
       like_categories = WineRatingData.objects.filter(user=receiver, overall__gt=3).values_list("wine__number", flat=True)
 
       # algorithm based on the rating data
-      wine_choices = Wine.objects.filter(vinely_category__in=like_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+      wine_choices = Wine.objects.filter(vinely_category__in=like_categories, wineinventory__on_hand__gt=0, is_taste_kit_wine=False).values_list('id', flat=True)
 
       # if enough wine in the inventory, fulfill
       # fulfill likes only
@@ -549,7 +549,7 @@ def fulfill_orders(request, order_id=None):
       if slots_remaining:
         # if not enough likes, then fulfill neutral
         neutral_categories = WineRatingData.objects.filter(user=receiver, overall=3).values_list("wine__number", flat=True)
-        neutral_choices = Wine.objects.filter(vinely_category__in=neutral_categories, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+        neutral_choices = Wine.objects.filter(vinely_category__in=neutral_categories, wineinventory__on_hand__gt=0, is_taste_kit_wine=False).values_list('id', flat=True)
 
         slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, neutral_choices, slots_remaining)
         if fulfilled_vinely_order_id:
