@@ -54,7 +54,7 @@ def my_information(request):
   user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
   billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
-  payment_form = PaymentForm(request.POST or None, instance=profile.credit_card, prefix='payment')
+  payment_form = PaymentForm(request.POST or None, prefix='payment')
   profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
   eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, prefix='eligibility')
 
@@ -128,11 +128,13 @@ def my_information(request):
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
 
-  if profile.credit_card and request.method == "GET":
-    payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+  current_card = 'No card currently on file'
+  if profile.credit_card:
+    current_card = '*' * 12 + profile.credit_card.last_four()
+  data['card_number'] = current_card
 
   data['billing_form'] = billing_form
-  data['payment_form'] = payment_form
+  data['payment_form'] = PaymentForm(prefix='payment')
   data['profile_form'] = profile_form
   data['eligibility_form'] = eligibility_form
   data['profile'] = profile

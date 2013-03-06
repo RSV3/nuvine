@@ -273,6 +273,12 @@
             {{ payment_form.card_type }}
 
             <div class="control-group">
+              <div class="control-label">Current Card:</div>
+              <div class="controls">
+                {{card_number}} 
+              </div>
+            </div>
+            <div class="control-group">
               <div class="control-label" for="id_payment-card_number">{{ payment_form.card_number.label }}</div>
               <div class="controls">
                 {{ payment_form.card_number}} 
