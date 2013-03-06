@@ -417,12 +417,15 @@ def wine_inventory(request):
             cat_2 = row[6].value
             year = row[9].value
             sparkling = row[19].value
+            taste_kit_wine = False
 
             color_code = Wine.WINE_COLOR[0][0]
             if 'white' in color.lower():
               color_code = Wine.WINE_COLOR[1][0]
             elif 'rose' in color.lower() or u'ros\xc3' in color.lower():
               color_code = Wine.WINE_COLOR[2][0]
+            elif 'tk' in color.lower():
+              taste_kit_wine = True
 
             sparkling = str(sparkling).lower()
             sparkling_code = False
@@ -438,7 +441,8 @@ def wine_inventory(request):
                                 vinely_category=cat_1,
                                 vinely_category2=cat_2,
                                 color=color_code,
-                                sparkling=sparkling_code)
+                                sparkling=sparkling_code,
+                                is_taste_kit_wine=taste_kit_wine)
               wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)
@@ -471,7 +475,12 @@ def fill_slots_in_order(order, wine_choices, slots_remaining):
   for wine_id in wine_choices:
     picked_wine = Wine.objects.get(id=wine_id)
     # make sure we are not adding duplicate wines
-    if not SelectedWine.objects.filter(order=order, wine=picked_wine).exists():
+    if order.cart.items.filter(product__category=0).exists():
+      already_ordered = False
+    else:
+      already_ordered = SelectedWine.objects.filter(order=order, wine=picked_wine).exists()
+
+    if not already_ordered:
       wine_selected = SelectedWine(order=order, wine=picked_wine)
       wine_selected.save()
       # reduce inventory
@@ -502,6 +511,17 @@ def fulfill_orders(request, order_id=None):
     for o in orders:
       slots_remaining = o.num_slots
       if slots_remaining == 0:
+        continue
+
+      # deal with tasting kits first
+      if o.cart.items.filter(product__category=0).exists():
+        wine_choices = Wine.objects.filter(is_taste_kit_wine=True, wineinventory__on_hand__gt=0).values_list('id', flat=True)
+        slots_remaining, fulfilled_vinely_order_id = fill_slots_in_order(o, wine_choices, slots_remaining)
+        if fulfilled_vinely_order_id:
+          fulfilled_orders.append(fulfilled_vinely_order_id)
+        else:
+          o.fulfill_status = Order.FULFILL_CHOICES[5][0]
+          o.save()
         continue
 
       receiver = o.receiver
