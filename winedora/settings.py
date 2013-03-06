@@ -299,7 +299,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'normal': {
-            'format': '[%(asctime)s]:[%(levelname)s][%(module)s:%(lineno)d] %(message)s'
+            'format': '[%(asctime)s]:[%(levelname)s][%(name)s:%(lineno)d] %(message)s'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
