@@ -130,7 +130,12 @@
                 </span>
               {% endif %}
             </div>
-          </div>         
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="user_form" value="user_form">Update</button>
+            </div>
+          </div>
         </fieldset>
 	
 	<!-- eligibility -->
@@ -222,6 +227,11 @@
               {% endif %}
             </div>
           </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="eligibility_form" value="eligibility_form">Update</button>
+            </div>
+          </div>
         </fieldset>
 	<!-- /eligibility -->
 	     
@@ -291,6 +301,11 @@
                   {{ shipping_form.zipcode.errors }}
                 </span>
               {% endif %}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="shipping_form" value="shipping_form">Update</button>
             </div>
           </div>
         </fieldset>
@@ -406,14 +421,20 @@
               </div>
             </div>          
           </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="payment_form" value="payment_form">Update</button>
+            </div>
+          </div>
         </fieldset>
-
+<!-- 
         <div class="form-actions">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Update</button>
             {{ form.email }}
           </div>
-        </div>        
+        </div>
+ -->
       </form>
 {% endblock right_content %}
 
