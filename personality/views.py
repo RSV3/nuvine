@@ -125,7 +125,7 @@ def pre_questionnaire_general(request, rsvp_code=None):
 
   if u.is_authenticated() and rsvp_code:
     # make sure the authenticated user is not someone else
-    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
+    invite = get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
 
   try:
     general_taste = GeneralTaste.objects.get(user=u)
@@ -183,7 +183,7 @@ def pre_questionnaire_wine(request, rsvp_code=None):
       profile.save()
     messages.success(request, "Your wine taste information has been saved.")
     if rsvp_code:
-      return HttpResponseRedirect(reverse("party_rsvp", args=[rsvp_code]))
+      return HttpResponseRedirect(reverse("party_rsvp", args=[rsvp_code, invite.party.id]))
     else:
       return HttpResponseRedirect(reverse("home_page"))
 
