@@ -1399,6 +1399,13 @@ def party_review_request(request, party_id):
     party.confirmed = True
     party.save()
 
+    invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
+    invites = PartyInvite.objects.filter(party=party).exclude(invitee=party.host)
+    for invite in invites:
+      invitation.guests.add(invite.invitee)
+    # send e-mails
+    distribute_party_invites_email(request, invitation)
+
     messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
