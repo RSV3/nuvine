@@ -369,12 +369,13 @@
 
   <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript" src="{% static "timepicker/js/bootstrap-timepicker.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.datepicker').datepicker();
       $('.timepicker').timepicker({'defaultTime': false});
       $('.typeahead').typeahead({
-        source: function (query, process){
+        source: _.debounce(function (query, process){
           console.log("query: " + query);
           var url = "{% url party_host_list -1 %}".replace(-1, query);
           console.log("url: " + url);
@@ -391,7 +392,7 @@
             }
           });
           return [];
-        },
+        }, 500),
         updater: function(item) {
           console.log('Ze item: ' + item);
           var host_email = item.split(",")[1].trim()
@@ -419,6 +420,11 @@
       });
       $('.preview').click(function(e) {
         this.form.target = '_blank';
+      });
+      $("form input").keypress(function (e) {
+        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+          return false;
+        }
       });
     });
 

@@ -123,6 +123,12 @@ class PartyCreateForm(forms.ModelForm):
       self.fields['event_day'].widget.attrs['class'] = ''
       self.fields['event_time'].widget.attrs['class'] = ''
 
+    if self.initial.get('self_hosting') and not user.userprofile.events_manager():
+      self.fields['first_name'].widget.attrs['readonly'] = True
+      self.fields['last_name'].widget.attrs['readonly'] = True
+      self.fields['email'].widget.attrs['readonly'] = True
+      self.fields['phone'].widget.attrs['readonly'] = True
+
   def clean_event_date(self):
     if self.instance.event_date:
       event_date = timezone.localtime(self.instance.event_date)
