@@ -1183,9 +1183,26 @@ def my_host(user):
 
 
 def my_pro(user):
-  pro = user.userprofile.mentor
-  pro_profile = user.userprofile.mentor.get_profile() if user.userprofile.mentor else None
+  pro = None
+  pro_profile = None
+  profile = user.get_profile()
+  if profile.is_host():
+    pro_mapping = MyHost.objects.filter(host=user, pro__isnull=False).order_by('-timestamp')
+    if pro_mapping.exists():
+      pro = pro_mapping[0].pro
+      pro_profile = pro.get_profile()
+  elif profile.is_taster():
+    host = my_host(user)
+    if host:
+      pro_mapping = MyHost.objects.filter(host=host, pro__isnull=False).order_by('-timestamp')
+      if pro_mapping.exists():
+        pro = pro_mapping[0].pro
+        pro_profile = pro.get_profile()
+  elif user.userprofile.mentor:
+    pro = user.userprofile.mentor
+    pro_profile = user.userprofile.mentor.get_profile()
   return pro, pro_profile
+
 
 from django.db.models import Sum
 from main.models import *

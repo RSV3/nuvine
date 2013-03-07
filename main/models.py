@@ -95,9 +95,10 @@ class Party(models.Model):
 
   @property
   def pro(self):
-    try:
-      return OrganizedParty.objects.get(party=self).pro
-    except OrganizedParty.DoesNotExist:
+    parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
+    if parties_organized.exists():
+      return parties_organized[0].pro
+    else:
       return None
 
   def is_past_party(self):

@@ -112,7 +112,7 @@ class MentorAssignedFilter(SimpleListFilter):
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinley_pro_email', 'pro_number')
+  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinely_pro_email', 'pro_number')
   list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
@@ -135,8 +135,13 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def email(self, instance):
     return instance.user.email
 
-  def vinley_pro_email(self, instance):
-    return instance.mentor.email
+  def vinely_pro_email(self, instance):
+    # need to show the vinely pro
+    assigned_pro, assigned_pro_profile = my_pro(instance.user)
+    if assigned_pro:
+      return assigned_pro.email
+    else:
+      return None
 
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)

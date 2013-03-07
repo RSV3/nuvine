@@ -252,20 +252,36 @@ class UserProfile(models.Model):
       return 'supplier'
 
   def is_pro(self):
-    return self.role() == 'pro'
+    pro_group = Group.objects.get(name="Vinely Pro")
+    if pro_group in self.user.groups.all():
+      return True
+    else:
+      return False
 
   def is_pending_pro(self):
     pending_pro = Group.objects.get(name="Pending Vinely Pro")
     return pending_pro in self.user.groups.all()
 
   def is_host(self):
-    return self.role() == 'host'
+    hos_group = Group.objects.get(name="Vinely Host")
+    if hos_group in self.user.groups.all():
+      return True
+    else:
+      return False
 
   def is_taster(self):
-    return self.role() == 'taster'
+    tas_group = Group.objects.get(name="Vinely Taster")
+    if tas_group in self.user.groups.all():
+      return True
+    else:
+      return False
 
   def is_supplier(self):
-    return self.role() == 'supplier'
+    sup_group = Group.objects.get(name="Supplier")
+    if sup_group in self.user.groups.all():
+      return True
+    else:
+      return False
 
   def cancel_subscription(self):
     """

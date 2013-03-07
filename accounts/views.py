@@ -148,6 +148,9 @@ def my_information(request):
   data['eligibility_form'] = eligibility_form
   data['payment_form'] = payment_form
 
+  # tracking payment information error
+  payment_info_error = False
+
   if request.method == 'POST':
 
     # user_form is already validated up-top
@@ -203,12 +206,20 @@ def my_information(request):
     #     billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
     #     billing_updated = True
 
-    receiver_state = Zipcode.objects.get(code=u.userprofile.shipping_address.zipcode).state
+
 
     if request.POST.get('payment_form'):
       if payment_form.is_valid():
         payment = payment_form.cleaned_data
 
+        receiver_state = 'NONE'
+        try:
+          if u.userprofile.shipping_address:
+            receiver_state = Zipcode.objects.get(code=u.userprofile.shipping_address.zipcode).state
+          #else:
+          #  receiver_state = Zipcode.objects.get(code=payment['billing_zipcode']).state
+        except Zipcode.DoesNotExist:
+          pass
         if receiver_state in Cart.STRIPE_STATES:
           if receiver_state == 'MI':
             stripe.api_key = settings.STRIPE_SECRET
@@ -266,24 +277,26 @@ def my_information(request):
 
         # reset payment form after saving
         data['payment_form'] = PaymentForm(prefix='payment')
-        messages.success(request, msg)
-        return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
       else:
         # if payment form is not valid
         if len(request.POST.get("payment-card_number", '')) == 0:
           # just present empty form since nothing was entered
           data['payment_form'] = PaymentForm(prefix='payment')
+        else:
+          payment_info_error = True
+          messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
 
-      msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
-      messages.success(request, msg)
+      if not payment_info_error:
+        msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
+        messages.success(request, msg)
 
-  card_number = ''
+  card_number = 'No card currently on file'
   if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
     card_number = '*' * 12 + profile.stripe_card.last_four
-    #payment_form.initial['card_number'] = card_number
   elif profile.credit_card:
-    #payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
     card_number = '*' * 12 + profile.credit_card.last_four()
+  else:
+    print "No card info"
   data['card_number'] = card_number
 
   data['profile'] = profile

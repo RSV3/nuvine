@@ -372,14 +372,10 @@
           <div class="payment-form">
             <div class="control-group">
               <div class="control-label">Current Card:</div>
-              {% if card_number %}
                 <div class="controls">
                   {{ card_number }}
                   {# <a href="javascript:;" class="offset1" data-toggle="modal" data-target="#card_modal">Delete Card</a> #}
                 </div>
-              {% else %}
-                <div class="controls">No card currently on file</div>
-              {% endif %}
             </div>
             <div class="control-group">
               <div class="controls">or enter a new credit card</div>
