@@ -1200,35 +1200,39 @@ def calculate_host_credit(host):
   if not host_parties.exists():
     return 0
 
-  total_orders = 0
+  available_credit = 0
   for party in host_parties:
-    # get orders made <= 7 days after party
-    party_window = party.event_date + timedelta(days=7)
+    available_credit += party.credit()
 
-    orders = Order.objects.filter(cart__party=party, order_date__lte=party_window)
-    # exclude orders made by host
-    orders = orders.exclude(ordered_by=host)
-    # should not be tasting kit
-    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
-    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
-    total_orders += aggregate['total'] if aggregate['total'] else 0
+  # total_orders = 0
+  # for party in host_parties:
+  #   # get orders made <= 7 days after party
+  #   party_window = party.event_date + timedelta(days=7)
 
-  # sales < 399 = 0 credit
-  # 400 - 599 = 40
-  # 600 - 799 = 60
-  # 800 - 999 = 90
-  # 1000-1199 = 120
-  # 1200-1399 = 150
-  available_credit = 20 * host_parties.count()
+  #   orders = Order.objects.filter(cart__party=party, order_date__lte=party_window)
+  #   # exclude orders made by host
+  #   orders = orders.exclude(ordered_by=host)
+  #   # should not be tasting kit
+  #   orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+  #   aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+  #   total_orders += aggregate['total'] if aggregate['total'] else 0
 
-  total = int(total_orders + 1)
-  for cost in range(400, total, 200):
-    if cost == 400:
-      available_credit += 40
-    elif cost > 800:
-      available_credit += 30
-    else:
-      available_credit += 20
+  # # sales < 399 = 0 credit
+  # # 400 - 599 = 40
+  # # 600 - 799 = 60
+  # # 800 - 999 = 90
+  # # 1000-1199 = 120
+  # # 1200-1399 = 150
+  # available_credit = 20 * host_parties.count()
+
+  # total = int(total_orders + 1)
+  # for cost in range(400, total, 200):
+  #   if cost == 400:
+  #     available_credit += 40
+  #   elif cost > 800:
+  #     available_credit += 30
+  #   else:
+  #     available_credit += 20
 
   # deduct used credit
   orders = Order.objects.filter(cart__receiver=host, cart__discount__gt=0)
