@@ -153,7 +153,7 @@
           <div class="tab-content">
             <div class="tab-pane fade {% if not pro_parties and not host_parties and not taster_parties %} active in {% endif %}" id="host_guest_past_parties">
               <!-- <h1 class="headline">Past Parties</h1> -->
-              {% if pro %}
+              {% if pro or pending_pro %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">
@@ -273,7 +273,7 @@
 
             <div class="tab-pane fade {% if pro_parties or host_parties or taster_parties %} active in {% endif %}" id="host_guest_upcoming_parties">
               <!-- <h1 class="headline">Upcoming Parties</h1> -->
-              {% if pro %}
+              {% if pro or pending_pro %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">

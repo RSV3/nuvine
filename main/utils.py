@@ -1182,7 +1182,9 @@ def my_host(user):
 
 
 def my_pro(user):
-  return user.userprofile.mentor, user.userprofile.mentor.get_profile()
+  pro = user.userprofile.mentor
+  pro_profile = user.userprofile.mentor.get_profile() if user.userprofile.mentor else None
+  return pro, pro_profile
 
 from django.db.models import Sum
 from main.models import *
