@@ -923,13 +923,10 @@ def party_list(request):
 
   data = {}
 
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-
   today = timezone.now()
 
   my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
-  if (pro_group in u.groups.all()):
+  if u.userprofile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
@@ -945,10 +942,10 @@ def party_list(request):
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
-  elif (hos_group in u.groups.all()):
+  elif u.userprofile.is_host():
     data['host_credits'] = calculate_host_credit(u)
-    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
-    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
+    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
 
   # parties attended
   # exclude parties in which user was the host or pro
@@ -1246,16 +1243,18 @@ def party_edit_date(request, party_id):
   data['previous_page'] = previous_page
 
   edit_date_form = PartyEditDateForm(request.POST or None, initial=initial_data, instance=party)
-  if edit_date_form.is_valid():
 
+  if edit_date_form.is_valid():
     event_date = edit_date_form.cleaned_data['event_date']
     log.info('Event Date: %s' % event_date)
     party.event_date = event_date
     party.save()
     return HttpResponseRedirect(previous_page)
+  else:
+    messages.warning(request, edit_date_form.errors['__all__'])
 
   data['edit_date_form'] = edit_date_form
-  return render_to_response("main/party_edit_date_modal.html", data, context_instance=RequestContext(request))
+  return HttpResponseRedirect(previous_page)
 
 
 # @login_required

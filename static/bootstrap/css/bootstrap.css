@@ -441,6 +441,7 @@ h6 {
 .page-header h1 {
   line-height: 1;
 }
+
 ul,
 ol {
   padding: 0;
@@ -461,6 +462,11 @@ ol {
 li {
   line-height: 1.3em;
 }
+ul.errorlist,
+ol.errorlist{
+  list-style: none;
+}
+
 ul.unstyled,
 ol.unstyled {
   margin-left: 0;
