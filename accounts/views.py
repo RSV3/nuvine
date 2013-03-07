@@ -46,6 +46,17 @@ log = logging.getLogger(__name__)
 
 #   return HttpResponseRedirect('/')
 
+@login_required
+def delete_card(request):
+  u = request.user
+  profile = u.get_profile()
+
+  profile.credit_card = None
+  profile.stripe_card = None
+  profile.save()
+  u.get_profile().cancel_subscription()
+  return HttpResponseRedirect(reverse('my_information'))
+
 
 @login_required
 def profile(request):
@@ -266,7 +277,7 @@ def my_information(request):
       msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
       messages.success(request, msg)
 
-  card_number = 'No card currently on file'
+  card_number = ''
   if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
     card_number = '*' * 12 + profile.stripe_card.last_four
     #payment_form.initial['card_number'] = card_number

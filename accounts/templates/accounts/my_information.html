@@ -9,6 +9,10 @@
     .payment-form select {
       width: 110px;
     }
+    a:visited {
+      color: #DD4040;
+      text-decoration: none;
+    }
   </style>
 {% endblock %}
 
@@ -368,9 +372,18 @@
           <div class="payment-form">
             <div class="control-group">
               <div class="control-label">Current Card:</div>
-              <div class="controls">{{ card_number }}</div>
+              {% if card_number %}
+                <div class="controls">
+                  {{ card_number }}
+                  <a href="javascript:;" class="offset1" data-toggle="modal" data-target="#card_modal">Delete Card</a>
+                </div>
+              {% else %}
+                <div class="controls">No card currently on file</div>
+              {% endif %}
             </div>
-
+            <div class="control-group">
+              <div class="controls">or enter a new credit card</div>
+            </div>
             {{ payment_form.card_type }}
 
             <div class="control-group {% if payment_form.card_number.errors %} error{% endif %}">
@@ -426,6 +439,22 @@
               <button type="submit" class="btn btn-primary" name="payment_form" value="payment_form">Update</button>
             </div>
           </div>
+           
+          <!-- Modal -->
+          <div id="card_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="card_modalLabel" aria-hidden="true">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h3 id="card_modalLabel">Delete Card?</h3>
+            </div>
+            <div class="modal-body">
+              <p>Deleting the Credit Card will also cancel any existing subscriptions that you currently have.</p>
+              <p>Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Cancel</button>
+              <a href="{% url delete_card %}" class="btn btn-danger">Delete Card</a>
+            </div>
+          </div>
         </fieldset>
 <!-- 
         <div class="form-actions">
@@ -448,6 +477,7 @@
         options.startView = 'decade';
       }
       $('.datepicker').datepicker(options);
+      // $('#card_modal').modal();
     });
   </script>
 {% endblock additional_scripts %}
