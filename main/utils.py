@@ -1102,7 +1102,8 @@ def preview_host_confirm_email(request, party):
 
   host_first_name = party.host.first_name if party.host.first_name else "Friendly Host"
 
-  pro, pro_profile = my_pro(request.user)
+  # pro, pro_profile = my_pro(request.user)
+  pro = request.user
   party.id = 0
   c = RequestContext(request,  {"party": party,
                                 "invite_host_name": "%s" % host_first_name,
