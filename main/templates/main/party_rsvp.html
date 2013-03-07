@@ -212,10 +212,11 @@
         {% if party.guests_can_invite %} 
           <p>You can also invite your friends</p>
           <div class="span12">
-            <form class="form-validate form-horizontal" method="POST" action="">
+            <form id="add_taster_form" class="form-validate form-horizontal" method="POST" action="">
               {% csrf_token %}
               {{ taster_form.party }}
               {{ taster_form.response }}
+              {% comment %}
               <div class="row">
                 <div class="span12">
                   <!-- <h2>Tasters Attending</h2> -->
@@ -234,7 +235,8 @@
                       {% endif %}
                     {% endif %}
                 </div>
-              </div>        
+              </div>
+              {% endcomment %}
               <div class="row">
                 <div class="span3">
                   <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
@@ -322,6 +324,11 @@
     <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
     <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
     <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready( function () {
+        $('#add_taster_form').find('input[type=text]').val("");
+      });
+    </script>
 
   {% if invited_user.get_profile.is_under_age %}
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
