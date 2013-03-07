@@ -277,6 +277,13 @@ class UserProfile(models.Model):
 
     # need to cancel credit card charges (i.e. Stripe)
     if self.stripe_card:
+      receiver_state = self.shipping_address.state
+      if receiver_state == 'MI':
+        stripe.api_key = settings.STRIPE_SECRET
+      elif receiver_state == 'CA':
+        stripe.api_key = settings.STRIPE_SECRET_CA
+
+      self.shipping_address.state
       customer = stripe.Customer.retrieve(id=self.stripe_card.stripe_user)
       customer.cancel_subscription()
 
