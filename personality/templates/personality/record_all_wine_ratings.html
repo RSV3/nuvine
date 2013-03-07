@@ -159,7 +159,7 @@
         <h3>Quick Search:</h3>
         <p>
           <input type="text" placeholder="Type in new taster's name" class="typeahead"  data-provide="typeahead" />
-          <button id="load_taster" type="submit" name="go" value="go" class="btn btn-primary">Go</button>
+          <button id="load_taster" type="button" name="go" value="go" class="btn btn-primary">Go</button>
         </p>
         <p>&nbsp;</p>
         
@@ -977,6 +977,7 @@
 {% block additional_scripts %}
 
 <script src="{% static "js/jquery.cookie.js" %}"></script>
+<script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
 <script type="text/javascript">
   var csrftoken = $.cookie('csrftoken');
 
@@ -1017,51 +1018,13 @@
       return 'E-mail address is an invalid address!';
     }   
   }
-
-  // $("#id_email").popover(
-  //   {
-  //     title: get_popover_title,
-  //     content: get_popover_content 
-  //   }
-  // );   
-
-  // $('#id_email').keyup(function() {
-
-  //   /* for now do not disable the submit button even though personality exists */
-  //   $.ajax({
-  //     type: "POST",
-  //     url: "{% url check_personality_exists %}",
-  //     data: { email: $(this).val() },
-  //     success: function(data) {
-  //       $('#id_email').popover("hide");
-  //       $('#email-invalid-error').popover("hide");
-  //       if ( data["result"] == 1 ) {
-  //         personality_error = true;
-  //         $('#id_email').popover("show");
-  //         console.log("Show popover");
-  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/
-  //       } else if (data["result"] == 0 ) {
-  //         personality_error = false;
-  //         email_error = false;
-  //         /*$('button[type="submit"]').removeAttr('disabled'); */
-  //         $("#id_email").popover("hide")
-  //         console.log("Hide popover");
-  //       } else if (data["result"] == -1 ) {
-  //         email_error = true;
-  //         $('#id_email').popover("show");
-  //         console.log("Show popover");
-  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
-  //       }
-  //     }
-  //   })
-  // });
 </script>
 
 <script type="text/javascript">
   $(document).ready(function(){
     $('.typeahead').typeahead({
-      source: function (query, process){
-        // console.log("query: " + query);
+      source: _.debounce(function (query, process){
+        console.log("query: " + query);
         var url = "{% url taster_list -1 0 %}".replace(-1, query).replace(0, {{ party.id }});
         $.ajax({
           url: url,
@@ -1076,7 +1039,7 @@
           }
         });
         return [];
-      }
+      }, 500)
     });
 
     $("#load_taster").click(function(e){

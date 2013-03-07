@@ -182,6 +182,7 @@
   <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
   <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
   <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('.edit-taster').click(function(e) {
@@ -206,7 +207,7 @@
 
       //typeahead
       $('.typeahead').typeahead({
-        source: function (query, process){
+        source: _.debounce(function (query, process){
           // console.log("query: " + query);
           var url = "{% url my_taster_list -1 %}".replace(-1, query);
           $.ajax({
@@ -221,7 +222,7 @@
             }
           });
           return [];
-        },
+        }, 500),
         updater: function(item) {
           console.log('Ze item: ' + item);
           var host_email = item.split(",")[1].trim()
