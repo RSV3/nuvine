@@ -233,7 +233,7 @@ class PaymentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     self.payment_data = kwargs.pop('payment_data', None)
     super(PaymentForm, self).__init__(*args, **kwargs)
-    # self.fields['verification_code'].widget = forms.PasswordInput()
+    self.fields['card_number'].widget.attrs['autocomplete'] = 'off'
     self.fields['card_type'].widget = forms.HiddenInput()
 
   def clean(self):

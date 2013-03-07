@@ -358,10 +358,10 @@ def edit_subscription(request):
     if user_state in Cart.STRIPE_STATES:
       subscription_updated = u.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
 
-    if subscription_updated:
-      messages.success(request, "Stripe subscription successfully updated.")
-    else:
-      messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
+      if subscription_updated:
+        messages.success(request, "Stripe subscription successfully updated.")
+      else:
+        messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
 
   data['invited_by'] = my_host(u)
@@ -1100,6 +1100,8 @@ def pro_unlink(request):
 
   # unlink current user's pro
   if profile.is_host():
+    profile.mentor = None
+    profile.save()
     MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
