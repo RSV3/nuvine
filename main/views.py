@@ -2689,7 +2689,7 @@ def edit_credit_card(request):
       cards = current_user_profile.credit_cards.all()
       if cards.count() > 0:
         card_info = cards[0]
-        form.initial = {'card_number': card_info.decrypt_card_num(), 'exp_month': card_info.exp_month,
+        form.initial = {'exp_month': card_info.exp_month,
                         'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
                         'billing_zipcode': card_info.billing_zipcode}
     data['form'] = form
