@@ -14,7 +14,7 @@ class Command(BaseCommand):
     for profile in profiles:
       user = profile.user
       if profile.is_pro():
-        print "%s has mentor pro: %s" % (user.email, profile.mentor.email)
+        print "%s has mentor pro: %s" % (user.email, profile.mentor.email if profile.mentor else None)
       elif profile.is_host():
         profile.mentor = None
         profile.save()
