@@ -181,6 +181,7 @@ class UpdateAddressForm(forms.ModelForm):
 
       self.user_profile.shipping_address = new_shipping
       self.user_profile.shipping_addresses.add(new_shipping)
+      self.user_profile.save()
     else:
       new_shipping = self.instance
 
