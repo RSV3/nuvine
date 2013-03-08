@@ -631,7 +631,10 @@ class SubscriptionInfo(models.Model):
     request.user = user
     request.session = {}
 
-    send_order_confirmation_email(request, order.order_id)
+    if order.fulfill_status == 0:
+      send_order_confirmation_email(request, order.order_id)
+      order.fulfill_status = 1
+      order.save()
 
 
 class Zipcode(models.Model):

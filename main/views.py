@@ -843,8 +843,6 @@ def order_complete(request, order_id):
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
 
-    data["order"] = order
-
     cart = order.cart
     data["cart"] = cart
 
@@ -858,11 +856,18 @@ def order_complete(request, order_id):
       data['items'].append(item)
 
     # need to send e-mail
-    send_order_confirmation_email(request, order_id)
+    if order.fulfill_status == 0:
+      send_order_confirmation_email(request, order_id)
+      order.fulfill_status = 1
+      order.save()
 
     stripe_card_used = order.stripe_card
     data["credit_card"] = stripe_card_used if stripe_payment_mode or stripe_card_used else order.credit_card
     data["shop_menu"] = True
+
+    # send_order_confirmation_email switches the order fulfillstatus
+    # so template should get the new order before outputting to template
+    data["order"] = order
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
     raise PermissionDenied

@@ -189,10 +189,6 @@ def send_order_confirmation_email(request, order_id):
 
   order = Order.objects.get(order_id=order_id)
 
-  if order.fulfill_status > 0:
-    # return if already processing since e-mail has already been sent
-    return
-
   receiver_email = order.receiver.email
   sender_email = order.ordered_by.email
 
@@ -284,9 +280,6 @@ def send_order_confirmation_email(request, order_id):
   msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'order@vinely.com'})
   msg.attach_alternative(html_msg, "text/html")
   msg.send()
-
-  order.fulfill_status = 1
-  order.save()
 
 
 def send_order_shipped_email(request, order):
