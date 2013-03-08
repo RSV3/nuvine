@@ -5,3 +5,5 @@
 - setting Elizabeth as default pro is causing problem
 
 - history of pro changes
+
+- cse@duprenunnelly.com does not have a user profile, should it be manually created?

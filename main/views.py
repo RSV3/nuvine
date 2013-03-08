@@ -1038,9 +1038,6 @@ def party_add(request, party_id=None, party_pro=None):
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
 
-  if u.userprofile.is_host() and not party_id:
-    return HttpResponseRedirect(reverse('pros_only'))
-
   party = None
 
   if party_id:
@@ -1052,6 +1049,9 @@ def party_add(request, party_id=None, party_pro=None):
     if party.event_date < timezone.now():
       messages.warning(request, "You cannot change party details for a past event.")
       return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+  else:
+    if u.userprofile.is_host():
+      return HttpResponseRedirect(reverse('pros_only'))
 
     # if party.confirmed and not (u.userprofile.events_manager() or party.host != u):
     #   messages.warning(request, "You cannot change party details once the party confirmation request has been sent out")
@@ -1140,21 +1140,24 @@ def party_add(request, party_id=None, party_pro=None):
       new_party.save()
       new_host = new_party.host
 
-      # map host to a pro
+      # find applicable pro
       if u.userprofile.is_pro():
         applicable_pro = u
       else:
+        # if current user is host, use current pro
         applicable_pro, pro_profile = my_pro(u)
 
+      # map host to a pro
       no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
-
       if no_applicable_pro.exists():
-        if applicable_pro:
-          my_hosts = no_applicable_pro[0]
-          my_hosts.pro = applicable_pro
-          my_hosts.save()
+        my_hosts = no_applicable_pro[0]
+        my_hosts.pro = applicable_pro
+        my_hosts.timestamp = timezone.now()
+        my_hosts.save()
       else:
         my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
+        my_hosts.timestamp = timezone.now()
+        my_hosts.save()
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
@@ -1213,12 +1216,9 @@ def party_add(request, party_id=None, party_pro=None):
   else:
     # GET
     # if the current user is host, display Vinely Pro
-    if data.get("host"):
-      pros = MyHost.objects.filter(host=u)
-      if pros.exists():
-        pro = pros[0].pro
-        data["my_pro"] = pro
-        send_host_vinely_party_email(request, u, pro)
+    if u.userprofile.is_host():
+      if u.userprofile.current_pro:
+        send_host_vinely_party_email(request, u, u.userprofile.current_pro)
       else:
         send_host_vinely_party_email(request, u)
 

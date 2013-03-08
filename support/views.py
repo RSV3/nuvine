@@ -377,7 +377,7 @@ def wine_inventory(request):
     file_name = upload_info.inventory_file.name
     log.info("Uploaded filename: %s" % file_name)
 
-    if settings.MEDIA_URL.startswith("http"):
+    if settings.MEDIA_URL.startswith("//s3"):
       from boto.s3.connection import S3Connection
 
       conn = S3Connection(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
@@ -639,6 +639,8 @@ def edit_order(request, order_id):
   data['past_orders'] = past_orders
   # show the ratings on past orders
   data['past_ratings'] = past_ratings
+  data['recurring'] = order.recurring()
+  data['product'] = order.quantity_summary()
 
   order_status_updated = False
   num_slots = order.num_slots

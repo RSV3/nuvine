@@ -43,6 +43,17 @@
               &nbsp;
             </div>
             <div class="row">
+              <div class="span8">
+                Product: {{ order.cart }}
+              </div>
+              <div class="span4">
+                Subscription: {{ recurring }}
+              </div>
+            </div>
+            <div class="vertical-space-20">
+              &nbsp;
+            </div>            
+            <div class="row">
               <div class="span4">
                       Taste Code: 
                         {% with rating_summary=receiver_profile.personality_rating_code %}
