@@ -1179,18 +1179,9 @@ def my_pro(user):
   pro = None
   pro_profile = None
   profile = user.get_profile()
-  if profile.is_host():
-    pro_mapping = MyHost.objects.filter(host=user, pro__isnull=False).order_by('-timestamp')
-    if pro_mapping.exists():
-      pro = pro_mapping[0].pro
-      pro_profile = pro.get_profile()
-  elif profile.is_taster():
-    host = my_host(user)
-    if host:
-      pro_mapping = MyHost.objects.filter(host=host, pro__isnull=False).order_by('-timestamp')
-      if pro_mapping.exists():
-        pro = pro_mapping[0].pro
-        pro_profile = pro.get_profile()
+  if profile.is_host() or profile.is_taster():
+    pro = user.userprofile.current_pro
+    pro_profile = user.userprofile.current_pro.get_profile()
   elif user.userprofile.mentor:
     pro = user.userprofile.mentor
     pro_profile = user.userprofile.mentor.get_profile()
