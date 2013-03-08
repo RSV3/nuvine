@@ -714,21 +714,23 @@ def edit_order(request, order_id):
     form_data = {}
     form_data['record_id'] = w.id
     form_data['wine'] = w.wine.id
-    if customization.wine_mix == 2:
-      form_data['color_filter'] = 0
-    elif customization.wine_mix == 3:
-      form_data['color_filter'] = 1
-    form_data['sparkling_filter'] = True if customization.sparkling else False
+    if customization:
+      if customization.wine_mix == 2:
+        form_data['color_filter'] = 0
+      elif customization.wine_mix == 3:
+        form_data['color_filter'] = 1
+      form_data['sparkling_filter'] = True if customization.sparkling else False
     form_data['category_filter'] = receiver_profile.find_neutral_wines()
     initial_data.append(form_data)
 
   for i in range(0, num_slots - len(initial_data)):
     form_data = {}
-    if customization.wine_mix == 2:
-      form_data['color_filter'] = 0
-    elif customization.wine_mix == 3:
-      form_data['color_filter'] = 1
-    form_data['sparkling_filter'] = True if customization.sparkling else False
+    if customization:
+      if customization.wine_mix == 2:
+        form_data['color_filter'] = 0
+      elif customization.wine_mix == 3:
+        form_data['color_filter'] = 1
+      form_data['sparkling_filter'] = True if customization.sparkling else False
     form_data['category_filter'] = receiver_profile.find_neutral_wines()
     initial_data.append(form_data)
 

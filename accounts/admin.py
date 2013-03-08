@@ -3,13 +3,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo, Zipcode
 from accounts.utils import send_pro_approved_email, reassign_pro
-from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
+from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, \
+                      generate_pro_account_number, my_pro
 
 from main.models import MyHost, Cart
 
