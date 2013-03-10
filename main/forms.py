@@ -335,7 +335,7 @@ class PartyInviteTasterForm(forms.ModelForm):
       if self._errors.get('email'):
         del self._errors['email']
     else:
-      # create new host and return host ID
+      # create new taster and return host ID
       if email_validator(cleaned_data.get('email')):
         try:
           user = User.objects.get(email=cleaned_data['email'].lower())
@@ -352,7 +352,9 @@ class PartyInviteTasterForm(forms.ModelForm):
 
         # set the new user's pro to be this party's pro
         profile = user.get_profile()
-        profile.mentor = cleaned_data['party'].pro
+        if not profile.current_pro:
+          # if there's no existing pro, then assign new pro
+          profile.current_pro = cleaned_data['party'].pro
 
         if cleaned_data['phone']:
           profile.phone = cleaned_data['phone']
@@ -360,8 +362,8 @@ class PartyInviteTasterForm(forms.ModelForm):
 
         if user.groups.all().count() == 0:
           # add the user to Party Taster group
-          att_group = Group.objects.get(name="Vinely Taster")
-          user.groups.add(att_group)
+          tas_group = Group.objects.get(name="Vinely Taster")
+          user.groups.add(tas_group)
           user.save()
         cleaned_data['invitee'] = user
       else:

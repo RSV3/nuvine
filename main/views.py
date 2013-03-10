@@ -837,7 +837,9 @@ def order_complete(request, order_id):
     if items.exists() and order.cart.party:
       # if subsciption order made at a party, then update receivers to be the party pro
       receiver_profile = order.receiver.get_profile()
-      receiver_profile.mentor = order.cart.party.pro
+      if receiver_profile.is_host() or receiver_profile.is_taster():
+        receiver_profile.current_pro = order.cart.party.pro
+      # TODO: what happens if a pro orders a VIP?
       receiver_profile.save()
 
   if order.ordered_by == u or order.receiver == u:
@@ -1162,10 +1164,10 @@ def party_add(request, party_id=None, party_pro=None):
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
       if applicable_pro:
-        # make the pro a mentor to the host
         host_profile = new_host.get_profile()
-        # TODO: dont overwrite host's pro
-        # host_profile.mentor = applicable_pro
+        if not host_profile.current_pro:
+          # if host has no pro assigned, change to current pro setting up the party
+          host_profile.current_pro = applicable_pro  
         host_profile.save()
 
       if self_hosting:
@@ -1182,6 +1184,10 @@ def party_add(request, party_id=None, party_pro=None):
           temp_password = User.objects.make_random_password()
           new_host.set_password(temp_password)
           new_host.save()
+          # user profile should be created, so assign pro
+          new_host_profile = new_host.get_profile()
+          new_host_profile.current_pro = applicable_pro
+          new_host_profile.save()
 
           verification_code = str(uuid.uuid4())
           vque = VerificationQueue(user=new_host, verification_code=verification_code)

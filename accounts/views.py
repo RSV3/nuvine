@@ -526,7 +526,7 @@ def make_pro_host(request, account_type, data):
 
     elif profile.is_host():
 
-      # can only be pro
+      # can only become a pro since user is a host
       if account_type > 1:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
@@ -547,6 +547,8 @@ def make_pro_host(request, account_type, data):
             mentor = get_default_pro()
             MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
           profile.mentor = mentor
+          # no longer taster or host so set current_pro to None
+          profile.current_pro = None
           profile.save()
         except User.DoesNotExist:
           mentor = None
@@ -580,6 +582,7 @@ def make_pro_host(request, account_type, data):
         send_not_in_area_party_email(request, u, account_type)
 
       if account_type == 1:
+        # become a pro
         try:
           mentor_email = form.cleaned_data.get('mentor')
           if mentor_email:
@@ -587,6 +590,8 @@ def make_pro_host(request, account_type, data):
           else:
             mentor = get_default_pro()
           profile.mentor = mentor
+          # since no longer host or taster
+          profile.current_pro = None
           profile.save()
         except User.DoesNotExist:
           mentor = None
@@ -600,14 +605,14 @@ def make_pro_host(request, account_type, data):
         return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type == 2:
+        # become a host
         try:
           mentor_email = form.cleaned_data.get('mentor')
           if mentor_email:
             pro = User.objects.get(email=mentor_email)
-            profile.mentor = pro
+            profile.current_pro = pro
           else:
-            pro = get_default_pro()
-            profile.mentor = pro
+            # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
             # set mentor to default pro but MyHost needs to see that as no pro assigned
             pro = None
           profile.save()
@@ -742,8 +747,10 @@ def sign_up(request, account_type, data):
         profile.mentor = pro
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
       except User.DoesNotExist:
-        # mentor e-mail was not entered
+        # mentor e-mail was not entered, assign default pro
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
+        pro = get_default_pro()
+        profile.mentor = pro
 
     elif account_type == 2:
       # if host, then set mentor to be the host's pro
@@ -751,7 +758,7 @@ def sign_up(request, account_type, data):
         pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
           # map host to a pro
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
-        profile.mentor = pro
+        profile.current_pro = pro
       except User.DoesNotExist:
         # pro e-mail was not entered
         my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
@@ -1101,6 +1108,7 @@ def pro_link(request):
     if form.errors:
       messages.error(request, form.errors)
   else:
+    # TODO: Can tasters link to particular pros?
     messages.error(request, "Only Hosts can link to Pro's at the moment")
   return HttpResponseRedirect(reverse('edit_subscription'))
 
@@ -1113,12 +1121,16 @@ def pro_unlink(request):
 
   # unlink current user's pro
   if profile.is_host():
-    profile.mentor = None
+    profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
+    profile.current_pro = None
     profile.save()
     MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
+    profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
+    profile.current_pro = None
+    profile.save()   
     # seems there's no way to unlink a pro for taster because no direct link
-    messages.error(request, "Only Hosts can unlink from their Pro's at the moment")
+    messages.success(request, "You have been successfully unlinked from the Pro.")
 
   return HttpResponseRedirect(reverse("edit_subscription"))

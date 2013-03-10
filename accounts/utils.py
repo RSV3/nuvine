@@ -575,4 +575,5 @@ def reassign_pro(pro):
 
 def get_default_pro():
   from accounts.models import User
-  return User.objects.get(pk=1)
+  # use elizabeth@vinely.com as default pro
+  return User.objects.get(email='elizabeth@vinely.com')
