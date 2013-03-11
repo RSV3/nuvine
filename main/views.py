@@ -1210,6 +1210,7 @@ def party_add(request, party_id=None, party_pro=None):
       if request.POST.get('create'):
         # go to party details page
         send_new_party_host_confirm_email(request, new_party)
+        messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
         # return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
         return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
@@ -1400,7 +1401,7 @@ def party_review_request(request, party_id):
     distribute_party_invites_email(request, invitation)
 
       # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
-    messages.success(request, "Your invitations were sent successfully to your tasters.")
+    messages.success(request, "Your invitations were sent successfully to %s tasters." % invites.count())
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   if request.POST.get('add_party'):
@@ -1416,7 +1417,7 @@ def party_review_request(request, party_id):
     # send e-mails
     distribute_party_invites_email(request, invitation)
 
-    messages.success(request, "Party (%s) has been successfully scheduled." % (party.title, ))
+    messages.success(request, "Your invitations were sent successfully to %s tasters." % invites.count())
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
   data['party'] = party
@@ -1825,7 +1826,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
-  if not request.session[rsvp_code]:
+  if not request.session.get(rsvp_code):
     request.session[rsvp_code] = request.GET.get('checked')
 
   data['age_checked'] = request.GET.get('checked') or request.session[rsvp_code]
@@ -1838,7 +1839,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
       invite.response = 4
       invite.save()
 
-    if disallow_rsvp == False:
+    if disallow_rsvp is False:
       invite.response = int(response)
       invite.save()
 
@@ -2502,8 +2503,8 @@ def edit_shipping_address(request):
   initial_data['news_optin'] = receiver.get_profile().news_optin
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
-  if not u.get_profile().is_pro() or receiver == u:
-    form.fields['email'].widget = forms.HiddenInput()
+  # if not u.get_profile().is_pro() or receiver == u:
+  #   form.fields['email'].widget = forms.HiddenInput()
 
   age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
 

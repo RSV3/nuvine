@@ -498,7 +498,6 @@ def make_pro_host(request, account_type, data):
   u = request.user
   profile = u.get_profile()
 
-  pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
   # tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")

@@ -9,6 +9,7 @@ from cms.models import Section
 
 from premailer import Premailer
 
+
 def send_signed_up_as_host_email(request, user):
   template = Section.objects.get(template__key='signed_up_as_host_email', category=0)
 

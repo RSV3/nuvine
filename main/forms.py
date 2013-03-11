@@ -575,7 +575,7 @@ class ShippingForm(forms.ModelForm):
   state = us_forms.USStateField()  # choices=us_states.STATE_CHOICES)
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
-  email = forms.EmailField()  # help_text="A new account will be created using this e-mail address if not an active account")
+  email = forms.EmailField(widget=forms.HiddenInput())  # help_text="A new account will be created using this e-mail address if not an active account")
 
   news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.",
                                   initial=True, required=False)
