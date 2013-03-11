@@ -255,10 +255,7 @@ class UserProfile(models.Model):
 
   def is_pro(self):
     pro_group = Group.objects.get(name="Vinely Pro")
-    if pro_group in self.user.groups.all():
-      return True
-    else:
-      return False
+    return pro_group in self.user.groups.all()
 
   def is_pending_pro(self):
     pending_pro = Group.objects.get(name="Pending Vinely Pro")
@@ -266,24 +263,15 @@ class UserProfile(models.Model):
 
   def is_host(self):
     hos_group = Group.objects.get(name="Vinely Host")
-    if hos_group in self.user.groups.all():
-      return True
-    else:
-      return False
+    return hos_group in self.user.groups.all()
 
   def is_taster(self):
     tas_group = Group.objects.get(name="Vinely Taster")
-    if tas_group in self.user.groups.all():
-      return True
-    else:
-      return False
+    return tas_group in self.user.groups.all()
 
   def is_supplier(self):
     sup_group = Group.objects.get(name="Supplier")
-    if sup_group in self.user.groups.all():
-      return True
-    else:
-      return False
+    return sup_group in self.user.groups.all()
 
   def cancel_subscription(self):
     """

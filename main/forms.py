@@ -352,7 +352,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
         # set the new user's pro to be this party's pro
         profile = user.get_profile()
-        if not profile.current_pro:
+        if not profile.current_pro and not profile.mentor:
           # if there's no existing pro, then assign new pro
           profile.current_pro = cleaned_data['party'].pro
 

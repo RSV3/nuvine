@@ -839,6 +839,8 @@ def order_complete(request, order_id):
       receiver_profile = order.receiver.get_profile()
       if receiver_profile.is_host() or receiver_profile.is_taster():
         receiver_profile.current_pro = order.cart.party.pro
+        # this will only apply to host because taster does not have a MyHost entry
+        # MyHost.objects.filter(host=order.receiver).update(pro=order.cart.party.pro)
       # TODO: what happens if a pro orders a VIP?
       receiver_profile.save()
 
@@ -1158,8 +1160,6 @@ def party_add(request, party_id=None, party_pro=None):
         my_hosts.save()
       else:
         my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
-        my_hosts.timestamp = timezone.now()
-        my_hosts.save()
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
@@ -1167,7 +1167,7 @@ def party_add(request, party_id=None, party_pro=None):
         host_profile = new_host.get_profile()
         if not host_profile.current_pro:
           # if host has no pro assigned, change to current pro setting up the party
-          host_profile.current_pro = applicable_pro  
+          host_profile.current_pro = applicable_pro
         host_profile.save()
 
       if self_hosting:

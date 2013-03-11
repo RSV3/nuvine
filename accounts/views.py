@@ -545,7 +545,7 @@ def make_pro_host(request, account_type, data):
             mentor = User.objects.get(email=mentor_email)
           else:
             mentor = get_default_pro()
-            MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
+            MyHost.objects.filter(host=u).update(pro=None)
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
           profile.current_pro = None
@@ -561,7 +561,7 @@ def make_pro_host(request, account_type, data):
           send_not_in_area_party_email(request, u, account_type)
 
         # if not already in pro_pending_group, add them
-        if not pro_pending_group in u.groups.all():
+        if not u.userprofile.is_pending_pro():
           u.groups.clear()
           u.groups.add(pro_pending_group)
 
@@ -596,9 +596,11 @@ def make_pro_host(request, account_type, data):
         except User.DoesNotExist:
           mentor = None
 
+        ProSignupLog.objects.get_or_create(new_pro=u, mentor=mentor, mentor_email=form.cleaned_data['mentor'])
+
         send_pro_request_email(request, u)
         # if not already in pro_pending_group, add them
-        if not pro_group in u.groups.all():
+        if not u.userprofile.is_pending_pro():
           u.groups.clear()
           u.groups.add(pro_pending_group)
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
@@ -610,11 +612,11 @@ def make_pro_host(request, account_type, data):
           mentor_email = form.cleaned_data.get('mentor')
           if mentor_email:
             pro = User.objects.get(email=mentor_email)
-            profile.current_pro = pro
           else:
             # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
             # set mentor to default pro but MyHost needs to see that as no pro assigned
             pro = None
+          profile.current_pro = pro
           profile.save()
         except User.DoesNotExist:
           pro = None
@@ -1104,6 +1106,8 @@ def pro_link(request):
     if form.is_valid():
       pro = User.objects.get(email=form.cleaned_data['email'])
       my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+      profile.current_pro = pro
+      profile.save()
       messages.success(request, "You were successfully linked to the pro %s." % pro.email)
     if form.errors:
       messages.error(request, form.errors)
@@ -1124,12 +1128,12 @@ def pro_unlink(request):
     profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
     profile.current_pro = None
     profile.save()
-    MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
+    MyHost.objects.filter(host=u).update(pro=None)
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
     profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
     profile.current_pro = None
-    profile.save()   
+    profile.save()
     # seems there's no way to unlink a pro for taster because no direct link
     messages.success(request, "You have been successfully unlinked from the Pro.")
 

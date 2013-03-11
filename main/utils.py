@@ -1181,7 +1181,7 @@ def my_pro(user):
   profile = user.get_profile()
   if profile.is_host() or profile.is_taster():
     pro = user.userprofile.current_pro
-    pro_profile = user.userprofile.current_pro.get_profile()
+    pro_profile = user.userprofile.current_pro.get_profile() if pro else None
   elif user.userprofile.mentor:
     pro = user.userprofile.mentor
     pro_profile = user.userprofile.mentor.get_profile()
