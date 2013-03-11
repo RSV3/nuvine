@@ -343,6 +343,13 @@ def edit_subscription(request):
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
+    if not u.userprofile.shipping_address:
+      messages.error(request, "You need to update your shipping address before you can make a subscription.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
+    if not u.userprofile.has_personality():
+      messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     # create new subscription info object to track subscription change
     info = SubscriptionInfo(user=u, frequency=form.cleaned_data['frequency'],
