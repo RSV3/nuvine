@@ -406,8 +406,26 @@ def wine_inventory(request):
         row = worksheet.row(curr_row)
 
         # if first column value is a Vinely SKU
-        if row[0].value and row[0].value[0] == 'V':
+        if row[0].value and (row[0].value[0] == 'V' or row[0].value.lower().startswith("tasting")):
           #print "Inventory ID: %s" % row[0].value
+          if row[1].value.lower() == 'tk':
+            sku = row[0].value
+            color = row[1].value
+            name = row[3].value
+            on_hand = row[4].value
+
+            if Wine.objects.filter(sku=sku).exists():
+              wine = Wine.objects.get(sku=sku)
+            else:
+              wine = Wine(name=name, year=0, sku=sku, is_taste_kit_wine=True)
+              wine.save()
+            inv, created = WineInventory.objects.get_or_create(wine=wine)
+            inv.on_hand = on_hand
+            inv.save()
+
+            total_wines += on_hand
+            total_wine_types += 1
+
           if row[1].value and row[3].value and row[4].value and row[5].value and row[6].value:
             sku = row[0].value
             color = row[1].value
@@ -417,15 +435,12 @@ def wine_inventory(request):
             cat_2 = row[6].value
             year = row[9].value
             sparkling = row[19].value
-            taste_kit_wine = False
 
             color_code = Wine.WINE_COLOR[0][0]
             if 'white' in color.lower():
               color_code = Wine.WINE_COLOR[1][0]
             elif 'rose' in color.lower() or u'ros\xc3' in color.lower():
               color_code = Wine.WINE_COLOR[2][0]
-            elif 'tk' in color.lower():
-              taste_kit_wine = True
 
             sparkling = str(sparkling).lower()
             sparkling_code = False
@@ -441,8 +456,7 @@ def wine_inventory(request):
                                 vinely_category=cat_1,
                                 vinely_category2=cat_2,
                                 color=color_code,
-                                sparkling=sparkling_code,
-                                is_taste_kit_wine=taste_kit_wine)
+                                sparkling=sparkling_code)
               wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)

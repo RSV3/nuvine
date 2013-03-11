@@ -1825,7 +1825,10 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
-  data['age_checked'] = request.GET.get('checked')
+  if not request.session[rsvp_code]:
+    request.session[rsvp_code] = request.GET.get('checked')
+
+  data['age_checked'] = request.GET.get('checked') or request.session[rsvp_code]
   disallow_rsvp = int(response) in [2, 3] and u.get_profile().is_under_age()
   data['disallow_rsvp'] = disallow_rsvp
   # if user has not entered DOB ask them to do this first

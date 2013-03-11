@@ -563,7 +563,7 @@ class Order(models.Model):
   @property
   def num_slots(self):
     total_slots = 0
-    wines_categories = range(5, 11) + [12, 13, 14]
+    wines_categories = range(5, 15)
     items = self.cart.items.filter(price_category__in=wines_categories)
     if items.exists():
       for item in items:
@@ -573,6 +573,8 @@ class Order(models.Model):
           total_slots += 6
         elif item.price_category in [5, 7, 9, 14]:
           total_slots += 12
+        elif item.price_category == 11:
+          total_slots += 1
     return total_slots
 
   def selected_wines(self):

@@ -1091,7 +1091,7 @@ def host_unlink(request):
   data = {}
 
   u = request.user
-  # unlink current user's host 
+  # unlink current user's host
 
   return HttpResponseRedirect(reverse("edit_subscription"))
 
