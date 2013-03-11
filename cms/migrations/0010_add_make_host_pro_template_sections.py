@@ -13,7 +13,7 @@ class Migration(DataMigration):
         host_header = 'Where’s the wine party? Your place!'
         host_sub_header = '<span></span>'
         host_content = '''
-        <h1>WHERE'S THE WINE PARTY? YOUR PLACE!</h1>
+
         <p>Host a lighthearted, private wine tasting with friends, discover your very own wine personality, and earn rewards from Vinely. How?</p>
 
         <h2>Find Some Time.</h2>
@@ -29,10 +29,9 @@ class Migration(DataMigration):
         <p>At the Taste Party, guests can place orders based on their personality. The more they order, the more rewards you get! </p>
         '''
 
-        pro_header = 'Where’s the wine party? Your place!'
+        pro_header = 'Want to conduct Vinely taste parties and get paid to do it?'
         pro_sub_header = '<span></span>'
         pro_content = '''
-        <h1>Want to conduct vinely taste parties and get paid to do it?</h1>
 
         <p>Help people discover their true taste in wine, and earn money while doing it! Vinely makes it easy for you to lead tasters through the learning experience. It’s simple, fun, and best of all, it’s profitable!</p>
 

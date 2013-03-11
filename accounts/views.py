@@ -628,7 +628,8 @@ def make_pro_host(request, account_type, data):
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
-        send_signed_up_as_host_email(request, u)  # to the current user
+        # send_signed_up_as_host_email(request, u)  # to the current user
+        send_know_pro_party_email(request, u)  # to the current user
         u.groups.clear()
         u.groups.add(hos_group)
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
