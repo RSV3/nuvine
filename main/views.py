@@ -1274,7 +1274,7 @@ def party_add_taster(request, party, taster_form):
   u = request.user
 
   if taster_form.errors.get('__all__'):
-    messages.error(request, taster_form.errors['__all__'])
+    messages.warning(request, taster_form.errors['__all__'])
 
   if taster_form.is_valid():
     new_invite = taster_form.save()
@@ -1508,7 +1508,7 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
         invitee_profile.save()
       messages.success(request, 'Details for %s %s (%s) have been updated.' % (invitee.first_name, invitee.last_name, invitee.email))
     else:
-      messages.error(request, form.errors)
+      messages.warning(request, form.errors)
     return HttpResponseRedirect(previous_page)
 
   data['change_rsvp'] = change_rsvp
@@ -1932,7 +1932,7 @@ def party_preview_invitation(request, party_id):
   except:
     raise Http404
 
-  preview = preview_party_thanks_note_email(request, invitation)
+  preview = preview_party_invites_email(request, invitation)
   data['invite_preview'] = preview
   # return HttpResponse(preview)
   return render_to_response("main/party_preview_invitation.html", data, context_instance=RequestContext(request))
