@@ -51,7 +51,7 @@ class Party(models.Model):
   # default to the name of the host
   host = models.ForeignKey(User)
   title = models.CharField(max_length=128)
-  description = models.TextField(verbose_name="Special Instructions")
+  description = models.TextField(blank=True, verbose_name="Special Instructions")
   address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
