@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 # Create your models here.
-from personality.models import Wine
+from personality.models import Wine, TastingKit
 
 
 class Email(models.Model):
@@ -35,3 +35,13 @@ class WineInventory(models.Model):
 
   class Meta:
     verbose_name_plural = u'Wine Inventory'
+
+
+class TastingKitInventory(models.Model):
+  tasting_kit = models.OneToOneField(TastingKit)
+  on_hand = models.IntegerField(default=0)
+  updated = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    verbose_name_plural = u'Tasting Kit Inventory'

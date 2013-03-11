@@ -5,16 +5,31 @@ from django.utils import timezone
 # Create your models here.
 
 
+class TastingKit(models.Model):
+
+  sku = models.CharField(max_length=32, blank=True, null=True)
+  name = models.CharField(max_length=128)
+  price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  comment = models.CharField(max_length=255, blank=True, null=True)
+  updated = models.DateTimeField(null=True)
+  created = models.DateTimeField(null=True)
+
+  def __unicode__(self):
+    return "%s" % self.name
+
+
 class Wine(models.Model):
   """
     Wine for tasting
   """
   name = models.CharField(max_length=128)
+  # vintage
   year = models.IntegerField(default=0)
   sip_bits = models.TextField()
   # tasting kit wine number
   number = models.IntegerField(default=0)
   active = models.BooleanField(default=False)
+  # cost per bottle
   price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
   # the date this wine is no longer used for tasting
   deactivated = models.DateTimeField(null=True, blank=True)
@@ -23,7 +38,7 @@ class Wine(models.Model):
   sku = models.CharField(max_length=32, blank=True, null=True)
   vinely_category = models.IntegerField(default=1)
   vinely_category2 = models.FloatField(default=1.0)
-  vintage = models.CharField(max_length=64, blank=True, null=True)
+  brand = models.CharField(max_length=64, blank=True, null=True)
   varietal = models.CharField(max_length=32, blank=True, null=True)
   region = models.CharField(max_length=64, blank=True, null=True)
   alcohol = models.FloatField(default=0.0)
@@ -37,6 +52,14 @@ class Wine(models.Model):
   supplier = models.CharField(max_length=64, blank=True, null=True)
 
   sparkling = models.BooleanField(default=False)
+
+  ENCLOSURE_CHOICES = (
+    (0, u'Unknown'),
+    (1, u'Screw'),
+    (2, u'Cork')
+  )
+
+  enclosure = models.IntegerField(choices=ENCLOSURE_CHOICES, default=ENCLOSURE_CHOICES[0][0])
 
   WINE_COLOR = (
     (0, u'Red'),

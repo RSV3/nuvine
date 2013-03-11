@@ -13,13 +13,13 @@ from django.views.decorators.http import require_POST
 
 from django_tables2 import RequestConfig
 
-from support.models import Email, WineInventory
-from support.tables import WineInventoryTable, OrderTable, PastOrderTable
-from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder
-from personality.models import WineRatingData, Wine
+from support.models import Email, WineInventory, TastingKitInventory
+from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable
+from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder, SelectedTastingKit
+from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
 
-from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm
+from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm
 from main.utils import my_pro
 from datetime import datetime
 import csv
@@ -410,30 +410,48 @@ def wine_inventory(request):
           #print "Inventory ID: %s" % row[0].value
           if row[1].value.lower() == 'tk':
             sku = row[0].value
-            color = row[1].value
+            comment = row[2].value
             name = row[3].value
             on_hand = row[4].value
+            price = row[21].value if row[21].value else 0
 
-            if Wine.objects.filter(sku=sku).exists():
-              wine = Wine.objects.get(sku=sku)
+            # for tasting kit, add to Product database not to Wine database
+            if TastingKit.objects.filter(sku=sku).exists():
+              tasting_kit = TastingKit.objects.get(sku=sku)
             else:
-              wine = Wine(name=name, year=0, sku=sku, is_taste_kit_wine=True)
-              wine.save()
-            inv, created = WineInventory.objects.get_or_create(wine=wine)
+              tasting_kit = TastingKit(name=name, sku=sku, comment=comment, price=price)
+              tasting_kit.save()
+
+            inv, created = TastingKitInventory.objects.get_or_create(tasting_kit=tasting_kit)
             inv.on_hand = on_hand
             inv.save()
 
             total_wines += on_hand
             total_wine_types += 1
 
-          if row[1].value and row[3].value and row[4].value and row[5].value and row[6].value:
+          elif row[1].value and row[3].value and row[4].value and row[5].value and row[6].value:
             sku = row[0].value
             color = row[1].value
             name = row[3].value
             on_hand = row[4].value
             cat_1 = row[5].value
             cat_2 = row[6].value
+            # vintage
             year = row[9].value
+
+            brand = row[7].value
+            varietal = row[8].value
+            region = row[10].value
+            alcohol = float(row[11].value) if row[11].value else 0
+
+            cost_per_bottle = row[21].value if row[21].value else 0
+            acidity = float(row[13].value) if row[13].value else 0
+            ph = float(row[14].value) if row[14].value else 0
+            oak = float(row[15].value) if row[15].value else 0
+            body = float(row[16].value) if row[16].value else 0
+            fruit = float(row[17].value) if row[17].value else 0
+            tannin = float(row[18].value) if row[18].value else 0
+
             sparkling = row[19].value
 
             color_code = Wine.WINE_COLOR[0][0]
@@ -447,6 +465,14 @@ def wine_inventory(request):
             if 'yes' in sparkling or '1' in sparkling:
               sparkling_code = True
 
+            enclosure = row[20].value.lower() if row[20].value else 'unknown'
+            if enclosure == 'unknown':
+              enclosure = Wine.ENCLOSURE_CHOICES[0][0]
+            elif enclosure == 'screw':
+              enclosure = Wine.ENCLOSURE_CHOICES[1][0]
+            elif enclosure == 'cork':
+              enclosure = Wine.ENCLOSURE_CHOICES[2][0]
+
             if Wine.objects.filter(sku=sku).exists():
               wine = Wine.objects.get(sku=sku)
             else:
@@ -455,8 +481,20 @@ def wine_inventory(request):
                                 sku=sku,
                                 vinely_category=cat_1,
                                 vinely_category2=cat_2,
+                                brand=brand,
+                                varietal=varietal,
+                                region=region,
+                                alcohol=alcohol,
                                 color=color_code,
-                                sparkling=sparkling_code)
+                                acidity=acidity,
+                                ph=ph,
+                                oak=oak,
+                                body=body,
+                                fruit=fruit,
+                                tannin=tannin,
+                                sparkling=sparkling_code,
+                                enclosure=enclosure,
+                                price=cost_per_bottle)
               wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)
@@ -475,9 +513,13 @@ def wine_inventory(request):
     except xlrd.XLRDError:
       messages.warning(request, "Not a valid inventory file: needs 'Wine DB' sheet.")
 
+  tasting_table = TastingInventoryTable(TastingKitInventory.objects.all())
+  data["tasting_inventory"] = tasting_table
+
   table = WineInventoryTable(WineInventory.objects.all())
-  RequestConfig(request, paginate={"per_page": 25}).configure(table)
   data["wine_inventory"] = table
+  RequestConfig(request, paginate={"per_page": 25}).configure(table)
+
   data["form"] = form
   return render(request, "support/wine_inventory.html", data)
 
@@ -635,6 +677,10 @@ def edit_order(request, order_id):
 
   order = get_object_or_404(Order, pk=order_id)
 
+  # if tasting kit, forward to tasting kit fulfillment url
+  if order.is_tasting_kit():
+    return HttpResponseRedirect(reverse("support:fulfill_taste_kit", args=(order_id,)))
+
   if order.fulfill_status >= Order.FULFILL_CHOICES[7][0]:
     return HttpResponseRedirect(reverse("support:rate_order", args=(order_id,)))
 
@@ -756,6 +802,65 @@ def edit_order(request, order_id):
 
   return render(request, "support/edit_order.html", data)
 
+@staff_member_required
+def fulfill_taste_kit(request, order_id):
+  data = {}
+
+  order = get_object_or_404(Order, pk=order_id)
+
+  # need to get the past orders for this user
+  receiver = order.receiver
+  past_orders = Order.objects.filter(receiver=receiver)
+  past_ratings = SelectedWine.objects.filter(order__in=past_orders, overall_rating__gt=0).order_by("-timestamp")
+
+  data['order'] = order
+  receiver_profile = order.receiver.get_profile()
+  data['receiver_profile'] = receiver_profile
+  # users that have only ordered taste kits will not have customization record
+  customizations = CustomizeOrder.objects.filter(user=order.receiver)
+  customization = customizations[0] if customizations.exists() else None
+  data['customization'] = customization
+  data['past_orders'] = past_orders
+  # show the ratings on past orders
+  data['past_ratings'] = past_ratings
+  data['recurring'] = order.recurring()
+  data['product'] = order.quantity_summary()
+
+  order_status_updated = False
+
+  tasting_kit_selected = SelectedTastingKit.objects.filter(order=order)
+  if tasting_kit_selected.exists():
+    select_tasting_kit_form = SelectTastingKitForm(request.POST or None, instance=tasting_kit_selected[0])
+  else:
+    select_tasting_kit_form = SelectTastingKitForm(request.POST or None)
+
+  if select_tasting_kit_form.is_valid():
+    tasting_kit_selected = select_tasting_kit_form.save(commit=False)
+    tasting_kit_selected.order = order
+    tasting_kit_selected.save()
+
+    if order.fulfill_status < Order.FULFILL_CHOICES[6][0]:
+      order.fulfill_status = Order.FULFILL_CHOICES[6][0]
+      order.save()
+      # override the currently selected fulfill status
+      order_status_updated = True
+      messages.success(request, "Tasting Kit has been selected for order #%s." % order.vinely_order_id)
+    # need to update order status
+
+  data['select_tasting_kit_form'] = select_tasting_kit_form
+
+  # form for changing fulfill status of the order
+  if order_status_updated:
+    status_form = ChangeFulfillStatusForm(instance=order)
+  else:
+    status_form = ChangeFulfillStatusForm(request.POST or None, instance=order)
+    if status_form.is_valid():
+      status_form.save()
+
+  data['status_change_form'] = status_form
+
+  return render(request, "support/fulfill_taste_kit.html", data)
+
 
 @staff_member_required
 def rate_order(request, order_id):
@@ -765,6 +870,12 @@ def rate_order(request, order_id):
     order = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[6][0]).get(id=order_id)
   except Order.DoesNotExist:
     raise Http404
+
+  # if tasting kit, forward to tasting kit fulfillment url
+  if order.is_tasting_kit():
+    messages.warning(request, "This is a Tasting Kit order and there's nothing to be rated.")
+    return HttpResponseRedirect(reverse("support:fulfill_taste_kit", args=(order_id,)))
+
   num_slots = order.num_slots
 
   data['order'] = order
@@ -927,6 +1038,7 @@ def download_ready_orders(request):
   # most recent orders first
   # for order in Order.objects.filter(fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
   for order in Order.objects.filter(id__in=orders, fulfill_status=Order.FULFILL_CHOICES[6][0]).order_by('-order_date'):
+
     data = {}
     data['Format Version'] = 205
     data['Client Code'] = 'Vinely'
@@ -947,17 +1059,26 @@ def download_ready_orders(request):
     data['Recipient Home Phone'] = receiver_profile.phone
     data['Special Instructions'] = receiver_profile.wine_personality
 
-    i = 0
-    for selected in SelectedWine.objects.filter(order=order):
-      i += 1
-      data['Prod %d SKU' % i] = selected.wine.sku
-      data['Prod %d Quantity' % i] = 1
-      data['Prod %d Name' % i] = selected.wine.name
-      data['Prod %d Price' % i] = selected.wine.price
-      if i == 12:
-        # since its an abnormal order if there are more than 12 bottles
-        # and since the order form only supports up to 12 bottles
-        break
+    if order.is_tasting_kit():
+      # handle tasting kit order
+      selected_taste_kit = SelectedTastingKit.objects.get(order=order)
+      data['Prod 1 SKU'] = selected_taste_kit.tasting_kit.sku
+      data['Prod 1 Quantity'] = order.quantity_summary()
+      data['Prod 1 Name'] = selected_taste_kit.tasting_kit.name
+      data['Prod 1 Price'] = selected_taste_kit.tasting_kit.price
+    else:
+
+      i = 0
+      for selected in SelectedWine.objects.filter(order=order):
+        i += 1
+        data['Prod %d SKU' % i] = selected.wine.sku
+        data['Prod %d Quantity' % i] = 1
+        data['Prod %d Name' % i] = selected.wine.name
+        data['Prod %d Price' % i] = selected.wine.price
+        if i == 12:
+          # since its an abnormal order if there are more than 12 bottles
+          # and since the order form only supports up to 12 bottles
+          break
 
     order.fulfill_status = Order.FULFILL_CHOICES[7][0]
     order.save()

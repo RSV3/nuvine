@@ -2,7 +2,7 @@ from django_tables2 import tables
 from django_tables2 import columns
 from django_tables2.utils import A
 from django_tables2 import Attrs
-from support.models import WineInventory
+from support.models import WineInventory, TastingKitInventory
 from main.models import Order
 
 
@@ -13,6 +13,17 @@ class WineInventoryTable(tables.Table):
   class Meta:
     model = WineInventory
     fields = ('sku', 'wine', 'on_hand', 'updated',)
+    order_by = ['sku']
+    attrs = {"class": "paleblue table table-striped"}
+
+
+class TastingInventoryTable(tables.Table):
+  sku = columns.Column(accessor='tasting_kit.sku')
+  tasting_kit = columns.Column(order_by=('tasting_kit__name'))
+
+  class Meta:
+    model = TastingKitInventory
+    fields = ('sku', 'tasting_kit', 'on_hand', 'updated',)
     order_by = ['sku']
     attrs = {"class": "paleblue table table-striped"}
 

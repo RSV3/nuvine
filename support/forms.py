@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from support.models import InventoryUpload
-from main.models import SelectedWine, Order
+from main.models import SelectedWine, Order, SelectedTastingKit
 from personality.models import WineRatingData, Wine
 
 
@@ -77,4 +77,11 @@ class SelectWineForm(forms.ModelForm):
       wines = wines.filter(vinely_category__in=self.initial['category_filter'])
 
     self.fields['wine'].queryset = wines
+
+
+class SelectTastingKitForm(forms.ModelForm):
+
+  class Meta:
+    model = SelectedTastingKit
+    exclude = ['order']
 

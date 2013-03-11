@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
 
-from personality.models import Wine
+from personality.models import Wine, TastingKit
 
 import logging
 
@@ -574,8 +574,15 @@ class Order(models.Model):
         elif item.price_category in [5, 7, 9, 14]:
           total_slots += 12
         elif item.price_category == 11:
+          # tasting kit
           total_slots += 1
     return total_slots
+
+  def is_tasting_kit(self):
+    if self.cart.items.filter(price_category=LineItem.PRICE_TYPE[11][0]).exists():
+      return True
+    else:
+      return False
 
   def selected_wines(self):
     wine_list = []
@@ -589,7 +596,10 @@ class Order(models.Model):
     return wine_list
 
   def filled_slots(self):
-    return SelectedWine.objects.filter(order=self).count()
+    if self.is_tasting_kit():
+      return SelectedTastingKit.objects.filter(order=self).count()
+    else:
+      return SelectedWine.objects.filter(order=self).count()
 
   @property
   def slot_summary(self):
@@ -610,6 +620,13 @@ class SelectedWine(models.Model):
   order = models.ForeignKey(Order)
   wine = models.ForeignKey(Wine)
   overall_rating = models.IntegerField(choices=LIKENESS_CHOICES, default=0)
+  timestamp = models.DateTimeField(auto_now=True)
+
+
+class SelectedTastingKit(models.Model):
+
+  order = models.ForeignKey(Order)
+  tasting_kit = models.ForeignKey(TastingKit)
   timestamp = models.DateTimeField(auto_now=True)
 
 
