@@ -85,7 +85,10 @@
     </div>
     <div class="span3">
       <div class="cart-sub-total">
-      <p>Subtotal: {{ cart.subtotal|currency }}</p>
+        {% if cart.discount %}
+          <p>Credit: ({{ cart.discount|currency }})</p>
+        {% endif %}
+        <p>Subtotal: {{ cart.subtotal|currency }}</p>
       </div>
     </div>
   </div>

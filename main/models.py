@@ -387,7 +387,7 @@ class Cart(models.Model):
     price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum
+    return price_sum - float(self.discount)
 
   def shipping(self):
     # NOTE: Quantity has different interpretations depending on if wine case or tasting kit
@@ -434,14 +434,14 @@ class Cart(models.Model):
     #     tax = 0
     else:
       if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
-        tax = (float(self.subtotal()) - float(self.discount)) * 0.08
+        tax = float(self.subtotal()) * 0.08
       else:
-        tax = (float(self.subtotal()) - float(self.discount)) * 0.06
+        tax = float(self.subtotal()) * 0.06
     return tax
 
   def total(self):
     # TODO: total everything including shipping and tax
-    return self.shipping() + self.tax() + self.subtotal() - float(self.discount)
+    return self.shipping() + self.tax() + self.subtotal()
 
   def items_str(self):
     output = []

@@ -446,7 +446,7 @@ def cart_add_wine(request):
     else:
       # create new cart
       if u.is_authenticated():
-        cart = Cart(user=receiver)
+        cart = Cart(user=u, receiver=receiver)
       else:
         # anonymous cart
         cart = Cart()
@@ -580,6 +580,7 @@ def cart_remove_item(request, cart_id, item_id):
 
   # track cart activity
   cart.removes += 1
+  cart.discount = cart.calculate_discount()
   cart.save()
 
   data["shop_menu"] = True

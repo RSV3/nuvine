@@ -51,7 +51,14 @@
       
     <div class="span7">
       <div class="vertical-space">&nbsp;</div>
-      <p>You have {{ host_credits|currency }} in credits waiting for you! <br />Why not place an order</p>
+      {% if host_credits > 0 %}
+        <p>You have 
+          <a href="javascript:;" class="vinely-credits" rel="popover" data-trigger="hover" data-placement="top"
+            data-content="*Vinely Credits can be used toward Vinely merchandise only, up to 50% of your order's subtotal.">
+            {{ host_credits|currency }}</a> 
+          in credits waiting for you! <br />Why not place an order
+        </p>
+      {% endif %}
       <p>
         <a href="{% url start_order %}" class="btn btn-primary btn-large">Shop</a>
       </p>
@@ -405,3 +412,11 @@
   <div class="vertical-space-bottom"></div>
 </div>
 {% endblock content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('.vinely-credits').popover();
+    });
+  </script>
+{% endblock additional_scripts%}
