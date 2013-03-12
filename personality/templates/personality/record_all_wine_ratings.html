@@ -1023,7 +1023,7 @@
 <script type="text/javascript">
   $(document).ready(function(){
     $('.typeahead').typeahead({
-      source: _.debounce(function (query, process){
+      source: _.throttle(function (query, process){
         console.log("query: " + query);
         var url = "{% url taster_list -1 0 %}".replace(-1, query).replace(0, {{ party.id }});
         $.ajax({
@@ -1039,7 +1039,7 @@
           }
         });
         return [];
-      }, 500)
+      }, 700)
     });
 
     $("#load_taster").click(function(e){

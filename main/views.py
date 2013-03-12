@@ -990,17 +990,16 @@ def my_taster_list(request, taster_name_email):
   if u.userprofile.is_host():
     # only get users linked to this host
     my_guests = PartyInvite.objects.filter(party__host=u)
-    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')
+    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   elif u.userprofile.is_pro():
     # only get users linked to this pro
     my_guests = PartyInvite.objects.filter(party__organizedparty__pro=u)
-    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')
+    users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   else:
     # nothing
     users = User.objects.none()
 
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
-
   return HttpResponse(json.dumps(data), mimetype="application/json")
 
 

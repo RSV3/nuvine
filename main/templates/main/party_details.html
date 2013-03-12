@@ -385,10 +385,13 @@
       $('.edit-date').click(function(e) {
         $('#edit_date').modal();
       });
+      // Keep track of what input has focus
+      // var active_input;
+      // $(".typeahead").focus(function() { active_input = this.id; });
 
       //typeahead
       $('.typeahead').typeahead({
-        source: _.debounce(function (query, process){
+        source: _.throttle(function (query, process){
           // console.log("query: " + query);
           var url = "{% url my_taster_list -1 %}".replace(-1, query);
           $.ajax({
@@ -403,17 +406,21 @@
             }
           });
           return [];
-        }, 500),
+        }, 700),
+        sorter: function(items) { items.splice(0, 0, this.query); return items; },
         updater: function(item) {
-          console.log('Ze item: ' + item);
+          if (item.indexOf(",") == -1) {
+            return item;
+          }
           var host_email = item.split(",")[1].trim()
+          
           var url = "{% url party_user_info -1 %}".replace(-1, host_email);
           $.ajax({
             url: url,
             cache: true,
             dataType: "json",
             success: function(json, textStatus) {
-              console.log('updater: ' + json);
+              // console.log('updater: ' + json);
               $('#id_first_name').val(json.first_name);
               $('#id_last_name').val(json.last_name);
               $('#id_email').val(json.email);
