@@ -762,3 +762,13 @@ footer .container .navbar {
 .table th, .table td.edit {
     padding-left:0px;
   }
+
+/*POP UPS*/
+
+.modal-backdrop {}
+.modal-backdrop.fade {}
+
+.modal-backdrop,
+.modal-backdrop.fade.in {
+  opacity:0.15;
+}
