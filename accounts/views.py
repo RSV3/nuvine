@@ -343,16 +343,16 @@ def edit_subscription(request):
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
-    if not u.userprofile.shipping_address:
-      messages.error(request, "You need to update your shipping address before you can make a subscription.")
-      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
-
     if not u.userprofile.has_personality():
       messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     if not u.userprofile.credit_card and not u.userprofile.stripe_card:
       messages.error(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
+    if not u.userprofile.shipping_address:
+      messages.error(request, "You need to update your shipping address before you can make a subscription.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     # create new subscription info object to track subscription change
@@ -703,6 +703,10 @@ def make_taster(request, rsvp_code):
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
     ok = check_zipcode(profile.zipcode)
+
+    # prevent popping up signup screen again
+    guest_rsvp_key = '%s_guest_rsvp' % rsvp_code
+    request.session[guest_rsvp_key] = True
 
     if not ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')

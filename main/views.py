@@ -1284,6 +1284,8 @@ def party_add_taster(request, party, taster_form):
     invitee = new_invite.invitee
 
     messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
+    return invitee
+  return None
 
 
 @login_required
@@ -1539,8 +1541,10 @@ def party_details(request, party_id):
   data['invite_form'] = CustomizeInvitationForm(initial={'subject': 'hide'})
 
   data['taster_form'] = taster_form
-  party_add_taster(request, party, taster_form)
-
+  invitee = party_add_taster(request, party, taster_form)
+  if invitee:
+    msg = '%s has been added to the party list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % invitee.first_name
+    messages.success(request, msg)
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
@@ -1604,13 +1608,8 @@ def party_details(request, party_id):
   data['table'] = table
 
   data['invitees_table'] = invitees
-  # if data['can_shop_for_taster']:
+
   return render_to_response("main/party_details.html", data, context_instance=RequestContext(request))
-  # else:
-  #   orders = Order.objects.filter(cart__party=party)
-  #   data['buyers'] = invitees.filter(invitee__in=[x.receiver for x in orders])
-  #   data['non_buyers'] = invitees.exclude(invitee__in=[x.receiver for x in orders])
-  #   return render_to_response("main/party_host_thanks.html", data, context_instance=RequestContext(request))
 
 
 @login_required

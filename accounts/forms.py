@@ -372,7 +372,7 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
 
 
 class MakeTasterForm(MakeHostProForm):
-  pass
+  phone_number = us_forms.USPhoneNumberField(required=False)
 
 
 class HeardAboutForm(forms.Form):
