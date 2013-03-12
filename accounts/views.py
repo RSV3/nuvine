@@ -351,6 +351,10 @@ def edit_subscription(request):
       messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
+    if not u.userprofile.credit_card and not u.userprofile.stripe_card:
+      messages.error(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
     # create new subscription info object to track subscription change
     info = SubscriptionInfo(user=u, frequency=form.cleaned_data['frequency'],
                               quantity=form.cleaned_data['quantity'])
