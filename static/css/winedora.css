@@ -772,3 +772,12 @@ footer .container .navbar {
 .modal-backdrop.fade.in {
   opacity:0.15;
 }
+
+.modal.fade.in {
+  border-radius:4px;
+}
+
+.modal-footer {
+  background:white;
+  text-align:center;
+}
