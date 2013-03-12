@@ -167,7 +167,7 @@ class SimpleTest(TestCase):
 
     Location: {{ party.address.full_text }}
 
-    If any changes need to be made, you run into any trouble, or have any questions please contact me at {{ pro.email }}{% if pro_phone %} or {{ pro_phone }}{% endif %}.
+    If any changes need to be made, you run into any trouble, or have any questions please contact me at {{ pro_email }}{% if pro_phone %} or {{ pro_phone }}{% endif %}.
 
     <strong>When you are ready, <a href="http://{{ host_name }}{% url party_add party.id %}">click here</a> to get started.</strong>
 
@@ -187,7 +187,7 @@ class SimpleTest(TestCase):
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date of the event")
     template.variables_legend.add(variable)
-    variable, created = Variable.objects.get_or_create(var="{{ pro.email }}", description="Vinely Pro's email address")
+    variable, created = Variable.objects.get_or_create(var="{{ pro_email }}", description="Vinely Pro's email address")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ pro_phone }}", description="Vinely Pro's phone number")
     template.variables_legend.add(variable)

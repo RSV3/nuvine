@@ -1000,7 +1000,7 @@ def send_new_party_host_confirm_email(request, party):
 
   c = RequestContext(request, {"party": party,
               "invite_host_name": "%s" % host_first_name,
-              "pro": party.pro,
+              "pro_email": party.pro.email,
               "pro_phone": party.pro.userprofile.phone,
               "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
               "host_name": request.get_host(), "plain": True})
