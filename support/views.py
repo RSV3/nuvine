@@ -827,10 +827,11 @@ def fulfill_taste_kit(request, order_id):
   data['product'] = order.quantity_summary()
 
   order_status_updated = False
-
+  old_taste_kit = None
   tasting_kit_selected = SelectedTastingKit.objects.filter(order=order)
   if tasting_kit_selected.exists():
     select_tasting_kit_form = SelectTastingKitForm(request.POST or None, instance=tasting_kit_selected[0])
+    old_taste_kit = tasting_kit_selected[0].tasting_kit
   else:
     select_tasting_kit_form = SelectTastingKitForm(request.POST or None)
 
@@ -838,6 +839,18 @@ def fulfill_taste_kit(request, order_id):
     tasting_kit_selected = select_tasting_kit_form.save(commit=False)
     tasting_kit_selected.order = order
     tasting_kit_selected.save()
+
+    if old_taste_kit != tasting_kit_selected.tasting_kit:
+      # update inventory
+      if old_taste_kit is not None:
+        # restore old taste kit
+        old_inventory = TastingKitInventory.objects.get(tasting_kit=old_taste_kit)
+        old_inventory.on_hand += order.quantity_summary()
+        old_inventory.save()
+
+      new_inventory = TastingKitInventory.objects.get(tasting_kit=tasting_kit_selected.tasting_kit)
+      new_inventory.on_hand -= order.quantity_summary()
+      new_inventory.save()
 
     if order.fulfill_status < Order.FULFILL_CHOICES[6][0]:
       order.fulfill_status = Order.FULFILL_CHOICES[6][0]
