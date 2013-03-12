@@ -750,3 +750,15 @@ footer .container .navbar {
   width:50%;
   float:right;
 }
+
+.table th, .table td {
+  padding: 8px;
+  line-height: 1.3em;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid #dddddd;
+}
+
+.table th, .table td.edit {
+    padding-left:0px;
+  }
