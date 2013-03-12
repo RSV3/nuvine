@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.db.models import Q
 from datetime import timedelta
 
-from main.utils import if_supplier
+from main.utils import if_supplier, send_welcome_to_vinely_email
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue
@@ -123,9 +123,9 @@ def pre_questionnaire_general(request, rsvp_code=None):
     invite = get_object_or_404(PartyInvite, rsvp_code=rsvp_code)
     u = invite.invitee
 
-  if u.is_authenticated():
+  if u.is_authenticated() and rsvp_code:
     # make sure the authenticated user is not someone else
-    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
+    invite = get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
 
   try:
     general_taste = GeneralTaste.objects.get(user=u)
@@ -135,7 +135,7 @@ def pre_questionnaire_general(request, rsvp_code=None):
   form = GeneralTasteQuestionnaire(request.POST or None, instance=general_taste)
   if form.is_valid():
     form.save()
-    messages.success(request, "Your general taste information has been saved.")
+    # messages.success(request, "Your general taste information has been saved.")
     if rsvp_code:
       return HttpResponseRedirect(reverse("pre_questionnaire_wine", args=[rsvp_code]))
     else:
@@ -163,9 +163,9 @@ def pre_questionnaire_wine(request, rsvp_code=None):
     invite = get_object_or_404(PartyInvite, rsvp_code=rsvp_code)
     u = invite.invitee
 
-  if u.is_authenticated():
+  if u.is_authenticated() and rsvp_code:
     # make sure the authenticated user is not someone else
-    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
+    invite = get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
 
   profile = u.get_profile()
 
@@ -182,7 +182,10 @@ def pre_questionnaire_wine(request, rsvp_code=None):
       profile.prequestionnaire = True
       profile.save()
     messages.success(request, "Your wine taste information has been saved.")
-    return HttpResponseRedirect(reverse("home_page"))
+    if rsvp_code:
+      return HttpResponseRedirect(reverse("party_rsvp", args=[rsvp_code, invite.party.id]))
+    else:
+      return HttpResponseRedirect(reverse("home_page"))
 
   if wine_taste is None:
     form.initial['user'] = u
@@ -280,7 +283,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   #   try:
   #     OrganizedParty.objects.get(party=party, pro=u)
   #   except OrganizedParty.DoesNotExist:
-  if not party.pro() == u:
+  if not party.pro == u:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 
@@ -462,7 +465,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       results = form.save()
 
       # update response times to 'yes' for users that had given a different response
-      if taster != party.host:
+      if taster != party.host and taster != party.pro:
         invite = PartyInvite.objects.get(party=party, invitee=taster)
         if invite.response != 3:
           invite.response = 3
@@ -510,6 +513,19 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
 
           data['can_order_for_taster'] = (today - party.event_date <= timedelta(hours=24))
 
+        if not taster.is_active:
+          temp_password = User.objects.make_random_password()
+          taster.set_password(temp_password)
+          taster.save()
+
+          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
+            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+            verification_code = vque.verification_code
+          else:
+            verification_code = str(uuid.uuid4())
+            vque = VerificationQueue(user=taster, verification_code=verification_code)
+            vque.save()
+          send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))

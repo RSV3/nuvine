@@ -1,0 +1,263 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .span3 {
+      width:200px;
+    }
+    .add-button {
+      float:right;
+    }    
+    .text-label {
+      text-align: right;
+    }
+
+    input, textarea {
+      width:180px;
+    }
+  </style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">Get The Party Started</h1>
+  <h2 class="center">You're a {{ user.get_profile.role }}</h2>
+{% endblock header %}
+
+{% block content %}
+  <div class="partycrumb main">
+    <ul class="nav">
+      <li id="party_add"><a href="{% url party_add party.id %}" title="Edit Party details"></a></li>
+      <li id="party_write_invitation"><a href="{% url party_write_invitation party.id %}" title="Customize Invitations"></a></li>
+      <li id="party_invite_friends" class="active">&nbsp;</li>
+      <li id="party_review_create">&nbsp;</li>
+    </ul>
+  </div>
+
+  {{ form.errors }}
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+    <section id="customize-invitation">
+      <form id="add_taster_form" class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+        {{ taster_form.party }}
+        <div class="row">
+          <div class="span3">
+            <h2>Tasters Attending</h2>
+          </div>
+          {% comment %}
+            <div class="span8">
+              <i>
+                <p>You will be able to invite more tasters later so don't worry if you forget someone now!</p>
+              </i>
+            </div>
+          {% endcomment %}
+        </div>
+        <div class="vertical-space">
+          &nbsp;
+        </div>
+        {% comment %}
+          <div class="row">
+            <div class="span12">
+              <p><h3>Select Taster</h3></p>
+              <p>{{ taster_form.invitee }}</p>
+              <p><h3>or add new taster</h3></p>
+            </div>
+          </div>
+        {% endcomment %}
+        <div class="row">
+          <div class="span3">
+            <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+              {{ taster_form.first_name }} 
+              {% if taster_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.first_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+              {{ taster_form.last_name }} 
+              {% if taster_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.last_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+              {{ taster_form.email }} 
+              {% if taster_form.email.errors %}
+                <span class="help-inline">
+                  {{ taster_form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span2">
+            <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+              {{ taster_form.phone }} 
+              {% if taster_form.phone.errors %}
+                <span class="help-inline">
+                  {{ taster_form.phone.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {{ taster_form.response }}
+          <div class="add-button">
+            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>   
+          </div>
+        </div>
+      </form>
+
+      <div class="vertical-space">
+        &nbsp;
+      </div>     
+
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+          <th>Edit</th>
+          <th>Remove</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
+            {% if inv.invitee.get_profile.phone %}
+              <td>{{ inv.invitee.get_profile.phone }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+
+            <td><a href="javascript:;" class="edit-taster" data-invite="{{ inv.id }}">edit</a></td>
+            <td><a href="{% url party_remove_taster inv.id %}?next={% url party_find_friends party.id %}" class="remove-taster" data-invite="{{ inv.id }}">X</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>      
+    </section>
+    <div class="vertical-space"></div>
+
+    <hr />
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="control-group">
+
+        <div class="vertical-space"></div>
+        {% if not party.requested and not pro and not user.get_profile.events_manager %}
+          <div class="row">
+            <div class="span10 offset1">
+              <p><i>Don't worry, you can add tasters at any time by logging into your account.
+              </i>
+              </p>
+            </div>
+          </div>
+          <div class="vertical-space"></div>
+        {% endif %}
+        <div class="row">
+          <div class="span1">&nbsp;</div>
+          <div class="span9">
+            <a href="{% url party_write_invitation party.id %}" class="btn btn-primary">Back</a>
+            <!-- <button class="btn btn-primary" name="save" value="save">Save</button> -->
+          </div>
+          <div class="span2">
+            <button class="btn btn-success" name="next" value="next">Next</button>
+          </div> <!-- .span4 -->
+        </div> <!-- .row -->
+      </div> <!-- .control-group -->
+    </form>
+
+  </div>
+{% endblock %}
+
+{% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.edit-taster').click(function(e) {
+        e.preventDefault();
+
+        console.log("starting edit-taster");
+
+        $.ajax({
+          type: "GET",
+          url: "{% url party_edit_taster_info 0 %}?next={{ request.path }}".replace(0, $(this).attr('data-invite')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });
+
+      //typeahead
+      $('.typeahead').typeahead({
+        source: _.throttle(function (query, process){
+          // console.log("query: " + query);
+          var url = "{% url my_taster_list -1 %}".replace(-1, query);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              return process(json);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+          return [];
+        }, 700),
+        sorter: function(items) { items.splice(0, 0, this.query); return items; },
+        updater: function(item) {
+          if (item.indexOf(",") == -1) {
+            return item;
+          }
+          var host_email = item.split(",")[1].trim()
+          var url = "{% url party_user_info -1 %}".replace(-1, host_email);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              console.log('updater: ' + json);
+              $('#id_first_name').val(json.first_name);
+              $('#id_last_name').val(json.last_name);
+              $('#id_email').val(json.email);
+              $('#id_phone').val(json.phone);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+        }
+      });
+      $('#add_taster_form').find('input[type=text]').val("");
+    });
+  </script>
+{% endblock additional_scripts %}

@@ -1,117 +1,163 @@
 {% extends "winedora/base_html5.html" %}
 
+{% block additional_styles %}
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .text-label {
+      text-align: right;
+      font-weight: 900;
+      text-transform: capitalize;
+    }
+    .text-content {
+      display:table-cell; 
+      vertical-align:middle;
+    }
+    .form-row {
+      margin-bottom: 12px;
+    }
+    .summary-table tr td:first-child {
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+  </style>
+  {{ form.media }}
+{% endblock additional_styles %}
+
 {% block header %}
-  <h1 class="headline">Customize Invitation</h1>
+  <h1 class="headline">Get The Party Started</h1>
+  <h2 class="center">You're a {{ user.get_profile.role }}</h2>
 {% endblock header %}
 
 {% block content %}
+  {% if not party.confirmed %}
+  <div class="partycrumb main">
+    <ul class="nav">
+      <li id="party_add"><a href="{% url party_add party.id %}" title="Edit Party details"></a></li>
+      <li id="party_write_invitation" class="active">&nbsp;</li>
+      <li id="party_invite_friends">&nbsp;</li>
+      <li id="party_review_create">&nbsp;</li>
+    </ul>
+  </div>
+  {% endif %}
 
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  <section id="customize-invitation">
-    <div class="row">
-      <div class="span12">
-        <p>Feel free to add your custom invite message.</p>
-      </div>
-    </div>
+  {{ form.errors }}
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+    <section id="customize-invitation">
 
-    <form method="POST" action="{% url party_send_invites %}">
-      {% csrf_token %}
-
-      {{ form.party }}
-
-      {% for g in guests %}
-        <input type="hidden" value="{{ g }}" name="guests">
-      {% endfor %}
-      <div class="row">
-        <div class="span12">
-          <table>
-            <tbody>
-              <tr>
-                <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
-              </tr>
-              <tr>
-                {% if taster %}
-                  <td>From:</td><td>{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Friendly Taster{% endif %} ({{ user.email }})</td>                
-                {% else %}
-                  <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
-                {% endif %}
-              </tr>
-              <tr>
-                <td>Subject:</td><td>{{ form.custom_subject }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <form class="form-horizontal" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+        <!-- <hr /> -->
+        {{ form.party }}
+         <div class="control-group">
+          <div class="controls"><i>Email will be sent from info@vinely.com</i></div>
         </div>
-      </div>
+        <div class="control-group">
+          <div class="control-label text-label">Email subject</div>
+          <div class="controls">
+            {{ form.custom_subject }}
+            {% if form.custom_subject.errors %}
+              <span class="help-inline">
+                {{ form.custom_subject.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
 
-      <hr>
-
-      <!--
-      <div class="span12">
-        <center>
-          <img src="http://www.winepartiesbydesign.com/_images/banner_1.png">
-        </center>
-      </div>
-      -->
-
-      <div class="row">
-        <div class="span12">
-          <p>What’s a Vinely Taste Party? Think of it as learning through drinking. It’s part wine tasting. Part personality test. And part...well...party.</p>
-
-          <p>The wines you’ll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we’ll assign you one of six Vinely Personalities. Then, we’ll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
-
-          <!-- <p>Will you attend? You know you want to! (You can always come back and change your response later.)</p> -->
-          <p>Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait! </p>
-
+        <div class="control-group">
+          <div class="control-label text-label">Message Body</div>
+          <div class="controls">
+            {{ form.custom_message }}
+            <div class="vertical-space"></div>
+            <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td>Party:</td>
+                  <td><p>"{{ party.title }}"</p></td>
+                </tr>
+                <tr>
+                  <td>Host:</td>
+                  <td><p>{{ party.host.first_name }} {{ party.host.last_name }}</p></td>
+                </tr>
+                <tr>
+                  <td>Date:</td>
+                  <td><p>{{ party.event_date|date:"F j, o" }}</p></td>
+                </tr>
+                <tr>
+                  <td>Time:</td>
+                  <td><p>{{ party.event_date|date:"g:i A" }}</p></td>
+                </tr>
+                <tr>
+                  <td>Location:</td>
+                  <td>
+                    <p>{{ party.address.street1 }}</p>
+                    <p>{{ party.address.street2 }}</p>
+                    <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label text-label">Signature</div>
+          <div class="controls">
+            {{ form.signature }}
+            <div class="vertical-space">&nbsp;</div>
+          </div>
+        </div>
+        {% if not party.confirmed %}
+          <div class="row">
+            <div class="span1">&nbsp;</div>
+            <div class="span7">
+              <a href="{% url party_add party.id %}" class="btn btn-primary">Back</a>
+              {# <button class="btn btn-primary commit" name="save" value="save">Save</button> #}
+            </div>
+            <div class="span4">
+              <!-- <a href="javascript:;" class="btn btn-primary">Preview Invite</a> -->
+              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invitation</button>
+              <button class="btn btn-success commit" name="next" value="next">Next</button>
+            </div>
+          </div>
+        {% else %}
           <div class="control-group">
+            <div class="control-label">&nbsp;</div>
             <div class="controls">
-              {{ form.custom_message }}
+              <button class="btn btn-primary preview" name="preview" value="preview">Preview Invitation</button>
+              <button class="btn btn-primary commit" name="save" value="save">Save</button>
             </div>
-        </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="span6">
-          <p><h3>Party Details</h3></p>
-          <table cellpadding="5">
-            <tbody>
-              <tr>
-                <td>Date and Time:</td>
-                <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-              </tr>
-              <tr>
-                <td>Party Type:</td>
-                <td>{{ party.title }}</td>
-              </tr>
-              <tr>
-                <td>Location:</td>
-                <td>
-                  {{ party.address.street1 }}<br>
-                  {% if party.address.street2 %}{{ party.address.street2 }}<br>{% endif %}
-                  {{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="span6">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="span12">
-          <div class="form-actions">
-            <div class="controls">
-              <input class="btn btn-primary" type="submit" name="send" value="Send Invitation">
-              <input class="btn btn-warning" type="submit" name="preview" value="Preview Invitation">
-            </div>
-        </div>
-        </div>
-      </div>
-    </form>
-  </section>
-
-</div>
+          </div>
+        {% endif %}
+      </form>
+    </section>
+  </div>
 
 {% endblock content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    var original_form;
+    var saved = false;
+    $(document).ready(function() {
+      original_form = $('.form-horizontal').serialize();
+      // $('#id_custom_message').autogrow();
+
+      $('.commit').click(function() {
+        saved = true;
+        this.form.target = '_self';
+      });
+      var form = $('.form-horizontal');
+      $('.preview').click(function(e) {
+        this.form.target = '_blank';
+      });
+    });
+
+    $(window).bind('beforeunload', function(e) {
+      if ($('.form-horizontal').serialize() != original_form && saved == false) {
+        return 'You are about to leave this page even though you have made changes to your invite.';
+      }
+    });
+  </script>
+{% endblock additional_scripts %}

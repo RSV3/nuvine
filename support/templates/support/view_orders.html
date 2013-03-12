@@ -1,0 +1,66 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">All Orders</h1>
+
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <form class="form-horizontal" method="post" action="{% url support:download_ready_orders %}">
+    {% csrf_token %}
+    <div class="row">
+      <div class="span6">
+        &nbsp;
+      </div>
+      <div class="span6">
+        <div class="pull-right">
+          <a href="{% url support:admin_index %}">Support Home</a> |
+          <a href="{% url support:wine_inventory %}">Wine Inventory</a>
+          {# <a href="{% url support:download_ready_orders %}">Export Orders</a> #}
+        </div>
+      </div>
+    </div>
+    <div class="vertical-space"></div>
+    <div class="row">
+      <div class="span3 offset10">
+        <button type="submit" class="btn btn-primary">Export Orders</button>
+      </div>
+    </div>
+    <div class="vertical-space">
+      &nbsp;
+    </div> 
+    <hr>
+    <div class="row">
+      <div class="span12">
+        {% render_table orders %} 
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="vertical-space">
+  &nbsp;
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.all-orders').click(function(e) {
+        var state = $(this).prop('checked');
+        $('.order').prop('checked', state);
+      });
+    });
+  </script>
+{% endblock additional_scripts %}
+  

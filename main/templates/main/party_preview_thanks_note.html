@@ -1,83 +1,23 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load static %}
+
 {% block header %}
-  <h1 class="headline">Preview Thank You Note</h1>
+  <h1 class="headline">Thank You Note Preview</h1>
 {% endblock header %}
 
 {% block content %}
-
-<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-
-  <section id="invitation-content">
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
     <div class="row">
-      <div class="span12">
-        <h2>Please review your message</h2>
+      <div class="offset1 span10 framed">
+        <center>
+          {{ thanks_note_preview }}
+        </center>
       </div>
     </div>
-  <form method="POST" action="{% url party_send_invites %}">
-    {% csrf_token %}
-    {{ form.party }}
-    {{ form.errors }}
-    {% for g in guests %}
-      <input type="hidden" value="{{ g }}" name="guests">
-    {% endfor %}
-
-    <div class="row">
-      <div class="span12">
-        <table>
-          <tbody>
-            <tr>
-              <td>To:</td><td>{{ guest_count }} Guests (<a href="{% url party_details party.id %}#party-tasters">edit guests</a>)
-            </tr>
-            <tr>
-              <td>From:</td><td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %} ({{ party.host.email }})</td>
-            </tr>
-            <tr>
-              <td>Subject:</td><td>{{ form.custom_subject.value }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <input type="hidden" name="custom_subject" value="{{ form.custom_subject.value }}">
-      </div>
+    <div class="center">
+      <a href="javascript:window.close();" class="btn btn-primary btn-large">Done</a>
     </div>
-
-    <hr>
-
-    <div class="row">
-        <div class="span12">
-          <p>Thank you so much for sipping, savoring, and rating the wines at my Vinely Taste Party! I hope you had a great time.</p>
-          
-          {% if placed_order %}
-            <p>Thank you for placing your Vinely Wine order at my party. You should have received a separate email confirming the order and another will be sent your way when it ships.</p>
-          {% else %}
-            <p>It is not too late to place an order, you can do so at Vinely.com. Just sign in and use your Wine Personality to get wines selected just for you sent right to your door! It’s easy, convenient, and delicious.</p>
-
-            <p>Again, thanks so much for coming!</p>
-          {% endif %}
-          
-          {% if form.custom_message.value %}
-            <h2>Personalized Message</h2>
-            <div class="alert control-group">
-              <div class="controls">
-                {{ form.custom_message.value }}
-                <input type="hidden" name="custom_message" value="{{ form.custom_message.value }}">
-              </div>
-            </div>
-          {% endif %}
-        </div>
-    </div>
-
-    <div class="row">
-      <div class="span12">
-        <div class="form-actions">
-          <a class="btn btn-warning" href="javascript:javascript:history.go(-1)">Edit Note</a>
-          <input class="btn btn-primary" type="submit" name="send" value="Send Note">
-        </div>
-      </div>
-    </div>
-  </form>
-  </section>
-
-</div>
-
-{% endblock content %}
+    <div class="vertical-space">&nbsp;</div>
+  </div>
+{% endblock content%}

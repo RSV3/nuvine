@@ -5,17 +5,72 @@ from django.utils import timezone
 # Create your models here.
 
 
-class Wine(models.Model):
+class TastingKit(models.Model):
+
+  sku = models.CharField(max_length=32, blank=True, null=True)
   name = models.CharField(max_length=128)
+  price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+  comment = models.CharField(max_length=255, blank=True, null=True)
+  updated = models.DateTimeField(null=True)
+  created = models.DateTimeField(null=True)
+
+  def __unicode__(self):
+    return "%s" % self.name
+
+
+class Wine(models.Model):
+  """
+    Wine for tasting
+  """
+  name = models.CharField(max_length=128)
+  # vintage
   year = models.IntegerField(default=0)
   sip_bits = models.TextField()
+  # tasting kit wine number
   number = models.IntegerField(default=0)
   active = models.BooleanField(default=False)
+  # cost per bottle
   price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-  # the date this wine was added
-  added = models.DateField(auto_now_add=True)
   # the date this wine is no longer used for tasting
-  deactivated = models.DateField(null=True, blank=True)
+  deactivated = models.DateTimeField(null=True, blank=True)
+  is_taste_kit_wine = models.BooleanField(default=False)
+
+  sku = models.CharField(max_length=32, blank=True, null=True)
+  vinely_category = models.IntegerField(default=1)
+  vinely_category2 = models.FloatField(default=1.0)
+  brand = models.CharField(max_length=64, blank=True, null=True)
+  varietal = models.CharField(max_length=32, blank=True, null=True)
+  region = models.CharField(max_length=64, blank=True, null=True)
+  alcohol = models.FloatField(default=0.0)
+  residual_sugar = models.FloatField(default=0.0)
+  acidity = models.FloatField(default=0.0)
+  ph = models.FloatField(default=0.0)
+  oak = models.FloatField(default=0.0)
+  body = models.FloatField(default=0.0)
+  fruit = models.FloatField(default=0.0)
+  tannin = models.FloatField(default=0.0)
+  supplier = models.CharField(max_length=64, blank=True, null=True)
+
+  sparkling = models.BooleanField(default=False)
+
+  ENCLOSURE_CHOICES = (
+    (0, u'Unknown'),
+    (1, u'Screw'),
+    (2, u'Cork')
+  )
+
+  enclosure = models.IntegerField(choices=ENCLOSURE_CHOICES, default=ENCLOSURE_CHOICES[0][0])
+
+  WINE_COLOR = (
+    (0, u'Red'),
+    (1, u'White'),
+    (2, u'Ros\xc3')
+  )
+
+  color = models.IntegerField(choices=WINE_COLOR, default=WINE_COLOR[0][0])
+  comment = models.CharField(max_length=255, blank=True, null=True)
+  updated = models.DateTimeField(null=True)
+  created = models.DateTimeField(null=True)
 
   def deactivate(self):
     self.active = False
@@ -26,8 +81,14 @@ class Wine(models.Model):
     self.active = True
     self.save()
 
+  # def __unicode__(self):
+  #   return "%s: %s" % (self.number, self.name)
+
   def __unicode__(self):
-    return "%s: %s" % (self.number, self.name)
+    return "%s [%.1f]" % (self.name, self.vinely_category2,)
+
+  def full_display(self):
+    return "%s [%.1f, %s, %s]" % (self.name, self.vinely_category2, self.get_color_display(), "Sparkling" if self.sparkling else "Regular", )
 
 
 class WineRatingData(models.Model):
@@ -122,7 +183,10 @@ class WinePersonality(models.Model):
   description = models.TextField()
 
   def __unicode__(self):
-    return self.name
+    if self.name:
+      return self.name
+    else:
+      return WinePersonality.MYSTERY
 
 
 class SurveyWine(models.Model):
@@ -197,7 +261,7 @@ class GeneralTaste(models.Model):
   EARTHY_CHOICES = (
       (1, 'Love, love, love\'em.'),
       (2, 'I\'ll take them as an addition to a dish.'),
-      (3, 'A touch will do, bu that\'s it.'),
+      (3, 'A touch will do, but that\'s it.'),
       (4, 'Not really a fan.'),
       (5, 'I\'d rather walk on them than eat them.'),
   )

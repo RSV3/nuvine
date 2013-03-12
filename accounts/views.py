@@ -6,20 +6,24 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
-import stripe
 
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm, ProLinkForm
-from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
+                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm
+from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email
+                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
+                          send_signed_up_as_host_email, get_default_pro
+
+from cms.models import ContentTemplate
+
+from stripecard.models import StripeCard
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
@@ -27,9 +31,31 @@ import math
 from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
 import uuid
 import logging
-
+import stripe
 
 log = logging.getLogger(__name__)
+
+
+# @login_required
+# def logout(request):
+#   u = request.user
+#   profile = u.get_profile()
+#   profile.last_page = request.GET.get('next')
+#   profile.save()
+#   auth.logout(request)
+
+#   return HttpResponseRedirect('/')
+
+@login_required
+def delete_card(request):
+  u = request.user
+  profile = u.get_profile()
+
+  profile.credit_card = None
+  profile.stripe_card = None
+  profile.save()
+  u.get_profile().cancel_subscription()
+  return HttpResponseRedirect(reverse('my_information'))
 
 
 @login_required
@@ -37,7 +63,63 @@ def profile(request):
   """
     After user logged in
   """
-  return HttpResponseRedirect(reverse('home_page'))
+  u = request.user
+  profile = u.get_profile()
+
+  if profile.is_taster():
+    # if you have new RSVP not responded to
+    invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
+    if invites.exists():
+      invite = invites[0]
+      return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
+    else:
+      return HttpResponseRedirect(reverse('party_list'))
+  else:
+    return HttpResponseRedirect(reverse('home_page'))
+
+
+@login_required
+def fix_my_picture(request):
+  data = {}
+
+  u = request.user
+  profile = u.get_profile()
+  print profile.image.url
+
+  initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+
+  user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
+  shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
+  # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
+  payment_form = PaymentForm(request.POST or None, prefix='payment')
+  profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
+  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, initial=initial_profile, prefix='eligibility')
+
+  if profile_form.is_valid():
+    profile = profile_form.save()
+    print profile.image.url
+
+    msg = 'Your information has been updated'
+    messages.success(request, msg)
+
+  data['profile'] = profile
+  data['user_form'] = user_form
+  data['shipping_form'] = shipping_form
+  # data['billing_form'] = billing_form
+  data['payment_form'] = payment_form
+  data['profile_form'] = profile_form
+  data['eligibility_form'] = eligibility_form
+
+  card_number = 'No card currently on file'
+  if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
+    card_number = '*' * 12 + profile.stripe_card.last_four
+    #payment_form.initial['card_number'] = card_number
+  elif profile.credit_card:
+    #payment_form.initial['card_number'] = profile.credit_card.decrypt_card_num()
+    card_number = '*' * 12 + profile.credit_card.last_four()
+
+  data['card_number'] = card_number
+  return render_to_response("accounts/my_information_test.html", data, context_instance=RequestContext(request))
 
 
 @login_required
@@ -51,97 +133,173 @@ def my_information(request):
   u = request.user
   profile = u.get_profile()
 
-  user_form = UserInfoForm(request.POST or None, instance=u, prefix='user')
-  shipping_form = UpdateAddressForm(request.POST or None, instance=profile.shipping_address, prefix='shipping')
-  billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
-  payment_form = PaymentForm(request.POST or None, prefix='payment')
-  profile_form = ImagePhoneForm(request.POST or None, request.FILES or None, instance=profile, prefix='profile')
-  eligibility_form = VerifyEligibilityForm(request.POST or None, instance=profile, prefix='eligibility')
-
-  user_updated = False
-  shipping_updated = False
-  billing_updated = False
-  payment_updated = False
-  profile_updated = False
-  eligibility_updated = False
-
-  if request.method == 'POST':
-    today = datetime.date(datetime.now(tz=UTC()))
-    dob = today
-    try:
-      dob = datetime.strptime(request.POST.get('eligibility-dob'), '%Y-%m-%d').date()
-    except Exception, e:
-      pass
-
-    datediff = today - dob
-    if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and request.POST.get('eligibility-above_21') == 'on') or \
-          (not dob and request.POST.get('eligibility-above_21') == 'on'):
-      messages.error(request, 'The Date of Birth shows that you are not over 21')
-      return HttpResponseRedirect('.')
-
-    if user_form.is_valid():
-      update_user = user_form.save()
-      user_updated = True
-
-    if shipping_form.is_valid():
-      shipping_address = shipping_form.save()
-      profile.shipping_address = shipping_address
-      shipping_updated = True
-
-    if billing_form.is_valid():
-      if billing_form.cleaned_data['same_as_shipping']:
-        profile.billing_address = shipping_address
-        billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
-      else:
-        billing_address = billing_form.save()
-        profile.billing_address = billing_address
-      billing_updated = True
-    else:
-      # check if same_as_shipping is true
-      if request.POST.get('billing-same_as_shipping') and shipping_address:
-        profile.billing_address = shipping_address
-        billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
-        billing_updated = True
-
-    if payment_form.is_valid():
-      credit_card = payment_form.save()
-      profile.credit_card = credit_card
-      payment_updated = True
-
-    profile.save()
-
-    if eligibility_form.is_valid():
-      eligible_profile = eligibility_form.save()
-      eligibility_updated = True
-
-    if profile_form.is_valid():
-      new_profile = profile_form.save()
-
-    if user_updated or shipping_updated or billing_updated or payment_updated or eligibility_updated:
-      msg = 'Your information has been updated on %s.' % datetime.now().strftime("%b %d, %Y at %I:%M %p")
-      next = request.GET.get('next')
-      if next:
-        msg += ' <a href="%s">Back</a>' % next
-      messages.success(request, msg)
-      data['updated'] = True
+  initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+  user_form = UserInfoForm(request.POST if request.POST.get('user_form') else None, instance=u, prefix='user')
+  shipping_form = UpdateAddressForm(request.POST if request.POST.get('shipping_form') else None, instance=profile.shipping_address, prefix='shipping')
+  # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
+  payment_form = PaymentForm(request.POST if request.POST.get('payment_form') else None, prefix='payment')
+  profile_form = ImagePhoneForm(request.POST if request.POST.get('user_form') else None, instance=profile, prefix='profile')
+  eligibility_form = VerifyEligibilityForm(request.POST if request.POST.get('eligibility_form') else None, instance=profile, initial=initial_profile, prefix='eligibility')
 
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
-
-  current_card = 'No card currently on file'
-  if profile.credit_card:
-    current_card = '*' * 12 + profile.credit_card.last_four()
-  data['card_number'] = current_card
-
-  data['billing_form'] = billing_form
-  data['payment_form'] = PaymentForm(prefix='payment')
+  # data['billing_form'] = billing_form
   data['profile_form'] = profile_form
   data['eligibility_form'] = eligibility_form
-  data['profile'] = profile
-  data['my_information'] = True
+  data['payment_form'] = payment_form
 
-  return render_to_response("accounts/my_information.html", data,
-                            context_instance=RequestContext(request))
+  # tracking payment information error
+  payment_info_error = False
+
+  if request.method == 'POST':
+
+    # user_form is already validated up-top
+    msg = 'Your information has been updated'
+
+    if request.POST.get('user_form'):
+      if user_form.is_valid() and profile_form.is_valid():
+        updated_user = user_form.save()
+        profile = profile_form.save()
+        messages.success(request, msg)
+      else:
+        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+
+    # eligibility_form is already validated up-top
+    if request.POST.get('eligibility_form'):
+      if eligibility_form.is_valid():
+        today = datetime.date(timezone.now())
+        dob = eligibility_form.cleaned_data['dob']
+
+        if dob:
+          datediff = today - dob
+          if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
+                (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
+            messages.error(request, 'The Date of Birth shows that you are not over 21')
+            return HttpResponseRedirect('.')
+
+        eligibility_form.save()
+        messages.success(request, msg)
+      else:
+        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+
+    if request.POST.get('shipping_form'):
+      if shipping_form.is_valid():
+        shipping_form.user_profile = profile
+        shipping_form.save()
+        messages.success(request, msg)
+      else:
+        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+
+    # if billing_form.is_valid():
+    #   billing_form.user_profile = profile
+    #   if billing_form.cleaned_data['same_as_shipping']:
+    #     profile.billing_address = shipping_address
+    #     billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
+    #   else:
+    #     billing_address = billing_form.save()
+    #     profile.billing_address = billing_address
+    #   billing_updated = True
+    # else:
+    #   # check if same_as_shipping is true
+    #   if request.POST.get('billing-same_as_shipping') and shipping_address:
+    #     profile.billing_address = shipping_address
+    #     billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
+    #     billing_updated = True
+
+    if request.POST.get('payment_form'):
+      if payment_form.is_valid():
+        payment = payment_form.cleaned_data
+
+        receiver_state = 'NONE'
+        try:
+          if u.userprofile.shipping_address:
+            receiver_state = Zipcode.objects.get(code=u.userprofile.shipping_address.zipcode).state
+          #else:
+          #  receiver_state = Zipcode.objects.get(code=payment['billing_zipcode']).state
+        except Zipcode.DoesNotExist:
+          pass
+        if receiver_state in Cart.STRIPE_STATES:
+          if receiver_state == 'MI':
+            stripe.api_key = settings.STRIPE_SECRET
+          elif receiver_state == 'CA':
+            stripe.api_key = settings.STRIPE_SECRET_CA
+          stripe_card = profile.stripe_card
+
+          card = {'number': payment['card_number'], 'exp_month': payment['exp_month'], 'exp_year': payment['exp_year'],
+                  'cvc': payment['verification_code'], 'name': '%s %s' % (updated_user.first_name, updated_user.last_name),
+                  'address_zip': payment['billing_zipcode'],
+                  }
+          try:
+            customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+            if customer.get('deleted'):
+              raise Exception('Customer Deleted')
+
+            # if exists update it in stripe and update entry in StripeCard
+            customer.email = updated_user.email
+            customer.card = card
+            customer.save()
+
+            active_card = customer.active_card
+            if active_card.last4 != stripe_card.last_four or active_card.exp_year != stripe_card.exp_year or \
+                active_card.exp_month != stripe_card.exp_month or active_card.type != stripe_card.card_type or \
+                active_card.address_zip != stripe_card.billing_zipcode:
+              stripe_card.exp_month = customer.active_card.exp_month
+              stripe_card.exp_year = customer.active_card.exp_year
+              stripe_card.last_four = customer.active_card.last4
+              stripe_card.card_type = customer.active_card.type
+              stripe_card.billing_zipcode = customer.active_card.address_zip
+              stripe_card.save()
+          except Exception, e:
+            # print 'error', e
+            log.errors(request, e)
+            # no record of this customer-card mapping so create
+            try:
+              customer = stripe.Customer.create(card=card, email=updated_user.email)
+              # create on vinely
+              stripe_card = StripeCard.objects.create(stripe_user=customer.id, exp_month=customer.active_card.exp_month,
+                                      exp_year=customer.active_card.exp_year, last_four=customer.active_card.last4,
+                                      card_type=customer.active_card.type, billing_zipcode=customer.active_card.address_zip)
+              profile.stripe_card = stripe_card
+              profile.save()
+              profile.stripe_cards.add(stripe_card)
+
+            except:
+              messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+              # return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
+        else:
+          # if not a stripe state
+          credit_card = payment_form.save()
+          profile.credit_card = credit_card
+          profile.stripecard = None
+          profile.save()
+
+        # reset payment form after saving
+        data['payment_form'] = PaymentForm(prefix='payment')
+      else:
+        # if payment form is not valid
+        if len(request.POST.get("payment-card_number", '')) == 0:
+          # just present empty form since nothing was entered
+          data['payment_form'] = PaymentForm(prefix='payment')
+        else:
+          payment_info_error = True
+          messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+
+      if not payment_info_error:
+        msg = 'Your information has been updated on %s.' % timezone.now().strftime("%b %d, %Y at %I:%M %p")
+        messages.success(request, msg)
+
+  card_number = 'No card currently on file'
+  if profile.stripe_card and profile.shipping_address and (profile.shipping_address.state in Cart.STRIPE_STATES):
+    card_number = '*' * 12 + profile.stripe_card.last_four
+  elif profile.credit_card:
+    card_number = '*' * 12 + profile.credit_card.last_four()
+  else:
+    print "No card info"
+  data['card_number'] = card_number
+
+  data['profile'] = profile
+
+  return render_to_response("accounts/my_information.html", data, context_instance=RequestContext(request))
 
 
 @login_required
@@ -183,6 +341,17 @@ def edit_subscription(request):
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
+    if not u.userprofile.has_personality():
+      messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
+    if not u.userprofile.credit_card and not u.userprofile.stripe_card:
+      messages.error(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
+
+    if not u.userprofile.shipping_address:
+      messages.error(request, "You need to update your shipping address before you can make a subscription.")
+      return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     # create new subscription info object to track subscription change
     info = SubscriptionInfo(user=u, frequency=form.cleaned_data['frequency'],
@@ -211,10 +380,10 @@ def edit_subscription(request):
     if user_state in Cart.STRIPE_STATES:
       subscription_updated = u.userprofile.update_stripe_subscription(form.cleaned_data['frequency'], form.cleaned_data['quantity'])
 
-    if subscription_updated:
-      messages.success(request, "Stripe subscription successfully updated.")
-    else:
-      messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
+      if subscription_updated:
+        messages.success(request, "Stripe subscription successfully updated.")
+      else:
+        messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
 
   data['invited_by'] = my_host(u)
@@ -287,6 +456,7 @@ def forgot_password(request):
   return render_to_response("accounts/forgot_password.html", data,
                         context_instance=RequestContext(request))
 
+
 def activate_account(request):
 
   data = {}
@@ -317,35 +487,27 @@ def activate_account(request):
                         context_instance=RequestContext(request))
 
 
-@login_required
-def make_pro_host(request, account_type):
+# @login_required
+def make_pro_host(request, account_type, data):
   '''
   account_type: 'host' or 'pro'
   '''
-  data = {}
 
   data['role'] = account_type
-
-  if account_type == 'pro':
-    account_type = 1
-  elif account_type == 'host':
-    account_type = 2
-  else:
-    raise Http404
 
   data['account_type'] = account_type
 
   u = request.user
   profile = u.get_profile()
 
-  pro_group = Group.objects.get(name="Vinely Pro")
   hos_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name="Vinely Taster")
+  # tas_group = Group.objects.get(name="Vinely Taster")
   pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
+
   pro, pro_profile = my_pro(u)
   pro_email = pro.email if pro else None
-  initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,\
-                  'email': u.email, 'zipcode': profile.zipcode, 'mentor': pro_email}
+  initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,
+                  'email': u.email, 'zipcode': profile.zipcode, 'phone_number': profile.phone, 'mentor': pro_email}
 
   form = MakeHostProForm(request.POST or None, initial=initial_data)
 
@@ -365,11 +527,14 @@ def make_pro_host(request, account_type):
     if profile.is_pro():
       data["already_signed_up"] = True
       data["get_started_menu"] = True
-      return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+      if account_type == 1:
+        return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+      else:
+        return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
     elif profile.is_host():
 
-      # can only be pro
+      # can only become a pro since user is a host
       if account_type > 1:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
@@ -381,9 +546,17 @@ def make_pro_host(request, account_type):
       elif account_type == 1:
         data['make_host_or_pro'] = True
         EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
+        # if mentor_email is blank then delink the pro and set to default pro
         try:
-          mentor = User.objects.get(email=form.cleaned_data.get('mentor'))
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            mentor = User.objects.get(email=mentor_email)
+          else:
+            mentor = get_default_pro()
+            MyHost.objects.filter(host=u).update(pro=None)
           profile.mentor = mentor
+          # no longer taster or host so set current_pro to None
+          profile.current_pro = None
           profile.save()
         except User.DoesNotExist:
           mentor = None
@@ -396,13 +569,15 @@ def make_pro_host(request, account_type):
           send_not_in_area_party_email(request, u, account_type)
 
         # if not already in pro_pending_group, add them
-        if not pro_pending_group in u.groups.all():
+        if not u.userprofile.is_pending_pro():
           u.groups.clear()
           u.groups.add(pro_pending_group)
 
         send_pro_request_email(request, u)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+        # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
+      # return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+      messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+      return HttpResponseRedirect(reverse('home_page'))
 
     elif profile.is_taster():
       data['make_host_or_pro'] = True
@@ -415,35 +590,249 @@ def make_pro_host(request, account_type):
         send_not_in_area_party_email(request, u, account_type)
 
       if account_type == 1:
+        # become a pro
+        try:
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            mentor = User.objects.get(email=mentor_email)
+          else:
+            mentor = get_default_pro()
+          profile.mentor = mentor
+          # since no longer host or taster
+          profile.current_pro = None
+          profile.save()
+        except User.DoesNotExist:
+          mentor = None
+
+        ProSignupLog.objects.get_or_create(new_pro=u, mentor=mentor, mentor_email=form.cleaned_data['mentor'])
+
         send_pro_request_email(request, u)
         # if not already in pro_pending_group, add them
-        if not pro_group in u.groups.all():
+        if not u.userprofile.is_pending_pro():
           u.groups.clear()
           u.groups.add(pro_pending_group)
-        messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-        return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
+        messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+        return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type == 2:
+        # become a host
         try:
-          pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+          mentor_email = form.cleaned_data.get('mentor')
+          if mentor_email:
+            pro = User.objects.get(email=mentor_email)
+          else:
+            # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
+            # set mentor to default pro but MyHost needs to see that as no pro assigned
+            pro = None
+          profile.current_pro = pro
+          profile.save()
         except User.DoesNotExist:
           pro = None
         my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
+        # send_signed_up_as_host_email(request, u)  # to the current user
+        send_know_pro_party_email(request, u)  # to the current user
         u.groups.clear()
         u.groups.add(hos_group)
-        messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-        return render_to_response("accounts/host_request_sent.html", data, context_instance=RequestContext(request))
+        messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+        return HttpResponseRedirect(reverse('home_page'))
 
       elif account_type > 2:
         data["already_signed_up"] = True
         data["get_started_menu"] = True
-        return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
 
-  return render_to_response("accounts/sign_up.html", data, context_instance=RequestContext(request))
+  if account_type == 1:
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+  else:
+    return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
 
-def sign_up(request, account_type):
+def make_host(request):
+  data = {}
+  u = request.user
+
+  host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
+  data['heading'] = host_sections.get(category=4).content
+  data['sub_heading'] = host_sections.get(category=5).content
+  data['content'] = host_sections.get(category=0).content
+  data['host_party_menu'] = True
+  if u.is_authenticated():
+    return make_pro_host(request, 2, data)
+  else:
+    return sign_up(request, 2, data)
+
+
+def make_pro(request):
+  data = {}
+  u = request.user
+
+  pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
+  data['heading'] = pro_sections.get(category=4).content
+  data['sub_heading'] = pro_sections.get(category=5).content
+  data['content'] = pro_sections.get(category=0).content
+  data['become_pro_menu'] = True
+  if u.is_authenticated():
+    return make_pro_host(request, 1, data)
+  else:
+    return sign_up(request, 1, data)
+
+
+def make_taster(request, rsvp_code):
+  # data = {}
+
+  success_url = request.GET.get('next') if request.GET.get('next') else reverse('home_page')
+
+  try:
+    user = PartyInvite.objects.get(rsvp_code=rsvp_code).invitee
+  except:
+    messages.error(request, 'We could not find your information in the system. Please contact <a href="mailto:care@vinely.com">care@vinely.com</a>')
+    return HttpResponseRedirect(success_url)
+
+  form = MakeTasterForm(request.POST or None, initial={'account_type': 3}, instance=user)
+
+  if form.is_valid():
+    user.set_password(form.cleaned_data['password1'])
+    user.first_name = form.cleaned_data['first_name']
+    user.last_name = form.cleaned_data['last_name']
+    user.is_active = True
+    user.save()
+
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
+    ok = check_zipcode(profile.zipcode)
+
+    # prevent popping up signup screen again
+    guest_rsvp_key = '%s_guest_rsvp' % rsvp_code
+    request.session[guest_rsvp_key] = True
+
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, 3)
+
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+  else:
+    messages.error(request, form.errors)
+  return HttpResponseRedirect(success_url)
+
+
+def sign_up(request, account_type, data):
+  """
+    :param account_type:  1 - Vinely Pro
+                          2 - Vinely Host
+                          3 - Vinely Taster
+  """
+  # data = {}
+  role = None
+
+  account_type = int(account_type)
+
+  pro_group = Group.objects.get(name="Vinely Pro")
+  hos_group = Group.objects.get(name="Vinely Host")
+  tas_group = Group.objects.get(name="Vinely Taster")
+  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
+
+  if account_type == 1:
+    role = pro_group
+  elif account_type == 2:
+    role = hos_group
+  elif account_type == 3:
+    role = tas_group
+
+  # create users and send e-mail notifications
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
+
+  if form.is_valid():
+    user = form.save()
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
+    ok = check_zipcode(profile.zipcode)
+
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, account_type)
+
+    # if pro, then mentor IS mentor
+    if account_type == 1:
+      try:
+        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
+        profile.mentor = pro
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
+      except User.DoesNotExist:
+        # mentor e-mail was not entered, assign default pro
+        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
+        pro = get_default_pro()
+        profile.mentor = pro
+
+    elif account_type == 2:
+      # if host, then set mentor to be the host's pro
+      try:
+        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
+          # map host to a pro
+        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
+        profile.current_pro = pro
+      except User.DoesNotExist:
+        # pro e-mail was not entered
+        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
+
+    profile.save()
+
+    if role == pro_group:
+      # if requesting to be pro, put them in pending pro group
+      user.groups.add(pro_pending_group)
+    else:
+      user.groups.add(role)
+
+    # save engagement type
+    engagement_type = account_type
+
+    interest, created = EngagementInterest.objects.get_or_create(user=user,
+                                                      engagement_type=engagement_type)
+
+    data["email"] = user.email
+    data["first_name"] = user.first_name
+
+    data["account_type"] = account_type
+    if account_type == 1:
+      send_pro_request_email(request, user)
+    elif account_type == 2:
+      # send mail to sales@vinely if no mentor
+      mentor_pro = None
+      try:
+        # make sure selected mentor is a pro
+        mentor_pro = User.objects.get(email=request.POST.get('mentor'))
+
+        if pro_group in mentor_pro.groups.all():
+          send_know_pro_party_email(request, user)  # to host
+      except User.DoesNotExist:
+        # mail sales
+        send_unknown_pro_email(request, user)  # to host
+
+      send_host_vinely_party_email(request, user, mentor_pro)  # to pro or vinely
+      # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
+
+    messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+      success_url = request.GET.get('next') if request.GET.get('next') else reverse('home_page')
+    return HttpResponseRedirect(success_url)
+
+  data['form'] = form
+  data['role'] = role.name
+  data['account_type'] = account_type
+  data['get_started_menu'] = True
+
+  if account_type == 1:
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+  else:
+    return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+
+
+def sign_up_old(request, account_type):
   """
     :param account_type: 1 - Vinely Pro
                           2 - Vinely Host
@@ -619,7 +1008,9 @@ def verify_account(request, verification_code):
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
     if verification.verified:
-      data["error"] = "You have already been verified"
+      # data["error"] = "You have already been verified"
+      messages.success(request, "You have already been verified.")
+      return HttpResponseRedirect(reverse("home_page"))
     else:
       data["email"] = verification.user.email
   except VerificationQueue.DoesNotExist:
@@ -638,7 +1029,7 @@ def verify_account(request, verification_code):
       user.save()
       # accepted tos is True
       profile = user.get_profile()
-      profile.accepted_tos = True
+      # profile.accepted_tos = True
       profile.save()
 
       user = authenticate(email=user.email, password=form.cleaned_data['new_password'])
@@ -713,7 +1104,7 @@ def host_unlink(request):
   data = {}
 
   u = request.user
-  # unlink current user's host 
+  # unlink current user's host
 
   return HttpResponseRedirect(reverse("edit_subscription"))
 
@@ -728,10 +1119,13 @@ def pro_link(request):
     if form.is_valid():
       pro = User.objects.get(email=form.cleaned_data['email'])
       my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+      profile.current_pro = pro
+      profile.save()
       messages.success(request, "You were successfully linked to the pro %s." % pro.email)
     if form.errors:
       messages.error(request, form.errors)
   else:
+    # TODO: Can tasters link to particular pros?
     messages.error(request, "Only Hosts can link to Pro's at the moment")
   return HttpResponseRedirect(reverse('edit_subscription'))
 
@@ -744,10 +1138,16 @@ def pro_unlink(request):
 
   # unlink current user's pro
   if profile.is_host():
-    MyHost.objects.filter(host=u, pro__isnull=False).update(pro=None)
+    profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
+    profile.current_pro = None
+    profile.save()
+    MyHost.objects.filter(host=u).update(pro=None)
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
+    profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
+    profile.current_pro = None
+    profile.save()
     # seems there's no way to unlink a pro for taster because no direct link
-    messages.error(request, "Only Hosts can unlink from their Pro's at the moment")
+    messages.success(request, "You have been successfully unlinked from the Pro.")
 
   return HttpResponseRedirect(reverse("edit_subscription"))

@@ -1,52 +1,27 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
 
-class Migration(DataMigration):
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        "Write your forwards methods here."
-        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
-        orm.Product.objects.all().update(active=False)
-        orm.Product.objects.create(name="Vinely Taste Kit",
-                                    description="<p>The Vinely First Taste Kit helps Vinely Tasters discover their true wine \
-                                                personality. It includes six bottles of wine, each carefully selected for \
-                                                certain attributes to help Vinely understand your taste in wine.</p> \
-                                                <p>The kit also includes materials needed to conduct a Vinely tasting and \
-                                                record each taster’s preferences.</p>",
-                                    unit_price=139.00,
-                                    category=0,
-                                    cart_tag="tasting_kit")
+        # Adding model 'SelectedTastingKit'
+        db.create_table('main_selectedtastingkit', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('order', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['main.Order'])),
+            ('tasting_kit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['personality.TastingKit'])),
+            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+        ))
+        db.send_create_signal('main', ['SelectedTastingKit'])
 
-        orm.Product.objects.create(name="3 Bottles",
-                                    description="Excite your senses each and every time you pour a glass. \
-                                        The unmatched experience each bottle provides will have you \
-                                        appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=54.00,
-                                    category=1,
-                                    cart_tag="3")
-        orm.Product.objects.create(name="6 Bottles",
-                                    description="Excite your senses each and every time you pour a glass. \
-                                        The unmatched experience each bottle provides will have you \
-                                        appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=97.00,
-                                    category=1,
-                                    cart_tag="6")
-        orm.Product.objects.create(name="12 Bottles",
-                                    description="Excite your senses each and every time you pour a glass. \
-                                        The unmatched experience each bottle provides will have you \
-                                        appreciating every sip, every scent, and every penny paid.",
-                                    unit_price=173.00,
-                                    category=1,
-                                    cart_tag="12")
 
     def backwards(self, orm):
-        "Write your backwards methods here."
-        orm.Product.objects.filter(name__in=["Vinely Taste Kit", "3 Bottles", "6 Bottles", "12 Bottles"]).delete()
-        orm.Product.objects.all().update(active=True)
+        # Deleting model 'SelectedTastingKit'
+        db.delete_table('main_selectedtastingkit')
+
 
     models = {
         'accounts.address': {
@@ -110,6 +85,7 @@ class Migration(DataMigration):
         'main.cart': {
             'Meta': {'object_name': 'Cart'},
             'adds': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'discount': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '10', 'decimal_places': '2'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'items': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['main.LineItem']", 'symmetrical': 'False'}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']", 'null': 'True'}),
@@ -140,8 +116,8 @@ class Migration(DataMigration):
         'main.customizeorder': {
             'Meta': {'object_name': 'CustomizeOrder'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sparkling': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'sparkling': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'}),
             'wine_mix': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },
@@ -155,11 +131,12 @@ class Migration(DataMigration):
         },
         'main.invitationsent': {
             'Meta': {'object_name': 'InvitationSent'},
-            'custom_message': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
+            'custom_message': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'custom_subject': ('django.db.models.fields.CharField', [], {'default': '"You\'re invited to a Vinely Party!"', 'max_length': '128'}),
-            'guests': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'symmetrical': 'False'}),
+            'guests': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
+            'signature': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         'main.lineitem': {
@@ -178,6 +155,11 @@ class Migration(DataMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'pro': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'my_host'", 'null': 'True', 'to': "orm['auth.User']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
+        },
+        'main.newhostnoparty': {
+            'Meta': {'object_name': 'NewHostNoParty'},
+            'host': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'main.order': {
             'Meta': {'object_name': 'Order'},
@@ -208,25 +190,32 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'OrganizedParty'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
-            'pro': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'pro': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         'main.party': {
             'Meta': {'object_name': 'Party'},
-            'address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Address']"}),
+            'address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Address']", 'null': 'True', 'blank': 'True'}),
+            'auto_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'auto_thank_you': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'confirmed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'event_date': ('django.db.models.fields.DateTimeField', [], {}),
+            'guests_can_invite': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'guests_see_guestlist': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'host': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
+            'requested': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'setup_stage': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         'main.partyinvite': {
             'Meta': {'object_name': 'PartyInvite'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'invited_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'my_guests'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'invited_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'invitee': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'my_invites'", 'to': "orm['auth.User']"}),
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -263,6 +252,21 @@ class Migration(DataMigration):
             'new_pro': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
+        'main.selectedtastingkit': {
+            'Meta': {'object_name': 'SelectedTastingKit'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Order']"}),
+            'tasting_kit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['personality.TastingKit']"}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
+        },
+        'main.selectedwine': {
+            'Meta': {'object_name': 'SelectedWine'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Order']"}),
+            'overall_rating': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'wine': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['personality.Wine']"})
+        },
         'main.thankyounote': {
             'Meta': {'object_name': 'ThankYouNote'},
             'custom_message': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'null': 'True', 'blank': 'True'}),
@@ -272,20 +276,55 @@ class Migration(DataMigration):
             'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
-        'personality.wine': {
-            'Meta': {'object_name': 'Wine'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'added': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'deactivated': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+        'main.unconfirmedparty': {
+            'Meta': {'object_name': 'UnconfirmedParty'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['main.Party']"})
+        },
+        'personality.tastingkit': {
+            'Meta': {'object_name': 'TastingKit'},
+            'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'}),
+            'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'})
+        },
+        'personality.wine': {
+            'Meta': {'object_name': 'Wine'},
+            'acidity': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'alcohol': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'body': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'color': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'deactivated': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'fruit': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_taste_kit_wine': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'oak': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'ph': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'price': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '10', 'decimal_places': '2'}),
+            'region': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'residual_sugar': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             'sip_bits': ('django.db.models.fields.TextField', [], {}),
+            'sku': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'sparkling': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'supplier': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'tannin': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'varietal': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'vinely_category': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'vinely_category2': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
+            'vintage': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'year': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },
         'personality.wineratingdata': {
-            'Meta': {'object_name': 'WineRatingData'},
+            'Meta': {'ordering': "['wine__number']", 'object_name': 'WineRatingData'},
             'dnl': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'overall': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -309,9 +348,9 @@ class Migration(DataMigration):
             'exp_year': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_four': ('django.db.models.fields.CharField', [], {'max_length': '4'}),
+            'last_updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'stripe_user': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         }
     }
 
     complete_apps = ['main']
-    symmetrical = True

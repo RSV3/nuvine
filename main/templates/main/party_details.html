@@ -1,183 +1,438 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load thumbnail %}
-
+{% load currency %}
+{% load render_table from django_tables2 %}
 {% load static %}
 
 {% block header %}
-  <h1>Taste Party: {{ party.title }}</h1>
-  Here are your party details.  Invite more tasters to learn about their wine profiles.
+  {% if party.host.first_name %}
+    <h1 class="headline">{% if party.host.first_name|last == 's' %} {{ party.host.first_name }}' {% else %} {{ party.host.first_name }}'s {% endif %} Party: {{ party.title }}</h1>
+  {% else %}
+    <h1 class="headline">Friendly Host's Party: {{ party.title }}</h1>
+  {% endif %}
 {% endblock header %}
 
 {% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "timepicker/css/timepicker.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+
   <style type="text/css">
-    select, option {
+/*    select, option {
       width: 120px;
       margin: 5px;
+    }*/
+    .summary-table tr td:first-child{
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+
+    .pagination {
+      display:none;
     }
   </style>
 {% endblock additional_styles %}
+
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  
   <section id="party-information">
     <div class="row">
       <div class="span6">
-        <table>
+        <table class="summary-table">
           <tbody>
             <tr>
-              <td>Hosted by:</td>
-              <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a> {% if pro %}[{% if party.host.get_profile.has_personality %}<a href="{% url personality_rating_info party.host.email party.id %}">{{ party.host.get_profile.wine_personality}}</a>{% else %}<a href="{% url record_all_wine_ratings party.host.email party.id %}">Enter ratings</a>{% endif %}]{% endif %}</td>
+              <td><h2>Party Info</h2></td>
+              {% if pro and can_add_taster %}
+                <td><a href="javascript:;" class="edit-date">edit</a></td>
+              {% endif %}
             </tr>
             <tr>
-              <td>Party Type:</td>
-              <td>{{ party.title }}</td>
+              <td>Date</td>
+              <td><p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p></td>
             </tr>
             <tr>
-              <td>Date and Time:</td>
-              <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
-            </tr>
-            <tr>
-              <td>Location:</td>
-              <td>{{ party.address.full_text }}</td>
-            </tr>
-            <tr>
-              <td>Guests Attending:</td>
-              <td>{% if party.invitees %}{{ party.invitees }} <span class="badge badge-important">{{ party.high_low }}</span> {{ high_low_status }}{% else %}<a href="{% url party_taster_invite party.id %}">Invite Guests</a>{% endif %}</td>
-            </tr>
-            <tr>
-              <td>Special Instructions:</td>
-              <td>{{ party.description }}</td>
-            </tr>
-            {% if host and can_order_kit %}
-            <tr>
+              <td>Location</td>
               <td>
-                <a class="btn btn-primary" href="{% url cart_add_tasting_kit party.id %}">Order Tasting Kit</a>
-              </td>
-              <td>
+                <p>{{ party.address.street1 }}</p>
+                <p>{{ party.address.street2 }}</p>
+                <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
               </td>
             </tr>
-            {% endif %}
+            <tr><td>&nbsp;</td></tr>
+            <tr>
+              <td>Host Name</td>
+              <td>
+                <p><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td>Host Phone</td>
+              <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}-{% endif %}</p></td>
+            </tr>
+            {% if party.is_past_party %}
+              <tr>
+                <td>Total Sales</td>
+                <td>{{ party.total_sales|currency }}</td>
+              </tr>
+            {% endif %}            
           </tbody>
         </table>
       </div>
 
       <div class="span6">
-        {% if not pro %}
-          {# for hosts #}
-          <p>
-            <div class="user-info">
-              <div class="user-pic">
-                {% if pro_user.get_profile.image %}
-                  {% thumbnail pro_user.get_profile.image "120x120" as im %}
-                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                  {% endthumbnail %}
-                {% else %}
-                  <img src="{% static "img/noprofilephoto_img.png" %}" width="120">
-                {% endif %}
-              </div>
-              <div class="user-contact">
-                <p><b>Vinely Pro:</b></p>
-                <div class="user-name">
-                  {% if pro_user.first_name %}
-                    {{ pro_user.first_name }} {{ pro_user.last_name }}
-                  {% else %}
-                    Vinely Pro Name
-                  {% endif %}
-                </div>
-                <div class="user-phone">
-                  <i class="icon-user"></i> {% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
-                </div>
-                <div class="user-email">
-                  <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
-                </div>
-              </div>
-            </div>
-          </p>
-          <section id="party-tips">
-          <p class="span6"><a href="{% static "doc/PDF_SocialPartyToDoList.pdf" %}">Download the Taste Party To-Do List</a></p>
-          </section>
-        {% else %}
-          {# for pros #}
-          <div class="pull-right">
-            <a href="{% url print_rating_cards party.id %}" class="btn btn-primary">Create Customized Experience Cards</a>
-            <p></p>
-            <a href="{% static "doc/PDF_vinely_experience_card_Raw.pdf" %}" class="btn btn-primary">Download Generic Experience Cards</a>
+        <div class="row">
+          <div class="span2">
+            <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td><h2>Pro Info</h2></td>
+                </tr>
+                <tr>
+                  <td>
+                    {% if pro_user.get_profile.image %}
+                      {% thumbnail pro_user.get_profile.image "90x90" as im %}
+                        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                      {% endthumbnail %}
+                    {% else %}
+                      <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        {% endif %}
+          <div class="span4">
+            <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td><h2>&nbsp;</h2></td>
+                </tr>
+                <tr>
+                  <td>Name</td>
+                  <td>
+                    <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Phone</td>
+                  <td>
+                    <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}-{% endif %}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="vertical-space"></div>
+        {% comment %}
+        <table class="summary-table">
+          <tbody>
+            <tr>
+              <td>Special Instructions</td>
+              <td>{{ party.description }}</td>
+            </tr>
+          </tbody>
+        </table>
+        {% endcomment %}
       </div>
     </div> <!-- .row -->
   </section>
 
-  <section id="party-tasters">
-    <div class="page-header">
-      Tasters Attending - <a href="{% url party_taster_invite party.id %}">Add Tasters <i class="icon-plus"></i></a>
-    </div>
-
-    <form method="POST" action="{% url party_customize_invite %}">
-      {% csrf_token %}
-      {% if host %}
-        {{ rsvp_form.party }}
-        <div class="control-group">
-          {{ rsvp_form.rsvp }}
-          <button type="submit" class="btn btn-primary" name="change_rsvp" value="change_rsvp">Change RSVP Status</button>
-        </div>
+  {% if pro or host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
+    <hr />
+    <div class="vertical-space"></div>
+    <!-- <section id="party-tasters"> -->
+    {% if not party.is_past_party %}
+      {% if party.confirmed %}
+        {% if party.high_low == '!LOW' %}
+          <div class="message-container">
+            <div class="messages">
+              <div class="alert alert-error center">
+                <h2>
+                  <small>
+                    {% if user.get_profile.events_manager or party.host == user %}
+                      Low attendance! Consider inviting more people or RSVP'ing for them
+                    {% else %}
+                      Low attendance! Remind host to invite more people
+                    {% endif %}
+                  </small>
+                </h2>
+              </div>
+            </div>
+          </div>
+        {% endif %}
       {% endif %}
-      <input type="hidden" name="party" value="{{ party.id }}">
-      <table class="table table-striped">
-        <thead>
-          <th>Select</th>
-          <th>Name</th>
-          <th>E-mail</th>
-          <th>Phone</th>
-          <th>RSVP</th>
-          {% if pro %}
-          <th>Wine Personality</th>
-          <th>Questionnaire</th>
-          {% endif %}
-        </thead>
-        <tbody>
-        {% for inv in invitees %}
-          {# create a table of invitees #}
-          <tr>
-            <td><input type="checkbox" value="{{ inv.invitee.id }}" name="guests"></td>
-            {% if inv.invitee.first_name or inv.invitee.last_name %}
-            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
-            {% else %}
-            <td>Anonymous</td>
-            {% endif %}
-            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
-            {% if inv.invitee.get_profile.phone %}
-            <td>{{ inv.invitee.get_profile.phone }}</td>
-            {% else %}
-            <td>-</td>
-            {% endif %}
-            <td>{{ inv.get_response_display }}</td>
-            {% if pro %}
-              {% if inv.invitee.get_profile.has_personality %}
-                <td><a href="{% url personality_rating_info inv.invitee.email party.id %}">{{ inv.invitee.get_profile.wine_personality }}</a></td>
-              {% else %}
-                <td><a href="{% url record_all_wine_ratings inv.invitee.email party.id %}">Enter ratings</a></td>
+    {% endif %}
+
+    {% if can_add_taster %}
+      {% if pro or host or taster and party.guests_can_invite %}
+      <form id="add_taster_form" class="form-horizontal" method="POST" action="">
+        {% csrf_token %}
+        {{ taster_form.party }}
+        {{ taster_form.response }}
+        <div class="row">
+          <div class="span12">
+            <h2>Tasters Attending</h2>
+            {% comment %}
+              {% if pro or host or taster and party.guests_can_invite %}
+                <p><h3>Add Taster</h3></p>
+                {% if pro or host %}
+                  <div class="control-group {% if taster_form.invitee.errors %}error{% endif %}">
+                    {{ taster_form.invitee }}
+                    {% if taster_form.invitee.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.invitee.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                  <p><h3>or add new taster</h3></p>
+                {% endif %}
               {% endif %}
-              <td>{{ completed }}</td>
+            {% endcomment %}
+          </div>
+        </div>        
+        <div class="row">
+          <div class="span3">
+            <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+              {{ taster_form.first_name }}
+              {% if taster_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.first_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+              {{ taster_form.last_name }} 
+              {% if taster_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ taster_form.last_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span3">
+            <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+              {{ taster_form.email }} 
+              {% if taster_form.email.errors %}
+                <span class="help-inline">
+                  {{ taster_form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span2">
+            <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+              {{ taster_form.phone }}
+              {% if taster_form.phone.errors %}
+                <span class="help-inline">
+                  {{ taster_form.phone.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="span12">
+            <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
+            {% if user.get_profile.events_manager %}
+              <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster Self Add</a>
             {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-      {% if can_order_kit %}
-      <div class="control-group">
-        <button type="submit" class="btn btn-success btn-large">Send Invite</button>
-        <!-- <span class="alert">Please select guests from the above list and send your personalized invitation.</span> -->
-      </div>
+          </div>
+        </div>
+      </form>
+      {% endif %}
+    {% else %}
+      <h2>Tasters Attended</h2>
+    {% endif %}
+
+    <form class="form-horizontal" method="POST" 
+      action="{% if can_add_taster %}{% url party_send_invites %}{% else %}{% url party_customize_thanks_note %}{% endif%}">
+      {% csrf_token %}
+      {{ taster_form.party }}
+      {{ invite_form.custom_subject }}
+      
+      {% if pro or host or taster and party.guests_see_guestlist %}
+        <div class="vertical-space">&nbsp;</div>
+        {% render_table table %}
+      {% endif %}
+
+      {% if party.host == user or user.get_profile.events_manager %}
+        {% if can_add_taster %}
+          <div class="vertical-space">&nbsp;</div>
+          <div class="row">
+            <div class="span10">
+              <a href="{% url party_write_invitation party.id %}" target="_blank" class="btn btn-primary">Edit Invite</a>
+            </div>
+            <div class="span2">
+              <button class="btn btn-primary pull-right" name="send_invite" value="send_invite"
+                     {% if not party.confirmed %}disabled="disabled"{% endif %}>Send Invite</button>
+            </div>
+          </div>
+        {% else %}
+          <div class="vertical-space">&nbsp;</div>
+          <div class="row">
+            <div class="span9">
+              &nbsp;
+              <!-- <a target="_blank" class="btn btn-primary" name="edit_thank_you" value="edit_thank_you">Edit Thank You Note</a> -->
+              <!-- <button class="btn btn-primary edit-note" name="edit-note" value="edit-note">Edit Thank You Note</button> -->
+              <!-- <a target="_blank" href="{% url party_preview_thanks_note party.id %}" class="btn btn-primary">Preview Thank you note</a> -->
+            </div>
+            <div class="span3">
+              <button class="btn btn-primary pull-right" name="send_thank_you" value="send_thank_you">Thank Attendees</button>
+            </div>
+          </div>
+        {% endif %}
       {% endif %}
     </form>
-  </section>
-  <div class="vertical-space-bottom">
-  </div>
 
+    <div id="edit_date" class="modal hide fade">
+  <!--     <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 class="center">Edit Party Info</h3>
+      </div>
+   -->    
+      <div class="modal-body">
+        <form method="POST" class="form-validate form-horizontal" action="{% url party_edit_date party.id %}?next={{ request.path }}">
+          {% csrf_token %}
+          {{ edit_date_form.party }}
+          <br />
+          <fieldset>
+            <legend><h2>Date/Time</h2></legend>
+
+            <div class="control-group {% if edit_date_form.event_day.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_day">{{ edit_date_form.event_day.label }}</div>
+              <div class="controls">
+                {{ edit_date_form.event_day }} 
+                {% if edit_date_form.event_day.errors %}
+                  <span class="help-inline">
+                    {{ edit_date_form.event_day.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="control-group {% if edit_date_form.event_time.errors %}error{% endif %}">
+              <div class="control-label" for="id_event_time">{{ edit_date_form.event_time.label }}</div>
+              <div class="controls">
+                {{ edit_date_form.event_time }} 
+                {% if edit_date_form.event_time.errors %}
+                  <span class="help-inline">
+                    {{ edit_date_form.event_time.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>              
+          </fieldset>
+          <div class="modal-footer">
+            <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>
+          </div>
+        </form>
+      </div>
+    </div> 
+
+  {% endif %}
+  <div class="vertical-space-bottom"></div>
 </div>
 
 {% endblock content %}
 
+{% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script type="text/javascript" src="{% static "timepicker/js/bootstrap-timepicker.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+
+      //select all rows on the table
+      $('.all-guests').click(function(e) {
+        var selected = $(this).prop('checked');
+        $('.guest').prop('checked',selected);
+      });
+
+      //show modal for editing user info
+      $('.edit-taster').click(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          type: "GET",
+          url: "{% url party_edit_taster_info 0 't' %}?next={{ request.path }}".replace(0, $(this).attr('data-invite')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });
+
+      //show modal for editing party date info
+      var options = { startDate: new Date(), autoclose: true };
+      $('.datepicker').datepicker(options);
+      $('.timepicker').timepicker({'defaultTime': false});      
+      $('.edit-date').click(function(e) {
+        $('#edit_date').modal();
+      });
+      // Keep track of what input has focus
+      // var active_input;
+      // $(".typeahead").focus(function() { active_input = this.id; });
+
+      //typeahead
+      $('.typeahead').typeahead({
+        source: _.throttle(function (query, process){
+          // console.log("query: " + query);
+          var url = "{% url my_taster_list -1 %}".replace(-1, query);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              return process(json);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+          return [];
+        }, 700),
+        sorter: function(items) { items.splice(0, 0, this.query); return items; },
+        updater: function(item) {
+          if (item.indexOf(",") == -1) {
+            return item;
+          }
+          var host_email = item.split(",")[1].trim()
+          
+          var url = "{% url party_user_info -1 %}".replace(-1, host_email);
+          $.ajax({
+            url: url,
+            cache: true,
+            dataType: "json",
+            success: function(json, textStatus) {
+              // console.log('updater: ' + json);
+              $('#id_first_name').val(json.first_name);
+              $('#id_last_name').val(json.last_name);
+              $('#id_email').val(json.email);
+              $('#id_phone').val(json.phone);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              console.log("error" + errorThrown)
+            }
+          });
+        }
+      });
+      $('#add_taster_form').find('input[type=text]').val("");
+    });
+  </script>
+{% endblock additional_scripts %}

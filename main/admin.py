@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.utils import timezone
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order,\
-                        CustomizeOrder
+from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
+                        CustomizeOrder, OrganizedParty, UnconfirmedParty, NewHostNoParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -80,6 +81,13 @@ class MyHostAdmin(admin.ModelAdmin):
 
   def save_model(self, request, obj, form, change):
     if obj.pro and obj.host:
+      # find any upcoming parties by host that have no pro assigned
+      # assign the pro
+      host_parties = Party.objects.filter(host=obj.host, event_date__gte=timezone.now())
+      party_has_pro = OrganizedParty.objects.filter(party__in=host_parties, pro__isnull=True)
+      if party_has_pro:
+        party_has_pro.update(pro=obj.pro)
+
       # new pro was assigned, so send e-mail to the host
       send_pro_assigned_notification_email(request, obj.pro, obj.host)
       send_host_vinely_party_email(request, obj.host, obj.pro)
@@ -123,7 +131,7 @@ class PartyAdmin(admin.ModelAdmin):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
 
   def pro_info(self, instance):
-    return "%s %s <%s>" % (instance.pro().first_name, instance.pro().last_name, instance.pro().email)
+    return "%s %s <%s>" % (instance.pro.first_name, instance.pro.last_name, instance.pro.email)
 
   def rsvps(self, instance):
     return PartyInvite.objects.filter(party=instance, response__in=[2, 3]).count()
@@ -158,6 +166,38 @@ class CustomizeOrderAdmin(admin.ModelAdmin):
     return "%s %s <%s>" % (instance.user.first_name, instance.user.last_name, instance.user.email)
 
 
+class UnconfirmedPartyAdmin(admin.ModelAdmin):
+  # Parties that have not been confirmed 48hrs after being created
+  list_display = ['title', 'pro', 'host', 'created', 'event_date']
+
+  def title(self, instance):
+    return instance.party.title
+
+  def pro(self, instance):
+    return "%s %s <%s>" % (instance.party.pro.first_name, instance.party.pro.last_name, instance.party.pro.email)
+
+  def host(self, instance):
+    return "%s %s <%s>" % (instance.party.host.first_name, instance.party.host.last_name, instance.party.host.email)
+
+  def created(self, instance):
+    return instance.party.created
+
+  def event_date(self, instance):
+    return instance.party.event_date
+
+
+class NewHostNoPartyAdmin(admin.ModelAdmin):
+  # list of people who signed up as hosts but 7days later havent created a party
+  list_display = ['host_info', 'date_joined']
+
+  def host_info(self, instance):
+    return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
+
+  def date_joined(self, instance):
+    return instance.host.date_joined
+
+admin.site.register(NewHostNoParty, NewHostNoPartyAdmin)
+admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
 admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)

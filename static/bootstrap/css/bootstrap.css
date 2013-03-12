@@ -401,6 +401,7 @@ h2 {
 h2 small {
   font-size: 18px;
   font-weight: normal;
+  color: #415A68;
 }
 h3 {
   font-size: 18px;
@@ -440,6 +441,7 @@ h6 {
 .page-header h1 {
   line-height: 1;
 }
+
 ul,
 ol {
   padding: 0;
@@ -460,6 +462,11 @@ ol {
 li {
   line-height: 1.3em;
 }
+ul.errorlist,
+ol.errorlist{
+  list-style: none;
+}
+
 ul.unstyled,
 ol.unstyled {
   margin-left: 0;
@@ -626,12 +633,13 @@ legend {
   display: block;
   width: 100%;
   padding: 0;
-  margin-bottom: 1.9500000000000002em;
+  /*margin-bottom: 1.9500000000000002em;*/
   font-size: 14px;
   line-height: 2.6em;
   color: #415A68;
   border: 0;
-  border-bottom: 1px solid #e5e5e5;
+  /*border-bottom: 1px solid #e5e5e5;*/
+  border-top: 1px solid #e5e5e5;
 }
 legend small {
   font-size: 0.9750000000000001em;
@@ -3457,8 +3465,8 @@ input[type="submit"].btn.btn-mini {
 }
 .modal-backdrop,
 .modal-backdrop.fade.in {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
+  opacity: 0.5;
+  filter: alpha(opacity=50);
 }
 .modal {
   position: fixed;
@@ -4467,10 +4475,10 @@ div.subnav-fixed .nav {
 .btn-primary {
   font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
   text-transform: uppercase;
-  font-size: 11px;
+  /*font-size: 11px;*/
   color: #FFFFFF;
   letter-spacing: 1px;
-  padding: 7px 20px 5px 20px;
+  /*padding: 7px 20px 5px 20px;*/
   background-color: #415A68;
   background-image: linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);
   background-image: -o-linear-gradient(bottom, rgb(51,51,51) 46%, rgb(65,90,104) 1%, rgb(65,90,104) 86%);

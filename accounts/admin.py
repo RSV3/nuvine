@@ -3,13 +3,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
 from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo, Zipcode
-from accounts.utils import send_pro_approved_email
-from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, generate_pro_account_number
+from accounts.utils import send_pro_approved_email, reassign_pro
+from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, \
+                      generate_pro_account_number, my_pro
 
 from main.models import MyHost, Cart
 
@@ -84,6 +84,12 @@ def cancel_subscription(modeladmin, request, queryset):
 cancel_subscription.short_description = "Cancel subscription"
 
 
+def leave_vinely(modeladmin, request, queryset):
+  for obj in queryset:
+    reassign_pro(obj.user)
+  messages.success(request, "The selected Pro(s) were deactivated and their followers reassigned.")
+
+
 class MentorAssignedFilter(SimpleListFilter):
 
   title = _('mentor assigned')
@@ -106,12 +112,12 @@ class MentorAssignedFilter(SimpleListFilter):
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'mentor_email', 'pro_number')
+  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinely_pro_email', 'pro_number')
   list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor')
   model = UserProfile
-  actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster, cancel_subscription]
+  actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster, cancel_subscription, leave_vinely]
   search_fields = ['user__first_name', 'user__last_name', 'user__email']
 
   def user_image(self, instance):
@@ -129,8 +135,13 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def email(self, instance):
     return instance.user.email
 
-  def mentor_email(self, instance):
-    return instance.mentor.email
+  def vinely_pro_email(self, instance):
+    # need to show the vinely pro
+    assigned_pro, assigned_pro_profile = my_pro(instance.user)
+    if assigned_pro:
+      return assigned_pro.email
+    else:
+      return None
 
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)

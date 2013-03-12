@@ -1,5 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
+{% load static %}
+
 {% block header %}
   <!--h1>Welcome to Vinely</h1-->
 {% endblock header %}
@@ -7,59 +9,63 @@
 {% block content %}
 <div class="container">
     <div class="row">
-      <div class="span8">
+      <div class="{% if user.is_authenticated %} span12 {% else %} span8 {% endif %}">
         <div class="hero-unit">
           {{ general_section|safe }}
 <!-- 
-          <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
-            <p>Discover your wine personality with friends at a Vinely Taste Party. We’ll use that personality to select perfectly paired wine and ship wherever you sip. Interested? </p>
-             -->
-              <div class="row">
-                <div class="span1 offset2">
-                  <div id="tellmemore"><a href="{% url how_it_works %}" title="how it works"></a></div>
-                </div>
+            <div class="row">
+              <div class="span1 offset2">
+                <div id="tellmemore"><a href="{% url how_it_works %}" title="how it works"></a></div>
               </div>
+            </div>
+ -->
+          <div class="center">
+            <a href="{% url how_it_works %}" title="how it works"><img src="{% static "img/btn_pie_tellmemore.png" %}"></a>
+          </div>              
+
         </div>
       </div>
-      <div class="span4">
-        <div class="box-container landing">
-          <div class="box-content landing" id="home-sign-in">
-            <p>It's good to be back.</p>
-               <form method="POST" action="{% url login %}">
-                {% csrf_token %}
-                <fieldset>
-                  {% if form.non_field_errors %}
-                    <div class="alert alert-error">
-                      <strong>Error</strong>{{ form.non_field_errors }}
+      {% if not user.is_authenticated %}
+        <div class="span4">
+          <div class="box-container landing">
+            <div class="box-content landing" id="home-sign-in">
+              <p>It's good to be back.</p>
+                 <form method="POST" action="{% url login %}">
+                  {% csrf_token %}
+                  <fieldset>
+                    {% if form.non_field_errors %}
+                      <div class="alert alert-error">
+                        <strong>Error</strong>{{ form.non_field_errors }}
+                      </div>
+                    {% endif %}
+                    <div class="control-group">
+                      <div class="controls">
+                        {{ form.email }}
+                      </div>
                     </div>
-                  {% endif %}
-                  <div class="control-group">
-                    <div class="controls">
-                      {{ form.email }}
+                    <div class="control-group">
+                      <div class="controls">
+                        {{ form.password }}
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <div class="controls">
-                      {{ form.password }}
+                    <div class="control-group">
+                      <div class="controls">
+                        <a href="{% url forgot_password %}">Forgot Password?</a>
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <div class="controls">
-                      <a href="{% url forgot_password %}">Forgot Password?</a>
+                    <div class="control-group">
+                      <div class="controls">
+                        <input class="btn btn-primary" type="submit" value="login" />
+                        <input type="hidden" name="next" value="{{ next }}" />
+                      </div>
                     </div>
-                  </div>
-                  <div class="control-group">
-                    <div class="controls">
-                      <input class="btn btn-primary" type="submit" value="login" />
-                      <input type="hidden" name="next" value="{{ next }}" />
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
+                  </fieldset>
+                </form>
+            </div>
+            <div class="box-bg"></div>
           </div>
-          <div class="box-bg"></div>
         </div>
-      </div>
+      {% endif %}
     </div>
     
 

@@ -1,0 +1,52 @@
+
+  <div id="update_age" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h2 class="center">Edit Taster Info</h2>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="form-horizontal" action="{% url party_edit_taster_info invite.id 't' %}?next={{ previous_page }}">
+        {% csrf_token %}
+        <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
+        {{ taster_form.party }}
+        <br />
+        <div class="control-group">
+          <div class="control-label">{{ taster_form.first_name.label }}</div>
+          <div class="controls">
+            {{ taster_form.first_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">{{ taster_form.last_name.label }}</div>
+          <div class="controls">
+            {{ taster_form.last_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">{{ taster_form.email.label }}</div>
+          <div class="controls">
+            {{ taster_form.email }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">{{ taster_form.phone.label }}</div>
+          <div class="controls">
+            {{ taster_form.phone }}
+          </div>
+        </div>
+        {% if change_rsvp %}
+          <div class="control-group">
+            <div class="control-label">{{ taster_form.response.label }}</div>
+            <div class="controls">
+              {{ taster_form.response }}
+            </div>
+          </div>
+        {% else %}
+          {{ taster_form.response }}
+        {% endif %}
+        <div class="modal-footer">
+          <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>
+        </div>
+      </form>
+    </div>
+  </div> 

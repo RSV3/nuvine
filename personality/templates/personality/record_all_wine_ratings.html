@@ -3,7 +3,12 @@
 {% load static %}
 
 {% block additional_styles %}
-  <style type="text/css">
+  <style type="text/css">    
+    hr {
+      width: 920px;
+      margin: 1.3em -20px;
+      border: 2px solid #DCDCDC;
+    }
     .shaded {
       background-color: #EAEAE3;
     }
@@ -11,7 +16,7 @@
       color: #00C245;
     }
     .tab-header.completed h2 {
-      color: #F12636;
+      color: #DCDCDC;
     }    
     #personality-exists-error {
       {% if not personality_exists %}
@@ -20,11 +25,41 @@
       color: #F00;
     }
     .tab-pane .control-group h2{
-      top: 50%; margin-top: 1em;
+      top: 50%; margin-top: 0.5em; 
+      font-size:2em;
+      padding-left:20px;
+      text-align:left;
     }
+     .tab-pane .row {
+      margin-bottom:40px;
+      border-bottom:1px solid #DCDCDC;
+      margin-right: 10px;
+      font-family:"AlternateGothicNo2BT-Regular";
+      text-transform:uppercase;
+      }
+
+      .tab-pane .last {
+      margin-bottom:20px;
+      border-bottom:0px;
+      margin-right: 10px;
+      }
+    .span1 {
+      width:55px;
+    }
+    .span5 {
+      width: 380px;
+    }
+    .tab-pane .row .span5 {
+      padding-left:40px;
+      }
     .tab-pane .span5 .row {
       top: 50%; margin-top: 2em;
+      border:0px;
     }
+    .tab-pane .row .span4 {
+      width:200px;
+      padding-left:20px;
+      }
     #email-invalid-error {
       display: none;
       color: #F00;
@@ -112,16 +147,25 @@
             </p>
           </div>
         </div>
+          <br />
+          <div class="ratings-button-container">
+            <div class="ratings-button-left">
+            <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
+            </div>
+          </div>
       </div>
+
       <div class="span4">
         <h3>Quick Search:</h3>
         <p>
           <input type="text" placeholder="Type in new taster's name" class="typeahead"  data-provide="typeahead" />
-          <button id="load_taster" type="submit" name="go" value="go" class="btn btn-primary">Go</button>
+          <button id="load_taster" type="button" name="go" value="go" class="btn btn-primary">Go</button>
         </p>
         <p>&nbsp;</p>
-        <p><a href="{% url party_details party.id %}" class="btn btn-primary">Return to party page</a></p>
-        <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary">Save Ratings</button></p>        
+        
+        <div class="ratings-button-right">
+          <p><button type="submit" name="save_ratings" value="save_ratings" class="btn btn-primary" style="margin-top:175px;">Save Ratings</button></p>  
+        </div>
       </div>
     </div>
     {% if form.errors %}
@@ -131,7 +175,7 @@
       <div class="row">
         <div class="span12">
           {% with ratings=invitee.wineratingdata_set.all %}
-            <ul id="wine-ratings-tabs" class="nav nav-tabs">
+            <ul id="wine-ratings-tabs" class="nav nav-tabs nav-tabs-clean">
               <li {% if active_tab == 1 %} class="active" {% endif %}><a href="#wine1" data-toggle="tab" 
                 class="span1 tab-header {% if ratings.0.overall %} completed {% endif %}"><h2>Wine 1</h2></a></li>
               <li {% if active_tab == 2 %} class="active" {% endif %}><a href="#wine2" data-toggle="tab" 
@@ -146,7 +190,7 @@
                 class="span1 tab-header {% if ratings.5.overall %} completed {% endif %}"><h2>Wine 6</h2></a></li>
             </ul>
           {% endwith %}
-          <div class="tab-content">
+          <div class="tab-content ratings-shadow">
             <!--
             ########################################
             # 
@@ -155,7 +199,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 1 %}in active {% endif %}" id="wine1">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-1">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
                     {{ form.wine1 }}
@@ -200,7 +252,7 @@
                   {{ form.wine1_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
                     <center>
@@ -222,7 +274,7 @@
                   {{ form.wine1_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
                     <center>
@@ -245,7 +297,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
                     <center>
@@ -276,7 +328,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 2 %}in active {% endif %}" id="wine2">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-2">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sweet.errors %}error{% endif %}">
                     {{ form.wine2 }}
@@ -321,7 +381,7 @@
                   {{ form.wine2_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_texture.errors %}error{% endif %}">
                     <center>
@@ -343,7 +403,7 @@
                   {{ form.wine2_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_sizzle.errors %}error{% endif %}">
                     <center>
@@ -366,7 +426,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine2_overall.errors %}error{% endif %}">
                     <center>
@@ -398,7 +458,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 3 %}in active {% endif %}" id="wine3">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-3">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sweet.errors %}error{% endif %}">
                     {{ form.wine3 }}
@@ -443,7 +511,7 @@
                   {{ form.wine3_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_texture.errors %}error{% endif %}">
                     <center>
@@ -465,7 +533,7 @@
                   {{ form.wine3_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_sizzle.errors %}error{% endif %}">
                     <center>
@@ -488,7 +556,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine3_overall.errors %}error{% endif %}">
                     <center>
@@ -519,7 +587,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 4 %}in active {% endif %}" id="wine4">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-4">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sweet.errors %}error{% endif %}">
                     {{ form.wine4 }}
@@ -564,7 +640,7 @@
                   {{ form.wine4_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_texture.errors %}error{% endif %}">
                     <center>
@@ -586,7 +662,7 @@
                   {{ form.wine4_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_sizzle.errors %}error{% endif %}">
                     <center>
@@ -609,7 +685,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine4_overall.errors %}error{% endif %}">
                     <center>
@@ -640,7 +716,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 5 %}in active {% endif %}" id="wine5">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-5">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sweet.errors %}error{% endif %}">
                     {{ form.wine5 }}
@@ -685,7 +769,7 @@
                   {{ form.wine5_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_texture.errors %}error{% endif %}">
                     <center>
@@ -707,7 +791,7 @@
                   {{ form.wine5_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_sizzle.errors %}error{% endif %}">
                     <center>
@@ -730,7 +814,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine5_overall.errors %}error{% endif %}">
                     <center>
@@ -761,7 +845,15 @@
             #########################################
             -->
             <div class="tab-pane fade {% if active_tab == 6 %}in active {% endif %}" id="wine6">
-              <div class="row shaded">
+              <div class="row">
+                <div class="wine-badge">
+                  <div id="wine-badge-6">
+                    <div class="wine-exp"><h2>My Wine Experience</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sweet.errors %}error{% endif %}">
                     {{ form.wine6 }}
@@ -806,7 +898,7 @@
                   {{ form.wine6_weight_dnl}} 
                 </div>
               </div>
-              <div class="row shaded">
+              <div class="row">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_texture.errors %}error{% endif %}">
                     <center>
@@ -828,7 +920,7 @@
                   {{ form.wine6_texture_dnl}} 
                 </div>
               </div>
-              <div class="row">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_sizzle.errors %}error{% endif %}">
                     <center>
@@ -851,7 +943,7 @@
                 </div>
               </div>
               <hr />
-              <div class="row shaded">
+              <div class="row last">
                 <div class="span2">
                   <div class="control-group {% if form.wine6_overall.errors %}error{% endif %}">
                     <center>
@@ -885,6 +977,7 @@
 {% block additional_scripts %}
 
 <script src="{% static "js/jquery.cookie.js" %}"></script>
+<script type="text/javascript" src="{% static "js/lodash.min.js" %}"></script>
 <script type="text/javascript">
   var csrftoken = $.cookie('csrftoken');
 
@@ -925,51 +1018,13 @@
       return 'E-mail address is an invalid address!';
     }   
   }
-
-  // $("#id_email").popover(
-  //   {
-  //     title: get_popover_title,
-  //     content: get_popover_content 
-  //   }
-  // );   
-
-  // $('#id_email').keyup(function() {
-
-  //   /* for now do not disable the submit button even though personality exists */
-  //   $.ajax({
-  //     type: "POST",
-  //     url: "{% url check_personality_exists %}",
-  //     data: { email: $(this).val() },
-  //     success: function(data) {
-  //       $('#id_email').popover("hide");
-  //       $('#email-invalid-error').popover("hide");
-  //       if ( data["result"] == 1 ) {
-  //         personality_error = true;
-  //         $('#id_email').popover("show");
-  //         console.log("Show popover");
-  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/
-  //       } else if (data["result"] == 0 ) {
-  //         personality_error = false;
-  //         email_error = false;
-  //         /*$('button[type="submit"]').removeAttr('disabled'); */
-  //         $("#id_email").popover("hide")
-  //         console.log("Hide popover");
-  //       } else if (data["result"] == -1 ) {
-  //         email_error = true;
-  //         $('#id_email').popover("show");
-  //         console.log("Show popover");
-  //         /*$('button[type="submit"]').attr('disabled', 'disabled');*/         
-  //       }
-  //     }
-  //   })
-  // });
 </script>
 
 <script type="text/javascript">
   $(document).ready(function(){
     $('.typeahead').typeahead({
-      source: function (query, process){
-        // console.log("query: " + query);
+      source: _.throttle(function (query, process){
+        console.log("query: " + query);
         var url = "{% url taster_list -1 0 %}".replace(-1, query).replace(0, {{ party.id }});
         $.ajax({
           url: url,
@@ -984,7 +1039,7 @@
           }
         });
         return [];
-      }
+      }, 700)
     });
 
     $("#load_taster").click(function(e){

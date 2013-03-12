@@ -24,8 +24,8 @@
 {% block navbar_menu %}
   <div class="menu_wrap main">
     <ul class="nav">
-      <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="Live Orders">Live</a></li>
-      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url get_started %}" title="Order History"></a></li>
+      <!-- <li id="live_orders"{% if live_orders_menu %} class="active"{% endif %}><a href="#" title="Live Orders">Live</a></li> -->
+      <li id="order_history"{% if order_history_menu %} class="active"{% endif %}><a href="{% url order_history %}" title="Order History"></a></li>
       <li id="your_wine_list"{% if wine_list_menu %} class="active"{% endif %}><a href="{% url our_story %}" title="Your Wine List"></a></li>
     </ul>
   </div>
@@ -65,7 +65,7 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Order Number</th>
+            <th><a href="{% if sorting == '-order_id' %}./?sort=order_id{% else %}./?sort=-order_id{% endif %}">Order Number</a></th>
             {% if supplier_all_view %}
               <th><a href="{% if sorting == '-status' %}./?sort=status{% else %}./?sort=-status{% endif %}">Status</a></th>
             {% endif %}
@@ -77,13 +77,10 @@
             <th><a href="{% if sorting == '-name' %}./?sort=name{% else %}./?sort=-name{% endif %}">Customer Name</a></th>
             
             <th><a href="{% if sorting == '-personality' %}./?sort=personality{% else %}./?sort=-personality{% endif %}">Personality</a></th>
-            <th><a href="#">Red / White / Both</a></th>
-            <th><a href="#">Taste Code</a></th>
-            <th><a href="#">Price Tier</a></th>
+            <th>Red / White / Both</th>
+            <!-- <th>Taste Code</th> -->
+            <th><a href="#">Order Type</a></th>
             <th><a href="{% if sorting == '-quantity' %}./?sort=quantity{% else %}./?sort=-quantity{% endif %}">Quantity</a></th>
-            <!-- <th>Party</th> -->
-            <!-- <th>Ships to</th> -->
-            <!-- <th>Recurring</th> -->
           </tr>
         </thead>
         <tbody>
@@ -103,16 +100,13 @@
             <td>{{ order.receiver.userprofile.order_customization_pref }}</td>
             <td>
               {% with rating_summary=order.receiver.userprofile.personality_rating_code %}
-                <a href="#" class="taste-code" rel="popover" data-placement="bottom" data-trigger="hover"
+                <a href="#" class="taste-code" rel="popover" data-placement="left" data-trigger="hover"
                     data-content="{{ rating_summary.1 }}">
                     {{ rating_summary.0 }}</a>
               {% endwith %}
             </td>
-            <td>$$</td>
+            <!-- <td>$$</td> -->
             <td>{{ order.quantity_summary }}</td>
-            <!-- <td>{{ order.party_state }}</td> -->
-            <!-- <td>{{ order.ships_to }}</td> -->
-            <!-- <td>{{ order.recurring }}</td> -->
           </tr>
           {% endfor %}
         </tbody>

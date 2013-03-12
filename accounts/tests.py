@@ -276,26 +276,6 @@ class SimpleTest(TestCase):
     host_recipient = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Thanks for your interest in becoming a Vinely Host!')
     self.assertTrue(host_recipient.exists())
 
-    # existing member of Vinely signing up as attendee
-    # NOTE: User cannot sign up at the moment
-    # response = self.client.post(reverse("sign_up", args=[3]), {'first_name': 'John',
-    #                                                             'last_name': 'Doe2',
-    #                                                             'email': 'john.doe2@example.com',
-    #                                                             'password1': 'Sign Up',
-    #                                                             'password2': 'Sign Up'})
-
-    # self.assertContains(response, "active member of Vinely")
-
-    # create a supplier
-    # NOTE: Supplier cannot sign up at the moment
-    # response = self.client.post(reverse("sign_up", args=[4]), {'first_name': 'John',
-    #                                                             'last_name': 'Doe4',
-    #                                                             'email': 'john.doe4@example.com',
-    #                                                             'password1': 'Sign Up',
-    #                                                             'password2': 'Sign Up'})
-
-    # self.assertContains(response, "e-mail to verify your e-mail address")
-
   def test_my_information_update(self):
     response = self.client.login(email="attendee2@example.com", password="hello")
     self.assertEquals(response, True)
@@ -410,6 +390,15 @@ class SimpleTest(TestCase):
     self.assertContains(response, "Your information has been updated")
 
     print "Information update test all work"
+
+  def test_user_rsvp_without_signup(self):
+    pass
+
+  def test_make_host(self):
+    pass
+
+  def test_make_pro(self):
+    pass
 
   def test_basic_addition(self):
     """

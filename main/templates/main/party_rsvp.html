@@ -4,7 +4,7 @@
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
-
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
   <style type="text/css">
     h2 {
       margin-top: -14px;
@@ -13,12 +13,24 @@
 {% endblock additional_styles %}
 
 {% block header %}
-  <h1 class="headline">You've been invited to a Vinely Tasting Party!</h1>
+  <h1 class="headline">You're invited to {{ party.title }}!</h1>
 {% endblock header %}
 
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div id="underage" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Age Verification</h3>
+    </div>
+    <div class="modal-body">
+      <p>We're so sorry but you're not eligible to attend the event. Come visit us when you're 21!</p>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal">Ok</button>
+      </div>
+    </div>
+  </div>
 
   <div id="update_age" class="modal hide fade">
     <div class="modal-header">
@@ -26,8 +38,8 @@
       <h3>Update Profile Info</h3>
     </div>
     <div class="modal-body">
-      <form method="POST" class="modal-form" action="">{% csrf_token %}
-        <p>We need to verify the age information for all our party guests. Please update this information before you proceed.</p>
+      <form method="POST" class="modal-form" action="{{ app_path }}">{% csrf_token %}
+        <p>Please verify that you are over 21 and can attend this event.</p>
         <br />
         <div class="control-label" for="id_dob">
           {{ form.dob.label }}
@@ -39,8 +51,73 @@
           {{ form.dob }}
         </div>
         <div class="modal-footer">
-          <input type="submit" name="update" class="btn btn-primary" value="Update" />
+          <button type="submit" name="update" class="btn btn-primary" value="update">Submit</button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="signup" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h2 class="center"><small>You've been invited to a Vinely Party!</small></h2>
+      <p>Create an account by filling out the info below or continue as a guest</p>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="form-validate form-horizontal" action="{% url make_taster invite.rsvp_code %}?next={{ request.path }}">
+        {% csrf_token %}
+        
+        <div class="control-group">
+          <label class="control-label" for="id_first_name">{{ signup_form.first_name.label }}</label>
+          <div class="controls">
+            {{ signup_form.first_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_last_name">{{ signup_form.last_name.label }}</label>
+          <div class="controls">
+            {{ signup_form.last_name }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_email">{{ signup_form.email.label }}</label>
+          <div class="controls">
+            {{ signup_form.email }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_zipcode">{{ signup_form.zipcode.label }}</label>
+          <div class="controls">
+            {{ signup_form.zipcode }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_phone_number">{{ signup_form.phone_number.label }}</label>
+          <div class="controls">
+            {{ signup_form.phone_number }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_password1">{{ signup_form.password1.label }}</label>
+          <div class="controls">
+            {{ signup_form.password1 }}
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label" for="id_password2">{{ signup_form.password2.label }}</label>
+          <div class="controls">
+            {{ signup_form.password2 }}
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="span8 center">
+            <a href="{{ app_path }}?guest=1" class="btn btn-primary">Continue as guest</a>
+            <button type="submit" name="signup" class="btn btn-success" value="signup">Create Account</button>
+          </div>
+        </div>
+        <!-- <div class="modal-footer"> -->
+          <!-- <button type="submit" name="signup" class="btn btn-primary" value="signup">Create Account</button> -->
+        <!-- </div> -->
       </form>
     </div>
   </div> 
@@ -51,23 +128,23 @@
         <p>Will you attend?</p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
           {% else %}
-            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active {% endif %}" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
+            <a class="btn btn-success btn-large input-medium {% if invite.response == 3 %} active disabled {% endif %}" href="{% url party_rsvp party.id 3 %}"><i class="icon-ok icon-white"></i> Yes</a>
           {% endif %}
         </p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% else %}
-            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
+            <a class="btn btn-warning btn-large input-medium {% if invite.response == 2 %} active disabled {% endif %}" href="{% url party_rsvp party.id 2 %}"><i class="icon-question-sign icon-white"></i> Maybe</a>
           {% endif %}
         </p>
         <p>
           {% if invite.rsvp_code %}
-            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active disabled {% endif %}" href="{% url party_rsvp invite.rsvp_code party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% else %}
-            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
+            <a class="btn btn-danger btn-large input-medium {% if invite.response == 1 %} active disabled {% endif %}" href="{% url party_rsvp party.id 1 %}"><i class="icon-remove icon-white"></i> No</a>
           {% endif %}
         </p>
       </div>
@@ -78,8 +155,11 @@
           <div class="span4">{{ invite.party.title }}</div>
         </div>
         <div class="row">
-          <div class="span1"><h2 class="pull-right">Who</h2></div>
-          <div class="span4">{{ invite.party.host.first_name }} {{ invite.party.host.last_name }}</div>
+          <div class="span1"><h2 class="pull-right">Host</h2></div>
+          <div class="span4">
+            {{ invite.party.host.first_name }} {{ invite.party.host.last_name }}
+            <a href="mailto:{{ invite.party.host.email }}"> <i class="icon-envelope"></i></a>
+          </div>
         </div>
         <div class="row">
           <div class="span1"><h2 class="pull-right">When</h2></div>
@@ -98,29 +178,20 @@
       </div>
       <div class="span4">
         <div class="vertical-space"></div>
-        <h2>Special Instructions</h2>
+        {% if invite.party.description %}
+          <h2>Special Instructions</h2>
           <p>{{ invite.party.description }}</p>
+        {% endif %}
       </div>
     </div>
     <div class="row">
       <div class="vertical-space"></div>
-      <div class="span8">
-        <p>What's a Vinely Taste Party? Think of it as learning through drinking. It's part wine tasting. Part personality test. And part...well...party.</p>
-
-        <p>The wines you'll sample will give us an idea of your personal taste. The flavors you enjoy and the ones you could do without. After sipping, savoring, and rating each wine, we'll assign you one of six Vinely Personalities. Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
-<!-- 
-        <blockquote>
-          {{ custom_message }}
-        </blockquote>
- -->
+      <div class="{% if questionnaire_completed %}span12{% else %}span8{% endif %}">
+        {{ rsvp_content }}
       </div>
       <div class="span4">
-        <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
-        {% if questionnaire_completed %}
-          <p>
-            <a href="javascript:;" class="btn btn-primary btn-large input-large disabled">Take The Survey</a>
-          </p>
-        {% else %}
+        {% if not questionnaire_completed %}
+          <p><strong>Get a headstart on finding out your Vinely personality</strong></p>
           <p>
             {% if invite.rsvp_code %}
               <a href="{% url pre_questionnaire_general invite.rsvp_code %}" target="_blank" class="btn btn-primary btn-large input-large">Take The Survey</a>
@@ -134,33 +205,115 @@
   </section>
 
   <section id="party-attendees">
-    <div class="page-header">
+    <!-- <div class="page-header"> -->
+    {% if party.guests_can_invite or party.guests_see_guestlist %} 
       <div class="row">
         <div class="span2"><h2>Other Guests</h2></div>
-        {% if party.guests_can_invite %} You can also <a href="{% url party_taster_invite party.id %}">invite your friends</a> {% endif %}
+        {% if party.guests_can_invite %} 
+          <p>You can also invite your friends</p>
+          <div class="span12">
+            <form id="add_taster_form" class="form-validate form-horizontal" method="POST" action="">
+              {% csrf_token %}
+              {{ taster_form.party }}
+              {{ taster_form.response }}
+              {% comment %}
+              <div class="row">
+                <div class="span12">
+                  <!-- <h2>Tasters Attending</h2> -->
+                    {% if pro or host or taster and party.guests_can_invite %}
+                      <p><h3>Add Taster</h3></p>
+                      {% if pro or host %}
+                        <div class="control-group {% if taster_form.invitee.errors %}error{% endif %}">
+                          {{ taster_form.invitee }}
+                          {% if taster_form.invitee.errors %}
+                            <span class="help-inline">
+                              {{ taster_form.invitee.errors }}
+                            </span>
+                          {% endif %}
+                        </div>
+                        <p><h3>or add new taster</h3></p>
+                      {% endif %}
+                    {% endif %}
+                </div>
+              </div>
+              {% endcomment %}
+              <div class="row">
+                <div class="span3">
+                  <div class="control-group {% if taster_form.first_name.errors %}error{% endif %}">
+                    {{ taster_form.first_name }}
+                    {% if taster_form.first_name.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.first_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span3">
+                  <div class="control-group {% if taster_form.last_name.errors %}error{% endif %}">
+                    {{ taster_form.last_name }} 
+                    {% if taster_form.last_name.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.last_name.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span3">
+                  <div class="control-group {% if taster_form.email.errors %}error{% endif %}">
+                    {{ taster_form.email }} 
+                    {% if taster_form.email.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.email.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span2">
+                  <div class="control-group {% if taster_form.phone.errors %}error{% endif %}">
+                    {{ taster_form.phone }}
+                    {% if taster_form.phone.errors %}
+                      <span class="help-inline">
+                        {{ taster_form.phone.errors }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="span12">
+                  <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
+                  {% if user.get_profile.events_manager %}
+                    <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster D.I.Y Check In</a>
+                  {% endif %}
+                </div>
+              </div>
+            </form>
+          </div>
+        {% endif %}
       </div>
-    </div>
-    <table class="table table-striped">
-      <thead>
-        <th>Name</th>
-        <th>Coming</th>
-        <th>Wine Personality</th>
-      </thead>
-      <tbody>
-      {% for inv in invitees %}
-        {# create a table of invitees #}
-        <tr>
-          {% if inv.invitee.first_name or inv.invitee.last_name %}
-            <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
-          {% else %}
-            <td>Anonymous</td>
-          {% endif %}
-          <td>{{ inv.get_response_display }}</td>
-          <td>{{ inv.invitee.get_profile.wine_personality }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    {% endif %}
+    <!-- </div> -->
+    {% if party.guests_see_guestlist %}
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>Coming</th>
+          <th>Wine Personality</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+            <td>{{ inv.get_response_display }}</td>
+            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
   </section>
 
 </div>
@@ -168,15 +321,41 @@
 {% endblock content %}
 
 {% block additional_scripts %}
-  {% if invited_user.get_profile.is_under_age %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready( function () {
+        $('#add_taster_form').find('input[type=text]').val("");
+        $("form input").keypress(function (e) {
+          if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+            return false;
+          }
+        });
+      });
+    </script>
+
+  {% if disallow_rsvp %}
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
-        $(".datepicker").datepicker();
+        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+        if (!$('.datepicker').val()) {
+          options.startView = 'decade';
+        }
+        $('.datepicker').datepicker(options);
 
         // uncomment this to enable
         $("#update_age").modal();
       });
     </script>
+  {% else %}
+    {% if not guest_rsvp %}
+      <script type="text/javascript">
+        $(document).ready( function () {  
+          $("#signup").modal();
+        });
+      </script>
+    {% endif %}
   {% endif %}
 {% endblock additional_scripts %}

@@ -33,11 +33,14 @@ ADMINS = (
     ('Kwan Lee', 'kwan@vinely.com'),
 )
 
+# defaults to /accounts/profile/
+#LOGIN_REDIRECT_URL =
 
 import django.conf.global_settings as DEFAULT_SETTINGS
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
   "main.context_processors.vinely_user_info",
+  "django.core.context_processors.request",
 )
 
 
@@ -90,6 +93,8 @@ AWS_SECRET_ACCESS_KEY = '5zHNLNf8D/x2cDG+6JpgqgM75VzrFd5fQdsCEviV'
 AWS_STORAGE_BUCKET_NAME = 'cdn.vinely.com'
 if NEW_PARTY:
   AWS_STORAGE_BUCKET_NAME = 'cdn.newparty.vinely.com'
+  from boto.s3.connection import OrdinaryCallingFormat
+  AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 AWS_PRELOAD_METADATA = True
 
 if DEPLOY:
@@ -143,6 +148,8 @@ STATICFILES_FINDERS = (
 EMAIL_STATIC_URL = 'http://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 
 if DEBUG is False:
+  # if production
+
   #DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
   #STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
   #DEFAULT_FILE_STORAGE = 'winedora.s3utils.MediaRootS3BotoStorage'
@@ -157,6 +164,12 @@ if DEBUG is False:
   STATIC_ROOT = '/%s/' % STATIC_S3_PATH
   STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
   ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+else:
+  DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
+  DEFAULT_S3_PATH = 'media'
+  if NEW_PARTY:
+    MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
+    MEDIA_URL = '//s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
@@ -228,6 +241,8 @@ INSTALLED_APPS = (
     'social',
     'cms',
     'stripecard',
+    'django_tables2',
+    'tinymce',
 )
 
 
@@ -283,6 +298,9 @@ LOGGING = {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
+        'normal': {
+            'format': '[%(asctime)s]:[%(levelname)s][%(name)s:%(lineno)d] %(message)s'
+        },
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
@@ -296,7 +314,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'normal'
         },
     },
     'loggers': {
@@ -312,7 +330,15 @@ LOGGING = {
         'accounts': {
             'handlers': ['console'],
             'level': 'INFO'
-        }
+        },
+        'support': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
+        'main': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
     },
 }
 
@@ -323,12 +349,20 @@ except Exception as e:
 
 
 if DEPLOY:
-  STRIPE_SECRET = "sk_0B7BUorM8xQM2qwao7dZCqxtPzjDA"
-  STRIPE_PUBLISHABLE = "pk_0B7BkfhSTrZvTa6F4fCis0RCNPnbd"
+  # STRIPE_SECRET = "sk_0B7BUorM8xQM2qwao7dZCqxtPzjDA"
+  # STRIPE_PUBLISHABLE = "pk_0B7BkfhSTrZvTa6F4fCis0RCNPnbd"
   STRIPE_SECRET_CA = "sk_live_60XINxPEMjcCqCewtAif2q29"
   STRIPE_PUBLISHABLE_CA = "pk_live_5lRoqyXhbwPFHjlvbT7k9C16"
 else:
-  STRIPE_SECRET = "sk_0B7BJP63oAFG6ZwL0TcbWPUWU0LuM"
-  STRIPE_PUBLISHABLE = "pk_0B7BHz0y806TkUPZgpOBepr4dVngO"
+  # STRIPE_SECRET = "sk_0B7BJP63oAFG6ZwL0TcbWPUWU0LuM"
+  # STRIPE_PUBLISHABLE = "pk_0B7BHz0y806TkUPZgpOBepr4dVngO"
   STRIPE_SECRET_CA = "sk_test_eNRrnFXyqS6pQmNuKnI8HWIO"
   STRIPE_PUBLISHABLE_CA = "pk_test_KXVrxVwsOQ6359kaGhrwUyrG"
+
+# TINYMCE_DEFAULT_CONFIG = {
+#   'content_css': STATIC_URL + 'fonts/AlternateGothicKit/MyFontsWebfontsOrderM3947119.css',
+#   'theme_advanced_fonts': STATIC_URL + 'fonts/AlternateGothicKit/MyFontsWebfontsOrderM3947119.css',
+#   'theme': 'simple',
+#   'font_size_style_values': 'medium',
+#   'theme_advanced_font_sizes': 'medium',
+# }

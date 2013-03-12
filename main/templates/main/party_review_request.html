@@ -1,0 +1,274 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+{% load thumbnail %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .control-group .text-label, h2 {
+      margin-top: -4px;
+    }
+    .text-label {
+      text-align: right;
+    }
+    .header-append-edit {
+      display: inline;
+      /*margin-right: 10px;*/
+    }
+    .summary-table tr td:first-child {
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+    .summary-table h2 {
+      text-align: left;
+    }
+    ul {
+      margin-left: 0;
+      list-style: none;
+    }
+    section {
+      padding:20px 0px 20px 0px;
+    }
+    #party-information {
+      padding-top:60px;
+    }
+
+  </style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">Get The Party Started</h1>
+  <h2 class="center">You're a {{ user.get_profile.role }}</h2>
+{% endblock header %}
+
+{% block content %}
+  <div class="partycrumb main">
+    <ul class="nav">
+      <li id="party_add"><a href="{% url party_add party.id %}" title="Edit Party details"></a></li>
+      <li id="party_write_invitation"><a href="{% url party_write_invitation party.id %}" title="Customize Invitations"></a></li>
+      <li id="party_invite_friends"><a href="{% url party_find_friends party.id %}" title="Find some friends"></a></li>
+      <li id="party_review_create" class="active">&nbsp;</li>
+    </ul>
+  </div>
+  <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+<!-- 
+    <div class="row">
+      <div class="span12">
+          <button class="btn btn-success pull-right" name="request_party" value="request_party">Send Invitations</button>
+      </div>
+    </div>
+ -->
+    <section id="party-information">
+      <div class="row">
+        <div class="span6">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td><h2>Party Info</h2></td>
+                <td><a href="{% url party_add party.id %}">edit</a></td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td><p>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</p></td>
+              </tr>
+              <tr>
+                <td>Location</td>
+                <td>
+                  <p>{{ party.address.street1 }}</p>
+                  <p>{{ party.address.street2 }}</p>
+                  <p>{{ party.address.city }}, {{ party.address.state }} {{ party.address.zipcode}}</p>
+                </td>
+              </tr>
+              <tr><td>&nbsp;</td></tr>
+              <tr>
+                <td>Host Name</td>
+                <td>
+                  <p>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}Friendly Host{% endif %}</p>
+                </td>
+              </tr>
+              <tr>
+                <td>Host Phone</td>
+                <td><p>{% if party.host.get_profile.phone %}{{ party.host.get_profile.phone }} {% else %}---{% endif %}</p></td>
+              </tr>
+              <tr>
+                <td>Host E-mail</td>
+                <td><a href="mailto:{{ party.host.email }}">{{ party.host.email }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- .span6 -->
+
+        <div class="span6">
+          <div class="row">
+            <div class="span2">
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td><h2>Pro Info</h2></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {% if pro_user.get_profile.image %}
+                        {% thumbnail pro_user.get_profile.image "90x90" as im %}
+                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                      {% else %}
+                        <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                      {% endif %}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="span4">
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td><h2>&nbsp;</h2></td>
+                  </tr>
+                  <tr>
+                    <td>Name</td>
+                    <td>
+                      <p>{% if pro_user.first_name %}{{ pro_user.first_name }} {{ pro_user.last_name }}{% else %}Friendly Pro{% endif %}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Phone</td>
+                    <td>
+                      <p>{% if pro_user.get_profile.phone %}{{ pro_user.get_profile.phone }}{% else %}---{% endif %}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                    <td><p><a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a></p></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div> <!-- .span4 -->
+          </div> <!-- .row -->
+          <div class="vertical-space"></div>
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td>Special Instructions</td>
+                <td>{{ party.description }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div> <!-- .span6 -->
+      </div> <!-- .row -->
+    </section>
+
+    <hr />
+    <!-- Invitation preview -->
+
+    <section>
+      <div class="row">
+        <div class="span2">
+          <h2 class="header-append-edit">Invitation</h2> <a href="{% url party_write_invitation party.id %}">edit</a>
+        </div>
+        <!-- party invitation preview -->
+        <div class="span8">
+          <a href="{% url party_preview_invitation party.id%}" target="_blank" class="btn btn-primary" name="preview">Preview Invitation</a>
+        </div>
+      </div> <!-- .row -->
+    </section>
+
+    <hr />
+    <!-- Taster's attending -->
+    <section>
+      <div class="row">
+        <div class="span12">
+          <h2 class="header-append-edit">Tasters Attending</h2> <a href="{% url party_find_friends party.id %}">edit</a>
+        </div>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+        </thead>
+        <tbody>
+        {% for inv in invitees %}
+          {# create a table of invitees #}
+          <tr>
+            {% if inv.invitee.first_name or inv.invitee.last_name %}
+              <td>{{ inv.invitee.first_name }} {{ inv.invitee.last_name }}</td>
+            {% else %}
+              <td>Anonymous</td>
+            {% endif %}
+
+            <td><a href="mailto:{{ inv.invitee.email }}">{{ inv.invitee.email }}</a></td>
+
+            {% if inv.invitee.get_profile.phone %}
+              <td>{{ inv.invitee.get_profile.phone }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>    
+    </section>
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <hr />
+      <section>
+        <div class="row">
+          <div class="span12">
+            <h2>Invite Options</h2> 
+          </div>
+        </div>      
+        <div class="vertical-space"></div>
+        <div class="control-group">
+          <label class="control-label">
+            &nbsp;Do you want Vinely to:
+          </label>
+          <div class="controls">
+            <p>{{ options_form.auto_thank_you }}</p>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">{{ options_form.taster_actions.label }}:</label>
+          <div class="controls" style="padding-top: 11px;">
+            <p>{{ options_form.taster_actions }}</p>
+          </div>
+          <div class="vertical-space"></div>
+          <hr />
+        </div>     
+      </section>
+
+      <section>
+        {% if not party.confirmed and not pro and not user.get_profile.events_manager %}
+          <div class="row">
+            <div class="span10 offset1">
+              <p>
+                <i>Note: Your customized invitation will be sent to all tasters in the system when you click "Send Invitations".</i>
+              </p>
+            </div>
+          </div>
+          <div class="vertical-space"></div>
+        {% endif %}
+
+        <div class="row">
+          <div class="span1">&nbsp;</div>
+          <div class="span8">
+            <a href="{% url party_find_friends party.id %}" class="btn btn-primary">Back</a>
+            {# <button class="btn btn-primary" name="save" value="save">Save</button> #}
+          </div>
+          <div class="span3">
+            {% if user.get_profile.events_manager or pro and party.pro == party.host %}
+              <button class="btn btn-success" name="add_party" value="add_party">Send Invitations</button>
+            {% else %}
+              <button class="btn btn-success" name="request_party" value="request_party">Send Invitations</button>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+      
+    </form>
+
+  </div> <!-- .container -->
+
+{% endblock content %}

@@ -5,193 +5,419 @@
 {% load static %}
 
 {% block header %}
-
+  <h1 class="headline">Your Parties</h1>
 {% endblock header %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .summary-table tr td:first-child{
+      padding-right: 15px;
+      text-align: right;
+      font-weight: bold;
+    }
+    .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
+      background:#F0F0F0;
+    }
+    .nav {
+      margin-bottom:0px;
+    }
+    .tab-content {
+        background:#FFF;
+        padding-top: 30px;
+        -moz-box-shadow: 0px 1px 10px rgb(147,149,152);
+        -webkit-box-shadow: 0px 1px 10px rgb(147,149,152);
+        box-shadow: 0px 1px 10px rgb(147,149,152);
+    }
+    a:visited {
+      color: #DD4040;
+      text-decoration: none;
+    }
+    hr {
+      margin:0.25em 0;
+    }
+    .span12 ul li a, .span12 ul li a:active {
+      width:auto;
+      color:#DCDCDC;
+      margin-left:43px;
+    }
+    .nav-tabs li.active a, .nav-tabs li.active a:hover {
+      color:none;
+    }
+  </style>
+{% endblock additional_styles %}
 
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="span12">
-      <h1 class="headline">Your Vinely Taste Parties</h1>
-    </div>
-  </div>
-  <div class="row">
-    <div id="sub-heading" class="span12 center">
-      {% if host %}
-        <a href="{% url edit_subscription %}">Contact your Vinely Pro</a> to host a new party.  Once your party has been scheduled, it will appear below.
-      {% elif pro %}
-        Parties you are managing
-      {% elif taster %}
-        Parties you are attending
+      
+    <div class="span7">
+      <div class="vertical-space">&nbsp;</div>
+      {% if host_credits > 0 %}
+        <p>You have 
+          <a href="javascript:;" class="vinely-credits" rel="popover" data-trigger="hover" data-placement="top"
+            data-content="*Vinely Credits can be used toward Vinely merchandise only, up to 50% of your order's subtotal.">
+            {{ host_credits|currency }}</a> 
+          in credits waiting for you! <br />Why not place an order
+        </p>
+      {% endif %}
+      <p>
+        <a href="{% url start_order %}" class="btn btn-primary btn-large">Shop</a>
+      </p>
+      {% if pro %}
+        <p>
+          <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
+        </p>
+        <p>
+          <a href="{% url party_add 'pro' %}">or Host your own party</a>
+        </p>
       {% endif %}
     </div>
+    <div class="span5">
+      {% if my_pro %}
+        <table class="summary-table">
+          <tbody>
+            <tr>
+              <td><h2>Pro Info</h2></td>
+            </tr>
+            <tr>
+              <td>
+                {% if my_pro.get_profile.image %}
+                  {% thumbnail my_pro.get_profile.image "90x90" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                  {% endthumbnail %}
+                {% else %}
+                  <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+                {% endif %}              
+              </td>
+              <td>
+                <p>
+                  {% if my_pro.first_name %} {{ my_pro.first_name }} {{ my_pro.last_name }}{% else %}Friendly Pro{% endif %} 
+                  {% if pro %}
+                    <a href="{% url my_information %}">&nbsp;Edit</a>
+                  {% endif %}
+                </p>
+                <p>{% if my_pro.get_profile.phone %}{{ my_pro.get_profile.phone }}{% else %}----{% endif %}</p>
+                <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      {% else %}
+        <h2>You don't have a Pro yet</h2>
+      {% endif %}
+      <!-- <div class="span3"> -->
+      <br />
+<!-- 
+      <p>
+        <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
+      </p>
+-->
+      <!-- </div> -->
+    </div>
+    {% comment %}
+      {% if pro %}
+        <div class="span5">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td><h2>&nbsp;</h2></td>
+              </tr>
+              <tr>
+                <td><u>Commission</u></td>
+                <td><p>{% if my_pro.first_name %} {{ my_pro.first_name }} {{ my_pro.last_name }}{% else %}Friendly Pro{% endif %} </p></td>
+              </tr>
+              <tr>
+                <td>My Parties</td>
+                <td><p>{{ pro_commission|currency }}</p></td>
+              </tr>
+              <tr>
+                <td>Mentee Parties</td>
+                <td><p>{{ mentee_commission|currency }}</p></td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td><p>{{ total_commission|currency }}</p></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    {% endcomment %}
   </div>
-
-  <section id="host-info">
-
-    <div class="user-info">
-      <div class="user-pic">
-        {% if user.get_profile.image %}
-          {% thumbnail user.get_profile.image "120x120" as im %}
-            <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-          {% endthumbnail %}
-        {% else %}
-          <img src="{% static "img/noprofilephoto_img.png" %}" width="120">
-        {% endif %}
-      </div>
-      <div class="user-contact">
-        <div class="user-name">
-          {% if user.first_name %}
-            {{ user.first_name }} {{ user.last_name }}
-          {% else %}
-            {% if pro %}
-              Vinely Pro 
-            {% elif host %}
-              Vinely Host
-            {% endif %}
-          {% endif %}
-        </div>
-        <div class="user-phone">
-          <i class="icon-user"></i> {% if user.get_profile.phone %}{{ user.get_profile.phone }}{% else %}No Phone Number Yet{% endif %}
-        </div>
-        <div class="user-email">
-          <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-        </div>
-        {% if host %}
-          <div class="user-credits">
-            <p></p>
-            My Vinely Credits: {{ host_credits|currency }}
-          </div>
-        {% endif %}
-        {% comment %}
-          {% if pro %}
-            <div class="pro-commission">
-              <br />
-              <h3>Commission Earned:</h3>
-              <p>My Parties: {{ pro_commission|currency }}</p>
-              <p>Mentee Parties: {{ mentee_commission|currency }}</p>
-              <p>Total: <strong>{{ total_commission|currency }}</strong></p>
+  <!-- <hr /> -->
+  {# pro should ony see this section if they have something to see #}
+  {# {% if host or taster or pro and host_past_parties or pro and host_parties or pro and taster_parties or pro and taster_past_parties %} #}
+    <section id="attend_parties">
+      <div class="row">
+        <div class="span12">
+          <ul class="nav nav-tabs">
+            <li class="span3">&nbsp;</li>
+            <li {% if not pro_parties and not host_parties and not taster_parties %} class="active" {% endif %}>
+              <a href="#host_guest_past_parties" data-toggle="tab" class="span2 tab-header center"><h2>Past Parties</h2></a>
+            </li>
+            <li {% if pro_parties or host_parties or taster_parties %} class="active" {% endif %}>
+              <a href="#host_guest_upcoming_parties" data-toggle="tab" class="span3 tab-header center"><h2>Upcoming Parties</h2></a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade {% if not pro_parties and not host_parties and not taster_parties %} active in {% endif %}" id="host_guest_past_parties">
+              <!-- <h1 class="headline">Past Parties</h1> -->
+              {% if pro or pending_pro %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <h2>You were the Pro</h2>
+                    <hr />
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                <table class="table table-striped">
+                  {% if pro_past_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <th>Host</th>
+                      <th>Party Title</th>
+                      <th>Phone</th>
+                      {# <th>Location</th> #}
+                      <th>Tasters</th>
+                      <th>Total Sales</th>
+                      {# <th>Commission</th> #}
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in pro_past_parties %}
+                    {# create a table of party and party information #}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                      <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      <td>{{ party.phone }}</td>
+                      {# <td>{{ party.address }}</td> #}
+                      <td>{{ party.invitees }}</td>
+                      <td>{{ party.total_sales|currency }}</td>
+                      {# <td>{{ party.pro_commission|currency }}</td> #}
+                    </tr>
+                  {% empty %}
+                    <div class="center">You have not managed any parties yet.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+              {% if host or pro and host_past_parties %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <h2>You were the Host</h2>
+                    <hr />
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                <table class="table table-striped">
+                  {% if host_past_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <!-- <th>Host</th> -->
+                      <th>Party Title</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Tasters</th>
+                      <th>Credit</th>
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in host_past_parties %}
+                    {# create a table of party and party information #}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      <td>{{ party.phone }}</td>
+                      <td>{{ party.address }}</td>
+                      <td>{{ party.invitees }}</td>
+                      <td>{{ party.credit|currency }}</td>
+                    </tr>
+                  {% empty %}
+                    <div class="center">You have not hosted any parties yet.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+              {% if taster or host and taster_past_parties or pro and taster_past_parties %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <hr />
+                    <h2>You were a taster</h2>
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                <table class="table table-striped">
+                  {% if taster_past_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <th>Host</th>
+                      <th>Party Title</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Tasters</th>
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in taster_past_parties %}
+                    {# create a table of party and party information #}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                      <td>{{ party.title }}</td>
+                      <td>{{ party.phone }}</td>
+                      <td>{{ party.address }}</td>
+                      <td>{{ party.invitees }}</td>
+                    </tr>
+                  {% empty %}
+                    <div class="center">You have not attended any parties as a taster.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
             </div>
-          {% endif %}
-        {% endcomment %}
-      </div>
-    </div>
-  </section>
 
-  <section id="party-actions">
-    <div class="vertical-space">
-      &nbsp;
-    </div>
-    <div class="row">
-      <div class="span12">
-        {% if pro %}
-          <a class="btn btn-primary" href="{% url party_add %}">Create Party</a>
-        {% endif %}
-          <!-- <a class="btn btn-inverse" href="{% url party_taster_invite %}">Invite Attendee</a> -->
-        {% if taster %}
-          <a class="btn btn-primary" href="{% url host_vinely_party %}">Host a Vinely Taste Party</a>
-        {% endif %}
-      </div>
-  </section>
-
-  <section id="upcoming-parties">
-  <div class="page-header">
-    Upcoming Parties
-  </div>
-  <table class="table table-striped">
-    <thead>
-      <th>Date/Time</th>
-      <th>Host</th>
-      <th>Title</th>
-      <th>Contact Phone</th>
-      <th>Location</th>
-      <th>Tasters</th>
-    </thead>
-    <tbody>
-    {% for party in parties %}
-      {# create a table of party and party information #}
-      <tr>
-        <td>{{ party.event_date|date:"M d, Y" }}</td>
-        <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
-        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
-        <td>{{ party.phone }}</td>
-        <td>{{ party.address }}</td>
-        <td>
-          {% if party.invitees %}
-            {{ party.invitees }} 
-            {% if party.high_low %}<span class="badge badge-important">{{ party.high_low }}</span> {% endif %}
-          {% else %}
-            <a href="{% url party_taster_invite party.id %}">Invite Guests</a>
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  </section>
-
-  <section id="past-parties">
-  <div class="page-header">
-    Past Parties
-  </div>
-  <table class="table table-striped">
-    <thead>
-      <th>Date/Time</th>
-      <th>Host</th>
-      <th>Title</th>
-      <th>Contact Phone</th>
-      <th>Location</th>
-      <th>Tasters</th>
-      {% if host %}
-        <th>My Credit</th>
-      {% endif %}
-      {% comment %}
-        {% if pro %}
-          <th>Commission</th>
-        {% endif %}
-      {% endcomment %}
-    </thead>
-    <tbody>
-    {% for party in past_parties %}
-      {# create a table of party and party information #}
-      <tr>
-        <td>{{ party.event_date|date:"M d, Y" }}</td>
-        <td><a href="mailto:{{ party.host.email }}">{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}</a></td>
-        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
-        <td>{{ party.phone }}</td>
-        <td>{{ party.address }}</td>
-        <td>{{ party.invitees }}</td>
-        {% if host %}
-          <td>{{ party.credit|currency }}</td>
-        {% endif %}
-        {% comment %}
-          {% if pro %}
-            <td>{{ party.pro_commission|currency }}</td>
-          {% endif %}
-        {% endcomment %}
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  </section>
-
-  <div class="vertical-space-bottom span12">
-    &nbsp;
-  </div>
+            <div class="tab-pane fade {% if pro_parties or host_parties or taster_parties %} active in {% endif %}" id="host_guest_upcoming_parties">
+              <!-- <h1 class="headline">Upcoming Parties</h1> -->
+              {% if pro or pending_pro %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <h2>You're the Pro</h2>
+                    <hr />
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                <table class="table table-striped">
+                  {% if pro_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <th>Host</th>
+                      <th>Party Name</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Tasters</th>
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in pro_parties %}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                      <!-- <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td> -->
+                      {% if user.get_profile.events_manager and not party.confirmed or pro and not party.requested %}
+                        <td><a href="{{ party.party_setup_url }}">{{ party.title }}</a></td>
+                      {% else %}
+                        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      {% endif %}
+                      <td>{{ party.phone }}</td>
+                      <td>{{ party.address }}</td>
+                      <td>{{ party.invitees }}</td>
+                    </tr>
+                  {% empty %}
+                    <div class="center">You have no upcoming parties scheduled.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+              {% if host or pro and host_parties %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <h2>You're the host</h2>
+                    <hr />
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                
+                <table class="table table-striped">
+                  {% if host_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <!-- <th>Host</th> -->
+                      <th>Party Name</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Tasters</th>
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in host_parties %}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      {% if host and not party.confirmed %}
+                        <td><a href="{{ party.party_setup_url }}">{{ party.title }}</a></td>
+                      {% else %}
+                        <td><a href="{% url party_details party.id %}">{{ party.title }}</a></td>
+                      {% endif %}
+                      <td>{{ party.phone }}</td>
+                      <td>{{ party.address }}</td>
+                      <td>{{ party.invitees }}</td>
+                    </tr>
+                  {% empty %}
+                    <div class="center">You are not scheduled to host any parties.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+              {% if taster or pro and taster_parties or pro and taster_parties %}
+                <div class="row">
+                  <div class="span4">&nbsp;</div>
+                  <div class="span4 center">
+                    <h2>You're a taster</h2>
+                    <hr />
+                  </div>
+                  <div class="span4">&nbsp;</div>
+                </div>
+                <table class="table table-striped">
+                  {% if taster_parties %}
+                    <thead>
+                      <th>Date/Time</th>
+                      <th>Host</th>
+                      <th>Party Title</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Tasters</th>
+                    </thead>
+                  {% endif %}
+                  <tbody>
+                  {% for party in taster_parties %}
+                    {# create a table of party and party information #}
+                    <tr>
+                      <td>{{ party.event_date|date:"F j, o" }} at {{ party.event_date|date:"g:i A" }}</td>
+                      <td>{% if party.host.first_name %}{{ party.host.first_name }} {{ party.host.last_name }}{% else %}{{ party.host.email }}{% endif %}<a href="mailto:{{ party.host.email }}">&nbsp;<i class="icon-envelope"></i></a></td>
+                      {% if party.rsvp_code %}
+                        <td><a href="{% url party_rsvp party.id party.rsvp_code %}">{{ party.title }}</a></td>
+                      {% else %}
+                        <td><a href="{% url party_rsvp party.id %}">{{ party.title }}</a></td>
+                      {% endif %}
+                      <td>{{ party.phone }}</td>
+                      <td>{{ party.address }}</td>
+                      <td>{{ party.invitees }}</td>
+                    </tr>
+                  {% empty %}
+                    <div class="center">You are not scheduled to attend any parties.</div>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>      
+    </section>
+  {# {% endif %} #}
+  <div class="vertical-space-bottom"></div>
 </div>
 {% endblock content %}
 
 {% block additional_scripts %}
   <script type="text/javascript">
-    $(".side-nav li").hover(
-      function () {
-        $(this).children(".chev").addClass("active");
-        $(this).find("a").addClass("hovered");
-      },
-      function () {
-        $(this).children(".chev").removeClass("active");
-        $(this).find("a").removeClass("hovered");
-      }
-    );
+    $(document).ready(function(){
+      $('.vinely-credits').popover();
+    });
   </script>
-{% endblock additional_scripts %}
+{% endblock additional_scripts%}

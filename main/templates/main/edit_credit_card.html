@@ -18,6 +18,8 @@
       <form id="payment-form" class="form-horizontal" method="POST" action="{% url edit_credit_card %}">
         {% csrf_token %}
 
+        <!-- <h3>DEBUGGING - Using {{ receiver_state }} token: {{ publish_token }}</h3> -->
+
         <fieldset>
           {% if use_stripe %}
             <div class="control-group">
@@ -44,7 +46,7 @@
             <div class="control-group">
               <div class="control-label">Billing zipcode</div>
               <div class="controls">
-                <input type="text" size="5" class="card-address-zip" />
+                <input type="text" size="5" value="{{ receiver.get_profile.stripe_card.billing_zipcode }}" class="card-address-zip" />
               </div>
             </div>            
           {% else %}
@@ -117,7 +119,7 @@
           {% endif %}
 
           <div class="form-actions">
-            <button class="btn btn-primary submit-button">Place Order</button>
+            <button class="btn btn-primary submit-button">Next</button>
           </div>
         </fieldset>
       </form>
@@ -128,6 +130,7 @@
 </div>
 
 {% endblock %}
+
 {% block additional_scripts %}
   <script type="text/javascript">
     $(".payment-errors").hide();

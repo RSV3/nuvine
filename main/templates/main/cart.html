@@ -38,7 +38,9 @@
           <tr>
             <th>Item</th>
             <th>Quantity</th>
-            <th>Frequency</th>
+            {% if items.0.product.category != 0 %}
+              <th>Frequency</th>
+            {% endif %}
             <th>Total</th>
             <th>Remove</th>
           </tr>
@@ -63,7 +65,9 @@
               </div>
             </td>
             <td>{{ item.quantity_str }}</td>
-            <td>{{ item.get_frequency_display }}</td>
+            {% if item.product.category != 0 %}
+              <td>{{ item.get_frequency_display }}</td>
+            {% endif %}
             <td>{{ item.subtotal|currency }}</td>
             <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url cart %}"><i class="icon-trash"></i></a></td> 
           </tr>
@@ -81,7 +85,10 @@
     </div>
     <div class="span3">
       <div class="cart-sub-total">
-      <p>Subtotal: {{ cart.subtotal|currency }}</p>
+        {% if cart.discount %}
+          <p>Credit: ({{ cart.discount|currency }})</p>
+        {% endif %}
+        <p>Subtotal: {{ cart.subtotal|currency }}</p>
       </div>
     </div>
   </div>
@@ -92,7 +99,11 @@
       <div class="form-actions">
         <div class="pull-right">
 	       {% if allow_customize %}
-            <a class="btn btn-primary" href="{% url start_order %}">
+            {% if cart.party and receiver %}
+              <a class="btn btn-primary" href="{% url start_order receiver.id cart.party.id %}">
+            {% else %}
+              <a class="btn btn-primary" href="{% url start_order %}">
+            {% endif %}
               <i class="icon-plus-sign icon-white"></i> Continue Shopping
             </a>
 	       {% endif %}

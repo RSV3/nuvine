@@ -1,0 +1,59 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block additional_styles %}
+
+<link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+
+<style type="text/css">
+
+  table ul {
+    list-style-type: none;
+  }
+
+  table li {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .inline-radio {
+    vertical-align: top;
+    margin-bottom: 20px;
+  }
+
+</style>
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">Past Orders</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span6">
+      &nbsp;
+    </div>
+    <div class="span6">
+      <div class="pull-right">
+        <a href="{% url support:admin_index %}">Support Home</a> |
+        <a href="{% url support:wine_inventory %}">Wine Inventory</a> |
+        <a href="{% url support:view_orders %}">Orders</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <section id="past-orders">
+      <div class="span12">
+        {% render_table fulfilled_orders %}
+      </div>
+    </section> <!-- section -->
+  </div> <!-- .row -->
+
+</div>
+{% endblock content %}

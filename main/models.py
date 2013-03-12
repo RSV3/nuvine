@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
@@ -9,6 +11,12 @@ from sorl.thumbnail import ImageField
 from datetime import datetime, timedelta
 from stripecard.models import StripeCard
 import uuid
+
+from personality.models import Wine, TastingKit
+
+import logging
+
+log = logging.getLogger(__name__)
 
 # Create your models here.
 
@@ -43,11 +51,18 @@ class Party(models.Model):
   # default to the name of the host
   host = models.ForeignKey(User)
   title = models.CharField(max_length=128)
-  description = models.TextField(verbose_name="Special Instructions")
-  address = models.ForeignKey(Address)
+  description = models.TextField(blank=True, verbose_name="Special Instructions")
+  address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
   event_date = models.DateTimeField()
+  auto_invite = models.BooleanField()
+  auto_thank_you = models.BooleanField()
+  guests_can_invite = models.BooleanField()
+  guests_see_guestlist = models.BooleanField()
+  confirmed = models.BooleanField()
+  requested = models.BooleanField()
+  setup_stage = models.IntegerField(default=1)
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -58,15 +73,44 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  def total_sales(self):
+    orders = Order.objects.filter(cart__party=self)
+    # should not be tasting kit
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+    return aggregate['total'] if aggregate['total'] else 0
+
+  def party_setup_url(self):
+    url = 'party_details'
+    if not self.confirmed:
+      if self.setup_stage == 1:
+        url = 'party_add'
+      elif self.setup_stage == 2:
+        url = 'party_write_invitation'
+      elif self.setup_stage == 3:
+        url = 'party_find_friends'
+      elif self.setup_stage == 4:
+        url = 'party_review_request'
+    return reverse(url, args=[self.id])
+
+  @property
   def pro(self):
-    try:
-      return OrganizedParty.objects.get(party=self).pro
-    except OrganizedParty.DoesNotExist:
+    parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
+    if parties_organized.exists():
+      return parties_organized[0].pro
+    else:
       return None
+
+  def is_past_party(self):
+    party_valid_date = timezone.now() - timedelta(hours=24)
+    return self.event_date < party_valid_date
 
   def kit_ordered(self):
     order = Order.objects.filter(cart__party=self, cart__items__product__category=Product.PRODUCT_TYPE[0][0])
     return order.exists()
+
+  def invite_sent(self):
+    return PartyInvite.objects.filter(party=self).exists()
 
   def high_low(self):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
@@ -82,7 +126,7 @@ class Party(models.Model):
     coming = PartyInvite.objects.filter(party=self, response__in=[2, 3]).count()
 
     if invites == 0:
-      return ""
+      return "0 [0]"
     else:
       return "%d [%d]" % (coming, invites)
 
@@ -145,10 +189,11 @@ class Party(models.Model):
 class PartyInvite(models.Model):
 
   RESPONSE_CHOICES = (
-      (0, 'No Answer'),
+      (0, '--'),
       (1, 'No'),
       (2, 'Maybe'),
-      (3, 'Yes')
+      (3, 'Yes'),
+      (4, 'Under Age'),
   )
 
   party = models.ForeignKey(Party, verbose_name="Taste Party")
@@ -156,9 +201,12 @@ class PartyInvite(models.Model):
   # if other than the host
   invited_by = models.ForeignKey(User, related_name="my_guests", blank=True, null=True)
   response = models.IntegerField(choices=RESPONSE_CHOICES, default=RESPONSE_CHOICES[0][0])
-  invited_timestamp = models.DateTimeField(auto_now_add=True)
+  invited_timestamp = models.DateTimeField(blank=True, null=True)  # auto_now_add=True)
   response_timestamp = models.DateTimeField(blank=True, null=True)
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
+
+  def invited(self):
+    return bool(self.invited_timestamp)
 
   def set_response(self, response):
     self.response = response
@@ -170,6 +218,13 @@ class PartyInvite(models.Model):
       return "%s invited by %s to %s" % (self.invitee.email, self.invited_by.email, self.party.title)
     else:
       return "%s invited to %s" % (self.invitee.email, self.party.title)
+
+  @property
+  def sales(self):
+    orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
+    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+    return "$%s" % aggregate['total'] if aggregate['total'] else "$0"
 
 
 class PersonaLog(models.Model):
@@ -291,9 +346,10 @@ class Cart(models.Model):
 
   NO_TAX_STATES = ('MA',)
 
-  STRIPE_STATES = ('MI', 'CA')
+  STRIPE_STATES = ('CA',)
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
+  discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   # tracks activity in the carts
   adds = models.IntegerField(default=0)
@@ -301,12 +357,37 @@ class Cart(models.Model):
   # viewing cart
   views = models.IntegerField(default=0)
 
+  def calculate_discount(self):
+    '''
+    Calculate discount based on available credits.
+    '''
+    from main.utils import calculate_host_credit
+    # dont apply when pro ordering for someone
+    if self.user != self.receiver:
+      return 0
+
+    # dont apply for tasting kit
+    items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
+    if items.exists():
+      return 0
+
+    credit = calculate_host_credit(self.user)
+
+    max_discount = self.subtotal() / 2
+
+    if credit <= max_discount:
+      applied_discount = credit
+    else:
+      applied_discount = max_discount
+
+    return applied_discount
+
   def subtotal(self):
     # sum of all line items
     price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum
+    return price_sum - float(self.discount)
 
   def shipping(self):
     # NOTE: Quantity has different interpretations depending on if wine case or tasting kit
@@ -344,12 +425,18 @@ class Cart(models.Model):
 
   def tax(self):
     # TODO: tax needs to be calculated based on the state
+    if self.receiver.get_profile().shipping_address is None:
+      return -1
+
     if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
         tax = 0
-    elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
-        tax = 0
+    # elif self.user and self.user.get_profile().shipping_address.state in self.NO_TAX_STATES:
+    #     tax = 0
     else:
-      tax = float(self.subtotal()) * 0.06
+      if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
+        tax = float(self.subtotal()) * 0.08
+      else:
+        tax = float(self.subtotal()) * 0.06
     return tax
 
   def total(self):
@@ -389,9 +476,11 @@ class Order(models.Model):
       (2, 'Processing'),
       (3, 'Delayed'),
       (4, 'Out of Stock'),
-      (5, 'Wine Selected'),
-      (6, 'Shipped'),
-      (7, 'Received'),
+      (5, 'Needs Manual Review'),
+      (6, 'Wine Selected'),
+      (7, 'Exported'),
+      (8, 'Shipped'),
+      (9, 'Received'),
   )
   fulfill_status = models.IntegerField(choices=FULFILL_CHOICES, default=0)
 
@@ -407,6 +496,17 @@ class Order(models.Model):
   ship_date = models.DateTimeField(blank=True, null=True)
   last_updated = models.DateTimeField(auto_now=True)
 
+  def __unicode__(self):
+    return "OR%s ordered for %s" % (str(self.id).zfill(7), self.receiver.email)
+
+  @property
+  def receiver_info(self):
+    if self.receiver.first_name:
+      return "%s %s (%s)" % (self.receiver.first_name, self.receiver.last_name, self.receiver.email)
+    else:
+      return self.receiver.email
+
+  @property
   def vinely_order_id(self):
     return 'OR' + str(self.id).zfill(7)
 
@@ -427,7 +527,7 @@ class Order(models.Model):
       return "-"
 
   def quantity_summary(self):
-    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10])
+    items = self.cart.items.filter(price_category__in=[5, 6, 7, 8, 9, 10, 12, 13, 14])
     if items.exists():
       return items[0].quantity_str()
     else:
@@ -460,6 +560,75 @@ class Order(models.Model):
   def ships_to(self):
     return self.shipping_address.state
 
+  @property
+  def num_slots(self):
+    total_slots = 0
+    wines_categories = range(5, 15)
+    items = self.cart.items.filter(price_category__in=wines_categories)
+    if items.exists():
+      for item in items:
+        if item.price_category == 12:
+          total_slots += 3
+        elif item.price_category in [6, 8, 10, 13]:
+          total_slots += 6
+        elif item.price_category in [5, 7, 9, 14]:
+          total_slots += 12
+        elif item.price_category == 11:
+          # tasting kit
+          total_slots += 1
+    return total_slots
+
+  def is_tasting_kit(self):
+    if self.cart.items.filter(price_category=LineItem.PRICE_TYPE[11][0]).exists():
+      return True
+    else:
+      return False
+
+  def selected_wines(self):
+    wine_list = []
+    for s in SelectedWine.objects.filter(order=self):
+      data = {}
+      data['name'] = s.wine.name
+      data['year'] = s.wine.year
+      data['vinely_category'] = s.wine.vinely_category
+      wine_list.append(data)
+
+    return wine_list
+
+  def filled_slots(self):
+    if self.is_tasting_kit():
+      return SelectedTastingKit.objects.filter(order=self).count()
+    else:
+      return SelectedWine.objects.filter(order=self).count()
+
+  @property
+  def slot_summary(self):
+    return "%s [%s]" % (self.num_slots, self.filled_slots())
+
+
+class SelectedWine(models.Model):
+
+  LIKENESS_CHOICES = (
+      (0, 'Not Answered'),
+      (1, 'Hate'),
+      (2, 'Dislike'),
+      (3, 'Neutral'),
+      (4, 'Like'),
+      (5, 'Love'),
+  )
+
+  order = models.ForeignKey(Order)
+  wine = models.ForeignKey(Wine)
+  overall_rating = models.IntegerField(choices=LIKENESS_CHOICES, default=0)
+  timestamp = models.DateTimeField(auto_now=True)
+
+
+class SelectedTastingKit(models.Model):
+
+  order = models.ForeignKey(Order)
+  tasting_kit = models.ForeignKey(TastingKit)
+  timestamp = models.DateTimeField(auto_now=True)
+
 
 class OrderReview(models.Model):
   """
@@ -476,7 +645,7 @@ class OrganizedParty(models.Model):
   """
     Recorded when a party is organized by a pro
   """
-  pro = models.ForeignKey(User)
+  pro = models.ForeignKey(User, null=True, blank=True)
   party = models.ForeignKey(Party)
   timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -538,6 +707,7 @@ class EngagementInterest(models.Model):
     (3, 'Vinely Taster'),
     (4, 'Unassigned Interest'),
     (5, 'Tasting Kit'),
+    (6, 'Hosting Party'),
   )
 
   user = models.ForeignKey(User)
@@ -559,8 +729,9 @@ class InvitationSent(models.Model):
   """
   party = models.ForeignKey(Party)
   custom_subject = models.CharField(max_length=128, default="You're invited to a Vinely Party!")
-  custom_message = models.CharField(max_length=1024, blank=True, null=True)
-  guests = models.ManyToManyField(User)
+  custom_message = models.TextField(blank=True, null=True)
+  signature = models.CharField(max_length=1024, blank=True, null=True)
+  guests = models.ManyToManyField(User, blank=True, null=True)
   timestamp = models.DateTimeField(auto_now_add=True)
 
 
@@ -581,24 +752,10 @@ class ProSignupLog(models.Model):
   mentor_email = models.CharField(max_length=75, blank=True, null=True, verbose_name="Typed Mentor Email")
   timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Pro Request Date")
 
-# class SupplierWine(models.Model):
-#   '''
-#   This stores the wine casings for suppliers
-#   '''
-#   WINE_COLOR = (
-#     (0, "Red"),
-#     (1, "Rose"),
-#     (2, "White")
-#   )
-#   SWEETNESS = (
 
-#   )
-#   name = models.CharField(max_length=128)
-#   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
-#   winery = models.CharField(max_length=128)
-#   color =  models.IntegerField(choices=WINE_COLOR)
-#   sparkling = models.BooleanField()
-#   varietal = models.CharField(max_length=128)
-#   vintage = models.IntegerField()
-#   category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
-#   timestamp = models.DateTimeField(auto_now_add=True)
+class NewHostNoParty(models.Model):
+  host = models.ForeignKey(User)
+
+
+class UnconfirmedParty(models.Model):
+  party = models.ForeignKey(Party)

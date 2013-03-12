@@ -4,12 +4,22 @@ import os
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = PROJECT_ROOT+'/emails/'
+EMAIL_FILE_PATH = PROJECT_ROOT + '/emails/'
+
+# For testing real send
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'tech@vinely.com'
+#EMAIL_HOST_PASSWORD = 'hi2winedora'
+#EMAIL_USE_TLS = True
+
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 import dj_database_url
 
-DATABASES = {'default': dj_database_url.config(default='sqlite:///%s/winedora.test.db' % PROJECT_ROOT)}
-#DATABASES = {'default': dj_database_url.config(default='postgres://vinely:winedora@localhost:5432/winedora')}
+#DATABASES = {'default': dj_database_url.config(default='sqlite:///%s/winedora.test.db' % PROJECT_ROOT)}
+DATABASES = {'default': dj_database_url.config(default='postgres://vinely:winedora@localhost:5432/winedora')}
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -44,18 +54,24 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'sorl.thumbnail',
     #'storages',
+    's3_folder_storage',
     'gunicorn',
     'support',
     'compressor',
     'social',
+    'cms',
+    'stripecard',
+    'kombu.transport.django',
+    'djcelery',
+    'django_tables2',
 )
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    PROJECT_ROOT+'/templates',
-    PROJECT_ROOT+"/nuvine-env/lib/python2.7/site-packages/debug_toolbar/templates/"
+    PROJECT_ROOT + '/templates',
+    PROJECT_ROOT + "/nuvine-env/lib/python2.7/site-packages/debug_toolbar/templates/"
 )
 
 
@@ -71,6 +87,7 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.logger.LoggingPanel',
 )
 
+MEDIA_ROOT = PROJECT_ROOT + '/sitemedia/'
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 

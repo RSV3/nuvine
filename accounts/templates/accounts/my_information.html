@@ -4,10 +4,14 @@
 {% load static %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}">  
   <style type="text/css">
     .payment-form select {
       width: 110px;
+    }
+    a:visited {
+      color: #DD4040;
+      text-decoration: none;
     }
   </style>
 {% endblock %}
@@ -18,7 +22,7 @@
       <form enctype="multipart/form-data" class="form-horizontal well" method="POST" action="{{ app_path }}">
         {% csrf_token %}
 
-
+<!-- 
         {% if not updated %}
           {% if error %}
             <div class="alert alert-error">
@@ -55,9 +59,9 @@
             </div>
           {% endif %}
         {% endif %}
-
+ -->
         <fieldset>
-          <div class="control-group">
+          <div class="control-group {% if profile.image.errors %} error{% endif %}">
             <div class="controls">
               {% if profile.image %}
                 {% thumbnail profile.image "120x120" as im %}
@@ -72,40 +76,70 @@
             </div>
             <div class="controls">
               {{ profile_form.image }}
+              {% if profile_form.image.errors %}
+                <span class="help-inline">
+                  {{ profile_form.image.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.first_name.errors %} error{% endif %}">
             <div class="control-label" for="id_user-first_name">
             {{ user_form.first_name.label }}
             </div>
             <div class="controls">
               {{ user_form.first_name }}
+              {% if user_form.first_name.errors %}
+                <span class="help-inline">
+                  {{ user_form.first_name.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.last_name.errors %} error{% endif %}">
             <div class="control-label" for="id_user-last_name">
             {{ user_form.last_name.label }}
             </div>
             <div class="controls">
               {{ user_form.last_name}}
+              {% if user_form.last_name.errors %}
+                <span class="help-inline">
+                  {{ user_form.last_name.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if user_form.email.errors %} error{% endif %}">
             <div class="control-label" for="id_user-email">
             {{ user_form.email.label }}
             </div>
             <div class="controls">
               {{ user_form.email}}
+              {% if user_form.email.errors %}
+                <span class="help-inline">
+                  {{ user_form.email.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>         
-          <div class="control-group">
+          <div class="control-group {% if profile_form.phone.errors %} error{% endif %}">
             <div class="control-label" for="id_profile-phone">
             {{ profile_form.phone.label }}
             </div>
             <div class="controls">
               {{ profile_form.phone }}
+              {% if profile_form.phone.errors %}
+                <span class="help-inline">
+                  {{ profile_form.phone.errors }}
+                </span>
+              {% endif %}
             </div>
-          </div>         
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="user_form" value="user_form">Update</button>
+            </div>
+          </div>
         </fieldset>
 	
 	<!-- eligibility -->
@@ -117,54 +151,89 @@
             </div>
           </div>
 
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.dob.errors %} error{% endif %}">
             <div class="control-label" for="id_dob">
             {{ eligibility_form.dob.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.dob }}
+              {% if eligibility_form.dob.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.dob.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.gender.errors %} error{% endif %}">
             <div class="control-label" for="id_gender">
             {{ eligibility_form.gender.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.gender }}
+              {% if eligibility_form.gender.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.gender.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.dl_number.errors %} error{% endif %}">
             <div class="control-label" for="id_dl_number">
             {{ eligibility_form.dl_number.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.dl_number }}
+              {% if eligibility_form.dl_number.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.dl_number.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.zipcode.errors %} error{% endif %}">
             <div class="control-label" for="id_zipcode">
             {{ eligibility_form.zipcode.label }}
             </div>
             <div class="controls">
               {{ eligibility_form.zipcode }}
+              {% if eligibility_form.zipcode.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.zipcode.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
           <!-- TODO: need to put terms of service -->
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.accepted_tos.errors %} error{% endif %}">
             <div class="controls">
               <label class="checkbox inline">
               {{ eligibility_form.accepted_tos }}
               {{ eligibility_form.accepted_tos.label }}
               [<a href="{% url terms %}">Terms</a>]
               </label>
+              {% if eligibility_form.accepted_tos.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.accepted_tos.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if eligibility_form.above_21.errors %} error{% endif %}">
             <div class="controls">
               <label class="checkbox inline">
               {{ eligibility_form.above_21 }}
               {{ eligibility_form.above_21.label }}
               </label>
+              {% if eligibility_form.above_21.errors %}
+                <span class="help-inline">
+                  {{ eligibility_form.above_21.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="eligibility_form" value="eligibility_form">Update</button>
             </div>
           </div>
         </fieldset>
@@ -173,48 +242,78 @@
         <fieldset>
           <legend>Shipping Information</legend>
 
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.street1.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-street1">
             {{ shipping_form.street1.label }}
             </div>
             <div class="controls">
               {{ shipping_form.street1 }}
+              {% if shipping_form.street1.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.street1.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.street2.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-street2">
             {{ shipping_form.street2.label }}
             </div>
             <div class="controls">
               {{ shipping_form.street2 }}
+              {% if shipping_form.street2.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.street2.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.city.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-city">
             {{ shipping_form.city.label }}
             </div>
             <div class="controls">
               {{ shipping_form.city }}
+              {% if shipping_form.city.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.city.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.state.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-state">
             {{ shipping_form.state.label }}
             </div>
             <div class="controls">
               {{ shipping_form.state }}
+              {% if shipping_form.state.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.state.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
-          <div class="control-group">
+          <div class="control-group {% if shipping_form.zipcode.errors %} error{% endif %}">
             <div class="control-label" for="id_shipping-zipcode">
             {{ shipping_form.zipcode.label }}
             </div>
             <div class="controls">
               {{ shipping_form.zipcode }}
+              {% if shipping_form.zipcode.errors %}
+                <span class="help-inline">
+                  {{ shipping_form.zipcode.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="shipping_form" value="shipping_form">Update</button>
             </div>
           </div>
         </fieldset>
-
+<!-- 
         <fieldset>
           <legend>Billing Information</legend>
            <div class="control-group">
@@ -266,57 +365,115 @@
             </div>
           </div>
         </fieldset>
-
+ -->
         <fieldset>
           <legend>Payment Information</legend>
-          <div class="payment-form">
-            {{ payment_form.card_type }}
 
+          <div class="payment-form">
             <div class="control-group">
               <div class="control-label">Current Card:</div>
-              <div class="controls">
-                {{card_number}} 
-              </div>
+                <div class="controls">
+                  {{ card_number }}
+                  {# <a href="javascript:;" class="offset1" data-toggle="modal" data-target="#card_modal">Delete Card</a> #}
+                </div>
             </div>
             <div class="control-group">
               <div class="controls">or enter a new credit card</div>
             </div>
-            <div class="control-group">
+            {{ payment_form.card_type }}
+
+            <div class="control-group {% if payment_form.card_number.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-card_number">{{ payment_form.card_number.label }}</div>
               <div class="controls">
-                {{ payment_form.card_number}} 
+                {{ payment_form.card_number}}
+                {% if payment_form.card_number.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.card_number.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.exp_month.errors or payment_form.exp_year.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-exp_month">{{ payment_form.exp_month.label }}</div>
               <div class="controls">
                 {{ payment_form.exp_month}} {{ payment_form.exp_year }}
+                {% if payment_form.exp_year.errors or payment_form.exp_year.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.exp_month.errors }} {{ payment_form.exp_year.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.verification_code.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-verification_code">{{ payment_form.verification_code.label }}</div>
               <div class="controls">
                 {{ payment_form.verification_code}} 
+                {% if payment_form.verification_code.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.verification_code.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>
 
-            <div class="control-group">
+            <div class="control-group {% if payment_form.billing_zipcode.errors %} error{% endif %}">
               <div class="control-label" for="id_payment-billing_zipcode">{{ payment_form.billing_zipcode.label }}</div>
               <div class="controls">
-                {{ payment_form.billing_zipcode}} 
+                {{ payment_form.billing_zipcode}}
+                {% if payment_form.billing_zipcode.errors %}
+                  <span class="help-inline">
+                    {{ payment_form.billing_zipcode.errors }}
+                  </span>
+                {% endif %}
               </div>
             </div>          
           </div>
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary" name="payment_form" value="payment_form">Update</button>
+            </div>
+          </div>
+           
+          <!-- Modal -->
+          <div id="card_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="card_modalLabel" aria-hidden="true">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h3 id="card_modalLabel">Delete Card?</h3>
+            </div>
+            <div class="modal-body">
+              <p>Deleting the Credit Card will also cancel any existing subscriptions that you currently have.</p>
+              <p>Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-inverse" data-dismiss="modal" aria-hidden="true">Cancel</button>
+              <a href="{% url delete_card %}" class="btn btn-danger">Delete Card</a>
+            </div>
+          </div>
         </fieldset>
-        
+<!-- 
         <div class="form-actions">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Update</button>
             {{ form.email }}
           </div>
-        </div>        
+        </div>
+ -->
       </form>
 {% endblock right_content %}
 
+
+{% block additional_scripts %}
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready( function () {
+      var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+      if (!$('.datepicker').val()) {
+        options.startView = 'decade';
+      }
+      $('.datepicker').datepicker(options);
+      // $('#card_modal').modal();
+    });
+  </script>
+{% endblock additional_scripts %}

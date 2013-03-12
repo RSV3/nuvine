@@ -155,7 +155,8 @@
             {% endif %}
           </div>
         </div>
-
+        {{ form.email }}
+        {% comment %}
         <div class="control-group{% if form.email.errors %} error{% endif %}">
           {% if pro %} 
             <div class="control-label" for="id_email">{{ form.email.label }}</div>
@@ -175,7 +176,7 @@
             {% endif %}
           </div>
         </div>
-
+        {% endcomment %}
         <div class="control-group{% if form.news_optin.errors %} error{% endif %}">
           <div class="controls">
             <label class="checkbox">

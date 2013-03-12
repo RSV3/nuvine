@@ -16,8 +16,8 @@ dj-database-url==0.2.1
 django-appconf==0.5
 django-compressor==1.2
 django-debug-toolbar==0.9.4
--e git+https://github.com/kwantopia/django-email-as-username.git#egg=django-email-as-username==1.5.2
-#django-email-as-username==1.5.1
+#-e git+https://github.com/kwantopia/django-email-as-username.git#egg=django-email-as-username==1.5.2
+django-email-as-username==1.6.2
 #django-storages==1.1.5
 django-sslify==0.2
 -e hg+https://bitbucket.org/yuchant/django-storages#egg=django-storages
@@ -33,6 +33,7 @@ modulegraph==0.9.1
 networkx==1.6
 nose==1.1.2
 numpy==1.6.2
+premailer==1.12
 psycopg2==2.4.5
 py2app==0.6.4
 pycurl==7.19.0
@@ -59,3 +60,5 @@ stripe==1.7.7
 newrelic
 pyPdf==1.13
 lepl
+django-tables2==0.13.0
+django-tinymce==1.5.1b4
