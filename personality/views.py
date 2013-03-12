@@ -165,7 +165,7 @@ def pre_questionnaire_wine(request, rsvp_code=None):
 
   if u.is_authenticated() and rsvp_code:
     # make sure the authenticated user is not someone else
-    get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
+    invite = get_object_or_404(PartyInvite, invitee=u, rsvp_code=rsvp_code)
 
   profile = u.get_profile()
 
