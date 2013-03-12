@@ -38,7 +38,7 @@
       <h3>Update Profile Info</h3>
     </div>
     <div class="modal-body">
-      <form method="POST" class="modal-form" action="{{ app_path }}?checked=1">{% csrf_token %}
+      <form method="POST" class="modal-form" action="{{ app_path }}">{% csrf_token %}
         <p>Please verify that you are over 21 and can attend this event.</p>
         <br />
         <div class="control-label" for="id_dob">
@@ -111,7 +111,7 @@
         </div>
         <div class="control-group">
           <div class="span8 center">
-            <button class="btn btn-primary" data-dismiss="modal">Continue as guest</button>
+            <a href="{{ app_path }}?guest=1" class="btn btn-primary">Continue as guest</a>
             <button type="submit" name="signup" class="btn btn-success" value="signup">Create Account</button>
           </div>
         </div>
@@ -330,7 +330,7 @@
       });
     </script>
 
-  {% if invited_user.get_profile.is_under_age %}
+  {% if disallow_rsvp %}
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
@@ -345,7 +345,7 @@
       });
     </script>
   {% else %}
-    {% if not invited_user.is_active %}
+    {% if not guest_rsvp %}
       <script type="text/javascript">
         $(document).ready( function () {  
           $("#signup").modal();

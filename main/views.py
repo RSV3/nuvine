@@ -1819,7 +1819,12 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
                                         'last_name': u.last_name}, instance=u)
 
+  age_check_key = '%s_age_checked' % rsvp_code
+  guest_rsvp_key = '%s_guest_rsvp' % rsvp_code
+
   if form.is_valid():
+    if not request.session.get(age_check_key):
+      request.session[age_check_key] = True
     profile = User.objects.get(id=u.id).get_profile()
     profile.dob = form.cleaned_data['dob']
     profile.save()
@@ -1827,10 +1832,15 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
-  if not request.session.get(rsvp_code):
-    request.session[rsvp_code] = request.GET.get('checked')
 
-  data['age_checked'] = request.GET.get('checked') or request.session[rsvp_code]
+  # del request.session[age_check_key]
+  # del request.session[guest_rsvp_key]
+
+  if request.GET.get('guest'):
+    request.session[guest_rsvp_key] = True
+
+  data['age_checked'] = request.session.get(age_check_key)
+  data['guest_rsvp'] = request.session.get(guest_rsvp_key)
   disallow_rsvp = int(response) in [2, 3] and u.get_profile().is_under_age()
   data['disallow_rsvp'] = disallow_rsvp
   # if user has not entered DOB ask them to do this first
