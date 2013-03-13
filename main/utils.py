@@ -1100,7 +1100,7 @@ def preview_host_confirm_email(request, party):
   party.id = 0
   c = RequestContext(request,  {"party": party,
                                 "invite_host_name": "%s" % host_first_name,
-                                "pro": pro,
+                                "pro_email": pro.email,
                                 "pro_phone": pro.userprofile.phone,
                                 "pro_name": "%s" % pro.first_name if pro and pro.first_name else "Care Specialist",
                                 "host_name": request.get_host(), "plain": True})
