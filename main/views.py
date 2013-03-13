@@ -2708,6 +2708,7 @@ def edit_credit_card(request):
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("place_order"))
 
+    """
     # display form: prepopulate with previous credit card used
     current_user_profile = receiver.get_profile()
     if 'ordering' in request.session and request.session['ordering'] and current_user_profile.credit_card:
@@ -2722,6 +2723,7 @@ def edit_credit_card(request):
         form.initial = {'exp_month': card_info.exp_month,
                         'exp_year': card_info.exp_year, 'verification_code': card_info.verification_code,
                         'billing_zipcode': card_info.billing_zipcode}
+    """
     data['form'] = form
     if 'ordering' in request.session and request.session['ordering']:
       # display different set of buttons if currently in address update stage

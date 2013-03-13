@@ -106,6 +106,7 @@ def invoice_created(event_json):
         return
     profile = stripe_card.stripe_owner.all()[0]
     # get latest subscription
+
     subscriptions = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
     if subscriptions.exists():
         subscription = subscriptions[0]

@@ -206,8 +206,6 @@ def my_information(request):
     #     billing_form = UpdateAddressForm(instance=shipping_address, prefix='billing')
     #     billing_updated = True
 
-
-
     if request.POST.get('payment_form'):
       if payment_form.is_valid():
         payment = payment_form.cleaned_data
