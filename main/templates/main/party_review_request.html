@@ -234,13 +234,11 @@
           <div class="controls" style="padding-top: 11px;">
             <p>{{ options_form.taster_actions }}</p>
           </div>
-          <div class="vertical-space"></div>
-          <hr />
         </div>     
       </section>
-
+      <hr />
       <section>
-        {% if not party.confirmed and not pro and not user.get_profile.events_manager %}
+        {% if user.get_profile.events_manager or party.host == user %}
           <div class="row">
             <div class="span10 offset1">
               <p>

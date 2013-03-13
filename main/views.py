@@ -1425,8 +1425,8 @@ def party_review_request(request, party_id):
   data['party'] = party
   data['invitees'] = PartyInvite.objects.filter(party=party).exclude(invitee=party.host).order_by('invitee__first_name', 'invitee__last_name')
 
-  applicable_pro, pro_profile = my_pro(u)
-  data["pro_user"] = applicable_pro
+  # applicable_pro, pro_profile = my_pro(u)
+  data["pro_user"] = party.pro
 
   try:
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
@@ -1831,8 +1831,8 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['taster_form'] = taster_form
   data['form'] = form
 
-  # del request.session[age_check_key]
-  # del request.session[guest_rsvp_key]
+  if u.is_active:
+    request.session[guest_rsvp_key] = True
 
   if request.GET.get('guest'):
     request.session[guest_rsvp_key] = True
