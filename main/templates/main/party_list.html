@@ -203,7 +203,7 @@
                   </tbody>
                 </table>
               {% endif %}
-              {% if host or pro and host_past_parties %}
+              {% if host or pending_pro and host_past_parties or pro and host_past_parties %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">
@@ -241,7 +241,7 @@
                   </tbody>
                 </table>
               {% endif %}
-              {% if taster or host and taster_past_parties or pro and taster_past_parties %}
+              {% if taster or host and taster_past_parties or pending_pro and taster_past_parties or pro and taster_past_parties %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">
@@ -323,7 +323,7 @@
                   </tbody>
                 </table>
               {% endif %}
-              {% if host or pro and host_parties %}
+              {% if host or pending_pro and host_parties or pro and host_parties %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">
@@ -363,7 +363,7 @@
                   </tbody>
                 </table>
               {% endif %}
-              {% if taster or pro and taster_parties or pro and taster_parties %}
+              {% if taster or host and taster_parties or pending_pro and taster_parties or pro and taster_parties %}
                 <div class="row">
                   <div class="span4">&nbsp;</div>
                   <div class="span4 center">

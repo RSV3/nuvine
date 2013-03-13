@@ -845,6 +845,10 @@ def order_complete(request, order_id):
       # TODO: what happens if a pro orders a VIP?
       receiver_profile.save()
 
+      # if order made within the 7 day window of a party it should be linked to the party
+      # order_window = order.cart.party.event_date + timedelta(days=7)
+      # PartyInvite.objects.filter(party__event_date__lte=order_window, invitee=order.receiver)
+
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
 
@@ -1846,10 +1850,12 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   if response:
     if disallow_rsvp and data['age_checked']:
       invite.response = 4
+      invite.response_timestamp = timezone.now()
       invite.save()
 
     if disallow_rsvp is False:
       invite.response = int(response)
+      invite.response_timestamp = timezone.now()
       invite.save()
 
   invitees = PartyInvite.objects.filter(party=party)
