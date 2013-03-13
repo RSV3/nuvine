@@ -572,7 +572,7 @@ class ShippingForm(forms.ModelForm):
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
   city = forms.CharField(label="City", max_length=64)
-  state = us_forms.USStateField()  # choices=us_states.STATE_CHOICES)
+  state = us_forms.USStateField(widget=us_forms.USStateSelect())
   zipcode = us_forms.USZipCodeField()
   phone = us_forms.USPhoneNumberField()
   email = forms.EmailField(widget=forms.HiddenInput())  # help_text="A new account will be created using this e-mail address if not an active account")
@@ -753,6 +753,7 @@ class AttendeesTable(tables.Table):
   def __init__(self, *args, **kwargs):
     data = kwargs.pop('data', {})
     user = kwargs.pop('user')
+
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
@@ -764,16 +765,23 @@ class AttendeesTable(tables.Table):
       exclude.append('wine_personality')
     if not (data['party'].host == user and data['can_add_taster'] or user.userprofile.is_pro() and data['can_add_taster']):
       exclude.append('edit')
-    if not user.userprofile.is_pro() and data['can_add_taster'] == False:
+    if not user.userprofile.is_pro() and data['can_add_taster'] is False:
       exclude.append('sales')
     if data['party'].host != user:
       exclude.append('confirmed')
-    if data['party'].confirmed or data['can_add_taster'] == False:
+    if data['party'].confirmed or data['can_add_taster'] is False:
       exclude.append('confirmed')
     if not (user.userprofile.is_pro() and data['can_shop_for_taster']):
       exclude.append('shop')
 
     self.exclude = exclude
+
+  def render_invited(self, record, column):
+    if record.invited():
+      return mark_safe('<i class="icon-ok"></i>')
+    if record.party.host == record.invitee:
+      return "HOST"
+    return ''
 
   def render_invitee(self, record, column):
     if record.invitee.first_name:

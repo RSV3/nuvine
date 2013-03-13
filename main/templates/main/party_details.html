@@ -267,12 +267,12 @@
         {% if can_add_taster %}
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
-            <div class="span10">
+            <div class="span9">
               <a href="{% url party_write_invitation party.id %}" target="_blank" class="btn btn-primary">Edit Invite</a>
             </div>
-            <div class="span2">
-              <button class="btn btn-primary pull-right" name="send_invite" value="send_invite"
-                     {% if not party.confirmed %}disabled="disabled"{% endif %}>Send Invite</button>
+            <div class="span3">
+              <button class="btn btn-success pull-right" name="send_invite" value="send_invite"
+                     {% if not party.confirmed %}disabled="disabled"{% endif %}>Send Invitation</button>
             </div>
           </div>
         {% else %}
