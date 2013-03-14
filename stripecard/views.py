@@ -51,15 +51,6 @@ def subtotal(plan):
 @require_POST
 @csrf_exempt
 def webhooks(request):
-
-    receiver = get_object_or_404(User, id=request.session['receiver_id'])
-    current_shipping = receiver.get_profile().shipping_address
-    receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
-
-    if receiver_state == "MI":
-        stripe.api_key = settings.STRIPE_SECRET
-    elif receiver_state == "CA":
-        stripe.api_key = settings.STRIPE_SECRET_CA
     event_json = json.loads(request.raw_post_data)
     event = event_json['type']
     if event in HOOKS:
@@ -68,45 +59,34 @@ def webhooks(request):
     return HttpResponse('sweet', status=200)
 
 
-def test_webhook_invoice_created(event_json):
-    from accounts.models import UserProfile
-
-    data = event_json['data']['object']
-    prof = UserProfile.objects.get(user__email='erik@mail.com')
-    stripe_card = prof.stripe_card
-
-    # try:
-    #     stripe_card = StripeCard.objects.get(stripe_user=customer)
-    # except StripeCard.DoesNotExist:
-    #     return
-    profile = stripe_card.stripe_owner.all()[0]
-    # get latest subscription
-    subscriptions = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
-    if subscriptions.exists():
-        subscription = subscriptions[0]
-        sub_total = data['subtotal']
-        # only need to add tax info
-        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total, profile)), currency='usd', description='Tax')
-        subscription.update_subscription_order(charge_stripe=False)
-
-
 def invoice_created(event_json):
+    from accounts.models import UserProfile
     data = event_json['data']['object']
     customer = data['customer']
 
     # test webhook
     if event_json['id'] == 'evt_00000000000000':
-        test_webhook_invoice_created(event_json)
-        return
+        data = event_json['data']['object']
+        prof = UserProfile.objects.get(user__email='erik@mail.com')
+        stripe_card = prof.stripe_card
+    else:
+        # TODO: Verify that this is actually from stripe
+        try:
+            stripe_card = StripeCard.objects.get(stripe_user=customer)
+        except StripeCard.DoesNotExist:
+            return
 
-    # TODO: Verify that this is actually from stripe
-    try:
-        stripe_card = StripeCard.objects.get(stripe_user=customer)
-    except StripeCard.DoesNotExist:
-        return
     profile = stripe_card.stripe_owner.all()[0]
-    # get latest subscription
 
+    current_shipping = profile.shipping_address
+    receiver_state = Zipcode.objects.get(code=current_shipping.zipcode).state
+
+    if receiver_state == "MI":
+        stripe.api_key = settings.STRIPE_SECRET
+    elif receiver_state == "CA":
+        stripe.api_key = settings.STRIPE_SECRET_CA
+
+    # get latest subscription
     subscriptions = SubscriptionInfo.objects.filter(user=profile.user, frequency__in=[1, 2, 3]).order_by('-updated_datetime')
     if subscriptions.exists():
         subscription = subscriptions[0]

@@ -587,7 +587,9 @@ class SubscriptionInfo(models.Model):
 
     if receiver_state in Cart.STRIPE_STATES:
       if cart.discount > 0:
-        # customer = stripe.Customer.retrieve(id=customer.id)
+        if not customer:
+          # customer wont be defined at this point for webhook calls
+          customer = stripe.Customer.retrieve(id=prof.stripe_card)
         coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
         customer.coupon = coupon.id
         customer.save()
