@@ -795,7 +795,8 @@ def order_complete(request, order_id):
   data = {}
 
   u = request.user
-  stripe_payment_mode = request.session.get('stripe_payment', None)
+  stripe_payment_mode = request.session.get('stripe_payment')
+  data['is_pro_order'] = request.session.get('receiver_id')
 
   # remove session information if it exists
   if 'ordering' in request.session:

@@ -117,7 +117,11 @@
     <div class="span12">
       <div class="form-actions">
         <div class="pull-right">
-          <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
+          {% if is_pro_order and order.cart.party %}
+            <a class="btn btn-primary" href="{% url party_details order.cart.party.id %}">Return Home</a>
+          {% else %}
+            <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
+          {% endif %}
         </div>
       </div>
     </div>
