@@ -371,6 +371,9 @@ class Cart(models.Model):
     if items.exists():
       return 0
 
+    if self.items.count() == 0:
+      return 0
+
     credit = calculate_host_credit(self.user)
 
     max_discount = self.subtotal() / 2

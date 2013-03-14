@@ -6,7 +6,7 @@
 
 {% block header %}
   <h1 class="headline">Check it out!</h1>
-  Finalize your order by clicking "Place Order" button below
+  <p class="center">Finalize your order by clicking "Place Order" button below</p>
 {% endblock header %}
 
 {% block additional_styles %}
@@ -27,8 +27,13 @@
         <thead>
           <tr>
             <th>Item</th>
-            <th>Frequency</th>
+            {% if items.0.product.category == 0 %}
+              <th>&nbsp;</th> {# item name #}
+            {% endif %}
             <th>Quantity</th>
+            {% if items.0.product.category != 0 %}
+              <th>Frequency</th>
+            {% endif %}
             <th>Total</th>
             <th>Remove</th>
           </tr>
@@ -45,15 +50,15 @@
                       <img src="{% static "img/firsthostkit_prodimg.png" %}" height="100">
                   {% endif %}
                 </div>
-                <div class="cart-item-name">
-                  {% if item.product.category == 0 %} {# only show this for taste-kits #}
-                    {{ item.product.name }}
-                  {% endif %}
-                </div>
               </div>
             </td>
-            <td>{{ item.get_frequency_display }}</td>
+            {% if item.product.category == 0 %} {# only show this for taste-kits #}
+              <td>{{ item.product.name }}</td>
+            {% endif %}
             <td>{{ item.quantity_str }}</td>
+            {% if item.product.category != 0 %}
+              <td>{{ item.get_frequency_display }}</td>
+            {% endif %}
             <td>{{ item.subtotal|currency }}</td>
             <td><a href="{% url cart_remove_item cart.id item.id %}?next={% url place_order %}"><i class="icon-trash"></i></a></td> 
           </tr>

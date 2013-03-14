@@ -360,7 +360,7 @@ def cart_add_tasting_kit(request, party_id=0):
 
       if cart.party and cart.party != party:
         # if cart.party is None, no party has been assigned in previous orders
-        messages.error(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
+        messages.warning(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
         return HttpResponseRedirect('.')
 
     # add line item to cart
@@ -577,6 +577,8 @@ def cart_remove_item(request, cart_id, item_id):
   if item.product.category == 0 and 'taste_kit_order' in request.session:
     del request.session['taste_kit_order']
   cart.items.remove(item)
+  if cart.items.count() == 0:
+    del request.session['cart_id']
 
   # track cart activity
   cart.removes += 1
@@ -1547,7 +1549,7 @@ def party_details(request, party_id):
 
   data['taster_form'] = taster_form
   invitee = party_add_taster(request, party, taster_form)
-  if invitee:
+  if invitee and party.host == u:
     msg = '%s has been added to the party list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % invitee.first_name
     messages.success(request, msg)
   invitees = PartyInvite.objects.filter(party=party)
