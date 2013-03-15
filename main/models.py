@@ -310,7 +310,11 @@ class LineItem(models.Model):
       return self.product.full_case_price
     elif self.price_category in [6, 8, 10]:
       return self.product.unit_price
+    elif self.price_category in [12, 13, 14]:
+      # newer products that go by 3, 6, 12 bottles
+      return self.product.unit_price
     else:
+      # for tasting kit only for now 3/15/2013
       return self.quantity * self.product.unit_price
 
   def quantity_str(self):

@@ -714,6 +714,7 @@ def place_order(request):
       order.shipping_address = profile.shipping_address
       order.save()
 
+      # order completed
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
@@ -751,7 +752,56 @@ def place_order(request):
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
-      # save cart to order
+      if order.fulfill_status == 0:
+        # update subscription information if new order
+        items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+        for item in items:
+          # check if item contains subscription
+          from_date = datetime.date(datetime.now(tz=UTC()))
+          # create new subscription info
+          subscription = SubscriptionInfo(user=order.receiver,
+                                        quantity=item.price_category,
+                                        frequency=item.frequency)
+
+          if item.frequency == 1:
+            next_invoice = from_date + relativedelta(months=+1)
+          else:
+            # set it to yesterday since subscription cancelled or was one time purchase
+            # this way, celery task won't pick things up
+            next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
+          subscription.next_invoice_date = next_invoice
+          subscription.updated_datetime = datetime.now(tz=UTC())
+          subscription.save()
+
+        if items.exists() and order.cart.party:
+          # if subsciption order made at a party, then update receivers to be the party pro
+          receiver_profile = order.receiver.get_profile()
+          if receiver_profile.is_host() or receiver_profile.is_taster():
+            receiver_profile.current_pro = order.cart.party.pro
+            # this will only apply to host because taster does not have a MyHost entry
+            # MyHost.objects.filter(host=order.receiver).update(pro=order.cart.party.pro)
+          # TODO: what happens if a pro orders a VIP?
+          receiver_profile.save()
+
+          # if order made within the 7 day window of a party it should be linked to the party
+          # order_window = order.cart.party.event_date + timedelta(days=7)
+          # PartyInvite.objects.filter(party__event_date__lte=order_window, invitee=order.receiver)
+
+          # need to send e-mail
+          send_order_confirmation_email(request, order_id)
+          order.fulfill_status = 1
+          order.save()
+
+      # remove session information if it exists
+      if 'ordering' in request.session:
+        del request.session['ordering']
+      if 'order_id' in request.session:
+        del request.session['order_id']
+      if 'cart_id' in request.session:
+        del request.session['cart_id']
+      if 'stripe_payment' in request.session:
+        del request.session['stripe_payment']
+
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
 
@@ -797,60 +847,15 @@ def order_complete(request, order_id):
   data = {}
 
   u = request.user
-  stripe_payment_mode = request.session.get('stripe_payment')
   data['is_pro_order'] = request.session.get('receiver_id')
 
-  # remove session information if it exists
-  if 'ordering' in request.session:
-    del request.session['ordering']
-  if 'order_id' in request.session:
-    del request.session['order_id']
-  if 'cart_id' in request.session:
-    del request.session['cart_id']
   if 'receiver_id' in request.session:
     del request.session['receiver_id']
-  if 'stripe_payment' in request.session:
-    del request.session['stripe_payment']
 
   try:
     order = Order.objects.get(order_id=order_id)
   except Order.DoesNotExist:
     raise Http404
-
-  if order.fulfill_status == 0:
-    # update subscription information if new order
-    items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
-    for item in items:
-      # check if item contains subscription
-      from_date = datetime.date(datetime.now(tz=UTC()))
-      # create new subscription info
-      subscription = SubscriptionInfo(user=order.receiver,
-                                    quantity=item.price_category,
-                                    frequency=item.frequency)
-
-      if item.frequency == 1:
-        next_invoice = from_date + relativedelta(months=+1)
-      else:
-        # set it to yesterday since subscription cancelled or was one time purchase
-        # this way, celery task won't pick things up
-        next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
-      subscription.next_invoice_date = next_invoice
-      subscription.updated_datetime = datetime.now(tz=UTC())
-      subscription.save()
-
-    if items.exists() and order.cart.party:
-      # if subsciption order made at a party, then update receivers to be the party pro
-      receiver_profile = order.receiver.get_profile()
-      if receiver_profile.is_host() or receiver_profile.is_taster():
-        receiver_profile.current_pro = order.cart.party.pro
-        # this will only apply to host because taster does not have a MyHost entry
-        # MyHost.objects.filter(host=order.receiver).update(pro=order.cart.party.pro)
-      # TODO: what happens if a pro orders a VIP?
-      receiver_profile.save()
-
-      # if order made within the 7 day window of a party it should be linked to the party
-      # order_window = order.cart.party.event_date + timedelta(days=7)
-      # PartyInvite.objects.filter(party__event_date__lte=order_window, invitee=order.receiver)
 
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
@@ -867,18 +872,10 @@ def order_complete(request, order_id):
         # print item.img_file_name
       data['items'].append(item)
 
-    # need to send e-mail
-    if order.fulfill_status == 0:
-      send_order_confirmation_email(request, order_id)
-      order.fulfill_status = 1
-      order.save()
-
     stripe_card_used = order.stripe_card
-    data["credit_card"] = stripe_card_used if stripe_payment_mode or stripe_card_used else order.credit_card
+    data["credit_card"] = stripe_card_used if stripe_card_used else order.credit_card
     data["shop_menu"] = True
 
-    # send_order_confirmation_email switches the order fulfillstatus
-    # so template should get the new order before outputting to template
     data["order"] = order
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
