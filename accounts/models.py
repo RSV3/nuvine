@@ -561,47 +561,47 @@ class SubscriptionInfo(models.Model):
     if all_orders.exists():
       last_order = all_orders[0]
 
-    if last_order.order_date < timezone.now() - timedelta(min=3):
+    # if last_order.order_date < timezone.now() - timedelta(min=3):
       # HACK: only create new order if the last order created is before 3 minutes ago, else it's creating a duplicate order
-      cart = Cart(user=user, receiver=user, adds=1)
-      if last_order and last_order.cart.party:
-        cart.party = last_order.cart.party
-      elif first_invite:
-        cart.party = first_invite.party
-      else:
-        # there's no party to associate to
-        log.info("There's no party for: %s" % user.email)
+    cart = Cart(user=user, receiver=user, adds=1)
+    if last_order and last_order.cart.party:
+      cart.party = last_order.cart.party
+    elif first_invite:
+      cart.party = first_invite.party
+    else:
+      # there's no party to associate to
+      log.info("There's no party for: %s" % user.email)
 
-      cart.status = Cart.CART_STATUS_CHOICES[5][0]
-      cart.save()
-      cart.items.add(item)
-      cart.discount = cart.calculate_discount()
-      cart.save()
+    cart.status = Cart.CART_STATUS_CHOICES[5][0]
+    cart.save()
+    cart.items.add(item)
+    cart.discount = cart.calculate_discount()
+    cart.save()
 
-      order = Order(ordered_by=user, receiver=user, cart=cart,
-            shipping_address=shipping_address, order_date=timezone.now())
+    order = Order(ordered_by=user, receiver=user, cart=cart,
+          shipping_address=shipping_address, order_date=timezone.now())
 
-      if prof.stripe_card:
-        order.stripe_card = prof.stripe_card
-      else:
-        order.credit_card = prof.credit_card
+    if prof.stripe_card:
+      order.stripe_card = prof.stripe_card
+    else:
+      order.credit_card = prof.credit_card
 
-      order.assign_new_order_id()
+    order.assign_new_order_id()
+    order.save()
+
+    # send out verification e-mail, create a verification code
+    request = HttpRequest()
+    request.META['SERVER_NAME'] = "www.vinely.com"
+    request.META['SERVER_PORT'] = 80
+    request.user = user
+    request.session = {}
+
+    if order.fulfill_status == 0:
+      send_order_confirmation_email(request, order.order_id)
+      order.fulfill_status = 1
       order.save()
 
-      # send out verification e-mail, create a verification code
-      request = HttpRequest()
-      request.META['SERVER_NAME'] = "www.vinely.com"
-      request.META['SERVER_PORT'] = 80
-      request.user = user
-      request.session = {}
-
-      if order.fulfill_status == 0:
-        send_order_confirmation_email(request, order.order_id)
-        order.fulfill_status = 1
-        order.save()
-
-      log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
+    log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
 
     if receiver_state in Cart.STRIPE_STATES:
       if cart.discount > 0:

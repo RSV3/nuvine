@@ -486,8 +486,10 @@ def cart_add_wine(request):
     pro_group = Group.objects.get(name="Vinely Pro")
     if pro_group not in u.groups.all():
       if cart.items.filter(frequency__in=[1, 2, 3]).exists():
-        if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]).exists():
-          messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
+        subscriptions = SubscriptionInfo.objects.all(user=u).order_by('-updated_datetime')
+        if subscriptions.exists():
+          if subscriptions[0].frequency in [1, 2, 3]:
+            messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
 
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))

@@ -1,11 +1,9 @@
 # Create your views here.
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from django.contrib.auth.models import User
 
 import stripe
 import json
@@ -14,6 +12,10 @@ from accounts.models import SubscriptionInfo, Zipcode
 
 from stripecard.models import StripeCard
 from datetime import datetime, timedelta
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def shipping(plan):
@@ -63,6 +65,11 @@ def invoice_created(event_json):
     from accounts.models import UserProfile
     data = event_json['data']['object']
     customer = data['customer']
+    paid = data['paid']
+
+    if paid:
+        # for subscriptions paid will be true
+        return
 
     # test webhook
     if event_json['id'] == 'evt_00000000000000':
