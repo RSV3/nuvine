@@ -360,7 +360,7 @@ def cart_add_tasting_kit(request, party_id=0):
 
       if cart.party and cart.party != party:
         # if cart.party is None, no party has been assigned in previous orders
-        messages.error(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
+        messages.warning(request, 'Looks like you\'ve already started ordering a taste kit for another party. You can only order taste kits for one party at a time.')
         return HttpResponseRedirect('.')
 
     # add line item to cart
@@ -456,7 +456,7 @@ def cart_add_wine(request):
     # can only order make one subscription at a time
     if (item.frequency == 1) and cart:
       if cart.items.filter(frequency=1).exists():
-        alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
+        alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
 
@@ -472,38 +472,19 @@ def cart_add_wine(request):
     cart.adds += 1
     cart.discount = cart.calculate_discount()
     cart.save()
-    # raise Exception
-    # update customization options
-    # custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
-
-    # if int(form.cleaned_data['mix_selection']) == 0:
-    #   custom.wine_mix = int(form.cleaned_data['mix_selection'])
-    # else:
-    #   custom.wine_mix = int(form.cleaned_data['wine_mix'])
-    # custom.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
     pro_group = Group.objects.get(name="Vinely Pro")
     if pro_group not in u.groups.all():
       if cart.items.filter(frequency__in=[1, 2, 3]).exists():
-        if SubscriptionInfo.objects.filter(user=u, frequency__in=[1, 2, 3]).exists():
-          messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
+        subscriptions = SubscriptionInfo.objects.filter(user=u).order_by('-updated_datetime')
+        if subscriptions.exists():
+          if subscriptions[0].frequency in [1, 2, 3]:
+            messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
 
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))
 
-  # big image of wine
-  # TODO: need to check wine personality and choose the right product
-  # try:
-  #   product = Product.objects.filter(active=True)[0]
-  # except:
-  #   # not a valid product
-  #   raise Http404
-
-  # description_template = Template(product.description)
-  # product.description = description_template.render(Context({'personality': personality.name}))
-  # product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  # # product.unit_price = product.full_case_price
   product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
@@ -577,6 +558,8 @@ def cart_remove_item(request, cart_id, item_id):
   if item.product.category == 0 and 'taste_kit_order' in request.session:
     del request.session['taste_kit_order']
   cart.items.remove(item)
+  if cart.items.count() == 0:
+    del request.session['cart_id']
 
   # track cart activity
   cart.removes += 1
@@ -712,6 +695,7 @@ def place_order(request):
       order.shipping_address = profile.shipping_address
       order.save()
 
+      # order completed
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
@@ -749,7 +733,66 @@ def place_order(request):
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
-      # save cart to order
+      if order.fulfill_status == 0:
+        # update subscription information if new order
+        items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+        for item in items:
+          # check if item contains subscription
+          from_date = datetime.date(datetime.now(tz=UTC()))
+          # create new subscription info
+          subscription = SubscriptionInfo(user=order.receiver,
+                                        quantity=item.price_category,
+                                        frequency=item.frequency)
+
+          if item.frequency == 1:
+            next_invoice = from_date + relativedelta(months=+1)
+          else:
+            # set it to yesterday since subscription cancelled or was one time purchase
+            # this way, celery task won't pick things up
+            next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
+          subscription.next_invoice_date = next_invoice
+          subscription.updated_datetime = datetime.now(tz=UTC())
+          subscription.save()
+
+        if items.exists() and order.cart.party:
+          # if subscription order made at a party, then update receivers to be the party pro
+          receiver_profile = order.receiver.get_profile()
+          if receiver_profile.is_host() or receiver_profile.is_taster():
+            receiver_profile.current_pro = order.cart.party.pro
+
+          # TODO: what happens if a pro orders a VIP?
+          receiver_profile.save()
+
+        # if order made subscription within the 7 day window of a party receiver should be linked to the party pro
+        if items.exists():
+          from personality.models import WineRatingData
+
+          if receiver_profile.is_host() or receiver_profile.is_taster():
+            order_window = order.cart.party.event_date + timedelta(days=7)
+            invites = PartyInvite.objects.filter(party=order.cart.party, party__event_date__lte=order_window, invitee=order.receiver, response=3)
+            # party date considered 24hrs
+            party_date = order.cart.party.event_date + timedelta(days=1)
+            ratings = WineRatingData.objects.filter(user=order.receiver, timestamp__lte=party_date, timestamp__gte=order.cart.party.event_date)
+            # if attended party
+            if invites.exists() and ratings.exists():
+              receiver_profile.current_pro = order.cart.party.pro
+              receiver_profile.save()
+
+        # need to send e-mail
+        send_order_confirmation_email(request, order_id)
+        order.fulfill_status = 1
+        order.save()
+
+      # remove session information if it exists
+      if 'ordering' in request.session:
+        del request.session['ordering']
+      if 'order_id' in request.session:
+        del request.session['order_id']
+      if 'cart_id' in request.session:
+        del request.session['cart_id']
+      if 'stripe_payment' in request.session:
+        del request.session['stripe_payment']
+
       data["shop_menu"] = True
       return HttpResponseRedirect(reverse("order_complete", args=[order_id]))
 
@@ -795,55 +838,20 @@ def order_complete(request, order_id):
   data = {}
 
   u = request.user
-  stripe_payment_mode = request.session.get('stripe_payment', None)
 
-  # remove session information if it exists
-  if 'ordering' in request.session:
-    del request.session['ordering']
-  if 'order_id' in request.session:
-    del request.session['order_id']
-  if 'cart_id' in request.session:
-    del request.session['cart_id']
   if 'receiver_id' in request.session:
     del request.session['receiver_id']
-  if 'stripe_payment' in request.session:
-    del request.session['stripe_payment']
 
   try:
     order = Order.objects.get(order_id=order_id)
   except Order.DoesNotExist:
     raise Http404
 
-  if order.fulfill_status == 0:
-    # update subscription information if new order
-    items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
-    for item in items:
-      # check if item contains subscription
-      from_date = datetime.date(datetime.now(tz=UTC()))
-      # create new subscription info
-      subscription = SubscriptionInfo(user=order.receiver,
-                                    quantity=item.price_category,
-                                    frequency=item.frequency)
-
-      if item.frequency == 1:
-        next_invoice = from_date + relativedelta(months=+1)
-      else:
-        # set it to yesterday since subscription cancelled or was one time purchase
-        # this way, celery task won't pick things up
-        next_invoice = datetime.now(tz=UTC()) - timedelta(days=1)
-      subscription.next_invoice_date = next_invoice
-      subscription.updated_datetime = datetime.now(tz=UTC())
-      subscription.save()
-
-    if items.exists() and order.cart.party:
-      # if subsciption order made at a party, then update receivers to be the party pro
-      receiver_profile = order.receiver.get_profile()
-      if receiver_profile.is_host() or receiver_profile.is_taster():
-        receiver_profile.current_pro = order.cart.party.pro
-        # this will only apply to host because taster does not have a MyHost entry
-        # MyHost.objects.filter(host=order.receiver).update(pro=order.cart.party.pro)
-      # TODO: what happens if a pro orders a VIP?
-      receiver_profile.save()
+  if order.receiver != order.user:
+    # pro ordering for someone else
+    data['is_pro_order'] = True
+  else:
+    data['is_pro_order'] = False
 
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
@@ -860,18 +868,10 @@ def order_complete(request, order_id):
         # print item.img_file_name
       data['items'].append(item)
 
-    # need to send e-mail
-    if order.fulfill_status == 0:
-      send_order_confirmation_email(request, order_id)
-      order.fulfill_status = 1
-      order.save()
-
     stripe_card_used = order.stripe_card
-    data["credit_card"] = stripe_card_used if stripe_payment_mode or stripe_card_used else order.credit_card
+    data["credit_card"] = stripe_card_used if stripe_card_used else order.credit_card
     data["shop_menu"] = True
 
-    # send_order_confirmation_email switches the order fulfillstatus
-    # so template should get the new order before outputting to template
     data["order"] = order
     return render_to_response("main/order_complete.html", data, context_instance=RequestContext(request))
   else:
@@ -1283,7 +1283,7 @@ def party_add_taster(request, party, taster_form):
     new_invite.save()
     invitee = new_invite.invitee
 
-    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
+    # messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
     return invitee
   return None
 
@@ -1312,7 +1312,9 @@ def party_find_friends(request, party_id):
 
   if request.POST.get('add_taster'):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
-    party_add_taster(request, party, taster_form)
+    invitee = party_add_taster(request, party, taster_form)
+    if invitee:
+      messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
 
@@ -1384,15 +1386,6 @@ def party_review_request(request, party_id):
     party.requested = True
     party.confirmed = True
     party.save()
-    # Send confirmation request to Pro
-    # send_host_request_party_email(request, party)
-    # party_has_pro = OrganizedParty.objects.filter(party=party)
-    # if party_has_pro.exists():
-    #   send_new_party_scheduled_by_host_email(request, party)
-    #   # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
-    # else:
-    #   send_new_party_scheduled_by_host_no_pro_email(request, party)
-    # send notification to pro
     party_setup_completed_email(request, party)
 
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
@@ -1542,9 +1535,13 @@ def party_details(request, party_id):
 
   data['taster_form'] = taster_form
   invitee = party_add_taster(request, party, taster_form)
-  if invitee:
-    msg = '%s has been added to the party list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % invitee.first_name
+  if invitee and party.host == u:
+    msg = '%s %s (%s) has been added to the party invitations list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
+  if invitee and party.pro == u:
+    msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
+    messages.success(request, msg)
+
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
@@ -1806,7 +1803,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
     form = VerifyEligibilityForm(instance=profile)
     request.user = u
-    party_add_taster(request, party, taster_form)
+    invitee = party_add_taster(request, party, taster_form)
+    if invitee:
+      msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
+      messages.success(request, msg)
+
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
     form = VerifyEligibilityForm(request.POST or None, instance=profile)
@@ -1846,10 +1847,12 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   if response:
     if disallow_rsvp and data['age_checked']:
       invite.response = 4
+      invite.response_timestamp = timezone.now()
       invite.save()
 
     if disallow_rsvp is False:
       invite.response = int(response)
+      invite.response_timestamp = timezone.now()
       invite.save()
 
   invitees = PartyInvite.objects.filter(party=party)
@@ -2512,8 +2515,6 @@ def edit_shipping_address(request):
   initial_data['news_optin'] = receiver.get_profile().news_optin
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
-  # if not u.get_profile().is_pro() or receiver == u:
-  #   form.fields['email'].widget = forms.HiddenInput()
 
   age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
 
@@ -2527,7 +2528,7 @@ def edit_shipping_address(request):
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
     if zipcode and not ok:
-      messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
+      messages.error(request, 'Currently, we can only ship to California.')
       return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
   if form.is_valid() and valid_age:

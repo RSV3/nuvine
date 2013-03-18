@@ -13,7 +13,7 @@
 {% endblock additional_styles %}
 
 {% block header %}
-  <h1 class="headline">You're invited to {{ party.title }}!</h1>
+  <h1 class="headline">{{ invite.invitee.first_name }}, you've been invited to {{ party.title }}!</h1>
 {% endblock header %}
 
 {% block content %}

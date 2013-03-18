@@ -12,7 +12,7 @@ urlpatterns = patterns('main.views',
     url(r'^uncover/personality/$', 'uncover_personality', name='uncover_personality'),
     url(r'^resend/invite/$', 'resend_rsvp', name='resend_rsvp'),
 
-    url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
+    # url(r'^host/party/$', 'host_vinely_party', name='host_vinely_party'),
     url(r'^host/list/(?P<host_name_email>[@\w\+\-\.]+)/$', 'party_host_list', name='party_host_list'),
     url(r'^taster/list/(?P<taster_name_email>[@\w\+\-\.]+)/$', 'my_taster_list', name='my_taster_list'),
     url(r'^user/info/(?P<user_email>[@\w\+\-\.]+)/$', 'party_user_info', name='party_user_info'),

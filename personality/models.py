@@ -164,7 +164,7 @@ class WineRatingData(models.Model):
   texture_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
   sizzle = models.IntegerField(choices=SIZZLE_CHOICES, default=SIZZLE_CHOICES[0][0])
   sizzle_dnl = models.IntegerField(choices=DNL_CHOICES, default=DNL_CHOICES[0][0])
-  timestamp = models.DateTimeField(auto_now_add=True)
+  timestamp = models.DateTimeField(auto_now=True)
 
   class Meta:
     ordering = ['wine__number']

@@ -531,7 +531,8 @@ class SubscriptionInfo(models.Model):
         # product = Product.objects.get(id=6)
         product = Product.objects.get(cart_tag='superior')
     elif self.quantity in [12, 13, 14]:
-      quantity_code = 3
+      # quantity should always be 1 for newer model of subscription that uses 3, 6, 12 bottles
+      quantity_code = 1
       if self.quantity == 12:
         product = Product.objects.get(cart_tag='3')
       elif self.quantity == 13:
@@ -560,6 +561,8 @@ class SubscriptionInfo(models.Model):
     if all_orders.exists():
       last_order = all_orders[0]
 
+    # if last_order.order_date < timezone.now() - timedelta(min=3):
+      # HACK: only create new order if the last order created is before 3 minutes ago, else it's creating a duplicate order
     cart = Cart(user=user, receiver=user, adds=1)
     if last_order and last_order.cart.party:
       cart.party = last_order.cart.party
@@ -568,6 +571,8 @@ class SubscriptionInfo(models.Model):
     else:
       # there's no party to associate to
       log.info("There's no party for: %s" % user.email)
+
+    cart.status = Cart.CART_STATUS_CHOICES[5][0]
     cart.save()
     cart.items.add(item)
     cart.discount = cart.calculate_discount()
@@ -583,11 +588,26 @@ class SubscriptionInfo(models.Model):
 
     order.assign_new_order_id()
     order.save()
+
+    # send out verification e-mail, create a verification code
+    request = HttpRequest()
+    request.META['SERVER_NAME'] = "www.vinely.com"
+    request.META['SERVER_PORT'] = 80
+    request.user = user
+    request.session = {}
+
+    if order.fulfill_status == 0:
+      send_order_confirmation_email(request, order.order_id)
+      order.fulfill_status = 1
+      order.save()
+
     log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
 
     if receiver_state in Cart.STRIPE_STATES:
       if cart.discount > 0:
-        # customer = stripe.Customer.retrieve(id=customer.id)
+        if not customer:
+          # customer wont be defined at this point for webhook calls
+          customer = stripe.Customer.retrieve(id=prof.stripe_card)
         coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
         customer.coupon = coupon.id
         customer.save()
@@ -614,18 +634,6 @@ class SubscriptionInfo(models.Model):
     self.next_invoice_date = next_invoice
     self.save()
 
-    # send out verification e-mail, create a verification code
-    request = HttpRequest()
-    request.META['SERVER_NAME'] = "www.vinely.com"
-    request.META['SERVER_PORT'] = 80
-    request.user = user
-    request.session = {}
-
-    if order.fulfill_status == 0:
-      send_order_confirmation_email(request, order.order_id)
-      order.fulfill_status = 1
-      order.save()
-
 
 class Zipcode(models.Model):
   '''
@@ -638,4 +646,4 @@ class Zipcode(models.Model):
   latitude = models.CharField(max_length=20)
   longitude = models.CharField(max_length=20)
 
-SUPPORTED_STATES = ['MI', 'CA', 'MA']
+SUPPORTED_STATES = ['CA']
