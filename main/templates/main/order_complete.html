@@ -123,7 +123,7 @@
       <div class="form-actions">
         <div class="pull-right">
           {% if is_pro_order and order.cart.party %}
-            <a class="btn btn-primary" href="{% url party_details order.cart.party.id %}">Return Home</a>
+            <a class="btn btn-primary" href="{% url party_details order.cart.party.id %}">Return To Party Page</a>
           {% else %}
             <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
           {% endif %}

@@ -838,7 +838,6 @@ def order_complete(request, order_id):
   data = {}
 
   u = request.user
-  data['is_pro_order'] = request.session.get('receiver_id')
 
   if 'receiver_id' in request.session:
     del request.session['receiver_id']
@@ -847,6 +846,12 @@ def order_complete(request, order_id):
     order = Order.objects.get(order_id=order_id)
   except Order.DoesNotExist:
     raise Http404
+
+  if order.receiver != order.user:
+    # pro ordering for someone else
+    data['is_pro_order'] = True
+  else:
+    data['is_pro_order'] = False
 
   if order.ordered_by == u or order.receiver == u:
     # only viewable by one who ordered or one who's receiving
@@ -1379,15 +1384,6 @@ def party_review_request(request, party_id):
     party.requested = True
     party.confirmed = True
     party.save()
-    # Send confirmation request to Pro
-    # send_host_request_party_email(request, party)
-    # party_has_pro = OrganizedParty.objects.filter(party=party)
-    # if party_has_pro.exists():
-    #   send_new_party_scheduled_by_host_email(request, party)
-    #   # messages.success(request, "You have scheduled your party but it still needs to be confirmed by your Pro before your invite can be sent out.")
-    # else:
-    #   send_new_party_scheduled_by_host_no_pro_email(request, party)
-    # send notification to pro
     party_setup_completed_email(request, party)
 
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
@@ -1540,6 +1536,10 @@ def party_details(request, party_id):
   if invitee and party.host == u:
     msg = '%s has been added to the party list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % invitee.first_name
     messages.success(request, msg)
+  if invitee and party.pro == u:
+    msg = '%s has been added to the party list. Remind the host to send them an invitation.' % invitee.first_name
+    messages.success(request, msg)
+
   invitees = PartyInvite.objects.filter(party=party)
 
   data["party"] = party
