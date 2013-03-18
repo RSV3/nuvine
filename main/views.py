@@ -456,7 +456,7 @@ def cart_add_wine(request):
     # can only order make one subscription at a time
     if (item.frequency == 1) and cart:
       if cart.items.filter(frequency=1).exists():
-        alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time. You can change this to a one-time purchase.'
+        alert_msg = 'You already have a subscription in your cart. Multiple subscriptions are not supported at this time.'
         messages.error(request, alert_msg)
         return HttpResponseRedirect('.')
 
@@ -472,21 +472,12 @@ def cart_add_wine(request):
     cart.adds += 1
     cart.discount = cart.calculate_discount()
     cart.save()
-    # raise Exception
-    # update customization options
-    # custom, created = CustomizeOrder.objects.get_or_create(user=receiver)
-
-    # if int(form.cleaned_data['mix_selection']) == 0:
-    #   custom.wine_mix = int(form.cleaned_data['mix_selection'])
-    # else:
-    #   custom.wine_mix = int(form.cleaned_data['wine_mix'])
-    # custom.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
     pro_group = Group.objects.get(name="Vinely Pro")
     if pro_group not in u.groups.all():
       if cart.items.filter(frequency__in=[1, 2, 3]).exists():
-        subscriptions = SubscriptionInfo.objects.all(user=u).order_by('-updated_datetime')
+        subscriptions = SubscriptionInfo.objects.filter(user=u).order_by('-updated_datetime')
         if subscriptions.exists():
           if subscriptions[0].frequency in [1, 2, 3]:
             messages.warning(request, "You already have an existing subscription in the system. If you proceed, this action will cancel that subscription.")
@@ -494,18 +485,6 @@ def cart_add_wine(request):
     data["shop_menu"] = True
     return HttpResponseRedirect(reverse("cart"))
 
-  # big image of wine
-  # TODO: need to check wine personality and choose the right product
-  # try:
-  #   product = Product.objects.filter(active=True)[0]
-  # except:
-  #   # not a valid product
-  #   raise Http404
-
-  # description_template = Template(product.description)
-  # product.description = description_template.render(Context({'personality': personality.name}))
-  # product.img_file_name = "%s_%s_prodimg.png" % (personality.suffix, product.cart_tag)
-  # # product.unit_price = product.full_case_price
   product = Product.objects.get(cart_tag="6")
   data["product"] = product
   data["personality"] = personality
@@ -776,23 +755,33 @@ def place_order(request):
           subscription.save()
 
         if items.exists() and order.cart.party:
-          # if subsciption order made at a party, then update receivers to be the party pro
+          # if subscription order made at a party, then update receivers to be the party pro
           receiver_profile = order.receiver.get_profile()
           if receiver_profile.is_host() or receiver_profile.is_taster():
             receiver_profile.current_pro = order.cart.party.pro
-            # this will only apply to host because taster does not have a MyHost entry
-            # MyHost.objects.filter(host=order.receiver).update(pro=order.cart.party.pro)
+
           # TODO: what happens if a pro orders a VIP?
           receiver_profile.save()
 
-          # if order made within the 7 day window of a party it should be linked to the party
-          # order_window = order.cart.party.event_date + timedelta(days=7)
-          # PartyInvite.objects.filter(party__event_date__lte=order_window, invitee=order.receiver)
+        # if order made subscription within the 7 day window of a party receiver should be linked to the party pro
+        if items.exists():
+          from personality.models import WineRatingData
 
-          # need to send e-mail
-          send_order_confirmation_email(request, order_id)
-          order.fulfill_status = 1
-          order.save()
+          if receiver_profile.is_host() or receiver_profile.is_taster():
+            order_window = order.cart.party.event_date + timedelta(days=7)
+            invites = PartyInvite.objects.filter(party=order.cart.party, party__event_date__lte=order_window, invitee=order.receiver, response=3)
+            # party date considered 24hrs
+            party_date = order.cart.party.event_date + timedelta(days=1)
+            ratings = WineRatingData.objects.filter(user=order.receiver, timestamp__lte=party_date, timestamp__gte=order.cart.party.event_date)
+            # if attended party
+            if invites.exists() and ratings.exists():
+              receiver_profile.current_pro = order.cart.party.pro
+              receiver_profile.save()
+
+        # need to send e-mail
+        send_order_confirmation_email(request, order_id)
+        order.fulfill_status = 1
+        order.save()
 
       # remove session information if it exists
       if 'ordering' in request.session:
