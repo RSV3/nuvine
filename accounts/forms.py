@@ -374,6 +374,10 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
 class MakeTasterForm(MakeHostProForm):
   phone_number = us_forms.USPhoneNumberField(required=False)
 
+  def __init__(self, *args, **kwargs):
+    super(MakeTasterForm, self).__init__(*args, **kwargs)
+    self.fields['phone_number'].widget.attrs = {'placeholder': 'Phone number (optional)'}
+
 
 class HeardAboutForm(forms.Form):
   SOURCES = (

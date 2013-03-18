@@ -310,7 +310,11 @@ class LineItem(models.Model):
       return self.product.full_case_price
     elif self.price_category in [6, 8, 10]:
       return self.product.unit_price
+    elif self.price_category in [12, 13, 14]:
+      # newer products that go by 3, 6, 12 bottles
+      return self.product.unit_price
     else:
+      # for tasting kit only for now 3/15/2013
       return self.quantity * self.product.unit_price
 
   def quantity_str(self):
@@ -369,6 +373,9 @@ class Cart(models.Model):
     # dont apply for tasting kit
     items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if items.exists():
+      return 0
+
+    if self.items.count() == 0:
       return 0
 
     credit = calculate_host_credit(self.user)

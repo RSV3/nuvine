@@ -37,6 +37,9 @@
         <thead>
           <tr>
             <th>Item</th>
+            {% if items.0.product.category == 0 %}
+              <th>&nbsp;</th> {# item name #}
+            {% endif %}
             <th>Quantity</th>
             {% if items.0.product.category != 0 %}
               <th>Frequency</th>
@@ -57,13 +60,11 @@
                       <img src="{% static "img/firsthostkit_prodimg.png" %}" height="100">
                   {% endif %}
                 </div>
-                <div class="cart-item-name">
-                  {% if item.product.category == 0 %} {# only show this for taste-kits #}
-                    {{ item.product.name }}
-                  {% endif %}
-                </div>
               </div>
             </td>
+            {% if item.product.category == 0 %} {# only show this for taste-kits #}
+              <td>{{ item.product.name }}</td>
+            {% endif %}
             <td>{{ item.quantity_str }}</td>
             {% if item.product.category != 0 %}
               <td>{{ item.get_frequency_display }}</td>

@@ -61,28 +61,30 @@
         {% endif %}
  -->
         <fieldset>
-          <div class="control-group {% if profile.image.errors %} error{% endif %}">
-            <div class="controls">
-              {% if profile.image %}
-                {% thumbnail profile.image "120x120" as im %}
-                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                {% endthumbnail %}
-              {% else %}
-                <img src="{% static "img/noprofilephoto_img.png" %}" height="120">
-              {% endif %}
+          {% if pro or pending_pro %}
+            <div class="control-group {% if profile.image.errors %} error{% endif %}">
+              <div class="controls">
+                {% if profile.image %}
+                  {% thumbnail profile.image "120x120" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                  {% endthumbnail %}
+                {% else %}
+                  <img src="{% static "img/noprofilephoto_img.png" %}" height="120">
+                {% endif %}
+              </div>
+              <div class="control-label" for="id_profile-image">
+              {{ profile_form.image.label }}
+              </div>
+              <div class="controls">
+                {{ profile_form.image }}
+                {% if profile_form.image.errors %}
+                  <span class="help-inline">
+                    {{ profile_form.image.errors }}
+                  </span>
+                {% endif %}
+              </div>
             </div>
-            <div class="control-label" for="id_profile-image">
-            {{ profile_form.image.label }}
-            </div>
-            <div class="controls">
-              {{ profile_form.image }}
-              {% if profile_form.image.errors %}
-                <span class="help-inline">
-                  {{ profile_form.image.errors }}
-                </span>
-              {% endif %}
-            </div>
-          </div>
+          {% endif %}
           <div class="control-group {% if user_form.first_name.errors %} error{% endif %}">
             <div class="control-label" for="id_user-first_name">
             {{ user_form.first_name.label }}

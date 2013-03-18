@@ -61,8 +61,13 @@
             <thead>
               <tr>
                 <th>Item</th>
+                {% if items.0.product.category == 0 %}
+                  <th>&nbsp;</th> {# item name #}
+                {% endif %}
                 <th>Quantity</th>
-                <th>Frequency</th>
+                {% if items.0.product.category != 0 %}
+                  <th>Frequency</th>
+                {% endif %}
                 <th>Total</th>
               </tr>
             </thead>
@@ -78,15 +83,15 @@
                       <img src="{% static "img/firsthostkit_prodimg.png" %}" height="100">
                   {% endif %}
                   </div>
-                  <div class="cart-item-name">
-                    {% if item.product.category == 0 %} {# only show this for taste-kits #}
-                      {{ item.product.name }}
-                    {% endif %}
-                  </div>
                 </div>
               </td>
-              <td>{{ item.quantity_str }}</td>
+            {% if item.product.category == 0 %} {# only show this for taste-kits #}
+              <td>{{ item.product.name }}</td>
+            {% endif %}
+            <td>{{ item.quantity_str }}</td>
+            {% if item.product.category != 0 %}
               <td>{{ item.get_frequency_display }}</td>
+            {% endif %}
               <td>{{ item.subtotal|currency }}</td>
             </tr>
             {% endfor %}
@@ -117,7 +122,11 @@
     <div class="span12">
       <div class="form-actions">
         <div class="pull-right">
-          <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
+          {% if is_pro_order and order.cart.party %}
+            <a class="btn btn-primary" href="{% url party_details order.cart.party.id %}">Return To Party Page</a>
+          {% else %}
+            <a class="btn btn-primary" href="{% url home_page %}">Return Home</a>
+          {% endif %}
         </div>
       </div>
     </div>

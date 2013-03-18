@@ -28,13 +28,13 @@
             {% if pro %}
               {% if party.id %}
                 {% if can_order_for_taster %}
-                  <a href="{% url start_order invitee.id party.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+                  <a href="{% url start_order invitee.id party.id %}" class="btn btn-primary">Shop for {{ invitee.first_name }}</a>
                 {% endif %}
                 <p>
                   <a href="{% url record_all_wine_ratings invitee.email party.id %}" class="btn btn-primary">Edit rating info</a>
                 </p>
               {% else %}
-                <a href="{% url start_order invitee.id %}" class="btn btn-primary">Get Wine for {{ invitee.first_name }}</a>
+                <a href="{% url start_order invitee.id %}" class="btn btn-primary">Shop for {{ invitee.first_name }}</a>
               {% endif %}
             {% else %}
               <a href="{% url start_order user.id %}" class="btn btn-primary">Get Wine</a>
