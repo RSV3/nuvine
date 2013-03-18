@@ -1283,7 +1283,7 @@ def party_add_taster(request, party, taster_form):
     new_invite.save()
     invitee = new_invite.invitee
 
-    messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
+    # messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
     return invitee
   return None
 
@@ -1312,7 +1312,9 @@ def party_find_friends(request, party_id):
 
   if request.POST.get('add_taster'):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
-    party_add_taster(request, party, taster_form)
+    invitee = party_add_taster(request, party, taster_form)
+    if invitee:
+      messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (invitee.first_name, invitee.last_name, invitee.email))
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
 
@@ -1534,10 +1536,10 @@ def party_details(request, party_id):
   data['taster_form'] = taster_form
   invitee = party_add_taster(request, party, taster_form)
   if invitee and party.host == u:
-    msg = '%s has been added to the party list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % invitee.first_name
+    msg = '%s %s (%s) has been added to the party invitations list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
   if invitee and party.pro == u:
-    msg = '%s has been added to the party list. Remind the host to send them an invitation.' % invitee.first_name
+    msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
   invitees = PartyInvite.objects.filter(party=party)
@@ -1801,7 +1803,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
     form = VerifyEligibilityForm(instance=profile)
     request.user = u
-    party_add_taster(request, party, taster_form)
+    invitee = party_add_taster(request, party, taster_form)
+    if invitee:
+      msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
+      messages.success(request, msg)
+
   else:
     taster_form = PartyInviteTasterForm(initial=initial_data)
     form = VerifyEligibilityForm(request.POST or None, instance=profile)
