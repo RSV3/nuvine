@@ -2515,8 +2515,6 @@ def edit_shipping_address(request):
   initial_data['news_optin'] = receiver.get_profile().news_optin
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
-  # if not u.get_profile().is_pro() or receiver == u:
-  #   form.fields['email'].widget = forms.HiddenInput()
 
   age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
 
@@ -2530,7 +2528,7 @@ def edit_shipping_address(request):
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
     if zipcode and not ok:
-      messages.error(request, 'Please note that Vinely does not currently operate in the specified area.')
+      messages.error(request, 'Currently, we can only ship to California.')
       return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
   if form.is_valid() and valid_age:

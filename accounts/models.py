@@ -634,7 +634,7 @@ class SubscriptionInfo(models.Model):
     self.next_invoice_date = next_invoice
     self.save()
 
- 
+
 class Zipcode(models.Model):
   '''
   List of all zipcodes in US
@@ -646,4 +646,4 @@ class Zipcode(models.Model):
   latitude = models.CharField(max_length=20)
   longitude = models.CharField(max_length=20)
 
-SUPPORTED_STATES = ['MI', 'CA', 'MA']
+SUPPORTED_STATES = ['CA']
