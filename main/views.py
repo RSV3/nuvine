@@ -847,7 +847,7 @@ def order_complete(request, order_id):
   except Order.DoesNotExist:
     raise Http404
 
-  if order.receiver != order.user:
+  if order.receiver != order.ordered_by:
     # pro ordering for someone else
     data['is_pro_order'] = True
   else:
