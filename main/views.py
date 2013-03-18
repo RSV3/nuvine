@@ -1107,6 +1107,7 @@ def party_add(request, party_id=None, party_pro=None):
     party.setup_stage = 1
     party.save()
 
+    data["pro_user"] = party.pro
   else:
     party_date = timezone.now() + timedelta(days=15)
     party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day,
@@ -1143,23 +1144,12 @@ def party_add(request, party_id=None, party_pro=None):
         # new_party.setup_stage = 1
       new_party.save()
       new_host = new_party.host
-
-      # find applicable pro
-      if u.userprofile.is_pro():
+      if party:
+        # it's an edit so already has a pro
+        applicable_pro = party.pro
+      else:
+        # it's a new party creation so current user is the pro creating it
         applicable_pro = u
-      else:
-        # if current user is host, use current pro
-        applicable_pro, pro_profile = my_pro(u)
-
-      # map host to a pro
-      no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
-      if no_applicable_pro.exists():
-        my_hosts = no_applicable_pro[0]
-        my_hosts.pro = applicable_pro
-        my_hosts.timestamp = timezone.now()
-        my_hosts.save()
-      else:
-        my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
@@ -1229,8 +1219,6 @@ def party_add(request, party_id=None, party_pro=None):
       else:
         send_host_vinely_party_email(request, u)
 
-  applicable_pro, pro_profile = my_pro(u)
-  data["pro_user"] = applicable_pro
   data["form"] = form
   data["parties_menu"] = True
 
