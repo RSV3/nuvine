@@ -2173,7 +2173,7 @@ def party_send_invites(request):
     # send e-mails
     num_guests = distribute_party_invites_email(request, invitation_sent)
     if num_guests > 0:
-      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
+      messages.success(request, "Your invitations were sent successfully to %d tasters!" % num_guests)
       data["parties_menu"] = True
 
   return HttpResponseRedirect(reverse("party_details", args=[party.id]))
