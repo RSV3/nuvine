@@ -9,6 +9,9 @@ from cms.models import Section
 
 from premailer import Premailer
 
+import logging
+log = logging.getLogger(__name__)
+
 
 def send_signed_up_as_host_email(request, user):
   template = Section.objects.get(template__key='signed_up_as_host_email', category=0)

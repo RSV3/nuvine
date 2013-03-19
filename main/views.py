@@ -77,10 +77,11 @@ def pros_only(request):
 
 @login_required
 def home(request):
+
   data = {}
 
   u = request.user
-
+  print 'find_nearest_pro', u.userprofile.find_nearest_pro()
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
@@ -847,7 +848,7 @@ def order_complete(request, order_id):
   except Order.DoesNotExist:
     raise Http404
 
-  if order.receiver != order.user:
+  if order.receiver != order.ordered_by:
     # pro ordering for someone else
     data['is_pro_order'] = True
   else:
@@ -1107,6 +1108,7 @@ def party_add(request, party_id=None, party_pro=None):
     party.setup_stage = 1
     party.save()
 
+    data["pro_user"] = party.pro
   else:
     party_date = timezone.now() + timedelta(days=15)
     party_date = timezone.datetime(year=party_date.year, month=party_date.month, day=party_date.day,
@@ -1143,23 +1145,12 @@ def party_add(request, party_id=None, party_pro=None):
         # new_party.setup_stage = 1
       new_party.save()
       new_host = new_party.host
-
-      # find applicable pro
-      if u.userprofile.is_pro():
+      if party:
+        # it's an edit so already has a pro
+        applicable_pro = party.pro
+      else:
+        # it's a new party creation so current user is the pro creating it
         applicable_pro = u
-      else:
-        # if current user is host, use current pro
-        applicable_pro, pro_profile = my_pro(u)
-
-      # map host to a pro
-      no_applicable_pro = MyHost.objects.filter(host=new_host, pro__isnull=True)
-      if no_applicable_pro.exists():
-        my_hosts = no_applicable_pro[0]
-        my_hosts.pro = applicable_pro
-        my_hosts.timestamp = timezone.now()
-        my_hosts.save()
-      else:
-        my_hosts, created = MyHost.objects.get_or_create(pro=applicable_pro, host=new_host)
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
       pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
@@ -1211,26 +1202,14 @@ def party_add(request, party_id=None, party_pro=None):
         # go to party details page
         send_new_party_host_confirm_email(request, new_party)
         messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
-        # return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
         return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
       else:
-        # messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
-  else:
-    # GET
-    # if the current user is host, display Vinely Pro
-    if u.userprofile.is_host():
-      if u.userprofile.current_pro:
-        send_host_vinely_party_email(request, u, u.userprofile.current_pro)
-      else:
-        send_host_vinely_party_email(request, u)
 
-  applicable_pro, pro_profile = my_pro(u)
-  data["pro_user"] = applicable_pro
   data["form"] = form
   data["parties_menu"] = True
 
@@ -1627,29 +1606,6 @@ def party_confirm(request, party_id):
 
   messages.success(request, 'Congratulations! Your party has been scheduled')
   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
-
-
-# @login_required
-# def party_taster_list(request, party_id):
-#   """
-#     Show Vinely Tasters of a party
-#   """
-
-#   data = {}
-
-#   u = request.user
-
-#   party = None
-#   if party_id and int(party_id) != 0:
-#     party = get_object_or_404(Party, pk=party_id)
-
-#   invitees = PartyInvite.objects.filter(party=party)
-
-#   data["party"] = party
-#   data["invitees"] = invitees
-#   data["parties_menu"] = True
-
-#   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
 
 # @login_required
