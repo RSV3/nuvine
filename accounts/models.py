@@ -18,11 +18,13 @@ from personality.models import WineRatingData
 from dateutil.relativedelta import relativedelta
 from django.http import HttpRequest
 
+from pyproj import Geod
+from random import randint
+
 import stripe
 ZERO = timedelta(0)
 
 import logging
-
 log = logging.getLogger(__name__)
 
 
@@ -178,6 +180,53 @@ class UserProfile(models.Model):
   stripe_cards = models.ManyToManyField(StripeCard, related_name="stripe_owned_by", null=True, blank=True)
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
+
+  def find_nearest_pro(self):
+    # from accounts.utils import get_default_pro
+    default_pro = User.objects.get(email='elizabeth@vinely.com')
+
+    code = self.zipcode
+    pro_group = Group.objects.get(name='Vinely Pro')
+
+    g = Geod(ellps='clrk66')
+
+    if self.is_pro():
+      return default_pro
+
+    if not code:
+      return default_pro
+
+    # get all info about this zipcode
+    user_zipcode = Zipcode.objects.get(code=code)
+
+    # 1. find pro's within the same zipcode
+    pros = UserProfile.objects.filter(zipcode=code, user__groups=pro_group)
+
+    if pros.exists():
+      # pick at random
+      rand_index = randint(0, pros.count() - 1)
+      # log.info('Nearest by zipcode: %s, assigned_pro: %s' % (code, pros[rand_index].user))
+      return pros[rand_index].user
+
+    # 2. if no pro within zipcode, find within state
+    # NOTE: Some states are massive so limit distance
+    nearby_codes = Zipcode.objects.filter(state=user_zipcode.state).values_list('code', flat=True).distinct()
+
+    pros = UserProfile.objects.filter(zipcode__in=nearby_codes, user__groups=pro_group)
+
+    my_pros = {}
+    if pros.exists():
+      for pro in pros:
+        pro_zipcode = Zipcode.objects.get(code=pro.zipcode)
+        _, _, distance = g.inv(user_zipcode.longitude, user_zipcode.latitude, pro_zipcode.longitude, pro_zipcode.latitude)
+        my_pros[pro.user] = distance
+      # log.info('has zipcode: %s' % my_pros[pro.user])
+      sorted_dict = iter(sorted(my_pros.iteritems()))
+      assigned_pro = sorted_dict.next()[0]
+      # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))
+      return assigned_pro
+
+    return default_pro
 
   def events_manager(self):
     '''
