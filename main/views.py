@@ -77,10 +77,11 @@ def pros_only(request):
 
 @login_required
 def home(request):
+
   data = {}
 
   u = request.user
-
+  print 'find_nearest_pro', u.userprofile.find_nearest_pro()
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
@@ -1201,23 +1202,13 @@ def party_add(request, party_id=None, party_pro=None):
         # go to party details page
         send_new_party_host_confirm_email(request, new_party)
         messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
-        # return HttpResponseRedirect(reverse("party_host_confirmation_preview", args=[new_party.id, email.id]))
         return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse("party_add", args=[new_party.id]))
       else:
-        # messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
-  # else:
-  #   # GET
-  #   # if the current user is host, display Vinely Pro
-  #   if u.userprofile.is_host():
-  #     if u.userprofile.current_pro:
-  #       send_host_vinely_party_email(request, u, u.userprofile.current_pro)
-  #     else:
-  #       send_host_vinely_party_email(request, u)
 
   data["form"] = form
   data["parties_menu"] = True
