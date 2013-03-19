@@ -1210,14 +1210,14 @@ def party_add(request, party_id=None, party_pro=None):
       else:
         # messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
         return HttpResponseRedirect(reverse('party_write_invitation', args=[new_party.id]))
-  else:
-    # GET
-    # if the current user is host, display Vinely Pro
-    if u.userprofile.is_host():
-      if u.userprofile.current_pro:
-        send_host_vinely_party_email(request, u, u.userprofile.current_pro)
-      else:
-        send_host_vinely_party_email(request, u)
+  # else:
+  #   # GET
+  #   # if the current user is host, display Vinely Pro
+  #   if u.userprofile.is_host():
+  #     if u.userprofile.current_pro:
+  #       send_host_vinely_party_email(request, u, u.userprofile.current_pro)
+  #     else:
+  #       send_host_vinely_party_email(request, u)
 
   data["form"] = form
   data["parties_menu"] = True
@@ -1615,29 +1615,6 @@ def party_confirm(request, party_id):
 
   messages.success(request, 'Congratulations! Your party has been scheduled')
   return HttpResponseRedirect(reverse('party_details', args=[party.id]))
-
-
-# @login_required
-# def party_taster_list(request, party_id):
-#   """
-#     Show Vinely Tasters of a party
-#   """
-
-#   data = {}
-
-#   u = request.user
-
-#   party = None
-#   if party_id and int(party_id) != 0:
-#     party = get_object_or_404(Party, pk=party_id)
-
-#   invitees = PartyInvite.objects.filter(party=party)
-
-#   data["party"] = party
-#   data["invitees"] = invitees
-#   data["parties_menu"] = True
-
-#   return render_to_response("main/party_taster_list.html", data, context_instance=RequestContext(request))
 
 
 # @login_required
