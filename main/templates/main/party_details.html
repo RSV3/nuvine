@@ -150,14 +150,13 @@
     <div class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
     {% if not party.is_past_party %}
-      {% if party.confirmed %}
         {% if party.high_low == '!LOW' %}
           <div class="message-container">
             <div class="messages">
               <div class="alert alert-error center">
                 <h2>
                   <small>
-                    {% if user.get_profile.events_manager or party.host == user %}
+                    {% if user.get_profile.events_manager and party.is_events_party or party.host == user %}
                       Low attendance! Consider inviting more people or RSVP'ing for them
                     {% else %}
                       Low attendance! Remind host to invite more people
@@ -168,7 +167,6 @@
             </div>
           </div>
         {% endif %}
-      {% endif %}
     {% endif %}
 
     {% if can_add_taster %}
@@ -241,7 +239,7 @@
           </div>
           <div class="span12">
             <button type="submit" name="add_taster" value="add_taster" class="btn btn-primary">Add</button>
-            {% if user.get_profile.events_manager %}
+            {% if user.get_profile.events_manager and party.is_events_party %}
               <a href="{% url vinely_event_signup party.id %}" class="btn btn-primary">New Taster Self Add</a>
             {% endif %}
           </div>
@@ -263,7 +261,7 @@
         {% render_table table %}
       {% endif %}
 
-      {% if party.host == user or user.get_profile.events_manager %}
+      {% if party.host == user or user.get_profile.events_manager and party.is_events_party %}
         {% if can_add_taster %}
           <div class="vertical-space">&nbsp;</div>
           <div class="row">
@@ -271,8 +269,7 @@
               <a href="{% url party_write_invitation party.id %}" target="_blank" class="btn btn-primary">Edit Invite</a>
             </div>
             <div class="span3">
-              <button class="btn btn-success pull-right" name="send_invite" value="send_invite"
-                     {% if not party.confirmed %}disabled="disabled"{% endif %}>Send Invitation</button>
+              <button class="btn btn-success pull-right" name="send_invite" value="send_invite">Send Invitation</button>
             </div>
           </div>
         {% else %}

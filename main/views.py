@@ -1200,9 +1200,13 @@ def party_add(request, party_id=None, party_pro=None):
 
       if request.POST.get('create'):
         # go to party details page
-        send_new_party_host_confirm_email(request, new_party)
-        messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
-        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        if u.userprofile.events_manager and new_party.is_events_party:
+          messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        else:
+          send_new_party_host_confirm_email(request, new_party)
+          messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
