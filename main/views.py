@@ -81,7 +81,7 @@ def home(request):
   data = {}
 
   u = request.user
-  print 'find_nearest_pro', u.userprofile.find_nearest_pro()
+
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
@@ -688,7 +688,7 @@ def place_order(request):
         order = Order(ordered_by=u, receiver=receiver, order_id=order_id, cart=cart)
 
       # save credit card and shipping address in the order
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         order.stripe_card = profile.stripe_card
       else:
         order.credit_card = profile.credit_card
@@ -818,7 +818,7 @@ def place_order(request):
       cart.save()
 
       data["receiver"] = receiver
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         data["credit_card"] = profile.stripe_card
       else:
         data["credit_card"] = profile.credit_card
@@ -1186,23 +1186,18 @@ def party_add(request, party_id=None, party_pro=None):
 
           # send an invitation e-mail if new host created
           send_new_party_email(request, verification_code, temp_password, new_host.email)
-          # send_new_party_scheduled_email(request, new_party)
-        # else:
-        #   # existing host needs to notified that party has been arranged
-        #   if not u.userprofile.events_manager() and new_host != u:
-        #     send_new_party_scheduled_email(request, new_party)
-        #     messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
-
-      # else:
-      #   messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
 
       data["parties_menu"] = True
 
       if request.POST.get('create'):
         # go to party details page
-        send_new_party_host_confirm_email(request, new_party)
-        messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
-        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        if u.userprofile.events_manager and new_party.is_events_party:
+          messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        else:
+          send_new_party_host_confirm_email(request, new_party)
+          messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
@@ -1517,7 +1512,7 @@ def party_details(request, party_id):
   if invitee and party.host == u:
     msg = '%s %s (%s) has been added to the party invitations list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
-  if invitee and party.pro == u:
+  elif invitee and party.pro == u:
     msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
@@ -1541,7 +1536,7 @@ def party_details(request, party_id):
 
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
-    if party.host != u and not u.userprofile.events_manager():
+    if party.host != u and not (u.userprofile.events_manager() and party.is_events_party):
       # if not u.userprofile.events_manager():
       if party.confirmed:
         if not party.kit_ordered():
@@ -1770,8 +1765,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
 
   form.fields['gender'].widget = forms.HiddenInput()
 
+  data['signup_error'] = request.GET.get('err')
+  email = request.GET.get('email', u.email)
+
   # signing up as taster
-  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
+  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': email, 'first_name': u.first_name,
                                         'last_name': u.last_name}, instance=u)
 
   age_check_key = '%s_age_checked' % rsvp_code
@@ -1827,7 +1825,6 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   context = RequestContext(request, data)
   page = rsvp_template.render(context)
   data['rsvp_content'] = page
-
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
 
@@ -2173,7 +2170,7 @@ def party_send_invites(request):
     # send e-mails
     num_guests = distribute_party_invites_email(request, invitation_sent)
     if num_guests > 0:
-      messages.success(request, "Your invitations were sent successfully to %d tasters!" % num_guests)
+      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
   return HttpResponseRedirect(reverse("party_details", args=[party.id]))
@@ -2472,7 +2469,8 @@ def edit_shipping_address(request):
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
 
-  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
+  initial_age = {'dob': receiver_profile.dob.strftime("%m/%d/%Y") if receiver_profile.dob else ''}
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, initial=initial_age, prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 

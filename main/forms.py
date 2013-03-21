@@ -757,7 +757,7 @@ class AttendeesTable(tables.Table):
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
-    if not (data['party'].host == user or user.userprofile.events_manager()):
+    if not (data['party'].host == user or user.userprofile.events_manager() and data['party'].is_events_party):
       exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')

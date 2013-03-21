@@ -141,7 +141,7 @@
             </div>
           </div>
 
-          {% if subscription.frequency != 0 and subscription.quantity != 0 %}
+          {% if user.get_profile.has_active_subscription %}
           <div class="control-group">
             <div class="controls">
               <a href="{% url cancel_subscription %}">Cancel Subscription</a>
