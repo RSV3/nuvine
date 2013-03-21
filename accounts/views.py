@@ -338,19 +338,24 @@ def edit_subscription(request):
     sparkling = None
 
   initial_data = {'wine_mix': wine_mix, 'sparkling': sparkling}
+  initial_data['quantity'] = user_subscription.quantity if user_subscription else 0
+  initial_data['frequency'] = user_subscription.frequency if user_subscription else 9
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
     if not u.userprofile.has_personality():
-      messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
+      data['form'] = form
+      messages.warning(request, "You need to first participate in a tasting party to find out your wine personality.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     if not u.userprofile.credit_card and not u.userprofile.stripe_card:
-      messages.error(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
+      data['form'] = form
+      messages.warning(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     if not u.userprofile.shipping_address:
-      messages.error(request, "You need to update your shipping address before you can make a subscription.")
+      data['form'] = form
+      messages.warning(request, "You need to update your shipping address before you can make a subscription.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     # create new subscription info object to track subscription change

@@ -234,6 +234,11 @@ class UserProfile(models.Model):
     '''
     return self.user.is_superuser
 
+  @property
+  def has_active_subscription(self):
+    subscriptions = SubscriptionInfo.objects.filter(user=self.user).order_by('-updated_datetime')
+    return subscriptions.exists() and subscriptions[0].frequency in [1, 2, 3] and subscriptions[0].quantity in [12, 13, 14]
+
   def update_stripe_subscription(self, frequency, quantity):
     from main.models import Cart
 
@@ -326,12 +331,13 @@ class UserProfile(models.Model):
     """
       Cancels user subscription
     """
+    from main.models import Cart
     # in order to keep track of subscription history, we add new entry with no subscription
     subscription = SubscriptionInfo(user=self.user, frequency=9, quantity=0, next_invoice_date=datetime.now(tz=UTC()))
     subscription.save()
 
     # need to cancel credit card charges (i.e. Stripe)
-    if self.stripe_card:
+    if self.stripe_card and self.shipping_address and self.shipping_address.state in Cart.STRIPE_STATES:
       receiver_state = self.shipping_address.state
       if receiver_state == 'MI':
         stripe.api_key = settings.STRIPE_SECRET

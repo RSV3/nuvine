@@ -295,7 +295,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(UpdateSubscriptionForm, self).__init__(*args, **kwargs)
     self.fields['user'].widget = forms.HiddenInput()
-    self.fields['quantity'].widget.choices = [(12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
+    self.fields['quantity'].widget.choices = [('', '---------'), (12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
 
 
 from django.contrib.auth.models import Group
