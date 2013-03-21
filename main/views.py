@@ -2478,7 +2478,8 @@ def edit_shipping_address(request):
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
 
-  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
+  initial_age = {'dob': receiver_profile.dob.strftime("%m/%d/%Y") if receiver_profile.dob else ''}
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, initial=initial_age, prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 
