@@ -688,7 +688,7 @@ def place_order(request):
         order = Order(ordered_by=u, receiver=receiver, order_id=order_id, cart=cart)
 
       # save credit card and shipping address in the order
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         order.stripe_card = profile.stripe_card
       else:
         order.credit_card = profile.credit_card
@@ -818,7 +818,7 @@ def place_order(request):
       cart.save()
 
       data["receiver"] = receiver
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         data["credit_card"] = profile.stripe_card
       else:
         data["credit_card"] = profile.credit_card
@@ -1186,15 +1186,6 @@ def party_add(request, party_id=None, party_pro=None):
 
           # send an invitation e-mail if new host created
           send_new_party_email(request, verification_code, temp_password, new_host.email)
-          # send_new_party_scheduled_email(request, new_party)
-        # else:
-        #   # existing host needs to notified that party has been arranged
-        #   if not u.userprofile.events_manager() and new_host != u:
-        #     send_new_party_scheduled_email(request, new_party)
-        #     messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
-
-      # else:
-      #   messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
 
       data["parties_menu"] = True
 
@@ -1545,7 +1536,7 @@ def party_details(request, party_id):
 
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
-    if party.host != u and not u.userprofile.events_manager():
+    if party.host != u and not (u.userprofile.events_manager() and party.is_events_party):
       # if not u.userprofile.events_manager():
       if party.confirmed:
         if not party.kit_ordered():

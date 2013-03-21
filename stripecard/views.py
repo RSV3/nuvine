@@ -66,13 +66,24 @@ def invoice_created(event_json):
     data = event_json['data']['object']
     customer = data['customer']
     paid = data['paid']
-
+    # print event_json
     if paid:
-        # for subscriptions paid will be true
+        # first time subscriptions are charged immediately
+        # so for these, 'paid' will be true
+        return
+
+    # one-time purchases will not have a plan object within the data lines
+    plan_found = None
+    for item in data['lines']['data']:
+        if item.get('plan'):
+            plan_found = item['plan']
+            break
+    if plan_found is None:
         return
 
     # test webhook
     if event_json['id'] == 'evt_00000000000000':
+        log.info('Running stripe test event: %s' % 'evt_00000000000000')
         data = event_json['data']['object']
         prof = UserProfile.objects.get(user__email='erik@mail.com')
         stripe_card = prof.stripe_card
