@@ -293,8 +293,8 @@ def my_information(request):
     card_number = '*' * 12 + profile.stripe_card.last_four
   elif profile.credit_card:
     card_number = '*' * 12 + profile.credit_card.last_four()
-  else:
-    print "No card info"
+  # else:
+  #   print "No card info"
   data['card_number'] = card_number
 
   data['profile'] = profile
@@ -689,11 +689,12 @@ def make_taster(request, rsvp_code):
     return HttpResponseRedirect(success_url)
 
   form = MakeTasterForm(request.POST or None, initial={'account_type': 3}, instance=user)
-
+  err = ""
   if form.is_valid():
     user.set_password(form.cleaned_data['password1'])
     user.first_name = form.cleaned_data['first_name']
     user.last_name = form.cleaned_data['last_name']
+    user.email = form.cleaned_data['email']
     user.is_active = True
     user.save()
 
@@ -714,8 +715,11 @@ def make_taster(request, rsvp_code):
     if user is not None:
       login(request, user)
   else:
-    messages.error(request, form.errors)
-  return HttpResponseRedirect(success_url)
+    if form.errors['email']:
+      err = "?err=1&email=" + request.POST.get('email')
+    else:
+      messages.error(request, form.errors)
+  return HttpResponseRedirect(success_url + err)
 
 
 def sign_up(request, account_type, data):

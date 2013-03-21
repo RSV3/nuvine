@@ -371,12 +371,13 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
     return cleaned
 
 
-class MakeTasterForm(MakeHostProForm):
+class MakeTasterForm(NameEmailUserMentorCreationForm):
   phone_number = us_forms.USPhoneNumberField(required=False)
 
   def __init__(self, *args, **kwargs):
     super(MakeTasterForm, self).__init__(*args, **kwargs)
     self.fields['phone_number'].widget.attrs = {'placeholder': 'Phone number (optional)'}
+    # del self.fields['email'].widget.attrs['readonly']
 
 
 class HeardAboutForm(forms.Form):

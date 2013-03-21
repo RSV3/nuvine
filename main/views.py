@@ -81,7 +81,7 @@ def home(request):
   data = {}
 
   u = request.user
-  print 'find_nearest_pro', u.userprofile.find_nearest_pro()
+
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
@@ -1770,8 +1770,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
 
   form.fields['gender'].widget = forms.HiddenInput()
 
+  data['signup_error'] = request.GET.get('err')
+  email = request.GET.get('email', u.email)
+
   # signing up as taster
-  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
+  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': email, 'first_name': u.first_name,
                                         'last_name': u.last_name}, instance=u)
 
   age_check_key = '%s_age_checked' % rsvp_code
@@ -1827,7 +1830,6 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   context = RequestContext(request, data)
   page = rsvp_template.render(context)
   data['rsvp_content'] = page
-
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
 
@@ -2173,7 +2175,7 @@ def party_send_invites(request):
     # send e-mails
     num_guests = distribute_party_invites_email(request, invitation_sent)
     if num_guests > 0:
-      messages.success(request, "Your invitations were sent successfully to %d tasters!" % num_guests)
+      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
   return HttpResponseRedirect(reverse("party_details", args=[party.id]))
