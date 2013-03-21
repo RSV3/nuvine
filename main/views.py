@@ -1512,7 +1512,7 @@ def party_details(request, party_id):
   if invitee and party.host == u:
     msg = '%s %s (%s) has been added to the party invitations list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
-  if invitee and party.pro == u:
+  elif invitee and party.pro == u:
     msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
