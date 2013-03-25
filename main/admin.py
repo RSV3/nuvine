@@ -88,6 +88,10 @@ class MyHostAdmin(admin.ModelAdmin):
       if party_has_pro:
         party_has_pro.update(pro=obj.pro)
 
+      host_profile = obj.host.get_profile()
+      host_profile.current_pro = obj.pro
+      host_profile.save()
+
       # new pro was assigned, so send e-mail to the host
       send_pro_assigned_notification_email(request, obj.pro, obj.host)
       send_host_vinely_party_email(request, obj.host, obj.pro)

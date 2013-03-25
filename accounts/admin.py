@@ -118,7 +118,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinely_pro_email', 'pro_number')  # , 'nearest_pro', )
   list_filter = ('user__groups', MentorAssignedFilter)
   list_editable = ('wine_personality', )
-  raw_id_fields = ('user', 'mentor')
+  raw_id_fields = ('user', 'mentor', 'current_pro')
   model = UserProfile
   actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster, cancel_subscription, leave_vinely]
   search_fields = ['user__first_name', 'user__last_name', 'user__email']
