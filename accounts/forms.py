@@ -322,6 +322,20 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     add_form_validation(self)
     self.fields['password2'].widget.attrs['class'] = "validate[required,equals[id_password1]]"
 
+    self.fields['first_name'].widget.attrs['placeholder'] = 'First Name'
+    self.fields['last_name'].widget.attrs['placeholder'] = 'Last Name'
+    self.fields['email'].widget.attrs['placeholder'] = 'Email'
+    self.fields['zipcode'].widget.attrs['placeholder'] = 'Zip Code'
+    self.fields['phone_number'].widget.attrs['placeholder'] = 'Phone Number'
+    self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+    self.fields['password2'].widget.attrs['placeholder'] = 'Confirm password'
+    self.fields['mentor'].widget.attrs['placeholder'] = 'Your Vinely Pro Email (Optional)'
+    for field_name in self.fields:
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
+
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
 

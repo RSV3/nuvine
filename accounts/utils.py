@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 def send_signed_up_as_host_email(request, user):
-  template = Section.objects.get(template__key='signed_up_as_host_email', category=0)
+  template = Section.objects.get(template__key='signed_up_as_host_email', key='general')
 
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -44,7 +44,7 @@ def send_signed_up_as_host_email(request, user):
 
 def send_verification_email(request, verification_code, temp_password, receiver_email):
 
-  template = Section.objects.get(template__key='verification_email', category=0)
+  template = Section.objects.get(template__key='verification_email', key='general')
 
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
@@ -77,7 +77,7 @@ def send_verification_email(request, verification_code, temp_password, receiver_
 
 def send_password_change_email(request, verification_code, temp_password, user):
 
-  template = Section.objects.get(template__key='password_change_email', category=0)
+  template = Section.objects.get(template__key='password_change_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -118,7 +118,7 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
 def send_account_activation_email(request, verification_code, temp_password, user):
 
-  template = Section.objects.get(template__key='account_activation_email', category=0)
+  template = Section.objects.get(template__key='account_activation_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -162,7 +162,7 @@ def send_new_invitation_email(request, verification_code, temp_password, party_i
   New account invitation - sent when host invites new taster
   '''
 
-  template = Section.objects.get(template__key='new_invitation_email', category=0)
+  template = Section.objects.get(template__key='new_invitation_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -206,7 +206,7 @@ def send_new_party_email(request, verification_code, temp_password, receiver_ema
   Sent when Pro creates new Host for a party
   '''
 
-  template = Section.objects.get(template__key='new_party_email', category=0)
+  template = Section.objects.get(template__key='new_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -242,7 +242,7 @@ def send_pro_request_email(request, receiver):
   Sent when user requests to be a Pro
   '''
 
-  template = Section.objects.get(template__key='pro_request_email', category=0)
+  template = Section.objects.get(template__key='pro_request_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -276,7 +276,7 @@ def send_pro_review_email(request, user):
   Sent to sales@vinely.com to review and approve request to be a pro
   '''
 
-  template = Section.objects.get(template__key='pro_review_email', category=0)
+  template = Section.objects.get(template__key='pro_review_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -312,7 +312,7 @@ def send_pro_review_email(request, user):
 
 def send_know_pro_party_email(request, user):
 
-  template = Section.objects.get(template__key='know_pro_party_email', category=0)
+  template = Section.objects.get(template__key='know_pro_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -342,7 +342,7 @@ def send_know_pro_party_email(request, user):
 
 def send_unknown_pro_email(request, user):
 
-  template = Section.objects.get(template__key='unknown_pro_party_email', category=0)
+  template = Section.objects.get(template__key='unknown_pro_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -371,7 +371,7 @@ def send_unknown_pro_email(request, user):
 
 def send_pro_approved_email(request, applicant):
 
-  template = Section.objects.get(template__key='pro_approved_email', category=0)
+  template = Section.objects.get(template__key='pro_approved_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
   account_number = ''
@@ -405,7 +405,7 @@ def send_pro_approved_email(request, applicant):
 
 def send_not_in_area_party_email(request, user, account_type):
 
-  template = Section.objects.get(template__key='not_in_area_party_email', category=0)
+  template = Section.objects.get(template__key='not_in_area_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -502,7 +502,7 @@ Your Tasteful Friends,
 - The Vinely Team
 
   """
-  # template = Section.objects.get(template__key='thank_valued_member_email', category=0)
+  # template = Section.objects.get(template__key='thank_valued_member_email', key='general')
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
