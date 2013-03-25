@@ -2,6 +2,36 @@
 
 {% load static %}
 
+{% block additional_styles %}
+<style type="text/css">
+  .next-nav a, .state-head {
+    display: inline-block;
+    *display: inline;
+    /* IE7 inline-block hack */
+
+    *zoom: 1;
+    margin-bottom: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
+    line-height: 1.3em;
+    *line-height: 20px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    vertical-align: middle;
+    color: inherit;
+  }
+  .box-content.make-host {
+    padding: 0 15px 10px 15px;
+  }
+  .make-host h2,
+  .make-host p{
+    text-decoration: none;
+    color: #415A68;
+    text-align: left;
+  }
+</style>
+{% endblock additional_styles %}
+
 {% block header %}
   <h1 class="headline">{{ heading|safe }}</h1>
 {% endblock header %}
@@ -12,28 +42,71 @@
 
   <div class="row">
     <div class="span12">
-      <h2 class="center">{{ sub_heading|safe }}</h2>
-
-      <section id="how-it-works">
-        {{ how_it_works|safe }}
-      </section>
-
-      <div class="vertical-space">
-        &nbsp;
+      <h2 class="center">
+        {% block subheading %}
+        <!-- {{ sub_heading|safe }} -->
+        {% endblock subheading %}
+      </h2>
+      <div class="vertical-space"></div>
+    </div>
+    <div class="span3">
+      <div class="box-container sidebar-nav-container">
+        <div class="box-content">
+          <div class="sidebar-nav">
+            <ul class="side-nav">
+              <li {% if state == 'overview' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works %}">How it works</a></div></li>
+              <li {% if state == 'taste' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'taste' %}">Taste</a></div></li>
+              <li {% if state == 'rate' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'rate' %}">Rate</a></div></li>
+              <li {% if state == 'order' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'order' %}">Order</a></div></li>
+              <li {% if state == 'repeat' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'repeat' %}">Repeat</a></div></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bg"></div>  
       </div>
-<!-- 
-      <div class="control-group">
-        <div class="controls center">
-          <a href=""><img src="{% static "img/btn_pie_getstarted.png" %}"></a>
+      <div class="vertical-space">&nbsp;</div>
+
+      <div class="box-container sidebar-nav-container">
+        <a href="{% url make_host %}">
+          <div class="box-content make-host">
+            <h2>Pop the cork!</h2>
+            <p>
+              Host your friends in the Vinely Experience and get your next bottle free.
+            </p>
+            <div class="box-bg"></div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="span4">
+      {% if state == 'overview' or state == 'repeat' %}
+        <img src="{{ STATIC_URL }}img/how_it_works_overview.png">
+      {% else %}
+        <img src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png">
+      {% endif %} 
+    </div>
+    <div class="span4">
+      <div class="row">
+        <div class="span4 state-head"><strong>{{ state }}</strong></div>
+      </div>
+      <p>
+        {{ content|safe }}
+      </p>
+      <div class="vertical-space"></div>
+      <div class="row">
+        <div class="span2 next-nav">
+          {% if state == 'overview' %}<a href="{% url how_it_works 'taste' %}">Interested? Read on... ></a>{% endif %}
+          {% if state == 'taste' %}<a href="{% url how_it_works 'rate' %}">Next ></a>{% endif %}
+          {% if state == 'rate' %}<a href="{% url how_it_works 'order' %}">Next ></a>{% endif %}
+          {% if state == 'order' %}<a href="{% url how_it_works 'repeat' %}">Next ></a>{% endif %}
+          {% if state == 'repeat' %}<a href="{% url make_host %}">Learn about hosting a party ></a>{% endif %}
         </div>
       </div>
- -->      
-    </div>
-    <div class="vertical-space">
-      &nbsp;
     </div>
   </div>
-
+  <div class="vertical-space">
+    &nbsp;
+  </div>
 </div>
 
 {% endblock content %}

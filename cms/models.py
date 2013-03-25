@@ -33,7 +33,8 @@ class Section(models.Model):
         (4, 'Header Section'),
         (5, 'Sub Heading Section'),
     )
-    category = models.IntegerField(choices=SECTION_TYPE, default=0)
+    key = models.CharField(max_length=128)
+    # category = models.IntegerField(choices=SECTION_TYPE, default=0)
     content = models.TextField()
     template = models.ForeignKey(ContentTemplate, related_name='sections')
 

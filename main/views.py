@@ -111,8 +111,8 @@ def uncover_personality(request):
 
   data['uncover_personality_menu'] = True
   sections = ContentTemplate.objects.get(key='uncover_personality').sections.all()
-  data['uncover_personality'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
+  data['uncover_personality'] = sections.get(key='general').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/uncover_personality.html", data, context_instance=RequestContext(request))
 
 
@@ -125,8 +125,8 @@ def our_story(request):
 
   data['our_story_menu'] = True
   sections = ContentTemplate.objects.get(key='our_story').sections.all()
-  data['our_story'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
+  data['our_story'] = sections.get(key='general').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
@@ -140,10 +140,10 @@ def get_started(request):
   u = request.user
   data['get_started_menu'] = True
   sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  data['get_started_general'] = sections.get(category=0).content
-  data['get_started_host'] = sections.get(category=2).content
-  data['get_started_pro'] = sections.get(category=3).content
-  data['heading'] = sections.get(category=4).content
+  data['get_started_general'] = sections.get(key='general').content
+  data['get_started_host'] = sections.get(key='host').content
+  data['get_started_pro'] = sections.get(key='pro').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
@@ -213,17 +213,21 @@ def host_vinely_party(request):
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 
-def how_it_works(request):
+def how_it_works(request, state=None):
   """
 
   """
 
   data = {}
+  if state not in ['taste', 'rate', 'order', 'repeat']:
+    state = 'overview'
+
+  data['state'] = state
   sections = ContentTemplate.objects.get(key='how_it_works').sections.all()
   data["how_it_works_menu"] = True
-  data['how_it_works'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
-  data['sub_heading'] = sections.get(category=5).content
+  data['content'] = sections.get(key=state).content
+  data['heading'] = sections.get(key='header').content
+  data['sub_heading'] = sections.get(key='sub_header').content
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
@@ -1820,7 +1824,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
     data["custom_message"] = invitations[0].custom_message
 
   sections = ContentTemplate.objects.get(key='rsvp').sections.all()
-  content = sections.get(category=0).content
+  content = sections.get(key='general').content
   rsvp_template = Template(content)
   context = RequestContext(request, data)
   page = rsvp_template.render(context)
