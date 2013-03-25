@@ -557,7 +557,8 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
+            # mentor = get_default_pro()
+            mentor = profile.find_nearest_pro()
             MyHost.objects.filter(host=u).update(pro=None)
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
@@ -601,7 +602,8 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
+            # mentor = get_default_pro()
+            mentor = profile.find_nearest_pro()
           profile.mentor = mentor
           # since no longer host or taster
           profile.current_pro = None
@@ -783,7 +785,8 @@ def sign_up(request, account_type, data):
       except User.DoesNotExist:
         # mentor e-mail was not entered, assign default pro
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
-        pro = get_default_pro()
+        # pro = get_default_pro()
+        pro = profile.find_nearest_pro()
         profile.mentor = pro
 
     elif account_type == 2:
@@ -795,6 +798,7 @@ def sign_up(request, account_type, data):
         profile.current_pro = pro
       except User.DoesNotExist:
         # pro e-mail was not entered
+        profile.current_pro = profile.find_nearest_pro()
         my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
 
     profile.save()
