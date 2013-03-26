@@ -123,7 +123,7 @@ class PartyCreateForm(forms.ModelForm):
       self.fields['event_day'].widget.attrs['class'] = ''
       self.fields['event_time'].widget.attrs['class'] = ''
 
-    if self.initial.get('self_hosting') and not user.userprofile.events_manager():
+    if self.initial.get('self_hosting'):
       self.fields['first_name'].widget.attrs['readonly'] = True
       self.fields['last_name'].widget.attrs['readonly'] = True
       self.fields['email'].widget.attrs['readonly'] = True
@@ -152,7 +152,7 @@ class PartyCreateForm(forms.ModelForm):
 
   def clean_email(self):
     # 1. if current user is host dont allow to set new host
-    if self.initial.get('host'):
+    if self.initial.get('host') or self.initial.get('self_hosting'):
       host_email = self.initial['host'].email
     else:
       host_email = self.cleaned_data['email']

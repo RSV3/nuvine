@@ -81,14 +81,17 @@ def home(request):
   data = {}
 
   u = request.user
+  profile = u.get_profile()
 
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
     data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
 
-    pro, pro_profile = my_pro(u)
-    data['my_pro'] = pro
+    if profile.mentor:
+      data['my_pro'] = profile.mentor
+    else:
+      data['my_pro'] = profile.current_pro
 
     # TODO: if there are orders pending
     data['pending_ratings'] = False
@@ -1135,9 +1138,6 @@ def party_add(request, party_id=None, party_pro=None):
         data['preview'] = preview
         return render_to_response("main/party_host_confirmation_preview.html", data, context_instance=RequestContext(request))
 
-      if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
-        # new_party.confirmed = True
-        new_party.requested = True
       if party:
         old_party = Party.objects.get(pk=party.id)
         new_party.auto_invite = old_party.auto_invite
@@ -1146,7 +1146,13 @@ def party_add(request, party_id=None, party_pro=None):
         new_party.guests_see_guestlist = old_party.guests_see_guestlist
         new_party.confirmed = old_party.confirmed
         new_party.requested = old_party.requested
-        # new_party.setup_stage = 1
+
+      if u.userprofile.is_pro():  # and not u.userprofile.events_manager() and new_party.host != u:
+        new_party.requested = True
+
+      if u.userprofile.events_manager() and new_party.is_events_party:
+        new_party.confirmed = True
+
       new_party.save()
       new_host = new_party.host
       if party:
@@ -1789,7 +1795,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
-
+  # del request.session[guest_rsvp_key]
   if u.is_active:
     request.session[guest_rsvp_key] = True
 
