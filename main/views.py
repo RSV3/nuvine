@@ -1173,7 +1173,7 @@ def party_add(request, party_id=None, party_pro=None):
           invited_host.rsvp_code = str(uuid.uuid4())
           invited_host.save()
 
-      if u.userprofile.is_pro() and not u.userprofile.events_manager():
+      if u.userprofile.is_pro() and not new_party.is_events_party:
         if not new_host.is_active:
           # new host, so send password and invitation
           temp_password = User.objects.make_random_password()

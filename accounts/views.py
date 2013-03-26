@@ -15,7 +15,7 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, C
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm
+                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
@@ -763,7 +763,7 @@ def sign_up(request, account_type, data):
     role = tas_group
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
+  form = NewHostProForm(request.POST or None, initial={'account_type': account_type})
 
   if form.is_valid():
     user = form.save()
