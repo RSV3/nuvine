@@ -1547,7 +1547,6 @@ def party_details(request, party_id):
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
     if party.host != u and not (u.userprofile.events_manager() and party.is_events_party):
-      # if not u.userprofile.events_manager():
       if party.confirmed:
         if not party.kit_ordered():
           msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
@@ -1555,11 +1554,9 @@ def party_details(request, party_id):
       else:
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
         pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
-        # msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
-        # messages.warning(request, msg)
     else:
       # for host
-      if party.confirmed and not u.userprofile.events_manager():
+      if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
         if party.invite_sent():
           if not party.kit_ordered():
             msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
