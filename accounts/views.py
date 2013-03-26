@@ -73,7 +73,7 @@ def profile(request):
       invite = invites[0]
       return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
     else:
-      return HttpResponseRedirect(reverse('party_list'))
+      return HttpResponseRedirect(reverse('home_page'))
   else:
     return HttpResponseRedirect(reverse('home_page'))
 
@@ -390,9 +390,9 @@ def edit_subscription(request):
       else:
         messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
-
   data['invited_by'] = my_host(u)
-  data['pro_user'], data['pro_profile'] = my_pro(u)
+
+  data['pro_user'] = u.get_profile().current_pro
   data['subscription'] = user_subscription
   data['edit_subscription'] = True
   if user_subscription is None:
@@ -1137,19 +1137,20 @@ def pro_link(request):
   u = request.user
   profile = u.get_profile()
 
-  if profile.is_host():
+  if profile.is_host() or profile.is_taster():
     form = ProLinkForm(request.POST or None)
     if form.is_valid():
       pro = User.objects.get(email=form.cleaned_data['email'])
       my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
       profile.current_pro = pro
+      profile.mentor = None
       profile.save()
       messages.success(request, "You were successfully linked to the pro %s." % pro.email)
     if form.errors:
       messages.error(request, form.errors)
   else:
     # TODO: Can tasters link to particular pros?
-    messages.error(request, "Only Hosts can link to Pro's at the moment")
+    messages.error(request, "Only Hosts and Tasters can link to Pro's at the moment")
   return HttpResponseRedirect(reverse('edit_subscription'))
 
 
