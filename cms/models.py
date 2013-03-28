@@ -39,4 +39,4 @@ class Section(models.Model):
     template = models.ForeignKey(ContentTemplate, related_name='sections')
 
     def __unicode__(self):
-        return self.get_category_display()
+        return self.key.title()

@@ -54,8 +54,8 @@ class PartyEditDateForm(forms.ModelForm):
       if self._errors:
         del self._errors['event_date']
 
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
-        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+        raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
     return cleaned_data
@@ -246,8 +246,8 @@ class PartyCreateForm(forms.ModelForm):
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
 
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
-        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+        raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
 

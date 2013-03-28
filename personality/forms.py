@@ -33,11 +33,15 @@ class CustomRadioField(forms.RadioSelect.renderer):
   def render(self):
     items = []
     labels = []
+    spacer_labels = []
     for x in self:
       if x.index == 0:
         items.append('')
         labels.append('')
       else:
+        spacer_label_html = '<label for="%s_%s" class="span1">&nbsp;</label>' % (x.attrs['id'], x.index)
+        spacer_labels.append(spacer_label_html)
+
         radio_html = '''
           <div class="span1">
             <center>
@@ -62,7 +66,7 @@ class CustomRadioField(forms.RadioSelect.renderer):
           label_html = '<label for="%s_%s" class="span1">&nbsp;</label>' % (x.attrs['id'], x.index)
         labels.append(label_html)
 
-    return mark_safe(u'\n'.join(items) + u'\n'.join(labels))
+    return mark_safe(u'\n'.join(spacer_labels) + '\n'.join(items) + u'\n'.join(labels))
 
 
 class AllWineRatingsForm(forms.Form):
