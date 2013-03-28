@@ -1038,7 +1038,9 @@ def send_new_party_host_confirm_email(request, party):
 
   Party: "{{ party.title }}"
 
-  Host: {{ party.host.first_name }} {{ party.host.last_name }} <{{ party.host.email }}>
+  Host: {{ party.host.first_name }} {{ party.host.last_name }} &lt;<a href="mailto:party.host.email">{{ party.host.email }}</a>&gt;
+
+  Pro: {{ pro_full_name }} &lt;<a href="mailto:party.host.email">{{ pro_email }}</a>&gt;
 
   Date: {{ party.event_date|date:"F j, o" }}
 
@@ -1059,11 +1061,11 @@ def send_new_party_host_confirm_email(request, party):
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
-  profile = request.user.get_profile()
-
-  c = RequestContext(request, {"pro_first_name": party.pro.first_name if party.pro.first_name else "Care Specialist",
-              "party": party,
-              "host_name": request.get_host()})
+  c = RequestContext(request,  {"pro_first_name": party.pro.first_name,
+                                "pro_full_name": "%s %s" % (party.pro.first_name, party.pro.last_name),
+                                "pro_email": party.pro.email,
+                                "party": party,
+                                "host_name": request.get_host()})
 
   txt_message = txt_template.render(c)
   c.update({'sig': True})
