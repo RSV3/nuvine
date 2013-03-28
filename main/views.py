@@ -2915,7 +2915,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['fb_view'] = fb_page
   today = timezone.now()
 
-  if u.userprofile.events_manager():
+  if u.userprofile and u.userprofile.events_manager():
     party = get_object_or_404(Party, pk=party_id)
   else:
     party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
