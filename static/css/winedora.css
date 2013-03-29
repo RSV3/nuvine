@@ -3,6 +3,10 @@ body {
   letter-spacing:0px;
 }
 
+p {
+  margin: 0 0 1.5em;
+}
+
 /* utilities */
 .vertical-space {
   margin-bottom: 25px;
