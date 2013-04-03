@@ -662,6 +662,7 @@ def make_host(request, state=None):
   data['state'] = state
 
   if state == 'signup':
+    data['host_party_menu'] = True
     if u.is_authenticated():
       return make_pro_host(request, 2, data)
     else:
@@ -673,26 +674,30 @@ def make_host(request, state=None):
     data['content'] = host_sections.get(key=state).content
     data['host_party_menu'] = True
     return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
-    # if u.is_authenticated():
-    # return make_pro_host(request, 2, data)
-    # else:
-    #   return sign_up(request, 2, data)
 
 
 def make_pro(request, state=None):
   data = {}
   u = request.user
 
-  pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
-  data['heading'] = pro_sections.get(key='header').content
-  data['sub_heading'] = pro_sections.get(key='sub_header').content
-  data['content'] = pro_sections.get(key='general').content
-  data['become_pro_menu'] = True
-  # return make_pro_host(request, 1, data)
-  if u.is_authenticated():
-    return make_pro_host(request, 1, data)
+  if state not in ['parties', 'earnings', 'support', 'growth', 'signup']:
+    state = 'overview'
+
+  data['state'] = state
+
+  if state == 'signup':
+    data['become_pro_menu'] = True
+    if u.is_authenticated():
+      return make_pro_host(request, 1, data)
+    else:
+      return sign_up(request, 1, data)
   else:
-    return sign_up(request, 1, data)
+    pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
+    data['heading'] = pro_sections.get(key='header').content
+    data['sub_heading'] = pro_sections.get(key='sub_header').content
+    data['content'] = pro_sections.get(key=state).content
+    data['become_pro_menu'] = True
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
 
 
 def make_taster(request, rsvp_code):
@@ -830,12 +835,9 @@ def sign_up(request, account_type, data):
   data['form'] = form
   data['role'] = role.name
   data['account_type'] = account_type
-  data['get_started_menu'] = True
+  # data['get_started_menu'] = True
 
-  if account_type == 1:
-    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-  else:
-    return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+  return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
 
 
 def sign_up_old(request, account_type):
