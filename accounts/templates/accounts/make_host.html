@@ -11,7 +11,7 @@
 
     *zoom: 1;
     margin-bottom: 0;
-    font-size: 13px;
+    font-size: 16px;
     text-transform: uppercase;
     font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
     line-height: 1.3em;
@@ -20,14 +20,39 @@
     vertical-align: middle;
     color: inherit;
   }
-  .box-content.make-host {
-    padding: 0 15px 10px 15px;
-  }
-  .make-host h2,
-  .make-host p{
-    text-decoration: none;
+  .make-host h1,
+  .make-host p {
+    margin-top: -10px;
     color: #415A68;
     text-align: left;
+  }
+  .side-glass {
+    position: absolute;
+    margin-top: -95px;
+    /*margin-left: 85px;*/
+  }
+  .table.rewards tbody td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
+    background:#F0F0F0;
+  }
+  .table.rewards th:first-child {
+    padding-left: 10px;
+    width: 90px;
+  }
+/*  .table.rewards {
+    border: 1px solid rgb(147,149,152);
+    background-color: #fff;
+  }*/
+  .table.rewards th:nth-child(2) {
+    color: #48C063;
+    width: 130px;
+  }
+  .table.rewards td:nth-child(2),
+  .table.rewards th:nth-child(2) {
+    text-align: right;
   }
 </style>
 {% endblock additional_styles %}
@@ -66,20 +91,22 @@
       </div>
       <div class="vertical-space">&nbsp;</div>
 
-      <div class="box-container sidebar-nav-container">
+      <div class="box-container2 sidebar-nav-container">
         <a href="{% url make_host 'signup' %}">
-          <div class="box-content make-host">
-            <h2>Sign up!</h2>
-            <p>
-              Sign up and begin planning your your party today!
+          <div class="box-content2 make-host">
+            <h1>Host a party!</h1>
+            <p class="make-host-sidetext">
+              <!-- Sign up and begin planning your party today! -->
+              Pop the cork! Learn about hosting a Vinely Party
             </p>
-            <div class="box-bg"></div>
+            <!-- <div class="box-bg"></div> -->
+            <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
           </div>
         </a>
       </div>
     </div>
-    <div class="span4">
-      <img src="{{ STATIC_URL }}img/make_host_{{ state }}.png" height="320" />
+    <div class="span4 center">
+      <img src="{{ STATIC_URL }}img/make_host_{{ state }}.png" />
     </div>
     <div class="span4">
       <div class="row">
@@ -87,6 +114,47 @@
       </div>
       <p>
         {{ content|safe }}
+        {% if state == 'rewards' %}
+          <table class='table table-striped rewards box-content2'>
+            <thead>
+              <tr>
+                <th><p class="state-head">party sales</p></th>
+                <th><p class="state-head">host credit earned</p></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$0 - $399</td>
+                <td> $20</td>
+              </tr>
+              <tr>
+                <td>$400 - $599</td>
+                <td>$60</td>
+              </tr>
+              <tr>
+                <td>$600 - $799</td>
+                <td> $80</td>
+              </tr>
+              <tr>
+                <td>$800 - $999</td>
+                <td>$110</td>
+              </tr>
+              <tr>
+                <td>$1,000 - $1,199</td>
+                <td>$140</td>
+              </tr>
+              <tr>
+                <td>$1,200 - $1,399</td>
+                <td>$170</td>
+              </tr>
+              <tr>
+                <td>$1,400 - $1,599</td>
+                <td>$200</td>
+              </tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </tbody>
+          </table>
+        {% endif %}
       </p>
       <div class="vertical-space"></div>
       <div class="row">

@@ -277,10 +277,10 @@ table .row-label-bold {
   background: url('../img/btn_leftsubnav_bkgd.png');  
   color: #FFFFFF;
 }
- .box-container {
+.box-container {
   position:relative;
 }
- .box-container.landing {
+.box-container.landing {
   margin-right: 50px;
 }
 .box-content {
@@ -322,6 +322,32 @@ table .row-label-bold {
 .authentication a:visited {
   color: #415A68;
 }
+.box-container2 {
+  position:relative;
+}
+.box-content2 {
+  margin-top: -5px;
+  position:relative;
+  z-index:5;
+  text-align: center;
+  padding: 15px 15px 10px 15px;
+  background-color: #fff;
+  border: 1px solid rgb(147,149,152);
+  border-radius: 4px;
+  -moz-box-shadow: 0px 1px 10px rgb(147,149,152);
+  -webkit-box-shadow: 0px 1px 10px rgb(147,149,152);
+  box-shadow: 0px 1px 10px rgb(147,149,152);
+}
+.box-content2 .make-host-sidetext {
+  padding-right: 75px;
+}
+
+.box-container2 a,
+.box-container2 a:hover,
+.box-container2 a:hovered {
+  text-decoration: none;
+}
+
 #badges {
   width: 940px;
   height: 130px;
