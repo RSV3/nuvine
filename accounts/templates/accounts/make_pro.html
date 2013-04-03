@@ -5,7 +5,7 @@
 {% block additional_styles %}
 <style type="text/css">
   .next-nav a, .state-head {
-    display: inline-block;
+    display: table-cell;
     *display: inline;
     /* IE7 inline-block hack */
 
@@ -107,7 +107,7 @@
       </div>
       <div class="vertical-space">&nbsp;</div>
     </div>
-    <div class="span4 center">
+    <div class="span5 center">
       <img src="{{ STATIC_URL }}img/make_pro_{{ state }}.png" />
     </div>
     <div class="span4">
@@ -122,12 +122,12 @@
       </p>
       <div class="vertical-space"></div>
       <div class="row">
-        <div class="span2 next-nav">
-          {% if state == 'overview' %}<a href="{% url make_pro 'parties' %}">Interested? Read on... ></a>{% endif %}
-          {% if state == 'parties' %}<a href="{% url make_pro 'earnings' %}">Next ></a>{% endif %}
-          {% if state == 'earnings' %}<a href="{% url make_pro 'support' %}">Next ></a>{% endif %}
-          {% if state == 'support' %}<a href="{% url make_pro 'growth' %}">Next ></a>{% endif %}
-          {% if state == 'growth' %}<a href="{% url make_pro 'signup' %}">Sign up ></a>{% endif %}
+        <div class="span2 next-nav cta-button">
+          {% if state == 'overview' %}<a class="cta-interested" href="{% url make_pro 'parties' %}">Interested? Read on...</a>{% endif %}
+          {% if state == 'parties' %}<a class="cta-next" href="{% url make_pro 'earnings' %}">Next</a>{% endif %}
+          {% if state == 'earnings' %}<a class="cta-next" href="{% url make_pro 'support' %}">Next</a>{% endif %}
+          {% if state == 'support' %}<a class="cta-next" href="{% url make_pro 'growth' %}">Next</a>{% endif %}
+          {% if state == 'growth' %}<a class="cta-signup" href="{% url make_pro 'signup' %}">Sign up</a>{% endif %}
         </div>
       </div>
     </div>
