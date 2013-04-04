@@ -28,77 +28,6 @@ class SimpleTest(TestCase):
     """
       create usable accounts
     """
-    # ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
-    # ph_group, created = Group.objects.get_or_create(name="Vinely Host")
-    # att_group, created = Group.objects.get_or_create(name="Vinely Taster")
-    # supp_group, created = Group.objects.get_or_create(name="Supplier")
-    # pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
-
-    # if not User.objects.filter(email="specialist1@example.com").exists():
-    #   u = create_user("specialist1@example.com", "hello")
-    #   u.groups.add(ps_group)
-    #   u.is_staff = True
-    #   u.save()
-    #   u = create_user("elizabeth@vinely.com", "hello")
-    #   u.groups.add(ps_group)
-    #   u.is_staff = True
-    #   u.save()
-
-    #   u = create_user("specialist2@example.com", "hello")
-    #   u.groups.add(ps_group)
-
-    #   u = create_user("host1@example.com", "hello")
-    #   u.groups.add(ph_group)
-
-    #   u = create_user("host2@example.com", "hello")
-    #   u.groups.add(ph_group)
-
-    #   u = create_user("host3@example.com", "hello")
-    #   u.groups.add(ph_group)
-
-    #   u = create_user("attendee1@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee2@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee3@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee4@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee5@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee6@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee7@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee8@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("attendee9@example.com", "hello")
-    #   u.groups.add(att_group)
-
-    #   u = create_user("supplier1@example.com", "hello")
-    #   u.groups.add(supp_group)
-
-    #   u = create_user("supplier2@example.com", "hello")
-    #   u.groups.add(supp_group)
-
-    # suppliers = User.objects.filter(groups=supp_group)
-    # self.assertEqual(suppliers.count(), 2)
-
-    # attendees = User.objects.filter(groups=att_group)
-    # self.assertEqual(attendees.count(), 9)
-    # Zipcode.objects.bulk_create([
-    #                         Zipcode(code='92612', country='US', city='San Francisco', state='CA', latitude='0.1', longitude='0.1'),
-    #                         Zipcode(code='92610', country='US', city='San Francisco', state='CA', latitude='0.1', longitude='0.1'),
-    #                         Zipcode(code='02139', country='US', city='Boston', state='CA', latitude='0.1', longitude='0.1'),
-    # ])
     test = CMSTest()
     test.create_all_templates()
 
@@ -114,20 +43,14 @@ class SimpleTest(TestCase):
     vque.save()
 
   def test_user_creation(self):
-
-    # response = self.client.get(reverse("make_pro"))
-    # self.assertContains(response, "Vinely Pro")
-
-    # response = self.client.get(reverse("make_host", args=['signup']))
-    # self.assertContains(response, "Sign up to be a vinely host")
-
-    response = self.client.post(reverse("make_pro"), {'first_name': 'John',
-                                                      'last_name': 'Doe1',
-                                                      'email': 'john.doe1@example.com',
-                                                      'password1': 'Sign Up',
-                                                      'password2': 'Sign Up',
-                                                      'zipcode': '92612',
-                                                      'phone_number': '6172342524'})
+    # 1. Anonymous user signs up as Pro in anonymous
+    response = self.client.post(reverse("make_pro", args=['signup']),  {'first_name': 'John',
+                                                                        'last_name': 'Doe1',
+                                                                        'email': 'john.doe1@example.com',
+                                                                        'password1': 'Sign Up',
+                                                                        'password2': 'Sign Up',
+                                                                        'zipcode': '92612',
+                                                                        'phone_number': '6172342524'})
 
     self.assertRedirects(response, reverse('home_page'))
     self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor=None).exists())
@@ -147,55 +70,58 @@ class SimpleTest(TestCase):
 
     self.client.logout()
 
-    response = self.client.post(reverse("make_pro"), {'first_name': 'John',
-                                                      'last_name': 'Doe2',
-                                                      'email': 'john.doe1@example.com',
-                                                      'password1': 'Sign Up',
-                                                      'password2': 'Sign Up',
-                                                      'zipcode': '92612',
-                                                      'phone_number': '6172342524'})
+    # 2. Anonymous user signs up with email of existing user
+    response = self.client.post(reverse("make_pro", args=['signup']),  {'first_name': 'John',
+                                                                        'last_name': 'Doe2',
+                                                                        'email': 'john.doe1@example.com',
+                                                                        'password1': 'Sign Up',
+                                                                        'password2': 'Sign Up',
+                                                                        'zipcode': '92612',
+                                                                        'phone_number': '6172342524'})
     self.assertContains(response, "A user with that email already exists")
 
-    response = self.client.post(reverse("make_pro"), {'first_name': 'John',
-                                                      'last_name': 'Doe2',
-                                                      'email': 'john.doe2@example.com',
-                                                      'password1': 'Sign Up',
-                                                      'password2': 'Sign Up',
-                                                      'zipcode': '02139',
-                                                      'phone_number': '6172342524',
-                                                      'mentor': 'specialist1@example.com'})
+    # 3. Existing taster signs up as Pro from account
+    response = self.client.login(email="attendee1@example.com", password="hello")
+    self.assertEquals(response, True)
+
+    response = self.client.post(reverse("make_pro", args=['signup']),  {'first_name': 'One',
+                                                                        'last_name': 'Attendee',
+                                                                        'email': 'attendee1@example.com',
+                                                                        'password1': 'Sign Up',
+                                                                        'password2': 'Sign Up',
+                                                                        'zipcode': '02139',
+                                                                        'phone_number': '6172342524'})
     self.assertRedirects(response, reverse('home_page'))
-    self.client.logout()
+    # check that emails are sent to vinely
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', 'getstarted@vinely.com']", subject="Vinely Pro Request")
+    self.assertTrue(vinely_recipients.exists())
+
+    # check that emails are sent to recipient
+    user_recipient = Email.objects.filter(recipients="[u'john.doe1@example.com']", subject="Vinely Pro Request!")
+    self.assertTrue(user_recipient.exists())
 
     # test autoassign working --> Should assign MA Pro for zipcode used
-    profile = UserProfile.objects.get(user__email='john.doe2@example.com')
+    profile = UserProfile.objects.get(user__email='attendee1@example.com')
     pro = User.objects.get(email='specialist1@example.com')
     self.assertEquals(profile.mentor, pro)
 
-    # pro fake mentor email specified
-    response = self.client.post(reverse("make_pro"), {'first_name': 'John',
-                                                      'last_name': 'Doe3',
-                                                      'email': 'john.doe3@example.com',
-                                                      'password1': 'Sign Up',
-                                                      'password2': 'Sign Up',
-                                                      'zipcode': '92612',
-                                                      'phone_number': '6172342524',
-                                                      'mentor': 'no.pro@example.com'})
-
-    self.assertContains(response, "The mentor you specified is not a Vinely Pro")
     self.client.logout()
 
-    # TODO: check zipcode is supported
-    response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'John',
-                                                                        'last_name': 'Doe4',
-                                                                        'email': 'john.doe4@example.com',
+    # 4. pro fake mentor email specified
+    response = self.client.post(reverse("make_pro", args=['signup']),  {'first_name': 'John',
+                                                                        'last_name': 'Doe3',
+                                                                        'email': 'john.doe3@example.com',
                                                                         'password1': 'Sign Up',
                                                                         'password2': 'Sign Up',
                                                                         'zipcode': '92612',
                                                                         'phone_number': '6172342524',
                                                                         'mentor': 'no.pro@example.com'})
-    self.assertContains(response, "The Pro email you specified is not for a Vinley Pro")
 
+    self.assertContains(response, "The mentor you specified is not a Vinely Pro")
+    self.client.logout()
+
+    # TODO: check zipcode is supported
+    # 5. Anonymous sign up as host - pro specified
     response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'John',
                                                                         'last_name': 'Doe4',
                                                                         'email': 'john.doe4@example.com',
@@ -205,7 +131,6 @@ class SimpleTest(TestCase):
                                                                         'phone_number': '6172342524',
                                                                         'mentor': 'specialist1@example.com'})
     self.assertRedirects(response, reverse('home_page'))
-    self.client.logout()
 
     profile = UserProfile.objects.get(user__email='john.doe4@example.com')
     pro = User.objects.get(email='specialist1@example.com')
@@ -219,97 +144,128 @@ class SimpleTest(TestCase):
     host_recipient = Email.objects.filter(recipients="[u'john.doe4@example.com']", subject='Get the party started with Vinely')
     self.assertTrue(host_recipient.exists())
 
-    # host no pro specified
+    self.client.logout()
+
+    # 6. Anonymous sign up as host - no pro specified
     response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'John',
                                                                         'last_name': 'Doe5',
                                                                         'email': 'john.doe5@example.com',
                                                                         'password1': 'Sign Up',
                                                                         'password2': 'Sign Up',
-                                                                        'phone_number': '6172342524',
-                                                                        'zipcode': '49546'})
+                                                                        'zipcode': '92612',
+                                                                        'phone_number': '6172342524'})
     self.assertRedirects(response, reverse('home_page'))
-    self.client.logout()
 
-    # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
+    # check no pro assigned
     profile = UserProfile.objects.get(user__email='john.doe5@example.com')
     self.assertEquals(profile.current_pro, None)
 
-    # check that emails are sent to vinely
+    # check that emails are sent to vinely + pro
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
-    # # verify user
-    # temp_password = response.context['temp_password']
-    # verification_code = response.context['verification_code']
+    # check that emails are sent to recipient
+    host_recipient = Email.objects.filter(recipients="[u'john.doe5@example.com']", subject='Get the party started with Vinely')
+    self.assertTrue(host_recipient.exists())
 
-    # response = self.client.get(reverse("verify_account", args=[verification_code]))
-    # self.assertEqual(response.status_code, 200)
+    self.client.logout()
 
-    # response = self.client.post(reverse("verify_account", args=[verification_code]), {
-    #                                                                     'email': 'john.doe5@example.com',
-    #                                                                     'temp_password': temp_password,
-    #                                                                     'new_password': 'hello',
-    #                                                                     'retype_password': 'hello1',
-    #                                                                     'accepted_tos': True})
-    # self.assertContains(response, "The new passwords do not match")
+    # 7. Anonymous signs up with fake pro email
+    response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'John',
+                                                                        'last_name': 'Doe6',
+                                                                        'email': 'john.doe6@example.com',
+                                                                        'password1': 'Sign Up',
+                                                                        'password2': 'Sign Up',
+                                                                        'zipcode': '92612',
+                                                                        'phone_number': '6172342524',
+                                                                        'mentor': 'no.pro@example.com'})
+    self.assertContains(response, "The Pro email you specified is not for a Vinley Pro")
 
-    # response = self.client.post(reverse("verify_account", args=[verification_code]), {
-    #                                                                     'email': 'john.doe5@example.com',
-    #                                                                     'temp_password': temp_password + "1",
-    #                                                                     'new_password': 'hello',
-    #                                                                     'retype_password': 'hello',
-    #                                                                     'accepted_tos': True})
-    # self.assertContains(response, "Your temporary password does not match")
-
-    # response = self.client.post(reverse("verify_account", args=[verification_code]), {
-    #                                                                     'email': 'john.doe3@example.com',
-    #                                                                     'temp_password': temp_password + "1",
-    #                                                                     'new_password': 'hello',
-    #                                                                     'retype_password': 'hello1',
-    #                                                                     'accepted_tos': True})
-    # self.assertContains(response, "You should sign up first")
-
-    # response = self.client.post(reverse("verify_account", args=[verification_code]), {
-    #                                                                     'email': 'john.doe5@example.com',
-    #                                                                     'temp_password': temp_password,
-    #                                                                     'new_password': 'hello',
-    #                                                                     'retype_password': 'hello',
-    #                                                                     'accepted_tos': True})
-
-    # user logged in
-    # self.assertRedirects(response, reverse("home_page"))
-
-    # verify = VerificationQueue.objects.get(verification_code=verification_code)
-    # user = User.objects.get(email='john.doe5@example.com')
-    # self.assertEquals(verify.verified, True)
-    # self.assertEquals(user.is_active, True)
-
-    # self.client.logout()
-
-    # logged in as taster, sign up to be host
-    response = self.client.login(email="attendee1@example.com", password="hello")
+    # logged in as taster, sign up to be host - with pro
+    response = self.client.login(email="attendee2@example.com", password="hello")
     self.assertEquals(response, True)
 
     response = self.client.get(reverse("make_host", args=['signup']))
     self.assertEquals(response.status_code, 200)
 
-    response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'attendee1',
-                                                                        'last_name': 'one',
+    response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'attendee',
+                                                                        'last_name': 'two',
                                                                         'password1': 'Sign Up',
                                                                         'password2': 'Sign Up',
-                                                                        'email': 'attendee1@example.com',
+                                                                        'email': 'attendee2@example.com',
                                                                         'phone_number': '6172342524',
-                                                                        'zipcode': '49546'})
+                                                                        'zipcode': '49546',
+                                                                        'mentor': 'specialist1@example.com'})
     self.assertRedirects(response, reverse('home_page'))
     # self.assertContains(response, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+
+    # check no pro assigned
+    profile = UserProfile.objects.get(user__email='attendee2@example.com')
+    pro = User.objects.get(email='specialist1@example.com')
+    self.assertEquals(profile.current_pro, pro)
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to taster
-    host_recipient = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Get the party started with Vinely')
+    host_recipient = Email.objects.filter(recipients="[u'attendee2@example.com']", subject='Get the party started with Vinely')
     self.assertTrue(host_recipient.exists())
+
+    self.client.logout()
+
+    # logged in as taster, sign up to be host - no pro
+    response = self.client.login(email="attendee3@example.com", password="hello")
+    self.assertEquals(response, True)
+
+    response = self.client.get(reverse("make_host", args=['signup']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post(reverse("make_host", args=['signup']), {'first_name': 'attendee',
+                                                                        'last_name': 'three',
+                                                                        'password1': 'Sign Up',
+                                                                        'password2': 'Sign Up',
+                                                                        'email': 'attendee3@example.com',
+                                                                        'phone_number': '6172342524',
+                                                                        'zipcode': '49546'})
+    self.assertRedirects(response, reverse('home_page'))
+    # self.assertContains(response, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
+
+    # check no pro assigned
+    profile = UserProfile.objects.get(user__email='attendee3@example.com')
+    self.assertEquals(profile.current_pro, None)
+
+    # check that emails are sent to vinely
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    self.assertTrue(vinely_recipients.exists())
+
+    # check that emails are sent to taster
+    host_recipient = Email.objects.filter(recipients="[u'attendee3@example.com']", subject='Get the party started with Vinely')
+    self.assertTrue(host_recipient.exists())
+
+  def test_pro_approval(self):
+    response = self.client.login(email="elizabeth@vinely.com", password="egoede")
+    self.assertEquals(response, True)
+
+    pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
+    pro = User.objects.get(email='attendee1@example.com')
+    pro.groups.clear()
+    pro.groups.add(pending_pro_group)
+    self.assertTrue(pro.userprofile.is_pending_pro())
+
+    post_data = {
+        'index': 0,
+        'action': 'approve_pro',
+        '_selected_action': pro.userprofile.id
+    }
+
+    response = self.client.post('/admin/accounts/userprofile/', post_data)
+    self.assertEqual(response.status_code, 302)
+    self.assertTrue(pro.userprofile.is_pro())
+
+    # emails sent
+    pro_approved_emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Vinely Pro Approved!')
+    self.assertTrue(pro_approved_emails.exists())
 
   def test_my_information_update(self):
     response = self.client.login(email="attendee2@example.com", password="hello")

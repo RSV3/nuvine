@@ -43,6 +43,9 @@ class SimpleTest(TestCase):
     Zipcode.objects.get_or_create(code="92612", country="US", state="CA")
 
     mi_pro = create_user("elizabeth@vinely.com", "egoede")
+    mi_pro.is_staff = True
+    mi_pro.is_superuser = True
+    mi_pro.save()
     mi_pro.groups.add(ps_group)
     mi_pro.userprofile.zipcode = '49546'
     mi_pro.userprofile.save()
