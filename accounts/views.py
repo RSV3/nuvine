@@ -532,10 +532,11 @@ def make_pro_host(request, account_type, data):
     if profile.is_pro():
       data["already_signed_up"] = True
       data["get_started_menu"] = True
-      if account_type == 1:
-        return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-      else:
-        return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+      return HttpResponseRedirect(reverse('make_pro'))
+      # if account_type == 1:
+      #   return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+      # else:
+      #   return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
     elif profile.is_host():
 
@@ -559,7 +560,6 @@ def make_pro_host(request, account_type, data):
           else:
             # mentor = get_default_pro()
             mentor = profile.find_nearest_pro()
-            MyHost.objects.filter(host=u).update(pro=None)
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
           profile.current_pro = None
@@ -625,20 +625,18 @@ def make_pro_host(request, account_type, data):
         # become a host
         try:
           mentor_email = form.cleaned_data.get('mentor')
-          if mentor_email:
-            pro = User.objects.get(email=mentor_email)
-          else:
-            # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
-            # set mentor to default pro but MyHost needs to see that as no pro assigned
-            pro = None
+          # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
+          pro = User.objects.get(email=mentor_email)
           profile.current_pro = pro
           profile.save()
+          send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
           pro = None
-        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+          send_unknown_pro_email(request, u)  # to host
+
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
-        send_know_pro_party_email(request, u)  # to the current user
+
         u.groups.clear()
         u.groups.add(hos_group)
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
@@ -651,7 +649,7 @@ def make_pro_host(request, account_type, data):
   if account_type == 1:
     return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
   else:
-    return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+    return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
 
 
 def make_host(request, state=None):
@@ -664,7 +662,11 @@ def make_host(request, state=None):
   data['state'] = state
 
   if state == 'signup':
-    return sign_up(request, 2, data)
+    data['host_party_menu'] = True
+    if u.is_authenticated():
+      return make_pro_host(request, 2, data)
+    else:
+      return sign_up(request, 2, data)
   else:
     host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
     data['heading'] = host_sections.get(key='header').content
@@ -672,26 +674,30 @@ def make_host(request, state=None):
     data['content'] = host_sections.get(key=state).content
     data['host_party_menu'] = True
     return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
-    # if u.is_authenticated():
-    # return make_pro_host(request, 2, data)
-    # else:
-    #   return sign_up(request, 2, data)
 
 
 def make_pro(request, state=None):
   data = {}
   u = request.user
 
-  pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
-  data['heading'] = pro_sections.get(key='header').content
-  data['sub_heading'] = pro_sections.get(key='sub_header').content
-  data['content'] = pro_sections.get(key='general').content
-  data['become_pro_menu'] = True
-  # return make_pro_host(request, 1, data)
-  if u.is_authenticated():
-    return make_pro_host(request, 1, data)
+  if state not in ['parties', 'earnings', 'support', 'growth', 'signup']:
+    state = 'overview'
+
+  data['state'] = state
+
+  if state == 'signup':
+    data['become_pro_menu'] = True
+    if u.is_authenticated():
+      return make_pro_host(request, 1, data)
+    else:
+      return sign_up(request, 1, data)
   else:
-    return sign_up(request, 1, data)
+    pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
+    data['heading'] = pro_sections.get(key='header').content
+    data['sub_heading'] = pro_sections.get(key='sub_header').content
+    data['content'] = pro_sections.get(key=state).content
+    data['become_pro_menu'] = True
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
 
 
 def make_taster(request, rsvp_code):
@@ -788,20 +794,22 @@ def sign_up(request, account_type, data):
         # pro = get_default_pro()
         pro = profile.find_nearest_pro()
         profile.mentor = pro
-
+      profile.save()
+      send_pro_request_email(request, user)
     elif account_type == 2:
       # if host, then set mentor to be the host's pro
+      # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
       try:
         pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
-          # map host to a pro
-        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
         profile.current_pro = pro
+        send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
+        pro = None
         # pro e-mail was not entered
-        profile.current_pro = profile.find_nearest_pro()
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
-
-    profile.save()
+        # profile.current_pro = profile.find_nearest_pro()
+        send_unknown_pro_email(request, user)  # to host
+      profile.save()
+      send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
     if role == pro_group:
       # if requesting to be pro, put them in pending pro group
@@ -810,32 +818,12 @@ def sign_up(request, account_type, data):
       user.groups.add(role)
 
     # save engagement type
-    engagement_type = account_type
-
-    interest, created = EngagementInterest.objects.get_or_create(user=user,
-                                                      engagement_type=engagement_type)
+    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=account_type)
 
     data["email"] = user.email
     data["first_name"] = user.first_name
 
     data["account_type"] = account_type
-    if account_type == 1:
-      send_pro_request_email(request, user)
-    elif account_type == 2:
-      # send mail to sales@vinely if no mentor
-      mentor_pro = None
-      try:
-        # make sure selected mentor is a pro
-        mentor_pro = User.objects.get(email=request.POST.get('mentor'))
-
-        if pro_group in mentor_pro.groups.all():
-          send_know_pro_party_email(request, user)  # to host
-      except User.DoesNotExist:
-        # mail sales
-        send_unknown_pro_email(request, user)  # to host
-
-      send_host_vinely_party_email(request, user, mentor_pro)  # to pro or vinely
-      # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
     messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
     user = authenticate(email=user.email, password=form.cleaned_data['password1'])
@@ -847,12 +835,9 @@ def sign_up(request, account_type, data):
   data['form'] = form
   data['role'] = role.name
   data['account_type'] = account_type
-  data['get_started_menu'] = True
+  # data['get_started_menu'] = True
 
-  if account_type == 1:
-    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-  else:
-    return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+  return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
 
 
 def sign_up_old(request, account_type):

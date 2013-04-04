@@ -69,67 +69,68 @@
             or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
           </p>
           <p><i>1. What's your info?</i></p>
-
           <div class="row">
-            <div class="span5">
-              <div class="control-group">
-                {{ form.first_name }}
-                {% if form.first_name.errors %}
-                  <span class="help-inline">
-                    {{ form.first_name.errors }}
-                  </span>
-                {% endif %}
-              </div>
-              <div class="control-group">
-                {{ form.last_name }}
-                {% if form.last_name.errors %}
-                  <span class="help-inline">
-                    {{ form.last_name.errors }}
-                  </span>
-                {% endif %}
-              </div>
-              <div class="control-group">
-                {{ form.email }}
-                {% if form.email.errors %}
-                  <span class="help-inline">
-                    {{ form.email.errors }}
-                  </span>
-                {% endif %}
-              </div>
-              <div class="control-group">
-                {{ form.zipcode }}
-                {% if form.zipcode.errors %}
-                  <span class="help-inline">
-                    {{ form.zipcode.errors }}
-                  </span>
-                {% endif %}
-              </div>
+            <div class="span5 control-group">
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <span class="help-inline">
+                  {{ form.first_name.errors }}
+                </span>
+              {% endif %}
             </div>
-            <div class="span5">
-              <div class="control-group">
-                {{ form.phone_number }}
-                {% if form.phone_number.errors %}
-                  <span class="help-inline">
-                    {{ form.phone_number.errors }}
-                  </span>
-                {% endif %}
-              </div>
-              <div class="control-group">
-                {{ form.password1 }}
-                {% if form.password1.errors %}
-                  <span class="help-inline">
-                    {{ form.password1.errors }}
-                  </span>
-                {% endif %}
-              </div>
-              <div class="control-group">
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                  <span class="help-inline">
-                    {{ form.password2.errors }}
-                  </span>
-                {% endif %}
-              </div>
+            <div class="span5 control-group">
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <span class="help-inline">
+                  {{ form.last_name.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="span5 control-group">
+              {{ form.email }}
+              {% if form.email.errors %}
+                <span class="help-inline">
+                  {{ form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="span5 control-group">
+              {{ form.phone_number }}
+              {% if form.phone_number.errors %}
+                <span class="help-inline">
+                  {{ form.phone_number.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="span5 control-group">
+              {{ form.zipcode }}
+              {% if form.zipcode.errors %}
+                <span class="help-inline">
+                  {{ form.zipcode.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="span5 control-group">
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <span class="help-inline">
+                  {{ form.password1.errors }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="span5 control-group">
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <span class="help-inline">
+                  {{ form.password2.errors }}
+                </span>
+              {% endif %}
             </div>
           </div>
           <hr />

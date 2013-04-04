@@ -38,14 +38,24 @@ class SimpleTest(TestCase):
     supp_group, created = Group.objects.get_or_create(name="Supplier")
     pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
 
-    u = create_user("elizabeth@redstar.com", "egoede")
-    u.groups.add(ps_group)
+    Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
+    Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
+    Zipcode.objects.get_or_create(code="92612", country="US", state="CA")
 
-    u = create_user("johnstecco@gmail.com", "jstecco")
-    u.groups.add(ps_group)
+    mi_pro = create_user("elizabeth@vinely.com", "egoede")
+    mi_pro.groups.add(ps_group)
+    mi_pro.userprofile.zipcode = '49546'
+    mi_pro.userprofile.save()
 
-    u = create_user("specialist1@example.com", "hello")
-    u.groups.add(ps_group)
+    ca_pro = create_user("johnstecco@gmail.com", "jstecco")
+    ca_pro.groups.add(ps_group)
+    ca_pro.userprofile.zipcode = '92612'
+    ca_pro.userprofile.save()
+
+    ma_pro = create_user("specialist1@example.com", "hello")
+    ma_pro.groups.add(ps_group)
+    ma_pro.userprofile.zipcode = '02139'
+    ma_pro.userprofile.save()
 
     u = create_user("specialist2@example.com", "hello")
     u.groups.add(ps_group)
@@ -97,10 +107,6 @@ class SimpleTest(TestCase):
 
     tasters = User.objects.filter(groups=att_group)
     self.assertEqual(tasters.count(), 9)
-
-    Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
-    Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
-    Zipcode.objects.get_or_create(code="60107", country="US", state="CA")
 
     for u in User.objects.all():
       u.is_active = True
