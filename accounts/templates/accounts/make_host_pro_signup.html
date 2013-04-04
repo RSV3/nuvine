@@ -33,22 +33,44 @@
     width:300px;
   }
   .span10 {
-    width:735px;
+    width:650px;
   }
   .offset1 {
-    margin-left: 125px;
+    margin-left: 150px;
+  }
+  .span12 {
+    height:0;
+    width:980px;
   }
   .well {
     min-height: 20px;
     padding: 19px;
     background-color: #f5f5f5;
     border: 1px solid #999;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    padding-left: 47px;
+  }
+
+  .well hr {
+    margin: 18px 30px 18px 0px;
+  }
+
+  .form-horizontal input {
+    height:35px;
+    border-radius:4px;
+    border:1px solid #CCC;
+  }
+
+  .form-horizontal .control-group {
+    margin-bottom:1.0em;
+  }
+  .question {
+    margin-bottom:20px;
   }
 </style>
 <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
@@ -89,7 +111,7 @@
             Call us at (888)294-1128 ext. 1 <br />
             or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
           </p>
-          <p><i>1. What's your info?</i></p>
+          <div class="question"<p><i>1. What's your info?</i></p></div>
           <div class="row">
             <div class="span5 control-group">
               {{ form.first_name }}
@@ -155,7 +177,8 @@
             </div>
           </div>
           <hr />
-          <p><i>2. Do you already know a Vinely Pro? (leave this blank if you don't know what it is)</i></p>
+          <div class="question">
+          <p><i>2. Do you already know a Vinely Pro? (leave this blank if you don't know what it is)</i></p></div>
           <div class="row">
             <div class="span5">
               <div class="control-group">
