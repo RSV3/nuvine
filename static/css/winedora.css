@@ -3,10 +3,6 @@ body {
   letter-spacing:0px;
 }
 
-p {
-  margin: 0 0 1.5em;
-}
-
 /* utilities */
 .vertical-space {
   margin-bottom: 25px;
@@ -879,4 +875,8 @@ footer .container .navbar {
 .modal-footer {
   background:white;
   text-align:center;
+}
+
+.main-content p {
+  margin: 0 0 1.5em;
 }
