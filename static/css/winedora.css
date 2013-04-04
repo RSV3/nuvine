@@ -254,7 +254,7 @@ table .row-label-bold {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');
   color: #FFFFFF; 
-  padding-top:7px;
+  padding-top:6px;
 }
 .sidebar-nav li.active div.chev {
   display: inline;
