@@ -261,11 +261,43 @@ class SimpleTest(TestCase):
 
     response = self.client.post('/admin/accounts/userprofile/', post_data)
     self.assertEqual(response.status_code, 302)
-    self.assertTrue(pro.userprofile.is_pro())
+    self.assertTrue(pro.get_profile().is_pro())
 
     # emails sent
     pro_approved_emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Vinely Pro Approved!')
     self.assertTrue(pro_approved_emails.exists())
+
+  def test_mentor_assignment(self):
+    response = self.client.login(email="elizabeth@vinely.com", password="egoede")
+    self.assertEquals(response, True)
+
+    pro = User.objects.get(email='attendee1@example.com')
+    pro.groups.clear()
+    pro_group, created = Group.objects.get_or_create(name="Vinely Pro")
+    pro.groups.add(pro_group)
+    self.assertTrue(pro.userprofile.is_pro())
+
+    mentor = User.objects.get(email='specialist1@example.com')
+
+    post_data = {
+        '_save': 'Save',
+        'user': pro.id,
+        'mentor': mentor.id,
+        'gender': pro.userprofile.gender,
+        'wine_personality': pro.userprofile.wine_personality.id,
+        '_selected_action': pro.userprofile.id
+    }
+
+    response = self.client.post('/admin/accounts/userprofile/%d/' % pro.userprofile.id, post_data)
+    self.assertRedirects(response, '/admin/accounts/userprofile/')
+    self.assertEquals(pro.get_profile().mentor, mentor)
+
+    # emails sent
+    mentor_assigned_emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Congratulations! Vinely Mentor has been assigned to you.')
+    self.assertTrue(mentor_assigned_emails.exists())
+
+    mentee_assigned_emails = Email.objects.filter(recipients="[u'specialist1@example.com']", subject='Congratulations! Vinely Mentee has been assigned to you.')
+    self.assertTrue(mentee_assigned_emails.exists())
 
   def test_my_information_update(self):
     response = self.client.login(email="attendee2@example.com", password="hello")

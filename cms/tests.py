@@ -1281,11 +1281,10 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="mentee_assigned_notification_email", category=0)
-    template.save()
-    section = Section.objects.create(key='general', content=content, template=template)
+    template, created = ContentTemplate.objects.get_or_create(key="mentee_assigned_notification_email", category=0)
+    section, created = Section.objects.get_or_create(key='general', template=template)
+    section.content = content
     section.save()
-    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.first_name }}", description="Mentor's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.last_name }}", description="Mentor's last name")
