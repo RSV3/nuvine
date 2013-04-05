@@ -202,7 +202,7 @@ class NewHostNoPartyAdmin(admin.ModelAdmin):
 
 admin.site.register(NewHostNoParty, NewHostNoPartyAdmin)
 admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
-admin.site.register(MyHost, MyHostAdmin)
+# admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)

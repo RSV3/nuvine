@@ -9,7 +9,7 @@ from django.utils import timezone
 from accounts.models import UserProfile, VinelyProAccount, Address, SubscriptionInfo, Zipcode
 from accounts.utils import send_pro_approved_email, reassign_pro
 from main.utils import send_mentor_assigned_notification_email, send_mentee_assigned_notification_email, \
-                      generate_pro_account_number, my_pro
+                        generate_pro_account_number, my_pro, send_pro_assigned_notification_email, send_host_vinely_party_email
 
 from main.models import MyHost, Cart
 
@@ -112,6 +112,26 @@ class MentorAssignedFilter(SimpleListFilter):
     if mentor_assigned == 'No':
       return queryset.filter(mentor__isnull=True)
 
+from django import forms
+from django.forms.util import ErrorList
+
+
+class VinelyUserProfileForm(forms.ModelForm):
+  class Meta:
+    model = UserProfile
+
+  def clean(self):
+    cleaned_data = super(VinelyUserProfileForm, self).clean()
+    if self.instance.is_pro():
+      # can only set mentor
+      if cleaned_data['current_pro']:
+        self._errors["current_pro"] = ErrorList([u'You cannot set a "current pro" for a Vinely Pro. A Vinely Pro can only have a mentor.'])
+    else:
+      # can only set current_pro
+      if cleaned_data['mentor']:
+        self._errors["mentor"] = ErrorList([u'You can only assign a mentor to a Vinely Pro. %s <%s> is not a Vinely Pro.' % (self.instance.user.get_full_name(), self.instance.user.email)])
+    return cleaned_data
+
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
@@ -120,6 +140,7 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor', 'current_pro')
   model = UserProfile
+  form = VinelyUserProfileForm
   actions = [approve_pro, remove_pro_privileges, change_to_host, change_to_taster, cancel_subscription, leave_vinely]
   search_fields = ['user__first_name', 'user__last_name', 'user__email']
 
@@ -170,6 +191,13 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
       send_mentor_assigned_notification_email(request, obj.user, obj.mentor)
       send_mentee_assigned_notification_email(request, obj.mentor, obj.user)
       messages.info(request, "New mentor has been successfully assigned.")
+
+    if obj.current_pro != old_profile.current_pro:
+      if obj.is_host():
+        send_pro_assigned_notification_email(request, obj.current_pro, obj.user)
+        send_host_vinely_party_email(request, obj.user, obj.current_pro)
+      messages.info(request, "New pro has been successfully assigned.")
+
     super(VinelyUserProfileAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(UserProfile, VinelyUserProfileAdmin)
