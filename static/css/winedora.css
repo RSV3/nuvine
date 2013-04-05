@@ -326,7 +326,7 @@ table .row-label-bold {
   margin-top: -5px;
   position:relative;
   z-index:5;
-  text-align: center;
+  text-align: left;
   padding: 15px 15px 10px 15px;
   background-color: #fff;
   border: 1px solid rgb(147,149,152);
@@ -339,7 +339,7 @@ table .row-label-bold {
   padding-right: 75px;
 }
 .box-content2 .howto-sidetext {
-  padding-right: 5px;
+  padding-right: 17px;
 }
 
 .box-container2 a,

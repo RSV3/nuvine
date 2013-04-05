@@ -20,24 +20,19 @@
   .home-glass {
     position: absolute;
     margin-top: -100px;
-    margin-left: -210px;
+    margin-left: -180px;
   }
   .home-glasses {
-    margin-left: -46px;
+    margin-left: -16px;
   }
   .home-cards {
     position: absolute;
-    margin-left: -108px;
-    margin-top: 9px;
+    margin-top: 8px;
   }
-  .box-content2 h1,
-  .box-content2 p {
-    text-align: left;
-  }
-  .box-content2 a {
+/*  .box-content2 a {
     text-decoration: none;
     color: #415A68;
-  }
+  }*/
   .cta-howitworks,
   .cta-howitworks:visited,
   .cta-howitworks:active {
@@ -46,35 +41,35 @@
     height: 40px;
     background-position: 180px 5px;
   }
-  .make-host h1,
-  .make-host p {
-    margin-left: -20px;
+  .box-content2  h1 {
+    width: 200px;
   }
 </style>
 {% endblock additional_styles %}
 {% block content %}
 <div class="container">
   <div class="vertical-space"></div>
-    <div class="row">
-      <div class="span3 cta-button">
-        <p>
-          Tired of the guesswork of buying wine? Now Vinely makes it easy, convenient and fun.
-        </p>
-        <div>
-          <a class="cta-howitworks state-head" href="{% url how_it_works %}">How does it work?</a>
-        </div>
-      </div>
-      <div class="span3">
-        The Vinely experience is as simple as Sip, Rate and Repeat.
-        Treat your tastebuds to tastes you're guaranteed to love delivered right to your door.
-      </div>
-      <div class="span6">
-        <img class="home-glass" src="{{ STATIC_URL }}img/homepage_glass.png" />
+  <div class="row">
+    <div class="span3 cta-button">
+      <p>
+        Tired of the guesswork of buying wine? Now Vinely makes it easy, convenient and fun.
+      </p>
+      <div>
+        <a class="cta-howitworks state-head" href="{% url how_it_works %}">How does it work?</a>
       </div>
     </div>
-    <div class="vertical-space">&nbsp;</div>
-    <div class="row">
-      <div class="span5 box-content2 make-host">
+    <div class="span3">
+      The Vinely experience is as simple as Sip, Rate and Repeat.
+      Treat your tastebuds to tastes you're guaranteed to love delivered right to your door.
+    </div>
+    <div class="span6">
+      <img class="home-glass" src="{{ STATIC_URL }}img/homepage_glass.png" />
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+  <div class="row">
+    <div class="span6">
+      <div class="box-content2 make-host">
         <a href="{% url make_host %}">
           <div class="row">
             <div class="span3">
@@ -90,26 +85,28 @@
           </div>
         </a>
       </div>
-      <div class="span6 box-content2">
+    </div>
+    <div class="span6">
+      <div class="box-content2 make-pro">
         <a href="{% url make_pro %}">
           <div class="row">
             <div class="span3">
               &nbsp;
               <img class="home-cards" src="{{ STATIC_URL }}img/homepage_cards.png" />
             </div>
-            <div class="span3">
-                <h1>Join the team</h1>
-                <p>
-                  Take it to the next level <br/>
-                  to earn a little or a lot...it's up to you!
-                </p>
-              </div>
+            <div class="span2">
+              <h1>Join the team</h1>
+              <p>
+                Take it to the next level <br/>
+                to earn a little or a lot...it's up to you!
+              </p>
             </div>
-          </a>
-        </div>
+          </div>
+        </a>
       </div>
     </div>
-    <div class="vertical-space">&nbsp;</div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
 </div>
 {% endblock content %}
 
