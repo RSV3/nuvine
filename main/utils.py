@@ -265,10 +265,10 @@ def send_order_confirmation_email(request, order_id):
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
 
   from_email = 'Vinely Order <info@vinely.com>'
-  if "mi" in str(order.shipping_address.state).lower():
-    recipients = ['pmfaba@gmail.com']
-  else:
-    recipients = ['fulfillment@vinely.com']
+  # if "mi" in str(order.shipping_address.state).lower():
+  #   recipients = ['pmfaba@gmail.com']
+  # else:
+  recipients = ['fulfillment@vinely.com']
 
   p = Premailer(html_msg)
   html_msg = p.transform()

@@ -318,6 +318,17 @@ class SimpleTest(TestCase):
       p.save()
       f.close()
 
+  def create_test_products(self):
+    if Product.objects.all().count() < 4:
+      p, created = Product.objects.get_or_create(name="3 Bottles", description="", unit_price=54.00, category=1, cart_tag="3")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="6 Bottles", description="", unit_price=97.00, category=1, cart_tag="6")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="12")
+      self.assertEqual(created, True)
+
   def setUp(self):
     # initial data
     #self.create_contact_reasons()
@@ -326,7 +337,7 @@ class SimpleTest(TestCase):
     self.create_usable_accounts()
     self.create_wine_personalities()
     self.create_wine_samplers()
-    self.create_products()
+    self.create_test_products()
     test = CMSTest()
     test.create_email_templates()
 
@@ -957,6 +968,43 @@ class SimpleTest(TestCase):
 
     return party
 
+  def vinely_card_processing(self):
+    ##########################################################
+    #
+    # Using Vinely Credit card processing
+    #
+    ##########################################################
+    year = datetime.today().year + 5
+    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
+                                                                        "exp_month": 6,
+                                                                        "exp_year": year,
+                                                                        "verification_code": 111,
+                                                                        "billing_zipcode": "02139",
+                                                                        "card_type": "Unknown"})
+    return response
+
+  def stripe_card_processing(self, user):
+    ##########################################################
+    #
+    # Using Stripe Credit card processing
+    #
+    ##########################################################
+
+    import stripe
+    from django.conf import settings
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (user.first_name, user.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+
+    response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
+                                                                        "exp_month": token.card.exp_month,
+                                                                        "exp_year": token.card.exp_year,
+                                                                        "last4": token.card.last4,
+                                                                        "address_zip": token.card.address_zip,
+                                                                        "card_type": token.card.type})
+    return response
+
   def test_rep_adding_orders(self):
     party = self.create_party()
 
@@ -981,29 +1029,14 @@ class SimpleTest(TestCase):
 
     # now with real taster and real party
     response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
-    self.assertEquals(response.status_code, 200)
+    self.assertRedirects(response, reverse("main.views.cart_add_wine"))
 
-    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
-    response = self.client.login(email="attendee1@example.com", password="hello")
-    self.assertTrue(response)
-
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 220.00,
-                                                                                          "level": "superior"})
+    case = Product.objects.get(name="3 Bottles")
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 2,
+                                                                      "frequency": 0,
+                                                                      "total_price": 108.00})
     self.assertRedirects(response, reverse("main.views.cart"))
-
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"), {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 1})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
 
     birth_date = timezone.now() - timedelta(days=30 * 365)
 
@@ -1016,15 +1049,18 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
-    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+    self.assertContains(response, 'Currently, we can only ship to California.')
 
-    year = datetime.today().year + 5
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
-                                                                        "exp_month": 6,
-                                                                        "exp_year": year,
-                                                                        "verification_code": 111,
-                                                                        "billing_zipcode": "02139",
-                                                                        "card_type": "Unknown"})
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "San Fransisco",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
+    response = self.stripe_card_processing(real_attendee)
     self.assertRedirects(response, reverse("main.views.place_order"))
 
     response = self.client.post(reverse("main.views.place_order"))
@@ -1041,42 +1077,26 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
-  def test_attendee_ordering_online(self):
-    ##########################################################
-    #
-    # Using Vinely Credit card processing
-    #
-    ##########################################################
-
-    response = self.client.get(reverse('main.views.start_order'))
-    self.assertEquals(response.status_code, 200)
-
-    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
+  def test_attendee_ordering(self):
     response = self.client.login(email="attendee1@example.com", password="hello")
     self.assertTrue(response)
 
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
+    response = self.client.get(reverse('main.views.start_order'))
+    self.assertRedirects(response, reverse("main.views.cart_add_wine"))
 
-    self.assertEquals(response.status_code, 200)
+    case = Product.objects.get(name="6 Bottles", unit_price=97.00)
 
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]),  {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 220.00,
-                                                                                          "level": "superior"})
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 2,
+                                                                      "frequency": 0,
+                                                                      "total_price": 194.00})
     self.assertRedirects(response, reverse("main.views.cart"))
 
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"),  {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 0})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
+    birth_date = timezone.now() - timedelta(days=30 * 365)
 
     response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
                                                                               "last_name": "Doe",
@@ -1086,29 +1106,32 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
+
+    self.assertContains(response, 'Currently, we can only ship to California.')
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "San FranciscoZ",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
     self.assertContains(response, "You cannot order wine until you verify that you are not under 21")
 
-    birth_date = timezone.now() - timedelta(days=30 * 365)
-
     response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
                                                                               "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
-                                                                              "city": "Cambridge",
-                                                                              "state": "MA",
-                                                                              "zipcode": "02139",
+                                                                              "city": "San Fransisco",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
-    # print response
     self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+    taster = User.objects.get(email='attendee1@example.com')
+    response = self.stripe_card_processing(taster)
 
-    year = datetime.today().year + 5
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
-                                                                        "exp_month": 6,
-                                                                        "exp_year": year,
-                                                                        "verification_code": 111,
-                                                                        "billing_zipcode": "02139",
-                                                                        "card_type": "Unknown"})
     self.assertRedirects(response, reverse("main.views.place_order"))
 
     response = self.client.post(reverse("main.views.place_order"))
@@ -1125,94 +1148,9 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
-
-    ##########################################################
-    #
-    # Using Stripe Credit card processing
-    #
-    ##########################################################
-
-    import stripe
-    from django.conf import settings
-
-    response = self.client.get(reverse('main.views.start_order'))
-    self.assertEquals(response.status_code, 200)
-
-    case = Product.objects.get(name="Divine Collection", unit_price=225.00)
-    response = self.client.login(email="attendee1@example.com", password="hello")
-    self.assertTrue(response)
-
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["divine"]))
-
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["divine"]),  {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 420.00,
-                                                                                          "level": "superior"})
-    self.assertRedirects(response, reverse("main.views.cart"))
-
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"),  {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 0})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
-
-    birth_date = timezone.now() - timedelta(days=30 * 365)
-
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
-                                                                              "first_name": "John",
-                                                                              "last_name": "Doe",
-                                                                              "address1": "65 Gordon St.",
-                                                                              "city": "Grand Rapids",
-                                                                              "state": "MI",
-                                                                              "zipcode": "49546",
-                                                                              "phone": "555-617-6706",
-                                                                              "email": "attendee1@example.com"})
-    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
-
-    stripe.api_key = settings.STRIPE_SECRET
-
-    token = stripe.Token.create(card={'number': 4242424242424242, 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
-
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
-                                                                        "exp_month": token.card.exp_month,
-                                                                        "exp_year": token.card.exp_year,
-                                                                        "last4": token.card.last4,
-                                                                        "address_zip": token.card.address_zip,
-                                                                        "card_type": token.card.type})
-    self.assertRedirects(response, reverse("main.views.place_order"))
-
-    user = User.objects.get(email="attendee1@example.com")
-    profile = user.get_profile()
-    self.assertIsNotNone(profile.stripe_card)
-
-    response = self.client.post(reverse("main.views.place_order"))
-    order = Order.objects.get(cart__items__product=case)
-
-    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
-
-    response = self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
-    self.assertEquals(response.status_code, 200)
-
-    self.assertTrue(Order.objects.filter(cart__items__product=case).exists())
-
-    # check emails sent
-    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
-    self.assertTrue(recipient_email.exists())
-
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
-    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
-    self.assertTrue(vinely_email.exists())
-
-    stripe_customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-    stripe_customer.delete()
 
   def test_product_ordering(self):
     """
