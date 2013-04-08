@@ -998,12 +998,12 @@ def send_new_party_host_confirm_email(request, party):
 
   host_first_name = party.host.first_name if party.host.first_name else "Friendly Host"
 
-  c = RequestContext(request, {"party": party,
-              "invite_host_name": "%s" % host_first_name,
-              "pro_email": party.pro.email,
-              "pro_phone": party.pro.userprofile.phone,
-              "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
-              "host_name": request.get_host(), "plain": True})
+  c = RequestContext(request,  {"party": party,
+                                "invite_host_name": "%s" % host_first_name,
+                                "pro_email": party.pro.email,
+                                "pro_phone": party.pro.userprofile.phone,
+                                "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
+                                "host_name": request.get_host(), "plain": True})
   txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
@@ -1072,8 +1072,8 @@ def send_new_party_host_confirm_email(request, party):
   html_message = html_template.render(c)
 
   # notify about scheduled party
-  recipients = [party.pro.email, 'care@vinely.com']
-  subject = 'Your Vinely Party has been Scheduled!'
+  recipients = [party.pro.email, u'care@vinely.com']
+  subject = 'Your Vinely Party has been scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
 
