@@ -1,6 +1,6 @@
 """
 This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
+when you run 'manage.py test'
 
 Replace this with more appropriate tests for your application.
 """
@@ -8,34 +8,51 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from datetime import datetime
 
-from django.contrib.auth.models import User
-from main.models import Question, Cart, LineItem, Order, Party, OrganizedParty, MyHost
+from django.contrib.auth.models import User, Group
+from main.models import Cart, LineItem, Order, Party, OrganizedParty, MyHost, Product
 from accounts.models import Address, UserProfile, CreditCard
-from pro.utils import create_party, create_orders
+from pro.utils import create_party, create_orders, create_non_party_orders
 
 
 class SimpleTest(TestCase):
 
+
+    def create_test_products(self):
+      if Product.objects.all().count() < 4:
+        p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="12")
+        self.assertEqual(created, True)
+        p, created = Product.objects.get_or_create(name="3 Bottles", description="", unit_price=54.00, category=1, cart_tag="3")
+        self.assertEqual(created, True)
+        p, created = Product.objects.get_or_create(name="6 Bottles", description="", unit_price=97.00, category=1, cart_tag="6")
+        self.assertEqual(created, True)
+        p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12")
+        self.assertEqual(created, True)
+
     def setUp(self):
+      self.create_test_products()
+
+      ps_group, created = Group.objects.get_or_create(pk=1, name="Vinely Pro")
+      ph_group, created = Group.objects.get_or_create(pk=2, name="Vinely Host")
+      att_group, created = Group.objects.get_or_create(pk=3, name="Vinely Taster")
+      supp_group, created = Group.objects.get_or_create(pk=4, name="Supplier")
+      pending_pro_group, created = Group.objects.get_or_create(pk=5, name="Pending Vinely Pro")
+
       for i in range(1, 14):
         pro = User(email="pro%d@gmail.com" % i, first_name="Pro%d" % i, last_name="Last%d" % i)
         pro.save()
+        pro.groups.add(ps_group)
 
       for i in range(1, 104):
         taster = User(email="taster%d@gmail.com" % i, first_name="Taster%d" % i, last_name="Last%d" % i)
         taster.save()
+        pro.groups.add(att_group)
 
       for i in range(1, 14):
         host = User(email="host%d@gmail.com" % i, first_name="Host%d" % i, last_name="Last%d" % i)
         host.save()
+        pro.groups.add(ph_group)
 
     def runTest(self):
-      pass
-
-    def create_receiver_order_party(receiver, party, pro):
-      """
-        Method to easily create orders for a party and pro
-      """
       pass
 
     def test_generate_users(self):
@@ -44,7 +61,7 @@ class SimpleTest(TestCase):
       """
       pass
 
-    def test_generate_simulated_orders(self):
+    def generate_simulated_orders(self):
       """
         Create parties and create orders for those parties
       """
@@ -67,17 +84,17 @@ class SimpleTest(TestCase):
       party1 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party1_orders1 = [[1, 100, 0],
-                        [2, 100, 1],
-                        [3, 100, 0],
-                        [4, 100, 1],
-                        [5, 100, 0],
-                        [6, 100, 1]]
+      party1_orders1 = [[1, 1, 100, 0],
+                        [2, 1, 100, 1],
+                        [3, 1, 100, 0],
+                        [4, 1, 100, 1],
+                        [5, 1, 100, 0],
+                        [6, 1, 100, 1]]
       order_date1 = datetime(year=2013, month=3, day=10, hour=21)
       create_orders(party1, party1_orders1, order_date1)
 
-      party1_orders2 = [[28, 100, 1],
-                        [29, 100, 0]]
+      party1_orders2 = [[28, 1, 100, 1],
+                        [29, 1, 100, 0]]
       order_date2 = datetime(year=2013, month=3, day=14, hour=21)
       create_orders(party1, party1_orders2, order_date2)
 
@@ -99,15 +116,15 @@ class SimpleTest(TestCase):
       party2 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party2_orders1 = [[7, 100, 0],
-                        [8, 100, 1],
-                        [9, 100, 0],
-                        [10, 100, 1]]
+      party2_orders1 = [[7, 2, 100, 0],
+                        [8, 2, 100, 1],
+                        [9, 2, 100, 0],
+                        [10, 2, 100, 1]]
       order_date1 = datetime(year=2013, month=3, day=11, hour=21)
       create_orders(party2, party2_orders1, order_date1)
 
-      party2_orders2 = [[30, 100, 1],
-                        [31, 100, 0]]
+      party2_orders2 = [[30, 2, 100, 1],
+                        [31, 2, 100, 0]]
       order_date2 = datetime(year=2013, month=3, day=14, hour=21)
       create_orders(party2, party2_orders2, order_date2)
 
@@ -129,15 +146,15 @@ class SimpleTest(TestCase):
       party3 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party3_orders1 = [[11, 100, 0],
-                        [12, 100, 1],
-                        [13, 100, 0],
-                        [14, 100, 1],
-                        [15, 100, 0],
-                        [16, 100, 1],
-                        [17, 100, 0],
-                        [18, 100, 1],
-                        [19, 100, 0]]
+      party3_orders1 = [[11, 3, 100, 0],
+                        [12, 3, 100, 1],
+                        [13, 3, 100, 0],
+                        [14, 3, 100, 1],
+                        [15, 3, 100, 0],
+                        [16, 3, 100, 1],
+                        [17, 3, 100, 0],
+                        [18, 3, 100, 1],
+                        [19, 3, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=12, hour=21)
       create_orders(party3, party3_orders1, order_date1)
 
@@ -160,14 +177,14 @@ class SimpleTest(TestCase):
       party4 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party4_orders1 = [[20, 100, 1],
-                        [21, 100, 0],
-                        [22, 100, 1],
-                        [23, 100, 0],
-                        [24, 100, 1],
-                        [25, 100, 0],
-                        [26, 100, 1],
-                        [27, 100, 0]]
+      party4_orders1 = [[20, 4, 100, 1],
+                        [21, 4, 100, 0],
+                        [22, 4, 100, 1],
+                        [23, 4, 100, 0],
+                        [24, 4, 100, 1],
+                        [25, 4, 100, 0],
+                        [26, 4, 100, 1],
+                        [27, 4, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=13, hour=21)
       create_orders(party4, party4_orders1, order_date1)
 
@@ -190,11 +207,11 @@ class SimpleTest(TestCase):
       party5 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party5_orders1 = [[32, 100, 1],
-                        [33, 100, 0],
-                        [34, 100, 1],
-                        [35, 100, 0],
-                        [36, 100, 1]]
+      party5_orders1 = [[32, 5, 100, 1],
+                        [33, 5, 100, 0],
+                        [34, 5, 100, 1],
+                        [35, 5, 100, 0],
+                        [36, 5, 100, 1]]
       order_date1 = datetime(year=2013, month=3, day=14, hour=21)
       create_orders(party5, party5_orders1, order_date1)
 
@@ -219,16 +236,16 @@ class SimpleTest(TestCase):
       party6 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party6_orders1 = [[38, 100, 1],
-                        [39, 100, 0],
-                        [40, 100, 1],
-                        [41, 100, 0],
-                        [42, 100, 1],
-                        [43, 100, 0],
-                        [44, 100, 1],
-                        [45, 100, 0],
-                        [46, 100, 1],
-                        [47, 100, 0]]
+      party6_orders1 = [[38, 6, 100, 1],
+                        [39, 6, 100, 0],
+                        [40, 6, 100, 1],
+                        [41, 6, 100, 0],
+                        [42, 6, 100, 1],
+                        [43, 6, 100, 0],
+                        [44, 6, 100, 1],
+                        [45, 6, 100, 0],
+                        [46, 6, 100, 1],
+                        [47, 6, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=15, hour=21)
       create_orders(party6, party6_orders1, order_date1)
 
@@ -251,15 +268,15 @@ class SimpleTest(TestCase):
       party7 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party7_orders1 = [[48, 100, 1],
-                        [49, 100, 0],
-                        [50, 100, 1],
-                        [51, 100, 0],
-                        [52, 100, 1],
-                        [53, 100, 0],
-                        [54, 100, 1],
-                        [55, 100, 0],
-                        [56, 100, 1]]
+      party7_orders1 = [[48, 7, 100, 1],
+                        [49, 7, 100, 0],
+                        [50, 7, 100, 1],
+                        [51, 7, 100, 0],
+                        [52, 7, 100, 1],
+                        [53, 7, 100, 0],
+                        [54, 7, 100, 1],
+                        [55, 7, 100, 0],
+                        [56, 7, 100, 1]]
       order_date1 = datetime(year=2013, month=3, day=16, hour=21)
       create_orders(party7, party7_orders1, order_date1)
 
@@ -284,14 +301,14 @@ class SimpleTest(TestCase):
       party8 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party8_orders1 = [[58, 100, 1],
-                        [59, 100, 0],
-                        [60, 100, 1],
-                        [61, 100, 0],
-                        [62, 100, 1],
-                        [63, 100, 0],
-                        [64, 100, 1],
-                        [65, 100, 0]]
+      party8_orders1 = [[58, 8, 100, 1],
+                        [59, 8, 100, 0],
+                        [60, 8, 100, 1],
+                        [61, 8, 100, 0],
+                        [62, 8, 100, 1],
+                        [63, 8, 100, 0],
+                        [64, 8, 100, 1],
+                        [65, 8, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=18, hour=21)
       create_orders(party8, party8_orders1, order_date1)
 
@@ -314,12 +331,12 @@ class SimpleTest(TestCase):
       party9 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party9_orders1 = [[66, 100, 1],
-                        [67, 100, 0],
-                        [68, 100, 1],
-                        [69, 100, 0],
-                        [70, 100, 1],
-                        [71, 100, 0]]
+      party9_orders1 = [[66, 9, 100, 1],
+                        [67, 9, 100, 0],
+                        [68, 9, 100, 1],
+                        [69, 9, 100, 0],
+                        [70, 9, 100, 1],
+                        [71, 9, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=18, hour=21)
       create_orders(party9, party9_orders1, order_date1)
 
@@ -342,14 +359,14 @@ class SimpleTest(TestCase):
       party10 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party10_orders1 = [[72, 100, 1],
-                        [73, 100, 0],
-                        [74, 100, 1],
-                        [75, 100, 0],
-                        [76, 100, 1],
-                        [77, 100, 0],
-                        [78, 100, 1],
-                        [79, 100, 0]]
+      party10_orders1 = [[72, 10, 100, 1],
+                        [73, 10, 100, 0],
+                        [74, 10, 100, 1],
+                        [75, 10, 100, 0],
+                        [76, 10, 100, 1],
+                        [77, 10, 100, 0],
+                        [78, 10, 100, 1],
+                        [79, 10, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=19, hour=21)
       create_orders(party10, party10_orders1, order_date1)
 
@@ -372,14 +389,14 @@ class SimpleTest(TestCase):
       party11 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party11_orders1 = [[81, 100, 0],
-                        [82, 100, 1],
-                        [83, 100, 0],
-                        [84, 100, 1],
-                        [85, 100, 0],
-                        [86, 100, 1],
-                        [87, 100, 0],
-                        [88, 100, 1]]
+      party11_orders1 = [[81, 11, 100, 0],
+                        [82, 11, 100, 1],
+                        [83, 11, 100, 0],
+                        [84, 11, 100, 1],
+                        [85, 11, 100, 0],
+                        [86, 11, 100, 1],
+                        [87, 11, 100, 0],
+                        [88, 11, 100, 1]]
       order_date1 = datetime(year=2013, month=3, day=20, hour=21)
       create_orders(party11, party11_orders1, order_date1)
 
@@ -402,15 +419,15 @@ class SimpleTest(TestCase):
       party12 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party12_orders1 = [[89, 100, 0],
-                        [90, 100, 1],
-                        [91, 100, 0],
-                        [92, 100, 1],
-                        [93, 100, 0],
-                        [94, 100, 1],
-                        [95, 100, 0],
-                        [96, 100, 1],
-                        [97, 100, 0]]
+      party12_orders1 = [[89, 12, 100, 0],
+                        [90, 12, 100, 1],
+                        [91, 12, 100, 0],
+                        [92, 12, 100, 1],
+                        [93, 12, 100, 0],
+                        [94, 12, 100, 1],
+                        [95, 12, 100, 0],
+                        [96, 12, 100, 1],
+                        [97, 12, 100, 0]]
       order_date1 = datetime(year=2013, month=3, day=25, hour=21)
       create_orders(party12, party12_orders1, order_date1)
 
@@ -433,13 +450,13 @@ class SimpleTest(TestCase):
       party12 = create_party(pro, host, street1, city, state, zipcode, title, description, attendees, event_date)
 
       # create orders
-      party12_orders1 = [[97, 100, 0],
-                        [98, 100, 0],
-                        [99, 100, 1],
-                        [100, 100, 1],
-                        [101, 100, 1],
-                        [102, 100, 1],
-                        [103, 100, 1]]
+      party12_orders1 = [[97, 11, 100, 0],
+                        [98, 11, 100, 0],
+                        [99, 11, 100, 1],
+                        [100, 11, 100, 1],
+                        [101, 11, 100, 1],
+                        [102, 11, 100, 1],
+                        [103, 11, 100, 1]]
       order_date1 = datetime(year=2013, month=4, day=13, hour=21)
       create_orders(party12, party12_orders1, order_date1)
 
@@ -551,8 +568,19 @@ class SimpleTest(TestCase):
       ]
       create_non_party_orders(non_party_orders)
 
+      taster_37 = User.objects.get(email="taster37@gmail.com")
+      order_for_37 = Order.objects.filter(receiver=taster_37, order_date=datetime(year=2013, month=3, day=14, hour=21))
+
+      self.assertEquals(order_for_37.count(), 1)
+
+
     def test_order_from_another_pro(self):
       """
         Test the case where party is organized by a pro other than the linked pro
       """
-      pass
+      self.generate_simulated_orders()
+
+      # calculate commission
+      from django.core.management import call_command
+
+      call_command('calculate_weekly_sales', week='03/17/2013')

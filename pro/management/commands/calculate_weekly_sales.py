@@ -15,13 +15,15 @@ class Command(BaseCommand):
       type='string',
       dest='week',
       default=None,
-      help='Find the orders in this particular week MM/DD/YYYY and save to db. If no date specified use today.')
+      help='Find the orders in this particular week MM/DD/YYYY and save to db. If no date specified use today.'),
     )
 
   def handle(self, *args, **options):
     """
         Calculate weekly sales
     """
+
+    print "Options:", options
 
     if options['week']:
       filter_date = datetime.strptime(options['week'], "%m/%d/%Y").date()
@@ -47,8 +49,9 @@ class Command(BaseCommand):
     pro_comp = {}
 
     # traverse through all orders past week and add to each pro's sales
-    tier = 'A'
     for o in Order.objects.filter(order_date__range=[start_datetime, end_datetime]):
+      tier = 'A'
+
       party = o.cart.party
       order_revenue = o.cart.subtotal()
 
@@ -59,7 +62,7 @@ class Command(BaseCommand):
           # it's not a monthly subscription
           tier = 'B'
         else:
-          if o.cart.party.event_date < o.order_date - timedelta(days=7):
+          if o.cart.party and o.cart.party.event_date < o.order_date - timedelta(days=7):
             # VIP orders post party or unrelated to party (Tier B)
             tier = 'B'
 
@@ -84,6 +87,7 @@ class Command(BaseCommand):
         elif tier == 'B':
           pro_comp[pro.id]['tier_b_sales'] += order_revenue
       else:
+        # create new pro comp record
         pro_comp[pro.id] = {
           'pro': pro,
           'total_sales': 0,
@@ -93,6 +97,11 @@ class Command(BaseCommand):
           'tier_a_earnings': 0,
           'tier_b_earnings': 0
         }
+        pro_comp[pro.id]['total_sales'] += order_revenue
+        if tier == 'A':
+          pro_comp[pro.id]['tier_a_sales'] += order_revenue
+        elif tier == 'B':
+          pro_comp[pro.id]['tier_b_sales'] += order_revenue
 
     for key, value in pro_comp.items():
       comp_record = WeeklyCompensation.objects.filter(pro=value['pro'], start_time=start_datetime)
@@ -110,3 +119,9 @@ class Command(BaseCommand):
         comp.start_time = start_datetime
         comp.end_time = end_datetime
         comp.save()
+
+    """
+      Output calculated weekly compensation
+    """
+    for comp in WeeklyCompensation.objects.filter(start_time=start_datetime):
+      print comp.pro.email, comp.total_personal_sales, comp.tier_a_personal_sales, comp.tier_b_personal_sales 
