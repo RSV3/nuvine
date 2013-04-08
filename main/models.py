@@ -616,6 +616,14 @@ class Order(models.Model):
   def slot_summary(self):
     return "%s [%s]" % (self.num_slots, self.filled_slots())
 
+  def is_vip(self):
+    """
+      Checks whether it contains VIP
+    """
+    for item in self.cart.items.all():
+      if item.frequency == 1:
+        return True
+    return False
 
 class SelectedWine(models.Model):
 
