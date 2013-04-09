@@ -653,7 +653,7 @@ class SimpleTest(TestCase):
           if pro.id in pro_comp:
             pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
           else:
-            downline_pros = [uprof.user for uprof in pro.mentor.all()]
+            downline_pros = [uprof.user for uprof in pro.mentees.all()]
             pro_comp[pro.id] = {
               'pro': pro,
               'total_sales': 0,
@@ -664,6 +664,10 @@ class SimpleTest(TestCase):
               'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
             }
             pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
+
+      for key, value in pro_comp.items():
+        if pro_comp[key]['level'] != 0:
+          self.assertNotEquals(pro_comp[key]['level'], final_level[pro.id])
 
       # traverse the tree to find the number of active pro's, advanced pro's and elite pro's
       for key, value in pro_comp.items():

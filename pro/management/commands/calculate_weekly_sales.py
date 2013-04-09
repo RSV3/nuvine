@@ -68,7 +68,7 @@ class Command(BaseCommand):
 
           # TODO: Missing case where repeated VIP not related to party
 
-      # after getting tier, add to the table
+      # after getting tier, find out the pro that needs to be credited
       if party:
         party_organizer = OrganizedParty.objects.get(party=party)
         pro = party_organizer.pro
@@ -80,6 +80,7 @@ class Command(BaseCommand):
           # taster and host that have not participated in party
           pro = receiver_profile.current_pro
 
+      # add to compensation table
       if pro.id in pro_comp:
         pro_comp[pro.id]['total_sales'] += order_revenue
         if tier == 'A':
@@ -124,4 +125,4 @@ class Command(BaseCommand):
       Output calculated weekly compensation
     """
     for comp in WeeklyCompensation.objects.filter(start_time=start_datetime):
-      print comp.pro.email, comp.total_personal_sales, comp.tier_a_personal_sales, comp.tier_b_personal_sales 
+      print comp.pro.email, comp.total_personal_sales, comp.tier_a_personal_sales, comp.tier_b_personal_sales
