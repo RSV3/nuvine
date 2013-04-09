@@ -22,7 +22,7 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    {% if pro or pending_pro %}
+    {% if pending_pro %}
       <div class="offset1 span6">
         <p>Thanks for your interest in joining the team! Follow these simple next steps to begin earning as a Vinely Pro.</p>
         <ol>
@@ -76,6 +76,55 @@
           <li>
             Recruit hosts and book your first parties!
           </li>
+        </ol>
+      </div>
+    {% elif pro %}
+      <div class="offset1 span6">
+        <p>Hey {{ user.first_name }}! </p>
+        <p>While you're busy booking parties, don't forget that we have plenty of resources available to help you succeed!</p>
+        <ol>
+          <li>
+            Join the Pro community on our internal Facebook group, where you can engage with the whole Vinely team! You'll find instructional videos, documents, and printable promotional materials here. Check often - we update frequently with new materials, calls, and events.
+          </li>
+          <li>Always feel free to contact a Care Specialist at <a href="mailto:care@vinely.com">care@vinely.com</a> with questions!</li>
+          <!-- <li> -->
+            <table class="offset1 summary-table">
+              <tbody>
+                <tr>
+                  <td><h2><small>Vinely Buddy Info</small></h2></td>
+                </tr>
+                <tr>
+                  <td style="width: 120px;">
+                    {% if my_pro %}
+                      {% if my_pro.userprofile.image %}
+                        {% thumbnail my_pro.userprofile.image "90x90" as im %}
+                          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                        {% endthumbnail %}
+                      {% else %}
+                        <img src="{% static "img/noprofilephoto_img.png" %}" height="90">
+                      {% endif %}
+                    {% else %}
+                      <img src="{% static "img/noprofilephoto_img.png" %}" height="90">
+                    {% endif %}
+                    <br /><br />
+                  </td>
+                  <td>
+                    {% if my_pro %}
+                      <p>
+                        {{ my_pro.first_name }} {{ my_pro.last_name }}
+                      </p>
+                      <p>{% if my_pro.userprofile.phone %}{{ my_pro.userprofile.phone }}{% else %}----{% endif %}</p>
+                      <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
+                    {% else %}
+                      <p>
+                        You don't have a Vinely Buddy yet but don't worry, we will find you the perfect Buddy real soon!
+                      </p>
+                    {% endif %} 
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          <!-- </li> -->
         </ol>
       </div>
     {% else %}
