@@ -37,7 +37,7 @@ def qualify_tree(pro_comp, root_pro):
   for downline_pro in pro_comp[root_pro.id]['downline']:
     if pro_comp[downline_pro.id]['downline']:
       # if there are down line pro's then recurse
-      print "Checking ROOT: %d and DOWNLINE: %d" % (root_pro.id, downline_pro.id)
+      #print "Checking ROOT: %d and DOWNLINE: %d" % (root_pro.id, downline_pro.id)
       qualify_tree(pro_comp, downline_pro)
 
     # add up downlines
@@ -111,18 +111,16 @@ class Command(BaseCommand):
     # build the tree
     pro_comp = {}
     for pro in User.objects.all():
-      print pro.id, pro.email
       try:
         pro.get_profile()
       except UserProfile.DoesNotExist:
         UserProfile.objects.create(user=pro)
-        # TODO: 
         print "New user profile created for %d, %s" % (pro.id, pro.email)
 
-      if pro.get_profile().is_pro():
+      if pro.get_profile().is_pro() or pro.get_profile().is_pending_pro():
         downline_pros = []
         for mentee_profile in pro.mentees.all():
-          if mentee_profile.user.id != pro.id:
+          if mentee_profile.user.id != pro.id and (mentee_profile.is_pro() or mentee_profile.is_pending_pro()):
             downline_pros.append(mentee_profile.user)
 
         # create new pro comp record
@@ -137,49 +135,6 @@ class Command(BaseCommand):
           'qualified': False,
           'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
         }
-
-        # create downline pro record if they don't exist
-        for dpro in downline_pros:
-          if dpro.id not in pro_comp:
-
-            second_downline_pros = []
-            for mentee_profile in dpro.mentees.all():
-              if mentee_profile.user.id != dpro.id:
-                second_downline_pros.append(mentee_profile.user)
-
-            pro_comp[dpro.id] = {
-              'pro': dpro,
-              'total_sales': 0,
-              'tier_a_sales': 0,
-              'tier_b_sales': 0,
-              'upline': dpro.get_profile().mentor,
-              'downline': second_downline_pros,
-              'traversed': False,
-              'qualified': False,
-              'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
-            }
-
-        # create mentor pro record if it doesn't exist
-        mentor = pro.get_profile().mentor
-        if mentor.id not in pro_comp:
-
-          mentor_downline_pros = []
-          for mentee_profile in mentor.mentees.all():
-            if mentee_profile.user.id != mentor.id:
-              mentor_downline_pros.append(mentee_profile.user)
-
-          pro_comp[mentor.id] = {
-            'pro': mentor,
-            'total_sales': 0,
-            'tier_a_sales': 0,
-            'tier_b_sales': 0,
-            'upline': mentor.get_profile().mentor,
-            'downline': mentor_downline_pros,
-            'traversed': False,
-            'qualified': False,
-            'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
-          }
-
 
     # first need to calculate all personal sales
     for o in Order.objects.filter(order_date__range=[start_datetime, end_datetime]):
@@ -222,7 +177,6 @@ class Command(BaseCommand):
 
     # traverse the tree to find the number of active pro's, advanced pro's and elite pro's
     for key, value in pro_comp.items():
-      print key, value
       if not value['qualified'] and not value['traversed']:
         # go up the tree
         root_pro = find_root(pro_comp, value['pro'])
@@ -313,3 +267,8 @@ class Command(BaseCommand):
           qualification.elite_pros = elite_pros
           qualification.qualification_level = value['level']
           qualification.save()
+
+    # print results
+    print "%d compensations and %d qualifications calculated" % (
+        MonthlyBonusCompensation.objects.filter(start_time=start_datetime).count(),
+        MonthlyQualification.objects.filter(start_time=start_datetime).count())
