@@ -45,7 +45,7 @@ class WeeklyCompensation(models.Model):
   end_time = models.DateTimeField()
 
   def __unicode__(self):
-    return "%s [total: %.2f, tier_a: %.2f, tier_b: %.2f] earnings:[total: %.2f, tier_a: %.2f, tier_b: %.2f] %s" % (
+    return "%s [total: $%.2f, tier_a: $%.2f, tier_b: $%.2f] earnings:[total: $%.2f, tier_a: $%.2f, tier_b: $%.2f] %s" % (
       self.pro.email, self.total_personal_sales, self.tier_a_personal_sales, self.tier_b_personal_sales,
       self.total_earnings, self.tier_a_base_earnings, self.tier_b_base_earnings, self.start_time)
 
@@ -66,6 +66,12 @@ class MonthlyQualification(models.Model):
   qualification_level = models.IntegerField(choices=ProLevel.PRO_LEVEL_CHOICES, default=0)
   start_time = models.DateTimeField(null=True)
   end_time = models.DateTimeField(null=True)
+
+  def __unicode__(self):
+
+    return "%s [total: $%.2f, first_line: $%.2f] active_pros: %d, advanced_pros: %d, elite_pros: %d, qualification_level: %s, date: %s" % (
+      self.pro.email, self.total_personal_sales, self.total_sales_1st_line, self.active_pros, self.advanced_pros,
+      self.elite_pros, self.get_qualification_level_display(), self.start_time)
 
 
 class MonthlyBonusCompensation(models.Model):
@@ -90,3 +96,17 @@ class MonthlyBonusCompensation(models.Model):
   third_line_bonus = models.DecimalField(max_digits=14, decimal_places=2, default=0)
   start_time = models.DateTimeField(null=True)
   end_time = models.DateTimeField(null=True)
+
+  def __unicode__(self):
+
+    return "%s [qualification_level: %s, total: $%.2f, tier_a: $%.2f, tier_b: $%.2f, \
+                  total 1st down: $%.2f, total 2nd down: $%.2f, total 3rd down: $%.2f, \
+                  tier_a_bonus: $%.2f, tier_b_bonus: $%.2f, first_line_bonus: $%.2f, second_line_bonus: $%.2f, \
+                  third_line_bonus: $%.2f, date: %s" % (
+            self.pro.email, self.get_qualification_level_display(), self.total_personal_sales,
+            self.tier_a_personal_sales, self.tier_b_personal_sales, self.total_first_downline_sales,
+            self.total_second_downline_sales, self.total_third_downline_sales,
+            self.tier_a_bonus, self.tier_b_bonus, self.first_line_bonus, self.second_line_bonus,
+            self.third_line_bonus, self.start_time )
+
+
