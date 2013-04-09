@@ -11,7 +11,12 @@ from datetime import datetime
 from django.contrib.auth.models import User, Group
 from main.models import Cart, LineItem, Order, Party, OrganizedParty, MyHost, Product
 from accounts.models import Address, UserProfile, CreditCard
+from pro.models import ProLevel
 from pro.utils import create_party, create_orders, create_non_party_orders
+
+from pro.management.commands.traverse_pro_tree import find_root, qualify_tree
+
+import xlrd, re
 
 
 class SimpleTest(TestCase):
@@ -573,7 +578,6 @@ class SimpleTest(TestCase):
 
       self.assertEquals(order_for_37.count(), 1)
 
-
     def test_order_from_another_pro(self):
       """
         Test the case where party is organized by a pro other than the linked pro
@@ -583,4 +587,93 @@ class SimpleTest(TestCase):
       # calculate commission
       from django.core.management import call_command
 
-      call_command('calculate_weekly_sales', week='03/17/2013')
+      call_command('calculate_weekly_sales', week='05/17/2013')
+
+    def test_pro_qualifications(self):
+      """
+        - import excel spreadsheet
+        - build the tree and their total sales
+        - run the total
+      """
+
+      # import excel spreadsheet
+      wb = xlrd.open_workbook("data/compensation_test_2.xlsx")
+
+      sheet = wb.sheet_by_name("Report 2 Test Cases")
+
+      ps_group = Group.objects.get(name="Vinely Pro")
+
+      final_level = {}
+      pro_sales = {}
+      for rownum in range(1, sheet.nrows):
+        row = sheet.row_values(rownum)
+        # find user first
+
+        prog = re.compile(r'Pro (?P<pro_id>\d+)')
+        m = prog.match(row[0])
+        # create new pro
+        pro_id = int(m.group("pro_id"))
+        pro, created = User.objects.get_or_create(email="pro%d@gmail.com" % pro_id, first_name="Pro%d" % pro_id, last_name="Last%d" % pro_id)
+        pro.groups.add(ps_group)
+
+        mentor_label = row[1]
+        prog = re.compile(r'Pro (?P<pro_id>\d+)')
+        m = prog.match(row[0])
+
+        # create mentor pro
+        pro_id = int(m.group("pro_id"))
+        mentor_pro, created = User.objects.get_or_create(email="pro%d@gmail.com" % pro_id, first_name="Pro%d" % pro_id, last_name="Last%d" % pro_id)
+        mentor_pro.groups.add(ps_group)
+
+        pro_profile = pro.get_profile()
+        pro_profile.mentor = mentor_pro
+
+        personal_sales = float(row[2])
+        should_be = row[3]
+        if should_be == "Pro":
+          should_be_level = ProLevel.PRO_LEVEL_CHOICES[0][0]
+        elif should_be == "Active":
+          should_be_level = ProLevel.PRO_LEVEL_CHOICES[1][0]
+        elif should_be == "Advanced":
+          should_be_level = ProLevel.PRO_LEVEL_CHOICES[2][0]
+        elif should_be == "Elite":
+          should_be_level = ProLevel.PRO_LEVEL_CHOICES[3][0]
+        elif should_be == "Executive":
+          should_be_level = ProLevel.PRO_LEVEL_CHOICES[4][0]
+
+        # final test case
+        final_level[pro.id] = should_be_level
+        pro_sales[pro.id] = personal_sales
+
+      # build the tree
+      pro_comp = {}
+
+      for pro in User.objects.all():
+        if pro.get_profile().is_pro():
+          if pro.id in pro_comp:
+            pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
+          else:
+            downline_pros = [uprof.user for uprof in pro.mentor.all()]
+            pro_comp[pro.id] = {
+              'pro': pro,
+              'total_sales': 0,
+              'upline': pro.get_profile().mentor,
+              'downline': downline_pros,
+              'traversed': False,
+              'qualified': False,
+              'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
+            }
+            pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
+
+      # traverse the tree to find the number of active pro's, advanced pro's and elite pro's
+      for key, value in pro_comp.items():
+
+        if not value['qualified'] and not value['traversed']:
+          # go up the tree
+          root_pro = find_root(pro_comp, value['pro'])
+          qualify_tree(pro_comp, root_pro)
+
+      # verify that appropriate level has been calculated
+      print "Verifying the new levels of the pros: %d" % len(pro_comp)
+      for key, value in pro_comp.items():
+        self.assertEquals(pro_comp[key]['level'], final_level[pro.id])
