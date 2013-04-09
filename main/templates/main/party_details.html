@@ -171,7 +171,7 @@
 
     {% if can_add_taster %}
       {% if pro or host or taster and party.guests_can_invite %}
-      <form id="add_taster_form" class="form-horizontal" method="POST" action="">
+      <form id="add_taster_form" class="form-horizontal form-validate" method="POST" action="">
         {% csrf_token %}
         {{ taster_form.party }}
         {{ taster_form.response }}

@@ -136,19 +136,19 @@ class PartyCreateForm(forms.ModelForm):
       event_date = self.cleaned_data['event_date']
     return event_date
 
-  def clean_event_day(self):
-    if self.instance.event_date:
-      event_day = timezone.localtime(self.instance.event_date).date()
-    else:
-      event_day = self.cleaned_data['event_day']
-    return event_day
+  # def clean_event_day(self):
+  #   if self.instance.event_date:
+  #     event_day = timezone.localtime(self.instance.event_date).date()
+  #   else:
+  #     event_day = self.cleaned_data['event_day']
+  #   return event_day
 
-  def clean_event_time(self):
-    if self.instance.event_date:
-      event_time = timezone.localtime(self.instance.event_date).time()
-    else:
-      event_time = self.cleaned_data['event_time']
-    return event_time
+  # def clean_event_time(self):
+  #   if self.instance.event_date:
+  #     event_time = timezone.localtime(self.instance.event_date).time()
+  #   else:
+  #     event_time = self.cleaned_data['event_time']
+  #   return event_time
 
   def clean_email(self):
     # 1. if current user is host dont allow to set new host
@@ -245,7 +245,7 @@ class PartyCreateForm(forms.ModelForm):
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
-
+      print 'cleaned_data: ', cleaned_data['event_day']
       if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
         raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:

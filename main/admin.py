@@ -19,7 +19,7 @@ class ProAssignedFilter(SimpleListFilter):
     return (
         ('Yes', 'Pro Assigned'),
         ('No', 'No Pro Assigned'),
-      )
+    )
 
   def queryset(self, request, queryset):
     pro_assigned = self.value()
@@ -130,6 +130,11 @@ class PartyAdmin(admin.ModelAdmin):
   #list_editable = ['host']
   search_fields = ['title', 'host__first_name', 'host__last_name']
   ordering = ['-event_date']
+
+  def queryset(self, request):
+    # Only show parties that have already been completely setup
+    qs = super(PartyAdmin, self).queryset(request)
+    return qs.filter(requested=True)
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)

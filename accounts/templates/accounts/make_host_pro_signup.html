@@ -150,6 +150,14 @@
           </div>
           <div class="row">
             <div class="span5 control-group">
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <span class="help-inline">
+                  {{ form.password1.errors }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="span5 control-group">
               {{ form.zipcode }}
               {% if form.zipcode.errors %}
                 <span class="help-inline">
@@ -159,14 +167,6 @@
             </div>
           </div>
           <div class="row">
-            <div class="span5 control-group">
-              {{ form.password1 }}
-              {% if form.password1.errors %}
-                <span class="help-inline">
-                  {{ form.password1.errors }}
-                </span>
-              {% endif %}
-            </div>
             <div class="span5 control-group">
               {{ form.password2 }}
               {% if form.password2.errors %}

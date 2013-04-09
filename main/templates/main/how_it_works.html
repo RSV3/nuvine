@@ -7,8 +7,8 @@
 
   .side-glass {
     position: absolute;
-    margin-top: -85px;
-    margin-left: 143px;
+    margin-top: -65px;
+    margin-left: 140px;
   }
 
 </style>
@@ -58,6 +58,7 @@
             <!-- <div class="box-bg"></div> -->
             <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
           </div>
+          <div class="vertical-space"></div>
         </a>
       </div>
     </div>
@@ -67,18 +68,19 @@
     <div class="span4">
       <div class="row">
         <div class="span4 state-head"><strong>{{ state }}</strong></div>
+        <div class="vertical-space"></div>
       </div>
       <p>
         {{ content|safe }}
       </p>
       <div class="vertical-space"></div>
       <div class="row">
-        <div class="span2 next-nav cta-button">
-          {% if state == 'overview' %}<a class="cta-interested" href="{% url how_it_works 'taste' %}">Interested? Read on...</a>{% endif %}
+        <div class="span3 next-nav cta-button">
+          {% if state == 'overview' %}<a class="cta-interested" href="{% url how_it_works 'taste' %}">Interested?<br />Read on...</a>{% endif %}
           {% if state == 'taste' %}<a class="cta-next" href="{% url how_it_works 'rate' %}">Next</a>{% endif %}
           {% if state == 'rate' %}<a class="cta-next" href="{% url how_it_works 'order' %}">Next</a>{% endif %}
           {% if state == 'order' %}<a class="cta-next" href="{% url how_it_works 'repeat' %}">Next</a>{% endif %}
-          {% if state == 'repeat' %}<a class="cta-learn" href="{% url make_host %}">Learn about hosting a party</a>{% endif %}
+          {% if state == 'repeat' %}<a class="cta-learn" href="{% url make_host %}">Learn about<br />hosting a party</a>{% endif %}
         </div>
       </div>
     </div>

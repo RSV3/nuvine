@@ -349,7 +349,7 @@ table .row-label-bold {
 }
 
 .box-content2  h1 {
-  background: url('../img/arrow.png') no-repeat 150px 20px;
+  background: url('../img/arrow.png') no-repeat 150px 8px;
 }
 
 .cta-button {
@@ -384,7 +384,7 @@ table .row-label-bold {
 
 .cta-learn {
   height: 50px;
-  background-position: 120px 15px;
+  background-position: 160px 10px;
 }
 
 

@@ -1336,26 +1336,26 @@ def generate_pro_account_number():
 
 def get_default_invite_message(party):
   message_text = '''
-
+  <p>
   Please join me for a Vinely Taste Party. Vinely is part wine tasting, part wine club, and part, well... party.
-
-  We won't be...
+  </p>
+  <p>We won't be...</p>
   <ul>
     <li>Sniffing, swirling, spitting</li>
     <li>Using words like 'silky blackberry woodchips', 'wet dog', or 'notes of grass'</li>
     <li>Studying wine regions of the world</li>
   </ul>
 
-  We will be...
+  <p>We will be...</p>
   <ul>
     <li>Blind tasting 6 wines. Don't worry only the wine is blindfolded</li>
     <li>Using our tastebuds to rate those wines, no degree required</li>
     <li>Discovering our wine personalities. We'll separate the Moxies from the Sensational, the Exuberant from the Easygoing, and the Whimsical from the Serendipitous</li>
     <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
   </ul>
-
+  <p>
   With Vinely, the more you drink, the more we learn about what you like. So let's start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
-
+  </p>
   '''
   template = Template(message_text)
   context = Context()
@@ -1383,13 +1383,11 @@ def get_party_info(party):
 def get_default_signature(party):
   sig_text = """
 
-  Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
+  <p>Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!</p>
 
   {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
-
-  Your Tasteful Friends,
-
-  - The Vinely Team
+  <p>Your Tasteful Friends,</p>
+  <p>- The Vinely Team</p>
   """
   template = Template(sig_text)
   rsvp_date = party.event_date - timedelta(days=5)
