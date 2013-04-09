@@ -9,28 +9,8 @@
     margin-top: -60px;
     margin-left: -10px;
   }
-  .table.rewards tbody td {
-    padding-top: 2px;
-    padding-bottom: 2px;
-  }
-  .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
-    background:#F0F0F0;
-  }
-  .table.rewards th:first-child {
-    padding-left: 10px;
-    width: 90px;
-  }
-/*  .table.rewards {
-    border: 1px solid rgb(147,149,152);
-    background-color: #fff;
-  }*/
-  .table.rewards th:nth-child(2) {
-    color: #48C063;
-    width: 130px;
-  }
-  .table.rewards td:nth-child(2),
-  .table.rewards th:nth-child(2) {
-    text-align: right;
+  .pro-earnings {
+    border-right: solid 1px grey;
   }
 </style>
 {% endblock additional_styles %}
@@ -95,7 +75,7 @@
       <p>
         {{ content|safe }}
         {% if state == 'earnings' %}
-          <img src="{{ STATIC_URL }}img/make_pro_earning_levels.png">
+          <img class='pro-earnings' src="{{ STATIC_URL }}img/make_pro_earning_levels.png">
         {% endif %}
       </p>
       <div class="vertical-space"></div>
