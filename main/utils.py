@@ -1336,35 +1336,26 @@ def generate_pro_account_number():
 
 def get_default_invite_message(party):
   message_text = '''
-
+  <p>
   Please join me for a Vinely Taste Party. Vinely is part wine tasting, part wine club, and part, well... party.
+  </p>
+  <p>We won't be...</p>
+  <ul>
+    <li>Sniffing, swirling, spitting</li>
+    <li>Using words like 'silky blackberry woodchips', 'wet dog', or 'notes of grass'</li>
+    <li>Studying wine regions of the world</li>
+  </ul>
 
-  <table style="width:100%">
-    <tbody>
-      <tr>
-        <td style="width:50%; vertical-align:top;">
-          <p>We won't be...</p>
-          <ul>
-            <li>Sniffing, swirling, spitting</li>
-            <li>Using words like 'silky blackberry woodchips', 'wet dog', or 'notes of grass'</li>
-            <li>Studying wine regions of the world</li>
-          </ul>
-        </td>
-        <td style="width:50%; vertical-align:top;">
-        <p>We will be...</p>
-        <ul>
-          <li>Blind tasting 6 wines. Don't worry only the wine is blindfolded</li>
-          <li>Using our tastebuds to rate those wines, no degree required</li>
-          <li>Discovering our wine personalities. We'll separate the Moxies from the Sensational, the Exuberant from the Easygoing, and the Whimsical from the Serendipitous</li>
-          <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
-        </ul>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
+  <p>We will be...</p>
+  <ul>
+    <li>Blind tasting 6 wines. Don't worry only the wine is blindfolded</li>
+    <li>Using our tastebuds to rate those wines, no degree required</li>
+    <li>Discovering our wine personalities. We'll separate the Moxies from the Sensational, the Exuberant from the Easygoing, and the Whimsical from the Serendipitous</li>
+    <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
+  </ul>
+  <p>
   With Vinely, the more you drink, the more we learn about what you like. So let's start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
-
+  </p>
   '''
   template = Template(message_text)
   context = Context()
