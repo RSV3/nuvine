@@ -1668,10 +1668,6 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
         new_invite.save()
 
         new_invitee = new_invite.invitee
-        # removed following lines since invitation get sent in a batch from the UI
-        #else:
-        #  send_party_invitation_email(request, new_invite)
-
         messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
 
         data["parties_menu"] = True
