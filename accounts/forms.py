@@ -295,7 +295,7 @@ class UpdateSubscriptionForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(UpdateSubscriptionForm, self).__init__(*args, **kwargs)
     self.fields['user'].widget = forms.HiddenInput()
-    self.fields['quantity'].widget.choices = [(12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
+    self.fields['quantity'].widget.choices = [('', '---------'), (12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
 
 
 from django.contrib.auth.models import Group
@@ -371,12 +371,49 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
     return cleaned
 
 
-class MakeTasterForm(MakeHostProForm):
+class NewHostProForm(NameEmailUserMentorCreationForm):
+  def __init__(self, *args, **kwargs):
+    super(NewHostProForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].widget.attrs['placeholder'] = 'First Name'
+    self.fields['last_name'].widget.attrs['placeholder'] = 'Last Name'
+    self.fields['email'].widget.attrs['placeholder'] = 'Email'
+    self.fields['zipcode'].widget.attrs['placeholder'] = 'Zip Code'
+    self.fields['phone_number'].widget.attrs['placeholder'] = 'Phone Number'
+    self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+    self.fields['password2'].widget.attrs['placeholder'] = 'Confirm password'
+    self.fields['mentor'].widget.attrs['placeholder'] = 'Your Vinely Pro Email (Optional)'
+    for field_name in self.fields:
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
+
+
+class MakeTasterForm(NameEmailUserMentorCreationForm):
   phone_number = us_forms.USPhoneNumberField(required=False)
 
   def __init__(self, *args, **kwargs):
     super(MakeTasterForm, self).__init__(*args, **kwargs)
     self.fields['phone_number'].widget.attrs = {'placeholder': 'Phone number (optional)'}
+    if self.instance and self.instance.is_active:
+      self.fields['email'].widget.attrs['readonly'] = True
+
+  def clean_email(self):
+    email = self.cleaned_data['email'].strip().lower()
+    if self.instance and self.instance.is_active:
+      email = self.instance.email
+    return email
+
+  def clean(self):
+    cleaned = super(MakeTasterForm, self).clean()
+
+    # if new inactive user, allow to login
+    if self.instance and not self.instance.is_active and (self._errors.get('email') == self.error_class(['A user with that email already exists.'])):
+        del self._errors['email']
+
+    if cleaned.get('email'):
+      cleaned['email'] = cleaned['email'].strip().lower()
+    return cleaned
 
 
 class HeardAboutForm(forms.Form):

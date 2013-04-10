@@ -79,10 +79,15 @@
             {{ signup_form.last_name }}
           </div>
         </div>
-        <div class="control-group">
+        <div class="control-group {% if signup_error %}error{% endif %}">
           <label class="control-label" for="id_email">{{ signup_form.email.label }}</label>
           <div class="controls">
             {{ signup_form.email }}
+            {% if signup_error %}
+              <span class="help-inline">
+                A user with that email already exists
+              </span>
+            {% endif %}
           </div>
         </div>
         <div class="control-group">

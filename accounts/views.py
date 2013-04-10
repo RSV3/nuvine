@@ -15,7 +15,7 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, C
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm
+                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                           check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
@@ -73,7 +73,7 @@ def profile(request):
       invite = invites[0]
       return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
     else:
-      return HttpResponseRedirect(reverse('party_list'))
+      return HttpResponseRedirect(reverse('home_page'))
   else:
     return HttpResponseRedirect(reverse('home_page'))
 
@@ -293,8 +293,8 @@ def my_information(request):
     card_number = '*' * 12 + profile.stripe_card.last_four
   elif profile.credit_card:
     card_number = '*' * 12 + profile.credit_card.last_four()
-  else:
-    print "No card info"
+  # else:
+  #   print "No card info"
   data['card_number'] = card_number
 
   data['profile'] = profile
@@ -338,19 +338,24 @@ def edit_subscription(request):
     sparkling = None
 
   initial_data = {'wine_mix': wine_mix, 'sparkling': sparkling}
+  initial_data['quantity'] = user_subscription.quantity if user_subscription else 0
+  initial_data['frequency'] = user_subscription.frequency if user_subscription else 9
 
   form = UpdateSubscriptionForm(request.POST or None, instance=user_subscription, initial=initial_data)
   if form.is_valid():
     if not u.userprofile.has_personality():
-      messages.error(request, "You need to first participate in a tasting party to find out your wine personality.")
+      data['form'] = form
+      messages.warning(request, "You need to first participate in a tasting party to find out your wine personality.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     if not u.userprofile.credit_card and not u.userprofile.stripe_card:
-      messages.error(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
+      data['form'] = form
+      messages.warning(request, "You have no credit card on file yet to order. Please go to the shop page to complete the order process.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     if not u.userprofile.shipping_address:
-      messages.error(request, "You need to update your shipping address before you can make a subscription.")
+      data['form'] = form
+      messages.warning(request, "You need to update your shipping address before you can make a subscription.")
       return render_to_response("accounts/edit_subscription.html", data, context_instance=RequestContext(request))
 
     # create new subscription info object to track subscription change
@@ -385,9 +390,9 @@ def edit_subscription(request):
       else:
         messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
-
   data['invited_by'] = my_host(u)
-  data['pro_user'], data['pro_profile'] = my_pro(u)
+
+  data['pro_user'] = u.get_profile().current_pro
   data['subscription'] = user_subscription
   data['edit_subscription'] = True
   if user_subscription is None:
@@ -527,10 +532,11 @@ def make_pro_host(request, account_type, data):
     if profile.is_pro():
       data["already_signed_up"] = True
       data["get_started_menu"] = True
-      if account_type == 1:
-        return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-      else:
-        return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+      return HttpResponseRedirect(reverse('make_pro'))
+      # if account_type == 1:
+      #   return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+      # else:
+      #   return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
     elif profile.is_host():
 
@@ -552,8 +558,8 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
-            MyHost.objects.filter(host=u).update(pro=None)
+            # mentor = get_default_pro()
+            mentor = profile.find_nearest_pro()
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
           profile.current_pro = None
@@ -596,7 +602,8 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
+            # mentor = get_default_pro()
+            mentor = profile.find_nearest_pro()
           profile.mentor = mentor
           # since no longer host or taster
           profile.current_pro = None
@@ -618,20 +625,18 @@ def make_pro_host(request, account_type, data):
         # become a host
         try:
           mentor_email = form.cleaned_data.get('mentor')
-          if mentor_email:
-            pro = User.objects.get(email=mentor_email)
-          else:
-            # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
-            # set mentor to default pro but MyHost needs to see that as no pro assigned
-            pro = None
+          # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
+          pro = User.objects.get(email=mentor_email)
           profile.current_pro = pro
           profile.save()
+          send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
           pro = None
-        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+          send_unknown_pro_email(request, u)  # to host
+
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
-        send_know_pro_party_email(request, u)  # to the current user
+
         u.groups.clear()
         u.groups.add(hos_group)
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
@@ -644,37 +649,55 @@ def make_pro_host(request, account_type, data):
   if account_type == 1:
     return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
   else:
+    return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+
+
+def make_host(request, state=None):
+  data = {}
+  u = request.user
+
+  if state not in ['people', 'place', 'order', 'rewards', 'signup']:
+    state = 'overview'
+
+  data['state'] = state
+
+  if state == 'signup':
+    data['host_party_menu'] = True
+    if u.is_authenticated():
+      return make_pro_host(request, 2, data)
+    else:
+      return sign_up(request, 2, data)
+  else:
+    host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
+    data['heading'] = host_sections.get(key='header').content
+    data['sub_heading'] = host_sections.get(key='sub_header').content
+    data['content'] = host_sections.get(key=state).content
+    data['host_party_menu'] = True
     return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
 
 
-def make_host(request):
+def make_pro(request, state=None):
   data = {}
   u = request.user
 
-  host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
-  data['heading'] = host_sections.get(category=4).content
-  data['sub_heading'] = host_sections.get(category=5).content
-  data['content'] = host_sections.get(category=0).content
-  data['host_party_menu'] = True
-  if u.is_authenticated():
-    return make_pro_host(request, 2, data)
+  if state not in ['parties', 'earnings', 'support', 'growth', 'signup']:
+    state = 'overview'
+
+  data['state'] = state
+
+  if state == 'signup':
+    data['become_pro_menu'] = True
+    if u.is_authenticated():
+      return make_pro_host(request, 1, data)
+    else:
+      return sign_up(request, 1, data)
   else:
-    return sign_up(request, 2, data)
-
-
-def make_pro(request):
-  data = {}
-  u = request.user
-
-  pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
-  data['heading'] = pro_sections.get(category=4).content
-  data['sub_heading'] = pro_sections.get(category=5).content
-  data['content'] = pro_sections.get(category=0).content
-  data['become_pro_menu'] = True
-  if u.is_authenticated():
-    return make_pro_host(request, 1, data)
-  else:
-    return sign_up(request, 1, data)
+    pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
+    data['heading'] = pro_sections.get(key='header').content
+    data['sub_heading'] = pro_sections.get(key='sub_header').content
+    data['content'] = pro_sections.get(key=state).content
+    data['become_pro_menu'] = True
+    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
 
 
 def make_taster(request, rsvp_code):
@@ -689,11 +712,12 @@ def make_taster(request, rsvp_code):
     return HttpResponseRedirect(success_url)
 
   form = MakeTasterForm(request.POST or None, initial={'account_type': 3}, instance=user)
-
+  err = ""
   if form.is_valid():
     user.set_password(form.cleaned_data['password1'])
     user.first_name = form.cleaned_data['first_name']
     user.last_name = form.cleaned_data['last_name']
+    user.email = form.cleaned_data['email']
     user.is_active = True
     user.save()
 
@@ -714,8 +738,11 @@ def make_taster(request, rsvp_code):
     if user is not None:
       login(request, user)
   else:
-    messages.error(request, form.errors)
-  return HttpResponseRedirect(success_url)
+    if form.errors['email']:
+      err = "?err=1&email=" + request.POST.get('email')
+    else:
+      messages.error(request, form.errors)
+  return HttpResponseRedirect(success_url + err)
 
 
 def sign_up(request, account_type, data):
@@ -742,7 +769,7 @@ def sign_up(request, account_type, data):
     role = tas_group
 
   # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
+  form = NewHostProForm(request.POST or None, initial={'account_type': account_type})
 
   if form.is_valid():
     user = form.save()
@@ -764,21 +791,25 @@ def sign_up(request, account_type, data):
       except User.DoesNotExist:
         # mentor e-mail was not entered, assign default pro
         ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
-        pro = get_default_pro()
+        # pro = get_default_pro()
+        pro = profile.find_nearest_pro()
         profile.mentor = pro
-
+      profile.save()
+      send_pro_request_email(request, user)
     elif account_type == 2:
       # if host, then set mentor to be the host's pro
+      # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
       try:
         pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
-          # map host to a pro
-        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
         profile.current_pro = pro
+        send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
+        pro = None
         # pro e-mail was not entered
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
-
-    profile.save()
+        # profile.current_pro = profile.find_nearest_pro()
+        send_unknown_pro_email(request, user)  # to host
+      profile.save()
+      send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
     if role == pro_group:
       # if requesting to be pro, put them in pending pro group
@@ -787,32 +818,12 @@ def sign_up(request, account_type, data):
       user.groups.add(role)
 
     # save engagement type
-    engagement_type = account_type
-
-    interest, created = EngagementInterest.objects.get_or_create(user=user,
-                                                      engagement_type=engagement_type)
+    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=account_type)
 
     data["email"] = user.email
     data["first_name"] = user.first_name
 
     data["account_type"] = account_type
-    if account_type == 1:
-      send_pro_request_email(request, user)
-    elif account_type == 2:
-      # send mail to sales@vinely if no mentor
-      mentor_pro = None
-      try:
-        # make sure selected mentor is a pro
-        mentor_pro = User.objects.get(email=request.POST.get('mentor'))
-
-        if pro_group in mentor_pro.groups.all():
-          send_know_pro_party_email(request, user)  # to host
-      except User.DoesNotExist:
-        # mail sales
-        send_unknown_pro_email(request, user)  # to host
-
-      send_host_vinely_party_email(request, user, mentor_pro)  # to pro or vinely
-      # messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
 
     messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
     user = authenticate(email=user.email, password=form.cleaned_data['password1'])
@@ -824,12 +835,9 @@ def sign_up(request, account_type, data):
   data['form'] = form
   data['role'] = role.name
   data['account_type'] = account_type
-  data['get_started_menu'] = True
+  # data['get_started_menu'] = True
 
-  if account_type == 1:
-    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-  else:
-    return render_to_response("accounts/make_host.html", data, context_instance=RequestContext(request))
+  return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
 
 
 def sign_up_old(request, account_type):
@@ -1044,9 +1052,8 @@ def verify_account(request, verification_code):
       elif verification.verification_type == VerificationQueue.VERIFICATION_CHOICES[1][0]:
         messages.success(request, "Your password has been reset to your new password.")
 
-      today = timezone.now()
       # if user is taster and was invited to a party, redirect them to RSVP page
-      invites = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
+      invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
       if invites.exists():
         return HttpResponseRedirect(reverse('party_rsvp', args=[invites[0].party.id]))
 
@@ -1114,19 +1121,20 @@ def pro_link(request):
   u = request.user
   profile = u.get_profile()
 
-  if profile.is_host():
+  if profile.is_host() or profile.is_taster():
     form = ProLinkForm(request.POST or None)
     if form.is_valid():
       pro = User.objects.get(email=form.cleaned_data['email'])
       my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
       profile.current_pro = pro
+      profile.mentor = None
       profile.save()
       messages.success(request, "You were successfully linked to the pro %s." % pro.email)
     if form.errors:
       messages.error(request, form.errors)
   else:
     # TODO: Can tasters link to particular pros?
-    messages.error(request, "Only Hosts can link to Pro's at the moment")
+    messages.error(request, "Only Hosts and Tasters can link to Pro's at the moment")
   return HttpResponseRedirect(reverse('edit_subscription'))
 
 

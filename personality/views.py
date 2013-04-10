@@ -279,10 +279,6 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   hos_group = Group.objects.get(name="Vinely Host")
   tas_group = Group.objects.get(name="Vinely Taster")
 
-  # if u.get_profile().is_pro():
-  #   try:
-  #     OrganizedParty.objects.get(party=party, pro=u)
-  #   except OrganizedParty.DoesNotExist:
   if not party.pro == u:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
@@ -446,9 +442,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       # link them to party and RSVP
       today = timezone.now()
 
-      invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee, invited_by=party.host)
+      invite, created = PartyInvite.objects.get_or_create(party=party, invitee=invitee)
       # only update response times for tasters who had not RSVP'd
-      if created:
+      if invite.response != 3:
         invite.response = 3
         invite.response_timestamp = today
         invite.save()

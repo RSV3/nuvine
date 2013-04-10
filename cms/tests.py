@@ -20,6 +20,8 @@ class SimpleTest(TestCase):
     self.how_it_works_template()
     self.vinely_event_template()
     self.rsvp_template()
+    self.make_pro_template()
+    self.make_host_template()
 
   def create_all_templates(self):
     self.create_web_templates()
@@ -52,9 +54,124 @@ class SimpleTest(TestCase):
     self.create_host_request_party_email_template()
     self.create_new_party_scheduled_by_host_no_pro_email_template()
     self.create_signed_up_as_host_email_template()
-    self.create_first_time_host_signup_template()
+    # self.create_first_time_host_signup_template()
     self.create_new_party_host_confirm_email_template()
     self.create_welcome_email_template()
+
+  def make_pro_template(self):
+    host_header = 'Where\'s the wine party? Your place!'
+    host_sub_header = '<span></span>'
+
+    content_overview = """
+    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+
+    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
+    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
+
+    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    """
+
+    content_people = """
+    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
+    """
+
+    content_place = """
+    <p>Staying in is the new going out with Vinely.</p>
+    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
+    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
+    """
+
+    content_rewards = """
+    <p>Lots and lots of rewards!!!</p>
+    """
+
+    content_order = """
+    <p>
+    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
+    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
+    (artisan, crackers, stuffed mushrooms, best of the 80's?)
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="make_pro", category=1)
+    section, created = Section.objects.get_or_create(key="general", template=template)
+    section.content = content_overview
+    section.save()
+    section, created = Section.objects.get_or_create(key='header', template=template)
+    section.content = host_header
+    section.save()
+    section, created = Section.objects.get_or_create(key='sub_header', template=template)
+    section.content = host_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="people", template=template)
+    section.content = content_people
+    section.save()
+    section, created = Section.objects.get_or_create(key="place", template=template)
+    section.content = content_place
+    section.save()
+    section, created = Section.objects.get_or_create(key="rewards", template=template)
+    section.content = content_rewards
+    section.save()
+    section, created = Section.objects.get_or_create(key="order", template=template)
+    section.content = content_order
+    section.save()
+
+  def make_host_template(self):
+    host_header = 'Where\'s the wine party? Your place!'
+    host_sub_header = '<span></span>'
+    content_overview = """
+    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+
+    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
+    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
+
+    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    """
+
+    content_people = """
+    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
+    """
+
+    content_place = """
+    <p>Staying in is the new going out with Vinely.</p>
+    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
+    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
+    """
+
+    content_rewards = """
+    <p>Lots and lots of rewards!!!</p>
+    """
+
+    content_order = """
+    <p>
+    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
+    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
+    (artisan, crackers, stuffed mushrooms, best of the 80's?)
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="make_host", category=1)
+    section, created = Section.objects.get_or_create(key='header', template=template)
+    section.content = host_header
+    section.save()
+    section, created = Section.objects.get_or_create(key='sub_header', template=template)
+    section.content = host_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview", template=template)
+    section.content = content_overview
+    section.save()
+    section, created = Section.objects.get_or_create(key="people", template=template)
+    section.content = content_people
+    section.save()
+    section, created = Section.objects.get_or_create(key="place", template=template)
+    section.content = content_place
+    section.save()
+    section, created = Section.objects.get_or_create(key="rewards", template=template)
+    section.content = content_rewards
+    section.save()
+    section, created = Section.objects.get_or_create(key="order", template=template)
+    section.content = content_order
+    section.save()
 
   def party_setup_completed_email_template(self):
     content = """
@@ -85,7 +202,7 @@ class SimpleTest(TestCase):
     """
 
     template, created = ContentTemplate.objects.get_or_create(key="party_setup_completed_email", category=0)
-    section, created = Section.objects.get_or_create(category=0, template=template)
+    section, created = Section.objects.get_or_create(key='general', template=template)
     section.content = content
     section.save()
 
@@ -140,7 +257,7 @@ class SimpleTest(TestCase):
 
     """
     template, created = ContentTemplate.objects.get_or_create(key="welcome_email", category=0)
-    section, created = Section.objects.get_or_create(category=0, template=template)
+    section, created = Section.objects.get_or_create(key='general', template=template)
     section.content = content
     section.save()
 
@@ -177,7 +294,7 @@ class SimpleTest(TestCase):
 
     """
     template, created = ContentTemplate.objects.get_or_create(key="new_party_host_confirm_email", category=0)
-    section, created = Section.objects.get_or_create(category=0, template=template)
+    section, created = Section.objects.get_or_create(key='general', template=template)
     section.content = content
     section.save()
 
@@ -217,7 +334,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
-    section, created = Section.objects.create(category=0, template=template)
+    section, created = Section.objects.create(key='general', template=template)
     section.content = content
     section.save()
 
@@ -248,7 +365,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="signed_up_as_host_email", category=0)
-    section, created = Section.objects.create(category=0, template=template)
+    section, created = Section.objects.get_or_create(key='general', template=template)
     section.content = content
     section.save()
 
@@ -282,7 +399,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="new_party_scheduled_by_host_no_pro_email", category=0)
-    section = Section.objects.create(category=0, template=template)
+    section = Section.objects.create(key='general', template=template)
     section.content = content
     section.save()
     variable, created = Variable.objects.get_or_create(var="{{ party.host.first_name }}", description="Name of the party host")
@@ -331,7 +448,7 @@ class SimpleTest(TestCase):
     """
 
     template = ContentTemplate.objects.create(key="new_party_scheduled_by_host_email", category=0)
-    section = Section.objects.create(category=0, template=template)
+    section = Section.objects.create(key='general', template=template)
     section.content = content
     section.save()
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
@@ -384,7 +501,7 @@ class SimpleTest(TestCase):
     """
 
     template = ContentTemplate.objects.create(key="host_request_party_email", category=0)
-    section = Section.objects.create(category=0, template=template)
+    section = Section.objects.create(key='general', template=template)
     section.content = content
     section.save()
     variable, created = Variable.objects.get_or_create(var="{{ pro_name }}", description="Name of the Vinely Pro")
@@ -423,7 +540,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="verification_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url verify_account verification_code %}", description="Account verification link")
@@ -458,7 +575,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="password_change_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
 
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="User's first name")
     template.variables_legend.add(variable)
@@ -497,7 +614,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="account_activation_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
 
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="User's first name")
     template.variables_legend.add(variable)
@@ -537,7 +654,7 @@ class SimpleTest(TestCase):
     
     template = ContentTemplate(key="new_invitation_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party_name }}", description="Name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
@@ -574,7 +691,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="new_party_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ invite_host_name }}", description="Name of the party host")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ temp_password }}", description="Temporary password")
@@ -605,7 +722,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="pro_request_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="First name")
     template.variables_legend.add(variable)
 
@@ -631,7 +748,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="pro_review_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Pro's First name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ last_name }}", description="Pro's Last name")
@@ -654,10 +771,10 @@ class SimpleTest(TestCase):
     We are so excited that you want to host a Vinely Taste Party!
     You have already set up your account. Your login is {{ host_email }}.
 
-    The next step, if you haven’t done so already, is to schedule
+    The next step, if you haven't done so already, is to schedule
     the details of your party. Your process is complete when you
-    submit your party for approval by your Vinely Pro. (Don’t worry
-    if you don’t have a Vinely Pro yet, we will find you the perfect
+    submit your party for approval by your Vinely Pro. (Don't worry
+    if you don't have a Vinely Pro yet, we will find you the perfect
     Pro to ensure your are the host with the most!).
 
     Once your pro confirms your party, the invitation will be sent
@@ -679,7 +796,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="know_pro_party_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's First Name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ host_email }}", description="Host's E-mail")
@@ -709,7 +826,7 @@ class SimpleTest(TestCase):
 
     template = ContentTemplate(key="unknown_pro_party_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Host's First name")
     template.variables_legend.add(variable)
 
@@ -738,7 +855,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="pro_approved_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ applicant.first_name }}", description="The first name of the approved pro")
     template.variables_legend.add(variable)
 
@@ -766,7 +883,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="not_in_area_party_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="The host's first name")
     template.variables_legend.add(variable)
 
@@ -795,7 +912,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="order_confirmation_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ customer }}", description="First name of the customer")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID used for the order detail URL")
@@ -826,7 +943,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="order_shipped_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ order.receiver.first_name }}", description="First name of the customer")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ order_id }}", description="Order ID used for the order detail URL")
@@ -865,7 +982,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="host_vinely_party_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ pro_first_name }}", description="First name of the Vinely Pro")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="Host's first name")
@@ -912,7 +1029,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="new_party_scheduled_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_first_name }}", description="Host's first name.")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party.")
@@ -976,7 +1093,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="distribute_party_invites_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.description }}", description="Description of the party. Only shown if exists")
@@ -1026,7 +1143,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="rsvp_thank_you_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ first_name }}", description="The invitee's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="http://{{ host_name }}{% url pre_questionnaire_general %}", description="Link to the tasting questionnaire")
@@ -1054,7 +1171,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="contact_request_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ contact_request.first_name }}", description="First name of the user (Optional)")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ contact_request.last_name }}", description="Last name of the user (Optional)")
@@ -1092,7 +1209,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="pro_assigned_notification_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ host_user.first_name }}", description="Host's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ host_user.last_name }}", description="Host's last name")
@@ -1128,7 +1245,7 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate(key="mentor_assigned_notification_email", category=0)
     template.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.first_name }}", description="Mentee's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentee.last_name }}", description="Mentee's last name")
@@ -1164,11 +1281,10 @@ class SimpleTest(TestCase):
     - The Vinely Team
 
     """
-    template = ContentTemplate(key="mentee_assigned_notification_email", category=0)
-    template.save()
-    section = Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    template, created = ContentTemplate.objects.get_or_create(key="mentee_assigned_notification_email", category=0)
+    section, created = Section.objects.get_or_create(key='general', template=template)
+    section.content = content
     section.save()
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.first_name }}", description="Mentor's first name")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ mentor.last_name }}", description="Mentor's last name")
@@ -1200,7 +1316,7 @@ class SimpleTest(TestCase):
 
     And if you join as a Vinely VIP you can enjoy new wines each month, with a continually improving selection based on your feedback ratings. Shipping is free, and you can cancel anytime.
 
-    Remember, your satisfaction isn’t just a goal, it’s our guarantee!
+    Remember, your satisfaction isn't just a goal, it's our guarantee!
     {% endif %}
 
     {{ custom_message }}
@@ -1214,7 +1330,7 @@ class SimpleTest(TestCase):
     {% endif %}
     """
     template = ContentTemplate.objects.create(key="distribute_party_thanks_note_email", category=0)
-    section, created = Section.objects.get_or_create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    section, created = Section.objects.get_or_create(key='general', content=content, template=template)
     variable, created = Variable.objects.get_or_create(var="{{ party.title }}", description="The name of the party")
     template.variables_legend.add(variable)
     variable, created = Variable.objects.get_or_create(var="{{ party.event_date }}", description="Date when event is to take place")
@@ -1236,7 +1352,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="landing_page", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
 
   def our_story_template(self):
     content = """
@@ -1253,7 +1369,7 @@ class SimpleTest(TestCase):
       <p>What are you waiting for?</p>
     """
     template = ContentTemplate.objects.create(key="our_story", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
 
   def how_it_works_template(self):
     content = """
@@ -1276,7 +1392,7 @@ class SimpleTest(TestCase):
       <p>If you haven't been invited to a Vinely Taste Party, become a Host and have your own.</p>
     """
     template = ContentTemplate.objects.create(key="how_it_works", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=content, template=template)
+    Section.objects.create(key='general', content=content, template=template)
 
   def get_started_template(self):
     general_content = """
@@ -1319,9 +1435,9 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="get_started", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)
-    Section.objects.create(category=Section.SECTION_TYPE[2][0], content=host_content, template=template)
-    Section.objects.create(category=Section.SECTION_TYPE[3][0], content=pro_content, template=template)
+    Section.objects.create(key='general', content=general_content, template=template)
+    Section.objects.create(key='host', content=host_content, template=template)
+    Section.objects.create(key='pro', content=pro_content, template=template)
 
   def vinely_event_template(self):
     general_content = """
@@ -1360,7 +1476,7 @@ class SimpleTest(TestCase):
 
     """
     template = ContentTemplate.objects.create(key="vinely_event", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)
+    Section.objects.create(key='general', content=general_content, template=template)
 
   def rsvp_template(self):
     general_content = """
@@ -1374,4 +1490,4 @@ class SimpleTest(TestCase):
     Then, we'll be able to send wines perfectly paired to your taste - right to your doorstep.</p>
     """
     template = ContentTemplate.objects.create(key="rsvp", category=1)
-    Section.objects.create(category=Section.SECTION_TYPE[0][0], content=general_content, template=template)
+    Section.objects.create(key='general', content=general_content, template=template)

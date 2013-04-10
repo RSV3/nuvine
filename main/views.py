@@ -81,14 +81,17 @@ def home(request):
   data = {}
 
   u = request.user
-  print 'find_nearest_pro', u.userprofile.find_nearest_pro()
+  profile = u.get_profile()
+
   if request.user.is_authenticated():
     data["output"] = "User is authenticated"
 
     data['questionnaire_completed'] = WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists()
 
-    pro, pro_profile = my_pro(u)
-    data['my_pro'] = pro
+    if profile.mentor:
+      data['my_pro'] = profile.mentor
+    else:
+      data['my_pro'] = profile.current_pro
 
     # TODO: if there are orders pending
     data['pending_ratings'] = False
@@ -111,8 +114,8 @@ def uncover_personality(request):
 
   data['uncover_personality_menu'] = True
   sections = ContentTemplate.objects.get(key='uncover_personality').sections.all()
-  data['uncover_personality'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
+  data['uncover_personality'] = sections.get(key='general').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/uncover_personality.html", data, context_instance=RequestContext(request))
 
 
@@ -125,8 +128,8 @@ def our_story(request):
 
   data['our_story_menu'] = True
   sections = ContentTemplate.objects.get(key='our_story').sections.all()
-  data['our_story'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
+  data['our_story'] = sections.get(key='general').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
@@ -140,10 +143,10 @@ def get_started(request):
   u = request.user
   data['get_started_menu'] = True
   sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  data['get_started_general'] = sections.get(category=0).content
-  data['get_started_host'] = sections.get(category=2).content
-  data['get_started_pro'] = sections.get(category=3).content
-  data['heading'] = sections.get(category=4).content
+  data['get_started_general'] = sections.get(key='general').content
+  data['get_started_host'] = sections.get(key='host').content
+  data['get_started_pro'] = sections.get(key='pro').content
+  data['heading'] = sections.get(key='header').content
   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
@@ -213,17 +216,21 @@ def host_vinely_party(request):
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 
-def how_it_works(request):
+def how_it_works(request, state=None):
   """
 
   """
 
   data = {}
+  if state not in ['taste', 'rate', 'order', 'repeat']:
+    state = 'overview'
+
+  data['state'] = state
   sections = ContentTemplate.objects.get(key='how_it_works').sections.all()
   data["how_it_works_menu"] = True
-  data['how_it_works'] = sections.get(category=0).content
-  data['heading'] = sections.get(category=4).content
-  data['sub_heading'] = sections.get(category=5).content
+  data['content'] = sections.get(key=state).content
+  data['heading'] = sections.get(key='header').content
+  data['sub_heading'] = sections.get(key='sub_header').content
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
 
@@ -688,7 +695,7 @@ def place_order(request):
         order = Order(ordered_by=u, receiver=receiver, order_id=order_id, cart=cart)
 
       # save credit card and shipping address in the order
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         order.stripe_card = profile.stripe_card
       else:
         order.credit_card = profile.credit_card
@@ -818,7 +825,7 @@ def place_order(request):
       cart.save()
 
       data["receiver"] = receiver
-      if request.session['stripe_payment']:
+      if request.session.get('stripe_payment'):
         data["credit_card"] = profile.stripe_card
       else:
         data["credit_card"] = profile.credit_card
@@ -1131,9 +1138,6 @@ def party_add(request, party_id=None, party_pro=None):
         data['preview'] = preview
         return render_to_response("main/party_host_confirmation_preview.html", data, context_instance=RequestContext(request))
 
-      if u.userprofile.is_pro() and not u.userprofile.events_manager() and new_party.host != u:
-        # new_party.confirmed = True
-        new_party.requested = True
       if party:
         old_party = Party.objects.get(pk=party.id)
         new_party.auto_invite = old_party.auto_invite
@@ -1142,7 +1146,13 @@ def party_add(request, party_id=None, party_pro=None):
         new_party.guests_see_guestlist = old_party.guests_see_guestlist
         new_party.confirmed = old_party.confirmed
         new_party.requested = old_party.requested
-        # new_party.setup_stage = 1
+
+      if u.userprofile.is_pro():  # and not u.userprofile.events_manager() and new_party.host != u:
+        new_party.requested = True
+
+      if u.userprofile.events_manager() and new_party.is_events_party:
+        new_party.confirmed = True
+
       new_party.save()
       new_host = new_party.host
       if party:
@@ -1169,7 +1179,7 @@ def party_add(request, party_id=None, party_pro=None):
           invited_host.rsvp_code = str(uuid.uuid4())
           invited_host.save()
 
-      if u.userprofile.is_pro() and not u.userprofile.events_manager():
+      if u.userprofile.is_pro() and not new_party.is_events_party:
         if not new_host.is_active:
           # new host, so send password and invitation
           temp_password = User.objects.make_random_password()
@@ -1186,23 +1196,18 @@ def party_add(request, party_id=None, party_pro=None):
 
           # send an invitation e-mail if new host created
           send_new_party_email(request, verification_code, temp_password, new_host.email)
-          # send_new_party_scheduled_email(request, new_party)
-        # else:
-        #   # existing host needs to notified that party has been arranged
-        #   if not u.userprofile.events_manager() and new_host != u:
-        #     send_new_party_scheduled_email(request, new_party)
-        #     messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
-
-      # else:
-      #   messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
 
       data["parties_menu"] = True
 
       if request.POST.get('create'):
         # go to party details page
-        send_new_party_host_confirm_email(request, new_party)
-        messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
-        return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        if u.userprofile.events_manager and new_party.is_events_party:
+          messages.success(request, "Party (%s) has been successfully scheduled." % (new_party.title, ))
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
+        else:
+          send_new_party_host_confirm_email(request, new_party)
+          messages.info(request, "Congratulations, your confirmation email was sent to your host and they can now complete the party setup.")
+          return HttpResponseRedirect(reverse("party_details", args=[new_party.id]))
 
       if request.POST.get('save'):
         messages.success(request, "%s details have been successfully saved" % (new_party.title, ))
@@ -1517,7 +1522,7 @@ def party_details(request, party_id):
   if invitee and party.host == u:
     msg = '%s %s (%s) has been added to the party invitations list. Don\'t forget to select their checkbox below and click "Send Invitation!"' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
-  if invitee and party.pro == u:
+  elif invitee and party.pro == u:
     msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
@@ -1541,8 +1546,7 @@ def party_details(request, party_id):
 
   # these checks are only relevant to host or Pro
   if can_order_kit and (party.pro == u or party.host == u):
-    if party.host != u and not u.userprofile.events_manager():
-      # if not u.userprofile.events_manager():
+    if party.host != u and not (u.userprofile.events_manager() and party.is_events_party):
       if party.confirmed:
         if not party.kit_ordered():
           msg = 'Your host needs to order their tasting kit by %s' % kit_order_date.strftime("%m/%d/%Y")
@@ -1550,11 +1554,9 @@ def party_details(request, party_id):
       else:
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
         pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
-        # msg = '%s party date and time need confirmation for %s  <a href="%s" class="btn btn-primary">  Confirm</a>' % (pro_name, party.event_date.strftime("%B %d, at %I:%M %p"), reverse('party_confirm', args=[party.id]))
-        # messages.warning(request, msg)
     else:
       # for host
-      if party.confirmed and not u.userprofile.events_manager():
+      if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
         if party.invite_sent():
           if not party.kit_ordered():
             msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
@@ -1666,10 +1668,6 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
         new_invite.save()
 
         new_invitee = new_invite.invitee
-        # removed following lines since invitation get sent in a batch from the UI
-        #else:
-        #  send_party_invitation_email(request, new_invite)
-
         messages.success(request, '%s %s (%s) has been added to the party invitations list.' % (new_invitee.first_name, new_invitee.last_name, new_invitee.email))
 
         data["parties_menu"] = True
@@ -1770,8 +1768,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
 
   form.fields['gender'].widget = forms.HiddenInput()
 
+  data['signup_error'] = request.GET.get('err')
+  email = request.GET.get('email', u.email)
+
   # signing up as taster
-  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': u.email, 'first_name': u.first_name,
+  signup_form = MakeTasterForm(initial={'account_type': 3, 'email': email, 'first_name': u.first_name,
                                         'last_name': u.last_name}, instance=u)
 
   age_check_key = '%s_age_checked' % rsvp_code
@@ -1787,7 +1788,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
   data['signup_form'] = signup_form
   data['taster_form'] = taster_form
   data['form'] = form
-
+  # del request.session[guest_rsvp_key]
   if u.is_active:
     request.session[guest_rsvp_key] = True
 
@@ -1822,12 +1823,11 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
     data["custom_message"] = invitations[0].custom_message
 
   sections = ContentTemplate.objects.get(key='rsvp').sections.all()
-  content = sections.get(category=0).content
+  content = sections.get(key='general').content
   rsvp_template = Template(content)
   context = RequestContext(request, data)
   page = rsvp_template.render(context)
   data['rsvp_content'] = page
-
   return render_to_response("main/party_rsvp.html", data, context_instance=RequestContext(request))
 
 
@@ -2173,7 +2173,7 @@ def party_send_invites(request):
     # send e-mails
     num_guests = distribute_party_invites_email(request, invitation_sent)
     if num_guests > 0:
-      messages.success(request, "Your invitations were sent successfully to %d tasters!" % num_guests)
+      messages.success(request, "Your invitations were sent successfully to %d Tasters!" % num_guests)
       data["parties_menu"] = True
 
   return HttpResponseRedirect(reverse("party_details", args=[party.id]))
@@ -2472,7 +2472,8 @@ def edit_shipping_address(request):
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
 
-  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver.get_profile(), prefix='eligibility')
+  initial_age = {'dob': receiver_profile.dob.strftime("%m/%d/%Y") if receiver_profile.dob else ''}
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, initial=initial_age, prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 
@@ -2910,7 +2911,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['fb_view'] = fb_page
   today = timezone.now()
 
-  if u.userprofile.events_manager():
+  if u.userprofile and u.userprofile.events_manager():
     party = get_object_or_404(Party, pk=party_id)
   else:
     party = get_object_or_404(Party, pk=party_id, event_date__gte=today)

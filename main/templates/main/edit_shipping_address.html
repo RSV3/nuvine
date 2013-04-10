@@ -225,7 +225,11 @@
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
-        $(".datepicker").datepicker();
+        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+        if (!$('.datepicker').val()) {
+          options.startView = 'decade';
+        }
+        $('.datepicker').datepicker(options);
         
         // uncomment this to enable
         $("#update-age").modal();
