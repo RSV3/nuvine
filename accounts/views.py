@@ -1052,9 +1052,8 @@ def verify_account(request, verification_code):
       elif verification.verification_type == VerificationQueue.VERIFICATION_CHOICES[1][0]:
         messages.success(request, "Your password has been reset to your new password.")
 
-      today = timezone.now()
       # if user is taster and was invited to a party, redirect them to RSVP page
-      invites = PartyInvite.objects.filter(invitee=u, party__event_date__gte=today)
+      invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
       if invites.exists():
         return HttpResponseRedirect(reverse('party_rsvp', args=[invites[0].party.id]))
 
