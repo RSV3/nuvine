@@ -71,7 +71,7 @@
                 {% elif pro_user %}
                  <div class="pro-info">
                   <div class="pro-photo">
-                    {% thumbnail pro_profile.image "100x100" format="PNG" as im %}
+                    {% thumbnail pro_user.get_profile.image "100x100" format="PNG" as im %}
                       <img src="{{ im.url }}"/>
                     {% endthumbnail %}            
                   </div>
@@ -87,7 +87,7 @@
                     <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
                   </div>
                   <div class="pro-phone">
-                    <i class="icon-user"></i>{{ pro_profile.phone }}
+                    <i class="icon-user"></i>{{ pro_user.get_profile.phone }}
                   </div>
                 </div>         
                 {% else %}
@@ -141,7 +141,7 @@
             </div>
           </div>
 
-          {% if subscription.frequency != 0 and subscription.quantity != 0 %}
+          {% if user.get_profile.has_active_subscription %}
           <div class="control-group">
             <div class="controls">
               <a href="{% url cancel_subscription %}">Cancel Subscription</a>

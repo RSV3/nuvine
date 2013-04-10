@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from cms.tests import SimpleTest as CMSTest
 from support.models import Email
+import unittest
 
 
 class SimpleTest(TestCase):
@@ -38,14 +39,27 @@ class SimpleTest(TestCase):
     supp_group, created = Group.objects.get_or_create(name="Supplier")
     pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
 
-    u = create_user("elizabeth@redstar.com", "egoede")
-    u.groups.add(ps_group)
+    Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
+    Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
+    Zipcode.objects.get_or_create(code="92612", country="US", state="CA")
 
-    u = create_user("johnstecco@gmail.com", "jstecco")
-    u.groups.add(ps_group)
+    mi_pro = create_user("elizabeth@vinely.com", "egoede")
+    mi_pro.is_staff = True
+    mi_pro.is_superuser = True
+    mi_pro.save()
+    mi_pro.groups.add(ps_group)
+    mi_pro.userprofile.zipcode = '49546'
+    mi_pro.userprofile.save()
 
-    u = create_user("specialist1@example.com", "hello")
-    u.groups.add(ps_group)
+    ca_pro = create_user("johnstecco@gmail.com", "jstecco")
+    ca_pro.groups.add(ps_group)
+    ca_pro.userprofile.zipcode = '92612'
+    ca_pro.userprofile.save()
+
+    ma_pro = create_user("specialist1@example.com", "hello")
+    ma_pro.groups.add(ps_group)
+    ma_pro.userprofile.zipcode = '02139'
+    ma_pro.userprofile.save()
 
     u = create_user("specialist2@example.com", "hello")
     u.groups.add(ps_group)
@@ -97,10 +111,6 @@ class SimpleTest(TestCase):
 
     tasters = User.objects.filter(groups=att_group)
     self.assertEqual(tasters.count(), 9)
-
-    Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
-    Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
-    Zipcode.objects.get_or_create(code="60107", country="US", state="CA")
 
     for u in User.objects.all():
       u.is_active = True
@@ -308,15 +318,26 @@ class SimpleTest(TestCase):
       p.save()
       f.close()
 
+  def create_test_products(self):
+    if Product.objects.all().count() < 4:
+      p, created = Product.objects.get_or_create(name="3 Bottles", description="", unit_price=54.00, category=1, cart_tag="3")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="6 Bottles", description="", unit_price=97.00, category=1, cart_tag="6")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12")
+      self.assertEqual(created, True)
+      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="12")
+      self.assertEqual(created, True)
+
   def setUp(self):
     # initial data
     #self.create_contact_reasons()
 
     # accounts are loaded from account/fixtures/initial_data.yaml
     self.create_usable_accounts()
-    #self.create_wine_personalities()
-    #self.create_wine_samplers()
-    self.create_products()
+    self.create_wine_personalities()
+    self.create_wine_samplers()
+    self.create_test_products()
     test = CMSTest()
     test.create_email_templates()
 
@@ -425,7 +446,6 @@ class SimpleTest(TestCase):
     # self.assertTrue(recipient_email.exists())
 
     # TODO: Hit send invite and check if mails are sent
-
   def test_invite_to_party_new_flow(self):
     '''
     Test inviting people to party by host and invitee
@@ -577,7 +597,7 @@ class SimpleTest(TestCase):
 
     # TODO: Hit send invite and check if mails are sent
 
-  def test_rep_create_party_new_flow(self):
+  def test_pro_create_party_for_host(self):
     response = self.client.login(email='specialist2@example.com', password='hello')
     self.assertTrue(response)
 
@@ -586,36 +606,8 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse('main.views.party_add'))
     self.assertEquals(response.status_code, 200)
 
-    # 1. select host from list
-    host = User.objects.get(email='host1@example.com')
-
-    response = self.client.post(reverse('main.views.party_add'), {'title': 'Weird Party',
-                                                                'description': 'Just another weird party',
-                                                                'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
-                                                                'event_time': '08:30 PM',
-                                                                'phone': '555-617-6706',
-                                                                'host': host.id,
-                                                                # 'address': host.userprofile.address.id,
-                                                                'street1': '5 Kendall',
-                                                                'city': 'Cambridge',
-                                                                'state': 'MA',
-                                                                'zipcode': '02139',
-                                                                'save': 'save',
-                                                                })
-
-    party = Party.objects.get(title='Weird Party', host=host)
-    self.assertRedirects(response, reverse('party_details', args=[party.id]))
-
-    self.assertTrue(MyHost.objects.filter(pro=pro, host__email='host1@example.com').exists())
-    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
-
-    # check emails were sent
-    new_host_email = Email.objects.filter(subject="Your Vinely Party has been Scheduled!", recipients="[u'host1@example.com']")
-    self.assertTrue(new_host_email.exists())
-
-    # 2. input new host
+    # 1. new host
     response = self.client.post(reverse('main.views.party_add'),  {'title': 'Another Weird Party',
-                                                      'description': 'Just another weird party',
                                                       'phone': '555-617-6706',
                                                       'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
                                                       'event_time': '08:30 PM',
@@ -626,156 +618,195 @@ class SimpleTest(TestCase):
                                                       'city': 'Cambridge',
                                                       'state': 'MA',
                                                       'zipcode': '02139',
-                                                      'save': 'save',
-                                                      })
+                                                      'create': 'create'})
+
     party = Party.objects.get(title='Another Weird Party', host__email='new.host@example.com')
     self.assertRedirects(response, reverse('party_details', args=[party.id]))
 
-    self.assertTrue(MyHost.objects.filter(pro=pro, host__email='new.host@example.com').exists())
+    self.assertTrue(party.host.userprofile.is_host())
+    self.assertEquals(party.host.userprofile.current_pro, pro)
 
     self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
 
     # check emails were sent
-    new_host_email = Email.objects.filter(subject="Your Vinely Party has been Scheduled!", recipients="[u'new.host@example.com']")
+    # to host
+    new_host_email = Email.objects.filter(subject="Your Vinely Taste Party has been scheduled!", sender='Party Confirmation <sales@vinely.com>', recipients="[u'new.host@example.com']")
     self.assertTrue(new_host_email.exists())
+
+    #to pro and care
+    pro_care_email = Email.objects.filter(subject="Your Vinely Party has been scheduled!", recipients="[u'specialist2@example.com', u'care@vinely.com']")
+    self.assertTrue(pro_care_email.exists())
 
     welcome_email = Email.objects.filter(subject="Welcome to Vinely!", recipients="[u'new.host@example.com']")
     self.assertTrue(welcome_email.exists())
 
-  def test_host_create_party_new_flow(self):
-
-    response = self.client.login(email='host2@example.com', password='hello')
-    self.assertTrue(response)
-
-    response = self.client.get(reverse('party_add'))
-    # cannot create party without a pro
-    self.assertRedirects(response, reverse('party_list'))
-
-    # 1. create party and hit save
-    host = User.objects.get(email='host2@example.com')
-    pro = User.objects.get(email='specialist1@example.com')
-    MyHost.objects.create(pro=pro, host=host)
-    response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host2 Weird Party',
-                                                      'description': 'Just another weird party',
+    # 2. existing host
+    response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host Party',
                                                       'phone': '555-617-6706',
                                                       'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
                                                       'event_time': '08:30 PM',
                                                       'first_name': 'New',
                                                       'last_name': 'Host',
-                                                      'email': 'new.host@example.com',
+                                                      'email': 'host1@example.com',
                                                       'street1': '5 Kendall',
-                                                      'city': 'Grand Rapids',
-                                                      'state': 'MI',
-                                                      'zipcode': '49546',
-                                                      'save': 'save',
-                                                      })
-    party = Party.objects.get(title='Host2 Weird Party', host=host)
-    self.assertRedirects(response, reverse('party_add', args=[party.id]))
+                                                      'city': 'Cambridge',
+                                                      'state': 'MA',
+                                                      'zipcode': '02139',
+                                                      'create': 'create'})
 
-    self.assertTrue(MyHost.objects.filter(pro=pro, host=host).exists())
-    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
-
-    # 2. create party and hit next
-    response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host2 Second Party',
-                                                      'phone': '555-617-6706',
-                                                      'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
-                                                      'event_time': '08:30 PM',
-                                                      'first_name': 'New',
-                                                      'last_name': 'Host',
-                                                      'email': 'new.host@example.com',
-                                                      'street1': '5 Kendall',
-                                                      'city': 'Grand Rapids',
-                                                      'state': 'MI',
-                                                      'zipcode': '49546',
-                                                      'next': 'next',
-                                                      })
-    party = Party.objects.get(title='Host2 Second Party', host=host)
-    self.assertRedirects(response, reverse('party_write_invitation', args=[party.id]))
-
-    self.assertTrue(MyHost.objects.filter(pro=pro, host=host).exists())
-    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
-
-    # write invitation - save
-    response = self.client.get(reverse('party_write_invitation', args=[party.id]))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse('party_write_invitation', args=[party.id]), {'party': party.id,
-                                                                                    'custom_subject': 'You are cordially invited',
-                                                                                    'custom_message': 'Come ready to drink!',
-                                                                                    'auto_invite': 1,
-                                                                                    'auto_thank_you': 1,
-                                                                                    'save': 'save',
-                                                                                    })
-    self.assertContains(response, "Your invitation message was successfully saved.")
-
-    invitation_sent = InvitationSent.objects.get(party=party.id)
-    party = invitation_sent.party
-
-    self.assertFalse(party.auto_invite)
-    self.assertFalse(party.auto_thank_you)
-    self.assertFalse(party.guests_can_invite)
-
-    # write invitation - next
-    response = self.client.post(reverse('party_write_invitation', args=[party.id]), {'party': party.id,
-                                                                                    'custom_subject': 'You are cordially invited',
-                                                                                    'custom_message': 'Come ready to drink!',
-                                                                                    'auto_invite': 0,
-                                                                                    'auto_thank_you': 0,
-                                                                                    'guests_can_invite': 1,
-                                                                                    'next': 'next',
-                                                                                    })
-    self.assertRedirects(response, reverse('party_find_friends', args=[party.id]))
-
-    party = Party.objects.get(id=party.id)
-    self.assertTrue(party.auto_invite)
-    self.assertTrue(party.auto_thank_you)
-    self.assertTrue(party.guests_can_invite)
-
-    # 3. invite new users
-    response = self.client.post(reverse('party_details', args=[party.id]), {'party': party.id,
-                                                                            'first_name': 'New',
-                                                                            'last_name': 'Guy2',
-                                                                            'email': 'new.guy2@example.com',
-                                                                            'response': 0,
-                                                                            'add_taster': 'add_taster'})
-    self.assertContains(response, "has been added to the party invitations list")
-
-    # 4. change options - save
-    response = self.client.post(reverse('party_find_friends', args=[party.id]), {'save': 'save',
-                                                                                })
-    self.assertContains(response, 'The Party taster options were successfully saved.')
-
-    party = Party.objects.get(id=party.id)
-    self.assertTrue(party.auto_invite)
-    self.assertTrue(party.auto_thank_you)
-    self.assertFalse(party.guests_can_invite)
-    self.assertFalse(party.guests_see_guestlist)
-
-    # 5. remove user invitation list
-    invite = PartyInvite.objects.get(party=party, invitee__email='new.guy2@example.com')
-    response = self.client.get("%s?next=%s" % (reverse('party_remove_taster', args=[invite.id]), reverse('party_find_friends', args=[party.id])))
-    # redirects to party_friends
-    self.assertEquals(response.status_code, 302)
-    # self.assertRedirects(response, reverse('party_find_friends', args=[party.id]))
-
-    # 6. change options - request pro
-    response = self.client.post(reverse('party_find_friends', args=[party.id]), {'request': 'request', 'taster_actions': [0, 1]})
+    party = Party.objects.get(title='Host Party', host__email='host1@example.com')
     self.assertRedirects(response, reverse('party_details', args=[party.id]))
 
-    party = Party.objects.get(id=party.id)
-    self.assertTrue(party.auto_invite)
-    self.assertTrue(party.auto_thank_you)
-    self.assertTrue(party.guests_can_invite)
-    self.assertTrue(party.guests_see_guestlist)
-    self.assertTrue(party.requested)
+    self.assertEquals(party.host.userprofile.current_pro, pro)
 
-    # check emails were sent to pro
-    party_request_mail = Email.objects.filter(subject__icontains="would like to host a party", recipients="[u'specialist1@example.com']")
-    self.assertTrue(party_request_mail.exists())
+    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
 
-    # check emails were sent to host
-    host_email = Email.objects.filter(subject="Your Vinely Party has been Scheduled!", recipients="[u'host2@example.com']")
-    self.assertTrue(host_email.exists())
+    # check emails were sent
+    # to host
+    new_host_email = Email.objects.filter(subject="Your Vinely Taste Party has been scheduled!", sender='Party Confirmation <sales@vinely.com>', recipients="[u'new.host@example.com']")
+    self.assertTrue(new_host_email.exists())
+
+    #to pro and care
+    pro_care_email = Email.objects.filter(subject="Your Vinely Party has been scheduled!", recipients="[u'specialist2@example.com', u'care@vinely.com']")
+    self.assertTrue(pro_care_email.exists())
+
+    welcome_email = Email.objects.filter(subject="Welcome to Vinely!", recipients="[u'host1@example.com']")
+    self.assertFalse(welcome_email.exists())
+
+  # def test_host_create_party_new_flow(self):
+
+  #   response = self.client.login(email='host2@example.com', password='hello')
+  #   self.assertTrue(response)
+
+  #   response = self.client.get(reverse('party_add'))
+  #   # cannot create party without a pro
+  #   self.assertRedirects(response, reverse('party_list'))
+
+  #   # 1. create party and hit save
+  #   host = User.objects.get(email='host2@example.com')
+  #   pro = User.objects.get(email='specialist1@example.com')
+  #   MyHost.objects.create(pro=pro, host=host)
+  #   response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host2 Weird Party',
+  #                                                     'description': 'Just another weird party',
+  #                                                     'phone': '555-617-6706',
+  #                                                     'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
+  #                                                     'event_time': '08:30 PM',
+  #                                                     'first_name': 'New',
+  #                                                     'last_name': 'Host',
+  #                                                     'email': 'new.host@example.com',
+  #                                                     'street1': '5 Kendall',
+  #                                                     'city': 'Grand Rapids',
+  #                                                     'state': 'MI',
+  #                                                     'zipcode': '49546',
+  #                                                     'save': 'save',
+  #                                                     })
+  #   party = Party.objects.get(title='Host2 Weird Party', host=host)
+  #   self.assertRedirects(response, reverse('party_add', args=[party.id]))
+
+  #   self.assertTrue(MyHost.objects.filter(pro=pro, host=host).exists())
+  #   self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
+
+  #   # 2. create party and hit next
+  #   response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host2 Second Party',
+  #                                                     'phone': '555-617-6706',
+  #                                                     'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
+  #                                                     'event_time': '08:30 PM',
+  #                                                     'first_name': 'New',
+  #                                                     'last_name': 'Host',
+  #                                                     'email': 'new.host@example.com',
+  #                                                     'street1': '5 Kendall',
+  #                                                     'city': 'Grand Rapids',
+  #                                                     'state': 'MI',
+  #                                                     'zipcode': '49546',
+  #                                                     'next': 'next',
+  #                                                     })
+  #   party = Party.objects.get(title='Host2 Second Party', host=host)
+  #   self.assertRedirects(response, reverse('party_write_invitation', args=[party.id]))
+
+  #   self.assertTrue(MyHost.objects.filter(pro=pro, host=host).exists())
+  #   self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
+
+  #   # write invitation - save
+  #   response = self.client.get(reverse('party_write_invitation', args=[party.id]))
+  #   self.assertEquals(response.status_code, 200)
+
+  #   response = self.client.post(reverse('party_write_invitation', args=[party.id]), {'party': party.id,
+  #                                                                                   'custom_subject': 'You are cordially invited',
+  #                                                                                   'custom_message': 'Come ready to drink!',
+  #                                                                                   'auto_invite': 1,
+  #                                                                                   'auto_thank_you': 1,
+  #                                                                                   'save': 'save',
+  #                                                                                   })
+  #   self.assertContains(response, "Your invitation message was successfully saved.")
+
+  #   invitation_sent = InvitationSent.objects.get(party=party.id)
+  #   party = invitation_sent.party
+
+  #   self.assertFalse(party.auto_invite)
+  #   self.assertFalse(party.auto_thank_you)
+  #   self.assertFalse(party.guests_can_invite)
+
+  #   # write invitation - next
+  #   response = self.client.post(reverse('party_write_invitation', args=[party.id]), {'party': party.id,
+  #                                                                                   'custom_subject': 'You are cordially invited',
+  #                                                                                   'custom_message': 'Come ready to drink!',
+  #                                                                                   'auto_invite': 0,
+  #                                                                                   'auto_thank_you': 0,
+  #                                                                                   'guests_can_invite': 1,
+  #                                                                                   'next': 'next',
+  #                                                                                   })
+  #   self.assertRedirects(response, reverse('party_find_friends', args=[party.id]))
+
+  #   party = Party.objects.get(id=party.id)
+  #   self.assertTrue(party.auto_invite)
+  #   self.assertTrue(party.auto_thank_you)
+  #   self.assertTrue(party.guests_can_invite)
+
+  #   # 3. invite new users
+  #   response = self.client.post(reverse('party_details', args=[party.id]), {'party': party.id,
+  #                                                                           'first_name': 'New',
+  #                                                                           'last_name': 'Guy2',
+  #                                                                           'email': 'new.guy2@example.com',
+  #                                                                           'response': 0,
+  #                                                                           'add_taster': 'add_taster'})
+  #   self.assertContains(response, "has been added to the party invitations list")
+
+  #   # 4. change options - save
+  #   response = self.client.post(reverse('party_find_friends', args=[party.id]), {'save': 'save',
+  #                                                                               })
+  #   self.assertContains(response, 'The Party taster options were successfully saved.')
+
+  #   party = Party.objects.get(id=party.id)
+  #   self.assertTrue(party.auto_invite)
+  #   self.assertTrue(party.auto_thank_you)
+  #   self.assertFalse(party.guests_can_invite)
+  #   self.assertFalse(party.guests_see_guestlist)
+
+  #   # 5. remove user invitation list
+  #   invite = PartyInvite.objects.get(party=party, invitee__email='new.guy2@example.com')
+  #   response = self.client.get("%s?next=%s" % (reverse('party_remove_taster', args=[invite.id]), reverse('party_find_friends', args=[party.id])))
+  #   # redirects to party_friends
+  #   self.assertEquals(response.status_code, 302)
+  #   # self.assertRedirects(response, reverse('party_find_friends', args=[party.id]))
+
+  #   # 6. change options - request pro
+  #   response = self.client.post(reverse('party_find_friends', args=[party.id]), {'request': 'request', 'taster_actions': [0, 1]})
+  #   self.assertRedirects(response, reverse('party_details', args=[party.id]))
+
+  #   party = Party.objects.get(id=party.id)
+  #   self.assertTrue(party.auto_invite)
+  #   self.assertTrue(party.auto_thank_you)
+  #   self.assertTrue(party.guests_can_invite)
+  #   self.assertTrue(party.guests_see_guestlist)
+  #   self.assertTrue(party.requested)
+
+  #   # check emails were sent to pro
+  #   party_request_mail = Email.objects.filter(subject__icontains="would like to host a party", recipients="[u'specialist1@example.com']")
+  #   self.assertTrue(party_request_mail.exists())
+
+  #   # check emails were sent to host
+  #   host_email = Email.objects.filter(subject="Your Vinely Party has been Scheduled!", recipients="[u'host2@example.com']")
+  #   self.assertTrue(host_email.exists())
 
   def test_rep_adding_ratings(self):
 
@@ -906,7 +937,7 @@ class SimpleTest(TestCase):
                                                         'sizzle': 4,
                                                         'sizzle_dnl': 2,
 
-      })
+    })
 
     self.assertContains(response, "Here's your Wine Personality")
 
@@ -919,8 +950,7 @@ class SimpleTest(TestCase):
     address = Address.objects.create(street1="65 Gordon St.",
                                       city="Grand Rapids",
                                       state="MI",
-                                      zipcode="49546-2342"
-                                      )
+                                      zipcode="49546-2342")
 
     party = Party.objects.create(host=host, title="John's party", description="Wine party on a sizzling hot day",
                               address=address, event_date=timezone.now() + timedelta(days=10))
@@ -937,6 +967,43 @@ class SimpleTest(TestCase):
       PartyInvite.objects.create(party=party, invitee=User.objects.get(email=att))
 
     return party
+
+  def vinely_card_processing(self):
+    ##########################################################
+    #
+    # Using Vinely Credit card processing
+    #
+    ##########################################################
+    year = datetime.today().year + 5
+    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
+                                                                        "exp_month": 6,
+                                                                        "exp_year": year,
+                                                                        "verification_code": 111,
+                                                                        "billing_zipcode": "02139",
+                                                                        "card_type": "Unknown"})
+    return response
+
+  def stripe_card_processing(self, user):
+    ##########################################################
+    #
+    # Using Stripe Credit card processing
+    #
+    ##########################################################
+
+    import stripe
+    from django.conf import settings
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (user.first_name, user.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+
+    response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
+                                                                        "exp_month": token.card.exp_month,
+                                                                        "exp_year": token.card.exp_year,
+                                                                        "last4": token.card.last4,
+                                                                        "address_zip": token.card.address_zip,
+                                                                        "card_type": token.card.type})
+    return response
 
   def test_rep_adding_orders(self):
     party = self.create_party()
@@ -962,29 +1029,14 @@ class SimpleTest(TestCase):
 
     # now with real taster and real party
     response = self.client.get(reverse('main.views.start_order', args=[real_attendee.id, party.id]))
-    self.assertEquals(response.status_code, 200)
+    self.assertRedirects(response, reverse("main.views.cart_add_wine"))
 
-    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
-    response = self.client.login(email="attendee1@example.com", password="hello")
-    self.assertTrue(response)
-
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]), {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 220.00,
-                                                                                          "level": "superior"})
+    case = Product.objects.get(name="3 Bottles")
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 2,
+                                                                      "frequency": 0,
+                                                                      "total_price": 108.00})
     self.assertRedirects(response, reverse("main.views.cart"))
-
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"), {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 1})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
 
     birth_date = timezone.now() - timedelta(days=30 * 365)
 
@@ -997,15 +1049,18 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
-    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+    self.assertContains(response, 'Currently, we can only ship to California.')
 
-    year = datetime.today().year + 5
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
-                                                                        "exp_month": 6,
-                                                                        "exp_year": year,
-                                                                        "verification_code": 111,
-                                                                        "billing_zipcode": "02139",
-                                                                        "card_type": "Unknown"})
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "San Fransisco",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
+    response = self.stripe_card_processing(real_attendee)
     self.assertRedirects(response, reverse("main.views.place_order"))
 
     response = self.client.post(reverse("main.views.place_order"))
@@ -1022,42 +1077,26 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
-  def test_attendee_ordering_online(self):
-    ##########################################################
-    #
-    # Using Vinely Credit card processing
-    #
-    ##########################################################
-
-    response = self.client.get(reverse('main.views.start_order'))
-    self.assertEquals(response.status_code, 200)
-
-    case = Product.objects.get(name="Superior Collection", unit_price=120.00)
+  def test_attendee_ordering(self):
     response = self.client.login(email="attendee1@example.com", password="hello")
     self.assertTrue(response)
 
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["superior"]))
+    response = self.client.get(reverse('main.views.start_order'))
+    self.assertRedirects(response, reverse("main.views.cart_add_wine"))
 
-    self.assertEquals(response.status_code, 200)
+    case = Product.objects.get(name="6 Bottles", unit_price=97.00)
 
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["superior"]),  {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 220.00,
-                                                                                          "level": "superior"})
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 2,
+                                                                      "frequency": 0,
+                                                                      "total_price": 194.00})
     self.assertRedirects(response, reverse("main.views.cart"))
 
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"),  {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 0})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
+    birth_date = timezone.now() - timedelta(days=30 * 365)
 
     response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
                                                                               "last_name": "Doe",
@@ -1067,29 +1106,32 @@ class SimpleTest(TestCase):
                                                                               "zipcode": "02139",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
+
+    self.assertContains(response, 'Currently, we can only ship to California.')
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "San FranciscoZ",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
     self.assertContains(response, "You cannot order wine until you verify that you are not under 21")
 
-    birth_date = timezone.now() - timedelta(days=30 * 365)
-
     response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
                                                                               "first_name": "John",
                                                                               "last_name": "Doe",
                                                                               "address1": "65 Gordon St.",
-                                                                              "city": "Cambridge",
-                                                                              "state": "MA",
-                                                                              "zipcode": "02139",
+                                                                              "city": "San Fransisco",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
                                                                               "phone": "555-617-6706",
                                                                               "email": "attendee1@example.com"})
-    # print response
     self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+    taster = User.objects.get(email='attendee1@example.com')
+    response = self.stripe_card_processing(taster)
 
-    year = datetime.today().year + 5
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"card_number": "4111111111111",
-                                                                        "exp_month": 6,
-                                                                        "exp_year": year,
-                                                                        "verification_code": 111,
-                                                                        "billing_zipcode": "02139",
-                                                                        "card_type": "Unknown"})
     self.assertRedirects(response, reverse("main.views.place_order"))
 
     response = self.client.post(reverse("main.views.place_order"))
@@ -1106,110 +1148,9 @@ class SimpleTest(TestCase):
     recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
     self.assertTrue(recipient_email.exists())
 
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
-
-    ##########################################################
-    #
-    # Using Stripe Credit card processing
-    #
-    ##########################################################
-
-    import stripe
-    from django.conf import settings
-
-    response = self.client.get(reverse('main.views.start_order'))
-    self.assertEquals(response.status_code, 200)
-
-    case = Product.objects.get(name="Divine Collection", unit_price=225.00)
-    response = self.client.login(email="attendee1@example.com", password="hello")
-    self.assertTrue(response)
-
-    response = self.client.get(reverse("main.views.cart_add_wine", args=["divine"]))
-
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.cart_add_wine", args=["divine"]),  {"product": case.id,
-                                                                                          "quantity": 2,
-                                                                                          "frequency": 0,
-                                                                                          "total_price": 420.00,
-                                                                                          "level": "superior"})
-    self.assertRedirects(response, reverse("main.views.cart"))
-
-    response = self.client.get(reverse("main.views.customize_checkout"))
-    self.assertEquals(response.status_code, 200)
-
-    response = self.client.post(reverse("main.views.customize_checkout"),  {"product": case.id,
-                                                                            "wine_mix": 1,
-                                                                            "sparkling": 0})
-    self.assertRedirects(response, reverse("main.views.edit_shipping_address"))
-
-    birth_date = timezone.now() - timedelta(days=30 * 365)
-
-    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
-                                                                              "first_name": "John",
-                                                                              "last_name": "Doe",
-                                                                              "address1": "65 Gordon St.",
-                                                                              "city": "Grand Rapids",
-                                                                              "state": "MI",
-                                                                              "zipcode": "49546",
-                                                                              "phone": "555-617-6706",
-                                                                              "email": "attendee1@example.com"})
-    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
-
-    stripe.api_key = settings.STRIPE_SECRET
-
-    token = stripe.Token.create(card={'number': 4242424242424242, 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
-
-    response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
-                                                                        "exp_month": token.card.exp_month,
-                                                                        "exp_year": token.card.exp_year,
-                                                                        "last4": token.card.last4,
-                                                                        "address_zip": token.card.address_zip,
-                                                                        "card_type": token.card.type})
-    self.assertRedirects(response, reverse("main.views.place_order"))
-
-    user = User.objects.get(email="attendee1@example.com")
-    profile = user.get_profile()
-    self.assertIsNotNone(profile.stripe_card)
-
-    response = self.client.post(reverse("main.views.place_order"))
-    order = Order.objects.get(cart__items__product=case)
-
-    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
-
-    response = self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
-    self.assertEquals(response.status_code, 200)
-
-    self.assertTrue(Order.objects.filter(cart__items__product=case).exists())
-
-    # check emails sent
-    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
-    self.assertTrue(recipient_email.exists())
-
-    subject = "Order ID: %s has been submitted!" % order.vinely_order_id
-    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
-    self.assertTrue(vinely_email.exists())
-
-    stripe_customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-    stripe_customer.delete()
-
-  def test_supplier_viewing_fulfilling(self):
-    pass
-
-  def test_attendee_rating_order(self):
-    pass
-
-  def test_party_add_request(self):
-    """
-      1. Test party adding by specialist
-
-      2. Test party add by host
-
-      3. Test party add by attendee
-
-    """
 
   def test_product_ordering(self):
     """

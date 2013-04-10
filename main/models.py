@@ -73,6 +73,10 @@ class Party(models.Model):
     else:
       return "%s by <%s>" % (self.title, self.host.email)
 
+  @property
+  def is_events_party(self):
+    return self.host.email == 'events@vinely.com'
+
   def total_sales(self):
     orders = Order.objects.filter(cart__party=self)
     # should not be tasting kit

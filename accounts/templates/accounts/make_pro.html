@@ -3,7 +3,16 @@
 {% load static %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+<style type="text/css">
+  .side-card {
+    position: absolute;
+    margin-top: -60px;
+    margin-left: -10px;
+  }
+  .pro-earnings {
+    border-right: solid 1px grey;
+  }
+</style>
 {% endblock additional_styles %}
 
 {% block header %}
@@ -13,174 +22,79 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
   <div class="row">
     <div class="span12">
-      <h2 class="center">{{ sub_heading|safe }}</h2>
+      <h2 class="center">
+        {% block subheading %}
+        <!-- {{ sub_heading|safe }} -->
+        {% endblock subheading %}
+      </h2>
+      <div class="vertical-space"></div>
+    </div>
+    <div class="span3">
+      <div class="box-container sidebar-nav-container">
+        <div class="box-content">
+          <div class="sidebar-nav">
+            <ul class="side-nav">
+              <li {% if state == 'overview' %}class="active"{% endif %}><div class="chev"><a href="{% url make_pro %}">Become a Pro</a></div></li>
+              <li {% if state == 'parties' %}class="active"{% endif %}><div class="chev"><a href="{% url make_pro 'parties' %}">Parties</a></div></li>
+              <li {% if state == 'earnings' %}class="active"{% endif %}><div class="chev"><a href="{% url make_pro 'earnings' %}">Earnings</a></div></li>
+              <li {% if state == 'support' %}class="active"{% endif %}><div class="chev"><a href="{% url make_pro 'support' %}">Support</a></div></li>
+              <li {% if state == 'growth' %}class="active"{% endif %}><div class="chev"><a href="{% url make_pro 'growth' %}">Growth</a></div></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bg"></div> 
+      </div>
+      <div class="vertical-space">&nbsp;</div>
+
+      <div class="box-container2 sidebar-nav-container">
+        <a href="{% url make_pro 'signup' %}">
+          <div class="box-content2 make-pro">
+            <h1>Sign up now!</h1>
+            <p class="make-pro-sidetext">
+              <!-- Sign up and begin planning your party today! -->
+              <!-- Take it to the next level to earn a little or a lot...it's up to you! -->
+              Join the team!
+              <div class="vertical-space">&nbsp;</div>
+            </p>
+            <!-- <div class="box-bg"></div> -->
+            <img class="side-card" src="{{ STATIC_URL }}img/make_pro_sidebar_card.png">
+          </div>
+        </a>
+      </div>
+      <div class="vertical-space">&nbsp;</div>
+    </div>
+    <div class="span5 center">
+      <img src="{{ STATIC_URL }}img/make_pro_{{ state }}.png" />
+    </div>
+    <div class="span4">
+      <div class="row">
+        <div class="span4 state-head"><strong>{{ state }}</strong></div>
+      </div>
+      <p>
+        {{ content|safe }}
+        {% if state == 'earnings' %}
+          <img class='pro-earnings' src="{{ STATIC_URL }}img/make_pro_earning_levels.png">
+        {% endif %}
+      </p>
+      <div class="vertical-space"></div>
+      <div class="row">
+        <div class="span2 next-nav cta-button">
+          {% if state == 'overview' %}<a class="cta-interested" href="{% url make_pro 'parties' %}">Interested? Read on...</a>{% endif %}
+          {% if state == 'parties' %}<a class="cta-next" href="{% url make_pro 'earnings' %}">Next</a>{% endif %}
+          {% if state == 'earnings' %}<a class="cta-next" href="{% url make_pro 'support' %}">Next</a>{% endif %}
+          {% if state == 'support' %}<a class="cta-next" href="{% url make_pro 'growth' %}">Next</a>{% endif %}
+          {% if state == 'growth' %}<a class="cta-signup" href="{% url make_pro 'signup' %}">Sign up</a>{% endif %}
+        </div>
+      </div>
     </div>
   </div>
-
-  {% if error %}
-    <div class="alert alert-error">
-      {{ error }}
-    </div>
-  {% endif %}
-  <section id="getstarted">
-    <div class="row">
-      {% if pro or pending_pro %}
-        <div class="span12">
-        	{{ content|safe }}
-        </div>
-      {% else %}
-        <div class="span5">
-          {{ content|safe }}
-        </div>
-
-        <div class="span1">
-          &nbsp;
-        </div>
-
-        <div class="span6">
-          <div class="row">
-            <form class="form-horizontal form-validate well" method="POST" action="{{ app_path }}">
-              {% csrf_token %}
-              <h2 class="center">Sign up to be a Vinely Pro - it's easy</h2>
-              <center>
-                <p>Have questions? Need help? </p>
-                <p>Call us at (888)294-1128 ext. 1 or email us at <a href="mailto:care@vinely.com">care@vinely.com</a></p>
-              </center>
-              <fieldset>
-                <div class="control-group {% if form.first_name.errors %} error {% endif %}">
-                  <div class="control-label" for="id_first_name">
-                  {{ form.first_name.label }}
-                  </div>
-                  <div class="controls">
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                      <span class="help-inline">
-                        {{ form.first_name.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="control-group {% if form.last_name.errors %} error {% endif %}">
-                  <div class="control-label" for="id_last_name">
-                    {{ form.last_name.label_tag }}
-                  </div>
-                  <div class="controls">
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                      <span class="help-inline">
-                        {{ form.last_name.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="control-group {% if form.email.errors %} error {% endif %}">
-                  <div class="control-label" for="id_email">
-                    {{ form.email.label_tag }}
-                  </div>
-                  <div class="controls">
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                      <span class="help-inline">
-                        {{ form.email.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="control-group {% if form.zipcode.errors %} error {% endif %}">
-                  <div class="control-label" for="id_zipcode">
-                    {{ form.zipcode.label_tag }}
-                  </div>
-                  <div class="controls">
-                    {{ form.zipcode }}
-                    {% if form.zipcode.errors %}
-                      <span class="help-inline">
-                        {{ form.zipcode.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="control-group {% if form.phone_number.errors %} error {% endif %}">
-                  <label class="control-label" for="id_phone_number">
-                    {{ form.phone_number.label_tag }}
-                  </label>
-                  <div class="controls">
-                    {{ form.phone_number }}
-                    {% if form.phone_number.errors %}
-                      <span class="help-inline">
-                        {{ form.phone_number.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                </div>
-                {% if not user.is_authenticated %}
-                  <div class="control-group {% if form.password1.errors %} error {% endif %}">
-                    <div class="control-label" for="id_password1">
-                      <label>{{ form.password1.label_tag }}</label>
-                    </div>
-                    <div class="controls">
-                      {{ form.password1 }}
-                    {% if form.password1.errors %}
-                      <span class="help-inline">
-                        {{ form.password1.errors }}
-                      </span>
-                    {% endif %}
-                    </div>
-                  </div>
-                  <div class="control-group {% if form.password2.errors %} error {% endif %}">
-                    <div class="control-label" for="id_password2">
-                      <label>{{ form.password2.label_tag }}</label>
-                    </div>
-                    <div class="controls">
-                      {{ form.password2 }}
-                    {% if form.password2.errors %}
-                      <span class="help-inline">
-                        {{ form.password2.errors }}
-                      </span>
-                    {% endif %}
-                    </div>
-                  </div>
-                {% else %}
-                  <input type="hidden" name="password1" value="Sign Up" />
-                  <input type="hidden" name="password2" value="Sign Up" />
-                {% endif %}
-                <div class="control-group {% if form.mentor.errors %} error {% endif %}">
-                  <div class="control-label" for="id_mentor">
-                    <label>Your Vinely Pro Email</label>
-                  </div>
-                  <div class="controls">
-                    {{ form.mentor }}
-                    {% if form.mentor.errors %}
-                      <span class="help-inline">
-                        {{ form.mentor.errors }}
-                      </span>
-                    {% endif %}
-                  </div>
-                  <br />
-                  <center><i>(Just leave this blank if you don't know what it is)</i></center>
-                </div>
-                <div class="controls">
-                  <input class="btn btn-primary" type="submit" value="Sign Up" />
-                </div>
-              </fieldset>
-            </form>
-          </div>
-
-        </div>
-      {% endif %}
-    </div>
-    <div class="vertical-space-bottom">
-      &nbsp;
-    </div>
-  </section>
-
+  <div class="vertical-space">
+    &nbsp;
+  </div>
 </div>
 
 {% endblock content %}
 
-{% block additional_scripts %}
-    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
-{% endblock additional_scripts %}

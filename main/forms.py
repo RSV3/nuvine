@@ -54,8 +54,8 @@ class PartyEditDateForm(forms.ModelForm):
       if self._errors:
         del self._errors['event_date']
 
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
-        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+        raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
     return cleaned_data
@@ -123,7 +123,7 @@ class PartyCreateForm(forms.ModelForm):
       self.fields['event_day'].widget.attrs['class'] = ''
       self.fields['event_time'].widget.attrs['class'] = ''
 
-    if self.initial.get('self_hosting') and not user.userprofile.events_manager():
+    if self.initial.get('self_hosting'):
       self.fields['first_name'].widget.attrs['readonly'] = True
       self.fields['last_name'].widget.attrs['readonly'] = True
       self.fields['email'].widget.attrs['readonly'] = True
@@ -136,23 +136,23 @@ class PartyCreateForm(forms.ModelForm):
       event_date = self.cleaned_data['event_date']
     return event_date
 
-  def clean_event_day(self):
-    if self.instance.event_date:
-      event_day = timezone.localtime(self.instance.event_date).date()
-    else:
-      event_day = self.cleaned_data['event_day']
-    return event_day
+  # def clean_event_day(self):
+  #   if self.instance.event_date:
+  #     event_day = timezone.localtime(self.instance.event_date).date()
+  #   else:
+  #     event_day = self.cleaned_data['event_day']
+  #   return event_day
 
-  def clean_event_time(self):
-    if self.instance.event_date:
-      event_time = timezone.localtime(self.instance.event_date).time()
-    else:
-      event_time = self.cleaned_data['event_time']
-    return event_time
+  # def clean_event_time(self):
+  #   if self.instance.event_date:
+  #     event_time = timezone.localtime(self.instance.event_date).time()
+  #   else:
+  #     event_time = self.cleaned_data['event_time']
+  #   return event_time
 
   def clean_email(self):
     # 1. if current user is host dont allow to set new host
-    if self.initial.get('host'):
+    if self.initial.get('host') or self.initial.get('self_hosting'):
       host_email = self.initial['host'].email
     else:
       host_email = self.cleaned_data['email']
@@ -245,9 +245,9 @@ class PartyCreateForm(forms.ModelForm):
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
-
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=14):
-        raise forms.ValidationError("Your party needs to be more than 14 days from today to ensure that the tasting kit is received. To schedule an earlier party please contact care@vinely.com")
+      print 'cleaned_data: ', cleaned_data['event_day']
+      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+        raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
 
@@ -757,7 +757,7 @@ class AttendeesTable(tables.Table):
     super(AttendeesTable, self).__init__(*args, **kwargs)
 
     exclude = list(self.exclude)
-    if not (data['party'].host == user or user.userprofile.events_manager()):
+    if not (data['party'].host == user or user.userprofile.events_manager() and data['party'].is_events_party):
       exclude.append('guests')
     if not data['can_add_taster']:
       exclude.append('invited')

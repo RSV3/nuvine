@@ -202,7 +202,7 @@ def send_order_confirmation_email(request, order_id):
 
   #[Shipping and Billing Info]
 
-  template = Section.objects.get(template__key='order_confirmation_email', category=0)
+  template = Section.objects.get(template__key='order_confirmation_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -265,10 +265,10 @@ def send_order_confirmation_email(request, order_id):
     {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
 
   from_email = 'Vinely Order <info@vinely.com>'
-  if "mi" in str(order.shipping_address.state).lower():
-    recipients = ['pmfaba@gmail.com']
-  else:
-    recipients = ['fulfillment@vinely.com']
+  # if "mi" in str(order.shipping_address.state).lower():
+  #   recipients = ['pmfaba@gmail.com']
+  # else:
+  recipients = ['fulfillment@vinely.com']
 
   p = Premailer(html_msg)
   html_msg = p.transform()
@@ -284,7 +284,7 @@ def send_order_confirmation_email(request, order_id):
 
 def send_order_shipped_email(request, order):
 
-  template = Section.objects.get(template__key='order_shipped_email', category=0)
+  template = Section.objects.get(template__key='order_shipped_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -321,7 +321,7 @@ def send_order_shipped_email(request, order):
 
 def send_host_vinely_party_email(request, user, pro=None):
 
-  template = Section.objects.get(template__key='host_vinely_party_email', category=0)
+  template = Section.objects.get(template__key='host_vinely_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -372,7 +372,7 @@ def send_host_vinely_party_email(request, user, pro=None):
 
 def send_new_party_scheduled_email(request, party):
 
-  template = Section.objects.get(template__key='new_party_scheduled_email', category=0)
+  template = Section.objects.get(template__key='new_party_scheduled_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -434,7 +434,7 @@ def send_new_party_scheduled_email(request, party):
   - The Vinely Team
 
   """
-  # template = Section.objects.get(template__key='new_party_scheduled_email', category=0)
+  # template = Section.objects.get(template__key='new_party_scheduled_email', key='general')
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
@@ -466,7 +466,7 @@ def send_new_party_scheduled_email(request, party):
 
 
 def send_new_party_scheduled_by_host_no_pro_email(request, party):
-  template = Section.objects.get(template__key='new_party_scheduled_by_host_no_pro_email', category=0)
+  template = Section.objects.get(template__key='new_party_scheduled_by_host_no_pro_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -495,7 +495,7 @@ def send_new_party_scheduled_by_host_no_pro_email(request, party):
 
 def send_new_party_scheduled_by_host_email(request, party):
 
-  template = Section.objects.get(template__key='new_party_scheduled_by_host_email', category=0)
+  template = Section.objects.get(template__key='new_party_scheduled_by_host_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -638,7 +638,7 @@ def preview_party_invites_email(request, invitation_sent, embed=False):
 
 
 def preview_party_thanks_note_email(request, thanks_note, embed=False):
-  template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+  template = Section.objects.get(template__key='distribute_party_thanks_note_email', key='general')
   content = thanks_note.custom_message if thanks_note.custom_message else template.content
 
   subject = thanks_note.custom_subject
@@ -712,7 +712,7 @@ def resend_party_invite_email(request, user, invitation_sent):
 
 def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
 
-  template = Section.objects.get(template__key='rsvp_thank_you_email', category=0)
+  template = Section.objects.get(template__key='rsvp_thank_you_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -752,7 +752,7 @@ def send_contact_request_email(request, contact_request):
     E-mail sent when someone fills out a contact request
   """
 
-  template = Section.objects.get(template__key='contact_request_email', category=0)
+  template = Section.objects.get(template__key='contact_request_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -780,7 +780,7 @@ def send_contact_request_email(request, contact_request):
 
 def send_pro_assigned_notification_email(request, pro, host):
 
-  template = Section.objects.get(template__key='pro_assigned_notification_email', category=0)
+  template = Section.objects.get(template__key='pro_assigned_notification_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -812,7 +812,7 @@ def send_pro_assigned_notification_email(request, pro, host):
 
 def send_mentor_assigned_notification_email(request, mentee, mentor):
 
-  template = Section.objects.get(template__key='mentor_assigned_notification_email', category=0)
+  template = Section.objects.get(template__key='mentor_assigned_notification_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -842,7 +842,7 @@ def send_mentor_assigned_notification_email(request, mentee, mentor):
 
 def send_mentee_assigned_notification_email(request, mentor, mentee):
 
-  template = Section.objects.get(template__key='mentee_assigned_notification_email', category=0)
+  template = Section.objects.get(template__key='mentee_assigned_notification_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -870,7 +870,7 @@ def send_mentee_assigned_notification_email(request, mentor, mentee):
 
 
 def send_welcome_to_vinely_email(request, taster, verification_code, temp_password):
-  template = Section.objects.get(template__key='welcome_email', category=0)
+  template = Section.objects.get(template__key='welcome_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -904,7 +904,7 @@ def send_welcome_to_vinely_email(request, taster, verification_code, temp_passwo
 
 
 def distribute_party_thanks_note_email(request, note_sent, guest_invites, placed_order):
-  template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+  template = Section.objects.get(template__key='distribute_party_thanks_note_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -945,7 +945,7 @@ def distribute_party_thanks_note_email(request, note_sent, guest_invites, placed
 
 
 def send_host_request_party_email(request, party):
-  template = Section.objects.get(template__key='host_request_party_email', category=0)
+  template = Section.objects.get(template__key='host_request_party_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -992,18 +992,18 @@ def send_host_request_party_email(request, party):
 
 
 def send_new_party_host_confirm_email(request, party):
-  template = Section.objects.get(template__key='new_party_host_confirm_email', category=0)
+  template = Section.objects.get(template__key='new_party_host_confirm_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
   host_first_name = party.host.first_name if party.host.first_name else "Friendly Host"
 
-  c = RequestContext(request, {"party": party,
-              "invite_host_name": "%s" % host_first_name,
-              "pro_email": party.pro.email,
-              "pro_phone": party.pro.userprofile.phone,
-              "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
-              "host_name": request.get_host(), "plain": True})
+  c = RequestContext(request,  {"party": party,
+                                "invite_host_name": "%s" % host_first_name,
+                                "pro_email": party.pro.email,
+                                "pro_phone": party.pro.userprofile.phone,
+                                "pro_name": "%s" % party.pro.first_name if party.pro and party.pro.first_name else "Care Specialist",
+                                "host_name": request.get_host(), "plain": True})
   txt_message = txt_template.render(c)
   c.update({'sig': True, 'plain': False})
   html_message = html_template.render(c)
@@ -1038,7 +1038,9 @@ def send_new_party_host_confirm_email(request, party):
 
   Party: "{{ party.title }}"
 
-  Host: {{ party.host.first_name }} {{ party.host.last_name }} <{{ party.host.email }}>
+  Host: {{ party.host.first_name }} {{ party.host.last_name }} &lt;<a href="mailto:party.host.email">{{ party.host.email }}</a>&gt;
+
+  Pro: {{ pro_full_name }} &lt;<a href="mailto:party.host.email">{{ pro_email }}</a>&gt;
 
   Date: {{ party.event_date|date:"F j, o" }}
 
@@ -1055,23 +1057,23 @@ def send_new_party_host_confirm_email(request, party):
   - The Vinely Team
 
   """
-  # template = Section.objects.get(template__key='new_party_scheduled_email', category=0)
+  # template = Section.objects.get(template__key='new_party_scheduled_email', key='general')
   txt_template = Template(content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in content.split('\n\n') if x]))
 
-  profile = request.user.get_profile()
-
-  c = RequestContext(request, {"pro_first_name": party.pro.first_name if party.pro.first_name else "Care Specialist",
-              "party": party,
-              "host_name": request.get_host()})
+  c = RequestContext(request,  {"pro_first_name": party.pro.first_name,
+                                "pro_full_name": "%s %s" % (party.pro.first_name, party.pro.last_name),
+                                "pro_email": party.pro.email,
+                                "party": party,
+                                "host_name": request.get_host()})
 
   txt_message = txt_template.render(c)
   c.update({'sig': True})
   html_message = html_template.render(c)
 
   # notify about scheduled party
-  recipients = [party.pro.email, 'care@vinely.com']
-  subject = 'Your Vinely Party has been Scheduled!'
+  recipients = [party.pro.email, u'care@vinely.com']
+  subject = 'Your Vinely Party has been scheduled!'
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
   from_email = ('Vinely Party <info@vinely.com>')
 
@@ -1089,7 +1091,7 @@ def send_new_party_host_confirm_email(request, party):
 
 
 def preview_host_confirm_email(request, party):
-  template = Section.objects.get(template__key='new_party_host_confirm_email', category=0)
+  template = Section.objects.get(template__key='new_party_host_confirm_email', key='general')
   # txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -1120,7 +1122,7 @@ def preview_host_confirm_email(request, party):
 
 
 def party_setup_completed_email(request, party):
-  template = Section.objects.get(template__key='party_setup_completed_email', category=0)
+  template = Section.objects.get(template__key='party_setup_completed_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
@@ -1334,26 +1336,26 @@ def generate_pro_account_number():
 
 def get_default_invite_message(party):
   message_text = '''
-
+  <p>
   Please join me for a Vinely Taste Party. Vinely is part wine tasting, part wine club, and part, well... party.
-
-  We won't be...
+  </p>
+  <p>We won't be...</p>
   <ul>
     <li>Sniffing, swirling, spitting</li>
     <li>Using words like 'silky blackberry woodchips', 'wet dog', or 'notes of grass'</li>
     <li>Studying wine regions of the world</li>
   </ul>
 
-  We will be...
+  <p>We will be...</p>
   <ul>
     <li>Blind tasting 6 wines. Don't worry only the wine is blindfolded</li>
     <li>Using our tastebuds to rate those wines, no degree required</li>
     <li>Discovering our wine personalities. We'll separate the Moxies from the Sensational, the Exuberant from the Easygoing, and the Whimsical from the Serendipitous</li>
     <li>Ordering wines (well, at least those of us that want wine delivered that's hand selected just for our tastes!)</li>
   </ul>
-
+  <p>
   With Vinely, the more you drink, the more we learn about what you like. So let's start drinking our way to a future of wines we love at my place. I promise it will be nothing short of a good time.
-
+  </p>
   '''
   template = Template(message_text)
   context = Context()
@@ -1381,13 +1383,11 @@ def get_party_info(party):
 def get_default_signature(party):
   sig_text = """
 
-  Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!
+  <p>Will you attend? You know you want to! RSVP by {{ rsvp_date|date:"F j, o" }}. Better yet, don't wait!</p>
 
   {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
-
-  Your Tasteful Friends,
-
-  - The Vinely Team
+  <p>Your Tasteful Friends,</p>
+  <p>- The Vinely Team</p>
   """
   template = Template(sig_text)
   rsvp_date = party.event_date - timedelta(days=5)

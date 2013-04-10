@@ -2,6 +2,18 @@
 
 {% load static %}
 
+{% block additional_styles %}
+<style type="text/css">
+
+  .side-glass {
+    position: absolute;
+    margin-top: -65px;
+    margin-left: 140px;
+  }
+
+</style>
+{% endblock additional_styles %}
+
 {% block header %}
   <h1 class="headline">{{ heading|safe }}</h1>
 {% endblock header %}
@@ -12,29 +24,77 @@
 
   <div class="row">
     <div class="span12">
-      <h2 class="center">{{ sub_heading|safe }}</h2>
-
-      <section id="how-it-works">
-        {{ how_it_works|safe }}
-      </section>
-
-      <div class="vertical-space">
-        &nbsp;
+      <h2 class="center">
+        {% block subheading %}
+        <!-- {{ sub_heading|safe }} -->
+        {% endblock subheading %}
+      </h2>
+      <div class="vertical-space"></div>
+    </div>
+    <div class="span3">
+      <div class="box-container sidebar-nav-container">
+        <div class="box-content">
+          <div class="sidebar-nav">
+            <ul class="side-nav">
+              <li {% if state == 'overview' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works %}">How it works</a></div></li>
+              <li {% if state == 'taste' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'taste' %}">Taste</a></div></li>
+              <li {% if state == 'rate' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'rate' %}">Rate</a></div></li>
+              <li {% if state == 'order' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'order' %}">Order</a></div></li>
+              <li {% if state == 'repeat' %}class="active"{% endif %}><div class="chev"><a href="{% url how_it_works 'repeat' %}">Repeat</a></div></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bg"></div>  
       </div>
-<!-- 
-      <div class="control-group">
-        <div class="controls center">
-          <a href=""><img src="{% static "img/btn_pie_getstarted.png" %}"></a>
+      <div class="vertical-space">&nbsp;</div>
+
+      <div class="box-container2 sidebar-nav-container">
+        <a href="{% url make_host %}">
+          <div class="box-content2 make-host">
+            <h1>Host a party!</h1>
+            <p class="howto-sidetext">
+              Pop the cork! <br />Learn about hosting <br />a Vinely party. 
+            </p>
+            <!-- <div class="box-bg"></div> -->
+            <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
+          </div>
+          <div class="vertical-space"></div>
+        </a>
+      </div>
+    </div>
+    <div class="span5 center">
+      <img src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png">
+    </div>
+    <div class="span4">
+      <div class="row">
+        <div class="span4 state-head"><strong>{{ state }}</strong></div>
+        <div class="vertical-space"></div>
+      </div>
+      <p>
+        {{ content|safe }}
+      </p>
+      <div class="vertical-space"></div>
+      <div class="row">
+        <div class="span3 next-nav cta-button">
+          {% if state == 'overview' %}<a class="cta-interested" href="{% url how_it_works 'taste' %}">Interested?<br />Read on...</a>{% endif %}
+          {% if state == 'taste' %}<a class="cta-next" href="{% url how_it_works 'rate' %}">Next</a>{% endif %}
+          {% if state == 'rate' %}<a class="cta-next" href="{% url how_it_works 'order' %}">Next</a>{% endif %}
+          {% if state == 'order' %}<a class="cta-next" href="{% url how_it_works 'repeat' %}">Next</a>{% endif %}
+          {% if state == 'repeat' %}<a class="cta-learn" href="{% url make_host %}">Learn about<br />hosting a party</a>{% endif %}
         </div>
       </div>
- -->      
-    </div>
-    <div class="vertical-space">
-      &nbsp;
     </div>
   </div>
-
+  <div class="vertical-space">
+    &nbsp;
+  </div>
 </div>
 
 {% endblock content %}
-
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('.guarantee').popover();
+    });
+  </script>
+{% endblock additional_scripts %}

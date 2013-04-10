@@ -19,7 +19,7 @@ class ProAssignedFilter(SimpleListFilter):
     return (
         ('Yes', 'Pro Assigned'),
         ('No', 'No Pro Assigned'),
-      )
+    )
 
   def queryset(self, request, queryset):
     pro_assigned = self.value()
@@ -88,6 +88,10 @@ class MyHostAdmin(admin.ModelAdmin):
       if party_has_pro:
         party_has_pro.update(pro=obj.pro)
 
+      host_profile = obj.host.get_profile()
+      host_profile.current_pro = obj.pro
+      host_profile.save()
+
       # new pro was assigned, so send e-mail to the host
       send_pro_assigned_notification_email(request, obj.pro, obj.host)
       send_host_vinely_party_email(request, obj.host, obj.pro)
@@ -126,6 +130,11 @@ class PartyAdmin(admin.ModelAdmin):
   #list_editable = ['host']
   search_fields = ['title', 'host__first_name', 'host__last_name']
   ordering = ['-event_date']
+
+  def queryset(self, request):
+    # Only show parties that have already been completely setup
+    qs = super(PartyAdmin, self).queryset(request)
+    return qs.filter(requested=True)
 
   def host_info(self, instance):
     return "%s %s <%s>" % (instance.host.first_name, instance.host.last_name, instance.host.email)
@@ -198,7 +207,7 @@ class NewHostNoPartyAdmin(admin.ModelAdmin):
 
 admin.site.register(NewHostNoParty, NewHostNoPartyAdmin)
 admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
-admin.site.register(MyHost, MyHostAdmin)
+# admin.site.register(MyHost, MyHostAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)

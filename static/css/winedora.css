@@ -254,6 +254,7 @@ table .row-label-bold {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');
   color: #FFFFFF; 
+  padding-top:6px;
 }
 .sidebar-nav li.active div.chev {
   display: inline;
@@ -273,10 +274,10 @@ table .row-label-bold {
   background: url('../img/btn_leftsubnav_bkgd.png');  
   color: #FFFFFF;
 }
- .box-container {
+.box-container {
   position:relative;
 }
- .box-container.landing {
+.box-container.landing {
   margin-right: 50px;
 }
 .box-content {
@@ -318,6 +319,101 @@ table .row-label-bold {
 .authentication a:visited {
   color: #415A68;
 }
+.box-container2 {
+  position:relative;
+}
+.box-content2 {
+  margin-top: -5px;
+  position:relative;
+  z-index:5;
+  text-align: left;
+  padding: 15px 15px 10px 15px;
+  background-color: #fff;
+  border: 1px solid rgb(147,149,152);
+  border-radius: 4px;
+  -moz-box-shadow: 0px 1px 10px rgb(147,149,152);
+  -webkit-box-shadow: 0px 1px 10px rgb(147,149,152);
+  box-shadow: 0px 1px 10px rgb(147,149,152);
+}
+.box-content2 .make-host-sidetext {
+  padding-right: 75px;
+}
+.box-content2 .howto-sidetext {
+  padding-right: 17px;
+}
+
+.box-container2 a,
+.box-container2 a:hover,
+.box-container2 a:hovered {
+  text-decoration: none;
+}
+
+.box-content2  h1 {
+  background: url('../img/arrow.png') no-repeat 150px 8px;
+}
+
+.cta-button {
+  display: table;
+}
+
+.cta-button a {
+  background-image: url('../img/arrow.png'); 
+  background-repeat:no-repeat;
+}
+
+.cta-interested {
+  height: 30px;
+  background-position: 115px 4px;
+}
+
+.cta-interested {
+  height: 30px;
+  background-position: 115px 4px;
+}
+
+.cta-next {
+  height: 30px;
+  background-position: 55px 0;
+}
+
+.cta-signup {
+  height: 30px;
+  /*background: url('../img/arrow.png') no-repeat 55px 0; */
+  background-position: 75px 0;
+}
+
+.cta-learn {
+  height: 50px;
+  background-position: 160px 10px;
+}
+
+
+.next-nav a, .state-head {
+  display: table-cell;
+  *display: inline;
+  /* IE7 inline-block hack */
+
+  *zoom: 1;
+  margin-bottom: 0;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
+  line-height: 1.3em;
+  *line-height: 20px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  vertical-align: middle;
+  color: inherit;
+}
+
+.make-host h1,
+.make-host p ,
+.make-pro h1,
+.make-pro p {
+  margin-top: -10px;
+  color: #415A68;
+  text-align: left;
+}
+
 #badges {
   width: 940px;
   height: 130px;
@@ -780,4 +876,18 @@ footer .container .navbar {
 .modal-footer {
   background:white;
   text-align:center;
+}
+
+.main-content p {
+  margin: 0 0 1.5em;
+}
+
+h1.headline {
+  text-align: center;
+  margin-bottom: 0;
+  text-transform: uppercase;
+  font-size: 58px;
+  line-height: 1;
+  color: inherit; 
+  letter-spacing: 0px;
 }

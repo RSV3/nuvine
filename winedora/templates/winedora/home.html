@@ -3,70 +3,113 @@
 {% load static %}
 
 {% block header %}
-  <!--h1>Welcome to Vinely</h1-->
+  <h1 class="headline pull-left">{{ header }}</h1>
+
 {% endblock header %}
 
+{% block additional_styles %}
+<style type="text/css">
+  h1.headline {
+    margin-bottom: 0;
+    text-transform: uppercase;
+    font-size: 48px;
+    line-height: 1;
+    color: inherit;
+    letter-spacing: 2px;
+  }
+  .home-glass {
+    position: absolute;
+    margin-top: -100px;
+    margin-left: -180px;
+  }
+  .home-glasses {
+    margin-left: -16px;
+  }
+  .home-cards {
+    position: absolute;
+    margin-top: 5px;
+  }
+  .cta-howitworks,
+  .cta-howitworks:visited,
+  .cta-howitworks:active {
+    color: #415A68;
+    width: 210px;
+    height: 40px;
+    background-position: 190px 5px;
+  }
+  .box-content2  h1 {
+    width: 200px;
+    padding-top: 8px;
+    font-size: 30px;
+    background-position: 150px 19px;
+  }
+  .box-content2  p {
+    width: 160px;
+  }
+  .box-content2.span2 {
+    width:160px;
+    height:125px;
+  }
+
+  .span2-host {
+    width:160px;
+    /*height:125px;*/
+    margin-left:2px;
+  }
+</style>
+{% endblock additional_styles %}
 {% block content %}
 <div class="container">
-    <div class="row">
-      <div class="{% if user.is_authenticated %} span12 {% else %} span8 {% endif %}">
-        <div class="hero-unit">
-          {{ general_section|safe }}
-<!-- 
-            <div class="row">
-              <div class="span1 offset2">
-                <div id="tellmemore"><a href="{% url how_it_works %}" title="how it works"></a></div>
-              </div>
-            </div>
- -->
-          <div class="center">
-            <a href="{% url how_it_works %}" title="how it works"><img src="{% static "img/btn_pie_tellmemore.png" %}"></a>
-          </div>              
-
-        </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span3 cta-button">
+      <p>
+        {{ overview_col1|safe}}
+      </p>
+      <div>
+        <a class="cta-howitworks state-head" href="{% url how_it_works %}">How does it work?</a>
       </div>
-      {% if not user.is_authenticated %}
-        <div class="span4">
-          <div class="box-container landing">
-            <div class="box-content landing" id="home-sign-in">
-              <p>It's good to be back.</p>
-                 <form method="POST" action="{% url login %}">
-                  {% csrf_token %}
-                  <fieldset>
-                    {% if form.non_field_errors %}
-                      <div class="alert alert-error">
-                        <strong>Error</strong>{{ form.non_field_errors }}
-                      </div>
-                    {% endif %}
-                    <div class="control-group">
-                      <div class="controls">
-                        {{ form.email }}
-                      </div>
-                    </div>
-                    <div class="control-group">
-                      <div class="controls">
-                        {{ form.password }}
-                      </div>
-                    </div>
-                    <div class="control-group">
-                      <div class="controls">
-                        <a href="{% url forgot_password %}">Forgot Password?</a>
-                      </div>
-                    </div>
-                    <div class="control-group">
-                      <div class="controls">
-                        <input class="btn btn-primary" type="submit" value="login" />
-                        <input type="hidden" name="next" value="{{ next }}" />
-                      </div>
-                    </div>
-                  </fieldset>
-                </form>
-            </div>
-            <div class="box-bg"></div>
-          </div>
-        </div>
-      {% endif %}
     </div>
+    <div class="span3">
+      {{ overview_col2|safe}}
+    </div>
+    <div class="span6">
+      <img class="home-glass" src="{{ STATIC_URL }}img/homepage_glass.png" />
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+  <div class="row">
+    <div class="span6">
+      <div class="box-content2 make-host">
+        <a href="{% url make_host %}">
+          <div class="row">
+            <div class="span3">
+              <img class="home-glasses" src="{{ STATIC_URL }}img/homepage_vinely_glasses.png" />
+            </div>
+            <div class="span2-host">
+              {{ host|safe }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="span6">
+      <div class="box-content2 make-pro">
+        <a href="{% url make_pro %}">
+          <div class="row">
+            <div class="span3">
+              &nbsp;
+              <img class="home-cards" src="{{ STATIC_URL }}img/homepage_cards.png" />
+            </div>
+            <div class="span2">
+              {{ pro|safe }}
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
 </div>
 {% endblock content %}
 
