@@ -19,7 +19,13 @@ def home(request):
   form.fields['email'].widget.attrs['placeholder'] = 'E-mail'
   form.fields['password'].widget.attrs['placeholder'] = 'Password'
   data['form'] = form
-  data['general_section'] = ContentTemplate.objects.get(key='landing_page').sections.all()[0].content
+  sections = ContentTemplate.objects.get(key='landing_page').sections
+  data['header'] = sections.get(key='header').content
+  data['overview_col1'] = sections.get(key='overview_col1').content
+  data['overview_col2'] = sections.get(key='overview_col2').content
+  data['host'] = sections.get(key='host').content
+  data['pro'] = sections.get(key='pro').content
+
   if u.is_authenticated():
     if u.userprofile.is_supplier():
       return HttpResponseRedirect(reverse("supplier_all_orders"))

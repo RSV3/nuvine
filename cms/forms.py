@@ -1,5 +1,5 @@
 from django import forms
-from cms.models import ContentTemplate, Section
+from cms.models import Section
 from tinymce.widgets import TinyMCE
 
 
@@ -15,8 +15,7 @@ class EditSectionForm(forms.ModelForm):
     super(EditSectionForm, self).__init__(*args, **kwargs)
     instance = kwargs.get('instance')
     if instance:
-      sections = Section.objects.filter(template=instance.template)
-      self.fields['sections'].queryset = Section.objects.filter(template=instance.template)
+      self.fields['sections'].queryset = Section.objects.filter(template=instance.template).order_by('key')
       self.fields['sections'].initial = instance
 
   def clean_content(self):

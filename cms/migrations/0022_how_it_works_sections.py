@@ -15,7 +15,10 @@ class Migration(DataMigration):
 
         <p>Just taste, rate and order to receive your perfectly matched wines right to your doorstep.</p>
 
-        <p>You never have to worry again because we 100% <u>guarantee</u> your taste buds will love the wines we deliver.</p>
+        <p>You never have to worry again because we 100% <a href="javascript:;" class="guarantee" rel="popover" data-trigger="hover"
+        data-placement="top"
+        data-content="If you dislike a bottle received after you rate our tasting wines, just tell us and we'll refund the value.
+        No questions asked!">guarantee</a> your taste buds will love the wines we deliver.</p>
         """
 
         content_taste = """

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block header %}
-  <h1 class="headline pull-left">Change the way you experience wine</h1>
+  <h1 class="headline pull-left">{{ header }}</h1>
 
 {% endblock header %}
 
@@ -64,15 +64,14 @@
   <div class="row">
     <div class="span3 cta-button">
       <p>
-        Tired of the guesswork of buying wine? Now Vinely makes it easy, convenient and fun.
+        {{ overview_col1|safe}}
       </p>
       <div>
         <a class="cta-howitworks state-head" href="{% url how_it_works %}">How does it work?</a>
       </div>
     </div>
     <div class="span3">
-      The Vinely experience is as simple as Sip, Rate and Repeat.
-      Treat your tastebuds to tastes you're guaranteed to love delivered right to your door.
+      {{ overview_col2|safe}}
     </div>
     <div class="span6">
       <img class="home-glass" src="{{ STATIC_URL }}img/homepage_glass.png" />
@@ -88,11 +87,7 @@
               <img class="home-glasses" src="{{ STATIC_URL }}img/homepage_vinely_glasses.png" />
             </div>
             <div class="span2-host">
-              <h1>Host a party</h1>
-              <p>
-                Pop the cork! <br/>
-                Learn about hosting <br />a Vinely party
-              </p>
+              {{ host|safe }}
             </div>
           </div>
         </a>
@@ -107,11 +102,7 @@
               <img class="home-cards" src="{{ STATIC_URL }}img/homepage_cards.png" />
             </div>
             <div class="span2">
-              <h1>Join the team</h1>
-              <p>
-                Take it to the next level <br/>
-                to earn a little or <br />a lot...it's up to you!
-              </p>
+              {{ pro|safe }}
             </div>
           </div>
         </a>
