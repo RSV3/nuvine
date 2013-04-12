@@ -2911,7 +2911,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data['fb_view'] = fb_page
   today = timezone.now()
 
-  if u.userprofile and u.userprofile.events_manager():
+  if u.is_authenticated() and u.userprofile.events_manager():
     party = get_object_or_404(Party, pk=party_id)
   else:
     party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
@@ -2992,7 +2992,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       send_rsvp_thank_you_email(request, user, verification_code, temp_password)
     # messages.success(request, msg)
 
-    if u.userprofile.events_manager():
+    if u.is_authenticated() and u.userprofile.events_manager():
       return HttpResponseRedirect(reverse('party_details', args=[party.id]))
     else:
       return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))
