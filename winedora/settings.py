@@ -297,7 +297,7 @@ CACHES = {
         'TIMEOUT': 500,
         'BINARY': True,
         'JOHNNY_CACHE': True,
-        'JOHNNY_MIDDLEWARE_KEY_PREFIX': 'jcache_vinely'
+        'JOHNNY_MIDDLEWARE_KEY_PREFIX': 'jcache_vinely',
     }
 }
 # A sample logging configuration. The only tangible logging
