@@ -51,7 +51,6 @@ import urllib
 import stripe
 
 from stripecard.models import StripeCard
-from django.views.decorators.cache import cache_page
 
 import logging
 
@@ -217,7 +216,6 @@ def host_vinely_party(request):
   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 
-@cache_page(60 * 15)
 def how_it_works(request, state=None):
   """
 
