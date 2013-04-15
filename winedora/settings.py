@@ -39,8 +39,8 @@ ADMINS = (
 import django.conf.global_settings as DEFAULT_SETTINGS
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-  "main.context_processors.vinely_user_info",
-  "django.core.context_processors.request",
+    "main.context_processors.vinely_user_info",
+    "django.core.context_processors.request",
 )
 
 
@@ -281,6 +281,18 @@ else:
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
+os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
+os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
+os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
+        'TIMEOUT': 500,
+        'BINARY': True,
+    }
+}
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
