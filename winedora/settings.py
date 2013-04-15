@@ -291,12 +291,16 @@ os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        # 'BACKEND': 'johnny.backends.memcached.PyLibMCCacheSasl',
+        # 'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
         'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
         'TIMEOUT': 500,
         'BINARY': True,
         'JOHNNY_CACHE': True,
+        'OPTIONS': {  # Maps to pylibmc "behaviors"
+            'tcp_nodelay': True,
+            'ketama': True
+        }
     }
 }
 # A sample logging configuration. The only tangible logging
