@@ -178,12 +178,14 @@ SECRET_KEY = '=a_x8@e-h+ia(^*4y_xkm5=g*z&amp;w$bu&amp;rt@$j*urok)fj0rw7('
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#    'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 if DEPLOY:
   # enable SSL
   MIDDLEWARE_CLASSES = (
+      'johnny.middleware.LocalStoreClearMiddleware',
+      'johnny.middleware.QueryCacheMiddleware',
       'sslify.middleware.SSLifyMiddleware',
       'django.middleware.common.CommonMiddleware',
       'django.contrib.sessions.middleware.SessionMiddleware',
@@ -195,13 +197,15 @@ if DEPLOY:
   )
 else:
   MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+      'johnny.middleware.LocalStoreClearMiddleware',
+      'johnny.middleware.QueryCacheMiddleware',
+      'django.middleware.common.CommonMiddleware',
+      'django.contrib.sessions.middleware.SessionMiddleware',
+      'django.middleware.csrf.CsrfViewMiddleware',
+      'django.contrib.auth.middleware.AuthenticationMiddleware',
+      'django.contrib.messages.middleware.MessageMiddleware',
+      # Uncomment the next line for simple clickjacking protection:
+      # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
   )
 
 ROOT_URLCONF = 'winedora.urls'
@@ -287,10 +291,12 @@ os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
 CACHES = {
     'default': {
-        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+        # 'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'BACKEND': 'johnny.backends.memcached.PyLibMCCache',
         'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
         'TIMEOUT': 500,
         'BINARY': True,
+        'JOHNNY_CACHE': True,
     }
 }
 # A sample logging configuration. The only tangible logging

@@ -22,13 +22,14 @@ from accounts.utils import send_verification_email, send_password_change_email, 
                           send_signed_up_as_host_email, get_default_pro
 
 from cms.models import ContentTemplate
+from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
 
 from stripecard.models import StripeCard
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 import math
-from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
+
 import uuid
 import logging
 import stripe
