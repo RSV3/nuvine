@@ -292,7 +292,8 @@ os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 CACHES = {
     'default': {
         # 'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
+        # 'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
+        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
         'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
         'TIMEOUT': 500,
         'BINARY': True,
