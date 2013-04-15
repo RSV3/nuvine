@@ -291,13 +291,12 @@ os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
 CACHES = {
     'default': {
-        # 'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        'BACKEND': 'johnny.backends.memcached.PyLibMCCacheSasl',
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        # 'BACKEND': 'johnny.backends.memcached.PyLibMCCacheSasl',
         'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
         'TIMEOUT': 500,
         'BINARY': True,
         'JOHNNY_CACHE': True,
-        'JOHNNY_MIDDLEWARE_KEY_PREFIX': 'jcache_vinely',
     }
 }
 # A sample logging configuration. The only tangible logging
