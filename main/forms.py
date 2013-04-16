@@ -245,7 +245,6 @@ class PartyCreateForm(forms.ModelForm):
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
-      print 'cleaned_data: ', cleaned_data['event_day']
       if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
         raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
@@ -426,8 +425,6 @@ class VinelyProSignupForm(EmailUserCreationForm):
       address.save()
 
     return instance
-
-from django.utils.safestring import mark_safe
 
 
 class ExtraRadioInput(forms.widgets.RadioInput):

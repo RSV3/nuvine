@@ -63,3 +63,5 @@ lepl
 django-tables2==0.13.0
 django-tinymce==1.5.1b4
 pyproj==1.9.3
+django-pylibmc-sasl==0.2.4
+pylibmc==1.2.3

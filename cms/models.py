@@ -14,7 +14,7 @@ class ContentTemplate(models.Model):
         (1, 'Web Template'),
     )
 
-    key = models.CharField(max_length=128)
+    key = models.CharField(max_length=128, unique=True)
     #content = models.TextField()
     category = models.IntegerField(choices=TEMPLATE_TYPE)
     variables_legend = models.ManyToManyField(Variable)
@@ -33,7 +33,7 @@ class Section(models.Model):
         (4, 'Header Section'),
         (5, 'Sub Heading Section'),
     )
-    key = models.CharField(max_length=128)
+    key = models.CharField(max_length=128, db_index=True)
     # category = models.IntegerField(choices=SECTION_TYPE, default=0)
     content = models.TextField()
     template = models.ForeignKey(ContentTemplate, related_name='sections')

@@ -20,7 +20,7 @@ from django.http import HttpRequest
 
 from pyproj import Geod
 from random import randint
-
+from django.core.cache import cache
 import stripe
 ZERO = timedelta(0)
 
@@ -294,10 +294,11 @@ class UserProfile(models.Model):
 
   def role(self):
     pro_group = Group.objects.get(name="Vinely Pro")
+    # if not cache.get('pro_group'):
+    #   cache.set('pro_group', pro_group)
     hos_group = Group.objects.get(name="Vinely Host")
     tas_group = Group.objects.get(name="Vinely Taster")
     sup_group = Group.objects.get(name="Supplier")
-
     if pro_group in self.user.groups.all():
       return 'pro'
     if hos_group in self.user.groups.all():
@@ -309,6 +310,12 @@ class UserProfile(models.Model):
 
   def is_pro(self):
     pro_group = Group.objects.get(name="Vinely Pro")
+    # if not cache.get('pro_group'):
+    #   pro_group = Group.objects.get(name="Vinely Pro")
+    #   cache.set('pro_group', pro_group)
+    # else:
+    #   pro_group = cache.get('pro_group')
+
     return pro_group in self.user.groups.all()
 
   def is_pending_pro(self):
