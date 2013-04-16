@@ -96,5 +96,12 @@ STATIC_URL = '/static/'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # 'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        'TIMEOUT': 500,
+        'BINARY': True,
+        'OPTIONS': {  # Maps to pylibmc "behaviors"
+            'tcp_nodelay': True,
+            'ketama': True
+        }
     }
 }
