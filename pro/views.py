@@ -4,8 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
+from django_tables2 import RequestConfig
 
 from pro.models import ProLevel, WeeklyCompensation, MonthlyQualification, MonthlyBonusCompensation
+from pro.tables import WeeklyCompensationTable, MonthlyBonusCompensationTable, MonthlyQualificationTable
 
 
 def build_downline(pro, pro_comp, downline_level=0):
@@ -57,19 +59,33 @@ def pro_home(request):
   build_downline(u, pro_comp)
 
   # show weekly compensation if this week, up to last month
-  data["weekly_comps"] = WeeklyCompensation.objects.filter(pro=u).order_by('-start_time')
+  inner_q = WeeklyCompensation.objects.filter(pro=u).order_by('-start_time').values('pk')[:10]
+  data["weekly_comps"] = WeeklyCompensation.objects.filter(pk__in=inner_q)
 
   # show last months and past few months commissions/bonus
-  data["monthly_comps"] = MonthlyBonusCompensation.objects.filter(pro=u).order_by('-start_time')
+  inner_q = MonthlyBonusCompensation.objects.filter(pro=u).order_by('-start_time').values('pk')[:3]
+  data["monthly_comps"] = MonthlyBonusCompensation.objects.filter(pk__in=inner_q)
 
   # show past qualifying level for few months
-  data["monthly_quals"] = MonthlyQualification.objects.filter(pro=u).order_by('-start_time')
+  inner_q = MonthlyQualification.objects.filter(pro=u).order_by('-start_time').values('pk')[:10]
+  data["monthly_quals"] = MonthlyQualification.objects.filter(pk__in=inner_q)
 
   # show downlines and upline
   data["mentor_pro"] = u.get_profile().mentor
   data["downline"] = [mentee for mentee in u.mentees.all()]
 
   # show the stats of downline
+  weekly_comps_table = WeeklyCompensationTable(data["weekly_comps"])
+  RequestConfig(request).configure(weekly_comps_table)
+  data["weekly_comps_table"] = weekly_comps_table
+
+  monthly_comps_table = MonthlyBonusCompensationTable(data["monthly_comps"])
+  RequestConfig(request).configure(monthly_comps_table)
+  data["monthly_comps_table"] = monthly_comps_table
+
+  monthly_quals_table = MonthlyQualificationTable(data["monthly_quals"])
+  RequestConfig(request).configure(monthly_quals_table)
+  data["monthly_quals_table"] = monthly_quals_table
 
   return render(request, 'pro/home.html', data)
 

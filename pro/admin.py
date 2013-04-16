@@ -9,7 +9,7 @@ class WeeklyCompensationAdmin(admin.ModelAdmin):
                   'total_earnings', 'tier_a_base_earnings', 'tier_b_base_earnings',
                   'start_time', 'end_time']
   list_filter = (
-      ('start_time', DateFieldListFilter),
+      ('end_time', DateFieldListFilter),
     )
 
 
@@ -21,7 +21,7 @@ class MonthlyQualificationAdmin(admin.ModelAdmin):
   list_display = ['pro', 'total_personal_sales', 'total_sales_1st_line', 'active_pros', 'advanced_pros', 'elite_pros',
               'qualification_level', 'start_time', 'end_time']
   list_filter = (
-      ('start_time', DateFieldListFilter),
+      ('end_time', DateFieldListFilter),
     )
 
 
@@ -31,7 +31,7 @@ class MonthlyBonusCompensationAdmin(admin.ModelAdmin):
                   'tier_a_bonus', 'tier_b_bonus', 'first_line_bonus', 'second_line_bonus', 'third_line_bonus',
                   'start_time', 'end_time']
   list_filter = (
-      ('start_time', DateFieldListFilter),
+      ('end_time', DateFieldListFilter),
     )
 
 admin.site.register(WeeklyCompensation, WeeklyCompensationAdmin)
