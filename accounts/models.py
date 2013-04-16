@@ -508,6 +508,7 @@ class SubscriptionInfo(models.Model):
     from main.utils import send_order_confirmation_email
 
     user = self.user
+    customer = None
 
     prof = user.get_profile()
     shipping_address = prof.shipping_address
