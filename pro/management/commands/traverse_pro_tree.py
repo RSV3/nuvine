@@ -56,16 +56,24 @@ def qualify_tree(pro_comp, root_pro):
               and num_advanced_pros >= 5
               and num_elite_pros >= 1):
     pro_comp[root_pro.id]['level'] = ProLevel.PRO_LEVEL_CHOICES[4][0]
+    new_level = ProLevel(root_pro, ProLevel.PRO_LEVEL_CHOICES[4][0])
+    new_level.save()
   elif (root_total_sales >= 7800
               and num_active_pros >= 6
               and num_advanced_pros >= 2):
     pro_comp[root_pro.id]['level'] = ProLevel.PRO_LEVEL_CHOICES[3][0]
+    new_level = ProLevel(root_pro, ProLevel.PRO_LEVEL_CHOICES[3][0])
+    new_level.save()
   elif (root_total_sales >= 5000
               and num_active_pros >= 3):
     pro_comp[root_pro.id]['level'] = ProLevel.PRO_LEVEL_CHOICES[2][0]
+    new_level = ProLevel(root_pro, ProLevel.PRO_LEVEL_CHOICES[2][0])
+    new_level.save()
   elif (root_total_sales >= 1500
               and downline_total_sales >= 1200):
     pro_comp[root_pro.id]['level'] = ProLevel.PRO_LEVEL_CHOICES[1][0]
+    new_level = ProLevel(root_pro, ProLevel.PRO_LEVEL_CHOICES[1][0])
+    new_level.save()
 
   pro_comp[root_pro.id]['qualified'] = True
 

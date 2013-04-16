@@ -9,6 +9,7 @@ from django.test import TestCase
 from datetime import datetime
 
 from django.contrib.auth.models import User, Group
+from django.core.urlresolvers import reverse
 from main.models import Cart, LineItem, Order, Party, OrganizedParty, MyHost, Product
 from accounts.models import Address, UserProfile, CreditCard
 from pro.models import ProLevel
@@ -44,26 +45,26 @@ class SimpleTest(TestCase):
 
       for i in range(1, 14):
         pro = User(email="pro%d@gmail.com" % i, first_name="Pro%d" % i, last_name="Last%d" % i)
+        pro.set_password("Hello")
         pro.save()
+        if i == 13:
+          pro.is_staff = True
+          pro.save()
         pro.groups.add(ps_group)
 
       for i in range(1, 104):
         taster = User(email="taster%d@gmail.com" % i, first_name="Taster%d" % i, last_name="Last%d" % i)
+        pro.set_password("Hello")
         taster.save()
         pro.groups.add(att_group)
 
       for i in range(1, 14):
         host = User(email="host%d@gmail.com" % i, first_name="Host%d" % i, last_name="Last%d" % i)
+        pro.set_password("Hello")
         host.save()
         pro.groups.add(ph_group)
 
     def runTest(self):
-      pass
-
-    def test_generate_users(self):
-      """
-        Create Pros, Tasters and Hosts
-      """
       pass
 
     def generate_simulated_orders(self):
@@ -588,6 +589,27 @@ class SimpleTest(TestCase):
       from django.core.management import call_command
 
       call_command('calculate_weekly_sales', week='05/17/2013')
+
+    def test_pro_related_views(self):
+
+      login_result = self.client.login(email="pro1@gmail.com", password="Hello")
+
+      self.assertEquals(login_result, True)
+
+      response = self.client.get(reverse("pro:pro_home"))
+      response = self.client.get(reverse("pro:pro_stats"))
+      print response.status_code
+      self.assertContains(response, "Django administration")
+
+      self.client.logout()
+
+      login_result = self.client.login(email="pro13@gmail.com", password="Hello")
+      self.assertEquals(login_result, True)
+
+      response = self.client.get(reverse("pro:pro_stats"))
+      print response.status_code
+      self.assertContains(response, "Summary Statistics")
+
 
     def test_pro_qualifications(self):
       """
