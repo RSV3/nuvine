@@ -57,6 +57,7 @@ class SimpleTest(TestCase):
     # self.create_first_time_host_signup_template()
     self.create_new_party_host_confirm_email_template()
     self.create_welcome_email_template()
+    self.party_setup_completed_email_template()
 
   def make_pro_template(self):
     host_header = 'Where\'s the wine party? Your place!'

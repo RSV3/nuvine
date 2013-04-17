@@ -559,6 +559,7 @@ def distribute_party_invites_email(request, invitation_sent):
   else:
     from_email = 'Invitation from %s %s <info@vinely.com>' % (host_user.first_name, host_user.last_name)
   guests = invitation_sent.guests.exclude(id=host_user.id)
+
   for guest in guests:
     invite = PartyInvite.objects.get(invitee=guest, party=invitation_sent.party)
     invite.invited_timestamp = timezone.now()
@@ -579,6 +580,7 @@ def distribute_party_invites_email(request, invitation_sent):
         vque.save()
 
     c = RequestContext(request, {'host_name': request.get_host(), 'invite': invite})
+    # print invite.rsvp_code
     user_content = content + '\n\n<a class="brand-btn" href="http://{{ host_name }}{% url party_rsvp invite.rsvp_code invite.party.id  %}">RSVP for the Party</a> \n'
 
     html_template = Template('\n'.join(['<p>%s</p>' % x for x in user_content.split('\n\n') if x]))

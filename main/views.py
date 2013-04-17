@@ -2973,10 +2973,11 @@ def vinely_event_signup(request, party_id, fb_page=0):
       invite = PartyInvite.objects.get(party=party, invitee=user)
       invite.response = response
       invite.response_timestamp = today
+      invite.rsvp_code = str(uuid.uuid4())
       invite.save()
     except PartyInvite.DoesNotExist:
       # if doest exist then create
-      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
+      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host, rsvp_code=str(uuid.uuid4()),
                                 response=response, response_timestamp=today)
     if response == 1:
       # msg = 'We hope you will be able to attend next time. You can always visit to our website in case change your mind.'

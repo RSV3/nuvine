@@ -6,8 +6,10 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from emailusernames.forms import EmailAuthenticationForm
 
 from cms.models import ContentTemplate
+from django.views.decorators.cache import cache_page
 
 
+# @cache_page(60 * 15)
 def home(request):
   """
 

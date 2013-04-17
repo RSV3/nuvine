@@ -35,7 +35,7 @@ class SimpleTest(TestCase):
     main_test.create_usable_accounts()
     main_test.create_wine_personalities()
     main_test.create_wine_samplers()
-    main_test.create_products()
+    # main_test.create_products()
 
   def test_verification_code(self):
     u = User.objects.get(email="attendee9@example.com")
