@@ -37,7 +37,7 @@ def qualify_tree(pro_comp, root_pro):
   for downline_pro in pro_comp[root_pro.id]['downline']:
     if pro_comp[downline_pro.id]['downline']:
       # if there are down line pro's then recurse
-      #print "Checking ROOT: %d and DOWNLINE: %d" % (root_pro.id, downline_pro.id)
+      print "Checking ROOT: %d and DOWNLINE: %d" % (root_pro.id, downline_pro.id)
       qualify_tree(pro_comp, downline_pro)
 
     # add up downlines

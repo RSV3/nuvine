@@ -598,7 +598,7 @@ class SimpleTest(TestCase):
 
       response = self.client.get(reverse("pro:pro_home"))
       response = self.client.get(reverse("pro:pro_stats"))
-      print response.status_code
+      # since user needs to login as admin, it will show the following text
       self.assertContains(response, "Django administration")
 
       self.client.logout()
@@ -607,9 +607,7 @@ class SimpleTest(TestCase):
       self.assertEquals(login_result, True)
 
       response = self.client.get(reverse("pro:pro_stats"))
-      print response.status_code
       self.assertContains(response, "Summary Statistics")
-
 
     def test_pro_qualifications(self):
       """
@@ -671,11 +669,20 @@ class SimpleTest(TestCase):
       pro_comp = {}
 
       for pro in User.objects.all():
-        if pro.get_profile().is_pro():
+        if pro.get_profile().is_pro() or pro.get_profile().is_pending_pro():
+          # for those pros that don't have sales, initialize
+          if pro.id not in pro_sales:
+            pro_sales[pro.id] = 0
+
           if pro.id in pro_comp:
             pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
           else:
-            downline_pros = [uprof.user for uprof in pro.mentees.all()]
+            # find downline pros
+            downline_pros = []
+            for mentee_profile in pro.mentees.all():
+              if mentee_profile.user.id != pro.id and (mentee_profile.is_pro() or mentee_profile.is_pending_pro()):
+                downline_pros.append(mentee_profile.user)
+
             pro_comp[pro.id] = {
               'pro': pro,
               'total_sales': 0,

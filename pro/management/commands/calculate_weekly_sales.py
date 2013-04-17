@@ -23,7 +23,7 @@ class Command(BaseCommand):
         Calculate weekly sales
     """
 
-    print "Options:", options
+    #print "Options:", options
 
     if options['week']:
       filter_date = datetime.strptime(options['week'], "%m/%d/%Y").date()
