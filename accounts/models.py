@@ -152,7 +152,7 @@ class UserProfile(models.Model):
   accepted_tos = models.BooleanField(verbose_name="I accept the terms of service", default=False)
   news_optin = models.BooleanField(verbose_name="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.", default=True)
   # only pro's should have mentor
-  mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentor')
+  mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentees')
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
 
   GENDER_CHOICES = (
