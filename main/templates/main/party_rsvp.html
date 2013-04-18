@@ -301,7 +301,6 @@
         <thead>
           <th>Name</th>
           <th>Coming</th>
-          <th>Wine Personality</th>
         </thead>
         <tbody>
         {% for inv in invitees %}
@@ -313,7 +312,6 @@
               <td>Anonymous</td>
             {% endif %}
             <td>{{ inv.get_response_display }}</td>
-            <td>{{ inv.invitee.get_profile.wine_personality }}</td>
           </tr>
         {% endfor %}
         </tbody>
