@@ -149,6 +149,21 @@ class PartyAdmin(admin.ModelAdmin):
     return "Yes" if instance.kit_ordered() else "No"
 
 
+class PartyInviteAdmin(admin.ModelAdmin):
+  list_display = ['party', 'taster', 'event_date', 'pro_info']
+  ordering = ['-party__event_date', 'party__title']
+  search_fields = ['party__title', 'invitee__first_name', 'invitee__last_name', 'invitee__email']
+
+  def taster(self, instance):
+    return '%s %s <%s>' % (instance.invitee.first_name, instance.invitee.last_name, instance.invitee.email)
+
+  def event_date(self, instance):
+    return instance.party.event_date
+
+  def pro_info(self, instance):
+    return instance.party.pro
+
+
 class OrderAdmin(admin.ModelAdmin):
   list_display = ['id', 'order_id', 'ordered_by_info', 'receiver_info', 'shipping_address_link', 'cart', 'order_date']
 
@@ -211,5 +226,6 @@ admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)
+admin.site.register(PartyInvite, PartyInviteAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(CustomizeOrder, CustomizeOrderAdmin)
