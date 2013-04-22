@@ -181,7 +181,7 @@
           <p><i>2. Do you already know a Vinely Pro? (leave this blank if you don't know what it is)</i></p></div>
           <div class="row">
             <div class="span5">
-              <div class="control-group">
+              <div class="control-group {% if form.mentor.errors %}error{% endif %}">
                 {{ form.mentor }}
                 {% if form.mentor.errors %}
                   <span class="help-inline">
