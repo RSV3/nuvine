@@ -111,7 +111,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
   html_msg = render_to_string("email/base_email_lite.html", RequestContext(request,
       {'title': subject, 'message': html_message, 'host_name': request.get_host()}
-    ))
+  ))
 
   p = Premailer(html_msg)
   html_msg = p.transform()
@@ -742,11 +742,13 @@ def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
 
   email_log = Email(subject=subject, sender=from_email, recipients=str(recipients), text=txt_message, html=html_msg)
   email_log.save()
+  from main.tasks import task_send_mail
 
-  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
-  msg.attach_alternative(html_msg, "text/html")
-  msg.send()
-  return msg
+  task_send_mail(email_log.id, headers={'Reply-To': 'welcome@vinely.com'})
+  # msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
+  # msg.attach_alternative(html_msg, "text/html")
+  # msg.send()
+  # return msg
 
 
 def send_contact_request_email(request, contact_request):

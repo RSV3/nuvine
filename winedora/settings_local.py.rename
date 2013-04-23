@@ -6,6 +6,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pa
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = PROJECT_ROOT + '/emails/'
 
+USE_CELERY = False
+
 # For testing real send
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 #EMAIL_HOST = 'smtp.gmail.com'
