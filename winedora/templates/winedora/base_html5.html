@@ -267,8 +267,12 @@
         <!-- <h3>You're a {{ user.get_profile.role }}</h3> -->
       {% endif %}
       <div class="vertical-space"></div>
-      <div class="message-container">
+    </div> <!-- .container for head -->
+  </header>
 
+  <div role="main" id="main-content">
+    <div class="container">
+      <div class="message-container">
         {% if messages %}
           <div class="messages">
               {% for message in messages %}
@@ -285,10 +289,7 @@
           </div>
         {% endif %}
       </div> <!-- .message-container -->
-    </div> <!-- .container for head -->
-  </header>
-
-  <div role="main" id="main-content">
+    </div>
     {% block content %}
       
     {% endblock content %}

@@ -1582,7 +1582,7 @@ def party_details(request, party_id):
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
 
   table = AttendeesTable(invitees, user=u, data=data)
-  RequestConfig(request).configure(table)
+  # RequestConfig(request).configure(table)
   data['table'] = table
 
   data['invitees_table'] = invitees
@@ -1714,6 +1714,7 @@ def resend_rsvp(request):
       user = User.objects.get(email=email)
     except:
       messages.error(request, "There are no upcoming parties that you have been invited to.")
+      return HttpResponseRedirect(next_url)
     today = timezone.now()
 
     invites = InvitationSent.objects.filter(party__event_date__gte=today, guests=user)
