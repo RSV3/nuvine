@@ -355,7 +355,7 @@ class PartyInviteTasterForm(forms.ModelForm):
           # if there's no existing pro, then assign new pro
           profile.current_pro = cleaned_data['party'].pro
 
-        if cleaned_data['phone']:
+        if cleaned_data.get('phone'):
           profile.phone = cleaned_data['phone']
         profile.save()
 

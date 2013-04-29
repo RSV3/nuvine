@@ -1557,18 +1557,11 @@ def party_details(request, party_id):
     else:
       # for host
       if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
-        if party.invite_sent():
-          if not party.kit_ordered():
-            msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
-            messages.warning(request, msg)
+        if not party.kit_ordered():
+          msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
+          messages.warning(request, msg)
           # TODO: if kit ordered but number is still higher than kit
           # ask to order another kit
-        else:
-          msg = 'Your party date and time have been confirmed! Let\'s get this party started and send out your invite!'
-          messages.warning(request, msg)
-      # else:
-      #   msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for you to complete the invitation process.'
-      #   messages.info(request, msg)
 
   data["pro_user"] = party.pro
   data["parties_menu"] = True
@@ -1582,7 +1575,7 @@ def party_details(request, party_id):
   data['completed'] = "Yes" if WineTaste.objects.filter(user=u).exists() and GeneralTaste.objects.filter(user=u).exists() else "No"
 
   table = AttendeesTable(invitees, user=u, data=data)
-  RequestConfig(request).configure(table)
+  # RequestConfig(request).configure(table)
   data['table'] = table
 
   data['invitees_table'] = invitees
@@ -1714,6 +1707,7 @@ def resend_rsvp(request):
       user = User.objects.get(email=email)
     except:
       messages.error(request, "There are no upcoming parties that you have been invited to.")
+      return HttpResponseRedirect(next_url)
     today = timezone.now()
 
     invites = InvitationSent.objects.filter(party__event_date__gte=today, guests=user)
