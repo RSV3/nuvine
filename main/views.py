@@ -1557,18 +1557,11 @@ def party_details(request, party_id):
     else:
       # for host
       if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
-        if party.invite_sent():
-          if not party.kit_ordered():
-            msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
-            messages.warning(request, msg)
+        if not party.kit_ordered():
+          msg = 'You need to order your tasting kit by %s.  <a href="%s" class="btn btn-primary">Order tasting kit</a>' % (kit_order_date.strftime("%m/%d/%Y"), reverse('cart_add_tasting_kit', args=[party.id]))
+          messages.warning(request, msg)
           # TODO: if kit ordered but number is still higher than kit
           # ask to order another kit
-        else:
-          msg = 'Your party date and time have been confirmed! Let\'s get this party started and send out your invite!'
-          messages.warning(request, msg)
-      # else:
-      #   msg = 'Congratulations! Your invite is almost ready to go out. We\'re just waiting for you to complete the invitation process.'
-      #   messages.info(request, msg)
 
   data["pro_user"] = party.pro
   data["parties_menu"] = True

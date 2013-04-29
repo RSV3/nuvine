@@ -85,7 +85,7 @@ def fix_my_picture(request):
 
   u = request.user
   profile = u.get_profile()
-  print profile.image.url
+  # print profile.image.url
 
   initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
 
@@ -98,7 +98,7 @@ def fix_my_picture(request):
 
   if profile_form.is_valid():
     profile = profile_form.save()
-    print profile.image.url
+    # print profile.image.url
 
     msg = 'Your information has been updated'
     messages.success(request, msg)
