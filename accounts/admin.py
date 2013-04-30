@@ -131,7 +131,7 @@ class ProAssignedFilter(SimpleListFilter):
   def queryset(self, request, queryset):
     pro_assigned = self.value()
 
-    non_pros = [prof.id for prof in UserProfile.objects.all() if not prof.is_pro()]
+    non_pros = [prof.id for prof in UserProfile.objects.all() if prof.is_host() or prof.is_taster()]
 
     if pro_assigned == 'Yes':
       return queryset.filter(id__in=non_pros).exclude(current_pro__isnull=True)
