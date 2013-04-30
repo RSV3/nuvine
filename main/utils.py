@@ -1417,3 +1417,31 @@ def add_form_validation(form):
 
       if attrs['class']:
         form.fields[field_name].widget.attrs['class'] = attrs['class']
+
+
+def business_days_count(start_date, end_date):
+  daygenerator = (start_date + timedelta(x + 1) for x in xrange((end_date - start_date).days + 1))
+  return sum(day.weekday() < 5 for day in daygenerator)
+
+
+def business_days_from(start_date, days=5):
+  '''
+  Returns a date that is x business days from the given start date
+  '''
+  biz_days = 0
+  x = 0
+  some_date = start_date
+  if days < 0:
+    while biz_days > days:
+      some_date = start_date + timedelta(days=x - 1)
+      if some_date.weekday() < 5:
+        biz_days = biz_days - 1
+      x = x - 1
+    return some_date
+  else:
+    while biz_days < days:
+      some_date = start_date + timedelta(days=x + 1)
+      if some_date.weekday() < 5:
+        biz_days = biz_days + 1
+      x = x + 1
+    return some_date

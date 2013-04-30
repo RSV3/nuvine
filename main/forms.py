@@ -16,7 +16,7 @@ from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeO
                         InvitationSent, Order, Product, ThankYouNote, MyHost
 from accounts.models import Address, SubscriptionInfo
 
-from main.utils import add_form_validation
+from main.utils import add_form_validation, business_days_count, business_days_from
 
 from accounts.forms import NameEmailUserCreationForm
 
@@ -54,7 +54,7 @@ class PartyEditDateForm(forms.ModelForm):
       if self._errors:
         del self._errors['event_date']
 
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+      if business_days_count(cleaned_data['event_date'], timezone.now()) < 5:
         raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
