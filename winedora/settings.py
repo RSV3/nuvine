@@ -293,30 +293,38 @@ else:
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
-os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
-os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
-os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
+# https://devcenter.heroku.com/articles/django-memcache
+try:
+  os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
+  os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
+  os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
-CACHES = {
+  CACHES = {
+      'default': {
+          # 'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
+          'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+          'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
+          'TIMEOUT': 500,
+          'BINARY': True,
+          'JOHNNY_CACHE': True,
+          'OPTIONS': {  # Maps to pylibmc "behaviors"
+              'tcp_nodelay': True,
+              'ketama': True
+          }
+      }
+  }
+
+  JOHNNY_TABLE_BLACKLIST = (
+      'support_email', 'main_personalog',
+      'main_prosignuplog', 'main_thankyounote',
+      'main_engagementinterest'
+  )
+except:
+  CACHES = {
     'default': {
-        # 'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
-        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
-        'TIMEOUT': 500,
-        'BINARY': True,
-        'JOHNNY_CACHE': True,
-        'OPTIONS': {  # Maps to pylibmc "behaviors"
-            'tcp_nodelay': True,
-            'ketama': True
-        }
+      'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     }
-}
-
-JOHNNY_TABLE_BLACKLIST = (
-    'support_email', 'main_personalog',
-    'main_prosignuplog', 'main_thankyounote',
-    'main_engagementinterest'
-)
+  }
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
