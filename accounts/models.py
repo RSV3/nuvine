@@ -218,8 +218,16 @@ class UserProfile(models.Model):
       for pro in pros:
         pro_zipcode = Zipcode.objects.get(code=pro.zipcode)
         _, _, distance = g.inv(user_zipcode.longitude, user_zipcode.latitude, pro_zipcode.longitude, pro_zipcode.latitude)
-        my_pros[pro.user] = distance
+        # distance returned in meters so convert to miles
+        # pros should be within 25miles
+        distance = distance * 0.000621371
+        if distance <= 25:
+          my_pros[pro.user] = distance
       # log.info('has zipcode: %s' % my_pros[pro.user])
+
+      # TODO: how to deal with multiple pros that satisfy conditions
+      # 1. if multiple active pros, find pro not assigned in last 3 months
+      # 2. if still multiple active pros, find pro with highest personal sales
       sorted_dict = iter(sorted(my_pros.iteritems()))
       assigned_pro = sorted_dict.next()[0]
       # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))

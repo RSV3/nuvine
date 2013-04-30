@@ -17,6 +17,7 @@ from emailusernames.utils import create_user
 from cms.tests import SimpleTest as CMSTest
 from main.tests import SimpleTest as MainTest
 from accounts.models import UserProfile
+from accounts.utils import get_default_pro
 
 
 class SimpleTest(TestCase):
@@ -53,12 +54,12 @@ class SimpleTest(TestCase):
                                                                         'phone_number': '6172342524'})
 
     self.assertRedirects(response, reverse('home_page'))
-    self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor=None).exists())
+    self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor__email='elizabeth@vinely.com').exists())
 
-    # test autoassign working --> Should assign CA Pro for zipcode used
+    # test autoassign working --> Should assign default Pro
     profile = UserProfile.objects.get(user__email='john.doe1@example.com')
-    pro = User.objects.get(email='johnstecco@gmail.com')
-    self.assertEquals(profile.mentor, pro)
+    # pro = User.objects.get(email='elizabeth@vinely.com')
+    self.assertEquals(profile.mentor, get_default_pro())
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', 'getstarted@vinely.com']", subject="Vinely Pro Request")
@@ -102,8 +103,8 @@ class SimpleTest(TestCase):
 
     # test autoassign working --> Should assign MA Pro for zipcode used
     profile = UserProfile.objects.get(user__email='attendee1@example.com')
-    pro = User.objects.get(email='specialist1@example.com')
-    self.assertEquals(profile.mentor, pro)
+    # pro = User.objects.get(email='specialist1@example.com')
+    self.assertEquals(profile.mentor, get_default_pro())
 
     self.client.logout()
 
