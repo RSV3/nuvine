@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.contrib import messages, auth
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
@@ -14,15 +14,15 @@ from django.conf import settings
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
-                           UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                           HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
-from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, Address
+                            UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
+                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
+from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
-                          check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                          send_signed_up_as_host_email, get_default_pro
+                            check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
+                            get_default_pro
 
 from cms.models import ContentTemplate
-from main.utils import send_host_vinely_party_email, my_host, my_pro, UTC
+from main.utils import send_host_vinely_party_email, my_host, my_pro
 
 from stripecard.models import StripeCard
 
@@ -559,8 +559,7 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            # mentor = get_default_pro()
-            mentor = profile.find_nearest_pro()
+            mentor = get_default_pro()
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
           profile.current_pro = None
@@ -603,8 +602,7 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            # mentor = get_default_pro()
-            mentor = profile.find_nearest_pro()
+            mentor = get_default_pro()
           profile.mentor = mentor
           # since no longer host or taster
           profile.current_pro = None
@@ -786,15 +784,13 @@ def sign_up(request, account_type, data):
     # if pro, then mentor IS mentor
     if account_type == 1:
       try:
-        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
-        profile.mentor = pro
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
+        mentor = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
       except User.DoesNotExist:
         # mentor e-mail was not entered, assign default pro
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
-        # pro = get_default_pro()
-        pro = profile.find_nearest_pro()
-        profile.mentor = pro
+        mentor = get_default_pro()
+
+      profile.mentor = mentor
+      ProSignupLog.objects.get_or_create(new_pro=user, mentor=mentor, mentor_email=form.cleaned_data['mentor'])
       profile.save()
       send_pro_request_email(request, user)
     elif account_type == 2:

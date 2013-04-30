@@ -23,17 +23,15 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
                         AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm
 
-from accounts.utils import send_verification_email, send_new_party_email, check_zipcode, \
-                        send_not_in_area_party_email
-from main.utils import send_order_confirmation_email, send_host_vinely_party_email, send_new_party_scheduled_email, \
+from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
+from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
                         calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
                         resend_party_invite_email, get_default_invite_message, my_pro, \
-                        preview_party_invites_email, get_default_signature, send_host_request_party_email, \
-                        send_new_party_scheduled_by_host_email, send_new_party_scheduled_by_host_no_pro_email, \
+                        preview_party_invites_email, get_default_signature, \
                         send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email, \
-                        party_setup_completed_email
+                        party_setup_completed_email, business_days_from, business_days_count
 from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, MakeTasterForm
 
 from cms.models import ContentTemplate
@@ -1532,8 +1530,10 @@ def party_details(request, party_id):
   data["invitees"] = invitees
 
   # these checks are only relevant to host or Pro for upcoming parties
-  kit_order_date = party.event_date - timedelta(days=10)
-  can_order_kit = (party.event_date - timezone.now() >= timedelta(days=10))
+  # kit_order_date = party.event_date - timedelta(days=5)
+  kit_order_date = business_days_from(party.event_date, -5)
+  # can_order_kit = (party.event_date - timezone.now() >= timedelta(days=5))
+  can_order_kit = business_days_count(party.event_date, timezone.now()) >= 5
 
   # initialize the edit party info form
   edit_form_data = {}
