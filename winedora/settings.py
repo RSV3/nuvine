@@ -287,7 +287,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # https://devcenter.heroku.com/articles/django-memcache
 try:
-  os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
+  cache_servers = os.environ['MEMCACHIER_SERVERS']
+  os.environ['MEMCACHE_SERVERS'] = cache_servers.replace(',', ';')
   os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
   os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
