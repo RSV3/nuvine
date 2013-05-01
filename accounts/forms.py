@@ -350,7 +350,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
       if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
-    if self.initial['account_type'] == 2 and mentor_email:  # host -> pro field
+    if self.initial['account_type'] == 2 and mentor_email or self.initial['account_type'] == 3 and mentor_email:  # host -> pro field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"

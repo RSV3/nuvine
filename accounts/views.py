@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -1159,7 +1159,9 @@ def pro_unlink(request):
   return HttpResponseRedirect(reverse("edit_subscription"))
 
 
-def join_club(request, state=None):
+def join_club_start(request):
+  tas_group = Group.objects.get(name="Vinely Taster")
+
   data = {}
   form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
   # eligibility_form = AgeValidityForm(request.POST or None, prefix='eligibility')
@@ -1167,4 +1169,50 @@ def join_club(request, state=None):
   data['form'] = form
   # data['eligibility_form'] = eligibility_form
   data['login_form'] = login_form
+
+  if form.is_valid():
+    user = form.save()
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
+
+    try:
+      pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+    except User.DoesNotExist:
+      pro = get_default_pro()
+
+    profile.current_pro = pro
+    profile.save()
+
+    ok = check_zipcode(profile.zipcode)
+
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, 3)
+
+    user.groups.add(tas_group)
+    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=3)
+
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+
+    return HttpResponseRedirect(reverse('join_club_shipping'))
+
   return render_to_response("accounts/join_club.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def join_club_shipping(request):
+  return HttpResponse('done')
+  # return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def join_club_review(request):
+  pass
+
+
+@login_required
+def join_club_done(request):
+  pass
