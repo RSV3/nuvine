@@ -15,7 +15,8 @@ from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, C
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
+                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm, AgeValidityForm, \
+                            VinelyEmailAuthenticationForm
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
@@ -1156,3 +1157,14 @@ def pro_unlink(request):
     messages.success(request, "You have been successfully unlinked from the Pro.")
 
   return HttpResponseRedirect(reverse("edit_subscription"))
+
+
+def join_club(request, state=None):
+  data = {}
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
+  # eligibility_form = AgeValidityForm(request.POST or None, prefix='eligibility')
+  login_form = VinelyEmailAuthenticationForm(request.POST or None)
+  data['form'] = form
+  # data['eligibility_form'] = eligibility_form
+  data['login_form'] = login_form
+  return render_to_response("accounts/join_club.html", data, context_instance=RequestContext(request))

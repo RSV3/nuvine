@@ -2580,7 +2580,7 @@ def edit_credit_card(request):
 
   data["receiver_state"] = receiver_state
 
-  # stripe only supported in Michigan
+  # stripe only supported in CA
   if receiver_state in Cart.STRIPE_STATES:
     data['use_stripe'] = True
 
