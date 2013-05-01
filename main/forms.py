@@ -562,17 +562,17 @@ class CustomizeOrderForm(forms.ModelForm):
 
 class ShippingForm(forms.ModelForm):
 
-  first_name = forms.CharField(max_length=30)
-  last_name = forms.CharField(max_length=30)
+  first_name = forms.CharField(max_length=30, label='First Name')
+  last_name = forms.CharField(max_length=30, label='Last Name')
 
   address1 = forms.CharField(label="Address 1", max_length=128)
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
   city = forms.CharField(label="City", max_length=64)
   state = us_forms.USStateField(widget=us_forms.USStateSelect())
-  zipcode = us_forms.USZipCodeField()
-  phone = us_forms.USPhoneNumberField()
-  email = forms.EmailField(widget=forms.HiddenInput())  # help_text="A new account will be created using this e-mail address if not an active account")
+  zipcode = us_forms.USZipCodeField(label='Zipcode')
+  phone = us_forms.USPhoneNumberField(label='Phone Number')
+  email = forms.EmailField(widget=forms.HiddenInput, label='Email')  # help_text="A new account will be created using this e-mail address if not an active account")
 
   news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.",
                                   initial=True, required=False)
@@ -628,6 +628,19 @@ class ShippingForm(forms.ModelForm):
     profile.save()
 
     return user
+
+
+class JoinClubShippingForm(ShippingForm):
+  def __init__(self, *args, **kwargs):
+    super(JoinClubShippingForm, self).__init__(*args, **kwargs)
+    self.fields['email'].widget.attrs['readonly'] = True
+    for field_name in self.fields:
+      if hasattr(self.fields[field_name], 'label'):
+        self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
 
 class CustomizeInvitationForm(forms.ModelForm):

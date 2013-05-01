@@ -1,0 +1,214 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <style type="text/css">
+    button {
+      height:35px;
+      border-radius:4px;
+      border:1px solid #CCC;
+    }
+
+    .form-horizontal .control-group {
+      margin-bottom:1.0em;
+    }
+    .card-info {
+      padding-top: 40px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block header %}
+  <h1 class="headline">Where do you want it?</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <div class="row">
+    <div class="span4 offset1 center">
+      <h2>Birth Date</h2>
+    </div>
+    <div class="span4 offset1 center">
+      <h2>Billing Info</h2>
+    </div>
+  </div>
+  <div class="row">
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="span4 offset1">
+        <fieldset>
+          <p>You have to be 21 to drink it, so you have to be 21 to receive it. 
+            Make sure wherever you ship will have someone 21 or older available to sign.</p>
+          <div class="control-group{% if eligibility_form.dob.errors %} error{% endif %}">
+            {{ eligibility_form.mentor }}
+            {{ eligibility_form.gender }}
+            {{ eligibility_form.user }}
+            {{ eligibility_form.dob }}
+            {% if eligibility_form.dob.errors %}
+              <span class="help-inline">
+                {{ eligibility_form.dob.errors }}
+              </span>
+            {% endif %}
+          </div>
+          <hr />
+          <div class="control-group{% if form.first_name.errors %} error{% endif %}">
+            {{ form.first_name}} 
+            {% if form.first_name.errors %}
+              <span class="help-inline">
+                {{ form.first_name.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.last_name.errors %} error{% endif %}">
+            {{ form.last_name}}
+            {% if form.last_name.errors %}
+              <span class="help-inline">
+                {{ form.last_name.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.address1.errors %} error{% endif %}">
+            {{ form.address1}} 
+            {% if form.address1.errors %}
+              <span class="help-inline">
+                {{ form.address1.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.address2.errors %} error{% endif %}">
+            {{ form.address2}} 
+            {% if form.address2.errors %}
+              <span class="help-inline">
+                {{ form.address2.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.company_co.errors %} error{% endif %}">
+            {{ form.company_co}} 
+            {% if form.company_co.errors %}
+              <span class="help-inline">
+                {{ form.company_co.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.city.errors %} error{% endif %}">
+            {{ form.city}} 
+            {% if form.city.errors %}
+              <span class="help-inline">
+                {{ form.city.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.state.errors %} error{% endif %}">
+            {{ form.state}} 
+            {% if form.state.errors %}
+              <span class="help-inline">
+                {{ form.state.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.zipcode.errors %} error{% endif %}">
+            {{ form.zipcode}} 
+            {% if form.zipcode.errors %}
+              <span class="help-inline">
+                {{ form.zipcode.errors }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="control-group{% if form.phone.errors %} error{% endif %}">
+            {{ form.phone}} 
+            {% if form.phone.errors %}
+              <span class="help-inline">
+                {{ form.phone.errors }}
+              </span>
+            {% endif %}
+          </div>
+          {{ form.email }}
+<!-- 
+          {% if update %}
+            <div class="control-group">
+              <a href="{% url place_order %}" class="btn">Cancel</a>  
+              <input class="btn btn-primary" type="submit" value="Update" />
+            </div>
+          {% else %}
+            <div class="control-group">
+              <input class="btn btn-primary" type="submit" value="Next" />
+            </div>
+          {% endif %}
+-->
+        </fieldset>
+        <div class="vertical-space">&nbsp;</div>
+      </div>
+      <div class="span4 offset1 card-info">
+        <fieldset>
+          <div class="control-group">
+            <img src="{{ STATIC_URL }}img/card_icons.png" />
+          </div>
+          <div class="control-group">
+            <input type="hidden" class="card-name" value="{{ receiver.first_name }} {{ receiver.last_name }}" />
+            <input type="text" size="20" autocomplete="off" class="card-number input-block-level" placeholder="Card #" />
+          </div>
+          <div class="control-group">
+            Expiration Date <br />
+            <input type="text" size="2" class="card-expiry-month span1" maxlength="2" placeholder="MM" />
+            <input type="text" size="4" class="card-expiry-year span1" maxlength="4" placeholder="YYYY" />
+          </div>
+          <div class="control-group">
+            <input type="password" size="4" autocomplete="off" class="card-cvc input-block-level" placeholder='CVC' maxlength="4" />
+          </div>
+          <div class="control-group">
+              <input type="text" size="5" value="{{ receiver.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
+          </div>
+          <div class="control-group">
+            <img src="{{ STATIC_URL }}img/security_icons.png" />
+          </div>
+          <div class="control-group">
+            <label class="checkbox">
+            {{ form.news_optin}} 
+            {{ form.news_optin.label }}
+            {% if form.news_optin.errors %}
+              <span class="help-inline">
+                {{ form.news_optin.errors }}
+              </span>
+            {% endif %}
+            </label>
+          </div>
+          <div class="control-group center">
+            <button class="btn btn-primary submit-button">Next</button>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+    <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready( function () {
+        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+        if (!$('.datepicker').val()) {
+          options.startView = 'decade';
+        }
+        $('.datepicker').datepicker(options);
+        
+        // uncomment this to enable
+        $("#update-age").modal();
+      });
+    </script>
+{% endblock additional_scripts %}

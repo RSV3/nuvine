@@ -24,6 +24,7 @@ from accounts.utils import send_verification_email, send_password_change_email, 
 
 from cms.models import ContentTemplate
 from main.utils import send_host_vinely_party_email, my_host, my_pro
+from main.forms import JoinClubShippingForm
 
 from stripecard.models import StripeCard
 
@@ -1164,10 +1165,8 @@ def join_club_start(request):
 
   data = {}
   form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
-  # eligibility_form = AgeValidityForm(request.POST or None, prefix='eligibility')
   login_form = VinelyEmailAuthenticationForm(request.POST or None)
   data['form'] = form
-  # data['eligibility_form'] = eligibility_form
   data['login_form'] = login_form
 
   if form.is_valid():
@@ -1204,8 +1203,17 @@ def join_club_start(request):
 
 @login_required
 def join_club_shipping(request):
-  return HttpResponse('done')
-  # return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+  user = request.user
+
+  data = {}
+
+  shipping_form = JoinClubShippingForm(request.POST or None)
+  eligibility_form = AgeValidityForm(request.POST or None, prefix='eligibility')
+
+  data['eligibility_form'] = eligibility_form
+  data['form'] = shipping_form
+
+  return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
 
 @login_required
