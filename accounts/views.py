@@ -18,7 +18,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
                             HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm, AgeValidityForm, \
                             VinelyEmailAuthenticationForm
-from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode
+from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
                             get_default_pro
@@ -509,10 +509,6 @@ def make_pro_host(request, account_type, data):
   u = request.user
   profile = u.get_profile()
 
-  hos_group = Group.objects.get(name="Vinely Host")
-  # tas_group = Group.objects.get(name="Vinely Taster")
-  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
-
   pro, pro_profile = my_pro(u)
   pro_email = pro.email if pro else None
   initial_data = {'account_type': account_type, 'first_name': u.first_name, 'last_name': u.last_name,
@@ -579,8 +575,9 @@ def make_pro_host(request, account_type, data):
 
         # if not already in pro_pending_group, add them
         if not u.userprofile.is_pending_pro():
-          u.groups.clear()
-          u.groups.add(pro_pending_group)
+          prof = u.get_profile()
+          prof.role = UserProfile.ROLE_CHOICES[5][0]
+          prof.save()
 
         send_pro_request_email(request, u)
         # messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
@@ -618,8 +615,9 @@ def make_pro_host(request, account_type, data):
         send_pro_request_email(request, u)
         # if not already in pro_pending_group, add them
         if not u.userprofile.is_pending_pro():
-          u.groups.clear()
-          u.groups.add(pro_pending_group)
+          prof = u.get_profile()
+          prof.role = UserProfile.ROLE_CHOICES[5][0]
+          prof.save()
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
         return HttpResponseRedirect(reverse('home_page'))
 
@@ -639,8 +637,9 @@ def make_pro_host(request, account_type, data):
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
 
-        u.groups.clear()
-        u.groups.add(hos_group)
+        prof = u.get_profile()
+        prof.role = UserProfile.ROLE_CHOICES[2][0]
+        prof.save()
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
         return HttpResponseRedirect(reverse('home_page'))
 
@@ -754,21 +753,8 @@ def sign_up(request, account_type, data):
                           3 - Vinely Taster
   """
   # data = {}
-  role = None
-
+  user = None
   account_type = int(account_type)
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name="Vinely Taster")
-  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
-
-  if account_type == 1:
-    role = pro_group
-  elif account_type == 2:
-    role = hos_group
-  elif account_type == 3:
-    role = tas_group
 
   # create users and send e-mail notifications
   form = NewHostProForm(request.POST or None, initial={'account_type': account_type})
@@ -787,7 +773,7 @@ def sign_up(request, account_type, data):
     # if pro, then mentor IS mentor
     if account_type == 1:
       try:
-        mentor = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
+        mentor = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
       except User.DoesNotExist:
         # mentor e-mail was not entered, assign default pro
         mentor = get_default_pro()
@@ -800,7 +786,7 @@ def sign_up(request, account_type, data):
       # if host, then set mentor to be the host's pro
       # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
       try:
-        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
+        pro = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
         profile.current_pro = pro
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
@@ -811,11 +797,15 @@ def sign_up(request, account_type, data):
       profile.save()
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
-    if role == pro_group:
+    if account_type == 1:
       # if requesting to be pro, put them in pending pro group
-      user.groups.add(pro_pending_group)
+      prof = user.get_profile()
+      prof.role = UserProfile.ROLE_CHOICES[5][0]
+      prof.save()
     else:
-      user.groups.add(role)
+      prof = user.get_profile()
+      prof.role = account_type
+      prof.save()
 
     # save engagement type
     interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=account_type)
@@ -833,147 +823,10 @@ def sign_up(request, account_type, data):
     return HttpResponseRedirect(success_url)
 
   data['form'] = form
-  data['role'] = role.name
   data['account_type'] = account_type
   # data['get_started_menu'] = True
 
   return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
-
-
-def sign_up_old(request, account_type):
-  """
-    :param account_type: 1 - Vinely Pro
-                          2 - Vinely Host
-                          3 - Vinely Taster
-                          4 - Supplier
-                          5 - Vinely Tasting Lead
-  """
-
-  data = {}
-  role = None
-
-  account_type = int(account_type)
-
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name="Vinely Taster")
-  pro_pending_group = Group.objects.get(name="Pending Vinely Pro")
-
-  ### Handle people who are signing up fresh
-  if account_type in [3, 5]:
-    # people who order wine tasting kit
-    role = tas_group
-  elif account_type == 1:
-    role = pro_group
-  elif account_type == 2:
-    role = hos_group
-
-  if not role:
-    # currently suppliers cannot sign up
-    raise Http404
-
-  # create users and send e-mail notifications
-  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': account_type})
-
-  if form.is_valid():
-    user = form.save()
-    profile = user.get_profile()
-    profile.zipcode = form.cleaned_data['zipcode']
-    profile.phone = form.cleaned_data['phone_number']
-    ok = check_zipcode(profile.zipcode)
-
-    if not ok:
-      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
-      send_not_in_area_party_email(request, user, account_type)
-
-    # if pro, then mentor IS mentor
-    if account_type == 1:
-      try:
-        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
-        profile.mentor = pro
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=pro, mentor_email=form.cleaned_data['mentor'])
-      except User.DoesNotExist:
-        # mentor e-mail was not entered
-        ProSignupLog.objects.get_or_create(new_pro=user, mentor=None, mentor_email=form.cleaned_data['mentor'])
-
-    elif account_type == 2:
-      # if host, then set mentor to be the host's pro
-      try:
-        pro = User.objects.get(email=form.cleaned_data['mentor'], groups__in=[pro_group])
-          # map host to a pro
-        my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=user)
-      except User.DoesNotExist:
-        # pro e-mail was not entered
-        my_hosts, created = MyHost.objects.get_or_create(pro=None, host=user, email_entered=form.cleaned_data['mentor'])
-
-    profile.save()
-
-    if role == pro_group:
-      # if requesting to be pro, put them in pending pro group
-      user.groups.add(pro_pending_group)
-    else:
-      user.groups.add(role)
-
-    user.is_active = False
-    temp_password = User.objects.make_random_password()
-    user.set_password(temp_password)
-    user.save()
-
-    # save engagement type
-    engagement_type = account_type
-
-    interest, created = EngagementInterest.objects.get_or_create(user=user,
-                                                      engagement_type=engagement_type)
-
-    verification_code = str(uuid.uuid4())
-    vque = VerificationQueue(user=user, verification_code=verification_code)
-    vque.save()
-
-    # send out verification e-mail, create a verification code
-    send_verification_email(request, verification_code, temp_password, user.email)
-
-    data["email"] = user.email
-    data["first_name"] = user.first_name
-
-    data["account_type"] = account_type
-    if account_type == 1:
-      send_pro_request_email(request, user)
-      messages.success(request, "Thank you for your interest in becoming a Vinely Pro!")
-      return render_to_response("accounts/pro_request_sent.html", data, context_instance=RequestContext(request))
-    elif account_type == 2:
-      # send mail to sales@vinely if no mentor
-      mentor_pro = None
-      try:
-        # make sure selected mentor is a pro
-        mentor_pro = User.objects.get(email=request.POST.get('mentor'))
-
-        if pro_group in mentor_pro.groups.all():
-          send_know_pro_party_email(request, user)  # to host
-      except User.DoesNotExist, e:
-        # mail sales
-        send_unknown_pro_email(request, user)  # to host
-
-      send_host_vinely_party_email(request, user, mentor_pro)  # to pro or vinely
-      messages.success(request, "Thank you for your interest in hosting a Vinely Party!")
-
-    elif account_type == 3:
-      # link them to party and RSVP
-      PartyInvite.objects.create(party=party, invitee=user, invited_by=party.host,
-                                response=PartyInvite.RESPONSE_CHOICES[3][0], response_timestamp=today)
-
-      messages.success(request, "Thank you for your interest in attending a Vinely Party.")
-
-    data['heard_about_us_form'] = HeardAboutForm()
-    data["get_started_menu"] = True
-    return render_to_response("accounts/verification_sent.html", data, context_instance=RequestContext(request))
-
-  data['form'] = form
-  data['role'] = role.name
-  data['account_type'] = account_type
-  data["get_started_menu"] = True
-
-  return render_to_response("accounts/sign_up.html", data,
-                        context_instance=RequestContext(request))
 
 
 def verify_email(request, verification_code):

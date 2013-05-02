@@ -30,8 +30,9 @@ class Command(BaseCommand):
 
     if options["email"] and options["password"]:
       u = create_user(options["email"], options["password"])
-      u.groups.add(supplier)
-      u.save()
+      prof = u.get_profile()
+      prof.role = UserProfile.ROLE_CHOICES[4][0]
+      prof.save()
       log.info("New supplier account with {email} created successfully.".format(email=options['email']))
     else:
       log.error("No email and password supplied.")

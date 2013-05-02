@@ -344,20 +344,18 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
 
-    pro_group = Group.objects.get(name="Vinely Pro")
-
     mentor_email = cleaned.get('mentor')
     if mentor_email:
       mentor_email = mentor_email.strip().lower()
 
     if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
       # make sure the pro exists
-      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
+      if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
     if self.initial['account_type'] == 2 and mentor_email or self.initial['account_type'] == 3 and mentor_email:  # host -> pro field
       # make sure the pro exists
-      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
+      if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"
 
     if cleaned.get('email'):
@@ -454,9 +452,8 @@ class ProLinkForm(forms.Form):
 
   def clean_email(self):
     cleaned_email = self.cleaned_data['email'].strip().lower()
-    pro_group = Group.objects.get(name="Vinely Pro")
 
-    if not User.objects.filter(email=cleaned_email, groups__in=[pro_group]).exists():
+    if not User.objects.filter(email=cleaned_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
       raise forms.ValidationError('Pro with the email %s does not exist' % (cleaned_email))
 
     return cleaned_email

@@ -14,7 +14,7 @@ from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote, MyHost
-from accounts.models import Address, SubscriptionInfo
+from accounts.models import Address, SubscriptionInfo, UserProfile
 
 from main.utils import add_form_validation, business_days_count, business_days_from
 
@@ -163,8 +163,7 @@ class PartyCreateForm(forms.ModelForm):
         user = User.objects.get(email=host_email)
         # check that host is not another pro
         if user.id != self.initial['pro'].id:
-          pro_group = Group.objects.get(name="Vinely Pro")
-          if pro_group in user.groups.all():
+          if user.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
             self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
       except User.DoesNotExist:
         # user with this new e-mail will be created in clean
@@ -203,13 +202,11 @@ class PartyCreateForm(forms.ModelForm):
           prof.phone = cleaned_data['phone']
           prof.save()
 
-        pro_group = Group.objects.get(name="Vinely Pro")
-        ph_group = Group.objects.get(name="Vinely Host")
-        if ph_group not in user.groups.all() and pro_group not in user.groups.all():
+        prof = user.get_profile()
+        if prof.role not in [UserProfile.ROLE_CHOICES[1][0], UserProfile.ROLE_CHOICES[2][0]]:
           # add the user to Vinely Host group if not a Vinely Pro already
-          user.groups.clear()
-          user.groups.add(ph_group)
-          user.save()
+          prof.role = UserProfile.ROLE_CHOICES[2][0]
+          prof.save()
 
         cleaned_data['host'] = user
         del self._errors['host']
@@ -305,22 +302,6 @@ class PartyInviteTasterForm(forms.ModelForm):
 
     add_form_validation(self)
 
-    # tas_group = Group.objects.get(name="Vinely Taster")
-
-    # if initial.get('host'):
-    #   # only get users linked to this host
-    #   my_guests = PartyInvite.objects.filter(party__host=initial.get('host'))
-    #   users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    # elif initial.get('pro'):
-    #   # only get users linked to this host
-    #   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=initial.get('pro'))
-    #   users = User.objects.filter(id__in=[x.invitee.id for x in my_guests], groups__in=[tas_group]).order_by('first_name')
-    # else:
-    #   # everything
-    #   users = User.objects.none()
-
-    # self.fields['invitee'].choices = [('', '---------')] + [(u.id, "%s %s (%s)" % (u.first_name, u.last_name, u.email)) for u in users.only('id', 'email')]
-
   def clean(self):
 
     cleaned_data = super(PartyInviteTasterForm, self).clean()
@@ -359,11 +340,11 @@ class PartyInviteTasterForm(forms.ModelForm):
           profile.phone = cleaned_data['phone']
         profile.save()
 
-        if user.groups.all().count() == 0:
+        if profile.role == UserProfile.ROLE_CHOICES[0][0]:
           # add the user to Party Taster group
-          tas_group = Group.objects.get(name="Vinely Taster")
-          user.groups.add(tas_group)
-          user.save()
+          profile.role = UserProfile.ROLE_CHOICES[3][0]
+          profile.save()
+
         cleaned_data['invitee'] = user
       else:
         from django.forms.util import ErrorList

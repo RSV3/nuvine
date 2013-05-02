@@ -6,10 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.files import File
-from accounts.models import Address, Zipcode
+from accounts.models import Address, Zipcode, UserProfile
 
 from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, Order, OrganizedParty, MyHost, \
                         InvitationSent
@@ -33,11 +33,11 @@ class SimpleTest(TestCase):
     """
       create usable accounts
     """
-    ps_group, created = Group.objects.get_or_create(name="Vinely Pro")
-    ph_group, created = Group.objects.get_or_create(name="Vinely Host")
-    att_group, created = Group.objects.get_or_create(name="Vinely Taster")
-    supp_group, created = Group.objects.get_or_create(name="Supplier")
-    pending_pro_group, created = Group.objects.get_or_create(name="Pending Vinely Pro")
+    ps_group = UserProfile.ROLE_CHOICES[1][0]
+    ph_group = UserProfile.ROLE_CHOICES[2][0]
+    att_group = UserProfile.ROLE_CHOICES[3][0]
+    supp_group = UserProfile.ROLE_CHOICES[4][0]
+    pending_pro_group = UserProfile.ROLE_CHOICES[5][0]
 
     Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
     Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
@@ -47,69 +47,84 @@ class SimpleTest(TestCase):
     mi_pro.is_staff = True
     mi_pro.is_superuser = True
     mi_pro.save()
-    mi_pro.groups.add(ps_group)
+    mi_pro.userprofile.role = ps_group
     mi_pro.userprofile.zipcode = '49546'
     mi_pro.userprofile.save()
 
     ca_pro = create_user("johnstecco@gmail.com", "jstecco")
-    ca_pro.groups.add(ps_group)
+    ca_pro.userprofile.role = ps_group
     ca_pro.userprofile.zipcode = '92612'
     ca_pro.userprofile.save()
 
     ma_pro = create_user("specialist1@example.com", "hello")
-    ma_pro.groups.add(ps_group)
+    ma_pro.userprofile.role = ps_group
     ma_pro.userprofile.zipcode = '02139'
     ma_pro.userprofile.save()
 
     u = create_user("specialist2@example.com", "hello")
-    u.groups.add(ps_group)
+    u.userprofile.role = ps_group
+    u.userprofile.save()
 
     u = create_user("host1@example.com", "hello")
-    u.groups.add(ph_group)
+    u.userprofile.role = ph_group
+    u.userprofile.save()
 
     u = create_user("host2@example.com", "hello")
-    u.groups.add(ph_group)
+    u.userprofile.role = ph_group
+    u.userprofile.save()
 
     u = create_user("host3@example.com", "hello")
-    u.groups.add(ph_group)
+    u.userprofile.role = ph_group
+    u.userprofile.save()
 
     u = create_user("attendee1@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee2@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee3@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee4@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee5@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee6@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee7@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee8@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("attendee9@example.com", "hello")
-    u.groups.add(att_group)
+    u.userprofile.role = att_group
+    u.userprofile.save()
 
     u = create_user("supplier1@example.com", "hello")
-    u.groups.add(supp_group)
+    u.userprofile.role = supp_group
+    u.userprofile.save()
 
     u = create_user("supplier2@example.com", "hello")
-    u.groups.add(supp_group)
+    u.userprofile.role = supp_group
+    u.userprofile.save()
 
-    suppliers = User.objects.filter(groups=supp_group)
+    suppliers = User.objects.filter(userprofile__role=supp_group)
     self.assertEqual(suppliers.count(), 2)
 
-    tasters = User.objects.filter(groups=att_group)
+    tasters = User.objects.filter(userprofile__role=att_group)
     self.assertEqual(tasters.count(), 9)
 
     for u in User.objects.all():
@@ -127,43 +142,43 @@ class SimpleTest(TestCase):
   #   self.assertContains(response, "New pro has been successfully assigned.")
 
   def create_wine_personalities(self):
-    WinePersonality.objects.get_or_create(name="Easy Going",
+    WinePersonality.objects.get_or_create(pk=1, name="Easy Going",
                                   headline="You're \"easygoing,\" even before the wine.",
                                   description="You're the type of person who comes home after a long day and reaches \
                                    for a glass. Your wine is happy, light, and white - clean, effortless, and something \
                                    to unwind with. It's easy for you to relax and escape, especially with a glass in hand.")
 
-    WinePersonality.objects.get_or_create(name="Moxie",
+    WinePersonality.objects.get_or_create(pk=2, name="Moxie",
                                   headline="Bold, confident, outstanding.",
                                   description="We're talking about you as much as the wine you drink. You don't talk, \
                                     you make a statement - and when it's about wine, it's \"I drink red!\" Dynamic \
                                     and charismatic, you could spend the night with just these wines and be completely content.")
 
-    WinePersonality.objects.get_or_create(name="Whimsical",
+    WinePersonality.objects.get_or_create(pk=3, name="Whimsical",
                                   headline="You find comfort in the wine you drink.",
                                   description="Wine for you is an occasion where you're often the life of the party. \
                                    Life's not that complicated, nor is your wine. The key for you is FUN. Some may \
                                    consider you a little quirky and frequently playful, and that's what's in your glass.")
 
-    WinePersonality.objects.get_or_create(name="Sensational",
+    WinePersonality.objects.get_or_create(pk=4, name="Sensational",
                                   headline="And that you are.",
                                   description="You put thought into your whole wine experience, thirsting for everything in the glass \
                                     - the history, the depth, the pairings - all are appreciated in every sip. The wines are exciting, \
                                     stunning, and entice you into exploring even more.")
 
-    WinePersonality.objects.get_or_create(name="Exuberant",
+    WinePersonality.objects.get_or_create(pk=5, name="Exuberant",
                                   headline="Vivacious and cheerful, you're often the host.",
                                   description="You see your wine as an accompaniment - for the evening or the food. \
                                     But you do not necessarily see it taking center stage. Your wine is a lively yet \
                                     informal addition, one whose absence would be missed.")
 
-    WinePersonality.objects.get_or_create(name="Serendipitous",
+    WinePersonality.objects.get_or_create(pk=6, name="Serendipitous",
                                   headline="When asked if you prefer red or white, you say, \"YES!\"",
                                   description="You welcome impromptu opportunities with open arms. Your greatest joy is \
                                   making surprising discoveries in your life - and your wine. Your unconstrained nature \
                                   empowers you to float from one sensual pleasure to the next.")
 
-    WinePersonality.objects.get_or_create(name="Mystery",
+    WinePersonality.objects.get_or_create(pk=7, name="Mystery",
                                   headline="You follow every clue.",
                                   description="You're full of personality. So which one is it? Are you Whimsical? Serendipitous? \
                                   Do you think you're Sensational? Exuberant? Full of Moxie or Easygoing? As soon as you find out, \
@@ -171,36 +186,36 @@ class SimpleTest(TestCase):
 
   def create_wine_samplers(self):
 
-    Wine.objects.get_or_create(name="Domaine De Pellehaut \"Harmonie De Gascogne\"",
+    Wine.objects.get_or_create(pk=1, name="Domaine De Pellehaut \"Harmonie De Gascogne\"",
                         sip_bits="Light, \"clean\" blend of four regional varietals \
                             from the Loire Valley (France), predominantly Uni Blanc and Columbard.",
                         number=1,
                         active=True)
-    Wine.objects.get_or_create(name="Contrada Chardonnay",
+    Wine.objects.get_or_create(pk=2, name="Contrada Chardonnay",
                         sip_bits="Classic California chard. Made by respected wine-maker Michael \
                                 Pozzan.  This wine has limited availability and crated for the \
                                 restaurant industry.",
                         number=2,
                         active=True)
-    Wine.objects.get_or_create(name="Foris Vineyards Muscat Frizzante",
+    Wine.objects.get_or_create(pk=3, name="Foris Vineyards Muscat Frizzante",
                         sip_bits="This wine defines \"aromatics on the nose\"; \"Frizzante\" is \
                             Italian that refers to the slight effervescence, paying homage to this \
                             varietal's roots, although this wine hails from Oregon.",
                         number=3,
                         active=True)
-    Wine.objects.get_or_create(name="Giuseppe Savine Rondineto \"Vino Quotidinao\"",
+    Wine.objects.get_or_create(pk=4, name="Giuseppe Savine Rondineto \"Vino Quotidinao\"",
                         sip_bits="Light bodied Italian red that can be served slight chilled (really) \
                             perfect for people just getting into the \"world of red\"; \
                             translates to \"wine for everyday\"; believe it or not, this is \
                             mad from 100% Merlot!",
                         number=4,
                         active=True)
-    Wine.objects.get_or_create(name="Lange Twins Zinfandel",
+    Wine.objects.get_or_create(pk=5, name="Lange Twins Zinfandel",
                         sip_bits="Small Produced, Classic for the style. Fantastic, respected family-owned \
                             operation from Lodi, California.",
                         number=5,
                         active=True)
-    Wine.objects.get_or_create(name="Carlos Basso Dos Fincas Cabernet Sauvignon/Merlot",
+    Wine.objects.get_or_create(pk=6, name="Carlos Basso Dos Fincas Cabernet Sauvignon/Merlot",
                         sip_bits="Awesome wine from South America. This line is special and only 3000 \
                             cases of this wine is produced. Bold, dark - might stain your teeth purple \
                             for a while - grab a steak or some Roquefort Bleu!",

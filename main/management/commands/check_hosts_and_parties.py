@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
-from accounts.models import User
+from django.contrib.auth.models import User
+from accounts.models import UserProfile
 from main.models import NewHostNoParty, UnconfirmedParty, Party
 from django.db.models import Q
 from django.utils import timezone
@@ -22,7 +23,7 @@ class Command(BaseCommand):
 
     seven_ago = timezone.now() - timedelta(days=7)
     # hosts with no parties
-    hosts_no_party = User.objects.filter(groups__name='Vinely Host', date_joined__lt=seven_ago).exclude(Q(id__in=hosts_with_parties) | Q(id__in=already_listed)).values_list('id', flat=True)
+    hosts_no_party = User.objects.filter(userprofile__role=UserProfile.ROLE_CHOICES[2][0], date_joined__lt=seven_ago).exclude(Q(id__in=hosts_with_parties) | Q(id__in=already_listed)).values_list('id', flat=True)
     # print 'no party', hosts_no_party
     hosts = User.objects.filter(id__in=hosts_no_party)
     for host in hosts:

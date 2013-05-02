@@ -1,3 +1,10 @@
+# Tuesday, April 30, 2013
+
+- We need to update password_change_email, account_activation_email
+
+
+# Past
+
 - UserProfile.mentor is calculated
 
 - script commands/set_mentor_to_current_pro: 

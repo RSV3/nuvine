@@ -2,9 +2,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django_tables2 import RequestConfig
+
+from accounts.models import UserProfile
 
 from pro.models import ProLevel, WeeklyCompensation, MonthlyQualification, MonthlyBonusCompensation
 from pro.tables import WeeklyCompensationTable, MonthlyBonusCompensationTable, MonthlyQualificationTable
