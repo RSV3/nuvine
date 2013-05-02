@@ -13,7 +13,7 @@ from datetime import timedelta, datetime
 from django.conf import settings
 
 from accounts.models import VerificationQueue
-from main.models import MyHost, ProSignupLog
+from main.models import MyHost, ProSignupLog, Cart, LineItem
 from support.models import Email
 from emailusernames.utils import create_user
 
@@ -550,13 +550,17 @@ class SimpleTest(TestCase):
     }
     shipping_info.update(stripe_card_info)
     response = self.client.post(reverse('join_club_shipping'), shipping_info)
-    # print response
     self.assertRedirects(response, reverse('join_club_review'))
 
-    # response = self.client.post(reverse('join_club_review'), {
-    #     'join': 'join',
-    # })
+    # ensure cart exists
+    cart = Cart.objects.get(user__email='new.member2@example.com', receiver__email='new.member2@example.com', status=4)
+    self.assertEquals(cart.items.count(), 1)
 
+    response = self.client.post(reverse('join_club_review'), {
+        'join': 'join',
+    })
+    # check order made
+    # check email sent out
     # self.assertRedirects(response, reverse('join_club_congrats'))
 
   def test_user_rsvp_without_signup(self):

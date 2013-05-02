@@ -1241,9 +1241,11 @@ def join_club_shipping(request):
       return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
   if shipping_form.is_valid() and valid_age:
-    shipping_form.save()
+    user = shipping_form.save()
+    profile = user.get_profile()
 
     profile.dob = eligibility_form.cleaned_data['dob']
+    profile.above_21 = True
     profile.save()
 
     # handle credit card
@@ -1273,7 +1275,7 @@ def join_club_shipping(request):
     else:
       product = Product.objects.get(category=0, active=True)
       item = LineItem.objects.create(product=product, total_price=product.unit_price)
-      cart = Cart.objects.create(user=user, status=Cart.CART_STATUS_CHOICES[4][0])
+      cart = Cart.objects.create(user=user, receiver=user, status=Cart.CART_STATUS_CHOICES[4][0], adds=1)
       cart.items.add(item)
       request.session['cart_id'] = cart.id
 
@@ -1287,7 +1289,21 @@ def join_club_shipping(request):
 
 @login_required
 def join_club_review(request):
-  return HttpResponse(request)
+  user = request.user
+  profile = user.get_profile()
+  data = {}
+
+  cart_id = request.session.get('cart_id')
+  if cart_id:
+    cart = Cart.objects.get(id=cart_id)
+  else:
+    return HttpResponseRedirect(reverse('join_club_shipping'))
+
+  data['shipping_address'] = profile.shipping_address
+  data['cart'] = cart
+  data["credit_card"] = profile.stripe_card
+
+  return render_to_response("accounts/join_club_review.html", data, context_instance=RequestContext(request))
 
 
 @login_required
