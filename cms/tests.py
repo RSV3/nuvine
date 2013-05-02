@@ -552,7 +552,7 @@ class SimpleTest(TestCase):
 
     {% load static %}
 
-    Hey {% if first_name %}{{ first_name }}{% else %}{{ role.name }}{% endif %}!
+    Hey {% if first_name %}{{ first_name }}{% else %}{{ role }}{% endif %}!
 
     We heard you lost your password. (No prob.  Happens all the time.)
 
@@ -592,7 +592,7 @@ class SimpleTest(TestCase):
 
     {% load static %}
 
-    Hey {% if first_name %}{{ first_name }}{% else %}{{ role.name }}{% endif %}!
+    Hey {% if first_name %}{{ first_name }}{% else %}{{ role }}{% endif %}!
 
     The following information describes how you can get access to Vinely.
 

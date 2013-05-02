@@ -6,7 +6,7 @@ from optparse import make_option
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
-from accounts.models import CreditCard, Address, VerificationQueue
+from accounts.models import CreditCard, Address, VerificationQueue, UserProfile
 from main.models import SubscriptionInfo, CustomizeOrder, Party, LineItem, Cart, Product, Order, PartyInvite
 from main.utils import UTC, send_order_added_email, send_to_supplier_order_added_email
 from personality.models import WinePersonality, Wine, WineRatingData
@@ -255,8 +255,9 @@ class Command(BaseCommand):
         customer_temp_password = User.objects.make_random_password()
         u.set_password(customer_temp_password)
         u.save()
-        u.groups.add(taster_group)
-        u.save()
+        profile = u.get_profile()
+        profile.role = UserProfile.ROLE_CHOICES[3][0]
+        profile.save()
 
         customer_verification_code = str(uuid.uuid4())
         vque = VerificationQueue(user=u, verification_code=customer_verification_code)
@@ -281,12 +282,12 @@ class Command(BaseCommand):
           receiver.last_name = row[RECIPIENT_LAST_NAME].strip()
           receiver.is_active = False
           receiver.save()
-          receiver.groups.add(taster_group)
           receiver_temp_password = User.objects.make_random_password()
           receiver.set_password(receiver_temp_password)
           receiver.save()
-          receiver.groups.add(taster_group)
-          receiver.save()
+          recv_profile = receiver.get_profile()
+          recv_profile.role = UserProfile.ROLE_CHOICES[3][0]
+          recv_profile.save()
 
           receiver_verification_code = str(uuid.uuid4())
           vque = VerificationQueue(user=receiver, verification_code=receiver_verification_code)

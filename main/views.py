@@ -16,7 +16,7 @@ from django_tables2 import RequestConfig
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
 from personality.models import WineTaste, GeneralTaste, WinePersonality
-from accounts.models import VerificationQueue, Zipcode
+from accounts.models import VerificationQueue, Zipcode, UserProfile
 
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
@@ -480,8 +480,7 @@ def cart_add_wine(request):
     cart.save()
 
     # if not pro notify user if they are already subscribed and that a new subscription will cancel the existing
-    pro_group = Group.objects.get(name="Vinely Pro")
-    if pro_group not in u.groups.all():
+    if u.get_profile().role != UserProfile.ROLE_CHOICES[1][0]:
       if cart.items.filter(frequency__in=[1, 2, 3]).exists():
         subscriptions = SubscriptionInfo.objects.filter(user=u).order_by('-updated_datetime')
         if subscriptions.exists():
@@ -1033,17 +1032,12 @@ def party_add(request, party_id=None, party_pro=None):
 
   u = request.user
 
-  sp_group = Group.objects.get(name='Supplier')
-  tas_group = Group.objects.get(name='Vinely Taster')
-
-  pending_pro = Group.objects.get(name="Pending Vinely Pro")
-
   data["no_perms"] = False
 
-  if sp_group in u.groups.all() or tas_group in u.groups.all() or pending_pro in u.groups.all():
+  if u.get_profile().role in [UserProfile.ROLE_CHOICES[4][0], UserProfile.ROLE_CHOICES[3][0], UserProfile.ROLE_CHOICES[5][0]]:
     # if not a Vinely Pro or Host, one does not have permissions
     data["no_perms"] = True
-    data["pending_pro"] = pending_pro in u.groups.all()
+    data["pending_pro"] = UserProfile.ROLE_CHOICES[5][0] == u.get_profile().role 
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
@@ -1631,7 +1625,7 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
   if int(party_id) != 0:
     party = get_object_or_404(Party, pk=party_id)
 
-    if tas_group in u.groups.all():
+    if u.get_profile().role == UserProfile.ROLE_CHOICES[3][0]:
       try:
         # Vinely Taster must have been already invited to invite more
         invite = PartyInvite.objects.get(party=party, invitee=u)
@@ -1644,7 +1638,7 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
     invite = get_object_or_404(PartyInvite, party=party, rsvp_code=rsvp_code)
     u = invite.invitee
 
-  if pro_group in u.groups.all() or hos_group in u.groups.all() or tas_group in u.groups.all():
+  if u.get_profile().role in [UserProfile.ROLE_CHOICES[1][0], UserProfile.ROLE_CHOICES[2][0], UserProfile.ROLE_CHOICES[3][0]]:
     if u.get_profile().is_host():
       initial_data = {'host': u}
     elif u.get_profile().is_pro():
@@ -1677,13 +1671,13 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
 
     # use yesterday to filter event so that people can invite more people
     yesterday = timezone.now() - timedelta(days=1)
-    if tas_group in u.groups.all():
+    if u.get_profile().role == UserProfile.ROLE_CHOICES[3][0]:
       parties = Party.objects.filter(partyinvite__invitee=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
-    elif hos_group in u.groups.all():
+    elif u.get_profile().role == UserProfile.ROLE_CHOICES[2][0]:
       parties = Party.objects.filter(host=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
-    elif pro_group in u.groups.all():
+    elif u.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
       parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
 
@@ -1745,7 +1739,7 @@ def party_rsvp(request, party_id, rsvp_code=None, response=0):
 
   profile = u.get_profile()
 
-  initial_data = {'party': party, u.userprofile.role(): u}
+  initial_data = {'party': party, u.userprofile.role_lower(): u}
 
   if request.POST.get('add_taster'):
     taster_form = PartyInviteTasterForm(request.POST, initial=initial_data)
@@ -2502,22 +2496,6 @@ def edit_shipping_address(request):
         new_customization = CustomizeOrder(user=receiver, wine_mix=current_customization.wine_mix, sparkling=current_customization.sparkling)
         new_customization.save()
 
-    # if receiver.is_active is False:
-    #   # if new receiving user created.  happens when receiver never attended a party
-    #   role = Group.objects.get(name="Vinely Taster")
-    #   receiver.groups.add(Group.objects.get(name=role))
-
-    #   temp_password = User.objects.make_random_password()
-    #   receiver.set_password(temp_password)
-    #   receiver.save()
-
-    #   verification_code = str(uuid.uuid4())
-    #   vque = VerificationQueue(user=receiver, verification_code=verification_code)
-    #   vque.save()
-
-    #   # send out verification e-mail, create a verification code
-    #   send_verification_email(request, verification_code, temp_password, receiver.email)
-
     if 'ordering' in request.session and request.session['ordering']:
       # only happens when user decided to edit the shipping address
       cart = Cart.objects.get(id=request.session['cart_id'])
@@ -2900,7 +2878,6 @@ def vinely_event_signup(request, party_id, fb_page=0):
   u = request.user
 
   account_type = 3
-  role = Group.objects.get(id=account_type)
   data = {}
   data['fb_view'] = fb_page
   today = timezone.now()
@@ -2927,8 +2904,8 @@ def vinely_event_signup(request, party_id, fb_page=0):
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
+      profile.role = account_type
       profile.save()
-      user.groups.add(role)
       user.is_active = False
       temp_password = User.objects.make_random_password()
       user.set_password(temp_password)

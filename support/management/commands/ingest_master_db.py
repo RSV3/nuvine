@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from emailusernames.utils import create_user
@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime
 from creditcard.utils import get_cc_type
 
-from accounts.models import Address, CreditCard, VerificationQueue
+from accounts.models import Address, CreditCard, VerificationQueue, UserProfile
 from main.models import SubscriptionInfo, CustomizeOrder, Party, PartyInvite, MyHost, OrganizedParty
 from personality.utils import calculate_wine_personality
 from personality.models import WinePersonality, Wine, WineRatingData
@@ -201,8 +201,10 @@ class Command(BaseCommand):
       for host_email in list(host_emails):
         try:
           host = User.objects.get(email=host_email)
-          if host.groups.all().count() == 0:
-            host.groups.add(host_group)
+          host_profile = host.get_profile()
+          if host_profile.role == UserProfile.ROLE_CHOICES[0][0]:
+            host_profile.role = UserProfile.ROLE_CHOICES[2][0]
+            host_profile.save()
         except User.DoesNotExist:
           print "Host email", rownum, host_email
           host = create_user(host_email, 'welcome')
@@ -240,9 +242,10 @@ class Command(BaseCommand):
               user.first_name = row[RECIPIENT_FIRST_NAME]
               user.last_name = row[RECIPIENT_LAST_NAME]
               user.save()
-            if user.groups.all().count() == 0:
-              # check this since they might already be in a group
-              user.groups.add(taster_group)
+            profile = user.get_profile()
+            if profile.role == UserProfile.ROLE_CHOICES[0][0]:
+              profile.role = UserProfile.ROLE_CHOICES[3][0]
+              profile.save()
           except User.DoesNotExist:
             # create new user
             user = create_user(customer_email, 'welcome')
@@ -250,7 +253,9 @@ class Command(BaseCommand):
             user.first_name = row[RECIPIENT_FIRST_NAME]
             user.last_name = row[RECIPIENT_LAST_NAME]
             user.save()
-            user.groups.add(taster_group)
+            profile = user.get_profile()
+            profile.role = UserProfile.ROLE_CHOICES[3][0]
+            profile.save()
             # TODO: create temporary password and send new account e-mail
             # thanking them
             temp_password = User.objects.make_random_password()
@@ -396,14 +401,20 @@ class Command(BaseCommand):
           if row[HOST_EMAIL]:
             try:
               host = User.objects.get(email=row[HOST_EMAIL])
-              if host.groups.all().count() == 0:
-                host.groups.add(host_group)
+              host_profile = host.get_profile()
+              if host_profile.role == UserProfile.ROLE_CHOICES[0][0]:
+                host_profile.role = UserProfile.ROLE_CHOICES[2][0]
+                host_profile.save()
             except User.DoesNotExist:
               print "Host email", rownum, row[HOST_EMAIL]
               host = create_user(row[HOST_EMAIL], 'welcome')
               host.is_active = True
               host.save()
-              host.groups.add(host_group)
+
+              host_profile = host.get_profile()
+              host_profile.role = UserProfile.ROLE_CHOICES[2][0]
+              host_profile.save()
+
               pro_assignment, created = MyHost.objects.get_or_create(host=host)
               if pro_assignment.pro is None:
                 pro_assignment.pro = elizabeth

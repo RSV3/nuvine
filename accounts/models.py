@@ -155,6 +155,16 @@ class UserProfile(models.Model):
   mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentor')
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
 
+  ROLE_CHOICES = (
+    (0, 'Unassigned Role'),
+    (1, 'Vinely Pro'),
+    (2, 'Vinely Host'),
+    (3, 'Vinely Taster'),
+    (4, 'Supplier'),
+    (5, 'Pending Vinely Pro')
+  )
+  role = models.IntegerField(choices=ROLE_CHOICES, default=ROLE_CHOICES[0][0])
+
   GENDER_CHOICES = (
     (0, 'FEMALE'),
     (1, 'MALE'),
@@ -185,7 +195,6 @@ class UserProfile(models.Model):
     default_pro = User.objects.get(email='elizabeth@vinely.com')
 
     code = self.zipcode
-    pro_group = Group.objects.get(name='Vinely Pro')
 
     g = Geod(ellps='clrk66')
 
@@ -199,7 +208,7 @@ class UserProfile(models.Model):
     user_zipcode = Zipcode.objects.get(code=code)
 
     # 1. find pro's within the same zipcode
-    pros = UserProfile.objects.filter(zipcode=code, user__groups=pro_group)
+    pros = UserProfile.objects.filter(zipcode=code, role=UserProfile.ROLE_CHOICES[1][0])
 
     if pros.exists():
       # pick at random
@@ -211,7 +220,7 @@ class UserProfile(models.Model):
     # NOTE: Some states are massive so limit distance
     nearby_codes = Zipcode.objects.filter(state=user_zipcode.state).values_list('code', flat=True).distinct()
 
-    pros = UserProfile.objects.filter(zipcode__in=nearby_codes, user__groups=pro_group)
+    pros = UserProfile.objects.filter(zipcode__in=nearby_codes, role=UserProfile.ROLE_CHOICES[1][0])
 
     my_pros = {}
     if pros.exists():
@@ -299,39 +308,34 @@ class UserProfile(models.Model):
   def has_orders(self):
     return self.user.ordered.all().exists()
 
-  def role(self):
-    pro_group = Group.objects.get(name="Vinely Pro")
-    hos_group = Group.objects.get(name="Vinely Host")
-    tas_group = Group.objects.get(name="Vinely Taster")
-    sup_group = Group.objects.get(name="Supplier")
-    if pro_group in self.user.groups.all():
-      return 'pro'
-    if hos_group in self.user.groups.all():
-      return 'host'
-    if tas_group in self.user.groups.all():
-      return 'taster'
-    if sup_group in self.user.groups.all():
-      return 'supplier'
-
   def is_pro(self):
-    pro_group = Group.objects.get(name="Vinely Pro")
-    return pro_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[1][0]
 
   def is_pending_pro(self):
-    pending_pro = Group.objects.get(name="Pending Vinely Pro")
-    return pending_pro in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[5][0]
 
   def is_host(self):
-    hos_group = Group.objects.get(name="Vinely Host")
-    return hos_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[2][0]
 
   def is_taster(self):
-    tas_group = Group.objects.get(name="Vinely Taster")
-    return tas_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[3][0]
 
   def is_supplier(self):
-    sup_group = Group.objects.get(name="Supplier")
-    return sup_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[4][0]
+
+  def role_lower(self):
+    if self.role == UserProfile.ROLE_CHOICES[1][0]:
+      return 'pro'
+    elif self.role == UserProfile.ROLE_CHOICES[2][0]:
+      return 'host'
+    elif self.role == UserProfile.ROLE_CHOICES[3][0]:
+      return 'taster'
+    elif self.role == UserProfile.ROLE_CHOICES[4][0]:
+      return 'supplier'
+    elif self.role == UserProfile.ROLE_CHOICES[5][0]:
+      return 'pro'
+    else:
+      return 'taster'
 
   def cancel_subscription(self):
     """
