@@ -647,10 +647,10 @@ def make_pro_host(request, account_type, data):
         data["already_signed_up"] = True
         data["get_started_menu"] = True
 
-  if account_type == 1:
-    return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
-  else:
-    return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
+  # if account_type == 1:
+  #   return render_to_response("accounts/make_pro.html", data, context_instance=RequestContext(request))
+  # else:
+  return render_to_response("accounts/make_host_pro_signup.html", data, context_instance=RequestContext(request))
 
 
 def make_host(request, state=None):

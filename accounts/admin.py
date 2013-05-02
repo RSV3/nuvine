@@ -107,10 +107,36 @@ class MentorAssignedFilter(SimpleListFilter):
 
   def queryset(self, request, queryset):
     mentor_assigned = self.value()
+
+    # select only pro's
+    pros = [prof.id for prof in UserProfile.objects.all() if prof.is_pro()]
+
     if mentor_assigned == 'Yes':
-      return queryset.exclude(mentor__isnull=True)
+      return queryset.filter(id__in=pros).exclude(mentor__isnull=True)
     if mentor_assigned == 'No':
-      return queryset.filter(mentor__isnull=True)
+      return queryset.filter(id__in=pros, mentor__isnull=True)
+
+class ProAssignedFilter(SimpleListFilter):
+
+  title = _('pro assigned')
+
+  parameter_name = 'pro_assigned'
+
+  def lookups(self, request, model_admin):
+    return (
+        ('Yes', 'Pro Assigned'),
+        ('No', 'No Pro Assigned'),
+      )
+
+  def queryset(self, request, queryset):
+    pro_assigned = self.value()
+
+    non_pros = [prof.id for prof in UserProfile.objects.all() if prof.is_host() or prof.is_taster()]
+
+    if pro_assigned == 'Yes':
+      return queryset.filter(id__in=non_pros).exclude(current_pro__isnull=True)
+    if pro_assigned == 'No':
+      return queryset.filter(id__in=non_pros, current_pro__isnull=True)
 
 from django import forms
 from django.forms.util import ErrorList
@@ -136,7 +162,7 @@ class VinelyUserProfileForm(forms.ModelForm):
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
   list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinely_pro_email', 'pro_number')  # , 'nearest_pro', )
-  list_filter = ('user__groups', MentorAssignedFilter)
+  list_filter = ('user__groups', MentorAssignedFilter, ProAssignedFilter)
   list_editable = ('wine_personality', )
   raw_id_fields = ('user', 'mentor', 'current_pro')
   model = UserProfile

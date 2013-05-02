@@ -393,11 +393,6 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
 class NewHostProForm(NameEmailUserMentorCreationForm):
   def __init__(self, *args, **kwargs):
     super(NewHostProForm, self).__init__(*args, **kwargs)
-    # for field_name in self.fields:
-    #   if 'class' in self.fields[field_name].widget.attrs:
-    #     self.fields[field_name].widget.attrs['class'] += ' input-block-level'
-    #   else:
-    #     self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
 
 class MakeTasterForm(NameEmailUserMentorCreationForm):
