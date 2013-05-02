@@ -40,7 +40,7 @@ class SimpleTest(TestCase):
     main_test.create_usable_accounts()
     main_test.create_wine_personalities()
     main_test.create_wine_samplers()
-    # main_test.create_products()
+    main_test.create_test_products()
 
   def test_verification_code(self):
     u = User.objects.get(email="attendee9@example.com")
@@ -486,70 +486,72 @@ class SimpleTest(TestCase):
     self.assertTrue(member.userprofile.current_pro.email, 'specialist1@example.com')
     self.assertRedirects(response, reverse('join_club_shipping'))
 
-    # # create stripe card
-    # stripe.api_key = settings.STRIPE_SECRET_CA
-    # year = datetime.today().year + 5
-    # token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (member.first_name, member.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+    # create stripe card
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (member.first_name, member.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
 
-    # stripe_card_info = {
-    #     'stripe_token': token.id,
-    #     'exp_month': token.card.exp_month,
-    #     'exp_year': token.card.exp_year,
-    #     'last4': token.card.last4,
-    #     'address_zip': token.card.address_zip,
-    #     'card_type': token.card.type
-    # }
+    stripe_card_info = {
+        'stripe_token': token.id,
+        'exp_month': token.card.exp_month,
+        'exp_year': token.card.exp_year,
+        'last4': token.card.last4,
+        'address_zip': token.card.address_zip,
+        'card_type': token.card.type
+    }
 
-    # birth_date = timezone.now() - timedelta(days=30 * 365)
-    # under_age_dob = timezone.now() - timedelta(days=20 * 365)
+    birth_date = timezone.now() - timedelta(days=30 * 365)
+    under_age_dob = timezone.now() - timedelta(days=20 * 365)
 
-    # # check that they are over 21
-    # shipping_info = {
-    #     'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
-    #     'first_name': 'new',
-    #     'last_name': 'member2',
-    #     'address1': '65 Gordon St.',
-    #     'city': 'Cambridge',
-    #     'state': 'MA',
-    #     'zipcode': '02139',
-    #     'phone': '6172342524',
-    # }
-    # shipping_info.update(stripe_card_info)
-    # response = self.client.post(reverse('join_club_shipping'), shipping_info)
+    # check that they are over 21
+    shipping_info = {
+        'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
+        'first_name': 'new',
+        'last_name': 'member2',
+        'email': 'new.member2@example.com',
+        'address1': '65 Gordon St.',
+        'city': 'Cambridge',
+        'state': 'MA',
+        'zipcode': '02139',
+        'phone': '6172342524',
+    }
+    shipping_info.update(stripe_card_info)
+    response = self.client.post(reverse('join_club_shipping'), shipping_info)
 
-    # self.assertContains(response, 'You must be over 21 to order the wine')
+    self.assertContains(response, 'You cannot order wine until you verify that you are not under 21')
 
-    # # check that shipping address is in supported state
-    # shipping_info = {
-    #     'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
-    #     'first_name': 'new',
-    #     'last_name': 'member2',
-    #     'address1': '65 Gordon St.',
-    #     'city': 'Cambridge',
-    #     'state': 'MA',
-    #     'zipcode': '02139',
-    #     'phone': '6172342524',
-    # }
-    # shipping_info.update(stripe_card_info)
-    # response = self.client.post(reverse('join_club_shipping'), shipping_info)
+    # check that shipping address is in supported state
+    shipping_info = {
+        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'first_name': 'new',
+        'last_name': 'member2',
+        'email': 'new.member2@example.com',
+        'address1': '65 Gordon St.',
+        'city': 'Cambridge',
+        'state': 'MA',
+        'zipcode': '02139',
+        'phone': '6172342524',
+    }
+    shipping_info.update(stripe_card_info)
+    response = self.client.post(reverse('join_club_shipping'), shipping_info)
 
-    # self.assertContains(response, 'Currently, we can only ship to California.')
+    self.assertContains(response, 'Currently, we can only ship to California.')
 
-    # # check that shipping address is in supported state
-    # shipping_info = {
-    #     'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
-    #     'first_name': 'new',
-    #     'last_name': 'member2',
-    #     'address1': '65 Gordon St.',
-    #     'city': 'San Fransisco',
-    #     'state': 'CA',
-    #     'zipcode': '92612',
-    #     'phone': '6172342524',
-    # }
-    # shipping_info.update(stripe_card_info)
-    # response = self.client.post(reverse('join_club_shipping'), shipping_info)
-
-    # self.assertRedirects(response, reverse('join_club_review'))
+    shipping_info = {
+        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'first_name': 'new',
+        'last_name': 'member2',
+        'email': 'new.member2@example.com',
+        'address1': '65 Gordon St.',
+        'city': 'San Fransisco',
+        'state': 'CA',
+        'zipcode': '92612',
+        'phone': '6172342524',
+    }
+    shipping_info.update(stripe_card_info)
+    response = self.client.post(reverse('join_club_shipping'), shipping_info)
+    # print response
+    self.assertRedirects(response, reverse('join_club_review'))
 
     # response = self.client.post(reverse('join_club_review'), {
     #     'join': 'join',

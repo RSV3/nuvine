@@ -18,6 +18,9 @@
     .card-info {
       padding-top: 40px;
     }
+    .payment-errors {
+      display: none;
+    }
   </style>
 {% endblock %}
 
@@ -57,6 +60,7 @@
             {% endif %}
           </div>
           <hr />
+          <h2 class="center">Shipping Info</h2>
           <div class="control-group{% if form.first_name.errors %} error{% endif %}">
             {{ form.first_name}} 
             {% if form.first_name.errors %}
@@ -154,12 +158,13 @@
         <div class="vertical-space">&nbsp;</div>
       </div>
       <div class="span4 offset1 card-info">
+        <div class="payment-errors alert alert-error"></div>
         <fieldset>
           <div class="control-group">
             <img src="{{ STATIC_URL }}img/card_icons.png" />
           </div>
           <div class="control-group">
-            <input type="hidden" class="card-name" value="{{ receiver.first_name }} {{ receiver.last_name }}" />
+            <input type="hidden" class="card-name" value="{{ user.first_name }} {{ user.last_name }}" />
             <input type="text" size="20" autocomplete="off" class="card-number input-block-level validate[required,custom[number]" placeholder="Card #" />
           </div>
           <div class="control-group">
@@ -171,7 +176,7 @@
             <input type="password" size="4" autocomplete="off" class="card-cvc input-block-level validate[required,custom[number]" placeholder='CVC' maxlength="4" />
           </div>
           <div class="control-group">
-              <input type="text" size="5" value="{{ receiver.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
+              <input type="text" size="5" value="{{ user.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
           </div>
           <div class="control-group">
             <img src="{{ STATIC_URL }}img/security_icons.png" />
@@ -212,4 +217,56 @@
         $('.datepicker').datepicker(options);
       });
     </script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        // this identifies your website in the createToken call below
+        Stripe.setPublishableKey('{{ publish_token }}');
+
+        function stripeResponseHandler(status, response) {
+          if (response.error) {
+            // re-enable the submit button
+            $('.submit-button').removeAttr("disabled");
+            // show the errors on the form
+            $(".payment-errors").text(response.error.message);
+            $(".payment-errors").show('fast');
+          } else {
+            var form$ = $(".form-horizontal");
+            // token contains id, last4, and card type
+            var token = response['id'];
+            var card = response['card'];
+
+            // insert the token into the form so it gets submitted to the server
+            form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+            form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
+            form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
+            form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
+            form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
+            form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+            // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+            // and submit
+            form$.get(0).submit();
+          }
+        }
+
+        $(".form-horizontal").submit(function(e) {
+          // disable the submit button to prevent repeated clicks
+          $('.submit-button').attr("disabled", "disabled");
+          // createToken returns immediately - the supplied callback submits the form if there are no errors
+          Stripe.createToken({
+            name: $('.card-name').val(),
+            number: $('.card-number').val(),
+            cvc: $('.card-cvc').val(),
+            exp_month: $('.card-expiry-month').val(),
+            exp_year: $('.card-expiry-year').val(),
+            address_zip: $('.card-address-zip').val(),
+          }, stripeResponseHandler);
+          return false; // submit from callback
+        });
+      });
+
+      if (window.location.protocol === 'file:') {
+          alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+      }
+    </script>    
 {% endblock additional_scripts %}

@@ -69,7 +69,6 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-
   <div class="row">
     <div class="span12">
       <h2 class="center">
@@ -77,136 +76,135 @@
         <!-- {{ sub_heading|safe }} -->
         {% endblock subheading %}
       </h2>
-      <div class="vertical-space"></div>
     </div>
-    <div class="row">
-      <div class="span5 offset1 center state-head">Nope! I'm new to vinely.</div>
-      <div class="span1 center state-head" style="margin-left: 25px;"> - or - </div>
-      <div class="span4 center state-head">Yes! I already have an account.</div>
+  <div class="vertical-space"></div>
+  </div>
+  <div class="row">
+    <div class="span5 offset1 center state-head">Nope! I'm new to vinely.</div>
+    <div class="span1 center state-head" style="margin-left: 25px;"> - or - </div>
+    <div class="span4 center state-head">Yes! I already have an account.</div>
+  </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span4 offset1 well">
+      <form id="shipping_form" class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+        <p class="center">
+          Have questions? Need Help? <br />
+          Call us at (888)294-1128 ext. 1 <br />
+          or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
+        </p>
+        <div class="question"><p><i>1. What's your info?</i></p></div>
+        <div class="control-group">
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <span class="help-inline">
+              {{ form.first_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group">
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <span class="help-inline">
+              {{ form.last_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.email.errors %}error{% endif %}">
+          {{ form.email }}
+          {% if form.email.errors %}
+            <span class="help-inline">
+              {{ form.email.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.phone_number.errors %}error{% endif %}">
+          {{ form.phone_number }}
+          {% if form.phone_number.errors %}
+            <span class="help-inline">
+              {{ form.phone_number.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
+          {{ form.zipcode }}
+          {% if form.zipcode.errors %}
+            <span class="help-inline">
+              {{ form.zipcode.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.password1.errors %}error{% endif %}">
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <span class="help-inline">
+              {{ form.password1.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.password2.errors %}error{% endif %}">
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <span class="help-inline">
+              {{ form.password2.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <hr />
+        <div class="question">
+          <p><i>2. Do you already know a Vinely Pro? <br />(leave this blank if you don't know what it is)</i></p>
+        </div>
+        <div class="control-group {% if form.mentor.errors %}error{% endif %}">
+          {{ form.mentor }}
+          {% if form.mentor.errors %}
+            <span class="help-inline">
+              {{ form.mentor.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </form>
     </div>
-    <div class="vertical-space"></div>
-    <div class="row">
-      <div class="span4 offset1 well">
-        <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
-          {% csrf_token %}
-            <p class="center">
-              Have questions? Need Help? <br />
-              Call us at (888)294-1128 ext. 1 <br />
-              or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
-            </p>
-            <div class="question"><p><i>1. What's your info?</i></p></div>
-            <div class="control-group">
-              {{ form.first_name }}
-              {% if form.first_name.errors %}
+    <div class="span1">&nbsp;</div>
+    <div class="span4">
+      <form class="form-horizontal form-validate" method="POST" action="{% url login %}">
+        {% csrf_token %}
+        <div class="box-container">
+          <div class="box-content">
+            <div class="control-group {% if login_form.email.errors %}error{% endif %}">
+              {{ login_form.email }}
+              {% if login_form.email.errors %}
                 <span class="help-inline">
-                  {{ form.first_name.errors }}
+                  {{ login_form.email.errors }}
                 </span>
               {% endif %}
             </div>
-            <div class="control-group">
-              {{ form.last_name }}
-              {% if form.last_name.errors %}
+            <div class="control-group {% if login_form.password.errors %}error{% endif %}">
+              {{ login_form.password }}
+              {% if login_form.password.errors %}
                 <span class="help-inline">
-                  {{ form.last_name.errors }}
+                  {{ login_form.password.errors }}
                 </span>
               {% endif %}
             </div>
-            <div class="control-group {% if form.email.errors %}error{% endif %}">
-              {{ form.email }}
-              {% if form.email.errors %}
-                <span class="help-inline">
-                  {{ form.email.errors }}
-                </span>
-              {% endif %}
+            <div class="control-group center">
+                <a href="{% url forgot_password %}" class="state-head">Forgot Password?</a>
             </div>
-            <div class="control-group {% if form.phone_number.errors %}error{% endif %}">
-              {{ form.phone_number }}
-              {% if form.phone_number.errors %}
-                <span class="help-inline">
-                  {{ form.phone_number.errors }}
-                </span>
-              {% endif %}
+            <div class="control-group center">
+                <button class="btn btn-primary" type="submit">Log In</button>
+                <input type="hidden" name="next" value="{% url join_club_shipping %}" />
             </div>
-            <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
-              {{ form.zipcode }}
-              {% if form.zipcode.errors %}
-                <span class="help-inline">
-                  {{ form.zipcode.errors }}
-                </span>
-              {% endif %}
-            </div>
-            <div class="control-group {% if form.password1.errors %}error{% endif %}">
-              {{ form.password1 }}
-              {% if form.password1.errors %}
-                <span class="help-inline">
-                  {{ form.password1.errors }}
-                </span>
-              {% endif %}
-            </div>
-            <div class="control-group {% if form.password2.errors %}error{% endif %}">
-              {{ form.password2 }}
-              {% if form.password2.errors %}
-                <span class="help-inline">
-                  {{ form.password2.errors }}
-                </span>
-              {% endif %}
-            </div>
-            <hr />
-            <div class="question">
-              <p><i>2. Do you already know a Vinely Pro? <br />(leave this blank if you don't know what it is)</i></p>
-            </div>
-            <div class="control-group {% if form.mentor.errors %}error{% endif %}">
-              {{ form.mentor }}
-              {% if form.mentor.errors %}
-                <span class="help-inline">
-                  {{ form.mentor.errors }}
-                </span>
-              {% endif %}
-            </div>
-          </form>
+          </div>
+          <div class="box-bg"></div>  
         </div>
-        <div class="span1">&nbsp;</div>
-        <div class="span4">
-          <form class="form-horizontal form-validate" method="POST" action="{% url login %}">
-            {% csrf_token %}
-            <div class="box-container">
-              <div class="box-content">
-                <div class="control-group {% if login_form.email.errors %}error{% endif %}">
-                  {{ login_form.email }}
-                  {% if login_form.email.errors %}
-                    <span class="help-inline">
-                      {{ login_form.email.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-                <div class="control-group {% if login_form.password.errors %}error{% endif %}">
-                  {{ login_form.password }}
-                  {% if login_form.password.errors %}
-                    <span class="help-inline">
-                      {{ login_form.password.errors }}
-                    </span>
-                  {% endif %}
-                </div>
-                <div class="control-group center">
-                    <a href="{% url forgot_password %}" class="state-head">Forgot Password?</a>
-                </div>
-                <div class="control-group center">
-                    <button class="btn btn-primary" type="submit">Log In</button>
-                    <input type="hidden" name="next" value="{% url join_club_shipping %}" />
-                </div>
-              </div>
-              <div class="box-bg"></div>  
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="vertical-space"></div>
-      <div class="row">
-        <div class="span5 offset1 center">
-          <button class="btn btn-primary" type="submit">Sign up</button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
+  </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span5 offset1 center">
+      <button id="signup" class="btn btn-primary" type="submit">Sign up</button>
+    </div>
   </div>
   <div class="vertical-space">
     &nbsp;
@@ -219,4 +217,11 @@
     <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
     <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
     <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#signup').on('click', function() {
+          $('#shipping_form').submit();
+        })
+      });
+    </script>
 {% endblock additional_scripts %}

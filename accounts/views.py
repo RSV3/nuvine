@@ -11,7 +11,8 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
 
-from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
+from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart, \
+                        LineItem, Product
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
@@ -1204,21 +1205,89 @@ def join_club_start(request):
 @login_required
 def join_club_shipping(request):
   user = request.user
+  profile = user.get_profile()
 
   data = {}
+  initial_data = {'first_name': user.first_name, 'last_name': user.last_name,
+                  'email': user.email, 'phone': profile.phone}
 
-  shipping_form = JoinClubShippingForm(request.POST or None)
-  eligibility_form = AgeValidityForm(request.POST or None, prefix='eligibility')
+  current_shipping = profile.shipping_address
+  if current_shipping:
+    initial_data['address1'] = current_shipping.street1
+    initial_data['address2'] = current_shipping.street2
+    initial_data['company_co'] = current_shipping.company_co
+    initial_data['city'] = current_shipping.city
+    initial_data['state'] = current_shipping.state
+    initial_data['zipcode'] = current_shipping.zipcode
+  initial_data['news_optin'] = user.get_profile().news_optin
+
+  initial_age = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+
+  shipping_form = JoinClubShippingForm(request.POST or None, instance=user, initial=initial_data)
+  eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility', initial=initial_age)
 
   data['eligibility_form'] = eligibility_form
   data['form'] = shipping_form
+  data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
+  stripe.api_key = settings.STRIPE_SECRET_CA
+
+  valid_age = eligibility_form.is_valid()
+  # check zipcode is ok
+  if request.method == 'POST':
+    zipcode = request.POST.get('zipcode')
+    ok = check_zipcode(zipcode)
+    if zipcode and not ok:
+      messages.error(request, 'Currently, we can only ship to California.')
+      return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+  if shipping_form.is_valid() and valid_age:
+    shipping_form.save()
+
+    profile.dob = eligibility_form.cleaned_data['dob']
+    profile.save()
+
+    # handle credit card
+    stripe_token = request.POST.get('stripe_token')
+    # raise Exception
+    try:
+      customer = stripe.Customer.create(card=stripe_token, email=user.email)
+      stripe_user_id = customer.id
+
+      # create on vinely
+      stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                              exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                              card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+      if created:
+        profile = user.get_profile()
+        profile.stripe_card = stripe_card
+        profile.save()
+        profile.stripe_cards.add(stripe_card)
+
+    except:
+      messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+      return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+    # update cart
+    if 'cart_id' in request.session:
+      cart = Cart.objects.get(id=request.session['cart_id'])
+    else:
+      product = Product.objects.get(category=0, active=True)
+      item = LineItem.objects.create(product=product, total_price=product.unit_price)
+      cart = Cart.objects.create(user=user, status=Cart.CART_STATUS_CHOICES[4][0])
+      cart.items.add(item)
+      request.session['cart_id'] = cart.id
+
+    # update the receiver user
+    request.session['receiver_id'] = user.id
+    request.session['stripe_payment'] = True
+    return HttpResponseRedirect(reverse('join_club_review'))
 
   return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
 
 @login_required
 def join_club_review(request):
-  pass
+  return HttpResponse(request)
 
 
 @login_required
