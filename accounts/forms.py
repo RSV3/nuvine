@@ -144,6 +144,7 @@ class AgeValidityForm(forms.ModelForm):
         'data-date-format': 'mm/dd/yyyy',
         'placeholder': 'MM/DD/YYYY',
     }
+    add_form_validation(self)
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()
 

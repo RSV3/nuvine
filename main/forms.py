@@ -584,6 +584,7 @@ class ShippingForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(ShippingForm, self).__init__(*args, **kwargs)
     self.fields['email'].widget.attrs['readonly'] = True
+    add_form_validation(self)
 
   def save(self, commit=True):
     data = self.cleaned_data
@@ -634,6 +635,7 @@ class JoinClubShippingForm(ShippingForm):
   def __init__(self, *args, **kwargs):
     super(JoinClubShippingForm, self).__init__(*args, **kwargs)
     self.fields['email'].widget.attrs['readonly'] = True
+
     for field_name in self.fields:
       if hasattr(self.fields[field_name], 'label'):
         self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label

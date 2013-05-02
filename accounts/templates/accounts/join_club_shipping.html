@@ -3,7 +3,8 @@
 {% load static %}
 
 {% block additional_styles %}
-  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" type="text/css" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
   <style type="text/css">
     button {
       height:35px;
@@ -38,7 +39,7 @@
     </div>
   </div>
   <div class="row">
-    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+    <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
       {% csrf_token %}
       <div class="span4 offset1">
         <fieldset>
@@ -159,15 +160,15 @@
           </div>
           <div class="control-group">
             <input type="hidden" class="card-name" value="{{ receiver.first_name }} {{ receiver.last_name }}" />
-            <input type="text" size="20" autocomplete="off" class="card-number input-block-level" placeholder="Card #" />
+            <input type="text" size="20" autocomplete="off" class="card-number input-block-level validate[required,custom[number]" placeholder="Card #" />
           </div>
           <div class="control-group">
             Expiration Date <br />
-            <input type="text" size="2" class="card-expiry-month span1" maxlength="2" placeholder="MM" />
-            <input type="text" size="4" class="card-expiry-year span1" maxlength="4" placeholder="YYYY" />
+            <input type="text" size="2" class="card-expiry-month span1 validate[required,custom[number]" maxlength="2" placeholder="MM" />
+            <input type="text" size="4" class="card-expiry-year span1 validate[required,custom[number]" maxlength="4" placeholder="YYYY" />
           </div>
           <div class="control-group">
-            <input type="password" size="4" autocomplete="off" class="card-cvc input-block-level" placeholder='CVC' maxlength="4" />
+            <input type="password" size="4" autocomplete="off" class="card-cvc input-block-level validate[required,custom[number]" placeholder='CVC' maxlength="4" />
           </div>
           <div class="control-group">
               <input type="text" size="5" value="{{ receiver.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
@@ -198,6 +199,9 @@
 {% endblock %}
 
 {% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
@@ -206,9 +210,6 @@
           options.startView = 'decade';
         }
         $('.datepicker').datepicker(options);
-        
-        // uncomment this to enable
-        $("#update-age").modal();
       });
     </script>
 {% endblock additional_scripts %}
