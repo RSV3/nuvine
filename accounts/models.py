@@ -154,6 +154,7 @@ class UserProfile(models.Model):
   # only pro's should have mentor
   mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentor')
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
+  club_member = models.BooleanField(default=False)
 
   ROLE_CHOICES = (
     (0, 'Unassigned Role'),
