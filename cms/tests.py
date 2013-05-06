@@ -58,9 +58,9 @@ class SimpleTest(TestCase):
     self.create_new_party_host_confirm_email_template()
     self.create_welcome_email_template()
     self.create_party_setup_completed_email_template()
-    self.create_join_the_club_anon_email_template()
+    self.create_join_the_club_email_template()
 
-  def create_join_the_club_anon_email_template(self):
+  def create_join_the_club_email_template(self):
     content = """
 
     Welcome to the club! We are delighted you've decided to let Vinely make your wine experience easy, fun, and convenient.

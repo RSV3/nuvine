@@ -12,7 +12,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def join_the_club_anon_email(request, user):
+def join_the_club_email(request, user):
   template = Section.objects.get(template__key='join_the_club_anon_email', key='general')
 
   txt_template = Template(template.content)

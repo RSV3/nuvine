@@ -139,7 +139,9 @@
               {% if user.is_authenticated %}
                   <a href="{% url logout %}">Sign Out</a> | 
                   <a href="{% url my_information %}">My Account</a>
-                  | <a href="{% url cart %}">Cart {{ cart_item_count }}</a>
+                  {% if user.get_profile.has_personality %}
+                    | <a href="{% url cart %}">Cart {{ cart_item_count }}</a>
+                  {% endif %}
                 {% else %}
                 <!-- if not logged in, show login link -->
                 <div class="login-forgot">

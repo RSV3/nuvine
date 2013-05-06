@@ -21,7 +21,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
 from accounts.utils import send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                            get_default_pro, join_the_club_anon_email
+                            get_default_pro, join_the_club_email
 
 from cms.models import ContentTemplate
 from main.utils import send_host_vinely_party_email, my_host, my_pro, send_order_confirmation_email
@@ -1104,32 +1104,55 @@ def join_club_shipping(request):
 
     # handle credit card
     stripe_token = request.POST.get('stripe_token')
-    # raise Exception
+    stripe_card = profile.stripe_card
+
     try:
-      customer = stripe.Customer.create(card=stripe_token, email=user.email)
+      if not stripe_card:
+        raise Exception('Has no card')
+
+      customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+      if customer.get('deleted'):
+        raise Exception('Customer Deleted')
       stripe_user_id = customer.id
 
-      # create on vinely
-      stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
-                              exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                              card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
-      if created:
-        profile = user.get_profile()
-        profile.stripe_card = stripe_card
-        profile.save()
-        profile.stripe_cards.add(stripe_card)
-
+      # makes sure we have the exact same card
+      stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                        exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                        card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
     except:
-      messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
-      return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+      try:
+        customer = stripe.Customer.create(card=stripe_token, email=user.email)
+        stripe_user_id = customer.id
+
+        # create on vinely
+        stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                                exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+        if created:
+          profile.stripe_card = stripe_card
+          profile.save()
+          profile.stripe_cards.add(stripe_card)
+
+      except:
+        messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+        return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
     # update cart
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
     else:
-      product = Product.objects.get(category=0, active=True)
-      item = LineItem.objects.create(product=product, total_price=product.unit_price)
-      cart = Cart.objects.create(user=user, receiver=user, status=Cart.CART_STATUS_CHOICES[4][0], adds=1)
+      taste_kit = Product.objects.get(cart_tag='tasting_kit', active=True)
+      six_bottle = Product.objects.get(cart_tag='6', active=True)
+      # if new anon user then
+      # first purchase is for taste kit which is a one time purchase
+      # otherwise make subscription i.e. if user has personality
+      if profile.has_personality():
+        item = LineItem.objects.create(product=six_bottle, price_category=13, total_price=six_bottle.unit_price, frequency=1)
+      else:
+        # for this order, the tasting kit is charged same as the 6 bottle shipment
+        item = LineItem.objects.create(product=taste_kit, price_category=11, total_price=six_bottle.unit_price, frequency=0)
+
+      cart = Cart.objects.create(user=user, receiver=user, status=4, adds=1)
       cart.items.add(item)
       request.session['cart_id'] = cart.id
 
@@ -1185,28 +1208,35 @@ def join_club_review(request):
       stripe.api_key = settings.STRIPE_SECRET_CA
 
       if order.fulfill_status == 0:
-        # NOTE: Amount must be in cents
-        # Having these first so that they come last in the stripe invoice.
-        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
-        # first purchase is for taste kit which is a one time purchase
-        order_items = cart.items.all()
+        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
 
-        for item in order_items:
-          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
+        non_sub_orders = order.cart.items.filter(frequency=0)
+        sub_orders = order.cart.items.filter(frequency=1)
 
-        # create invoice manually for this
-        if order_items.exists():
+        # create invoice manually if there's no subscription
+        if non_sub_orders.exists():
+          item = non_sub_orders[0]
+          tax = float(item.total_price) * 0.08
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax * 100), currency='usd', description='Tax')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.total_price * 100), currency='usd', description='Join The Club Tasting Kit')
+
           invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
           invoice.pay()
 
-        # Create a subscription with a 1month trial/delay so that it's not charged now
-        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-        trial_end_date = datetime.now() + relativedelta(months=1)
-        trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
-        customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
+          # Create a subscription with a 1month trial/delay so that it's not charged now
+          trial_end_date = datetime.now() + relativedelta(months=1)
+          trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
+          customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
+
+        # if subscription exists then create plan
+        elif sub_orders.exists():
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+          item = sub_orders[0]
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
+          customer.update_subscription(plan=stripe_plan)
 
         # need to send e-mail
-        join_the_club_anon_email(request, user)
+        join_the_club_email(request, user)
         send_order_confirmation_email(request, order_id)
         order.fulfill_status = 1
         order.save()

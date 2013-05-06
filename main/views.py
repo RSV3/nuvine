@@ -338,18 +338,6 @@ def cart_add_tasting_kit(request, party_id=0):
   except Party.DoesNotExist:
     raise Http404
 
-  # check how many invites and recommend number of taste kits
-  # invites = PartyInvite.objects.filter(party=party)
-  # if invites.count() == 0:
-  #   messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
-  # elif invites.count() < 8:
-  #   messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
-  # elif invites.count() > 12 and invites.count() <= 24:
-  #   messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
-  # elif invites.count() > 24:
-  #   messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
-  # else:
-
   request.session['taste_kit_order'] = True
 
   form = AddTastingKitToCartForm(request.POST or None)

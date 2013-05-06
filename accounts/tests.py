@@ -15,6 +15,7 @@ from django.conf import settings
 from main.models import ProSignupLog, Cart, Order, Product
 from accounts.models import VerificationQueue, UserProfile
 from support.models import Email
+from personality.models import WinePersonality
 
 from cms.tests import SimpleTest as CMSTest
 from main.tests import SimpleTest as MainTest
@@ -414,25 +415,11 @@ class SimpleTest(TestCase):
 
     print "Information update test all work"
 
-  def test_join_the_club(self):
+  def test_join_the_club_anon_user(self):
     response = self.client.get(reverse('join_club_start'))
     self.assertEquals(response.status_code, 200)
 
     # CASE A. NO ACCOUNT, NO PERSONALITY
-    # 1.
-    # response = self.client.post(reverse('join_club_start'), {
-    #     'email': 'attendee1@example.com',
-    #     'password': 'hello',
-    #     'login': 'login',
-    # })
-
-    # has account and no personality
-    # self.assertRedirects(response, reverse('join_club_shipping'))
-    # TODO: other corner cases
-    # a. has personality
-    # b. has no personality + has upcoming party
-    # c. no personality but has already made order
-    # d. logs in from normal login - should it redirect to anonymous home or
 
     # 0. Try to Join with existing user email
     response = self.client.post(reverse('join_club_start'), {
@@ -579,7 +566,7 @@ class SimpleTest(TestCase):
     })
     self.assertRedirects(response, reverse('join_club_done'))
     case = Product.objects.get(cart_tag="tasting_kit", active=True)
-    order = Order.objects.get(cart__items__product=case)
+    order = Order.objects.get(cart__items__product=case, cart__items__frequency=0)
 
     # if existing user, dont ship taste kit, immediate subscription
     # if new user taste kit + delayed subscription
@@ -602,6 +589,70 @@ class SimpleTest(TestCase):
     # Should there be a way for us/admin to distinguish club members vs non-club users
     # club_member field
     # subscription still goes to pro
+
+  def test_join_the_club_existing_user(self):
+    member = User.objects.get(email='attendee1@example.com')
+    profile = member.get_profile()
+    profile.wine_personality = WinePersonality.objects.get(id=1)
+    profile.save()
+
+    response = self.client.login(email="attendee1@example.com", password="hello")
+
+    # create stripe card
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (member.first_name, member.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+
+    stripe_card_info = {
+        'stripe_token': token.id,
+        'exp_month': token.card.exp_month,
+        'exp_year': token.card.exp_year,
+        'last4': token.card.last4,
+        'address_zip': token.card.address_zip,
+        'card_type': token.card.type
+    }
+    birth_date = timezone.now() - timedelta(days=30 * 365)
+
+    shipping_info = {
+        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'first_name': 'Attendee',
+        'last_name': 'One',
+        'email': 'attendee1@example.com',
+        'address1': '65 Gordon St.',
+        'city': 'San Fransisco',
+        'state': 'CA',
+        'zipcode': '92612',
+        'phone': '6172342524',
+    }
+    shipping_info.update(stripe_card_info)
+    response = self.client.post(reverse('join_club_shipping'), shipping_info)
+    self.assertRedirects(response, reverse('join_club_review'))
+
+    # ensure cart exists
+    cart = Cart.objects.get(user__email='attendee1@example.com', receiver__email='attendee1@example.com', status=4)
+    self.assertEquals(cart.items.count(), 1)
+
+    response = self.client.post(reverse('join_club_review'), {
+        'join': 'join',
+    })
+    self.assertRedirects(response, reverse('join_club_done'))
+    case = Product.objects.get(cart_tag="6", active=True)
+    order = Order.objects.get(cart__items__product=case)
+
+    # check order made
+    # check that this is a subscription order
+    orders = Order.objects.filter(cart=cart, cart__items__frequency=1)
+    self.assertTrue(orders.exists())
+
+    # check emails sent
+    emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Welcome to the Club!')
+    self.assertTrue(emails.exists())
+    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
+    self.assertTrue(recipient_email.exists())
+
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
+    self.assertTrue(vinely_email.exists())
 
   def test_user_rsvp_without_signup(self):
     pass
