@@ -34,7 +34,7 @@ class Migration(DataMigration):
         """
 
         template, created = orm.ContentTemplate.objects.get_or_create(key="join_the_club_anon_email", category=0)
-        section, created = orm.Section.objects.get_or_create(category=0, template=template)
+        section, created = orm.Section.objects.get_or_create(key='general', template=template)
         section.content = content
         section.save()
 
