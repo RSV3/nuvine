@@ -341,7 +341,7 @@ class SimpleTest(TestCase):
       self.assertEqual(created, True)
       p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12")
       self.assertEqual(created, True)
-      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="12")
+      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="tasting_kit")
       self.assertEqual(created, True)
 
   def setUp(self):

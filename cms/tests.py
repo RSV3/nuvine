@@ -57,9 +57,10 @@ class SimpleTest(TestCase):
     # self.create_first_time_host_signup_template()
     self.create_new_party_host_confirm_email_template()
     self.create_welcome_email_template()
-    self.party_setup_completed_email_template()
+    self.create_party_setup_completed_email_template()
+    self.create_join_the_club_anon_email_template()
 
-  def join_the_club_anon_email(self):
+  def create_join_the_club_anon_email_template(self):
     content = """
 
     Welcome to the club! We are delighted you've decided to let Vinely make your wine experience easy, fun, and convenient.
@@ -84,11 +85,11 @@ class SimpleTest(TestCase):
     """
 
     template, created = ContentTemplate.objects.get_or_create(key="join_the_club_anon_email", category=0)
-    section, created = Section.objects.get_or_create(category=0, template=template)
+    section, created = Section.objects.get_or_create(key='general', template=template)
     section.content = content
     section.save()
 
-  def party_setup_completed_email_template(self):
+  def create_party_setup_completed_email_template(self):
     content = """
 
     Dear {{ pro_first_name }},

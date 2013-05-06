@@ -31,6 +31,7 @@ from stripecard.models import StripeCard
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
+import time
 import math
 
 import uuid
@@ -1015,7 +1016,7 @@ def pro_unlink(request):
 
 
 def join_club_start(request):
-  tas_group = Group.objects.get(name="Vinely Taster")
+  # tas_group = Group.objects.get(name="Vinely Taster")
 
   data = {}
   form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
@@ -1028,6 +1029,7 @@ def join_club_start(request):
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
+    profile.role = 3  # taster
 
     try:
       pro = User.objects.get(email=form.cleaned_data.get('mentor'))
@@ -1043,7 +1045,6 @@ def join_club_start(request):
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       send_not_in_area_party_email(request, user, 3)
 
-    user.groups.add(tas_group)
     interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=3)
 
     user = authenticate(email=user.email, password=form.cleaned_data['password1'])
@@ -1183,31 +1184,26 @@ def join_club_review(request):
 
       stripe.api_key = settings.STRIPE_SECRET_CA
 
-      # NOTE: Amount must be in cents
-      # Having these first so that they come last in the stripe invoice.
-      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
-      sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
-
-      # if subscription exists then create plan
-      if sub_orders.exists():
-        item = sub_orders[0]
-        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-        stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
-        customer.update_subscription(plan=stripe_plan)
-
       if order.fulfill_status == 0:
-        # update subscription information if new order
-        items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
-        for item in items:
-          from_date = datetime.date(timezone.now())
-          next_invoice = from_date + relativedelta(months=+1)
-          # create new subscription info
-          subscription = SubscriptionInfo(user=order.receiver,
-                                        quantity=item.price_category,
-                                        frequency=item.frequency,
-                                        next_invoice_date=next_invoice,
-                                        updated_datetime=timezone.now())
-          subscription.save()
+        # NOTE: Amount must be in cents
+        # Having these first so that they come last in the stripe invoice.
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+        # first purchase is for taste kit which is a one time purchase
+        order_items = cart.items.all()
+
+        for item in order_items:
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.subtotal() * 100), currency='usd', description=LineItem.PRICE_TYPE[item.price_category][1])
+
+        # create invoice manually for this
+        if order_items.exists():
+          invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
+          invoice.pay()
+
+        # Create a subscription with a 1month trial/delay so that it's not charged now
+        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+        trial_end_date = datetime.now() + relativedelta(months=1)
+        trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
+        customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
 
         # need to send e-mail
         join_the_club_anon_email(request, user)
@@ -1242,8 +1238,4 @@ def join_club_review(request):
 def join_club_done(request):
   user = request.user
 
-  if 'cart_id' in request.session:
-    cart = get_object_or_404(Cart, id=request.session['cart_id'])
-  else:
-    messages.error(request, 'Your session expired, please start ordering again.')
-    return HttpResponseRedirect(reverse('join_club_shipping'))
+  return HttpResponse('done')

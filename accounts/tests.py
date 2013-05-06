@@ -577,19 +577,21 @@ class SimpleTest(TestCase):
     response = self.client.post(reverse('join_club_review'), {
         'join': 'join',
     })
-    self.assertRedirects(response, reverse('join_club_congrats'))
-    case = Product.objects.get(name="3 Bottles")
+    self.assertRedirects(response, reverse('join_club_done'))
+    case = Product.objects.get(cart_tag="tasting_kit", active=True)
     order = Order.objects.get(cart__items__product=case)
+
+    # if existing user, dont ship taste kit, immediate subscription
+    # if new user taste kit + delayed subscription
 
     # check order made
     orders = Order.objects.filter(cart=cart)
     self.assertTrue(orders.exists())
 
     # check emails sent
-    emails = Email.objects.filter(recipients="['new.member2@example.com']")
+    emails = Email.objects.filter(recipients="[u'new.member2@example.com']", subject='Welcome to the Club!')
     self.assertTrue(emails.exists())
-
-    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
+    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'new.member2@example.com']")
     self.assertTrue(recipient_email.exists())
 
     subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
@@ -597,6 +599,9 @@ class SimpleTest(TestCase):
     self.assertTrue(vinely_email.exists())
 
     # TODO: What happens for your pro's commission if you join club within 7 days of party?
+    # Should there be a way for us/admin to distinguish club members vs non-club users
+    # club_member field
+    # subscription still goes to pro
 
   def test_user_rsvp_without_signup(self):
     pass
