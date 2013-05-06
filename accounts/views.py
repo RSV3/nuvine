@@ -1,5 +1,5 @@
 # Create your views here.
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.urlresolvers import reverse
@@ -12,19 +12,19 @@ from django.utils import timezone
 from django.conf import settings
 
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart, \
-                        LineItem, Product
+                        LineItem, Product, Order
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm, AgeValidityForm, \
+                            MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm, AgeValidityForm, \
                             VinelyEmailAuthenticationForm
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
-from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
+from accounts.utils import send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                            get_default_pro
+                            get_default_pro, join_the_club_anon_email
 
 from cms.models import ContentTemplate
-from main.utils import send_host_vinely_party_email, my_host, my_pro
+from main.utils import send_host_vinely_party_email, my_host, my_pro, send_order_confirmation_email
 from main.forms import JoinClubShippingForm
 
 from stripecard.models import StripeCard
@@ -1148,8 +1148,87 @@ def join_club_review(request):
 
   cart_id = request.session.get('cart_id')
   if cart_id:
-    cart = Cart.objects.get(id=cart_id)
+    cart = get_object_or_404(Cart, id=request.session['cart_id'])
+    receiver = cart.receiver
+
+    if request.method == "POST":
+      # finalize order
+
+      if 'order_id' in request.session:
+        # existing order id, in case user submits multiple times
+        order_id = request.session['order_id']
+      else:
+        # new order id
+        order_id = str(uuid.uuid4())
+        request.session['order_id'] = order_id
+
+      try:
+        # create order: existing cart
+        order = Order.objects.get(cart=cart)
+        order.order_id = order_id
+        order.ordered_by = receiver
+        order.receiver = receiver
+      except Order.DoesNotExist:
+        # create new order for this cart
+        order = Order(ordered_by=receiver, receiver=receiver, order_id=order_id, cart=cart)
+
+      # save credit card and shipping address in the order
+      order.stripe_card = profile.stripe_card
+      order.shipping_address = profile.shipping_address
+      order.save()
+
+      # order completed
+      cart.status = Cart.CART_STATUS_CHOICES[5][0]
+      cart.save()
+
+      stripe.api_key = settings.STRIPE_SECRET_CA
+
+      # NOTE: Amount must be in cents
+      # Having these first so that they come last in the stripe invoice.
+      stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+      sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
+
+      # if subscription exists then create plan
+      if sub_orders.exists():
+        item = sub_orders[0]
+        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+        stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
+        customer.update_subscription(plan=stripe_plan)
+
+      if order.fulfill_status == 0:
+        # update subscription information if new order
+        items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+        for item in items:
+          from_date = datetime.date(timezone.now())
+          next_invoice = from_date + relativedelta(months=+1)
+          # create new subscription info
+          subscription = SubscriptionInfo(user=order.receiver,
+                                        quantity=item.price_category,
+                                        frequency=item.frequency,
+                                        next_invoice_date=next_invoice,
+                                        updated_datetime=timezone.now())
+          subscription.save()
+
+        # need to send e-mail
+        join_the_club_anon_email(request, user)
+        send_order_confirmation_email(request, order_id)
+        order.fulfill_status = 1
+        order.save()
+
+      # remove session information if it exists
+      if 'ordering' in request.session:
+        del request.session['ordering']
+      if 'order_id' in request.session:
+        del request.session['order_id']
+      if 'cart_id' in request.session:
+        del request.session['cart_id']
+      if 'stripe_payment' in request.session:
+        del request.session['stripe_payment']
+
+      return HttpResponseRedirect(reverse("join_club_done"))
+
   else:
+    messages.error(request, 'Your session expired, please start ordering again.')
     return HttpResponseRedirect(reverse('join_club_shipping'))
 
   data['shipping_address'] = profile.shipping_address
@@ -1161,4 +1240,10 @@ def join_club_review(request):
 
 @login_required
 def join_club_done(request):
-  pass
+  user = request.user
+
+  if 'cart_id' in request.session:
+    cart = get_object_or_404(Cart, id=request.session['cart_id'])
+  else:
+    messages.error(request, 'Your session expired, please start ordering again.')
+    return HttpResponseRedirect(reverse('join_club_shipping'))

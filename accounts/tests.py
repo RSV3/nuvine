@@ -12,7 +12,7 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.conf import settings
 
-from main.models import ProSignupLog, Cart
+from main.models import ProSignupLog, Cart, Order, Product
 from accounts.models import VerificationQueue, UserProfile
 from support.models import Email
 
@@ -418,6 +418,7 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse('join_club_start'))
     self.assertEquals(response.status_code, 200)
 
+    # CASE A. NO ACCOUNT, NO PERSONALITY
     # 1.
     # response = self.client.post(reverse('join_club_start'), {
     #     'email': 'attendee1@example.com',
@@ -576,9 +577,26 @@ class SimpleTest(TestCase):
     response = self.client.post(reverse('join_club_review'), {
         'join': 'join',
     })
+    self.assertRedirects(response, reverse('join_club_congrats'))
+    case = Product.objects.get(name="3 Bottles")
+    order = Order.objects.get(cart__items__product=case)
+
     # check order made
-    # check email sent out
-    # self.assertRedirects(response, reverse('join_club_congrats'))
+    orders = Order.objects.filter(cart=cart)
+    self.assertTrue(orders.exists())
+
+    # check emails sent
+    emails = Email.objects.filter(recipients="['new.member2@example.com']")
+    self.assertTrue(emails.exists())
+
+    recipient_email = Email.objects.filter(subject="Your Vinely order was placed successfully!", recipients="[u'attendee1@example.com']")
+    self.assertTrue(recipient_email.exists())
+
+    subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
+    vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
+    self.assertTrue(vinely_email.exists())
+
+    # TODO: What happens for your pro's commission if you join club within 7 days of party?
 
   def test_user_rsvp_without_signup(self):
     pass

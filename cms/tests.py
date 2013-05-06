@@ -59,119 +59,33 @@ class SimpleTest(TestCase):
     self.create_welcome_email_template()
     self.party_setup_completed_email_template()
 
-  def make_pro_template(self):
-    host_header = 'Where\'s the wine party? Your place!'
-    host_sub_header = '<span></span>'
+  def join_the_club_anon_email(self):
+    content = """
 
-    content_overview = """
-    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+    Welcome to the club! We are delighted you've decided to let Vinely make your wine experience easy, fun, and convenient.
+    You're in good hands.
 
-    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
-    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
+    Your first delicious surprise will arrive within 7 - 10 business days.
+    Remember, someone 21 years or older must be available to receive your shipment.
 
-    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    This first shipment is your Vinely First Taste Experience. It will include 6 wines and an experience booklet.
+    As you taste these wines, make sure to record your ratings, and input them to the website by logging into Vinely.com,
+    and clicking 'Rate Wines'.
+
+    This will allow us to assign you a wine personality and begin the process of delivering a perfectly personalized selection of wine right to your door each month.
+    Happy Tasting!
+
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
+
+    Your Tasteful Friends,
+
+    - The Vinely Team
+
     """
 
-    content_people = """
-    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
-    """
-
-    content_place = """
-    <p>Staying in is the new going out with Vinely.</p>
-    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
-    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
-    """
-
-    content_rewards = """
-    <p>Lots and lots of rewards!!!</p>
-    """
-
-    content_order = """
-    <p>
-    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
-    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
-    (artisan, crackers, stuffed mushrooms, best of the 80's?)
-    </p>
-    """
-
-    template, created = ContentTemplate.objects.get_or_create(key="make_pro", category=1)
-    section, created = Section.objects.get_or_create(key="general", template=template)
-    section.content = content_overview
-    section.save()
-    section, created = Section.objects.get_or_create(key='header', template=template)
-    section.content = host_header
-    section.save()
-    section, created = Section.objects.get_or_create(key='sub_header', template=template)
-    section.content = host_sub_header
-    section.save()
-    section, created = Section.objects.get_or_create(key="people", template=template)
-    section.content = content_people
-    section.save()
-    section, created = Section.objects.get_or_create(key="place", template=template)
-    section.content = content_place
-    section.save()
-    section, created = Section.objects.get_or_create(key="rewards", template=template)
-    section.content = content_rewards
-    section.save()
-    section, created = Section.objects.get_or_create(key="order", template=template)
-    section.content = content_order
-    section.save()
-
-  def make_host_template(self):
-    host_header = 'Where\'s the wine party? Your place!'
-    host_sub_header = '<span></span>'
-    content_overview = """
-    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
-
-    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
-    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
-
-    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
-    """
-
-    content_people = """
-    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
-    """
-
-    content_place = """
-    <p>Staying in is the new going out with Vinely.</p>
-    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
-    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
-    """
-
-    content_rewards = """
-    <p>Lots and lots of rewards!!!</p>
-    """
-
-    content_order = """
-    <p>
-    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
-    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
-    (artisan, crackers, stuffed mushrooms, best of the 80's?)
-    </p>
-    """
-
-    template, created = ContentTemplate.objects.get_or_create(key="make_host", category=1)
-    section, created = Section.objects.get_or_create(key='header', template=template)
-    section.content = host_header
-    section.save()
-    section, created = Section.objects.get_or_create(key='sub_header', template=template)
-    section.content = host_sub_header
-    section.save()
-    section, created = Section.objects.get_or_create(key="overview", template=template)
-    section.content = content_overview
-    section.save()
-    section, created = Section.objects.get_or_create(key="people", template=template)
-    section.content = content_people
-    section.save()
-    section, created = Section.objects.get_or_create(key="place", template=template)
-    section.content = content_place
-    section.save()
-    section, created = Section.objects.get_or_create(key="rewards", template=template)
-    section.content = content_rewards
-    section.save()
-    section, created = Section.objects.get_or_create(key="order", template=template)
-    section.content = content_order
+    template, created = ContentTemplate.objects.get_or_create(key="join_the_club_anon_email", category=0)
+    section, created = Section.objects.get_or_create(category=0, template=template)
+    section.content = content
     section.save()
 
   def party_setup_completed_email_template(self):
@@ -1492,3 +1406,119 @@ class SimpleTest(TestCase):
     """
     template = ContentTemplate.objects.create(key="rsvp", category=1)
     Section.objects.create(key='general', content=general_content, template=template)
+
+
+  def make_pro_template(self):
+    host_header = 'Where\'s the wine party? Your place!'
+    host_sub_header = '<span></span>'
+
+    content_overview = """
+    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+
+    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
+    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
+
+    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    """
+
+    content_people = """
+    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
+    """
+
+    content_place = """
+    <p>Staying in is the new going out with Vinely.</p>
+    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
+    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
+    """
+
+    content_rewards = """
+    <p>Lots and lots of rewards!!!</p>
+    """
+
+    content_order = """
+    <p>
+    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
+    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
+    (artisan, crackers, stuffed mushrooms, best of the 80's?)
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="make_pro", category=1)
+    section, created = Section.objects.get_or_create(key="general", template=template)
+    section.content = content_overview
+    section.save()
+    section, created = Section.objects.get_or_create(key='header', template=template)
+    section.content = host_header
+    section.save()
+    section, created = Section.objects.get_or_create(key='sub_header', template=template)
+    section.content = host_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="people", template=template)
+    section.content = content_people
+    section.save()
+    section, created = Section.objects.get_or_create(key="place", template=template)
+    section.content = content_place
+    section.save()
+    section, created = Section.objects.get_or_create(key="rewards", template=template)
+    section.content = content_rewards
+    section.save()
+    section, created = Section.objects.get_or_create(key="order", template=template)
+    section.content = content_order
+    section.save()
+
+  def make_host_template(self):
+    host_header = 'Where\'s the wine party? Your place!'
+    host_sub_header = '<span></span>'
+    content_overview = """
+    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+
+    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
+    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
+
+    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    """
+
+    content_people = """
+    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
+    """
+
+    content_place = """
+    <p>Staying in is the new going out with Vinely.</p>
+    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
+    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
+    """
+
+    content_rewards = """
+    <p>Lots and lots of rewards!!!</p>
+    """
+
+    content_order = """
+    <p>
+    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
+    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
+    (artisan, crackers, stuffed mushrooms, best of the 80's?)
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="make_host", category=1)
+    section, created = Section.objects.get_or_create(key='header', template=template)
+    section.content = host_header
+    section.save()
+    section, created = Section.objects.get_or_create(key='sub_header', template=template)
+    section.content = host_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview", template=template)
+    section.content = content_overview
+    section.save()
+    section, created = Section.objects.get_or_create(key="people", template=template)
+    section.content = content_people
+    section.save()
+    section, created = Section.objects.get_or_create(key="place", template=template)
+    section.content = content_place
+    section.save()
+    section, created = Section.objects.get_or_create(key="rewards", template=template)
+    section.content = content_rewards
+    section.save()
+    section, created = Section.objects.get_or_create(key="order", template=template)
+    section.content = content_order
+    section.save()
