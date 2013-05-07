@@ -1,0 +1,66 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% load currency %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .card-info {
+      padding-top: 40px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block header %}
+  <h1 class="headline">Congratulations!!</h1>
+{% endblock header %}
+
+{% block content %}
+<div class="partycrumb main">
+  <ul class="nav diy-nav">
+    <li id="shipping" class="visited">&nbsp;</li>
+    <li id="review" class="visited">&nbsp;</li>
+    <li id="done" class="active">&nbsp;</li>
+  </ul>
+</div>
+<div class="vertical-space">&nbsp;</div>
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span3 well">
+      <h2><small>Shipping</small></h2>
+      <address>
+        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>{{ shipping_address.street1 }}</p>
+        {% if shipping_address.street2 %}
+        <p>{{ shipping_address.street2 }}</p>
+        {% endif %}
+        <p>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.zipcode }}</p>
+        <br />
+        <p>Phone: {{ cart.receiver.get_profile.phone }}</p>        
+      </address>
+
+      <h2><small>Billing</small></h2>
+      <p>Credit card ending in {{ credit_card.last_four }}</p>
+      <p>Exp Date: {{ credit_card.exp_date }}</p>
+
+      <h2><small>Dues</small></h2>
+      <p>Subtotal: {{ cart.subtotal|currency }}</p>
+      <p>Tax: {{ cart.tax|currency }}</p>
+      <p><b>Total: {{ cart.total|currency }}</b></p>
+    </div>
+    <div class="span4">
+      &nbsp;
+    </div>
+    <div class="span4">
+      <br />
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+{% endblock additional_scripts %}

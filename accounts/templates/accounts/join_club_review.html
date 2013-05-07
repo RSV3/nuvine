@@ -36,9 +36,6 @@
     .card-info {
       padding-top: 40px;
     }
-    .payment-errors {
-      display: none;
-    }
     .edit-shipping {
       position: absolute;
       margin-left: 180px;
@@ -60,7 +57,14 @@
 {% endblock header %}
 
 {% block content %}
-
+<div class="partycrumb main">
+  <ul class="nav diy-nav">
+    <li id="shipping" class="visited">&nbsp;</li>
+    <li id="review" class="active">&nbsp;</li>
+    <li id="done">&nbsp;</li>
+  </ul>
+</div>
+<div class="vertical-space">&nbsp;</div>
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <div class="row">
     <div class="span3 well">
@@ -84,7 +88,6 @@
 
       <h2><small>Dues</small></h2>
       <p>Subtotal: {{ cart.subtotal|currency }}</p>
-      <p>Shipping: {{ cart.shipping|currency }}</p>
       <p>Tax: {{ cart.tax|currency }}</p>
       <p><b>Total: {{ cart.total|currency }}</b></p>
     </div>
@@ -102,7 +105,8 @@
         <li>No risk. Cancel anytime, no questions asked!</li>
       </ul>
       <div class="vertical-space">&nbsp;</div>
-      <form method="POST" action="{% url join_club_done %}">
+      <form method="POST" action="{{ app_path }}">
+        {% csrf_token %}
         <button class="btn btn-success">Join</button>
       </form>
     </div>

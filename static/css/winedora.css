@@ -633,37 +633,50 @@ table .row-label-bold {
   background: url('../img/create_party_nav.png') no-repeat -706px 0; 
 }
 
-/*
-.partycrumb li {
-  height: 190px;
-}
-.party-add {
-  background: url('../img/create_party_nav.png') no-repeat 0 -82px; 
-  width: 298px;
-}
-.party-write-invitation {
-  background: url('../img/create_party_nav.png') no-repeat -300px -82px; 
-  width: 260px;
-}
-.party-invite-friends {
-  background: url('../img/create_party_nav.png') no-repeat -562px -82px; 
-  width: 250px;
+.diy-nav li {
+  background: url('../img/DIY_top_nav.png');
+  background-repeat:no-repeat;
+  height: 30px;
 }
 
-.party-add.active {
+#shipping {
+  background-position: 0 -156px;
+  width: 229px;
+}
+#shipping.visited {
+  background-position: 0 -80px;
+  width: 229px;
+}
+#shipping.active {
   background-position: 0 0;
+  width: 229px;
 }
-.party-write-invitation.active {
-  background-position: -300px 0; 
+
+#review {
+  background-position: -233px -161px;
+  width: 150px;
 }
-.party-invite-friends.active {
-  background-position: -562px 0; 
+#review.visited {
+  background-position: -233px -80px;
+  width: 150px;
 }
- .product-description {
-  width: 300px;
-  margin-top: 15px;
+#review.active {
+  background-position: -233px 0;
+  width: 150px;
 }
-*/
+
+#done {
+  background-position: -387px -161px;
+  width: 175px;
+}
+#done.visited {
+  background-position: -387px -80px;
+  width: 175px;
+}
+#done.active {
+  background-position: -387px 0;
+  width: 175px;
+}
 
 footer {
   font-family: "Avenir LT W01 85 Heavy";

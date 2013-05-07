@@ -1251,7 +1251,7 @@ def join_club_review(request):
       if 'stripe_payment' in request.session:
         del request.session['stripe_payment']
 
-      return HttpResponseRedirect(reverse("join_club_done"))
+      return HttpResponseRedirect(reverse("join_club_done", args=[order_id]))
 
   else:
     messages.error(request, 'Your session expired, please start ordering again.')
@@ -1259,13 +1259,20 @@ def join_club_review(request):
 
   data['shipping_address'] = profile.shipping_address
   data['cart'] = cart
-  data["credit_card"] = profile.stripe_card
+  data["credit_card"] = order.stripe_card
 
   return render_to_response("accounts/join_club_review.html", data, context_instance=RequestContext(request))
 
 
 @login_required
-def join_club_done(request):
+def join_club_done(request, order_id):
   user = request.user
+  profile = user.get_profile()
 
-  return HttpResponse('done')
+  order = get_object_or_404(Order, order_id=order_id)
+
+  data = {}
+  data['shipping_address'] = profile.shipping_address
+  data['cart'] = order.cart
+  data["credit_card"] = order.stripe_card
+  return render_to_response("accounts/join_club_done.html", data, context_instance=RequestContext(request))
