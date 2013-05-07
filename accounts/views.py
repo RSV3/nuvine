@@ -1016,7 +1016,13 @@ def pro_unlink(request):
 
 
 def join_club_start(request):
-  # tas_group = Group.objects.get(name="Vinely Taster")
+  user = request.user
+
+  if user.is_authenticated():
+    if user.userprofile.club_member:
+      return HttpResponseRedirect(reverse('home'))
+    else:
+      return HttpResponseRedirect(reverse('join_club_shipping'))
 
   data = {}
   form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
@@ -1060,6 +1066,9 @@ def join_club_start(request):
 def join_club_shipping(request):
   user = request.user
   profile = user.get_profile()
+
+  if profile.club_member:
+    return HttpResponseRedirect(reverse('home'))
 
   data = {}
   initial_data = {'first_name': user.first_name, 'last_name': user.last_name,
@@ -1235,11 +1244,15 @@ def join_club_review(request):
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
+        order.fulfill_status = 1
+        order.save()
+
+        profile.club_member = True
+        profile.save()
+
         # need to send e-mail
         join_the_club_email(request, user)
         send_order_confirmation_email(request, order_id)
-        order.fulfill_status = 1
-        order.save()
 
       # remove session information if it exists
       if 'ordering' in request.session:
@@ -1259,7 +1272,7 @@ def join_club_review(request):
 
   data['shipping_address'] = profile.shipping_address
   data['cart'] = cart
-  data["credit_card"] = order.stripe_card
+  data["credit_card"] = profile.stripe_card
 
   return render_to_response("accounts/join_club_review.html", data, context_instance=RequestContext(request))
 

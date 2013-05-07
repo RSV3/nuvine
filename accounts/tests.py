@@ -570,6 +570,9 @@ class SimpleTest(TestCase):
 
     self.assertRedirects(response, reverse('join_club_done', args=[order.order_id]))
 
+    member = User.objects.get(email='new.member2@example.com')
+    self.assertTrue(member.userprofile.club_member)
+
     # if existing user, dont ship taste kit, immediate subscription
     # if new user taste kit + delayed subscription
 
@@ -642,6 +645,9 @@ class SimpleTest(TestCase):
     order = Order.objects.get(cart__items__product=case)
 
     self.assertRedirects(response, reverse('join_club_done', args=[order.order_id]))
+
+    member = User.objects.get(email='attendee1@example.com')
+    self.assertTrue(member.userprofile.club_member)
 
     # check order made
     # check that this is a subscription order
