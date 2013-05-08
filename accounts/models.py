@@ -157,19 +157,19 @@ class UserProfile(models.Model):
   club_member = models.BooleanField(default=False)
 
   ROLE_CHOICES = (
-    (0, 'Unassigned Role'),
-    (1, 'Vinely Pro'),
-    (2, 'Vinely Host'),
-    (3, 'Vinely Taster'),
-    (4, 'Supplier'),
-    (5, 'Pending Vinely Pro')
+      (0, 'Unassigned Role'),
+      (1, 'Vinely Pro'),
+      (2, 'Vinely Host'),
+      (3, 'Vinely Taster'),
+      (4, 'Supplier'),
+      (5, 'Pending Vinely Pro'),
   )
   role = models.IntegerField(choices=ROLE_CHOICES, default=ROLE_CHOICES[0][0])
 
   GENDER_CHOICES = (
-    (0, 'FEMALE'),
-    (1, 'MALE'),
-    (2, 'N/A'),
+      (0, 'FEMALE'),
+      (1, 'MALE'),
+      (2, 'N/A'),
   )
 
   gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
@@ -191,9 +191,20 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
+  @property
+  def has_default_pro(self):
+    from accounts.utils import get_default_pro, get_default_mentor
+    if self.role == 1:
+      return self.mentor == get_default_mentor()
+    else:
+      return self.current_pro == get_default_pro()
+
   def find_nearest_pro(self):
-    # from accounts.utils import get_default_pro
-    default_pro = User.objects.get(email='elizabeth@vinely.com')
+    from accounts.utils import get_default_pro, get_default_mentor
+    if self.role == 1:
+      default_pro = get_default_mentor()
+    else:
+      default_pro = get_default_pro()
 
     code = self.zipcode
 

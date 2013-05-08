@@ -15,7 +15,7 @@ from support.models import Email
 
 from cms.tests import SimpleTest as CMSTest
 from main.tests import SimpleTest as MainTest
-from accounts.utils import get_default_pro
+from accounts.utils import get_default_pro, get_default_mentor
 
 
 class SimpleTest(TestCase):
@@ -52,12 +52,12 @@ class SimpleTest(TestCase):
                                                                         'phone_number': '6172342524'})
 
     self.assertRedirects(response, reverse('home_page'))
-    self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor__email='elizabeth@vinely.com').exists())
+    self.assertTrue(ProSignupLog.objects.filter(new_pro__email='john.doe1@example.com', mentor=get_default_mentor()).exists())
 
     # test autoassign working --> Should assign default Pro
     profile = UserProfile.objects.get(user__email='john.doe1@example.com')
     # pro = User.objects.get(email='elizabeth@vinely.com')
-    self.assertEquals(profile.mentor, get_default_pro())
+    self.assertEquals(profile.mentor, get_default_mentor())
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', 'getstarted@vinely.com']", subject="Vinely Pro Request")
@@ -102,7 +102,7 @@ class SimpleTest(TestCase):
     # test autoassign working --> Should assign MA Pro for zipcode used
     profile = UserProfile.objects.get(user__email='attendee1@example.com')
     # pro = User.objects.get(email='specialist1@example.com')
-    self.assertEquals(profile.mentor, get_default_pro())
+    self.assertEquals(profile.mentor, get_default_mentor())
 
     self.client.logout()
 
@@ -160,7 +160,7 @@ class SimpleTest(TestCase):
     self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely + pro
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to recipient
@@ -204,7 +204,7 @@ class SimpleTest(TestCase):
     self.assertEquals(profile.current_pro, pro)
 
     # check that emails are sent to vinely
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to taster
@@ -235,7 +235,7 @@ class SimpleTest(TestCase):
     self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to taster

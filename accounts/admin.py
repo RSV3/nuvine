@@ -101,7 +101,7 @@ class MentorAssignedFilter(SimpleListFilter):
     return (
         ('Yes', 'Mentor Assigned'),
         ('No', 'No Mentor Assigned'),
-      )
+    )
 
   def queryset(self, request, queryset):
     mentor_assigned = self.value()
@@ -114,6 +114,7 @@ class MentorAssignedFilter(SimpleListFilter):
     if mentor_assigned == 'No':
       return queryset.filter(id__in=pros, mentor__isnull=True)
 
+
 class ProAssignedFilter(SimpleListFilter):
 
   title = _('pro assigned')
@@ -124,7 +125,7 @@ class ProAssignedFilter(SimpleListFilter):
     return (
         ('Yes', 'Pro Assigned'),
         ('No', 'No Pro Assigned'),
-      )
+    )
 
   def queryset(self, request, queryset):
     pro_assigned = self.value()

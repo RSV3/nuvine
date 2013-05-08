@@ -51,6 +51,23 @@ class SimpleTest(TestCase):
     mi_pro.userprofile.zipcode = '49546'
     mi_pro.userprofile.save()
 
+    sales_user = create_user('sales@vinely.com', 'hello')
+    sales_user.first_name = "Vinely"
+    sales_user.last_name = "Sales"
+    sales_user.save()
+    sales_user.userprofile.role = supp_group
+    sales_user.userprofile.phone = '888-294-1128'
+    sales_user.userprofile.save()
+
+    care_user = create_user("care@vinely.com", "hello")
+    care_user.first_name = "Vinely"
+    care_user.last_name = "Care"
+    care_user.is_active = False
+    care_user.save()
+    care_user.userprofile.role = 0  # no assigned role
+    care_user.userprofile.phone = '888-294-1128'
+    care_user.userprofile.save()
+
     ca_pro = create_user("johnstecco@gmail.com", "jstecco")
     ca_pro.userprofile.role = ps_group
     ca_pro.userprofile.zipcode = '92612'
@@ -122,7 +139,7 @@ class SimpleTest(TestCase):
     u.userprofile.save()
 
     suppliers = User.objects.filter(userprofile__role=supp_group)
-    self.assertEqual(suppliers.count(), 2)
+    self.assertEqual(suppliers.count(), 3)
 
     tasters = User.objects.filter(userprofile__role=att_group)
     self.assertEqual(tasters.count(), 9)

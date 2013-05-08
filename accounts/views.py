@@ -19,7 +19,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
 from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                            get_default_pro
+                            get_default_pro, get_default_mentor
 
 from cms.models import ContentTemplate
 from main.utils import send_host_vinely_party_email, my_host, my_pro
@@ -555,7 +555,7 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
+            mentor = get_default_mentor()
           profile.mentor = mentor
           # no longer taster or host so set current_pro to None
           profile.current_pro = None
@@ -599,7 +599,7 @@ def make_pro_host(request, account_type, data):
           if mentor_email:
             mentor = User.objects.get(email=mentor_email)
           else:
-            mentor = get_default_pro()
+            mentor = get_default_mentor()
           profile.mentor = mentor
           # since no longer host or taster
           profile.current_pro = None
@@ -628,7 +628,7 @@ def make_pro_host(request, account_type, data):
           profile.save()
           send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
-          pro = None
+          pro = get_default_pro()
           send_unknown_pro_email(request, u)  # to host
 
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
@@ -773,7 +773,7 @@ def sign_up(request, account_type, data):
         mentor = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
       except User.DoesNotExist:
         # mentor e-mail was not entered, assign default pro
-        mentor = get_default_pro()
+        mentor = get_default_mentor()
 
       profile.mentor = mentor
       ProSignupLog.objects.get_or_create(new_pro=user, mentor=mentor, mentor_email=form.cleaned_data['mentor'])
@@ -787,7 +787,7 @@ def sign_up(request, account_type, data):
         profile.current_pro = pro
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
-        pro = None
+        pro = get_default_pro()
         # pro e-mail was not entered
         # profile.current_pro = profile.find_nearest_pro()
         send_unknown_pro_email(request, user)  # to host
@@ -975,7 +975,7 @@ def pro_link(request):
     form = ProLinkForm(request.POST or None)
     if form.is_valid():
       pro = User.objects.get(email=form.cleaned_data['email'])
-      my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
+      # my_hosts, created = MyHost.objects.get_or_create(pro=pro, host=u)
       profile.current_pro = pro
       profile.mentor = None
       profile.save()
@@ -990,6 +990,7 @@ def pro_link(request):
 
 @login_required
 def pro_unlink(request):
+  from accounts.utils import get_default_pro
 
   u = request.user
   profile = u.get_profile()
@@ -997,13 +998,13 @@ def pro_unlink(request):
   # unlink current user's pro
   if profile.is_host():
     profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
-    profile.current_pro = None
+    profile.current_pro = get_default_pro()
     profile.save()
     MyHost.objects.filter(host=u).update(pro=None)
     messages.success(request, "You have been successfully unlinked from the Pro.")
   elif profile.is_taster():
     profile.mentor = None  # this line shouldn't be necessary with new way of tracking pros 3/10/2013
-    profile.current_pro = None
+    profile.current_pro = get_default_pro()
     profile.save()
     # seems there's no way to unlink a pro for taster because no direct link
     messages.success(request, "You have been successfully unlinked from the Pro.")

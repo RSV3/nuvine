@@ -73,22 +73,26 @@
       {% endif %}
     </div>
     <div class="span5">
-      {% if my_pro %}
-        <table class="summary-table">
-          <tbody>
-            <tr>
-              <td><h2>Pro Info</h2></td>
-            </tr>
-            <tr>
+      <table class="summary-table">
+        <tbody>
+          <tr>
+            <td><h2>Pro Info</h2></td>
+          </tr>
+          <tr>
+            <td>
+              {% thumbnail my_pro.get_profile.image "90x90" as im %}
+                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+              {% empty %}
+                <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
+              {% endthumbnail %}
+            </td>
+            {% if user.get_profile.has_default_pro %}
               <td>
-                {% if my_pro.get_profile.image %}
-                  {% thumbnail my_pro.get_profile.image "90x90" as im %}
-                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                  {% endthumbnail %}
-                {% else %}
-                  <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
-                {% endif %}              
+                <p>{{ my_pro.first_name }} {{ my_pro.last_name }}</p>
+                <p>888-294-1128 ext. 2</p>
+                <p><a href="mailto:sales@vinely.com">sales@vinely.com</a></p>
               </td>
+            {% else %}
               <td>
                 <p>
                   {% if my_pro.first_name %} {{ my_pro.first_name }} {{ my_pro.last_name }}{% else %}Friendly Pro{% endif %} 
@@ -99,20 +103,11 @@
                 <p>{% if my_pro.get_profile.phone %}{{ my_pro.get_profile.phone }}{% else %}----{% endif %}</p>
                 <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
               </td>
-            </tr>
-          </tbody>
-        </table>
-      {% else %}
-        <h2>You don't have a Pro yet</h2>
-      {% endif %}
-      <!-- <div class="span3"> -->
+            {% endif %}
+          </tr>
+        </tbody>
+      </table>
       <br />
-<!-- 
-      <p>
-        <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
-      </p>
--->
-      <!-- </div> -->
     </div>
     {% comment %}
       {% if pro %}
