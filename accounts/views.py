@@ -620,6 +620,8 @@ def make_pro_host(request, account_type, data):
 
       elif account_type == 2:
         # become a host
+        profile.role = UserProfile.ROLE_CHOICES[2][0]
+
         try:
           mentor_email = form.cleaned_data.get('mentor')
           # host does not get assigned to anybody if they don't enter pro e-mail 3/10/2013
@@ -628,15 +630,15 @@ def make_pro_host(request, account_type, data):
           profile.save()
           send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
-          pro = get_default_pro()
+          # pro = get_default_pro()
+          pro = profile.find_nearest_pro()
+          profile.current_pro = pro
+          profile.save()
           send_unknown_pro_email(request, u)  # to host
 
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
 
-        prof = u.get_profile()
-        prof.role = UserProfile.ROLE_CHOICES[2][0]
-        prof.save()
         messages.success(request, "To ensure that Vinely emails get to your inbox, please add info@vinely.com to your email Address Book or Safe List.")
         return HttpResponseRedirect(reverse('home_page'))
 
@@ -785,13 +787,16 @@ def sign_up(request, account_type, data):
       try:
         pro = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
         profile.current_pro = pro
+        profile.save()
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
-        pro = get_default_pro()
+        # pro = get_default_pro()
+        pro = profile.find_nearest_pro()
         # pro e-mail was not entered
-        # profile.current_pro = profile.find_nearest_pro()
+        profile.current_pro = pro
+        profile.save()
+
         send_unknown_pro_email(request, user)  # to host
-      profile.save()
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
     if account_type == 1:
