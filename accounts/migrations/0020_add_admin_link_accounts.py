@@ -11,11 +11,12 @@ class Migration(DataMigration):
     def forwards(self, orm):
         "Write your forwards methods here."
         # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
-        profile = orm.Userprofile.objects.get(user__email='sales@vinely.com')
-        sales_user = profile.user
+        sales_user = create_user('getstarted@vinely.com', 'hello')
         sales_user.first_name = "Vinely"
         sales_user.last_name = "Sales"
+        sales_user.is_active = False
         sales_user.save()
+        sales_user.userprofile.role = 0  # no assigned role
         sales_user.userprofile.phone = '888-294-1128'
         sales_user.userprofile.save()
 
@@ -28,17 +29,21 @@ class Migration(DataMigration):
         care_user.userprofile.phone = '888-294-1128'
         care_user.userprofile.save()
 
-        pending_pro_profiles = orm.Userprofile.objects.filter(role=5, mentor__isnull=True)
+        pending_pro_profiles = orm.Userprofile.objects.filter(role=5, mentor=None)
         pending_pro_profiles.update(mentor=sales_user)
 
-        host_profiles = orm.Userprofile.objects.filter(role=2, current_pro__isnull=True)
+        host_profiles = orm.Userprofile.objects.filter(role=2, current_pro=None)
         host_profiles.update(current_pro=care_user)
 
     def backwards(self, orm):
         "Write your backwards methods here."
-        profile = orm.Userprofile.objects.get(user__email='care@vinely.com')
-        user = profile.user
-        user.delete()
+        care_profile = orm.Userprofile.objects.get(user__email='care@vinely.com')
+        sales_profile = orm.Userprofile.objects.get(user__email='getstarted@vinely.com')
+
+        orm.UserProfile.objects.filter(role=2, current_pro=care_profile.user).update(current_pro=None)
+        orm.UserProfile.objects.filter(role=5, mentor=sales_profile.user).update(mentor=None)
+        care_profile.user.delete()
+        sales_profile.user.delete()
 
     models = {
         'accounts.address': {

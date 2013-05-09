@@ -583,4 +583,4 @@ def get_default_pro():
 
 def get_default_mentor():
   from accounts.models import User
-  return User.objects.get(email='sales@vinely.com')
+  return User.objects.get(email='getstarted@vinely.com')

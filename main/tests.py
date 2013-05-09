@@ -51,11 +51,11 @@ class SimpleTest(TestCase):
     mi_pro.userprofile.zipcode = '49546'
     mi_pro.userprofile.save()
 
-    sales_user = create_user('sales@vinely.com', 'hello')
+    sales_user = create_user('getstarted@vinely.com', 'hello')
     sales_user.first_name = "Vinely"
     sales_user.last_name = "Sales"
     sales_user.save()
-    sales_user.userprofile.role = supp_group
+    sales_user.userprofile.role = 0
     sales_user.userprofile.phone = '888-294-1128'
     sales_user.userprofile.save()
 
@@ -139,7 +139,7 @@ class SimpleTest(TestCase):
     u.userprofile.save()
 
     suppliers = User.objects.filter(userprofile__role=supp_group)
-    self.assertEqual(suppliers.count(), 3)
+    self.assertEqual(suppliers.count(), 2)
 
     tasters = User.objects.filter(userprofile__role=att_group)
     self.assertEqual(tasters.count(), 9)
