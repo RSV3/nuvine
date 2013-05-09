@@ -133,7 +133,7 @@ class PartyAdmin(admin.ModelAdmin):
   ordering = ['-event_date']
 
   def invites(self, instance):
-    return '<a href="%s?party__id=%s">invites</a>' % (reverse('admin:main_partyinvite_changelist'), instance.id)
+    return '<strong><a href="%s?party__id=%s">invites</a></strong>' % (reverse('admin:main_partyinvite_changelist'), instance.id)
   invites.allow_tags = True
 
   def queryset(self, request):

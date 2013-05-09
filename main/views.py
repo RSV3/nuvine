@@ -1527,7 +1527,7 @@ def party_details(request, party_id):
   # kit_order_date = party.event_date - timedelta(days=5)
   kit_order_date = business_days_from(party.event_date, -5)
   # can_order_kit = (party.event_date - timezone.now() >= timedelta(days=5))
-  can_order_kit = business_days_count(party.event_date, timezone.now()) >= 5
+  can_order_kit = business_days_count(timezone.now(), party.event_date) > 5
 
   # initialize the edit party info form
   edit_form_data = {}
@@ -1549,6 +1549,7 @@ def party_details(request, party_id):
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
         pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
     else:
+      print 'am host', party.confirmed
       # for host
       if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
         if not party.kit_ordered():
