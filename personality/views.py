@@ -508,10 +508,10 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           taster.set_password(temp_password)
           taster.save()
 
-          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
-            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
-            verification_code = vque.verification_code
-          else:
+          if not VerificationQueue.objects.filter(user=taster, verified=False).exists():
+          #   vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+          #   verification_code = vque.verification_code
+          # else:
             verification_code = str(uuid.uuid4())
             vque = VerificationQueue(user=taster, verification_code=verification_code)
             vque.save()
