@@ -1549,7 +1549,6 @@ def party_details(request, party_id):
         pro_name = party.host.first_name if party.host.first_name else 'Anonymous'
         pro_name = pro_name + "'" if pro_name.endswith('s') else pro_name + "'s"
     else:
-      print 'am host', party.confirmed
       # for host
       if party.confirmed and not (u.userprofile.events_manager() and party.is_events_party):
         if not party.kit_ordered():

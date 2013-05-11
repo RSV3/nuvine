@@ -250,9 +250,12 @@ class UserProfile(models.Model):
       # 1. if multiple active pros, find pro not assigned in last 3 months
       # 2. if still multiple active pros, find pro with highest personal sales
       sorted_dict = iter(sorted(my_pros.iteritems()))
-      assigned_pro = sorted_dict.next()[0]
-      # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))
-      return assigned_pro
+      try:
+        assigned_pro = sorted_dict.next()[0]
+        # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))
+        return assigned_pro
+      except StopIteration:
+        return default_pro
 
     return default_pro
 
