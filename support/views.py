@@ -894,7 +894,8 @@ def rate_order(request, order_id):
   data['order'] = order
   receiver_profile = order.receiver.get_profile()
   data['receiver_profile'] = receiver_profile
-  data['customization'] = CustomizeOrder.objects.get(user=order.receiver)
+  customization, created = CustomizeOrder.objects.get_or_create(user=order.receiver)
+  data['customization'] = customization
   # raise Exception
   status_form = ChangeFulfillStatusForm(request.POST or None, instance=order)
   if status_form.is_valid():

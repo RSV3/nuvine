@@ -1515,7 +1515,7 @@ def party_details(request, party_id):
   # kit_order_date = party.event_date - timedelta(days=5)
   kit_order_date = business_days_from(party.event_date, -5)
   # can_order_kit = (party.event_date - timezone.now() >= timedelta(days=5))
-  can_order_kit = business_days_count(party.event_date, timezone.now()) >= 5
+  can_order_kit = business_days_count(timezone.now(), party.event_date) > 5
 
   # initialize the edit party info form
   edit_form_data = {}

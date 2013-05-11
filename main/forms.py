@@ -54,7 +54,7 @@ class PartyEditDateForm(forms.ModelForm):
       if self._errors:
         del self._errors['event_date']
 
-      if business_days_count(cleaned_data['event_date'], timezone.now()) < 5:
+      if business_days_count(timezone.now(), cleaned_data['event_date']) <= 5:
         raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
@@ -242,7 +242,7 @@ class PartyCreateForm(forms.ModelForm):
       full_date = timezone.datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S')
       cleaned_data['event_date'] = timezone.make_aware(full_date, timezone.get_current_timezone())
       del self._errors['event_date']
-      if (cleaned_data['event_date'] - timezone.now()) < timedelta(days=5):
+      if business_days_count(timezone.now(), cleaned_data['event_date']) <= 5:
         raise forms.ValidationError("Parties must be scheduled and tasting kits must be ordered at least 5 business days in advance. If you need to schedule a party inside this window, contact care@vinely.com")
     else:
       raise forms.ValidationError("Party date and time are required.")
@@ -253,20 +253,20 @@ class PartyCreateForm(forms.ModelForm):
 class PartyTasterOptionsForm(forms.Form):
 
   AUTO_INVITE_OPTIONS = (
-    (1, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
-    (0, 'allow you to confirm your invite email again before it is sent out?')
+      (1, 'send out the party invite automatically as soon as your Pro confirms the time and date?'),
+      (0, 'allow you to confirm your invite email again before it is sent out?')
   )
   AUTO_THANK_OPTIONS = (
-    #(1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
-    (1, 'send out a Thank You email on your behalf automatically after the party?'),
-    (0, 'let me send my own Thank You email after the party?')
+      #(1, 'send out a Thank You email on your behalf automatically after the party? (Preview Email)'),
+      (1, 'send out a Thank You email on your behalf automatically after the party?'),
+      (0, 'let me send my own Thank You email after the party?')
   )
   auto_invite = forms.ChoiceField(choices=AUTO_INVITE_OPTIONS, widget=forms.RadioSelect, required=False)
   auto_thank_you = forms.ChoiceField(choices=AUTO_THANK_OPTIONS, widget=forms.RadioSelect, required=False, initial=1)
 
   TASTER_OPTIONS = (
-    (0, "see the guest list?"),
-    (1, "be able to invite friends?"),
+      (0, "see the guest list?"),
+      (1, "be able to invite friends?"),
   )
 
   taster_actions = forms.MultipleChoiceField(choices=TASTER_OPTIONS, widget=forms.CheckboxSelectMultiple, label="Do you want tasters to", required=False)

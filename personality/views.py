@@ -508,14 +508,15 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           taster.set_password(temp_password)
           taster.save()
 
-          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
-            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
-            verification_code = vque.verification_code
-          else:
+          if not VerificationQueue.objects.filter(user=taster, verified=False).exists():
+          #   vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+          #   verification_code = vque.verification_code
+          # else:
             verification_code = str(uuid.uuid4())
             vque = VerificationQueue(user=taster, verification_code=verification_code)
             vque.save()
-          send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
+            # only send email for new users
+            send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))
