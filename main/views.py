@@ -74,6 +74,22 @@ def pros_only(request):
 
 
 @login_required
+def home_club_member(request):
+
+  data = {}
+
+  u = request.user
+  profile = u.get_profile()
+
+  if profile.wine_personality and profile.wine_personality.name != WinePersonality.MYSTERY:
+    data['wine_personality'] = profile.wine_personality
+  else:
+    data['wine_personality'] = False
+
+  return render_to_response("main/home_club_member.html", data, context_instance=RequestContext(request))
+
+
+@login_required
 def home(request):
 
   data = {}
@@ -729,6 +745,12 @@ def place_order(request):
       if order.fulfill_status == 0:
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+        if items.exists():
+          # no longer considered a club member
+          profile = u.get_profile()
+          profile.club_member = False
+          profile.save()
+
         for item in items:
           # check if item contains subscription
           from_date = datetime.date(datetime.now(tz=UTC()))

@@ -27,8 +27,11 @@ def home(request):
   data['pro'] = sections.get(key='pro').content
 
   if u.is_authenticated():
-    if u.userprofile.is_supplier():
+    profile = u.get_profile()
+    if profile.is_supplier():
       return HttpResponseRedirect(reverse("supplier_all_orders"))
+    elif profile.is_taster() and profile.club_member:
+      return HttpResponseRedirect(reverse("home_club_member"))
     else:
       return HttpResponseRedirect(reverse("home_page"))
 

@@ -1,0 +1,55 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block header %}
+  <h1 class="headline">Welcome{% if user.first_name %}, {{ user.first_name }}{% else %} to Vinely{% endif %}</h1>
+{% endblock header %}
+
+
+{% block additional_styles %}
+{% endblock additional_styles %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    {% if host %}
+      <div class="offset1 span6">
+        <p>In less than 10 days you will get your wonderful surprise of 6 tasting wines. 
+          You can track your order by clicking <a href="{% url order_history %}">here</a>. 
+          Remember someone 21 or older needs to be present to receive the shipment.</p>
+        <p>Here's what you'll need to do: </p>
+        <br />
+        <div class="center">
+          <a href="#" class="btn btn-success btn-large">Rate Wines</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="offset1 span6">
+        <p>In less than 10 days you will get your wonderful surprise of 6 tasting wines. 
+          You can track your order by clicking <a href="{% url order_history %}">here</a>. 
+          Remember someone 21 or older needs to be present to receive the shipment.</p>
+        <p>Here's what you'll need to do: </p>
+        <br />
+        <div class="center">
+          <a href="#" class="btn btn-success btn-large">Rate Wines</a>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="span3 offset1">
+      {% if wine_personality %}
+        <div class="personality-badge-detail">
+          <img src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png">
+        </div>
+      {% else %}
+        <div class="personality-badge-detail">
+          <img src="{% static "img/homepage_badge_mystery.png" %}" height="400" />
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+{% endblock content %}

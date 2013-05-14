@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart, \
-                        LineItem, Product, Order
+                        LineItem, Product, Order, Party
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
@@ -77,10 +77,19 @@ def profile(request):
     if invites.exists():
       invite = invites[0]
       return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
-    else:
+    elif profile.club_member:
+      return HttpResponseRedirect(reverse('home_club_member'))
+
+  elif profile.is_host():
+    parties = Party.objects.filter(host=u, event_date__gt=timezone.now())
+    if parties.exists():
       return HttpResponseRedirect(reverse('home_page'))
-  else:
-    return HttpResponseRedirect(reverse('home_page'))
+    elif profile.club_member:
+      return HttpResponseRedirect(reverse('home_club_member'))
+  elif profile.is_pro():
+    return HttpResponseRedirect(reverse('party_list'))
+
+  return HttpResponseRedirect(reverse('home_page'))
 
 
 @login_required
@@ -395,6 +404,11 @@ def edit_subscription(request):
       else:
         messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
+      # no longer considered a club member
+      profile = u.get_profile()
+      profile.club_member = False
+      profile.save()
+
   data['invited_by'] = my_host(u)
 
   data['pro_user'] = u.get_profile().current_pro
@@ -411,6 +425,12 @@ def edit_subscription(request):
 def cancel_subscription(request):
   u = request.user
   u.get_profile().cancel_subscription()
+
+  # no longer considered a club member
+  profile = u.get_profile()
+  profile.club_member = False
+  profile.save()
+
   messages.success(request, "Your subscription has been cancelled.")
   return HttpResponseRedirect(reverse("edit_subscription"))
 
