@@ -1180,11 +1180,11 @@ def my_pro(user):
   pro_profile = None
   profile = user.get_profile()
   if profile.is_host() or profile.is_taster():
-    pro = user.userprofile.current_pro
-    pro_profile = user.userprofile.current_pro.get_profile() if pro else None
-  elif user.userprofile.mentor:
-    pro = user.userprofile.mentor
-    pro_profile = user.userprofile.mentor.get_profile()
+    pro = profile.current_pro
+    pro_profile = profile.current_pro.get_profile() if pro else None
+  elif profile.mentor:
+    pro = profile.mentor
+    pro_profile = profile.mentor.get_profile()
   return pro, pro_profile
 
 

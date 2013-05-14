@@ -935,6 +935,7 @@ def party_list(request):
   """
 
   u = request.user
+  profile = u.get_profile()
 
   data = {}
 
@@ -966,8 +967,12 @@ def party_list(request):
   # exclude parties in which user was the host or pro
   data['taster_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__gte=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('event_date')
   data['taster_past_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__lt=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('-event_date')
-  pro, pro_profile = my_pro(u)
-  data['my_pro'] = pro
+
+  if profile.mentor:
+    data['my_pro'] = profile.mentor
+  else:
+    data['my_pro'] = profile.current_pro
+
   data["parties_menu"] = True
 
   return render_to_response("main/party_list.html", data, context_instance=RequestContext(request))
