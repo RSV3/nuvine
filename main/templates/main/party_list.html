@@ -89,11 +89,15 @@
                   <img src="{% static "img/noprofilephoto_img.png" %}" width="90">
                 {% endthumbnail %}
               </td>
-              {% if user.get_profile.has_default_pro %}
+              {% if user.get_profile.has_default_mentor or user.get_profile.has_default_pro %}
                 <td>
                   <p>{{ my_pro.first_name }} {{ my_pro.last_name }}</p>
-                  <p>888-294-1128 ext. 2</p>
-                  <p><a href="mailto:sales@vinely.com">sales@vinely.com</a></p>
+                  {% if user.get_profile.mentor %}
+                    <p>888-294-1128 ext. 2</p>
+                  {% else %}
+                    <p>888-294-1128 ext. 1</p>
+                  {% endif %}
+                  <p><a href="mailto:{{ my_pro.email }}">{{ my_pro.email }}</a></p>
                 </td>
               {% else %}
                 <td>
@@ -111,14 +115,7 @@
           </tbody>
         </table>
       {% endif %}
-      <!-- <div class="span3"> -->
       <br />
-<!-- 
-      <p>
-        <a href="{% url party_add %}" class="btn btn-primary btn-large">Create A Party</a>
-      </p>
--->
-      <!-- </div> -->
     </div>
     {% comment %}
       {% if pro %}
