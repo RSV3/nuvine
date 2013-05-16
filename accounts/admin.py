@@ -142,8 +142,28 @@ from django.forms.util import ErrorList
 
 
 class VinelyUserProfileForm(forms.ModelForm):
+  vinely_pro_account = forms.CharField()
+
   class Meta:
     model = UserProfile
+    # fields = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'pro_number', 'internal_pro')
+    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses']
+
+  def __init__(self, *args, **kwargs):
+    instance = kwargs.get('instance')
+    if instance:
+      initial = kwargs.get('initial', {})
+      pro_account = VinelyProAccount.objects.filter(users=instance.user)
+      if pro_account.exists():
+        initial['vinely_pro_account'] = pro_account[0].account_number
+        kwargs['initial'] = initial
+    return super(VinelyUserProfileForm, self).__init__(*args, **kwargs)
+
+  def clean_vinely_pro_account(self):
+    # ensure the account number given is not already assigned to someone else
+    if VinelyProAccount.objects.filter(account_number=self.cleaned_data['vinely_pro_account']).exclude(users=self.instance).exists():
+      self._errors["vinely_pro_account"] = ErrorList([u'That Vinely Pro account number is already assigned to someone else.'])
+    return self.cleaned_data['vinely_pro_account']
 
   def clean(self):
     cleaned_data = super(VinelyUserProfileForm, self).clean()
@@ -155,14 +175,22 @@ class VinelyUserProfileForm(forms.ModelForm):
       # can only set current_pro
       if cleaned_data['mentor']:
         self._errors["mentor"] = ErrorList([u'You can only assign a mentor to a Vinely Pro. %s <%s> is not a Vinely Pro.' % (self.instance.user.get_full_name(), self.instance.user.email)])
+
     return cleaned_data
+
+  def save(self, commit=True):
+    profile = super(VinelyUserProfileForm, self).save(commit)
+    pro_account, created = VinelyProAccount.objects.get_or_create(users=profile.user)
+    pro_account.account_number = self.cleaned_data['vinely_pro_account']
+    pro_account.save()
+    return profile
 
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'vinely_pro_email', 'pro_number')  # , 'nearest_pro', )
+  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'vinely_pro_email', 'pro_number', 'internal_pro')  # , 'nearest_pro', )
   list_filter = ('role', MentorAssignedFilter, ProAssignedFilter)
-  list_editable = ('wine_personality', )
+  list_editable = ('wine_personality', 'internal_pro')
   raw_id_fields = ('user', 'mentor', 'current_pro')
   model = UserProfile
   form = VinelyUserProfileForm

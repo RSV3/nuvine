@@ -184,9 +184,10 @@ TEMPLATE_LOADERS = (
 if DEPLOY:
   # enable SSL
   MIDDLEWARE_CLASSES = (
+      'sslify.middleware.SSLifyMiddleware',
+      'django.middleware.gzip.GZipMiddleware',
       'johnny.middleware.LocalStoreClearMiddleware',
       'johnny.middleware.QueryCacheMiddleware',
-      'sslify.middleware.SSLifyMiddleware',
       'django.middleware.common.CommonMiddleware',
       'django.contrib.sessions.middleware.SessionMiddleware',
       'django.middleware.csrf.CsrfViewMiddleware',
@@ -197,6 +198,7 @@ if DEPLOY:
   )
 else:
   MIDDLEWARE_CLASSES = (
+      'django.middleware.gzip.GZipMiddleware',
       'johnny.middleware.LocalStoreClearMiddleware',
       'johnny.middleware.QueryCacheMiddleware',
       'django.middleware.common.CommonMiddleware',
