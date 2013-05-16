@@ -14,22 +14,24 @@
 <div class="container">
   <div class="row">
     {% if host %}
-      <div class="offset1 span6">
-        <p>In less than 10 days you will get your wonderful surprise of 6 tasting wines. 
-          You can track your order by clicking <a href="{% url order_history %}">here</a>. 
-          Remember someone 21 or older needs to be present to receive the shipment.</p>
-        <p>Here's what you'll need to do: </p>
+      <div class="offset1 span5">
+        <p>Your wine personality unlocks a world of wines you are sure to love.</p>
+        <p>Remember to rate new wines as you receive shipments from Vinely 
+          so we can continue to improve your personalized selection.</p>
+        <p>Want to share the love? Host a party to enjoy the Vinely experience 
+          with your friends and earn special host rewards!</p>
         <br />
         <div class="center">
           <a href="#" class="btn btn-success btn-large">Rate Wines</a>
         </div>
       </div>
     {% else %}
-      <div class="offset1 span6">
-        <p>In less than 10 days you will get your wonderful surprise of 6 tasting wines. 
-          You can track your order by clicking <a href="{% url order_history %}">here</a>. 
-          Remember someone 21 or older needs to be present to receive the shipment.</p>
-        <p>Here's what you'll need to do: </p>
+      <div class="offset1 span5">
+        <p>Your wine personality unlocks a world of wines you are sure to love.</p>
+        <p>Remember to rate new wines as you receive shipments from Vinely 
+          so we can continue to improve your personalized selection.</p>
+        <p>Want to share the love? Host a party to enjoy the Vinely experience 
+          with your friends and earn special host rewards!</p>
         <br />
         <div class="center">
           <a href="#" class="btn btn-success btn-large">Rate Wines</a>
@@ -37,10 +39,10 @@
       </div>
     {% endif %}
 
-    <div class="span3 offset1">
+    <div class="span4 offset1">
       {% if wine_personality %}
         <div class="personality-badge-detail">
-          <img src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png">
+          <img src="{{ STATIC_URL }}img/club_badge_{{ wine_personality.suffix }}.png">
         </div>
       {% else %}
         <div class="personality-badge-detail">

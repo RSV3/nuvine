@@ -186,9 +186,6 @@
               <input type="text" size="5" value="{{ user.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
           </div>
           <div class="control-group">
-            <img src="{{ STATIC_URL }}img/security_icons.png" />
-          </div>
-          <div class="control-group">
             <label class="checkbox">
             {{ form.news_optin}} 
             {{ form.news_optin.label }}
@@ -199,7 +196,8 @@
             {% endif %}
             </label>
           </div>
-          <div class="control-group center">
+          <div class="control-group">
+            <img src="{{ STATIC_URL }}img/security_icons.png" width="100" />&nbsp;
             <button class="btn btn-primary submit-button">Next</button>
           </div>
         </fieldset>
@@ -270,10 +268,21 @@
           }, stripeResponseHandler);
           return false; // submit from callback
         });
-      });
 
-      if (window.location.protocol === 'file:') {
-          alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
-      }
+        if (window.location.protocol === 'file:') {
+            alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+        }
+        // {% if user.get_profile.has_personality %}
+        //   if (!confirm('By joining the club your shipment will be personalized to your tastes. Would you like to proceed?')) {
+        //     window.location = "{% url landing_page %}"
+        //   }
+        // {% endif %}
+
+        {% if user.get_profile.has_active_subscription %}
+          if (!confirm('You already have an active subscription. By joining the club you will override your existing subscription. \n\nWould you like to proceed?')) {
+            window.location = "{% url landing_page %}"
+          }
+        {% endif %}
+      });
     </script>    
 {% endblock additional_scripts %}

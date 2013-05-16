@@ -21,7 +21,7 @@ from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibil
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
 from accounts.utils import send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                            get_default_pro, get_default_mentor
+                            get_default_pro, get_default_mentor, join_the_club_email
 
 from cms.models import ContentTemplate
 from main.utils import send_host_vinely_party_email, my_host, my_pro, send_order_confirmation_email
@@ -1042,11 +1042,15 @@ def pro_unlink(request):
 
 
 def join_club_start(request):
+  return HttpResponseRedirect(reverse('join_club_signup'))
+
+
+def join_club_signup(request):
   user = request.user
 
   if user.is_authenticated():
     if user.userprofile.club_member:
-      return HttpResponseRedirect(reverse('home'))
+      return HttpResponseRedirect(reverse('home_club_member'))
     else:
       return HttpResponseRedirect(reverse('join_club_shipping'))
 
@@ -1085,7 +1089,7 @@ def join_club_start(request):
 
     return HttpResponseRedirect(reverse('join_club_shipping'))
 
-  return render_to_response("accounts/join_club.html", data, context_instance=RequestContext(request))
+  return render_to_response("accounts/join_club_signup.html", data, context_instance=RequestContext(request))
 
 
 @login_required
