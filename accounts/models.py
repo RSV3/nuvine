@@ -155,6 +155,7 @@ class UserProfile(models.Model):
   mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentees')
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
   club_member = models.BooleanField(default=False)
+  internal_pro = models.BooleanField(default=False)  # set for internal pros like training
 
   ROLE_CHOICES = (
       (0, 'Unassigned Role'),
@@ -220,7 +221,7 @@ class UserProfile(models.Model):
     user_zipcode = Zipcode.objects.get(code=code)
 
     # 1. find pro's within the same zipcode
-    pros = UserProfile.objects.filter(zipcode=code, role=UserProfile.ROLE_CHOICES[1][0])
+    pros = UserProfile.objects.filter(zipcode=code, role=UserProfile.ROLE_CHOICES[1][0]).exclude(internal_pro=True)
 
     if pros.exists():
       # pick at random
@@ -484,7 +485,7 @@ class VinelyProAccount(models.Model):
     Map wife and husband into one VinelyPro account
   """
   users = models.ManyToManyField(User)
-  account_number = models.CharField(max_length=8)
+  account_number = models.CharField(max_length=8, unique=True)
   comment = models.CharField(max_length=128)
 
 
@@ -493,33 +494,33 @@ class SubscriptionInfo(models.Model):
 
   # matrix of frequency x quantity
   STRIPE_PLAN = (
-    ('', ),  # one time purchase
-    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
-    ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
-    ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
+      ('', ),  # one time purchase
+      ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
+      ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
+      ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
   )
 
   FREQUENCY_CHOICES = (
-    (0, 'One-time purchase'),
-    (1, 'Monthly'),
-    # (2, 'Bi-Monthly'),
-    # (3, 'Quarterly'),
-    (9, 'No Subscription'),
+      (0, 'One-time purchase'),
+      (1, 'Monthly'),
+      # (2, 'Bi-Monthly'),
+      # (3, 'Quarterly'),
+      (9, 'No Subscription'),
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
 
   # Make sure these map to LineItem.PRICE_TYPE
   QUANTITY_CHOICES = (
-    (0, 'No Subscription'),
-    (5, 'Basic: Full Case (12 bottles)'),
-    (6, 'Basic: Half Case (6 bottles)'),
-    (7, 'Superior: Full Case (12 bottles)'),
-    (8, 'Superior: Half Case (6 bottles)'),
-    (9, 'Divine: Full Case (12 bottles)'),
-    (10, 'Divine: Half Case (6 bottles)'),
-    (12, '3 Bottles'),
-    (13, '6 Bottles'),
-    (14, '12 Bottles'),
+      (0, 'No Subscription'),
+      (5, 'Basic: Full Case (12 bottles)'),
+      (6, 'Basic: Half Case (6 bottles)'),
+      (7, 'Superior: Full Case (12 bottles)'),
+      (8, 'Superior: Half Case (6 bottles)'),
+      (9, 'Divine: Full Case (12 bottles)'),
+      (10, 'Divine: Half Case (6 bottles)'),
+      (12, '3 Bottles'),
+      (13, '6 Bottles'),
+      (14, '12 Bottles'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField(null=True, blank=True)
