@@ -1041,8 +1041,20 @@ def pro_unlink(request):
   return HttpResponseRedirect(reverse("edit_subscription"))
 
 
-def join_club_start(request):
-  return HttpResponseRedirect(reverse('join_club_signup'))
+def join_club_start(request, state=None):
+  data = {}
+
+  if state not in ['anticipation', 'indulgence', 'surprise', 'excitement', 'product']:
+    state = 'overview'
+
+  data['state'] = state
+
+  host_sections = ContentTemplate.objects.get(key='join_club').sections.all()
+  data['heading'] = host_sections.get(key='header').content
+  data['sub_heading'] = host_sections.get(key='sub_header').content
+  data['content'] = host_sections.get(key=state).content
+  data['join_club_menu'] = True
+  return render_to_response("accounts/join_club_start.html", data, context_instance=RequestContext(request))
 
 
 def join_club_signup(request):
@@ -1059,6 +1071,7 @@ def join_club_signup(request):
   login_form = VinelyEmailAuthenticationForm(request.POST or None)
   data['form'] = form
   data['login_form'] = login_form
+  data['join_club_menu'] = True
 
   if form.is_valid():
     user = form.save()
@@ -1119,6 +1132,7 @@ def join_club_shipping(request):
   shipping_form = JoinClubShippingForm(request.POST or None, instance=user, initial=initial_data)
   eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility', initial=initial_age)
 
+  data['join_club_menu'] = True
   data['eligibility_form'] = eligibility_form
   data['form'] = shipping_form
   data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
@@ -1303,6 +1317,7 @@ def join_club_review(request):
   data['shipping_address'] = profile.shipping_address
   data['cart'] = cart
   data["credit_card"] = profile.stripe_card
+  data['join_club_menu'] = True
 
   return render_to_response("accounts/join_club_review.html", data, context_instance=RequestContext(request))
 
@@ -1318,4 +1333,5 @@ def join_club_done(request, order_id):
   data['shipping_address'] = profile.shipping_address
   data['cart'] = order.cart
   data["credit_card"] = order.stripe_card
+  data['join_club_menu'] = True
   return render_to_response("accounts/join_club_done.html", data, context_instance=RequestContext(request))
