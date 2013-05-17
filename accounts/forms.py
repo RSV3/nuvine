@@ -316,16 +316,28 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
   def __init__(self, *args, **kwargs):
     super(NameEmailUserMentorCreationForm, self).__init__(*args, **kwargs)
+    self.fields['first_name'].widget.attrs['placeholder'] = 'First Name'
+    self.fields['last_name'].widget.attrs['placeholder'] = 'Last Name'
+    self.fields['email'].widget.attrs['placeholder'] = 'Email'
+    self.fields['zipcode'].widget.attrs['placeholder'] = 'Zip Code'
+    self.fields['phone_number'].widget.attrs['placeholder'] = 'Phone Number'
+    self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+    self.fields['password2'].widget.attrs['placeholder'] = 'Confirm password'
+    self.fields['mentor'].widget.attrs['placeholder'] = 'Your Vinely Pro Email (Optional)'
+
     self.fields['first_name'].required = True
     self.fields['last_name'].required = True
     self.initial = kwargs['initial']
     add_form_validation(self)
     self.fields['password2'].widget.attrs['class'] = "validate[required,equals[id_password1]]"
+    for field_name in self.fields:
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
   def clean(self):
     cleaned = super(NameEmailUserMentorCreationForm, self).clean()
-
-    pro_group = Group.objects.get(name="Vinely Pro")
 
     mentor_email = cleaned.get('mentor')
     if mentor_email:
@@ -333,12 +345,12 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
       # make sure the pro exists
-      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
+      if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
     if self.initial['account_type'] == 2 and mentor_email:  # host -> pro field
       # make sure the pro exists
-      if not User.objects.filter(email=mentor_email, groups__in=[pro_group]).exists():
+      if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"
 
     if cleaned.get('email'):
@@ -374,19 +386,6 @@ class MakeHostProForm(NameEmailUserMentorCreationForm):
 class NewHostProForm(NameEmailUserMentorCreationForm):
   def __init__(self, *args, **kwargs):
     super(NewHostProForm, self).__init__(*args, **kwargs)
-    self.fields['first_name'].widget.attrs['placeholder'] = 'First Name'
-    self.fields['last_name'].widget.attrs['placeholder'] = 'Last Name'
-    self.fields['email'].widget.attrs['placeholder'] = 'Email'
-    self.fields['zipcode'].widget.attrs['placeholder'] = 'Zip Code'
-    self.fields['phone_number'].widget.attrs['placeholder'] = 'Phone Number'
-    self.fields['password1'].widget.attrs['placeholder'] = 'Password'
-    self.fields['password2'].widget.attrs['placeholder'] = 'Confirm password'
-    self.fields['mentor'].widget.attrs['placeholder'] = 'Your Vinely Pro Email (Optional)'
-    for field_name in self.fields:
-      if 'class' in self.fields[field_name].widget.attrs:
-        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
-      else:
-        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
 
 class MakeTasterForm(NameEmailUserMentorCreationForm):
@@ -441,9 +440,8 @@ class ProLinkForm(forms.Form):
 
   def clean_email(self):
     cleaned_email = self.cleaned_data['email'].strip().lower()
-    pro_group = Group.objects.get(name="Vinely Pro")
 
-    if not User.objects.filter(email=cleaned_email, groups__in=[pro_group]).exists():
+    if not User.objects.filter(email=cleaned_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
       raise forms.ValidationError('Pro with the email %s does not exist' % (cleaned_email))
 
     return cleaned_email

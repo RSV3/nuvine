@@ -3,8 +3,9 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
-from main.models import MyHost, ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
+from main.models import ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
                         CustomizeOrder, OrganizedParty, UnconfirmedParty, NewHostNoParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
@@ -125,11 +126,15 @@ class EngagementInterestAdmin(admin.ModelAdmin):
 
 class PartyAdmin(admin.ModelAdmin):
   # list_display = ['title', 'event_date', 'host_info', 'description', 'address', 'created']
-  list_display = ['title', 'event_date', 'host_info', 'pro_info', 'address', 'kit_ordered', 'rsvps', 'created']
+  list_display = ['title', 'invites', 'event_date', 'host_info', 'pro_info', 'address', 'kit_ordered', 'rsvps', 'created']
   raw_id_fields = ['host']
   #list_editable = ['host']
   search_fields = ['title', 'host__first_name', 'host__last_name']
   ordering = ['-event_date']
+
+  def invites(self, instance):
+    return '<strong><a href="%s?party__id=%s">invites</a></strong>' % (reverse('admin:main_partyinvite_changelist'), instance.id)
+  invites.allow_tags = True
 
   def queryset(self, request):
     # Only show parties that have already been completely setup
@@ -147,6 +152,21 @@ class PartyAdmin(admin.ModelAdmin):
 
   def kit_ordered(self, instance):
     return "Yes" if instance.kit_ordered() else "No"
+
+
+class PartyInviteAdmin(admin.ModelAdmin):
+  list_display = ['party', 'taster', 'event_date', 'pro_info']
+  ordering = ['-party__event_date', 'party__title']
+  search_fields = ['party__title', 'invitee__first_name', 'invitee__last_name', 'invitee__email']
+
+  def taster(self, instance):
+    return '%s %s <%s>' % (instance.invitee.first_name, instance.invitee.last_name, instance.invitee.email)
+
+  def event_date(self, instance):
+    return instance.party.event_date
+
+  def pro_info(self, instance):
+    return instance.party.pro
 
 
 class OrderAdmin(admin.ModelAdmin):
@@ -211,5 +231,6 @@ admin.site.register(UnconfirmedParty, UnconfirmedPartyAdmin)
 admin.site.register(ProSignupLog, ProSignupLogAdmin)
 admin.site.register(EngagementInterest, EngagementInterestAdmin)
 admin.site.register(Party, PartyAdmin)
+admin.site.register(PartyInvite, PartyInviteAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(CustomizeOrder, CustomizeOrderAdmin)

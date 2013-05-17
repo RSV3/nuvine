@@ -1,5 +1,5 @@
 ## The following requirements were added by pip --freeze:
-Django==1.4.2
+Django==1.4.5
 PIL==1.1.7
 #M2Crypto==0.21.1
 #ScientificPython==2.9.1
@@ -49,7 +49,7 @@ readline==6.2.2
 #scipy==0.10.1
 reportlab==2.5
 versiontools==1.9.1
-virtualenv==1.7.1.2
+virtualenv==1.9.1
 wsgiref==0.1.2
 PyYAML==3.1
 sorl-thumbnail==11.12

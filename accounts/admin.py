@@ -23,10 +23,10 @@ log = logging.getLogger(__name__)
 
 def approve_pro(modeladmin, request, queryset):
   for obj in queryset:
+
     user = obj.user
-    user.groups.clear()
-    pro_group = Group.objects.get(name="Vinely Pro")
-    user.groups.add(pro_group)
+    obj.role = UserProfile.ROLE_CHOICES[1][0]
+    obj.save()
     if not VinelyProAccount.objects.filter(users__in=[user]).exists():
       pro_account_number = generate_pro_account_number()
       account, created = VinelyProAccount.objects.get_or_create(account_number=pro_account_number)
@@ -40,10 +40,8 @@ approve_pro.short_description = "Approve selected users as Vinely Pro"
 
 def remove_pro_privileges(modeladmin, request, queryset):
   for obj in queryset:
-    user = obj.user
-    user.groups.clear()
-    pro_group = Group.objects.get(name="Pending Vinely Pro")
-    user.groups.add(pro_group)
+    obj.role = UserProfile.ROLE_CHOICES[5][0]
+    obj.save()
 
 remove_pro_privileges.short_description = "Remove Vinely Pro permissions for selected users"
 
@@ -51,9 +49,8 @@ remove_pro_privileges.short_description = "Remove Vinely Pro permissions for sel
 def change_to_host(modeladmin, request, queryset):
   for obj in queryset:
     user = obj.user
-    user.groups.clear()
-    host_group = Group.objects.get(name="Vinely Host")
-    user.groups.add(host_group)
+    obj.role = UserProfile.ROLE_CHOICES[2][0]
+    obj.save()
     try:
       MyHost.objects.get(host=user)
     except MyHost.DoesNotExist:
@@ -65,9 +62,10 @@ change_to_host.short_description = "Change user to a host"
 def change_to_taster(modeladmin, request, queryset):
   for obj in queryset:
     user = obj.user
-    user.groups.clear()
-    taster_group = Group.objects.get(name="Vinely Taster")
-    user.groups.add(taster_group)
+
+    obj.role = UserProfile.ROLE_CHOICES[3][0]
+    obj.save()
+
     for my_host in MyHost.objects.filter(host=user):
       my_host.delete()
 
@@ -103,22 +101,69 @@ class MentorAssignedFilter(SimpleListFilter):
     return (
         ('Yes', 'Mentor Assigned'),
         ('No', 'No Mentor Assigned'),
-      )
+    )
 
   def queryset(self, request, queryset):
     mentor_assigned = self.value()
+
+    # select only pro's
+    pros = [prof.id for prof in UserProfile.objects.all() if prof.is_pro()]
+
     if mentor_assigned == 'Yes':
-      return queryset.exclude(mentor__isnull=True)
+      return queryset.filter(id__in=pros).exclude(mentor__isnull=True)
     if mentor_assigned == 'No':
-      return queryset.filter(mentor__isnull=True)
+      return queryset.filter(id__in=pros, mentor__isnull=True)
+
+
+class ProAssignedFilter(SimpleListFilter):
+
+  title = _('pro assigned')
+
+  parameter_name = 'pro_assigned'
+
+  def lookups(self, request, model_admin):
+    return (
+        ('Yes', 'Pro Assigned'),
+        ('No', 'No Pro Assigned'),
+    )
+
+  def queryset(self, request, queryset):
+    pro_assigned = self.value()
+
+    non_pros = [prof.id for prof in UserProfile.objects.all() if prof.is_host() or prof.is_taster()]
+
+    if pro_assigned == 'Yes':
+      return queryset.filter(id__in=non_pros).exclude(current_pro__isnull=True)
+    if pro_assigned == 'No':
+      return queryset.filter(id__in=non_pros, current_pro__isnull=True)
 
 from django import forms
 from django.forms.util import ErrorList
 
 
 class VinelyUserProfileForm(forms.ModelForm):
+  vinely_pro_account = forms.CharField()
+
   class Meta:
     model = UserProfile
+    # fields = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'pro_number', 'internal_pro')
+    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses']
+
+  def __init__(self, *args, **kwargs):
+    instance = kwargs.get('instance')
+    if instance:
+      initial = kwargs.get('initial', {})
+      pro_account = VinelyProAccount.objects.filter(users=instance.user)
+      if pro_account.exists():
+        initial['vinely_pro_account'] = pro_account[0].account_number
+        kwargs['initial'] = initial
+    return super(VinelyUserProfileForm, self).__init__(*args, **kwargs)
+
+  def clean_vinely_pro_account(self):
+    # ensure the account number given is not already assigned to someone else
+    if VinelyProAccount.objects.filter(account_number=self.cleaned_data['vinely_pro_account']).exclude(users=self.instance).exists():
+      self._errors["vinely_pro_account"] = ErrorList([u'That Vinely Pro account number is already assigned to someone else.'])
+    return self.cleaned_data['vinely_pro_account']
 
   def clean(self):
     cleaned_data = super(VinelyUserProfileForm, self).clean()
@@ -130,14 +175,22 @@ class VinelyUserProfileForm(forms.ModelForm):
       # can only set current_pro
       if cleaned_data['mentor']:
         self._errors["mentor"] = ErrorList([u'You can only assign a mentor to a Vinely Pro. %s <%s> is not a Vinely Pro.' % (self.instance.user.get_full_name(), self.instance.user.email)])
+
     return cleaned_data
+
+  def save(self, commit=True):
+    profile = super(VinelyUserProfileForm, self).save(commit)
+    pro_account, created = VinelyProAccount.objects.get_or_create(users=profile.user)
+    pro_account.account_number = self.cleaned_data['vinely_pro_account']
+    pro_account.save()
+    return profile
 
 
 class VinelyUserProfileAdmin(admin.ModelAdmin):
 
-  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'user_type', 'vinely_pro_email', 'pro_number')  # , 'nearest_pro', )
-  list_filter = ('user__groups', MentorAssignedFilter)
-  list_editable = ('wine_personality', )
+  list_display = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'vinely_pro_email', 'pro_number', 'internal_pro')  # , 'nearest_pro', )
+  list_filter = ('role', MentorAssignedFilter, ProAssignedFilter)
+  list_editable = ('wine_personality', 'internal_pro')
   raw_id_fields = ('user', 'mentor', 'current_pro')
   model = UserProfile
   form = VinelyUserProfileForm
@@ -174,13 +227,6 @@ class VinelyUserProfileAdmin(admin.ModelAdmin):
   def full_name(self, instance):
     return "%s %s" % (instance.user.first_name, instance.user.last_name)
 
-  def user_type(self, instance):
-    try:
-      group = instance.user.groups.all()[0]
-      return group.name
-    except IndexError:
-      return "Unassigned"
-
   def pro_number(self, instance):
     return "".join([acc.account_number for acc in VinelyProAccount.objects.filter(users=instance.user)])
 
@@ -206,15 +252,14 @@ admin.site.unregister(User)
 
 class VinelyUserAdmin(EmailUserAdmin):
 
-  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number')
-  list_filter = ('groups', 'is_active')
+  list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number', 'club_member')
+  list_filter = ('groups', 'is_active', 'userprofile__club_member')
+
+  def club_member(self, instance):
+    return instance.userprofile.club_member
 
   def user_type(self, instance):
-    if instance.groups.all().count() > 0:
-      group = instance.groups.all()[0]
-      return group.name
-    else:
-      return "No group"
+    return instance.get_profile().get_role_display()
 
   def zipcode(self, instance):
     zipcode_str = instance.get_profile().zipcode

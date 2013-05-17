@@ -14,7 +14,7 @@ from datetime import timedelta
 from main.utils import if_supplier, send_welcome_to_vinely_email
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
-from accounts.models import VerificationQueue
+from accounts.models import VerificationQueue, UserProfile
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
                               AddTasterRatingsForm
 
@@ -206,10 +206,8 @@ def record_wine_ratings(request):
 
   u = request.user
 
-  pro_group = Group.objects.get(name="Vinely Pro")
-  tas_group = Group.objects.get(name="Vinely Taster")
-
-  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()):
+  profile = u.get_profile()
+  if profile.role == UserProfile.ROLE_CHOICES[1][0] or profile.role == UserProfile.ROLE_CHOICES[3][0]:
     # one can record ratings only if Vinely Pro or Vinely Taster
 
     if request.method == "POST":
@@ -217,11 +215,11 @@ def record_wine_ratings(request):
       if form.is_valid():
         form.save()
 
-        if (pro_group in u.groups.all()):
+        if profile.role == UserProfile.ROLE_CHOICES[1][0]:
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
 
-        if (tas_group in u.groups.all()):
+        if profile.role == UserProfile.ROLE_CHOICES[3][0]:
           # ask if you want order wine
           data["role"] = "taster"
 
@@ -266,7 +264,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   data = {}
 
   u = request.user
-
+  profile = u.get_profile()
   party = None
 
   party = get_object_or_404(Party, pk=party_id)
@@ -275,15 +273,11 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   data["party_id"] = party_id
   data["party"] = party
 
-  pro_group = Group.objects.get(name="Vinely Pro")
-  hos_group = Group.objects.get(name="Vinely Host")
-  tas_group = Group.objects.get(name="Vinely Taster")
-
   if not party.pro == u:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 
-  if (pro_group in u.groups.all()) or (tas_group in u.groups.all()) or (hos_group in u.groups.all()):
+  if profile.role in [UserProfile.ROLE_CHOICES[1][0], UserProfile.ROLE_CHOICES[2][0], UserProfile.ROLE_CHOICES[3][0]]:
     # one can record ratings only if Vinely Pro or Vinely Host/Vinely Taster
 
     if email:
@@ -476,7 +470,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         data["personality"] = personality
         data['can_order_for_taster'] = True
 
-        if pro_group in u.groups.all():
+        if profile.role == UserProfile.ROLE_CHOICES[1][0]:
           # ask if you want to fill out next customer's ratings or order wine
           data["role"] = "pro"
           # log the time and the party that the persona was found
@@ -488,7 +482,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
               persona_log.party = party
             persona_log.save()
 
-        elif tas_group in u.groups.all():
+        elif profile.role == UserProfile.ROLE_CHOICES[3][0]:
           # saving your own data
           data["role"] = "taster"
           if party:
@@ -500,7 +494,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           else:
             # saved before or without the party
             PersonaLog.objects.get_or_create(user=taster)
-        elif hos_group in u.groups.all():
+        elif profile.role == UserProfile.ROLE_CHOICES[2][0]:
           # personality was created by an host herself
           # ask if you want order wine
           data["role"] = "host"
@@ -514,14 +508,15 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           taster.set_password(temp_password)
           taster.save()
 
-          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
-            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
-            verification_code = vque.verification_code
-          else:
+          if not VerificationQueue.objects.filter(user=taster, verified=False).exists():
+          #   vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+          #   verification_code = vque.verification_code
+          # else:
             verification_code = str(uuid.uuid4())
             vque = VerificationQueue(user=taster, verification_code=verification_code)
             vque.save()
-          send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
+            # only send email for new users
+            send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
         msg = "Partial ratings have been saved for %s. <a href='%s'>Enter ratings for next taster.</a>" % (taster.email, reverse('party_details', args=[party.id]))
@@ -536,7 +531,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
     if not rate and taster.get_profile().has_personality():
       data['personality'] = taster.get_profile().wine_personality
       data["invitee"] = taster
-      data['role'] = u.get_profile().role()
+      data['role'] = u.get_profile().role_lower()
       today = timezone.now()
       data['can_order_for_taster'] = (today - party.event_date <= timedelta(hours=24))
 
@@ -558,11 +553,9 @@ def taster_list(request, taster, party_id):
   taster = taster.strip()
 
   # only get tasters linked to this pro
-  att_group = Group.objects.get(name="Vinely Taster")
-
   # show people who RSVP'ed to the party
   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
-  users = User.objects.filter(id__in = [x.invitee.id for x in my_guests]) # , groups__in=[att_group])
+  users = User.objects.filter(id__in = [x.invitee.id for x in my_guests])
   users = users.filter(Q(first_name__icontains=taster) | Q(last_name__icontains=taster) | Q(email__icontains=taster)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 

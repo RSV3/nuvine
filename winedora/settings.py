@@ -184,9 +184,10 @@ TEMPLATE_LOADERS = (
 if DEPLOY:
   # enable SSL
   MIDDLEWARE_CLASSES = (
+      'sslify.middleware.SSLifyMiddleware',
+      'django.middleware.gzip.GZipMiddleware',
       'johnny.middleware.LocalStoreClearMiddleware',
       'johnny.middleware.QueryCacheMiddleware',
-      'sslify.middleware.SSLifyMiddleware',
       'django.middleware.common.CommonMiddleware',
       'django.contrib.sessions.middleware.SessionMiddleware',
       'django.middleware.csrf.CsrfViewMiddleware',
@@ -197,6 +198,7 @@ if DEPLOY:
   )
 else:
   MIDDLEWARE_CLASSES = (
+      'django.middleware.gzip.GZipMiddleware',
       'johnny.middleware.LocalStoreClearMiddleware',
       'johnny.middleware.QueryCacheMiddleware',
       'django.middleware.common.CommonMiddleware',
@@ -285,30 +287,39 @@ else:
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
-os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
-os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
-os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
+# https://devcenter.heroku.com/articles/django-memcache
+try:
+  cache_servers = os.environ['MEMCACHIER_SERVERS']
+  os.environ['MEMCACHE_SERVERS'] = cache_servers.replace(',', ';')
+  os.environ['MEMCACHE_USERNAME'] = os.environ.get('MEMCACHIER_USERNAME', '')
+  os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 
-CACHES = {
+  CACHES = {
+      'default': {
+          # 'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
+          'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+          'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
+          'TIMEOUT': 500,
+          'BINARY': True,
+          'JOHNNY_CACHE': True,
+          'OPTIONS': {  # Maps to pylibmc "behaviors"
+              'tcp_nodelay': True,
+              'ketama': True
+          }
+      }
+  }
+
+  JOHNNY_TABLE_BLACKLIST = (
+      'support_email', 'main_personalog',
+      'main_prosignuplog', 'main_thankyounote',
+      'main_engagementinterest'
+  )
+except:
+  CACHES = {
     'default': {
-        # 'BACKEND': 'winedora.backends.memcached.PyLibMCCache',
-        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
-        'TIMEOUT': 500,
-        'BINARY': True,
-        'JOHNNY_CACHE': True,
-        'OPTIONS': {  # Maps to pylibmc "behaviors"
-            'tcp_nodelay': True,
-            'ketama': True
-        }
+      'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     }
-}
-
-JOHNNY_TABLE_BLACKLIST = (
-    'support_email', 'main_personalog',
-    'main_prosignuplog', 'main_thankyounote',
-    'main_engagementinterest'
-)
+  }
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

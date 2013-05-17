@@ -56,6 +56,6 @@ class Command(BaseCommand):
             user_count += 1
             # print "update %s" % profile.user
       else:
-        print "[%s] %s does not have a pro" % (user.groups.all()[0] if user.groups.count() > 0 else None, user.email)
+        print "[%s] %s does not have a pro" % (user.get_profile().get_role_display(), user.email)
 
     print "Updated the pro and mentor entries for %s profiles" % user_count

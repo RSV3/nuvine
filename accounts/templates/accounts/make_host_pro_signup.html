@@ -149,14 +149,18 @@
             </div>
           </div>
           <div class="row">
-            <div class="span5 control-group {% if form.password1.errors %}error{% endif %}">
-              {{ form.password1 }}
-              {% if form.password1.errors %}
-                <span class="help-inline">
-                  {{ form.password1.errors }}
-                </span>
-              {% endif %}
-            </div>
+            {% if not user.is_authenticated %}
+              <div class="span5 control-group {% if form.password1.errors %}error{% endif %}">
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                  <span class="help-inline">
+                    {{ form.password1.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            {% else %}
+              <input type="hidden" name="password1" value="Sign Up" />
+            {% endif %}
             <div class="span5 control-group {% if form.zipcode.errors %}error{% endif %}">
               {{ form.zipcode }}
               {% if form.zipcode.errors %}
@@ -166,16 +170,20 @@
               {% endif %}
             </div>
           </div>
-          <div class="row">
-            <div class="span5 control-group {% if form.password2.errors %}error{% endif %}">
-              {{ form.password2 }}
-              {% if form.password2.errors %}
-                <span class="help-inline">
-                  {{ form.password2.errors }}
-                </span>
-              {% endif %}
+          {% if not user.is_authenticated %}
+            <div class="row">
+              <div class="span5 control-group {% if form.password2.errors %}error{% endif %}">
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                  <span class="help-inline">
+                    {{ form.password2.errors }}
+                  </span>
+                {% endif %}
+              </div>
             </div>
-          </div>
+          {% else %}
+            <input type="hidden" name="password2" value="Sign Up" />
+          {% endif %}
           <hr />
           <div class="question">
           <p><i>2. Do you already know a Vinely Pro? (leave this blank if you don't know what it is)</i></p></div>

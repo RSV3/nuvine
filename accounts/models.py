@@ -154,11 +154,23 @@ class UserProfile(models.Model):
   # only pro's should have mentor
   mentor = models.ForeignKey(User, null=True, blank=True, verbose_name='Vinely Pro Mentor (only for Pros)', related_name='mentor')
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
+  club_member = models.BooleanField(default=False)
+  internal_pro = models.BooleanField(default=False)  # set for internal pros like training
+
+  ROLE_CHOICES = (
+      (0, 'Unassigned Role'),
+      (1, 'Vinely Pro'),
+      (2, 'Vinely Host'),
+      (3, 'Vinely Taster'),
+      (4, 'Supplier'),
+      (5, 'Pending Vinely Pro'),
+  )
+  role = models.IntegerField(choices=ROLE_CHOICES, default=ROLE_CHOICES[0][0])
 
   GENDER_CHOICES = (
-    (0, 'FEMALE'),
-    (1, 'MALE'),
-    (2, 'N/A'),
+      (0, 'FEMALE'),
+      (1, 'MALE'),
+      (2, 'N/A'),
   )
 
   gender = models.IntegerField(choices=GENDER_CHOICES, default=GENDER_CHOICES[0][0])
@@ -180,12 +192,22 @@ class UserProfile(models.Model):
   party_addresses = models.ManyToManyField(Address, related_name="hosting_user", null=True, blank=True)
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
+  @property
+  def has_default_pro(self):
+    from accounts.utils import get_default_pro, get_default_mentor
+    if self.role == 1:
+      return self.mentor == get_default_mentor()
+    else:
+      return self.current_pro == get_default_pro()
+
   def find_nearest_pro(self):
-    # from accounts.utils import get_default_pro
-    default_pro = User.objects.get(email='elizabeth@vinely.com')
+    from accounts.utils import get_default_pro, get_default_mentor
+    if self.role == 1:
+      default_pro = get_default_mentor()
+    else:
+      default_pro = get_default_pro()
 
     code = self.zipcode
-    pro_group = Group.objects.get(name='Vinely Pro')
 
     g = Geod(ellps='clrk66')
 
@@ -199,7 +221,7 @@ class UserProfile(models.Model):
     user_zipcode = Zipcode.objects.get(code=code)
 
     # 1. find pro's within the same zipcode
-    pros = UserProfile.objects.filter(zipcode=code, user__groups=pro_group)
+    pros = UserProfile.objects.filter(zipcode=code, role=UserProfile.ROLE_CHOICES[1][0]).exclude(internal_pro=True)
 
     if pros.exists():
       # pick at random
@@ -211,19 +233,30 @@ class UserProfile(models.Model):
     # NOTE: Some states are massive so limit distance
     nearby_codes = Zipcode.objects.filter(state=user_zipcode.state).values_list('code', flat=True).distinct()
 
-    pros = UserProfile.objects.filter(zipcode__in=nearby_codes, user__groups=pro_group)
+    pros = UserProfile.objects.filter(zipcode__in=nearby_codes, role=UserProfile.ROLE_CHOICES[1][0])
 
     my_pros = {}
     if pros.exists():
       for pro in pros:
         pro_zipcode = Zipcode.objects.get(code=pro.zipcode)
         _, _, distance = g.inv(user_zipcode.longitude, user_zipcode.latitude, pro_zipcode.longitude, pro_zipcode.latitude)
-        my_pros[pro.user] = distance
+        # distance returned in meters so convert to miles
+        # pros should be within 25miles
+        distance = distance * 0.000621371
+        if distance <= 25:
+          my_pros[pro.user] = distance
       # log.info('has zipcode: %s' % my_pros[pro.user])
+
+      # TODO: how to deal with multiple pros that satisfy conditions
+      # 1. if multiple active pros, find pro not assigned in last 3 months
+      # 2. if still multiple active pros, find pro with highest personal sales
       sorted_dict = iter(sorted(my_pros.iteritems()))
-      assigned_pro = sorted_dict.next()[0]
-      # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))
-      return assigned_pro
+      try:
+        assigned_pro = sorted_dict.next()[0]
+        # log.info('Nearest by state: %s, assigned_pro: %s' % (user_zipcode.state, assigned_pro))
+        return assigned_pro
+      except StopIteration:
+        return default_pro
 
     return default_pro
 
@@ -291,39 +324,34 @@ class UserProfile(models.Model):
   def has_orders(self):
     return self.user.ordered.all().exists()
 
-  def role(self):
-    pro_group = Group.objects.get(name="Vinely Pro")
-    hos_group = Group.objects.get(name="Vinely Host")
-    tas_group = Group.objects.get(name="Vinely Taster")
-    sup_group = Group.objects.get(name="Supplier")
-    if pro_group in self.user.groups.all():
-      return 'pro'
-    if hos_group in self.user.groups.all():
-      return 'host'
-    if tas_group in self.user.groups.all():
-      return 'taster'
-    if sup_group in self.user.groups.all():
-      return 'supplier'
-
   def is_pro(self):
-    pro_group = Group.objects.get(name="Vinely Pro")
-    return pro_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[1][0]
 
   def is_pending_pro(self):
-    pending_pro = Group.objects.get(name="Pending Vinely Pro")
-    return pending_pro in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[5][0]
 
   def is_host(self):
-    hos_group = Group.objects.get(name="Vinely Host")
-    return hos_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[2][0]
 
   def is_taster(self):
-    tas_group = Group.objects.get(name="Vinely Taster")
-    return tas_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[3][0]
 
   def is_supplier(self):
-    sup_group = Group.objects.get(name="Supplier")
-    return sup_group in self.user.groups.all()
+    return self.role == UserProfile.ROLE_CHOICES[4][0]
+
+  def role_lower(self):
+    if self.role == UserProfile.ROLE_CHOICES[1][0]:
+      return 'pro'
+    elif self.role == UserProfile.ROLE_CHOICES[2][0]:
+      return 'host'
+    elif self.role == UserProfile.ROLE_CHOICES[3][0]:
+      return 'taster'
+    elif self.role == UserProfile.ROLE_CHOICES[4][0]:
+      return 'supplier'
+    elif self.role == UserProfile.ROLE_CHOICES[5][0]:
+      return 'pro'
+    else:
+      return 'taster'
 
   def cancel_subscription(self):
     """
@@ -457,7 +485,7 @@ class VinelyProAccount(models.Model):
     Map wife and husband into one VinelyPro account
   """
   users = models.ManyToManyField(User)
-  account_number = models.CharField(max_length=8)
+  account_number = models.CharField(max_length=8, unique=True)
   comment = models.CharField(max_length=128)
 
 
@@ -466,33 +494,33 @@ class SubscriptionInfo(models.Model):
 
   # matrix of frequency x quantity
   STRIPE_PLAN = (
-    ('', ),  # one time purchase
-    ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
-    ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
-    ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
+      ('', ),  # one time purchase
+      ('full-case-basic-monthly', 'half-case-basic-monthly', 'full-case-superior-monthly', 'half-case-superior-monthly', 'full-case-divine-monthly', 'half-case-divine-monthly', '', '3-bottles', '6-bottles', '12-bottles'),  # monthly
+      ('full-case-basic-bimonthly', 'half-case-basic-bimonthly', 'full-case-superior-bimonthly', 'half-case-superior-bimonthly', 'full-case-divine-bimonthly', 'half-case-divine-bimonthly'),  # bimonthly
+      ('full-case-basic-quarterly', 'half-case-basic-quarterly', 'full-case-superior-quarterly', 'half-case-superior-quarterly', 'full-case-divine-quarterly', 'half-case-divine-quarterly'),  # quarterly
   )
 
   FREQUENCY_CHOICES = (
-    (0, 'One-time purchase'),
-    (1, 'Monthly'),
-    # (2, 'Bi-Monthly'),
-    # (3, 'Quarterly'),
-    (9, 'No Subscription'),
+      (0, 'One-time purchase'),
+      (1, 'Monthly'),
+      # (2, 'Bi-Monthly'),
+      # (3, 'Quarterly'),
+      (9, 'No Subscription'),
   )
   frequency = models.IntegerField(choices=FREQUENCY_CHOICES, default=9)
 
   # Make sure these map to LineItem.PRICE_TYPE
   QUANTITY_CHOICES = (
-    (0, 'No Subscription'),
-    (5, 'Basic: Full Case (12 bottles)'),
-    (6, 'Basic: Half Case (6 bottles)'),
-    (7, 'Superior: Full Case (12 bottles)'),
-    (8, 'Superior: Half Case (6 bottles)'),
-    (9, 'Divine: Full Case (12 bottles)'),
-    (10, 'Divine: Half Case (6 bottles)'),
-    (12, '3 Bottles'),
-    (13, '6 Bottles'),
-    (14, '12 Bottles'),
+      (0, 'No Subscription'),
+      (5, 'Basic: Full Case (12 bottles)'),
+      (6, 'Basic: Half Case (6 bottles)'),
+      (7, 'Superior: Full Case (12 bottles)'),
+      (8, 'Superior: Half Case (6 bottles)'),
+      (9, 'Divine: Full Case (12 bottles)'),
+      (10, 'Divine: Half Case (6 bottles)'),
+      (12, '3 Bottles'),
+      (13, '6 Bottles'),
+      (14, '12 Bottles'),
   )
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField(null=True, blank=True)

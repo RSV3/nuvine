@@ -56,11 +56,6 @@
                   <div class="pro-name">
                     {{ user.get_profile.mentor.get_full_name }}
                   </div>
-                  <!-- 
-                  <div class="pro-bio">
-                    Biography~~~
-                  </div> -->
-
                   <div class="pro-email">
                     <a href="mailto:{{ user.get_profile.mentor.email }}">{{ user.get_profile.mentor.email }}</a>
                   </div>
@@ -68,38 +63,35 @@
                     <i class="icon-user"></i>{{ user.get_profile.mentor.get_profile.phone }}
                   </div>
                 </div>
-                {% elif pro_user %}
-                 <div class="pro-info">
-                  <div class="pro-photo">
-                    {% thumbnail pro_user.get_profile.image "100x100" format="PNG" as im %}
-                      <img src="{{ im.url }}"/>
-                    {% endthumbnail %}            
-                  </div>
-                  <div class="pro-name">
-                    {{ pro_user.get_full_name }}
-                  </div>
-                  <!-- 
-                  <div class="pro-bio">
-                    Biography~~~
-                  </div> -->
-
-                  <div class="pro-email">
-                    <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
-                  </div>
-                  <div class="pro-phone">
-                    <i class="icon-user"></i>{{ pro_user.get_profile.phone }}
-                  </div>
-                </div>         
                 {% else %}
-                  No pro assigned (email <a href="mailto:care@vinely.com">care@vinely.com</a>)
+                  {% if user.get_profile.has_default_pro %}
+                    No pro assigned (email <a href="mailto:care@vinely.com">care@vinely.com</a>)
+                  {% else %}
+                    <div class="pro-info">
+                      <div class="pro-photo">
+                        {% thumbnail pro_user.get_profile.image "100x100" format="PNG" as im %}
+                          <img src="{{ im.url }}"/>
+                        {% endthumbnail %}            
+                      </div>
+                      <div class="pro-name">
+                        {{ pro_user.get_full_name }}
+                      </div>
+                      <div class="pro-email">
+                        <a href="mailto:{{ pro_user.email }}">{{ pro_user.email }}</a>
+                      </div>
+                      <div class="pro-phone">
+                        <i class="icon-user"></i>{{ pro_user.get_profile.phone }}
+                      </div>
+                    </div>      
+                  {% endif %}
                 {% endif %}
               </td> 
               <td>
             		{% if not pro %}
-                  {% if pro_user %}
-            		    <a id="unlink_pro" href="{% url pro_unlink %}">unlink</a>
-                  {% else %}
+                  {% if user.get_profile.has_default_pro %}
                     <a id="link_pro" href="javascript:;">Link to pro</a>
+                  {% else %}
+            		    <a id="unlink_pro" href="{% url pro_unlink %}">unlink</a>
                   {% endif %}
             		{% endif %}
       	      </td>

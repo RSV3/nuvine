@@ -1,8 +1,7 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template import RequestContext, Context, Template
 from django.template.loader import render_to_string
-from django.contrib.auth.models import Group
-from accounts.models import Zipcode, SUPPORTED_STATES
+from accounts.models import Zipcode, SUPPORTED_STATES, UserProfile
 
 from support.models import Email
 from cms.models import Section
@@ -83,14 +82,14 @@ def send_password_change_email(request, verification_code, temp_password, user):
 
   receiver_email = user.email
 
-  vinely_taster_group = Group.objects.get(name="Vinely Taster")
-  if user.groups.all().count() == 0:
+  prof = user.get_profile()
+  if prof.role == UserProfile.ROLE_CHOICES[0][0]:
     # the user is in a weird state without a role, so assign taster
-    user.groups.add(vinely_taster_group)
-    user.save()
+    prof.role = UserProfile.ROLE_CHOICES[3][0]
+    prof.save()
 
   c = RequestContext(request, {"first_name": user.first_name,
-                                "role": user.groups.all()[0],
+                                "role": prof.get_role_display(),
                                 "host_name": request.get_host(),
                                 "verification_code": verification_code,
                                 "temp_password": temp_password})
@@ -124,14 +123,14 @@ def send_account_activation_email(request, verification_code, temp_password, use
 
   receiver_email = user.email
 
-  vinely_taster_group = Group.objects.get(name="Vinely Taster")
-  if user.groups.all().count() == 0:
+  prof = user.get_profile()
+  if prof.role == UserProfile.ROLE_CHOICES[0][0]:
     # the user is in a weird state without a role, so assign taster
-    user.groups.add(vinely_taster_group)
-    user.save()
+    prof.role = UserProfile.ROLE_CHOICES[3][0]
+    prof.save()
 
   c = RequestContext(request, {"first_name": user.first_name,
-                                "role": user.groups.all()[0],
+                                "role": prof.get_role_display(),
                                 "host_name": request.get_host(),
                                 "verification_code": verification_code,
                                 "temp_password": temp_password})
@@ -579,5 +578,9 @@ def reassign_pro(pro):
 
 def get_default_pro():
   from accounts.models import User
-  # use elizabeth@vinely.com as default pro
-  return User.objects.get(email='elizabeth@vinely.com')
+  return User.objects.get(email='care@vinely.com')
+
+
+def get_default_mentor():
+  from accounts.models import User
+  return User.objects.get(email='getstarted@vinely.com')

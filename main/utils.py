@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from main.models import Order, EngagementInterest, MyHost, PartyInvite
 from support.models import Email
-from accounts.models import VinelyProAccount, VerificationQueue
+from accounts.models import VinelyProAccount, VerificationQueue, UserProfile
 from datetime import tzinfo, timedelta
 from cms.models import Section
 
@@ -33,18 +33,14 @@ def if_supplier(user):
   """
     Used in user_passes_test decorator to check if user is a supplier
   """
-  if user:
-    return user.groups.filter(name="Supplier").count() > 0
-  return False
+  return user.get_profile().role == UserProfile.ROLE_CHOICES[4][0]
 
 
 def if_pro(user):
   """
     Used in user_passes_test decorator to check if user is a supplier
   """
-  if user:
-    return user.groups.filter(name="Vinely Pro").count() > 0
-  return False
+  return user.get_profile().role == UserProfile.ROLE_CHOICES[1][0]
 
 
 def send_order_added_email(request, order_id, user_email, verification_code=None, temp_password=None):
@@ -1184,11 +1180,11 @@ def my_pro(user):
   pro_profile = None
   profile = user.get_profile()
   if profile.is_host() or profile.is_taster():
-    pro = user.userprofile.current_pro
-    pro_profile = user.userprofile.current_pro.get_profile() if pro else None
-  elif user.userprofile.mentor:
-    pro = user.userprofile.mentor
-    pro_profile = user.userprofile.mentor.get_profile()
+    pro = profile.current_pro
+    pro_profile = profile.current_pro.get_profile() if pro else None
+  elif profile.mentor:
+    pro = profile.mentor
+    pro_profile = profile.mentor.get_profile()
   return pro, pro_profile
 
 
@@ -1417,3 +1413,31 @@ def add_form_validation(form):
 
       if attrs['class']:
         form.fields[field_name].widget.attrs['class'] = attrs['class']
+
+
+def business_days_count(start_date, end_date):
+  daygenerator = (start_date + timedelta(x + 1) for x in xrange((end_date - start_date).days + 1))
+  return sum(day.weekday() < 5 for day in daygenerator)
+
+
+def business_days_from(start_date, days=5):
+  '''
+  Returns a date that is x business days from the given start date
+  '''
+  biz_days = 0
+  x = 0
+  some_date = start_date
+  if days < 0:
+    while biz_days > days:
+      some_date = start_date + timedelta(days=x - 1)
+      if some_date.weekday() < 5:
+        biz_days = biz_days - 1
+      x = x - 1
+    return some_date
+  else:
+    while biz_days < days:
+      some_date = start_date + timedelta(days=x + 1)
+      if some_date.weekday() < 5:
+        biz_days = biz_days + 1
+      x = x + 1
+    return some_date
