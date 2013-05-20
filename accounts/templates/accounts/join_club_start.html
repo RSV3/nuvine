@@ -56,7 +56,7 @@
       <div class="vertical-space">&nbsp;</div>
       {% if state != 'product' %}
         <div class="box-container2 sidebar-nav-container">
-          <a href="{% url make_host %}">
+          <a href="{% url join_club_start 'product' %}">
             <div class="box-content2 make-host">
               <h1>Join The Club!</h1>
               <p class="howto-sidetext">
@@ -71,7 +71,11 @@
       {% endif %}
     </div>
     <div class="span5 center">
-      <!-- <img src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png"> -->
+      {% if state == 'product' %}
+        <img src="{{ STATIC_URL }}img/join_club_overview.png">
+      {% else %}
+        <img src="{{ STATIC_URL }}img/join_club_{{ state }}.png">
+      {% endif %}
       &nbsp;
     </div>
     <div class="span4">

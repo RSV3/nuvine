@@ -1111,7 +1111,7 @@ def join_club_shipping(request):
   profile = user.get_profile()
 
   if profile.club_member:
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('home_page'))
 
   data = {}
   initial_data = {'first_name': user.first_name, 'last_name': user.last_name,
