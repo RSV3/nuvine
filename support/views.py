@@ -14,7 +14,9 @@ from django.views.decorators.http import require_POST
 from django_tables2 import RequestConfig
 
 from support.models import Email, WineInventory, TastingKitInventory
-from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable
+from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable, UserTable, \
+                            OrderHistoryTable
+
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder, SelectedTastingKit
 from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
@@ -329,18 +331,30 @@ def download_orders(request):
 @staff_member_required
 def view_users(request):
   data = {}
-  for user in User.objects.all():
-    pass
-    # export user profile
-    # export current subscription information
-    # export wine rating data
-    # export pro
 
-    # TODO: export party information
+  users = User.objects.all().order_by('first_name', 'last_name')
 
-    # TODO: export orders
+  table = UserTable(users)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-  return render_to_response("support/view_users.html", data, context_instance=RequestContext(request))
+  data['users_table'] = table
+
+  return render(request, "support/user_overview.html", data)
+
+
+@staff_member_required
+def view_user_details(request, user_id):
+  data = {}
+  user = get_object_or_404(User, pk=user_id)
+  profile = user.get_profile()
+
+  data['user_detail'] = user
+  data['profile_detail'] = profile
+  data['credit_card'] = profile.stripe_card
+  orders = Order.objects.filter(ordered_by=user).order_by('-id')
+  table = OrderHistoryTable(orders, user=user)
+  data['order_history'] = table
+  return render(request, "support/user_detail.html", data)
 
 
 @staff_member_required
@@ -1124,3 +1138,19 @@ def view_past_orders(request, order_id=None):
 
   return render(request, "support/view_past_orders.html", data)
 
+
+@staff_member_required
+def user_overview(request):
+  '''
+  Displays a list of users in the system
+  '''
+  data = {}
+
+  users = User.objects.all()  # .order_by('')
+
+  table = UserTable(users)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
+
+  data['users_table'] = table
+
+  return render(request, "support/user_overview.html", data)
