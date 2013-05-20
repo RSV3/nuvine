@@ -15,14 +15,15 @@ from django_tables2 import RequestConfig
 
 from support.models import Email, WineInventory, TastingKitInventory
 from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable, UserTable, \
-                            OrderHistoryTable
+                            OrderHistoryTable, PartyTable
 
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder, SelectedTastingKit
+from main.forms import AttendeesTable
 from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
 
 from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm
-from main.utils import my_pro
+from main.utils import my_pro, calculate_host_credit
 from datetime import datetime
 import csv
 
@@ -360,17 +361,31 @@ def view_user_details(request, user_id):
 @staff_member_required
 def view_parties(request):
   data = {}
-  for party in Party.objects.all():
-    pass
-    # export user profile
-    # export current subscription information
-    # export wine personality
-    # export pro
-    # export host
+  # user = request.user
+  parties = Party.objects.all().order_by('-event_date')
 
-    # TODO: export party information
+  table = PartyTable(parties)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-  return render_to_response("support/view_parties.html", data, context_instance=RequestContext(request))
+  data['parties_table'] = table
+
+  return render(request, "support/view_parties.html", data)
+
+
+@staff_member_required
+def view_party_detail(request, party_id):
+  user = request.user
+  data = {}
+
+  party = get_object_or_404(Party, id=party_id)
+  tasters = PartyInvite.objects.filter(party=party)
+  table = AttendeesTable(tasters, user=user, data={'party': party, 'can_add_taster': True, 'can_shop_for_taster': True})
+  # RequestConfig(request, paginate={"per_page": 100}).configure(table)
+
+  data['tasters_table'] = table
+  data['party'] = party
+  data['host_credit'] = calculate_host_credit(party.host)
+  return render(request, "support/view_party_detail.html", data)
 
 
 @staff_member_required

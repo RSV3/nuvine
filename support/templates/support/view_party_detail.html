@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block header %}
-  <h1 class="headline">User Details - {{ user_detail.get_full_name }}</h1>
+  <h1 class="headline">{{ party.title }}</h1>
 {% endblock header %}
 
 {% block content %}
@@ -34,73 +34,76 @@
     <div class="span4">
       <table class="table user-detail-table">
         <tr>
-          <td>Name:</td>
-          <td>{{ user_detail.get_full_name }}</td>
+          <td>Title:</td>
+          <td>{{ party.title }}</td>
+        </tr>
+        <tr>
+          <td>Date:</td>
+          <td>{{ party.event_date }}</td>
+        </tr>
+        <tr>
+          <td>Location:</td>
+          <td>{{ party.address }}</td>
+        </tr>
+        <tr>
+          <td>Tasting Kit Ordered:</td>
+          <td>{{ party.kit_ordered }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="span4">
+      <table class="table user-detail-table">
+        <tr>
+          <td>Host Name:</td>
+          <td>{{ party.host.get_full_name }}</td>
         </tr>
         <tr>
           <td>Email:</td>
-          <td>{{ user_detail.email }}</td>
+          <td>{{ party.host.email }}</td>
         </tr>
         <tr>
           <td>Phone:</td>
-          <td>{{ profile_detail.phone }}</td>
+          <td>{{ party.host.get_profile.phone }}</td>
         </tr>
         <tr>
-          <td>Pro</td>
-          {% if profile_detail.is_pro %}
-            <td>{{ profile_detail.mentor }}</td>
-          {% else %}
-            <td>{{ profile_detail.current_pro }}</td>
-          {% endif %}
+          <td><br />Total Sales:</td>
+          <td><br />{{ party.total_sales }}</td>
         </tr>
       </table>
     </div>
     <div class="span4">
       <table class="table user-detail-table">
         <tr>
-          <td>VIP Type:</td>
-          <td>{{ profile_detail.active_subscription }}</td>
+          <td>Party Pro:</td>
+          <td>{{ party.pro.get_full_name }}</td>
         </tr>
         <tr>
-          <td>Account Credit:</td>
-          <td>{{ credits }}</td>
+          <td>Email:</td>
+          <td>{{ party.pro.email }}</td>
         </tr>
         <tr>
-          <td>Shipping Address:</td>
-          <td>{{ profile_detail.shipping_address }}</td>
+          <td>Phone:</td>
+          <td>{{ party.pro.get_profile.phone }}</td>
+        </tr>
+        <tr>
+          <td>Host Credit Earned:</td>
+          <td>{{ host_credit }}</td>
         </tr>
       </table>
-    </div>
-    <div class="span4">
-      <table class="table user-detail-table">
-        <tr>
-          <td>Billing Zipcode:</td>
-          <td>{{ credit_card.billing_zipcode }}</td>
-        </tr>
-        <tr>
-          <td>Credit Card (Last 4):</td>
-          <td>{{ credit_card.last_four }}</td>
-        </tr>
-        <tr>
-          <td>Expiration Date:</td>
-          <td>{{ credit_card.exp_date}}</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-  <div class="row">
-    <div class="span12">
-      <button class="btn btn-success pull-right">Place Order</button>
-      <span class="pull-right">&nbsp;</span>
-      <button class="btn btn-success pull-right">Issue Refund</button> 
     </div>
   </div>
   <div class="vertical-space"></div>
   <div class="row">
     <div class="span12">
-      {% render_table order_history %}
+      {% render_table tasters_table %}
     </div>
   </div> <!-- .row -->
+  <div class="row">
+    <div class="span12">
+      <button class="btn btn-success">Add Taster</button>
+      <div class="vertical-space"></div>
+    </div>
+  </div>
 
 </div>
 {% endblock content %}

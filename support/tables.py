@@ -75,7 +75,6 @@ class OrderHistoryTable(tables.Table):
     model = Order
     attrs = {'class': 'table table-striped'}
     fields = ('vinely_order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status')
-    # order_by = ['-order_id']
 
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user')
@@ -88,3 +87,12 @@ class OrderHistoryTable(tables.Table):
       return "%s %s" % (record.receiver.first_name, record.receiver.last_name)
     else:
       return "Anonymous"
+
+
+class PartyTable(tables.Table):
+  title = columns.LinkColumn('support:view_party_detail', args=[A('id')])
+
+  class Meta:
+    model = User
+    fields = ('title', 'event_date', 'host', 'pro', 'kit_ordered')
+    attrs = {"class": "paleblue table table-striped"}
