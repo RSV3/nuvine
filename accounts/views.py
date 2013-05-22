@@ -164,6 +164,7 @@ def my_information(request):
 
   # tracking payment information error
   payment_info_error = False
+  updated_user = None
 
   if request.method == 'POST':
 
@@ -223,6 +224,9 @@ def my_information(request):
     if request.POST.get('payment_form'):
       if payment_form.is_valid():
         payment = payment_form.cleaned_data
+
+        if not updated_user:
+          updated_user = u
 
         receiver_state = 'NONE'
         try:
