@@ -51,9 +51,7 @@ def change_to_host(modeladmin, request, queryset):
     user = obj.user
     obj.role = UserProfile.ROLE_CHOICES[2][0]
     obj.save()
-    try:
-      MyHost.objects.get(host=user)
-    except MyHost.DoesNotExist:
+    if not MyHost.objects.filter(host=user).exists():
       MyHost.objects.create(pro=None, host=user)
 
 change_to_host.short_description = "Change user to a host"
