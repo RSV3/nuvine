@@ -298,7 +298,6 @@ class UpdateSubscriptionForm(forms.ModelForm):
     self.fields['quantity'].widget.choices = [('', '---------'), (12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
 
 
-from django.contrib.auth.models import Group
 from emailusernames.forms import EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 

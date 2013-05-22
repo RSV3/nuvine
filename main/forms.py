@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
 from django.utils.safestring import mark_safe
