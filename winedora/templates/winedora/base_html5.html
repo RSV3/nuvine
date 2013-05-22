@@ -194,8 +194,7 @@
                   <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
                     <a href="{% url rate_wines %}" title="rate wines"></a>
                   </li>
-                {% endif %}
-                {% if not user.get_profile.club_member %}
+                {% else %}
                   <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
                     <a href="{% url join_club_start %}" title="Join The Club"></a>
                   </li>
@@ -250,6 +249,9 @@
                   <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="how it works"></a></li>
                   <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
                       <a href="{% url make_host %}" title="Host A Party"></a>
+                  </li>
+                  <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
+                    <a href="{% url join_club_start %}" title="Join The Club"></a>
                   </li>
                   <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
                       <a href="{% url make_pro %}" title="Become A Pro"></a>
