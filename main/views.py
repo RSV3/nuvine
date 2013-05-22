@@ -2986,7 +2986,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
 
   # data['heard_about_us_form'] = HeardAboutForm()
   data['form'] = form
-  data['role'] = role.name
+  # data['role'] = role.name
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
