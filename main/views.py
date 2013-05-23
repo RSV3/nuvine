@@ -1629,10 +1629,6 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
     data["no_parties"] = True
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
 
-  pro_group = Group.objects.get(name='Vinely Pro')
-  hos_group = Group.objects.get(name='Vinely Host')
-  tas_group = Group.objects.get(name='Vinely Taster')
-
   if not rsvp_code and not u.is_authenticated():
     return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
 

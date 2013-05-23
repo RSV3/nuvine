@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from emailusernames.utils import create_user
 from optparse import make_option
 
@@ -25,8 +25,6 @@ class Command(BaseCommand):
   )
 
   def handle(self, *args, **options):
-
-    supplier = Group.objects.get(name="Supplier")
 
     if options["email"] and options["password"]:
       u = create_user(options["email"], options["password"])
