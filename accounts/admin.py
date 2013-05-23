@@ -251,7 +251,7 @@ admin.site.unregister(User)
 class VinelyUserAdmin(EmailUserAdmin):
 
   list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number', 'club_member')
-  list_filter = ('groups', 'is_active', 'userprofile__club_member')
+  list_filter = ('userprofile__role', 'is_active', 'userprofile__club_member')
 
   def club_member(self, instance):
     return instance.userprofile.club_member
