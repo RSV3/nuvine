@@ -10,7 +10,9 @@
     margin-top: -65px;
     margin-left: 140px;
   }
-
+  .state-img {
+    height: 245px;
+  }
 </style>
 {% endblock additional_styles %}
 
@@ -64,7 +66,7 @@
       {% endif %}
     </div>
     <div class="span5 center">
-      <img src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png">
+      <img class="state-img" src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png">
     </div>
     <div class="span4">
       <div class="row">

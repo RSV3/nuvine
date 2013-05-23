@@ -1,0 +1,121 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static%}
+
+{% block additional_styles %}
+<style type="text/css">
+  .wine-num-badge {
+    height: 190px;
+    background-color: #fff;
+    border: 1px solid rgb(147,149,152);
+    border-radius: 4px;
+    -moz-box-shadow: 0px 1px 10px rgb(147,149,152);
+    -webkit-box-shadow: 0px 1px 10px rgb(147,149,152);
+    box-shadow: 0px 1px 10px rgb(147,149,152);
+  }
+  .wine-num-badge img {
+    margin-top: 25%;
+  }
+  .span3 > p {
+    margin-top: 10px;
+  }
+  .box-content2 {
+    margin-top: 0;
+    padding-bottom: 60px;
+  }
+  .side-glass {
+    position: absolute;
+    margin-left: 100px;
+    margin-top: -80px;
+  }
+  .member-personality {
+    position: absolute;
+    margin-left: -80px;
+  }
+</style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">What did you think?</h1>
+{% endblock header %}
+
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span3 center">
+      &nbsp;
+      <img class="member-personality" src="{% static "img/homepage_badge_mystery.png" %}" height="310" />
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 1 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-ONE.png">
+        </div>
+      </a>
+      <p>Wine 1</p>
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 2 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-TWO.png">
+        </div>
+      </a>
+      <p>Wine 2</p>
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 3 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-THREE.png">
+        </div>
+      </a>
+      <p>Wine 3</p>
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+  <div class="row">
+    <div class="span3">
+      <!-- <div class="wine-num-badge make-host"> -->
+        <a href="{% url make_host %}">
+          <div class="box-content2 make-host">
+            <h1>Host a party!</h1>
+            <p class="howto-sidetext">
+              Pop the cork! <br />Learn about <br />
+              hosting <br />a Vinely party. 
+            </p>
+            <!-- <div class="box-bg"></div> -->
+            <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
+          </div>
+          <div class="vertical-space"></div>
+        </a>
+      <!-- </div>       -->
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 4 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-FOUR.png">
+        </div>
+      </a>
+      <p>Wine 4</p>
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 5 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-FIVE.png">
+        </div>
+      </a>
+      <p>Wine 5</p>
+    </div>
+    <div class="span3 center">
+      <a href="{% url member_rate_wines 6 %}">
+        <div class="wine-num-badge">
+          <img src="{{ STATIC_URL }}img/WINE-BADGE-SIX.png">
+        </div>
+      </a>
+      <p>Wine 6</p>
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+{% endblock content %}

@@ -1,5 +1,5 @@
 # Create your views here.`
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, render
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -558,8 +558,30 @@ def taster_list(request, taster, party_id):
   # only get tasters linked to this pro
   # show people who RSVP'ed to the party
   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
-  users = User.objects.filter(id__in = [x.invitee.id for x in my_guests])
+  users = User.objects.filter(id__in=[x.invitee.id for x in my_guests])
   users = users.filter(Q(first_name__icontains=taster) | Q(last_name__icontains=taster) | Q(email__icontains=taster)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+@login_required
+def member_ratings_overview(request):
+  u = request.user
+  data = {}
+  data['rate_wines_menu'] = True
+  return render(request, 'personality/member_ratings_overview.html', data)
+
+
+@login_required
+def member_rate_wines(request, wine_id):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+
+  wine = get_object_or_404(WineRatingData, wine__number=wine_id, user=u)
+  form = AllWineRatingsForm()
+  data['rate_wines_menu'] = True
+  data['taster_profile'] = profile
+  data['form'] = form
+  return render(request, 'personality/member_rate_wines.html', data)

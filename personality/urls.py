@@ -14,4 +14,7 @@ urlpatterns = patterns('personality.views',
     url(r'^ratings/record/all/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'record_all_wine_ratings', name='record_all_wine_ratings'),
     url(r'^ratings/info/(?P<email>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'personality_rating_info', name='personality_rating_info'),
     url(r'^taster/list/(?P<taster>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'taster_list', name='taster_list'),
+    url(r'^member/ratings/(?P<wine_id>\d+)/$', 'member_rate_wines', name='member_rate_wines'),
+    url(r'^member/ratings/overview/$', 'member_ratings_overview', name='member_ratings_overview'),
+
 )

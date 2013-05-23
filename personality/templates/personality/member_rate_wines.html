@@ -1,0 +1,264 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <style type="text/css">    
+    hr {
+      width: 600px;
+      margin: 1.3em -20px;
+      border: 2px solid #DCDCDC;
+    }
+    .shaded {
+      background-color: #EAEAE3;
+    }
+    .tab-header h2 {
+      color: #00C245;
+    }
+    .tab-header.completed h2 {
+      color: #DCDCDC;
+    }    
+    #personality-exists-error {
+      {% if not personality_exists %}
+      display: none;
+      {% endif %}
+      color: #F00;
+    }
+    .tab-pane .control-group h2{
+      top: 50%; margin-top: 0.5em; 
+      font-size:2em;
+      padding-left:20px;
+      text-align:left;
+    }
+     .tab-pane .row {
+      margin-bottom:40px;
+      border-bottom:1px solid #DCDCDC;
+      margin-right: 10px;
+      font-family:"AlternateGothicNo2BT-Regular";
+      text-transform:uppercase;
+      }
+
+    .tab-pane .last {
+      margin-bottom:20px;
+      border-bottom:0px;
+      margin-right: 10px;
+      }
+    .ratings-shadow .span1 {
+      width:40px;
+    }
+    .ratings-shadow .span2 {
+      width: 120px;
+    }
+    .ratings-shadow .span5 {
+      width: 290px;
+    }
+    .tab-pane .row .span5 {
+      /*padding-left:40px;*/
+    }
+    .tab-pane .span5 .row {
+      top: 50%; 
+      /*margin-top: 2em;*/
+      border:0px;
+    }
+    .tab-pane .row .span4 {
+      width:200px;
+      padding-left:20px;
+      }
+    #email-invalid-error {
+      display: none;
+      color: #F00;
+    }
+    .wine-badge {
+      width: 580px;
+    }
+    .wine-exp {
+      padding-left: 180px;
+    }
+    ul {
+      list-style: none;
+    }
+    .direction-shade {
+      position: absolute;
+      margin-top: 130px;
+      height: 580px;
+      background: url('{{ STATIC_URL }}img/member_ratings_left_shade.png') repeat-y;
+    }
+    .left-shade {
+      margin-left: 170px;
+      width: 140px;
+    }
+    .right-shade {
+      margin-left: -150px;
+      width: 120px;
+    }
+    .control-group {
+      margin-left: -30px;
+    }
+    .vinely-rating-badge {
+      border-top: 1px solid #DCDCDC;
+      margin-top: -30px;
+      width: 580px;
+    }
+    #vinely-badge-1 {
+      background: url('{{ STATIC_URL }}img/vinely_logo_signature.png') no-repeat 10px 30px;
+      width: 120px; 
+      height: 100px;
+      border-right: 1px solid #DCDCDC;
+    }
+  </style>
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">What did you think?</h1>
+  <div class="center">
+    Enter ratings below as shown on your rating card.<br />
+    Once you have rated all 6 wines you will receive your <br />
+    Wine Personality.
+  </div>
+{% endblock header %}
+
+{% block content %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span2">
+      1
+      <div class="direction-shade left-shade"></div>
+    </div>
+    <div class="span8">
+      <div class="ratings-shadow">
+        <div class="tab-pane" id="wine1">
+          <div class="row">
+            <div class="wine-badge">
+              <div id="wine-badge-1">
+                <div class="wine-exp"><h2>My Wine Experience</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="span2">
+              <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
+                {{ form.wine1 }}
+                <h2>{{ form.wine1_sweet.label }}</h2>
+                {% if form.wine1_sweet.errors %}
+                  <span class="help-inline">
+                    {{ form.wine1_sweet.errors }}
+                  </span>
+                {% endif %}                    
+              </div>
+            </div>
+            <div class="span5">
+              <div class="row">
+                {{ form.wine1_sweet }}
+              </div>
+            </div>
+            <div class="span2">
+              {{ form.wine1_sweet_dnl}} 
+            </div>
+          </div>
+          <div class="row">
+            <div class="span2">
+              <div class="control-group {% if form.wine1_weight.errors %}error{% endif %}">
+                <h2>{{ form.wine1_weight.label }}</h2>
+                {% if form.wine1_weight.errors %}
+                  <span class="help-inline">
+                    {{ form.wine1_weight.errors }}
+                  </span>
+                {% endif %}                    
+              </div>
+            </div>
+            <div class="span5">
+              <div class="row">
+                {{ form.wine1_weight }}
+              </div>
+            </div>
+            <div class="span2">
+              {{ form.wine1_weight_dnl}} 
+            </div>
+          </div>
+          <div class="row">
+            <div class="span2">
+              <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
+                <h2>{{ form.wine1_texture.label }}</h2>
+                {% if form.wine1_texture.errors %}
+                  <span class="help-inline">
+                    {{ form.wine1_texture.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="span5">
+              <div class="row">
+                {{ form.wine1_texture }}
+              </div>
+            </div>
+            <div class="span2">
+              {{ form.wine1_texture_dnl}} 
+            </div>
+          </div>
+          <div class="row last">
+            <div class="span2">
+              <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
+                <h2>{{ form.wine1_sizzle.label }}</h2>
+                {% if form.wine1_sizzle.errors %}
+                  <span class="help-inline">
+                    {{ form.wine1_sizzle.errors }}
+                  </span>
+                {% endif %}                    
+              </div>
+            </div>
+            <div class="span5">
+              <div class="row">
+                {{ form.wine1_sizzle }}
+              </div>
+            </div>
+            <div class="span2">
+              {{ form.wine1_sizzle_dnl}} 
+            </div>
+          </div>
+          <hr />
+          <div class="row last">
+            <div class="span2">
+              <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
+                <h2>{{ form.wine1_overall.label }}</h2>
+                {% if form.wine1_overall.errors %}
+                  <span class="help-inline">
+                    {{ form.wine1_overall.errors }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="span5">
+              <div class="row">
+                {{ form.wine1_overall }}
+              </div>
+            </div>
+            <div class="span2">
+              {{ form.wine1_overall_dnl}} 
+            </div>
+          </div>
+          <div class="row">
+            <div class="span8" style="margin-left: -30px;">
+              <div class="wine-badge vinely-rating-badge">
+                <div id="vinely-badge-1">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="span2">
+      1
+      <div class="direction-shade right-shade"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span8 offset2">
+      <button class="btn btn-success pull-right">Save</button>
+      <a class="btn btn-inverse" href="{% url member_ratings_overview %}">Back</a>
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+{% endblock content%}
