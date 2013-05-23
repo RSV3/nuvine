@@ -24,10 +24,21 @@
   }
   .home-glasses {
     margin-left: -16px;
+    width: 170px;
+    position: absolute;
+    margin-top: -15px;
   }
   .home-cards {
     position: absolute;
-    margin-top: 5px;
+    margin-top: -3px;
+    width: 170px;
+    margin-left: -8px;
+  }
+  .home-club {
+    position: absolute;
+    width: 100px;
+    margin-top: -70px;
+    margin-left: -15px;
   }
   .cta-howitworks,
   .cta-howitworks:visited,
@@ -56,6 +67,30 @@
     /*height:125px;*/
     margin-left:2px;
   }
+  .make-host p {
+    width: 100px;
+    margin-left: 190px;
+  }
+  .make-pro p {
+    width: 170px;
+    margin-left: 160px;
+    margin-top: -8px;
+  }
+  .join-club p {
+    color: #415A68;
+    width: 200px;
+    margin-left: 110px;
+    padding-bottom: 10px;
+  }
+  .make-host h1,
+  .join-club h1,
+  .make-pro h1 {
+    margin-top: -20px;
+    margin-left: 55px;
+  }
+  .join-club h1 {
+    margin-left: 100px;
+  }
 </style>
 {% endblock additional_styles %}
 {% block content %}
@@ -79,36 +114,68 @@
   </div>
   <div class="vertical-space">&nbsp;</div>
   <div class="row">
-    <div class="span6">
+    <div class="span4">
       <div class="box-content2 make-host">
         <a href="{% url make_host %}">
           <div class="row">
             <div class="span3">
+              <h1>Host a party</h1>
               <img class="home-glasses" src="{{ STATIC_URL }}img/homepage_vinely_glasses.png" />
             </div>
             <div class="span2-host">
-              {{ host|safe }}
+              <!-- {{ host|safe }} -->
+              <p>
+              Pop the cork! <br/>
+              Learn about hosting <br />
+              a Vinely party
+              </p>
             </div>
           </div>
         </a>
       </div>
     </div>
-    <div class="span6">
+    <div class="span4">
+      <div class="box-content2 join-club">
+        <a href="{% url join_club_start %}">
+          <div class="row">
+            <div class="span3">
+              <h1>Join the club</h1>
+              <img class="home-club" src="{{ STATIC_URL }}img/homepage_club.png" />
+            </div>
+            <div class="span2">
+              <p>
+              Become a Vinely VIP <br />
+              and change the way <br />
+              you experience wine!
+              <br />
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="span4">
       <div class="box-content2 make-pro">
         <a href="{% url make_pro %}">
           <div class="row">
             <div class="span3">
-              &nbsp;
+              <h1>Join the team</h1>
               <img class="home-cards" src="{{ STATIC_URL }}img/homepage_cards.png" />
             </div>
             <div class="span2">
-              {{ pro|safe }}
+            <p>
+            Take it to the <br/>
+            next level to earn <br />
+            a little or a lot... <br />
+            it's up to you!
+            </p>
             </div>
           </div>
         </a>
       </div>
     </div>
   </div>
+  <div class="vertical-space">&nbsp;</div>
   <div class="vertical-space">&nbsp;</div>
 </div>
 {% endblock content %}
