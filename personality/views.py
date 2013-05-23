@@ -425,6 +425,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         temp_password = User.objects.make_random_password()
         invitee.set_password(temp_password)
         invitee.save()
+        invitee.userprofile.role = UserProfile.ROLE_CHOICES[3][0]
+        invitee.userprofile.current_pro = u
+        invitee.userprofile.save()
 
         verification_code = str(uuid.uuid4())
         vque = VerificationQueue(user=invitee, verification_code=verification_code)
