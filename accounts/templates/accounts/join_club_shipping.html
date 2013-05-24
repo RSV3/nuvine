@@ -272,16 +272,16 @@
         if (window.location.protocol === 'file:') {
             alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
         }
-        // {% if user.get_profile.has_personality %}
-        //   if (!confirm('By joining the club your shipment will be personalized to your tastes. Would you like to proceed?')) {
-        //     window.location = "{% url landing_page %}"
-        //   }
-        // {% endif %}
-
         {% if user.get_profile.has_active_subscription %}
           if (!confirm('You already have an active subscription. By joining the club you will override your existing subscription. \n\nWould you like to proceed?')) {
             window.location = "{% url landing_page %}"
           }
+        {% else %}
+          {% if user.get_profile.has_personality %}
+            if (!confirm('By joining the club your shipment will be personalized to your tastes. Would you like to proceed?')) {
+              window.location = "{% url landing_page %}"
+            }
+          {% endif %}
         {% endif %}
       });
     </script>    
