@@ -81,7 +81,7 @@ def home_club_member(request):
   u = request.user
   profile = u.get_profile()
 
-  if profile.wine_personality and profile.wine_personality.name != WinePersonality.MYSTERY:
+  if profile.has_personality():
     data['wine_personality'] = profile.wine_personality
   else:
     data['wine_personality'] = False
