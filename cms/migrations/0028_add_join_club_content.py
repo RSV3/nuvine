@@ -12,7 +12,7 @@ class Migration(DataMigration):
         host_header = 'Treat yourself to a club that\'s all about you'
         host_sub_header = '<span></span>'
         content_overview = """
-        <p>Say hello to a future of wine that you are guaranteed to leave.</p>
+        <p>Say hello to a future of wine that you are guaranteed to love.</p>
 
         <p>Join the exclusive Vinely club to learn your Wine Personality,
         gain access to member-only perks and receive delicious personalized,
@@ -28,7 +28,7 @@ class Migration(DataMigration):
 
         content_surprise = """
         <p>Who doesn't love a surprise, especially when you are guaranteed to love it?
-        As a Vinely Club member you will eagerly await 6 different wines perfectly matched to your taste-buds.
+        As a Vinely Club member you will eagerly await 6 different wines perfectly matched to your taste buds each month.
         Enhance your enjoyment every month with wine you love. One more surprise from us...we pay for shipping!</p>
         <p>This is a club where the deliveries are as unique as you!</p>
         """
