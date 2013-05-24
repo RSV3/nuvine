@@ -12,18 +12,6 @@
     .shaded {
       background-color: #EAEAE3;
     }
-    .tab-header h2 {
-      color: #00C245;
-    }
-    .tab-header.completed h2 {
-      color: #DCDCDC;
-    }    
-    #personality-exists-error {
-      {% if not personality_exists %}
-      display: none;
-      {% endif %}
-      color: #F00;
-    }
     .tab-pane .control-group h2{
       top: 50%; margin-top: 0.5em; 
       font-size:2em;
@@ -52,12 +40,8 @@
     .ratings-shadow .span5 {
       width: 290px;
     }
-    .tab-pane .row .span5 {
-      /*padding-left:40px;*/
-    }
     .tab-pane .span5 .row {
       top: 50%; 
-      /*margin-top: 2em;*/
       border:0px;
     }
     .tab-pane .row .span4 {
@@ -83,6 +67,14 @@
       height: 580px;
       background: url('{{ STATIC_URL }}img/member_ratings_left_shade.png') repeat-y;
     }
+    .feeling-shade {
+      position: absolute;
+      margin-top: 750px;
+      height: 90px;
+      background: url('{{ STATIC_URL }}img/member_ratings_left_shade.png') no-repeat;
+      margin-left: 170px;
+      width: 140px;
+    }
     .left-shade {
       margin-left: 170px;
       width: 140px;
@@ -105,6 +97,44 @@
       height: 100px;
       border-right: 1px solid #DCDCDC;
     }
+    .wine-components {
+      position: absolute;
+      font-size: 13px;
+    }
+    .rating-left-arrow {
+      position: absolute;
+      background: url('{{ STATIC_URL }}img/ratingpage_arrow_left.png') no-repeat;
+      width:87px;
+      height: 50px;
+      margin-left: 80px;
+    }
+    .rating-right-arrow {
+      position: absolute;
+      background: url('{{ STATIC_URL }}img/ratingpage_arrow_right.png') no-repeat;
+      width:87px;
+      height: 50px;
+      margin: 165px -30px;
+    }
+    .rating-left-arrow.top-desc {
+      margin-top: 175px;
+    }
+    .rating-left-arrow.bottom-desc {
+      margin-top: 780px;
+    }
+    .wine-components.top-desc {
+      margin: 250px -50px;
+    }
+    .wine-components.bottom-desc {
+      margin: 850px -50px;
+    }
+    .wine-components.top-right-desc {
+      margin: 220px 10px;
+    }
+    .state-head {
+      font-size: 13px;
+      padding-bottom: 5px;
+      padding-top: 5px;
+    }
   </style>
 {% endblock %}
 
@@ -121,8 +151,20 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <div class="row">
     <div class="span2">
-      1
+      &nbsp;
       <div class="direction-shade left-shade"></div>
+      <div class="rating-left-arrow top-desc"></div>
+      <div class="rating-left-arrow bottom-desc"></div>
+      <div class="feeling-shade"></div>
+    </div>
+    <div class="span3 wine-components top-desc">
+      <div class="state-head">The Wine Components</div>
+      <p>Evaluate each of the 6 wines independent of past wines or <br/>your overall opinion of the wine.<p>
+    </div>
+    <div class="span3 wine-components bottom-desc">
+      <div class="state-head">Wine as a whole</div>
+      <p>Tell us what you thought of the wine overall.</p>
+      <p>Don't worry you have feelings but the wine doesn't - so be honest.</p>
     </div>
     <div class="span8">
       <div class="ratings-shadow">
@@ -249,8 +291,14 @@
       </div>
     </div>
     <div class="span2">
-      1
+      &nbsp;
       <div class="direction-shade right-shade"></div>
+      <div class="rating-right-arrow"></div>
+      <div class="span3 wine-components top-right-desc">
+        <div class="state-head">The Wine Components</div>
+        <p>Don't over-think this...if you would have loved more of one component, choose "TOO LITTLE."
+          Wanted less of something, choose "TOO MUCH."<p>
+      </div>
     </div>
   </div>
   <div class="row">

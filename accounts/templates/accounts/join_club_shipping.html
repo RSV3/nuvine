@@ -278,7 +278,7 @@
           }
         {% else %}
           {% if user.get_profile.has_personality %}
-            if (!confirm('By joining the club your shipment will be personalized to your tastes. Would you like to proceed?')) {
+            if (!confirm('Since you already have a wine personality, you will not receive the tasting kit as your first shipment. Instead, we will skip right to your personalized shipments.\n\nBy proceeding, you will override your existing subscription with Vinely.\n\nWould you like to proceed?')) {
               window.location = "{% url landing_page %}"
             }
           {% endif %}
