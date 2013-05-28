@@ -195,14 +195,14 @@ class AllWineRatingsForm(forms.Form):
 
 
 class WineRatingForm(forms.ModelForm):
-  overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0, required=False)
-  sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0, required=False)
+  overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0)
   sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
-  weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0, required=False)
+  weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0)
   weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
-  texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0, required=False)
+  texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0)
   texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
-  sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0, required=False)
+  sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0)
   sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES, initial=0, required=False)
 
   class Meta:

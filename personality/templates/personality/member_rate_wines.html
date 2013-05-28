@@ -139,6 +139,13 @@
       padding-bottom: 5px;
       padding-top: 5px;
     }
+    .help-inline {
+      position: absolute;
+      color: #b94a48;
+      /*margin-left: 100px;*/
+      margin: 70px -220px;
+      width: 250px;
+    }
   </style>
 {% endblock %}
 
@@ -190,16 +197,16 @@
                 <div class="control-group {% if form.sweet.errors %}error{% endif %}">
                   <!-- {{ form.wine }} -->
                   <h2>{{ form.sweet.label }}</h2>
-                  {% if form.sweet.errors %}
-                    <span class="help-inline">
-                      {{ form.sweet.errors }}
-                    </span>
-                  {% endif %}                    
                 </div>
               </div>
               <div class="span5">
                 <div class="row">
                   {{ form.sweet }}
+                  {% if form.sweet.errors %}
+                    <span class="help-inline">
+                      {{ form.sweet.errors }}
+                    </span>
+                  {% endif %}                  
                 </div>
               </div>
               <div class="span2">
@@ -210,16 +217,16 @@
               <div class="span2">
                 <div class="control-group {% if form.weight.errors %}error{% endif %}">
                   <h2>{{ form.weight.label }}</h2>
-                  {% if form.weight.errors %}
-                    <span class="help-inline">
-                      {{ form.weight.errors }}
-                    </span>
-                  {% endif %}                    
                 </div>
               </div>
               <div class="span5">
                 <div class="row">
                   {{ form.weight }}
+                  {% if form.weight.errors %}
+                    <span class="help-inline">
+                      {{ form.weight.errors }}
+                    </span>
+                  {% endif %}
                 </div>
               </div>
               <div class="span2">
@@ -230,16 +237,16 @@
               <div class="span2">
                 <div class="control-group {% if form.texture.errors %}error{% endif %}">
                   <h2>{{ form.texture.label }}</h2>
-                  {% if form.texture.errors %}
-                    <span class="help-inline">
-                      {{ form.texture.errors }}
-                    </span>
-                  {% endif %}
                 </div>
               </div>
               <div class="span5">
                 <div class="row">
                   {{ form.texture }}
+                  {% if form.texture.errors %}
+                    <span class="help-inline">
+                      {{ form.texture.errors }}
+                    </span>
+                  {% endif %}
                 </div>
               </div>
               <div class="span2">
@@ -250,16 +257,16 @@
               <div class="span2">
                 <div class="control-group {% if form.sizzle.errors %}error{% endif %}">
                   <h2>{{ form.sizzle.label }}</h2>
-                  {% if form.sizzle.errors %}
-                    <span class="help-inline">
-                      {{ form.sizzle.errors }}
-                    </span>
-                  {% endif %}                    
                 </div>
               </div>
               <div class="span5">
                 <div class="row">
                   {{ form.sizzle }}
+                  {% if form.sizzle.errors %}
+                    <span class="help-inline">
+                      {{ form.sizzle.errors }}
+                    </span>
+                  {% endif %}
                 </div>
               </div>
               <div class="span2">
@@ -271,6 +278,11 @@
               <div class="span2">
                 <div class="control-group {% if form.overall.errors %}error{% endif %}">
                   <h2>{{ form.overall.label }}</h2>
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.overall }}
                   {% if form.overall.errors %}
                     <span class="help-inline">
                       {{ form.overall.errors }}
@@ -278,13 +290,8 @@
                   {% endif %}
                 </div>
               </div>
-              <div class="span5">
-                <div class="row">
-                  {{ form.overall }}
-                </div>
-              </div>
               <div class="span2">
-                {{ form.dnl}} 
+                {{ form.dnl }} 
               </div>
             </div>
             <div class="row">
