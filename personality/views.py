@@ -16,7 +16,7 @@ from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, Wi
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue, UserProfile
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
-                              AddTasterRatingsForm
+                              AddTasterRatingsForm, WineRatingForm
 
 from personality.utils import calculate_wine_personality
 from accounts.utils import send_verification_email
@@ -568,8 +568,13 @@ def taster_list(request, taster, party_id):
 @login_required
 def member_ratings_overview(request):
   u = request.user
+  profile = u.get_profile()
   data = {}
   data['rate_wines_menu'] = True
+
+  if profile.has_personality():
+    data['wine_personality'] = profile.wine_personality
+  data['tasted_wines'] = WineRatingData.objects.filter(user=u)
   return render(request, 'personality/member_ratings_overview.html', data)
 
 
@@ -579,9 +584,44 @@ def member_rate_wines(request, wine_id):
   profile = u.get_profile()
   data = {}
 
-  wine = get_object_or_404(WineRatingData, wine__number=wine_id, user=u)
-  form = AllWineRatingsForm()
+  wine = get_object_or_404(Wine, number=wine_id, active=True)
+  initial_data = {}
+
+  try:
+    wine_rating = WineRatingData.objects.get(wine=wine, user=u)
+    # print 'wine_rating', wine_rating
+    initial_data['wine_overall'] = wine_rating.overall
+    initial_data['wine_sweet'] = wine_rating.sweet
+    initial_data['wine_sweet_dnl'] = wine_rating.sweet_dnl
+    initial_data['wine_weight'] = wine_rating.weight
+    initial_data['wine_weight_dnl'] = wine_rating.weight_dnl
+    initial_data['wine_texture'] = wine_rating.texture
+    initial_data['wine_texture_dnl'] = wine_rating.texture_dnl
+    initial_data['wine_sizzle'] = wine_rating.sizzle
+    initial_data['wine_sizzle_dnl'] = wine_rating.sizzle_dnl
+    initial_data['wine'] = wine
+    initial_data['user'] = u
+    form = WineRatingForm(request.POST or None, instance=wine_rating, initial=initial_data)
+  except WineRatingData.DoesNotExist:
+    initial_data['wine'] = wine
+    initial_data['user'] = u
+    form = WineRatingForm(request.POST or None, initial=initial_data)
+
+  if form.is_valid():
+    form.save()
+    results = WineRatingData.objects.filter(user=u)[:6]
+    if len(results) == 6:
+      if np.sum(np.array([results[1].overall, results[2].overall,
+                          results[3].overall, results[4].overall,
+                          results[5].overall, results[0].overall]) > 0) == 6:
+
+        # only save personality once all 6 wine fields have been filled out
+        rating_data = [u]
+        rating_data.extend(results)
+        data['personality'] = calculate_wine_personality(*rating_data)
+
   data['rate_wines_menu'] = True
   data['taster_profile'] = profile
+  data['wine_number'] = wine_id
   data['form'] = form
   return render(request, 'personality/member_rate_wines.html', data)

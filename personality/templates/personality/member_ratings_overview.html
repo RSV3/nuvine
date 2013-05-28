@@ -28,9 +28,15 @@
     margin-left: 100px;
     margin-top: -80px;
   }
-  .member-personality {
+  .member-no-personality {
     position: absolute;
     margin-left: -80px;
+  }
+  .member-personality {
+    position: absolute;
+    margin-left: -110px;
+    margin-top: -40px;
+    height: 200px;
   }
 </style>
 {% endblock additional_styles %}
@@ -46,7 +52,15 @@
   <div class="row">
     <div class="span3 center">
       &nbsp;
-      <img class="member-personality" src="{% static "img/homepage_badge_mystery.png" %}" height="310" />
+      {% if wine_personality %}
+        <div class="personality-badge-detail">
+          <img class="member-personality" src="{{ STATIC_URL }}img/club_badge_{{ wine_personality.suffix }}.png" height="310">
+        </div>
+      {% else %}
+        <div class="personality-badge-detail">
+          <img class="member-no-personality" src="{% static "img/homepage_badge_mystery.png" %}" height="310" />
+        </div>
+      {% endif %}
     </div>
     <div class="span3 center">
       <a href="{% url member_rate_wines 1 %}">
@@ -54,7 +68,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-ONE.png">
         </div>
       </a>
-      <p>Wine 1</p>
+      {% if 1 == tasted_wines.0.wine.number %}
+        <p>WINE: {{tasted_wines.0.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 1</p>
+      {% endif %}
     </div>
     <div class="span3 center">
       <a href="{% url member_rate_wines 2 %}">
@@ -62,7 +80,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-TWO.png">
         </div>
       </a>
-      <p>Wine 2</p>
+      {% if 2 == tasted_wines.1.wine.number %}
+        <p>WINE: {{tasted_wines.1.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 2</p>
+      {% endif %}
     </div>
     <div class="span3 center">
       <a href="{% url member_rate_wines 3 %}">
@@ -70,7 +92,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-THREE.png">
         </div>
       </a>
-      <p>Wine 3</p>
+      {% if 3 == tasted_wines.2.wine.number %}
+        <p>WINE: {{tasted_wines.2.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 3</p>
+      {% endif %}
     </div>
   </div>
   <div class="vertical-space">&nbsp;</div>
@@ -97,7 +123,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-FOUR.png">
         </div>
       </a>
-      <p>Wine 4</p>
+      {% if 4 == tasted_wines.3.wine.number %}
+        <p>WINE: {{tasted_wines.3.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 4</p>
+      {% endif %}
     </div>
     <div class="span3 center">
       <a href="{% url member_rate_wines 5 %}">
@@ -105,7 +135,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-FIVE.png">
         </div>
       </a>
-      <p>Wine 5</p>
+      {% if 5 == tasted_wines.4.wine.number %}
+        <p>WINE: {{tasted_wines.4.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 5</p>
+      {% endif %}
     </div>
     <div class="span3 center">
       <a href="{% url member_rate_wines 6 %}">
@@ -113,7 +147,11 @@
           <img src="{{ STATIC_URL }}img/WINE-BADGE-SIX.png">
         </div>
       </a>
-      <p>Wine 6</p>
+      {% if 6 == tasted_wines.5.wine.number %}
+        <p>WINE: {{tasted_wines.5.wine.name}}</p>
+      {% else %}
+        <p>WINE: Wine 6</p>
+      {% endif %}
     </div>
   </div>
   <div class="vertical-space">&nbsp;</div>

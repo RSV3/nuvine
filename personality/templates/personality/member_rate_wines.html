@@ -12,6 +12,10 @@
     .shaded {
       background-color: #EAEAE3;
     }
+    label, input {
+      position: relative;
+      z-index: 100;
+    }
     .tab-pane .control-group h2{
       top: 50%; margin-top: 0.5em; 
       font-size:2em;
@@ -149,164 +153,169 @@
 
 {% block content %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
-  <div class="row">
-    <div class="span2">
-      &nbsp;
-      <div class="direction-shade left-shade"></div>
-      <div class="rating-left-arrow top-desc"></div>
-      <div class="rating-left-arrow bottom-desc"></div>
-      <div class="feeling-shade"></div>
-    </div>
-    <div class="span3 wine-components top-desc">
-      <div class="state-head">The Wine Components</div>
-      <p>Evaluate each of the 6 wines independent of past wines or <br/>your overall opinion of the wine.<p>
-    </div>
-    <div class="span3 wine-components bottom-desc">
-      <div class="state-head">Wine as a whole</div>
-      <p>Tell us what you thought of the wine overall.</p>
-      <p>Don't worry you have feelings but the wine doesn't - so be honest.</p>
-    </div>
-    <div class="span8">
-      <div class="ratings-shadow">
-        <div class="tab-pane" id="wine1">
-          <div class="row">
-            <div class="wine-badge">
-              <div id="wine-badge-1">
-                <div class="wine-exp"><h2>My Wine Experience</h2>
+  <form method="POST" action="{{ app_path }}">
+    {%csrf_token%}
+    {{ form.wine }}
+    {{ form.user }}
+    <div class="row">
+      <div class="span2">
+        &nbsp;
+        <div class="direction-shade left-shade"></div>
+        <div class="rating-left-arrow top-desc"></div>
+        <div class="rating-left-arrow bottom-desc"></div>
+        <div class="feeling-shade"></div>
+      </div>
+      <div class="span3 wine-components top-desc">
+        <div class="state-head">The Wine Components</div>
+        <p>Evaluate each of the 6 wines independent of past wines or <br/>your overall opinion of the wine.<p>
+      </div>
+      <div class="span3 wine-components bottom-desc">
+        <div class="state-head">Wine as a whole</div>
+        <p>Tell us what you thought of the wine overall.</p>
+        <p>Don't worry you have feelings but the wine doesn't - so be honest.</p>
+      </div>
+      <div class="span8">
+        <div class="ratings-shadow">
+          <div class="tab-pane" id="wine">
+            <div class="row">
+              <div class="wine-badge">
+                <div id="wine-badge-{{ wine_number }}">
+                  <div class="wine-exp"><h2>My Wine Experience</h2>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="span2">
-              <div class="control-group {% if form.wine1_sweet.errors %}error{% endif %}">
-                {{ form.wine1 }}
-                <h2>{{ form.wine1_sweet.label }}</h2>
-                {% if form.wine1_sweet.errors %}
-                  <span class="help-inline">
-                    {{ form.wine1_sweet.errors }}
-                  </span>
-                {% endif %}                    
+            <div class="row">
+              <div class="span2">
+                <div class="control-group {% if form.sweet.errors %}error{% endif %}">
+                  <!-- {{ form.wine }} -->
+                  <h2>{{ form.sweet.label }}</h2>
+                  {% if form.sweet.errors %}
+                    <span class="help-inline">
+                      {{ form.sweet.errors }}
+                    </span>
+                  {% endif %}                    
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.sweet }}
+                </div>
+              </div>
+              <div class="span2">
+                {{ form.sweet_dnl}} 
               </div>
             </div>
-            <div class="span5">
-              <div class="row">
-                {{ form.wine1_sweet }}
+            <div class="row">
+              <div class="span2">
+                <div class="control-group {% if form.weight.errors %}error{% endif %}">
+                  <h2>{{ form.weight.label }}</h2>
+                  {% if form.weight.errors %}
+                    <span class="help-inline">
+                      {{ form.weight.errors }}
+                    </span>
+                  {% endif %}                    
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.weight }}
+                </div>
+              </div>
+              <div class="span2">
+                {{ form.weight_dnl}} 
               </div>
             </div>
-            <div class="span2">
-              {{ form.wine1_sweet_dnl}} 
-            </div>
-          </div>
-          <div class="row">
-            <div class="span2">
-              <div class="control-group {% if form.wine1_weight.errors %}error{% endif %}">
-                <h2>{{ form.wine1_weight.label }}</h2>
-                {% if form.wine1_weight.errors %}
-                  <span class="help-inline">
-                    {{ form.wine1_weight.errors }}
-                  </span>
-                {% endif %}                    
+            <div class="row">
+              <div class="span2">
+                <div class="control-group {% if form.texture.errors %}error{% endif %}">
+                  <h2>{{ form.texture.label }}</h2>
+                  {% if form.texture.errors %}
+                    <span class="help-inline">
+                      {{ form.texture.errors }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.texture }}
+                </div>
+              </div>
+              <div class="span2">
+                {{ form.texture_dnl}} 
               </div>
             </div>
-            <div class="span5">
-              <div class="row">
-                {{ form.wine1_weight }}
+            <div class="row last">
+              <div class="span2">
+                <div class="control-group {% if form.sizzle.errors %}error{% endif %}">
+                  <h2>{{ form.sizzle.label }}</h2>
+                  {% if form.sizzle.errors %}
+                    <span class="help-inline">
+                      {{ form.sizzle.errors }}
+                    </span>
+                  {% endif %}                    
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.sizzle }}
+                </div>
+              </div>
+              <div class="span2">
+                {{ form.sizzle_dnl}} 
               </div>
             </div>
-            <div class="span2">
-              {{ form.wine1_weight_dnl}} 
-            </div>
-          </div>
-          <div class="row">
-            <div class="span2">
-              <div class="control-group {% if form.wine1_texture.errors %}error{% endif %}">
-                <h2>{{ form.wine1_texture.label }}</h2>
-                {% if form.wine1_texture.errors %}
-                  <span class="help-inline">
-                    {{ form.wine1_texture.errors }}
-                  </span>
-                {% endif %}
+            <hr />
+            <div class="row last">
+              <div class="span2">
+                <div class="control-group {% if form.overall.errors %}error{% endif %}">
+                  <h2>{{ form.overall.label }}</h2>
+                  {% if form.overall.errors %}
+                    <span class="help-inline">
+                      {{ form.overall.errors }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="span5">
+                <div class="row">
+                  {{ form.overall }}
+                </div>
+              </div>
+              <div class="span2">
+                {{ form.dnl}} 
               </div>
             </div>
-            <div class="span5">
-              <div class="row">
-                {{ form.wine1_texture }}
-              </div>
-            </div>
-            <div class="span2">
-              {{ form.wine1_texture_dnl}} 
-            </div>
-          </div>
-          <div class="row last">
-            <div class="span2">
-              <div class="control-group {% if form.wine1_sizzle.errors %}error{% endif %}">
-                <h2>{{ form.wine1_sizzle.label }}</h2>
-                {% if form.wine1_sizzle.errors %}
-                  <span class="help-inline">
-                    {{ form.wine1_sizzle.errors }}
-                  </span>
-                {% endif %}                    
-              </div>
-            </div>
-            <div class="span5">
-              <div class="row">
-                {{ form.wine1_sizzle }}
-              </div>
-            </div>
-            <div class="span2">
-              {{ form.wine1_sizzle_dnl}} 
-            </div>
-          </div>
-          <hr />
-          <div class="row last">
-            <div class="span2">
-              <div class="control-group {% if form.wine1_overall.errors %}error{% endif %}">
-                <h2>{{ form.wine1_overall.label }}</h2>
-                {% if form.wine1_overall.errors %}
-                  <span class="help-inline">
-                    {{ form.wine1_overall.errors }}
-                  </span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="span5">
-              <div class="row">
-                {{ form.wine1_overall }}
-              </div>
-            </div>
-            <div class="span2">
-              {{ form.wine1_overall_dnl}} 
-            </div>
-          </div>
-          <div class="row">
-            <div class="span8" style="margin-left: -30px;">
-              <div class="wine-badge vinely-rating-badge">
-                <div id="vinely-badge-1">
+            <div class="row">
+              <div class="span8" style="margin-left: -30px;">
+                <div class="wine-badge vinely-rating-badge">
+                  <div id="vinely-badge-1">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="span2">
-      &nbsp;
-      <div class="direction-shade right-shade"></div>
-      <div class="rating-right-arrow"></div>
-      <div class="span3 wine-components top-right-desc">
-        <div class="state-head">The Wine Components</div>
-        <p>Don't over-think this...if you would have loved more of one component, choose "TOO LITTLE."
-          Wanted less of something, choose "TOO MUCH."<p>
+      <div class="span2">
+        &nbsp;
+        <div class="direction-shade right-shade"></div>
+        <div class="rating-right-arrow"></div>
+        <div class="span3 wine-components top-right-desc">
+          <div class="state-head">The Wine Components</div>
+          <p>Don't over-think this...if you would have loved more of one component, choose "TOO LITTLE."
+            Wanted less of something, choose "TOO MUCH."<p>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="span8 offset2">
-      <button class="btn btn-success pull-right">Save</button>
-      <a class="btn btn-inverse" href="{% url member_ratings_overview %}">Back</a>
+    <div class="row">
+      <div class="span8 offset2">
+        <button class="btn btn-success pull-right">Save</button>
+        <a class="btn btn-inverse" href="{% url member_ratings_overview %}">Back</a>
+      </div>
     </div>
-  </div>
+  </form>
   <div class="vertical-space">&nbsp;</div>
 </div>
 {% endblock content%}

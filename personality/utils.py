@@ -1,6 +1,7 @@
 import numpy as np
 from personality.models import WinePersonality
 
+
 def calculate_wine_personality(user, wine1, wine2, wine3, wine4, wine5, wine6):
   """
     Calculate wine personality based on ratings from 6 wines
