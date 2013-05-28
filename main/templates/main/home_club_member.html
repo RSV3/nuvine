@@ -6,8 +6,17 @@
   <h1 class="headline">Welcome{% if user.first_name %}, {{ user.first_name }}{% else %} to Vinely{% endif %}</h1>
 {% endblock header %}
 
-
 {% block additional_styles %}
+<style type="text/css">
+  .join-club-big-name {
+    position:absolute;
+    margin: 100px 28px;
+    width: 310px;
+  }
+  .personality-badge-detail img {
+    margin-top: -40px;
+  }
+</style>
 {% endblock additional_styles %}
 
 {% block content %}
@@ -40,14 +49,15 @@
       </div>    
     {% endif %}
 
-    <div class="span4 offset1">
+    <div class="span5">
       {% if wine_personality %}
         <div class="personality-badge-detail">
           <img src="{{ STATIC_URL }}img/club_badge_{{ wine_personality.suffix }}.png">
         </div>
       {% else %}
         <div class="personality-badge-detail">
-          <img src="{% static "img/homepage_badge_mystery.png" %}" height="400" />
+          <h1 class="headline join-club-big-name">{{ user.first_name|truncatechars:15 }}</h1>
+          <img src="{% static "img/club_badge_anon.png" %}"  />
         </div>
       {% endif %}
     </div>
