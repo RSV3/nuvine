@@ -294,7 +294,7 @@ class LineItem(models.Model):
       (12, '3 Bottles'),
       (13, '6 Bottles'),
       (14, '12 Bottles'),
-
+      (15, 'Join Club Tasting Kit')
   )
 
   product = models.ForeignKey(Product, null=True)
@@ -314,7 +314,7 @@ class LineItem(models.Model):
       return self.product.full_case_price
     elif self.price_category in [6, 8, 10]:
       return self.product.unit_price
-    elif self.price_category in [12, 13, 14]:
+    elif self.price_category in [12, 13, 14, 15]:
       # newer products that go by 3, 6, 12 bottles
       return self.product.unit_price
     else:

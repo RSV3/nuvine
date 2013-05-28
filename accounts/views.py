@@ -1198,7 +1198,7 @@ def join_club_shipping(request):
     if 'cart_id' in request.session:
       cart = Cart.objects.get(id=request.session['cart_id'])
     else:
-      taste_kit = Product.objects.get(cart_tag='tasting_kit', active=True)
+      taste_kit = Product.objects.get(cart_tag='join_club_tasting_kit', active=True)
       six_bottle = Product.objects.get(cart_tag='6', active=True)
       # if new anon user then
       # first purchase is for taste kit which is a one time purchase
@@ -1206,8 +1206,7 @@ def join_club_shipping(request):
       if profile.has_personality():
         item = LineItem.objects.create(product=six_bottle, price_category=13, total_price=six_bottle.unit_price, frequency=1)
       else:
-        # for this order, the tasting kit is charged same as the 6 bottle shipment
-        item = LineItem.objects.create(product=taste_kit, price_category=11, total_price=six_bottle.unit_price, frequency=0)
+        item = LineItem.objects.create(product=taste_kit, price_category=15, total_price=taste_kit.unit_price, frequency=0)
 
       cart = Cart.objects.create(user=user, receiver=user, status=4, adds=1)
       cart.items.add(item)

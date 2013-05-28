@@ -565,7 +565,7 @@ class SimpleTest(TestCase):
         'join': 'join',
     })
 
-    case = Product.objects.get(cart_tag="tasting_kit", active=True)
+    case = Product.objects.get(cart_tag="join_club_tasting_kit", active=True)
     order = Order.objects.get(cart__items__product=case, cart__items__frequency=0)
 
     self.assertRedirects(response, reverse('join_club_done', args=[order.order_id]))

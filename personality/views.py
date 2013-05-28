@@ -589,19 +589,7 @@ def member_rate_wines(request, wine_id):
 
   try:
     wine_rating = WineRatingData.objects.get(wine=wine, user=u)
-    # print 'wine_rating', wine_rating
-    initial_data['wine_overall'] = wine_rating.overall
-    initial_data['wine_sweet'] = wine_rating.sweet
-    initial_data['wine_sweet_dnl'] = wine_rating.sweet_dnl
-    initial_data['wine_weight'] = wine_rating.weight
-    initial_data['wine_weight_dnl'] = wine_rating.weight_dnl
-    initial_data['wine_texture'] = wine_rating.texture
-    initial_data['wine_texture_dnl'] = wine_rating.texture_dnl
-    initial_data['wine_sizzle'] = wine_rating.sizzle
-    initial_data['wine_sizzle_dnl'] = wine_rating.sizzle_dnl
-    initial_data['wine'] = wine
-    initial_data['user'] = u
-    form = WineRatingForm(request.POST or None, instance=wine_rating, initial=initial_data)
+    form = WineRatingForm(request.POST or None, instance=wine_rating)
   except WineRatingData.DoesNotExist:
     initial_data['wine'] = wine
     initial_data['user'] = u
