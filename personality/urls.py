@@ -16,5 +16,6 @@ urlpatterns = patterns('personality.views',
     url(r'^taster/list/(?P<taster>[@\w\+\-\.]+)/(?P<party_id>\d+)/$', 'taster_list', name='taster_list'),
     url(r'^member/ratings/(?P<wine_id>\d+)/$', 'member_rate_wines', name='member_rate_wines'),
     url(r'^member/ratings/overview/$', 'member_ratings_overview', name='member_ratings_overview'),
+    url(r'^member/reveal/personality/$', 'member_reveal_personality', name='member_reveal_personality'),
 
 )

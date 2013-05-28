@@ -572,6 +572,9 @@ def member_ratings_overview(request):
   data = {}
   data['rate_wines_menu'] = True
 
+  if not profile.club_member and profile.has_personality():
+    return render(request, 'main/rate_wines.html', data)
+
   if profile.has_personality():
     data['wine_personality'] = profile.wine_personality
   data['tasted_wines'] = WineRatingData.objects.filter(user=u)
@@ -602,14 +605,35 @@ def member_rate_wines(request, wine_id):
       if np.sum(np.array([results[1].overall, results[2].overall,
                           results[3].overall, results[4].overall,
                           results[5].overall, results[0].overall]) > 0) == 6:
-
+        data['all_wines_rated'] = True
         # only save personality once all 6 wine fields have been filled out
-        rating_data = [u]
-        rating_data.extend(results)
-        data['personality'] = calculate_wine_personality(*rating_data)
+        # rating_data = [u]
+        # rating_data.extend(results)
+        # data['personality'] = calculate_wine_personality(*rating_data)
 
   data['rate_wines_menu'] = True
   data['taster_profile'] = profile
   data['wine_number'] = wine_id
   data['form'] = form
   return render(request, 'personality/member_rate_wines.html', data)
+
+
+@login_required
+def member_reveal_personality(request):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+
+  results = WineRatingData.objects.filter(user=u)[:6]
+  if len(results) == 6:
+    if np.sum(np.array([results[1].overall, results[2].overall,
+                      results[3].overall, results[4].overall,
+                      results[5].overall, results[0].overall]) > 0) == 6:
+    # only save personality once all 6 wine fields have been filled out
+      rating_data = [u]
+      rating_data.extend(results)
+      data['wine_personality'] = calculate_wine_personality(*rating_data)
+      return render(request, 'personality/member_reveal_personality.html', data)
+  else:
+    # this should never happen but just in case of a cheeky user
+    return HttpResponseRedirect(reverse('member_ratings_overview'))

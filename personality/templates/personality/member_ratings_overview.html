@@ -31,12 +31,16 @@
   .member-no-personality {
     position: absolute;
     margin-left: -80px;
+    margin-top: -40px;
   }
   .member-personality {
     position: absolute;
     margin-left: -110px;
     margin-top: -40px;
     height: 200px;
+  }
+  .headline.has-personality {
+    font-size: 50px;
   }
 </style>
 {% endblock additional_styles %}
@@ -63,7 +67,7 @@
       {% endif %}
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 1 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 1 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-ONE.png">
         </div>
@@ -75,7 +79,7 @@
       {% endif %}
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 2 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 2 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-TWO.png">
         </div>
@@ -87,7 +91,7 @@
       {% endif %}
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 3 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 3 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-THREE.png">
         </div>
@@ -102,23 +106,20 @@
   <div class="vertical-space">&nbsp;</div>
   <div class="row">
     <div class="span3">
-      <!-- <div class="wine-num-badge make-host"> -->
-        <a href="{% url make_host %}">
-          <div class="box-content2 make-host">
-            <h1>Host a party!</h1>
-            <p class="howto-sidetext">
-              Pop the cork! <br />Learn about <br />
-              hosting <br />a Vinely party. 
-            </p>
-            <!-- <div class="box-bg"></div> -->
-            <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
-          </div>
-          <div class="vertical-space"></div>
-        </a>
-      <!-- </div>       -->
+      <a href="{% url make_host %}">
+        <div class="box-content2 make-host">
+          <h1>Host a party!</h1>
+          <p class="howto-sidetext">
+            Pop the cork! <br />Learn about <br />
+            hosting <br />a Vinely party. 
+          </p>
+          <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
+        </div>
+        <div class="vertical-space"></div>
+      </a>
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 4 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 4 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-FOUR.png">
         </div>
@@ -130,7 +131,7 @@
       {% endif %}
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 5 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 5 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-FIVE.png">
         </div>
@@ -142,7 +143,7 @@
       {% endif %}
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 6 %}">
+      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 6 %}{% endif %}">
         <div class="wine-num-badge">
           <img src="{{ STATIC_URL }}img/WINE-BADGE-SIX.png">
         </div>
@@ -156,4 +157,51 @@
   </div>
   <div class="vertical-space">&nbsp;</div>
 </div>
+
+{% if wine_personality %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <h1 class="headline has-personality">Whoops! Our apologies. <br/>You can't rate other wine shipments on this page yet.</h1>
+  <section id="rate-instructions">
+    <div class="row">
+      <div class="span12 center">
+        <p>
+        It's still important that you rate the wines you have received. Here's three ways to do so:
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <div class="span4">
+      <div class="page-header">
+        Email
+      </div>
+      <p>Take a picture or scan it and email it to <a href="ratings@vinely.com">ratings@vinely.com</a></p>
+    </div>
+    <div class="span4">
+      <div class="page-header">
+        Snail mail   
+      </div>
+        <address>
+        Vinely<br>
+        One Kendall Square Building 400, B4202<br>
+        Cambridge, MA 02139<br>
+        </address>
+      </p>
+    </div>
+
+    <div class="span4">
+      <div class="page-header">
+      Call
+      </div> 
+      Talk to one of our Vinely Care Specialists at (888) 294-1128 ext. 1 or <a href="care@vinely.com">email</a> us. 
+    </div>
+
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+</div>
+{% endif %}
+
 {% endblock content %}

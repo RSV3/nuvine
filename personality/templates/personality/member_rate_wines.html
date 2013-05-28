@@ -311,8 +311,12 @@
     </div>
     <div class="row">
       <div class="span8 offset2">
-        <button class="btn btn-success pull-right">Save</button>
-        <a class="btn btn-inverse" href="{% url member_ratings_overview %}">Back</a>
+        {% if all_wines_rated %}
+          <a href="{% url member_reveal_personality %}" class="btn btn-success pull-right">Reveal your personality</a>
+        {% else %}
+          <button class="btn btn-success pull-right">Save</button>
+        {% endif %}
+        <a class="btn btn-primary" href="{% url member_ratings_overview %}">Back</a>
       </div>
     </div>
   </form>
