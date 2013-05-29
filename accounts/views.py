@@ -793,7 +793,7 @@ def sign_up(request, account_type, data):
     except User.DoesNotExist:
       pass
 
-    user = form.save(commit=False)
+    user = form.save()
     if not user.is_active:
       user.is_active = True
       user.save()
@@ -1097,7 +1097,7 @@ def join_club_signup(request):
     except User.DoesNotExist:
       pass
 
-    user = form.save(commit=False)
+    user = form.save()
     if not user.is_active:
       user.is_active = True
       user.save()
