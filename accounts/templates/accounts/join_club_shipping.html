@@ -6,7 +6,7 @@
   <link rel="stylesheet" type="text/css" href="{% static "datepicker/css/datepicker.css" %}"> 
   <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
   <style type="text/css">
-    button {
+    form button {
       height:35px;
       border-radius:4px;
       border:1px solid #CCC;
@@ -20,6 +20,16 @@
     }
     .payment-errors {
       display: none;
+    }
+    #confirmation_modal {
+      width: 300px;
+      left: 60%;
+    }
+    #modal_content {
+      margin-top: -20px;
+    }
+    #modal_content p {
+      padding: 0 15px;
     }
   </style>
 {% endblock %}
@@ -204,6 +214,22 @@
       </div>
     </form>
   </div>
+
+  <div id="confirmation_modal" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h2 class="center"><small id="modal_title"></small></h2>
+    </div>
+    <div class="modal-body">
+      <div id="modal_content"></div>
+      <div class="control-group">
+        <div class="center">
+          <a href="{% url landing_page %}" class="btn btn-primary">NO</a>
+          <button type="submit" name="signup" class="btn btn-success" value="signup" data-dismiss="modal">YES</button>
+        </div>
+      </div>
+    </div>
+  </div> 
 </div>
 
 {% endblock %}
@@ -226,63 +252,71 @@
     <script type="text/javascript">
       $(document).ready(function() {
         // this identifies your website in the createToken call below
-        Stripe.setPublishableKey('{{ publish_token }}');
+        // Stripe.setPublishableKey('{{ publish_token }}');
 
-        function stripeResponseHandler(status, response) {
-          if (response.error) {
-            // re-enable the submit button
-            $('.submit-button').removeAttr("disabled");
-            // show the errors on the form
-            $(".payment-errors").text(response.error.message);
-            $(".payment-errors").show('fast');
-          } else {
-            var form$ = $(".form-horizontal");
-            // token contains id, last4, and card type
-            var token = response['id'];
-            var card = response['card'];
+        // function stripeResponseHandler(status, response) {
+        //   if (response.error) {
+        //     // re-enable the submit button
+        //     $('.submit-button').removeAttr("disabled");
+        //     // show the errors on the form
+        //     $(".payment-errors").text(response.error.message);
+        //     $(".payment-errors").show('fast');
+        //   } else {
+        //     var form$ = $(".form-horizontal");
+        //     // token contains id, last4, and card type
+        //     var token = response['id'];
+        //     var card = response['card'];
 
-            // insert the token into the form so it gets submitted to the server
-            form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-            form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
-            form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
-            form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
-            form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
-            form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
-            // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
-            // and submit
-            form$.get(0).submit();
-          }
-        }
+        //     // insert the token into the form so it gets submitted to the server
+        //     form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+        //     form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
+        //     form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
+        //     form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
+        //     form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
+        //     form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+        //     // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+        //     // and submit
+        //     form$.get(0).submit();
+        //   }
+        // }
 
-        $(".form-horizontal").submit(function(e) {
-          // disable the submit button to prevent repeated clicks
-          $('.submit-button').attr("disabled", "disabled");
-          // createToken returns immediately - the supplied callback submits the form if there are no errors
-          Stripe.createToken({
-            name: $('.card-name').val(),
-            number: $('.card-number').val(),
-            cvc: $('.card-cvc').val(),
-            exp_month: $('.card-expiry-month').val(),
-            exp_year: $('.card-expiry-year').val(),
-            address_zip: $('.card-address-zip').val(),
-          }, stripeResponseHandler);
-          return false; // submit from callback
-        });
+        // $(".form-horizontal").submit(function(e) {
+        //   // disable the submit button to prevent repeated clicks
+        //   $('.submit-button').attr("disabled", "disabled");
+        //   // createToken returns immediately - the supplied callback submits the form if there are no errors
+        //   Stripe.createToken({
+        //     name: $('.card-name').val(),
+        //     number: $('.card-number').val(),
+        //     cvc: $('.card-cvc').val(),
+        //     exp_month: $('.card-expiry-month').val(),
+        //     exp_year: $('.card-expiry-year').val(),
+        //     address_zip: $('.card-address-zip').val(),
+        //   }, stripeResponseHandler);
+        //   return false; // submit from callback
+        // });
 
-        if (window.location.protocol === 'file:') {
-            alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
-        }
+        // if (window.location.protocol === 'file:') {
+        //     alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+        // }
+      });
+    </script>
+    <script type="text/javascript">
+      $(document).ready( function() {
         {% if user.get_profile.has_active_subscription %}
-          if (!confirm('You already have an active subscription. By joining the club you will override your existing subscription. \n\nWould you like to proceed?')) {
-            window.location = "{% url landing_page %}"
-          }
+          var content = '<p>You already have an active subscription. By joining the club you will override your existing subscription.</p> <p>Would you like to proceed?</p>',
+              title = 'You already have a subscription';
+          $('#modal_title').html(title);
+          $('#modal_content').html(content);
+          $('#confirmation_modal').modal();
         {% else %}
           {% if user.get_profile.has_personality %}
-            if (!confirm('Since you already have a wine personality, you will not receive the tasting kit as your first shipment. Instead, we will skip right to your personalized shipments.\n\nWould you like to proceed?')) {
-              window.location = "{% url landing_page %}"
-            }
+            var content = '<p>Since you already have a wine personality, you will not receive the tasting kit as your first shipment. Instead, we will skip right to your personalized shipments.</p><p>Would you like to proceed?</p>',
+                title = 'You already have a personality';
+            $('#modal_title').html(title);
+            $('#modal_content').html(content);
+            $('#confirmation_modal').modal();
           {% endif %}
         {% endif %}
       });
-    </script>    
+    </script>
 {% endblock additional_scripts %}
