@@ -30,9 +30,14 @@ class NameEmailUserCreationForm(UserCreationForm):
         del self.fields['username']
 
     def clean_email(self):
-        email = self.cleaned_data["email"]
-        if user_exists(email):
+        email = self.cleaned_data["email"].strip().lower()
+        # if user already exists and is not verified then dont allow signup
+        try:
+          u = User.objects.get(email=email)
+          if u.is_active:
             raise forms.ValidationError(_("A user with that email already exists."))
+        except User.DoesNotExist:
+          pass
         return email
 
 

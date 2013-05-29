@@ -787,6 +787,12 @@ def sign_up(request, account_type, data):
   form = NewHostProForm(request.POST or None, initial={'account_type': account_type})
 
   if form.is_valid():
+    try:
+      u = User.objects.get(email=form.cleaned_data['email'])
+      form.instance = u
+    except User.DoesNotExist:
+      pass
+
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
@@ -818,11 +824,13 @@ def sign_up(request, account_type, data):
         profile.save()
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
-        # pro = get_default_pro()
-        pro = profile.find_nearest_pro()
-        # pro e-mail was not entered
-        profile.current_pro = pro
-        profile.save()
+        # allow users that have accounts but never logged in (inactive accounts) to just signup as normal
+        # but maintain the pro if they had one
+        if profile.current_pro:
+          pro = profile.find_nearest_pro()
+          # pro e-mail was not entered
+          profile.current_pro = pro
+          profile.save()
 
         send_unknown_pro_email(request, user)  # to host
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
@@ -1077,7 +1085,14 @@ def join_club_signup(request):
   data['login_form'] = login_form
   data['join_club_menu'] = True
 
+  # if user is inactive allow signup to go through
   if form.is_valid():
+    try:
+      u = User.objects.get(email=form.cleaned_data['email'])
+      form.instance = u
+    except User.DoesNotExist:
+      pass
+
     user = form.save()
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
@@ -1086,10 +1101,12 @@ def join_club_signup(request):
 
     try:
       pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+      profile.current_pro = pro
     except User.DoesNotExist:
-      pro = get_default_pro()
+      # user might be inactive but linked to a pro e.g. if was previously invited to a party
+      if not profile.current_pro:
+        pro = get_default_pro()
 
-    profile.current_pro = pro
     profile.save()
 
     ok = check_zipcode(profile.zipcode)
