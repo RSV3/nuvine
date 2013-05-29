@@ -6,7 +6,7 @@
   <style type="text/css">    
     hr {
       width: 600px;
-      margin: 1.3em -20px;
+      margin: 0 -20px;
       border: 2px solid #DCDCDC;
     }
     .shaded {
@@ -22,14 +22,13 @@
       padding-left:20px;
       text-align:left;
     }
-     .tab-pane .row {
-      margin-bottom:40px;
+    .tab-pane .row {
+      margin-bottom:6px;
       border-bottom:1px solid #DCDCDC;
       margin-right: 10px;
       font-family:"AlternateGothicNo2BT-Regular";
       text-transform:uppercase;
-      }
-
+    }
     .tab-pane .last {
       margin-bottom:20px;
       border-bottom:0px;
@@ -56,8 +55,12 @@
       display: none;
       color: #F00;
     }
+    #wine-badge-1 {
+      height: 90px;
+    }
     .wine-badge {
       width: 580px;
+      margin-top: -20px;
     }
     .wine-exp {
       padding-left: 180px;
@@ -67,14 +70,14 @@
     }
     .direction-shade {
       position: absolute;
-      margin-top: 130px;
-      height: 580px;
+      margin-top: 85px;
+      height: 370px;
       background: url('{{ STATIC_URL }}img/member_ratings_left_shade.png') repeat-y;
     }
     .feeling-shade {
       position: absolute;
-      margin-top: 750px;
-      height: 90px;
+      margin-top: 480px;
+      height: 60px;
       background: url('{{ STATIC_URL }}img/member_ratings_left_shade.png') no-repeat;
       margin-left: 170px;
       width: 140px;
@@ -98,7 +101,7 @@
     #vinely-badge-1 {
       background: url('{{ STATIC_URL }}img/vinely_logo_signature.png') no-repeat 10px 30px;
       width: 120px; 
-      height: 100px;
+      height: 80px;
       border-right: 1px solid #DCDCDC;
     }
     .wine-components {
@@ -115,24 +118,24 @@
     .rating-right-arrow {
       position: absolute;
       background: url('{{ STATIC_URL }}img/ratingpage_arrow_right.png') no-repeat;
-      width:87px;
+      width: 87px;
       height: 50px;
-      margin: 165px -30px;
+      margin: 125px -30px;
     }
     .rating-left-arrow.top-desc {
-      margin-top: 175px;
+      margin-top: 125px;
     }
     .rating-left-arrow.bottom-desc {
-      margin-top: 780px;
+      margin-top: 500px;
     }
     .wine-components.top-desc {
-      margin: 250px -50px;
+      margin: 200px -50px;
     }
     .wine-components.bottom-desc {
-      margin: 850px -50px;
+      margin: 560px -50px;
     }
     .wine-components.top-right-desc {
-      margin: 220px 10px;
+      margin: 170px 10px;
     }
     .state-head {
       font-size: 13px;
