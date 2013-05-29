@@ -793,7 +793,11 @@ def sign_up(request, account_type, data):
     except User.DoesNotExist:
       pass
 
-    user = form.save()
+    user = form.save(commit=False)
+    if not user.is_active:
+      user.is_active = True
+      user.save()
+
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
@@ -1093,7 +1097,10 @@ def join_club_signup(request):
     except User.DoesNotExist:
       pass
 
-    user = form.save()
+    user = form.save(commit=False)
+    if not user.is_active:
+      user.is_active = True
+      user.save()
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
