@@ -193,6 +193,11 @@ class UserProfile(models.Model):
   shipping_addresses = models.ManyToManyField(Address, related_name="shipping_user", null=True, blank=True)
 
   @property
+  def has_parties(self):
+    from main.models import PartyInvite
+    return PartyInvite.objects.filter(invitee=self.user)
+
+  @property
   def has_default_pro(self):
     from accounts.utils import get_default_pro, get_default_mentor
     if self.role == 1:

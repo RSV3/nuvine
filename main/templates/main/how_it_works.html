@@ -5,13 +5,28 @@
 {% block additional_styles %}
 <style type="text/css">
 
-  .side-glass {
-    position: absolute;
-    margin-top: -65px;
-    margin-left: 140px;
-  }
   .state-img {
     height: 245px;
+  }
+  .box-content2 h1 {
+    background: url('{{ STATIC_URL }}/img/arrow.png') no-repeat 130px 8px;
+    width: 200px;
+  }
+  .box-content2 {
+    /*padding-left: 30px;*/
+    padding: 10px 30px 6px;
+  }
+  .box-content2 img {
+    margin-left: 20px;
+    position: absolute;
+  }
+  .home-club {
+    margin-top: -11px;
+    /*height: 140px;*/
+  }
+  .box-content2 p {
+    color: #415A68;
+    width: 200px;
   }
 </style>
 {% endblock additional_styles %}
@@ -49,21 +64,6 @@
         <div class="box-bg"></div>  
       </div>
       <div class="vertical-space">&nbsp;</div>
-      {% if not host and not pro %}
-        <div class="box-container2 sidebar-nav-container">
-          <a href="{% url make_host %}">
-            <div class="box-content2 make-host">
-              <h1>Host a party!</h1>
-              <p class="howto-sidetext">
-                Pop the cork! <br />Learn about hosting <br />a Vinely party. 
-              </p>
-              <!-- <div class="box-bg"></div> -->
-              <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
-            </div>
-            <div class="vertical-space"></div>
-          </a>
-        </div>
-      {% endif %}
     </div>
     <div class="span5 center">
       <img class="state-img" src="{{ STATIC_URL }}img/how_it_works_{{ state }}.png">
@@ -88,6 +88,50 @@
             {% if state == 'repeat' %}<a class="cta-learn" href="{% url make_host %}">Learn about<br />hosting a party</a>{% endif %}
           {% endif %}
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+  <div class="row">
+    <div class="span6">
+      <div class="box-content2 join-club">
+        <a href="{% url make_host %}">
+          <div class="row">
+            <div class="span2">
+              <h1>Host a party!</h1>
+              <p>
+              Pop the cork! <br/>
+              Learn about hosting <br />
+              a Vinely party
+              </p>
+            </div>
+            <div class="span3">
+              <img class="home-host" src="{{ STATIC_URL }}img/homepage_vinely_glasses.png" />
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="span6">
+      <div class="box-content2 join-club">
+        <a href="{% url join_club_start %}">
+          <div class="row">
+            <div class="span2">
+              <h1>Join the club!</h1>
+              <p>
+              Become a Vinely VIP <br />
+              and change the way <br />
+              you experience wine!
+              <br />
+              </p>
+            </div>
+            <div class="span3">
+              <img class="home-club" src="{{ STATIC_URL }}img/how_it_works_join_cta.png" />
+            </div>
+          </div>
+        </a>
       </div>
     </div>
   </div>
