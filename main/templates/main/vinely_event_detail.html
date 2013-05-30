@@ -35,13 +35,14 @@
       {{ party_desc }}
       <p>
         {% if fb_view %}
-        <a class="btn btn-large btn-success pull-right" href="{% url fb_vinely_event_signup party.id %}">Sign Me Up</a>
+        <a class="btn btn-large btn-success " href="{% url fb_vinely_event_signup party.id %}">Sign Me Up</a>
         {% else %}
-        <a class="btn btn-large btn-success pull-right" href="{% url vinely_event_signup party.id %}">Sign Me Up</a>
+        <a class="btn btn-large btn-success " href="{% url vinely_event_signup party.id %}">Sign Me Up</a>
         {% endif %}
-        <a class="btn btn-large btn-primary" href="{% url vinely_event %}">Back</a>
+        <a class="btn btn-large btn-primary pull-right" href="{% url vinely_event %}">Not Now</a>
       </p>
-      <br /><br />
+      <br />
+      <h2>Questions</h2>
       <p>Contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or call 1.888.294.1128 ext: 1</p>
       <br /><br />
     </div>
