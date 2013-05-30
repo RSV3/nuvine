@@ -828,11 +828,13 @@ def sign_up(request, account_type, data):
         profile.save()
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
+        # pro e-mail was not entered
         # allow users that have accounts but never logged in (inactive accounts) to just signup as normal
         # but maintain the pro if they had one
         if profile.current_pro:
+          pro = profile.current_pro
+        else:
           pro = profile.find_nearest_pro()
-          # pro e-mail was not entered
           profile.current_pro = pro
           profile.save()
 
