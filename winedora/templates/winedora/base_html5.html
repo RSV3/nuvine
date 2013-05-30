@@ -185,14 +185,16 @@
           {% if user.is_authenticated %} 
             <div class="menu_wrap main">           
               <ul class="nav">
-                {% if user.get_profile.has_parties %}
+                {% if user.get_profile.has_parties or pro %}
                   <li id="parties"{% if parties_menu %} class="active"{% endif %}>
                     <a href="{% url party_list %}" title="parties"></a>
                   </li>
                 {% endif %}
-                <li id="shop"{% if shop_menu %} class="active"{% endif %}>
-                  <a href="{% url start_order %}" title="shop"></a>
-                </li>
+                {% if user.get_profile.has_personality %}
+                  <li id="shop"{% if shop_menu %} class="active"{% endif %}>
+                    <a href="{% url start_order %}" title="shop"></a>
+                  </li>
+                {% endif %}
                 {% if user.get_profile.club_member %}
                   <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
                     <a href="{% url member_ratings_overview %}" title="rate wines"></a>
