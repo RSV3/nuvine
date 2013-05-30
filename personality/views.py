@@ -298,7 +298,10 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       # enter your own information
       taster = u
 
-    data['personality_exists'] = taster.get_profile().has_personality()
+    # need to figure out whether to send welcom email when profile is finally revealed
+    first_time_personality = not taster.userprofile.has_personality()
+
+    data['personality_exists'] = taster.userprofile.has_personality()
     data['invitee'] = taster
 
     # show forms
@@ -511,14 +514,15 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           taster.set_password(temp_password)
           taster.save()
 
-          if not VerificationQueue.objects.filter(user=taster, verified=False).exists():
-          #   vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
-          #   verification_code = vque.verification_code
-          # else:
+          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
+            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+            verification_code = vque.verification_code
+          else:
             verification_code = str(uuid.uuid4())
             vque = VerificationQueue(user=taster, verification_code=verification_code)
             vque.save()
-            # only send email for new users
+            # only send email for first time personality
+          if first_time_personality:
             send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
