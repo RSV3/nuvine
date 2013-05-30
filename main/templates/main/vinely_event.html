@@ -1,9 +1,10 @@
 {% extends "winedora/base_html5.html" %}
 
-{% block header %}
-  <h1>YOU ARE CORDIALLY INVITED TO A VINELY TASTE PARTY</h1>
-{% endblock header %}
+{% load render_table from django_tables2 %}
 
+{% block header %}
+  <h1 class="center">WHAT’S A VINELY TASTE PARTY?</h1>
+{% endblock header %}
 
 {% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
 {% block auth %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
@@ -14,11 +15,13 @@
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <div class="row">
-    <div class="{% if fb_view %}span10{% else %}span12{% endif %}">
+    <div class="{% if fb_view %}span8{% else %}span8{% endif %} offset2">
       {{ event_content }}
+      <!-- <div class="vertical-space"></div> -->
+      <h2>Upcoming events</h2>
+      {% render_table parties_table %}
     </div>
   </div>
-  <!-- <form class="form-horizontal well" method="POST" action=""></form> -->
 </div> <!-- container -->
 
 {% endblock content %}

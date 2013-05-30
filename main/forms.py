@@ -8,15 +8,16 @@ from datetime import timedelta
 
 import django_tables2 as tables
 from django_tables2 import Attrs
+from django_tables2.utils import A
 
 from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote, MyHost
+                        InvitationSent, Order, Product, ThankYouNote
 from accounts.models import Address, SubscriptionInfo, UserProfile
 
-from main.utils import add_form_validation, business_days_count, business_days_from
+from main.utils import add_form_validation, business_days_count
 
 from accounts.forms import NameEmailUserCreationForm
 
@@ -825,3 +826,23 @@ class OrderHistoryTable(tables.Table):
       return "%s %s" % (record.receiver.first_name, record.receiver.last_name)
     else:
       return "Anonymous"
+
+
+class VinelyEventsTable(tables.Table):
+  title = tables.LinkColumn('vinely_event_detail', args=[A('pk')])
+  event_date = tables.TemplateColumn('{{ record.event_date|date:"F j, o" }} at {{ record.event_date|date:"g:i A" }}')
+
+  class Meta:
+    model = Party
+    attrs = table_attrs
+    fields = ('title', 'event_date', 'address')
+
+
+class EventsDescForm(forms.ModelForm):
+  class Meta:
+    model = Party
+    fields = ('description', )
+
+  def __init__(self, *args, **kwargs):
+    super(EventsDescForm, self).__init__(*args, **kwargs)
+    self.fields['description'].widget = TinyMCE(attrs={'rows': 25, 'style': 'width: 100%; height: 200px;'}, mce_attrs={'theme': "advanced"})

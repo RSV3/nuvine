@@ -21,7 +21,8 @@ from accounts.models import VerificationQueue, Zipcode, UserProfile
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm
+                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm, \
+                        VinelyEventsTable, EventsDescForm
 
 from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
@@ -2874,13 +2875,54 @@ def vinely_event(request, fb_page=0):
   event_template = Template(content)
   context = RequestContext(request, data)
   page = event_template.render(context)
+
+  vinely_parties = Party.objects.filter(host__email='events@vinely.com', event_date__gte=timezone.now()).order_by('event_date')
+  data['parties_table'] = VinelyEventsTable(vinely_parties)
   data['event_content'] = page
 
   return render_to_response("main/vinely_event.html", data, context)
 
 
+def vinely_event_detail(request, party_id, fb_page=0):
+  u = request.user
+  data = {}
+  data['fb_view'] = fb_page
+
+  today = timezone.now()
+  if u.is_authenticated() and u.userprofile.events_manager():
+    party = get_object_or_404(Party, pk=party_id)
+  else:
+    party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
+
+  event_template = Template(party.description)
+  context = RequestContext(request, data)
+  page = event_template.render(context)
+
+  form = EventsDescForm(request.POST or None, instance=party)
+  data['form'] = form
+  data['party'] = party
+  data['party_desc'] = page
+
+  return render_to_response("main/vinely_event_detail.html", data, context_instance=RequestContext(request))
+
+
 def fb_vinely_event_signup(request, party_id):
   return vinely_event_signup(request, party_id, 1)
+
+
+@login_required
+def update_event_desc(request, party_id):
+  u = request.user
+  data = {}
+
+  party = get_object_or_404(Party, pk=party_id)
+  form = EventsDescForm(request.POST or None, instance=party)
+  data['form'] = form
+  if form.is_valid():
+    form.save()
+
+  success_url = request.POST.get('next', reverse('vinely_event_detail', args=[party.id]))
+  return HttpResponseRedirect(success_url)
 
 
 def vinely_event_signup(request, party_id, fb_page=0):

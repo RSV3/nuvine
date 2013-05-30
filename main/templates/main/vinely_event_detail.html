@@ -1,0 +1,86 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% block header %}
+  <h1 class="center">Party: {{ party.title }}</h1>
+{% endblock header %}
+
+
+{% block additional_styles %}
+  <style type="text/css">
+    .edit-party {
+      position: absolute;
+      margin: -35px 130px;
+    }
+  </style>
+  {{ form.media }}
+{% endblock additional_styles %}
+
+{% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block auth %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block navbar_menu %}{% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+{% block footer %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    {% if user.is_authenticated and user.get_profile.events_manager%}
+    <div class="span10">
+      <h2><small><a class="pull-right" href="#" data-toggle="modal" data-target="#edit_desc">Edit</a></small></h2>
+    </div>
+    {% endif %}
+    <div class="{% if fb_view %}span8{% else %}span8{% endif %} offset2">
+      {{ party_desc }}
+      <p>
+        {% if fb_view %}
+        <a class="btn btn-large btn-success pull-right" href="{% url fb_vinely_event_signup party.id %}">Sign Me Up</a>
+        {% else %}
+        <a class="btn btn-large btn-success pull-right" href="{% url vinely_event_signup party.id %}">Sign Me Up</a>
+        {% endif %}
+        <a class="btn btn-large btn-primary" href="{% url vinely_event %}">Back</a>
+      </p>
+      <br /><br />
+      <p>Contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or call 1.888.294.1128 ext: 1</p>
+      <br /><br />
+    </div>
+  </div>
+
+  <div id="edit_desc" class="modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h2 class="center"><small>Party: {{ party.title }}</small></h2>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="modal-form" action="{% url update_event_desc party.id %}">
+        {% csrf_token %}
+        <fieldset>
+          <div class="control-group {% if form.description.errors %}error{% endif %}">
+            <div class="control-label" for="id_description">{{ form.description.label }}</div>
+            <br />
+            <div class="controls">
+              {{ form.description }}
+              <input type="hidden" name="next" value="{{ request.path }}"/>
+            </div>
+          </div>
+        </fieldset>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>   
+</div> <!-- container -->
+
+{% endblock content %}
+
+{% block additional_scripts %}
+  {% if not party.description %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#edit_desc').modal();
+    });
+  </script>
+  {% endif %}
+{% endblock additional_scripts %}
