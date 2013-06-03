@@ -706,14 +706,23 @@ class EventSignupForm(NameEmailUserCreationForm):
 
 class ChangeTasterRSVPForm(forms.Form):
   RSVP_CHOICES = (
-    (0, '------'),
-    (1, 'No'),
-    (2, 'Maybe'),
-    (3, 'Yes'),
+      (0, '------'),
+      (1, 'No'),
+      (2, 'Maybe'),
+      (3, 'Yes'),
   )
   party = forms.IntegerField(widget=forms.HiddenInput())
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
 
+
+class EventsDescForm(forms.ModelForm):
+  class Meta:
+    model = Party
+    fields = ('description', 'fee')
+
+  def __init__(self, *args, **kwargs):
+    super(EventsDescForm, self).__init__(*args, **kwargs)
+    self.fields['description'].widget = TinyMCE(attrs={'rows': 25, 'style': 'width: 100%; height: 200px;'}, mce_attrs={'theme': "advanced"})
 
 table_attrs = Attrs({'class': 'table table-striped'})
 
@@ -835,14 +844,7 @@ class VinelyEventsTable(tables.Table):
   class Meta:
     model = Party
     attrs = table_attrs
-    fields = ('title', 'event_date', 'address')
+    fields = ('title', 'event_date', 'address', 'fee')
 
-
-class EventsDescForm(forms.ModelForm):
-  class Meta:
-    model = Party
-    fields = ('description', )
-
-  def __init__(self, *args, **kwargs):
-    super(EventsDescForm, self).__init__(*args, **kwargs)
-    self.fields['description'].widget = TinyMCE(attrs={'rows': 25, 'style': 'width: 100%; height: 200px;'}, mce_attrs={'theme': "advanced"})
+  def render_fee(self, record, column):
+    return 'free' if record.fee == 0 else "$%s" % record.fee

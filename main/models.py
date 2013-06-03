@@ -63,6 +63,7 @@ class Party(models.Model):
   confirmed = models.BooleanField()
   requested = models.BooleanField()
   setup_stage = models.IntegerField(default=1)
+  fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
 
   class Meta:
     verbose_name_plural = 'Parties'
