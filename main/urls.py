@@ -94,6 +94,6 @@ urlpatterns += patterns('main.views',
     url(r'^facebook/events/$', 'fb_vinely_event', name='fb_vinely_event'),
     url(r'^event/signup/(?P<party_id>\d+)/$', 'vinely_event_signup', name='vinely_event_signup'),
     url(r'^facebook/event/signup/(?P<party_id>\d+)/$', 'fb_vinely_event_signup', name='fb_vinely_event_signup'),
-    url(r'^event/checkout/(?P<party_id>\d+)/$', 'vinely_event_checkout', name='vinely_event_checkout'),
-    url(r'^facebook/event/checkout/(?P<party_id>\d+)/$', 'fb_vinely_event_checkout', name='fb_vinely_event_checkout'),
+    # url(r'^event/checkout/(?P<party_id>\d+)/$', 'vinely_event_checkout', name='vinely_event_checkout'),
+    # url(r'^facebook/event/checkout/(?P<party_id>\d+)/$', 'fb_vinely_event_checkout', name='fb_vinely_event_checkout'),
 )

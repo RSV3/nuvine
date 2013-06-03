@@ -2943,11 +2943,13 @@ def vinely_event_signup(request, party_id, fb_page=0):
   verification_code = ''
   temp_password = ''
 
-  if party.fee > 0:
-    return HttpResponseRedirect(reverse('vinely_event_checkout', args=[party.id]))
+  stripe.api_key = settings.STRIPE_SECRET_CA
+  data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
 
   # create users and send e-mail notifications
   form = EventSignupForm(request.POST or None, initial={'account_type': account_type, 'vinely_event': True})
+  data['form'] = form
+  data['party'] = party
 
   if form.is_valid():
     # if user already exists just add them to the event dont save
@@ -2980,20 +2982,42 @@ def vinely_event_signup(request, party_id, fb_page=0):
       # send out verification e-mail, create a verification code
       # send_verification_email(request, verification_code, temp_password, user.email)
 
+    stripe_token = request.POST.get('stripe_token')
+
+    try:
+      customer = stripe.Customer.create(card=stripe_token, email=user.email)
+      stripe_user_id = customer.id
+
+      # create on vinely
+      stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                              exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                              card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+      if created:
+        profile.stripe_card = stripe_card
+        profile.save()
+        profile.stripe_cards.add(stripe_card)
+
+    except:
+      messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+      return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
+
+    party_desc = 'Vinely Party RSVP: %s, %s' % (party.title, party.address)
+    stripe.Charge.create(amount=int(party.fee * 100), currency='usd', customer=stripe_card.stripe_user, description=party_desc)
+
     data["email"] = user.email
     data["first_name"] = user.first_name
     data["account_type"] = account_type
 
-    try:
-      response = int(request.POST['rsvp'])
-    except ValueError:
-      if "Yes" in request.POST['rsvp']:
-        response = 3
-      elif "No" in request.POST['rsvp']:
-        response = 1
-      elif "Maybe" in request.POST['rsvp']:
-        response = 2
-
+    # try:
+    #   response = int(request.POST['rsvp'])
+    # except ValueError:
+    #   if "Yes" in request.POST['rsvp']:
+    #     response = 3
+    #   elif "No" in request.POST['rsvp']:
+    #     response = 1
+    #   elif "Maybe" in request.POST['rsvp']:
+    #     response = 2
+    response = 3
     # link them to party and RSVP
     # check if already RSVP'ed and just changed response if needed
     try:
@@ -3019,31 +3043,25 @@ def vinely_event_signup(request, party_id, fb_page=0):
         send_not_in_area_party_email(request, user, account_type)
       send_rsvp_thank_you_email(request, user, verification_code, temp_password)
     # messages.success(request, msg)
-
+    # send_rsvp_thank_you_email(request, user, verification_code, temp_password)
     if u.is_authenticated() and u.userprofile.events_manager():
       return HttpResponseRedirect(reverse('party_details', args=[party.id]))
     else:
       return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))
-
   # data['heard_about_us_form'] = HeardAboutForm()
-  data['form'] = form
-  # data['role'] = role.name
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
   return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def vinely_event_checkout(request, party_id, fb_page=0):
-  data = {}
-  today = timezone.now()
-  party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
-  data['party'] = party
-  return render_to_response('main/vinely_event_checkout.html', data, context_instance=RequestContext(request))
-  # return HttpResponseRedirect(reverse('vinely_event_detail', args=[party.id]))
+# def vinely_event_checkout(request, party_id, fb_page=0):
+#   data = {}
+#   today = timezone.now()
+#   party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
+#   data['party'] = party
+#   return render_to_response('main/vinely_event_checkout.html', data, context_instance=RequestContext(request))
 
 
-@login_required
-def fb_vinely_event_checkout(request, party_id):
-  return vinely_event_checkout(request, party_id, fb_page=1)
+# def fb_vinely_event_checkout(request, party_id):
+#   return vinely_event_checkout(request, party_id, fb_page=1)

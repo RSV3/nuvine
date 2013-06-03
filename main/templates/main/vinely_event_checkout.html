@@ -1,6 +1,7 @@
 {% extends "winedora/base_html5.html" %}
 
 {% load static %}
+{% load currency %}
 
 {% block additional_styles %}
   <link rel="stylesheet" type="text/css" href="{% static "datepicker/css/datepicker.css" %}"> 
@@ -44,7 +45,19 @@
   <div class="row">
     <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
       {% csrf_token %}
+      <div class="span6 offset3">
+        <p>In order to complete your registration for the event, please provide payment information. You will be charged {{ party.fee|currency }} for admission to this event</p>
+      </div>
       <div class="span4 offset4 card-info">
+        <!-- <fieldset id="buyer_info"> -->
+          <h2>Buyer Info</h2>
+          <div class="control-group">
+            <input type="text" class="card-name" value="{{ user_first_name }} {{ user_last_name }}" />
+          </div>
+          <div class="control-group">
+            <input type="text" class="email" value="{{ user_email }}" />
+          </div>
+        <!-- </fieldset> -->
         <h2>Billing Info</h2>
         <div class="payment-errors alert alert-error"></div>
         <fieldset>
@@ -52,7 +65,6 @@
             <img src="{{ STATIC_URL }}img/card_icons.png" />
           </div>
           <div class="control-group">
-            <input type="hidden" class="card-name" value="{{ user.first_name }} {{ user.last_name }}" />
             <input type="text" size="20" autocomplete="off" class="card-number input-block-level validate[required,custom[number]" placeholder="Card #" />
           </div>
           <div class="control-group">
@@ -68,7 +80,7 @@
           </div>
           <div class="control-group">
             <img src="{{ STATIC_URL }}img/security_icons.png" width="100" />&nbsp;
-            <button class="btn btn-primary submit-button">RSVP Now!</button>
+            <button class="btn btn-primary submit-button">Finish</button>
           </div>
         </fieldset>
       </div>
@@ -85,11 +97,7 @@
     <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript">
       $(document).ready( function () {
-        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
-        if (!$('.datepicker').val()) {
-          options.startView = 'decade';
-        }
-        $('.datepicker').datepicker(options);
+        $('.card-number').focus();
       });
     </script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
@@ -118,7 +126,8 @@
             form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
             form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
             form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
-            // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+            form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+            form$.append("<input type='hidden' name='email' value='{{ user_email }}' />")
             // and submit
             form$.get(0).submit();
           }
