@@ -2982,27 +2982,28 @@ def vinely_event_signup(request, party_id, fb_page=0):
       # send out verification e-mail, create a verification code
       # send_verification_email(request, verification_code, temp_password, user.email)
 
-    stripe_token = request.POST.get('stripe_token')
+    if party.fee > 0:
+      stripe_token = request.POST.get('stripe_token')
 
-    try:
-      customer = stripe.Customer.create(card=stripe_token, email=user.email)
-      stripe_user_id = customer.id
+      try:
+        customer = stripe.Customer.create(card=stripe_token, email=user.email)
+        stripe_user_id = customer.id
 
-      # create on vinely
-      stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
-                              exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                              card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
-      if created:
-        profile.stripe_card = stripe_card
-        profile.save()
-        profile.stripe_cards.add(stripe_card)
+        # create on vinely
+        stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                                exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+        if created:
+          profile.stripe_card = stripe_card
+          profile.save()
+          profile.stripe_cards.add(stripe_card)
 
-    except:
-      messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
-      return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
+      except:
+        messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+        return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
 
-    party_desc = 'Vinely Party RSVP: %s, %s' % (party.title, party.address)
-    stripe.Charge.create(amount=int(party.fee * 100), currency='usd', customer=stripe_card.stripe_user, description=party_desc)
+      party_desc = 'Vinely Party RSVP: %s, %s' % (party.title, party.address)
+      stripe.Charge.create(amount=int(party.fee * 100), currency='usd', customer=stripe_card.stripe_user, description=party_desc)
 
     data["email"] = user.email
     data["first_name"] = user.first_name
