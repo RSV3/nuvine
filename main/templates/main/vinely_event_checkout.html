@@ -1,0 +1,147 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" type="text/css" href="{% static "datepicker/css/datepicker.css" %}"> 
+  <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+  <style type="text/css">
+    form button {
+      height:35px;
+      border-radius:4px;
+      border:1px solid #CCC;
+    }
+
+    .form-horizontal .control-group {
+      margin-bottom:1.0em;
+    }
+    .card-info {
+      padding-top: 40px;
+    }
+    .payment-errors {
+      display: none;
+    }
+    #confirmation_modal {
+      width: 300px;
+      left: 60%;
+    }
+    #modal_content {
+      margin-top: -20px;
+    }
+    #modal_content p {
+      padding: 2px 15px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block header %}
+  <h1 class="headline">Complete Your RSVP</h1>
+{% endblock header %}
+
+{% block content %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <form class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="span4 offset4 card-info">
+        <h2>Billing Info</h2>
+        <div class="payment-errors alert alert-error"></div>
+        <fieldset>
+          <div class="control-group">
+            <img src="{{ STATIC_URL }}img/card_icons.png" />
+          </div>
+          <div class="control-group">
+            <input type="hidden" class="card-name" value="{{ user.first_name }} {{ user.last_name }}" />
+            <input type="text" size="20" autocomplete="off" class="card-number input-block-level validate[required,custom[number]" placeholder="Card #" />
+          </div>
+          <div class="control-group">
+            Expiration Date <br />
+            <input type="text" size="2" class="card-expiry-month span1 validate[required,custom[number]" maxlength="2" placeholder="MM" />
+            <input type="text" size="4" class="card-expiry-year span1 validate[required,custom[number]" maxlength="4" placeholder="YYYY" />
+          </div>
+          <div class="control-group">
+            <input type="password" size="4" autocomplete="off" class="card-cvc input-block-level validate[required,custom[number]" placeholder='CVC' maxlength="4" />
+          </div>
+          <div class="control-group">
+              <input type="text" size="5" value="{{ user.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
+          </div>
+          <div class="control-group">
+            <img src="{{ STATIC_URL }}img/security_icons.png" width="100" />&nbsp;
+            <button class="btn btn-primary submit-button">RSVP Now!</button>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+    <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready( function () {
+        var options = { endDate: new Date(), todayHighlight: true, autoclose: true };
+        if (!$('.datepicker').val()) {
+          options.startView = 'decade';
+        }
+        $('.datepicker').datepicker(options);
+      });
+    </script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        // this identifies your website in the createToken call below
+        Stripe.setPublishableKey('{{ publish_token }}');
+
+        function stripeResponseHandler(status, response) {
+          if (response.error) {
+            // re-enable the submit button
+            $('.submit-button').removeAttr("disabled");
+            // show the errors on the form
+            $(".payment-errors").text(response.error.message);
+            $(".payment-errors").show('fast');
+          } else {
+            var form$ = $(".form-horizontal");
+            // token contains id, last4, and card type
+            var token = response['id'];
+            var card = response['card'];
+
+            // insert the token into the form so it gets submitted to the server
+            form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+            form$.append("<input type='hidden' name='last4' value='" + card.last4 + "' />");
+            form$.append("<input type='hidden' name='exp_month' value='" + card.exp_month + "' />");
+            form$.append("<input type='hidden' name='exp_year' value='" + card.exp_year + "' />");
+            form$.append("<input type='hidden' name='card_type' value='" + card.type + "' />");
+            form$.append("<input type='hidden' name='address_zip' value='" + card.address_zip + "' />");
+            // form$.append("<input type='hidden' name='name' value='" + card.name + "' />")
+            // and submit
+            form$.get(0).submit();
+          }
+        }
+
+        $(".form-horizontal").submit(function(e) {
+          // disable the submit button to prevent repeated clicks
+          $('.submit-button').attr("disabled", "disabled");
+          // createToken returns immediately - the supplied callback submits the form if there are no errors
+          Stripe.createToken({
+            name: $('.card-name').val(),
+            number: $('.card-number').val(),
+            cvc: $('.card-cvc').val(),
+            exp_month: $('.card-expiry-month').val(),
+            exp_year: $('.card-expiry-year').val(),
+            address_zip: $('.card-address-zip').val(),
+          }, stripeResponseHandler);
+          return false; // submit from callback
+        });
+
+        if (window.location.protocol === 'file:') {
+            alert("stripe.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@stripe.com if you need assistance.");
+        }
+      });
+    </script>
+{% endblock additional_scripts %}

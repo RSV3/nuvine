@@ -2943,6 +2943,9 @@ def vinely_event_signup(request, party_id, fb_page=0):
   verification_code = ''
   temp_password = ''
 
+  if party.fee > 0:
+    return HttpResponseRedirect(reverse('vinely_event_checkout', args=[party.id]))
+
   # create users and send e-mail notifications
   form = EventSignupForm(request.POST or None, initial={'account_type': account_type, 'vinely_event': True})
 
@@ -3029,3 +3032,18 @@ def vinely_event_signup(request, party_id, fb_page=0):
   data["get_started_menu"] = True
 
   return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def vinely_event_checkout(request, party_id, fb_page=0):
+  data = {}
+  today = timezone.now()
+  party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
+  data['party'] = party
+  return render_to_response('main/vinely_event_checkout.html', data, context_instance=RequestContext(request))
+  # return HttpResponseRedirect(reverse('vinely_event_detail', args=[party.id]))
+
+
+@login_required
+def fb_vinely_event_checkout(request, party_id):
+  return vinely_event_checkout(request, party_id, fb_page=1)
