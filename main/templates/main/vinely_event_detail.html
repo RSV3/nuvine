@@ -3,7 +3,7 @@
 {% load render_table from django_tables2 %}
 
 {% block header %}
-  <h1 class="center">Party: {{ party.title }}</h1>
+  <h1 class="headline">Party: {{ party.title }}</h1>
 {% endblock header %}
 
 
@@ -27,7 +27,7 @@
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <div class="row">
     {% if user.is_authenticated and user.get_profile.events_manager%}
-    <div class="span10">
+    <div class="span8">
       <h2><small><a class="pull-right" href="#" data-toggle="modal" data-target="#edit_desc">Edit</a></small></h2>
     </div>
     {% endif %}
