@@ -201,7 +201,11 @@ class SurveyWine(models.Model):
   color = models.IntegerField(choices=COLOR_CHOICES, default=COLOR_CHOICES[0][0])
 
   def __unicode__(self):
-    return self.name
+    if self.id == 13:
+      # for unicode safe export via csv in support/management/commands/export_survey.py
+      return "Rose"
+    else:
+      return self.name
 
 
 class GeneralTaste(models.Model):
