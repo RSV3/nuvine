@@ -2,7 +2,7 @@
 
 import os
 import djcelery
-djcelery.setup_loader()
+# djcelery.setup_loader()
 
 BROKER_URL = os.environ.get('CLOUDAMQP_URL', 'amqp://guest:guest@localhost:5672//')
 
@@ -256,7 +256,7 @@ INSTALLED_APPS = (
     'django_tables2',
     'tinymce',
     'pro',
-    'djcelery',
+    # 'djcelery',
 )
 
 
