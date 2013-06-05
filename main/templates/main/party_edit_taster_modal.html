@@ -44,6 +44,12 @@
         {% else %}
           {{ taster_form.response }}
         {% endif %}
+          <div class="control-group">
+            <div class="control-label">{{ taster_form.attended.label }}</div>
+            <div class="controls">
+              {{ taster_form.attended }}
+            </div>
+          </div>
         <div class="modal-footer">
           <button type="submit" name="update-taster" class="btn btn-primary" value="update-taster">Update</button>
         </div>

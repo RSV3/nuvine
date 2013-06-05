@@ -1468,7 +1468,7 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
   initial_data = {'host': u, "first_name": invite.invitee.first_name,
                   'last_name': invite.invitee.last_name, 'email': invite.invitee.email,
                   'phone': invite.invitee.get_profile().phone, 'change_rsvp': change_rsvp,
-                  'rsvp_code': invite.rsvp_code}
+                  'rsvp_code': invite.rsvp_code, 'attended': invite.attended}
 
   form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
 

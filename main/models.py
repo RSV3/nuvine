@@ -209,6 +209,8 @@ class PartyInvite(models.Model):
   invited_timestamp = models.DateTimeField(blank=True, null=True)  # auto_now_add=True)
   response_timestamp = models.DateTimeField(blank=True, null=True)
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
+  fee_paid = models.BooleanField(default=False)
+  attended = models.BooleanField(default=False)
 
   def invited(self):
     return bool(self.invited_timestamp)

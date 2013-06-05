@@ -96,7 +96,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
-    exclude = ['setup_stage', 'fee']
+    exclude = ['setup_stage', 'fee', 'fee_paid']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -285,7 +285,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    # exclude = ['response']
+    exclude = ['fee_paid']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
@@ -739,6 +739,7 @@ class AttendeesTable(tables.Table):
   email = tables.TemplateColumn('<a href="mailto:{{ record.invitee.email }}">{{ record.invitee.email }}</a>', orderable=False)
   phone = tables.TemplateColumn('{% if record.invitee.userprofile.phone %} {{ record.invitee.userprofile.phone }} {% else %} - {% endif %}', orderable=False)
   invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
+  attended = tables.TemplateColumn('{% if record.attended %}<i class="icon-ok"></i>{% endif %}')
   response = tables.Column(verbose_name='RSVP')
   edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
   wine_personality = tables.Column(accessor='invitee.userprofile.wine_personality', verbose_name='Wine Personality', order_by=('invitee.userprofile.wine_personality.name',))
@@ -750,7 +751,7 @@ class AttendeesTable(tables.Table):
     model = PartyInvite
     attrs = table_attrs
     sequence = ['guests', 'invitee', 'email', 'phone', 'invited', '...']
-    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp']
+    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp', 'fee_paid']
     order_by = ['invitee']
 
   def __init__(self, *args, **kwargs):
