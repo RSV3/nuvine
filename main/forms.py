@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -8,15 +8,16 @@ from datetime import timedelta
 
 import django_tables2 as tables
 from django_tables2 import Attrs
+from django_tables2.utils import A
 
 from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote, MyHost
+                        InvitationSent, Order, Product, ThankYouNote
 from accounts.models import Address, SubscriptionInfo, UserProfile
 
-from main.utils import add_form_validation, business_days_count, business_days_from
+from main.utils import add_form_validation, business_days_count
 
 from accounts.forms import NameEmailUserCreationForm
 
@@ -95,7 +96,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
-    exclude = ['setup_stage']
+    exclude = ['setup_stage', 'fee', 'fee_paid']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -284,7 +285,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    # exclude = ['response']
+    exclude = ['fee_paid']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
@@ -543,17 +544,17 @@ class CustomizeOrderForm(forms.ModelForm):
 
 class ShippingForm(forms.ModelForm):
 
-  first_name = forms.CharField(max_length=30)
-  last_name = forms.CharField(max_length=30)
+  first_name = forms.CharField(max_length=30, label='First Name')
+  last_name = forms.CharField(max_length=30, label='Last Name')
 
   address1 = forms.CharField(label="Address 1", max_length=128)
   address2 = forms.CharField(label="Address 2", max_length=128, required=False)
   company_co = forms.CharField(label="Company or C/O", max_length=64, required=False)
   city = forms.CharField(label="City", max_length=64)
   state = us_forms.USStateField(widget=us_forms.USStateSelect())
-  zipcode = us_forms.USZipCodeField()
-  phone = us_forms.USPhoneNumberField()
-  email = forms.EmailField(widget=forms.HiddenInput())  # help_text="A new account will be created using this e-mail address if not an active account")
+  zipcode = us_forms.USZipCodeField(label='Zipcode')
+  phone = us_forms.USPhoneNumberField(label='Phone Number')
+  email = forms.EmailField(widget=forms.HiddenInput, label='Email')  # help_text="A new account will be created using this e-mail address if not an active account")
 
   news_optin = forms.BooleanField(label="Yes, I'd like to be notified of news, offers and events at Vinely via this email address.",
                                   initial=True, required=False)
@@ -565,6 +566,7 @@ class ShippingForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(ShippingForm, self).__init__(*args, **kwargs)
     self.fields['email'].widget.attrs['readonly'] = True
+    add_form_validation(self)
 
   def save(self, commit=True):
     data = self.cleaned_data
@@ -609,6 +611,20 @@ class ShippingForm(forms.ModelForm):
     profile.save()
 
     return user
+
+
+class JoinClubShippingForm(ShippingForm):
+  def __init__(self, *args, **kwargs):
+    super(JoinClubShippingForm, self).__init__(*args, **kwargs)
+    self.fields['email'].widget.attrs['readonly'] = True
+
+    for field_name in self.fields:
+      if hasattr(self.fields[field_name], 'label'):
+        self.fields[field_name].widget.attrs['placeholder'] = self.fields[field_name].label
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
 
 class CustomizeInvitationForm(forms.ModelForm):
@@ -690,14 +706,23 @@ class EventSignupForm(NameEmailUserCreationForm):
 
 class ChangeTasterRSVPForm(forms.Form):
   RSVP_CHOICES = (
-    (0, '------'),
-    (1, 'No'),
-    (2, 'Maybe'),
-    (3, 'Yes'),
+      (0, '------'),
+      (1, 'No'),
+      (2, 'Maybe'),
+      (3, 'Yes'),
   )
   party = forms.IntegerField(widget=forms.HiddenInput())
   rsvp = forms.ChoiceField(choices=RSVP_CHOICES)
 
+
+class EventsDescForm(forms.ModelForm):
+  class Meta:
+    model = Party
+    fields = ('description', 'fee')
+
+  def __init__(self, *args, **kwargs):
+    super(EventsDescForm, self).__init__(*args, **kwargs)
+    self.fields['description'].widget = TinyMCE(attrs={'rows': 25, 'style': 'width: 100%; height: 200px;'}, mce_attrs={'theme': "advanced"})
 
 table_attrs = Attrs({'class': 'table table-striped'})
 
@@ -714,6 +739,7 @@ class AttendeesTable(tables.Table):
   email = tables.TemplateColumn('<a href="mailto:{{ record.invitee.email }}">{{ record.invitee.email }}</a>', orderable=False)
   phone = tables.TemplateColumn('{% if record.invitee.userprofile.phone %} {{ record.invitee.userprofile.phone }} {% else %} - {% endif %}', orderable=False)
   invited = tables.TemplateColumn('{% if record.invited %}<i class="icon-ok"></i>{% endif %}', accessor='invited_timestamp', verbose_name='Invited')
+  attended = tables.TemplateColumn('{% if record.attended %}<i class="icon-ok"></i>{% endif %}')
   response = tables.Column(verbose_name='RSVP')
   edit = tables.TemplateColumn('<a href="javascript:;" class="edit-taster" data-invite="{{ record.id }}">edit</a>', verbose_name=' ')
   wine_personality = tables.Column(accessor='invitee.userprofile.wine_personality', verbose_name='Wine Personality', order_by=('invitee.userprofile.wine_personality.name',))
@@ -724,8 +750,8 @@ class AttendeesTable(tables.Table):
   class Meta:
     model = PartyInvite
     attrs = table_attrs
-    sequence = ['guests', 'invitee', 'email', 'phone', 'invited', '...']
-    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp']
+    sequence = ['guests', 'invitee', 'email', 'phone', 'invited', 'attended', '...']
+    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp', 'fee_paid']
     order_by = ['invitee']
 
   def __init__(self, *args, **kwargs):
@@ -810,3 +836,16 @@ class OrderHistoryTable(tables.Table):
       return "%s %s" % (record.receiver.first_name, record.receiver.last_name)
     else:
       return "Anonymous"
+
+
+class VinelyEventsTable(tables.Table):
+  title = tables.LinkColumn('vinely_event_detail', args=[A('pk')])
+  event_date = tables.TemplateColumn('{{ record.event_date|date:"F j, o" }} at {{ record.event_date|date:"g:i A" }}')
+
+  class Meta:
+    model = Party
+    attrs = table_attrs
+    fields = ('title', 'event_date', 'address', 'fee')
+
+  def render_fee(self, record, column):
+    return 'free' if record.fee == 0 else "$%s" % record.fee

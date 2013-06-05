@@ -12,6 +12,35 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def join_the_club_email(request, user):
+  template = Section.objects.get(template__key='join_the_club_anon_email', key='general')
+
+  txt_template = Template(template.content)
+  html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
+
+  c = RequestContext(request, {})
+  txt_message = txt_template.render(c)
+
+  c.update({'sig': True})
+  html_message = html_template.render(c)
+
+  # send out verification e-mail, create a verification code
+  subject = 'Welcome to the Club!'
+  recipients = [user.email]
+  html_msg = render_to_string("email/base_email_lite.html", RequestContext(request, {'title': subject, 'message': html_message, 'host_name': request.get_host()}))
+  from_email = 'Welcome to the Club <info@vinely.com>'
+
+  p = Premailer(html_msg)
+  html_msg = p.transform()
+
+  email_log = Email(subject=subject, sender='welcome@vinely.com', recipients=str(recipients), text=txt_message, html=html_msg)
+  email_log.save()
+
+  msg = EmailMultiAlternatives(subject, txt_message, from_email, recipients, headers={'Reply-To': 'welcome@vinely.com'})
+  msg.attach_alternative(html_msg, "text/html")
+  msg.send()
+
+
 def send_signed_up_as_host_email(request, user):
   template = Section.objects.get(template__key='signed_up_as_host_email', key='general')
 

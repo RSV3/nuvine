@@ -1,5 +1,5 @@
 # Create your views here.`
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, render
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -16,7 +16,7 @@ from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, Wi
 from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
 from accounts.models import VerificationQueue, UserProfile
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
-                              AddTasterRatingsForm
+                              AddTasterRatingsForm, WineRatingForm
 
 from personality.utils import calculate_wine_personality
 from accounts.utils import send_verification_email
@@ -298,7 +298,10 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
       # enter your own information
       taster = u
 
-    data['personality_exists'] = taster.get_profile().has_personality()
+    # need to figure out whether to send welcom email when profile is finally revealed
+    first_time_personality = not taster.userprofile.has_personality()
+
+    data['personality_exists'] = taster.userprofile.has_personality()
     data['invitee'] = taster
 
     # show forms
@@ -425,6 +428,9 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
         temp_password = User.objects.make_random_password()
         invitee.set_password(temp_password)
         invitee.save()
+        invitee.userprofile.role = UserProfile.ROLE_CHOICES[3][0]
+        invitee.userprofile.current_pro = u
+        invitee.userprofile.save()
 
         verification_code = str(uuid.uuid4())
         vque = VerificationQueue(user=invitee, verification_code=verification_code)
@@ -508,14 +514,15 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
           taster.set_password(temp_password)
           taster.save()
 
-          if not VerificationQueue.objects.filter(user=taster, verified=False).exists():
-          #   vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
-          #   verification_code = vque.verification_code
-          # else:
+          if VerificationQueue.objects.filter(user=taster, verified=False).exists():
+            vque = VerificationQueue.objects.filter(user=taster, verified=False).order_by('-created')[0]
+            verification_code = vque.verification_code
+          else:
             verification_code = str(uuid.uuid4())
             vque = VerificationQueue(user=taster, verification_code=verification_code)
             vque.save()
-            # only send email for new users
+            # only send email for first time personality
+          if first_time_personality:
             send_welcome_to_vinely_email(request, taster, verification_code, temp_password)
         return render_to_response("personality/ratings_saved.html", data, context_instance=RequestContext(request))
       else:
@@ -555,8 +562,75 @@ def taster_list(request, taster, party_id):
   # only get tasters linked to this pro
   # show people who RSVP'ed to the party
   my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
-  users = User.objects.filter(id__in = [x.invitee.id for x in my_guests])
+  users = User.objects.filter(id__in=[x.invitee.id for x in my_guests])
   users = users.filter(Q(first_name__icontains=taster) | Q(last_name__icontains=taster) | Q(email__icontains=taster)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
   return HttpResponse(json.dumps(data), mimetype="application/json")
+
+
+@login_required
+def member_ratings_overview(request):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+  data['rate_wines_menu'] = True
+
+  if not profile.club_member and profile.has_personality():
+    return render(request, 'main/rate_wines.html', data)
+
+  if profile.has_personality():
+    data['wine_personality'] = profile.wine_personality
+  data['tasted_wines'] = WineRatingData.objects.filter(user=u)
+  return render(request, 'personality/member_ratings_overview.html', data)
+
+
+@login_required
+def member_rate_wines(request, wine_id):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+
+  wine = get_object_or_404(Wine, number=wine_id, active=True)
+  initial_data = {}
+
+  try:
+    wine_rating = WineRatingData.objects.get(wine=wine, user=u)
+    form = WineRatingForm(request.POST or None, instance=wine_rating)
+  except WineRatingData.DoesNotExist:
+    initial_data['wine'] = wine
+    initial_data['user'] = u
+    form = WineRatingForm(request.POST or None, initial=initial_data)
+
+  results = WineRatingData.objects.filter(user=u).exclude(wine__number=wine_id)
+  if results.count() >= 5:
+      data['final_rating'] = True
+
+  if form.is_valid():
+    form.save()
+    results = WineRatingData.objects.filter(user=u)[:6]
+    if len(results) == 6:
+      if np.sum(np.array([results[1].overall, results[2].overall,
+                        results[3].overall, results[4].overall,
+                        results[5].overall, results[0].overall]) > 0) == 6:
+        # only save personality once all 6 wine fields have been filled out
+        rating_data = [u]
+        rating_data.extend(results)
+        calculate_wine_personality(*rating_data)
+        return HttpResponseRedirect(reverse('member_reveal_personality'))
+    return HttpResponseRedirect(reverse('member_ratings_overview'))
+
+  data['rate_wines_menu'] = True
+  data['taster_profile'] = profile
+  data['wine_number'] = wine_id
+  data['form'] = form
+  return render(request, 'personality/member_rate_wines.html', data)
+
+
+@login_required
+def member_reveal_personality(request):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+  data['wine_personality'] = profile.wine_personality
+  return render(request, 'personality/member_reveal_personality.html', data)

@@ -36,6 +36,13 @@ urlpatterns = patterns('',
   url(r'^unlink/host/$', 'accounts.views.host_unlink', name='host_unlink'),
   url(r'^link/pro/$', 'accounts.views.pro_link', name='pro_link'),
 
+  url(r'^join/club/$', 'accounts.views.join_club_start', name='join_club_start'),
+  url(r'^join/club/hi/(?P<state>\w+)/$', 'accounts.views.join_club_start', name='join_club_start'),
+  url(r'^join/club/signup/$', 'accounts.views.join_club_signup', name='join_club_signup'),
+  url(r'^join/club/shipping/$', 'accounts.views.join_club_shipping', name='join_club_shipping'),
+  url(r'^join/club/review/$', 'accounts.views.join_club_review', name='join_club_review'),
+  url(r'^join/club/done/(?P<order_id>[\-\w]+)/$', 'accounts.views.join_club_done', name='join_club_done'),
+
   # test
   url(r'^my/information/test/$', 'accounts.views.fix_my_picture', name='fix_my_picture'),
 )

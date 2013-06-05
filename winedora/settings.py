@@ -1,6 +1,12 @@
 # Django settings for winedora project.
 
 import os
+import djcelery
+# djcelery.setup_loader()
+
+BROKER_URL = os.environ.get('CLOUDAMQP_URL', 'amqp://guest:guest@localhost:5672//')
+
+USE_CELERY = False
 
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
@@ -249,6 +255,8 @@ INSTALLED_APPS = (
     'stripecard',
     'django_tables2',
     'tinymce',
+    'pro',
+    # 'djcelery',
 )
 
 

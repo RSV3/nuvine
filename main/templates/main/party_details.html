@@ -77,7 +77,7 @@
                 <td>Total Sales</td>
                 <td>{{ party.total_sales|currency }}</td>
               </tr>
-            {% endif %}            
+            {% endif %}
           </tbody>
         </table>
       </div>
@@ -131,16 +131,16 @@
           </div>
         </div>
         <div class="vertical-space"></div>
-        {% comment %}
+        {% if party.is_events_party %}
         <table class="summary-table">
           <tbody>
             <tr>
               <td>Special Instructions</td>
-              <td>{{ party.description }}</td>
+              <td><a href="{% url vinely_event_detail party.id %}" class="btn btn-primary" target='_blank'>Edit/Preview</a></td>
             </tr>
           </tbody>
         </table>
-        {% endcomment %}
+        {% endif %}
       </div>
     </div> <!-- .row -->
   </section>

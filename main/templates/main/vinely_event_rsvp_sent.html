@@ -9,6 +9,18 @@
 {% block navbar_menu %}{% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
 {% block footer %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
 
+{% block additional_styles %}
+<style type="text/css">
+  .learn-vinely,
+  .learn-vinely:visited,
+  .learn-vinely:active {
+    color: #415A68;
+    width: 260px;
+    height: 40px;
+    background-position: 240px 5px;
+  }
+  </style>
+{% endblock additional_styles %}
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
@@ -16,11 +28,14 @@
     <div class="{% if fb_view %}span8{% else %}offset2 span8{% endif %}">
       <p>
         {% if attending %}
-        We love a good party and we’re glad you’d like to attend one! An email should arrive shortly, which will include your sign in and password information.</p>
+        We love a good party and we're glad you’d like to attend one! An email confirmation should arrive shortly.</p>
         {% else %}
-        We love a good party and we’re sad that you wont be attending this one! An email should arrive shortly, which will include your sign in and password information in case you want to sign up for future events.</p>        
+        We love a good party and we're sad that you wont be attending this one! An email should arrive shortly, which will include your sign in and password information in case you want to sign up for future events.</p>        
         {% endif %}
       <p>If you have any questions please contact a Vinely Care Specialist at (888) 294-1128 ext. 1 or <a href="mailto:care@vinely.com">email</a> us.</p>
+      <p class="cta-button">
+        <a class="learn-vinely state-head" href="{% url landing_page %}">Learn More About Vinely</a>
+      </p>
     </div>
   </div>
   <div class="row">

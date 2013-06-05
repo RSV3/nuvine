@@ -1,0 +1,13 @@
+{% extends "winedora/base_html5.html" %}
+
+
+{% block content %}
+  <div id="chart">
+  </div>
+{% endblock content %}
+
+
+{% block additional_scripts %}
+  <script type="text/javascript" src="{% static "js/d3/d3.min.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/pro/pro_commissions.js" %}"></script>
+{% endblock additional_scripts %}

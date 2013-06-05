@@ -21,7 +21,8 @@ from accounts.models import VerificationQueue, Zipcode, UserProfile
 from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterForm, \
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
-                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm
+                        AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm, \
+                        VinelyEventsTable, EventsDescForm
 
 from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
@@ -71,6 +72,22 @@ def pros_only(request):
   data = {}
   data["message"] = "Only Vinely Pros are allowed to access this page"
   return render_to_response("403.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def home_club_member(request):
+
+  data = {}
+
+  u = request.user
+  profile = u.get_profile()
+
+  if profile.has_personality():
+    data['wine_personality'] = profile.wine_personality
+  else:
+    data['wine_personality'] = False
+
+  return render_to_response("main/home_club_member.html", data, context_instance=RequestContext(request))
 
 
 @login_required
@@ -337,18 +354,6 @@ def cart_add_tasting_kit(request, party_id=0):
       request.session['party_id'] = int(party_id)
   except Party.DoesNotExist:
     raise Http404
-
-  # check how many invites and recommend number of taste kits
-  # invites = PartyInvite.objects.filter(party=party)
-  # if invites.count() == 0:
-  #   messages.warning(request, 'No one has RSVP\'d for your party yet. It\'s good to know how many people will be coming so that you can know how many kits to order.')
-  # elif invites.count() < 8:
-  #   messages.info(request, 'We would recommended that you order 1 taste kit. This should be enough for your %s party tasters.' % invites.count())
-  # elif invites.count() > 12 and invites.count() <= 24:
-  #   messages.info(request, 'We would recommended that you order 2 taste kits since you have more than 6 tasters.')
-  # elif invites.count() > 24:
-  #   messages.warning(request, 'You can only order up to 2 taste kits at a time for up to 24 guests. Don\'t worry though, just finish this order and then make a new one.')
-  # else:
 
   request.session['taste_kit_order'] = True
 
@@ -741,6 +746,12 @@ def place_order(request):
       if order.fulfill_status == 0:
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
+        if items.exists():
+          # no longer considered a club member
+          profile = u.get_profile()
+          profile.club_member = False
+          profile.save()
+
         for item in items:
           # check if item contains subscription
           from_date = datetime.date(datetime.now(tz=UTC()))
@@ -1457,7 +1468,7 @@ def party_edit_taster_info(request, invite_id, change_rsvp=None):
   initial_data = {'host': u, "first_name": invite.invitee.first_name,
                   'last_name': invite.invitee.last_name, 'email': invite.invitee.email,
                   'phone': invite.invitee.get_profile().phone, 'change_rsvp': change_rsvp,
-                  'rsvp_code': invite.rsvp_code}
+                  'rsvp_code': invite.rsvp_code, 'attended': invite.attended}
 
   form = PartyInviteTasterForm(request.POST or None, initial=initial_data, instance=invite)
 
@@ -1618,10 +1629,6 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
   if Party.objects.all().count() == 0:
     data["no_parties"] = True
     return render_to_response("main/party_taster_invite.html", data, context_instance=RequestContext(request))
-
-  pro_group = Group.objects.get(name='Vinely Pro')
-  hos_group = Group.objects.get(name='Vinely Host')
-  tas_group = Group.objects.get(name='Vinely Taster')
 
   if not rsvp_code and not u.is_authenticated():
     return HttpResponseRedirect(reverse('login') + '?next=' + request.path)
@@ -2563,7 +2570,7 @@ def edit_credit_card(request):
 
   data["receiver_state"] = receiver_state
 
-  # stripe only supported in Michigan
+  # stripe only supported in CA
   if receiver_state in Cart.STRIPE_STATES:
     data['use_stripe'] = True
 
@@ -2592,8 +2599,8 @@ def edit_credit_card(request):
 
           # create on vinely
           stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
-                                    exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
-                                    card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+                                  exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                  card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
           if created:
             profile = receiver.get_profile()
             profile.stripe_card = stripe_card
@@ -2868,13 +2875,54 @@ def vinely_event(request, fb_page=0):
   event_template = Template(content)
   context = RequestContext(request, data)
   page = event_template.render(context)
+
+  vinely_parties = Party.objects.filter(host__email='events@vinely.com', event_date__gte=timezone.now()).order_by('event_date')
+  data['parties_table'] = VinelyEventsTable(vinely_parties)
   data['event_content'] = page
 
   return render_to_response("main/vinely_event.html", data, context)
 
 
+def vinely_event_detail(request, party_id, fb_page=0):
+  u = request.user
+  data = {}
+  data['fb_view'] = fb_page
+
+  today = timezone.now()
+  if u.is_authenticated() and u.userprofile.events_manager():
+    party = get_object_or_404(Party, pk=party_id)
+  else:
+    party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
+
+  event_template = Template(party.description)
+  context = RequestContext(request, data)
+  page = event_template.render(context)
+
+  form = EventsDescForm(request.POST or None, instance=party)
+  data['form'] = form
+  data['party'] = party
+  data['party_desc'] = page
+
+  return render_to_response("main/vinely_event_detail.html", data, context_instance=RequestContext(request))
+
+
 def fb_vinely_event_signup(request, party_id):
   return vinely_event_signup(request, party_id, 1)
+
+
+@login_required
+def update_event_desc(request, party_id):
+  u = request.user
+  data = {}
+
+  party = get_object_or_404(Party, pk=party_id)
+  form = EventsDescForm(request.POST or None, instance=party)
+  data['form'] = form
+  if form.is_valid():
+    form.save()
+
+  success_url = request.POST.get('next', reverse('vinely_event_detail', args=[party.id]))
+  return HttpResponseRedirect(success_url)
 
 
 def vinely_event_signup(request, party_id, fb_page=0):
@@ -2895,8 +2943,13 @@ def vinely_event_signup(request, party_id, fb_page=0):
   verification_code = ''
   temp_password = ''
 
+  stripe.api_key = settings.STRIPE_SECRET_CA
+  data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
+
   # create users and send e-mail notifications
   form = EventSignupForm(request.POST or None, initial={'account_type': account_type, 'vinely_event': True})
+  data['form'] = form
+  data['party'] = party
 
   if form.is_valid():
     # if user already exists just add them to the event dont save
@@ -2929,20 +2982,43 @@ def vinely_event_signup(request, party_id, fb_page=0):
       # send out verification e-mail, create a verification code
       # send_verification_email(request, verification_code, temp_password, user.email)
 
+    if party.fee > 0:
+      stripe_token = request.POST.get('stripe_token')
+
+      try:
+        customer = stripe.Customer.create(card=stripe_token, email=user.email)
+        stripe_user_id = customer.id
+
+        # create on vinely
+        stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                                exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+        if created:
+          profile.stripe_card = stripe_card
+          profile.save()
+          profile.stripe_cards.add(stripe_card)
+
+      except:
+        messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+        return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
+
+      party_desc = 'Vinely Party RSVP: %s, %s' % (party.title, party.address)
+      stripe.Charge.create(amount=int(party.fee * 100), currency='usd', customer=stripe_card.stripe_user, description=party_desc)
+
     data["email"] = user.email
     data["first_name"] = user.first_name
     data["account_type"] = account_type
 
-    try:
-      response = int(request.POST['rsvp'])
-    except ValueError:
-      if "Yes" in request.POST['rsvp']:
-        response = 3
-      elif "No" in request.POST['rsvp']:
-        response = 1
-      elif "Maybe" in request.POST['rsvp']:
-        response = 2
-
+    # try:
+    #   response = int(request.POST['rsvp'])
+    # except ValueError:
+    #   if "Yes" in request.POST['rsvp']:
+    #     response = 3
+    #   elif "No" in request.POST['rsvp']:
+    #     response = 1
+    #   elif "Maybe" in request.POST['rsvp']:
+    #     response = 2
+    response = 3
     # link them to party and RSVP
     # check if already RSVP'ed and just changed response if needed
     try:
@@ -2950,6 +3026,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       invite.response = response
       invite.response_timestamp = today
       invite.rsvp_code = str(uuid.uuid4())
+      invite.fee_paid = True
       invite.save()
     except PartyInvite.DoesNotExist:
       # if doest exist then create
@@ -2966,18 +3043,27 @@ def vinely_event_signup(request, party_id, fb_page=0):
       if profile.zipcode and not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, user, account_type)
-      send_rsvp_thank_you_email(request, user, verification_code, temp_password)
+      send_rsvp_thank_you_email(request, user, verification_code, temp_password, party)
     # messages.success(request, msg)
-
+    # send_rsvp_thank_you_email(request, user, verification_code, temp_password, party)
     if u.is_authenticated() and u.userprofile.events_manager():
       return HttpResponseRedirect(reverse('party_details', args=[party.id]))
     else:
       return render_to_response("main/vinely_event_rsvp_sent.html", data, context_instance=RequestContext(request))
-
   # data['heard_about_us_form'] = HeardAboutForm()
-  data['form'] = form
-  # data['role'] = role.name
   data['account_type'] = account_type
   data["get_started_menu"] = True
 
   return render_to_response("main/vinely_event_signup.html", data, context_instance=RequestContext(request))
+
+
+# def vinely_event_checkout(request, party_id, fb_page=0):
+#   data = {}
+#   today = timezone.now()
+#   party = get_object_or_404(Party, pk=party_id, event_date__gte=today)
+#   data['party'] = party
+#   return render_to_response('main/vinely_event_checkout.html', data, context_instance=RequestContext(request))
+
+
+# def fb_vinely_event_checkout(request, party_id):
+#   return vinely_event_checkout(request, party_id, fb_page=1)

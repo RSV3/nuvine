@@ -716,7 +716,7 @@ def edit_order(request, order_id):
   # need to get the past orders for this user
   receiver = order.receiver
   past_orders = Order.objects.filter(receiver=receiver)
-  past_ratings = SelectedWine.objects.filter(order__in=past_orders, overall_rating__gt=0).order_by("-timestamp")
+  past_ratings = SelectedWine.objects.filter(order__in=past_orders).order_by("-timestamp")
 
   data['order'] = order
   receiver_profile = order.receiver.get_profile()

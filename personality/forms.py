@@ -150,7 +150,7 @@ class AllWineRatingsForm(forms.Form):
   def save(self):
 
     results = []
-    
+
     data = self.cleaned_data
     user = User.objects.get(email=data['email'])
     results.append(user)
@@ -193,6 +193,50 @@ class AllWineRatingsForm(forms.Form):
     # return user and all the 6 rating data objects
     return results
 
+
+class CheckedRadioField(forms.RadioSelect.renderer):
+  def render(self):
+    items = []
+
+    for x in self:
+      item = '''
+      <li><label for="%s_%s"><input type="checkbox" id="%s_%s" value="%s" name="%s" %s>%s</label></li>
+      ''' % (x.attrs['id'], x.index, x.attrs['id'], x.index, x.index, x.name, 'checked="checked"' if x.is_checked() else "", x.choice_label)
+      items.append(item)
+      view = u'<ul>%s</ul>' % '\n'.join(items)
+
+    return mark_safe(view)
+
+
+class WineRatingForm(forms.ModelForm):
+  overall = forms.ChoiceField(label="Feeling", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.LIKENESS_CHOICES, initial=0)
+  sweet = forms.ChoiceField(label="Sweetness", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SWEET_CHOICES, initial=0)
+  sweet_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES[1:], required=False)
+  weight = forms.ChoiceField(label="Weight", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.WEIGHT_CHOICES, initial=0)
+  weight_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES[1:], initial=0, required=False)
+  texture = forms.ChoiceField(label="Texture", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.TEXTURE_CHOICES, initial=0)
+  texture_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES[1:], initial=0, required=False)
+  sizzle = forms.ChoiceField(label="Sizzle", widget=forms.RadioSelect(renderer=CustomRadioField), choices=WineRatingData.SIZZLE_CHOICES, initial=0)
+  sizzle_dnl = forms.ChoiceField(label="Like It?", widget=forms.RadioSelect, choices=WineRatingData.DNL_CHOICES[1:], initial=0, required=False)
+
+  class Meta:
+    model = WineRatingData
+
+  def __init__(self, *args, **kwargs):
+    super(WineRatingForm, self).__init__(*args, **kwargs)
+    self.fields['user'].widget = forms.HiddenInput()
+    self.fields['wine'].widget = forms.HiddenInput()
+    self.fields['dnl'].widget = forms.HiddenInput()
+
+  def clean(self):
+    cleaned_data = super(WineRatingForm, self).clean()
+    for k in cleaned_data.keys():
+      if not cleaned_data[k]:
+        del cleaned_data[k]
+
+    return cleaned_data
+
+
 class GeneralTasteQuestionnaire(forms.ModelForm):
 
   class Meta:
@@ -210,6 +254,7 @@ class GeneralTasteQuestionnaire(forms.ModelForm):
     self.fields['berries'].widget = forms.RadioSelect(choices=GeneralTaste.BERRIES_CHOICES)
     self.fields['artificial'].widget = forms.RadioSelect(choices=GeneralTaste.ARTIFICIAL_CHOICES)
     self.fields['new_flavors'].widget = forms.RadioSelect(choices=GeneralTaste.NEW_FLAVORS_CHOICES)
+
 
 class WineTasteQuestionnaire(forms.ModelForm):
 

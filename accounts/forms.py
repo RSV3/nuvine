@@ -30,9 +30,14 @@ class NameEmailUserCreationForm(UserCreationForm):
         del self.fields['username']
 
     def clean_email(self):
-        email = self.cleaned_data["email"]
-        if user_exists(email):
+        email = self.cleaned_data["email"].strip().lower()
+        # if user already exists and is not verified then dont allow signup
+        try:
+          u = User.objects.get(email=email)
+          if u.is_active:
             raise forms.ValidationError(_("A user with that email already exists."))
+        except User.DoesNotExist:
+          pass
         return email
 
 
@@ -138,8 +143,13 @@ class AgeValidityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget = forms.TextInput(attrs={'class': 'datepicker', 'data-date-viewmode': 'years',
-                                                      'data-date-format': 'mm/dd/yyyy'})
+    self.fields['dob'].widget.attrs = {
+        'class': 'datepicker input-block-level',
+        'data-date-viewmode': 'years',
+        'data-date-format': 'mm/dd/yyyy',
+        'placeholder': 'MM/DD/YYYY',
+    }
+    add_form_validation(self)
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()
 
@@ -298,7 +308,6 @@ class UpdateSubscriptionForm(forms.ModelForm):
     self.fields['quantity'].widget.choices = [('', '---------'), (12, '3 Bottles'), (13, '6 Bottles'), (14, '12 Bottles')]
 
 
-from django.contrib.auth.models import Group
 from emailusernames.forms import EmailAuthenticationForm
 from django.utils.translation import ugettext_lazy as _
 
@@ -348,7 +357,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
-    if self.initial['account_type'] == 2 and mentor_email:  # host -> pro field
+    if self.initial['account_type'] == 2 and mentor_email or self.initial['account_type'] == 3 and mentor_email:  # host -> pro field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"
@@ -433,6 +442,13 @@ class VinelyEmailAuthenticationForm(EmailAuthenticationForm):
 
   def __init__(self, request=None, *args, **kwargs):
     super(VinelyEmailAuthenticationForm, self).__init__(request, *args, **kwargs)
+    self.fields['email'].widget.attrs['placeholder'] = 'Email'
+    self.fields['password'].widget.attrs['placeholder'] = 'Password'
+    for field_name in self.fields:
+      if 'class' in self.fields[field_name].widget.attrs:
+        self.fields[field_name].widget.attrs['class'] += ' input-block-level'
+      else:
+        self.fields[field_name].widget.attrs['class'] = ' input-block-level'
 
 
 class ProLinkForm(forms.Form):

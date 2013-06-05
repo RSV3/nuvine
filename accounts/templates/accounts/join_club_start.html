@@ -1,0 +1,124 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+<style type="text/css">
+
+  .side-glass {
+    position: absolute;
+    margin-top: -105px;
+    /*margin-left: 140px;*/
+  }
+  .howto-sidetext {
+    height: 140px;
+  }
+  #membership {
+    list-style: disc;
+  }
+</style>
+{% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline">{{ heading|safe }}</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+
+  <div class="row">
+    <div class="span12">
+      <h2 class="center">
+        {% block subheading %}
+        <!-- {{ sub_heading|safe }} -->
+        {% endblock subheading %}
+      </h2>
+      <div class="vertical-space"></div>
+    </div>
+    <div class="span3">
+      <div class="box-container sidebar-nav-container">
+        <div class="box-content">
+          <div class="sidebar-nav">
+            <ul class="side-nav">
+              <li {% if state == 'overview' %}class="active"{% endif %}>
+                <div class="chev"><a href="{% url join_club_start %}">Join The Club</a></div></li>
+              <li {% if state == 'anticipation' %}class="active"{% endif %}>
+                <div class="chev"><a href="{% url join_club_start 'anticipation' %}">Anticipation</a></div></li>
+              <li {% if state == 'surprise' %}class="active"{% endif %}>
+                <div class="chev"><a href="{% url join_club_start 'surprise' %}">surprise</a></div></li>
+              <li {% if state == 'indulgence' %}class="active"{% endif %}>
+                <div class="chev"><a href="{% url join_club_start 'indulgence' %}">indulgence</a></div></li>
+              <li {% if state == 'excitement' %}class="active"{% endif %}>
+                <div class="chev"><a href="{% url join_club_start 'excitement' %}">excitement</a></div></li>
+            </ul>
+          </div>
+        </div>
+        <div class="box-bg"></div>  
+      </div>
+      <div class="vertical-space">&nbsp;</div>
+      {% if state != 'product' %}
+        <div class="box-container2 sidebar-nav-container">
+          <a href="{% url join_club_start 'product' %}">
+            <div class="box-content2 make-host">
+              <h1>Join The Club!</h1>
+              <p class="howto-sidetext">
+                What are you waiting for? Become our newest VIP!
+              </p>
+              <!-- <div class="box-bg"></div> -->
+              <img class="side-glass" src="{{ STATIC_URL }}img/join_club_cta.png">
+            </div>
+            <div class="vertical-space"></div>
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="span5 center">
+      {% if state == 'product' %}
+        <img src="{{ STATIC_URL }}img/join_club_overview.png">
+      {% else %}
+        <img src="{{ STATIC_URL }}img/join_club_{{ state }}.png">
+      {% endif %}
+      &nbsp;
+    </div>
+    <div class="span4">
+      <div class="row">
+        {% if state == 'product' %}
+          <div class="span4 state-head"><strong>Membership details</strong></div>
+        {% else %}
+          <div class="span4 state-head"><strong>{{ state }}</strong></div>
+        {% endif %}
+        <div class="vertical-space"></div>
+      </div>
+      <p>
+        {{ content|safe }}
+        {% if state == 'product' %}
+          <div class="vertical-space">&nbsp;</div>
+          <div class="center">
+            <a href="{% url join_club_signup %}" class="btn btn-success btn-large">Join</a>
+          </div>
+        {% endif %}
+      </p>
+      <div class="vertical-space"></div>
+      <div class="row">
+        <div class="span3 next-nav cta-button">
+          {% if state == 'overview' %}<a class="cta-interested" href="{% url join_club_start 'anticipation' %}">Interested?<br />Read on...</a>{% endif %}
+          {% if state == 'anticipation' %}<a class="cta-next" href="{% url join_club_start 'surprise' %}">Next</a>{% endif %}
+          {% if state == 'surprise' %}<a class="cta-next" href="{% url join_club_start 'indulgence' %}">Next</a>{% endif %}
+          {% if state == 'indulgence' %}<a class="cta-next" href="{% url join_club_start 'excitement' %}">Next</a>{% endif %}
+          {% if state == 'excitement' %}<a class="cta-next" href="{% url join_club_start 'product' %}">Next</a>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+
+{% endblock content %}
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('.guarantee').popover();
+    });
+  </script>
+{% endblock additional_scripts %}

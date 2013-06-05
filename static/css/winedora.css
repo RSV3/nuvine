@@ -139,21 +139,28 @@ table .row-label-bold {
   padding: 0px 59px 31px 59px;
 }
 #how_it_works {
-  background: url('../img/main_nav_sprite.png') no-repeat -381px -55px; 
-  width: 140px;
+  background: url('../img/main_nav_sprite.png') no-repeat -260px -55px; 
+  /*width: 140px;*/
 }
 #how_it_works a {
   padding: 0px 70px 31px 70px;
 }
+#join_club {
+  background: url('../img/main_nav_sprite.png') no-repeat -528px -55px; 
+  /*width: 130px;*/
+}
+#join_club a {
+  padding: 0 65px 31px 65px;
+}
 #host_a_party {
-  background: url('../img/main_nav_sprite.png') no-repeat -516px -55px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -394px -55px; 
   /*width: 126px;*/
 }
 #host_a_party a {
-  padding: 0px 70px 31px 70px;
+  padding: 0px 64px 31px 64px;
 }
 #become_a_pro {
-  background: url('../img/main_nav_sprite.png') no-repeat -651px -55px; 
+  background: url('../img/main_nav_sprite.png') no-repeat -656px -55px; 
   /*width: 126px;*/
 }
 #become_a_pro a {
@@ -191,9 +198,10 @@ table .row-label-bold {
 #parties a:hover, #parties.active { background: url('../img/main_nav_sprite.png') no-repeat 0px 0px;}
 #shop a:hover, #shop.active { background: url('../img/main_nav_sprite.png') no-repeat -82px 0px;}
 #rate_wines a:hover, #rate_wines.active { background: url('../img/main_nav_sprite.png') no-repeat -146px 0px;}
-#how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -381px 0px;}
-#host_a_party a:hover, #host_a_party.active { background: url('../img/main_nav_sprite.png') no-repeat -516px 0px;}
-#become_a_pro a:hover, #become_a_pro.active { background: url('../img/main_nav_sprite.png') no-repeat -651px 0px;}
+#how_it_works a:hover, #how_it_works.active { background: url('../img/main_nav_sprite.png') no-repeat -260px 0px;}
+#join_club a:hover, #join_club.active { background: url('../img/main_nav_sprite.png') no-repeat -528px 0px;}
+#host_a_party a:hover, #host_a_party.active { background: url('../img/main_nav_sprite.png') no-repeat -394px 0px;}
+#become_a_pro a:hover, #become_a_pro.active { background: url('../img/main_nav_sprite.png') no-repeat -656px 0px;}
 #nav_get_started a:hover, #nav_get_started.active { background: url('../img/main_nav_sprite_old.png') no-repeat -407px 0px;}
 #our_story a:hover, #our_story.active { background: url('../img/main_nav_sprite.png') no-repeat -788px 0px;}
 #dashboard a:hover, #dashboard.active { background: url('../img/main_nav_sprite_old.png') no-repeat -644px 0px;}
@@ -633,37 +641,50 @@ table .row-label-bold {
   background: url('../img/create_party_nav.png') no-repeat -706px 0; 
 }
 
-/*
-.partycrumb li {
-  height: 190px;
-}
-.party-add {
-  background: url('../img/create_party_nav.png') no-repeat 0 -82px; 
-  width: 298px;
-}
-.party-write-invitation {
-  background: url('../img/create_party_nav.png') no-repeat -300px -82px; 
-  width: 260px;
-}
-.party-invite-friends {
-  background: url('../img/create_party_nav.png') no-repeat -562px -82px; 
-  width: 250px;
+.diy-nav li {
+  background: url('../img/DIY_top_nav.png');
+  background-repeat:no-repeat;
+  height: 30px;
 }
 
-.party-add.active {
+#shipping {
+  background-position: 0 -156px;
+  width: 229px;
+}
+#shipping.visited {
+  background-position: 0 -80px;
+  width: 229px;
+}
+#shipping.active {
   background-position: 0 0;
+  width: 229px;
 }
-.party-write-invitation.active {
-  background-position: -300px 0; 
+
+#review {
+  background-position: -233px -161px;
+  width: 150px;
 }
-.party-invite-friends.active {
-  background-position: -562px 0; 
+#review.visited {
+  background-position: -233px -80px;
+  width: 150px;
 }
- .product-description {
-  width: 300px;
-  margin-top: 15px;
+#review.active {
+  background-position: -233px 0;
+  width: 150px;
 }
-*/
+
+#done {
+  background-position: -387px -161px;
+  width: 175px;
+}
+#done.visited {
+  background-position: -387px -80px;
+  width: 175px;
+}
+#done.active {
+  background-position: -387px 0;
+  width: 175px;
+}
 
 footer {
   font-family: "Avenir LT W01 85 Heavy";

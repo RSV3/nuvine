@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('main.views',
     url(r'^home/$', 'home', name='home_page'),
+    url(r'^member/$', 'home_club_member', name='home_club_member'),
     url(r'^our_story/$', 'our_story', name='our_story'),
     # url(r'^get/started$', 'get_started', name='get_started'),
     url(r'^contact/$', 'contact_us', name='contact_us'),
@@ -87,8 +88,12 @@ urlpatterns = patterns('main.views',
 )
 
 urlpatterns += patterns('main.views',
+    url(r'^event_desc/update/(?P<party_id>\d+)/$', 'update_event_desc', name='update_event_desc'),
     url(r'^events/$', 'vinely_event', name='vinely_event'),
+    url(r'^events/(?P<party_id>\d+)/$', 'vinely_event_detail', name='vinely_event_detail'),
     url(r'^facebook/events/$', 'fb_vinely_event', name='fb_vinely_event'),
     url(r'^event/signup/(?P<party_id>\d+)/$', 'vinely_event_signup', name='vinely_event_signup'),
     url(r'^facebook/event/signup/(?P<party_id>\d+)/$', 'fb_vinely_event_signup', name='fb_vinely_event_signup'),
+    # url(r'^event/checkout/(?P<party_id>\d+)/$', 'vinely_event_checkout', name='vinely_event_checkout'),
+    # url(r'^facebook/event/checkout/(?P<party_id>\d+)/$', 'fb_vinely_event_checkout', name='fb_vinely_event_checkout'),
 )

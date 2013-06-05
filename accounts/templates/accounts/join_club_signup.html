@@ -1,0 +1,227 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block additional_styles %}
+<style type="text/css">
+  .state-head {
+    display: inline-block;
+    *display: inline;
+    /* IE7 inline-block hack */
+
+    *zoom: 1;
+    margin-bottom: 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-family: "Avenir LT W01 85 Heavy", "Helvetica", "sans-serif";
+    line-height: 1.3em;
+    *line-height: 20px;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    vertical-align: middle;
+    color: inherit;
+  }
+
+  form .box-container {
+    padding: 29px 29px 0;
+  }
+  .well {
+    min-height: 20px;
+    padding-right: 39px;
+    /*padding-top: 39px;*/
+    background-color: #f5f5f5;
+    border: 1px solid #999;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    padding-left: 47px;
+  }
+
+  .well hr {
+    margin: 18px 30px 18px 0px;
+  }
+
+  button, .form-horizontal input {
+    height:35px;
+    border-radius:4px;
+    border:1px solid #CCC;
+  }
+
+  .form-horizontal .control-group {
+    margin-bottom:1.0em;
+  }
+  .question {
+    margin-bottom:20px;
+  }
+</style>
+<link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
+{% endblock additional_styles %}
+
+{% block header %}
+  <!-- <h1 class="headline">{{ heading|safe }}</h1> -->
+  <h1 class="headline">
+      Have we met?
+  </h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span12">
+      <h2 class="center">
+        {% block subheading %}
+        <!-- {{ sub_heading|safe }} -->
+        {% endblock subheading %}
+      </h2>
+    </div>
+  <div class="vertical-space"></div>
+  </div>
+  <div class="row">
+    <div class="span5 offset1 center state-head">Nope! I'm new to vinely.</div>
+    <div class="span1 center state-head" style="margin-left: 25px;"> - or - </div>
+    <div class="span4 center state-head">Yes! I already have an account.</div>
+  </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span4 offset1 well">
+      <form id="shipping_form" class="form-horizontal form-validate" method="POST" action="{{ app_path }}">
+        {% csrf_token %}
+        <p class="center">
+          Have questions? Need Help? <br />
+          Call us at (888)294-1128 ext. 1 <br />
+          or email us at <a href="mailto:care@vinely.com">care@vinely.com</a>.
+        </p>
+        <div class="question"><p><i>1. What's your info?</i></p></div>
+        <div class="control-group">
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <span class="help-inline">
+              {{ form.first_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group">
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <span class="help-inline">
+              {{ form.last_name.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.email.errors %}error{% endif %}">
+          {{ form.email }}
+          {% if form.email.errors %}
+            <span class="help-inline">
+              {{ form.email.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.phone_number.errors %}error{% endif %}">
+          {{ form.phone_number }}
+          {% if form.phone_number.errors %}
+            <span class="help-inline">
+              {{ form.phone_number.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.zipcode.errors %}error{% endif %}">
+          {{ form.zipcode }}
+          {% if form.zipcode.errors %}
+            <span class="help-inline">
+              {{ form.zipcode.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.password1.errors %}error{% endif %}">
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <span class="help-inline">
+              {{ form.password1.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="control-group {% if form.password2.errors %}error{% endif %}">
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <span class="help-inline">
+              {{ form.password2.errors }}
+            </span>
+          {% endif %}
+        </div>
+        <hr />
+        <div class="question">
+          <p><i>2. Do you already know a Vinely Pro? <br />(leave this blank if you don't know what it is)</i></p>
+        </div>
+        <div class="control-group {% if form.mentor.errors %}error{% endif %}">
+          {{ form.mentor }}
+          {% if form.mentor.errors %}
+            <span class="help-inline">
+              {{ form.mentor.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+    <div class="span1">&nbsp;</div>
+    <div class="span4">
+      <form class="form-horizontal form-validate" method="POST" action="{% url login %}">
+        {% csrf_token %}
+        <div class="box-container">
+          <div class="box-content">
+            <div class="control-group {% if login_form.email.errors %}error{% endif %}">
+              {{ login_form.email }}
+              {% if login_form.email.errors %}
+                <span class="help-inline">
+                  {{ login_form.email.errors }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="control-group {% if login_form.password.errors %}error{% endif %}">
+              {{ login_form.password }}
+              {% if login_form.password.errors %}
+                <span class="help-inline">
+                  {{ login_form.password.errors }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="control-group center">
+                <a href="{% url forgot_password %}" class="state-head">Forgot Password?</a>
+            </div>
+            <div class="control-group center">
+                <button class="btn btn-primary" type="submit">Log In</button>
+                <input type="hidden" name="next" value="{% url join_club_shipping %}" />
+            </div>
+          </div>
+          <div class="box-bg"></div>  
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span5 offset1 center">
+      <button id="signup" class="btn btn-primary" type="submit">Sign up</button>
+    </div>
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#signup').on('click', function() {
+          $('#shipping_form').submit();
+        })
+      });
+    </script>
+{% endblock additional_scripts %}

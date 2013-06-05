@@ -1,0 +1,47 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+{% load render_table from django_tables2 %}
+
+{% block header %}
+  <h1 class="headline">Your Pro Stats</h1>
+{% endblock header %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}"/>
+{% endblock %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span12">
+      Hope you are enjoying your Vinely Pro experience!
+    </div>
+    <div class="span12">
+      <h2>Weekly Progress</h2>
+
+      {% render_table weekly_comps_table %}
+
+    </div>
+
+    <div class="span12">
+      <h2>Monthly Statistics</h2>
+
+      {% render_table monthly_comps_table %}
+
+    </div>
+
+    <div class="span12">
+      <h2>Qualification Level</h2>
+
+      {% render_table monthly_quals_table %}
+
+    </div>
+  </div>
+
+
+</div>
+
+{% endblock %}
+

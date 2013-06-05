@@ -54,17 +54,17 @@ class Wine(models.Model):
   sparkling = models.BooleanField(default=False)
 
   ENCLOSURE_CHOICES = (
-    (0, u'Unknown'),
-    (1, u'Screw'),
-    (2, u'Cork')
+      (0, u'Unknown'),
+      (1, u'Screw'),
+      (2, u'Cork')
   )
 
   enclosure = models.IntegerField(choices=ENCLOSURE_CHOICES, default=ENCLOSURE_CHOICES[0][0])
 
   WINE_COLOR = (
-    (0, u'Red'),
-    (1, u'White'),
-    (2, u'Ros\xc3')
+      (0, u'Red'),
+      (1, u'White'),
+      (2, u'Ros\xc3')
   )
 
   color = models.IntegerField(choices=WINE_COLOR, default=WINE_COLOR[0][0])
@@ -110,46 +110,46 @@ class WineRatingData(models.Model):
   # )
 
   DNL_CHOICES = (
-    (0, 'Not Answered'),
-    (1, 'Too Little'),
-    (2, 'Just Right'),
-    (3, 'Too Much'),
+      (0, 'Not Answered'),
+      (1, 'Too Little'),
+      (2, 'Just Right'),
+      (3, 'Too Much'),
   )
 
   SWEET_CHOICES = (
-    (0, 'Not Answered'),
-    (1, 'Tart'),
-    (2, 'Semi Tart'),
-    (3, 'Neutral'),
-    (4, 'Semi Sweet'),
-    (5, 'Sweet'),
+      (0, 'Not Answered'),
+      (1, 'Tart'),
+      (2, 'Semi Tart'),
+      (3, 'Neutral'),
+      (4, 'Semi Sweet'),
+      (5, 'Sweet'),
   )
 
   WEIGHT_CHOICES = (
-    (0, 'Not Answered'),
-    (1, 'Light'),
-    (2, 'Semi Light'),
-    (3, 'Medium'),
-    (4, 'Semi Heavy'),
-    (5, 'Heavy'),
+      (0, 'Not Answered'),
+      (1, 'Light'),
+      (2, 'Semi Light'),
+      (3, 'Medium'),
+      (4, 'Semi Heavy'),
+      (5, 'Heavy'),
   )
 
   TEXTURE_CHOICES = (
-    (0, 'Not Answered'),
-    (1, 'Silky'),
-    (2, 'Semi Silky'),
-    (3, 'Neutral'),
-    (4, 'Semi Furry'),
-    (5, 'Furry'),
+      (0, 'Not Answered'),
+      (1, 'Silky'),
+      (2, 'Semi Silky'),
+      (3, 'Neutral'),
+      (4, 'Semi Furry'),
+      (5, 'Furry'),
   )
 
   SIZZLE_CHOICES = (
-    (0, 'Not Answered'),
-    (1, 'None'),
-    (2, 'Somewhat'),
-    (3, 'Tingle'),
-    (4, 'Semi Burn'),
-    (5, 'Burn')
+      (0, 'Not Answered'),
+      (1, 'None'),
+      (2, 'Somewhat'),
+      (3, 'Tingle'),
+      (4, 'Semi Burn'),
+      (5, 'Burn')
   )
 
   user = models.ForeignKey(User)
@@ -201,7 +201,11 @@ class SurveyWine(models.Model):
   color = models.IntegerField(choices=COLOR_CHOICES, default=COLOR_CHOICES[0][0])
 
   def __unicode__(self):
-    return self.name
+    if self.id == 13:
+      # for unicode safe export via csv in support/management/commands/export_survey.py
+      return "Rose"
+    else:
+      return self.name
 
 
 class GeneralTaste(models.Model):

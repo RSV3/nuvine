@@ -159,7 +159,7 @@ class VinelyUserProfileForm(forms.ModelForm):
 
   def clean_vinely_pro_account(self):
     # ensure the account number given is not already assigned to someone else
-    if VinelyProAccount.objects.filter(account_number=self.cleaned_data['vinely_pro_account']).exclude(users=self.instance).exists():
+    if VinelyProAccount.objects.filter(account_number=self.cleaned_data['vinely_pro_account']).exclude(users=self.instance.user).exists():
       self._errors["vinely_pro_account"] = ErrorList([u'That Vinely Pro account number is already assigned to someone else.'])
     return self.cleaned_data['vinely_pro_account']
 
@@ -251,7 +251,7 @@ admin.site.unregister(User)
 class VinelyUserAdmin(EmailUserAdmin):
 
   list_display = ('email', 'first_name', 'last_name', 'user_type', 'zipcode', 'pro_number', 'club_member')
-  list_filter = ('groups', 'is_active', 'userprofile__club_member')
+  list_filter = ('userprofile__role', 'is_active', 'userprofile__club_member')
 
   def club_member(self, instance):
     return instance.userprofile.club_member

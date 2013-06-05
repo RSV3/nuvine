@@ -1,0 +1,30 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block header %}
+  <h1 class="headline">{{ user.first_name }}, you are a {{ wine_personality.name }}</h1>
+{% endblock header %}
+
+{% block content %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="span4 offset1">
+    <div class="personality-badge-detail">
+      <img src="{{ STATIC_URL }}img/club_badge_{{ wine_personality.suffix }}.png">
+    </div>
+  </div>
+  <div class="span5">
+    <p class="state-head"><strong>{{ wine_personality.name }}</strong></p>
+    <br />
+    <p>{{ wine_personality.headline }}</p>
+    <p>{{ wine_personality.description }}</p>
+    <p>Congratulations! Now that wine personality has been revealed, 
+      you never have to settle for a bottle of wine you don't enjoy.
+    </p>
+    <p>Vinely will use your taste data to deliver wines you're sure to love, right to your door each month.</p>
+    <div class="vertical-space">&nbsp;</div>
+    <a href="{% url home_club_member %}" class="btn btn-primary btn-large">Home</a>
+    <div class="vertical-space">&nbsp;</div>
+  </div>
+</div>
+{% endblock content %}

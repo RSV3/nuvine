@@ -1,0 +1,82 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% load currency %}
+
+{% block additional_styles %}
+  <style type="text/css">
+    .card-info {
+      padding-top: 40px;
+    }
+    img.join-done {
+      position: absolute;
+      height: 700px;
+      margin-left: -270px;
+    }
+    .join-club-big-name {
+      position:absolute;
+      margin-top: 200px;
+      z-index: 200;
+      margin: 210px 0;
+      width: 320px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block header %}
+  <h1 class="headline">Congratulations!!</h1>
+{% endblock header %}
+
+{% block content %}
+<div class="partycrumb main">
+  <ul class="nav diy-nav">
+    <li id="shipping" class="visited">&nbsp;</li>
+    <li id="review" class="visited">&nbsp;</li>
+    <li id="done" class="active">&nbsp;</li>
+  </ul>
+</div>
+<div class="vertical-space">&nbsp;</div>
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span3 offset1">
+      <h2><small>Shipping</small></h2>
+      <address>
+        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>{{ shipping_address.street1 }}</p>
+        {% if shipping_address.street2 %}
+        <p>{{ shipping_address.street2 }}</p>
+        {% endif %}
+        <p>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.zipcode }}</p>
+        <br />
+        <p>Phone: {{ cart.receiver.get_profile.phone }}</p>        
+      </address>
+
+      <h2><small>Billing</small></h2>
+      <p>Credit card ending in {{ credit_card.last_four }}</p>
+      <p>Exp Date: {{ credit_card.exp_date }}</p>
+
+      <h2><small>Dues</small></h2>
+      <p>Subtotal: {{ cart.subtotal|currency }}</p>
+      <p>Tax: {{ cart.tax|currency }}</p>
+      <p><b>Total: {{ cart.total|currency }}/month</b></p>
+    </div>
+    <div class="span8">
+      <h1 class="headline join-club-big-name">{{ user.first_name|truncatechars:15 }}</h1>
+      <img class="join-done" src="{{ STATIC_URL }}img/join_club_done.png">
+    </div>
+  </div>
+  <div class="vertical-space-bottom">&nbsp;</div>
+  <div class="vertical-space-bottom">&nbsp;</div>
+  <div class="vertical-space">&nbsp;</div>
+  <div class="center">
+    <a href="{% url home_club_member %}" class="btn btn-success btn-large">Home</a>
+  </div> 
+  <div class="vertical-space">&nbsp;</div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+{% endblock additional_scripts %}

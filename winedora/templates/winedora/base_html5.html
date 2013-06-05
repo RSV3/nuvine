@@ -76,13 +76,9 @@
     .fb_edge_widget_with_comment iframe
     {
         width:48px !important;
+        height: 20px !important;
     }
-
-    /* but make the span that holds the comment box larger */
-    span.fb_edge_comment_widget.fb_iframe_widget iframe
-    {
-        width:401px !important;
-    }  </style>
+    </style>
   {% block additional_styles %}
   
   {% endblock %}
@@ -129,7 +125,7 @@
       {% endblock social %}
       {% block brand_logo %}
       <div class="span5 offset1">
-        <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default" width="312" height="160"></a></h1>
+        <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default"></a></h1>
       </div>
       {% endblock brand_logo %}
       {% block auth %}
@@ -139,7 +135,9 @@
               {% if user.is_authenticated %}
                   <a href="{% url logout %}">Sign Out</a> | 
                   <a href="{% url my_information %}">My Account</a>
-                  | <a href="{% url cart %}">Cart {{ cart_item_count }}</a>
+                  {% if user.get_profile.has_personality %}
+                    | <a href="{% url cart %}">Cart {{ cart_item_count }}</a>
+                  {% endif %}
                 {% else %}
                 <!-- if not logged in, show login link -->
                 <div class="login-forgot">
@@ -182,15 +180,23 @@
           {% if user.is_authenticated %} 
             <div class="menu_wrap main">           
               <ul class="nav">
-                <li id="parties"{% if parties_menu %} class="active"{% endif %}>
-                  <a href="{% url party_list %}" title="parties"></a>
-                </li>
-                <li id="shop"{% if shop_menu %} class="active"{% endif %}>
-                  <a href="{% url start_order %}" title="shop"></a>
-                </li>
-                {% if user.get_profile.has_orders %}
+                {% if user.get_profile.has_parties or pro %}
+                  <li id="parties"{% if parties_menu %} class="active"{% endif %}>
+                    <a href="{% url party_list %}" title="parties"></a>
+                  </li>
+                {% endif %}
+                {% if user.get_profile.has_personality %}
+                  <li id="shop"{% if shop_menu %} class="active"{% endif %}>
+                    <a href="{% url start_order %}" title="shop"></a>
+                  </li>
+                {% endif %}
+                {% if user.get_profile.club_member %}
                   <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
-                    <a href="{% url rate_wines %}" title="rate wines"></a>
+                    <a href="{% url member_ratings_overview %}" title="rate wines"></a>
+                  </li>
+                {% else %}
+                  <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
+                    <a href="{% url join_club_start %}" title="Join The Club"></a>
                   </li>
                 {% endif %}
   <!-- 
@@ -210,7 +216,7 @@
                 {% endif %}
                 {% if not pro %}
                   <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
-                      <a href="{% url make_pro %}" title="Become A Pro"></a>
+                      <a href="{% url make_pro %}" title="Join The Team"></a>
                   </li>
                 {% endif %}
                 <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
@@ -243,6 +249,9 @@
                   <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="how it works"></a></li>
                   <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
                       <a href="{% url make_host %}" title="Host A Party"></a>
+                  </li>
+                  <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
+                    <a href="{% url join_club_start %}" title="Join The Club"></a>
                   </li>
                   <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
                       <a href="{% url make_pro %}" title="Become A Pro"></a>

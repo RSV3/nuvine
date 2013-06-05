@@ -1,33 +1,37 @@
 # Create your views here.
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
 
-from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart
+from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart, \
+                        LineItem, Product, Order, Party
 
 from accounts.forms import ChangePasswordForm, VerifyAccountForm, VerifyEligibilityForm, UpdateAddressForm, ForgotPasswordForm,\
                             UpdateSubscriptionForm, PaymentForm, ImagePhoneForm, UserInfoForm, NameEmailUserMentorCreationForm, \
-                            HeardAboutForm, MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm
+                            MakeHostProForm, ProLinkForm, MakeTasterForm, NewHostProForm, AgeValidityForm, \
+                            VinelyEmailAuthenticationForm
 from accounts.models import VerificationQueue, SubscriptionInfo, Zipcode, UserProfile
-from accounts.utils import send_verification_email, send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
+from accounts.utils import send_password_change_email, send_pro_request_email, send_unknown_pro_email, \
                             check_zipcode, send_not_in_area_party_email, send_know_pro_party_email, send_account_activation_email, \
-                            get_default_pro, get_default_mentor
+                            get_default_pro, get_default_mentor, join_the_club_email
 
 from cms.models import ContentTemplate
-from main.utils import send_host_vinely_party_email, my_host, my_pro
+from main.utils import send_host_vinely_party_email, my_host, my_pro, send_order_confirmation_email
+from main.forms import JoinClubShippingForm
 
 from stripecard.models import StripeCard
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
+import time
 import math
 
 import uuid
@@ -73,10 +77,19 @@ def profile(request):
     if invites.exists():
       invite = invites[0]
       return HttpResponseRedirect(reverse('party_rsvp', args=[invite.rsvp_code, invite.party.id]))
-    else:
+    elif profile.club_member:
+      return HttpResponseRedirect(reverse('home_club_member'))
+
+  elif profile.is_host():
+    parties = Party.objects.filter(host=u, event_date__gt=timezone.now())
+    if parties.exists():
       return HttpResponseRedirect(reverse('home_page'))
-  else:
-    return HttpResponseRedirect(reverse('home_page'))
+    elif profile.club_member:
+      return HttpResponseRedirect(reverse('home_club_member'))
+  elif profile.is_pro():
+    return HttpResponseRedirect(reverse('party_list'))
+
+  return HttpResponseRedirect(reverse('home_page'))
 
 
 @login_required
@@ -395,6 +408,11 @@ def edit_subscription(request):
       else:
         messages.error(request, "Stripe subscription did not get updated probably because no subscription existed or user does not live in a state handled by Stripe.")
 
+      # no longer considered a club member
+      profile = u.get_profile()
+      profile.club_member = False
+      profile.save()
+
   data['invited_by'] = my_host(u)
 
   data['pro_user'] = u.get_profile().current_pro
@@ -411,6 +429,12 @@ def edit_subscription(request):
 def cancel_subscription(request):
   u = request.user
   u.get_profile().cancel_subscription()
+
+  # no longer considered a club member
+  profile = u.get_profile()
+  profile.club_member = False
+  profile.save()
+
   messages.success(request, "Your subscription has been cancelled.")
   return HttpResponseRedirect(reverse("edit_subscription"))
 
@@ -763,7 +787,17 @@ def sign_up(request, account_type, data):
   form = NewHostProForm(request.POST or None, initial={'account_type': account_type})
 
   if form.is_valid():
+    try:
+      u = User.objects.get(email=form.cleaned_data['email'])
+      form.instance = u
+    except User.DoesNotExist:
+      pass
+
     user = form.save()
+    if not user.is_active:
+      user.is_active = True
+      user.save()
+
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
@@ -794,11 +828,15 @@ def sign_up(request, account_type, data):
         profile.save()
         send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
-        # pro = get_default_pro()
-        pro = profile.find_nearest_pro()
         # pro e-mail was not entered
-        profile.current_pro = pro
-        profile.save()
+        # allow users that have accounts but never logged in (inactive accounts) to just signup as normal
+        # but maintain the pro if they had one
+        if profile.current_pro:
+          pro = profile.current_pro
+        else:
+          pro = profile.find_nearest_pro()
+          profile.current_pro = pro
+          profile.save()
 
         send_unknown_pro_email(request, user)  # to host
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
@@ -1019,3 +1057,310 @@ def pro_unlink(request):
     messages.success(request, "You have been successfully unlinked from the Pro.")
 
   return HttpResponseRedirect(reverse("edit_subscription"))
+
+
+def join_club_start(request, state=None):
+  data = {}
+
+  if state not in ['anticipation', 'indulgence', 'surprise', 'excitement', 'product']:
+    state = 'overview'
+
+  data['state'] = state
+
+  host_sections = ContentTemplate.objects.get(key='join_club').sections.all()
+  data['heading'] = host_sections.get(key='header').content
+  data['sub_heading'] = host_sections.get(key='sub_header').content
+  data['content'] = host_sections.get(key=state).content
+  data['join_club_menu'] = True
+  return render_to_response("accounts/join_club_start.html", data, context_instance=RequestContext(request))
+
+
+def join_club_signup(request):
+  user = request.user
+
+  if user.is_authenticated():
+    if user.userprofile.club_member:
+      return HttpResponseRedirect(reverse('home_club_member'))
+    else:
+      return HttpResponseRedirect(reverse('join_club_shipping'))
+
+  data = {}
+  form = NameEmailUserMentorCreationForm(request.POST or None, initial={'account_type': 3})
+  login_form = VinelyEmailAuthenticationForm(request.POST or None)
+  data['form'] = form
+  data['login_form'] = login_form
+  data['join_club_menu'] = True
+
+  # if user is inactive allow signup to go through
+  if form.is_valid():
+    try:
+      u = User.objects.get(email=form.cleaned_data['email'])
+      form.instance = u
+    except User.DoesNotExist:
+      pass
+
+    user = form.save()
+    if not user.is_active:
+      user.is_active = True
+      user.save()
+    profile = user.get_profile()
+    profile.zipcode = form.cleaned_data['zipcode']
+    profile.phone = form.cleaned_data['phone_number']
+    profile.role = 3  # taster
+
+    try:
+      pro = User.objects.get(email=form.cleaned_data.get('mentor'))
+      profile.current_pro = pro
+    except User.DoesNotExist:
+      # user might be inactive but linked to a pro e.g. if was previously invited to a party
+      if not profile.current_pro:
+        pro = get_default_pro()
+
+    profile.save()
+
+    ok = check_zipcode(profile.zipcode)
+
+    if not ok:
+      messages.info(request, 'Please note that Vinely does not currently operate in your area.')
+      send_not_in_area_party_email(request, user, 3)
+
+    interest, created = EngagementInterest.objects.get_or_create(user=user, engagement_type=3)
+
+    user = authenticate(email=user.email, password=form.cleaned_data['password1'])
+    if user is not None:
+      login(request, user)
+
+    return HttpResponseRedirect(reverse('join_club_shipping'))
+
+  return render_to_response("accounts/join_club_signup.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def join_club_shipping(request):
+  user = request.user
+  profile = user.get_profile()
+
+  if profile.club_member:
+    return HttpResponseRedirect(reverse('home_club_member'))
+
+  data = {}
+  initial_data = {'first_name': user.first_name, 'last_name': user.last_name,
+                  'email': user.email, 'phone': profile.phone}
+
+  current_shipping = profile.shipping_address
+  if current_shipping:
+    initial_data['address1'] = current_shipping.street1
+    initial_data['address2'] = current_shipping.street2
+    initial_data['company_co'] = current_shipping.company_co
+    initial_data['city'] = current_shipping.city
+    initial_data['state'] = current_shipping.state
+    initial_data['zipcode'] = current_shipping.zipcode
+  initial_data['news_optin'] = user.get_profile().news_optin
+
+  initial_age = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+
+  shipping_form = JoinClubShippingForm(request.POST or None, instance=user, initial=initial_data)
+  eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility', initial=initial_age)
+
+  data['join_club_menu'] = True
+  data['eligibility_form'] = eligibility_form
+  data['form'] = shipping_form
+  data['publish_token'] = settings.STRIPE_PUBLISHABLE_CA
+  stripe.api_key = settings.STRIPE_SECRET_CA
+
+  valid_age = eligibility_form.is_valid()
+  # check zipcode is ok
+  if request.method == 'POST':
+    zipcode = request.POST.get('zipcode')
+    ok = check_zipcode(zipcode)
+    if zipcode and not ok:
+      messages.error(request, 'Currently, we can only ship to California.')
+      return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+  if shipping_form.is_valid() and valid_age:
+    user = shipping_form.save()
+    profile = user.get_profile()
+
+    profile.dob = eligibility_form.cleaned_data['dob']
+    profile.above_21 = True
+    profile.save()
+
+    # handle credit card
+    stripe_token = request.POST.get('stripe_token')
+    stripe_card = profile.stripe_card
+
+    try:
+      if not stripe_card:
+        raise Exception('Has no card')
+
+      customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
+      if customer.get('deleted'):
+        raise Exception('Customer Deleted')
+      stripe_user_id = customer.id
+
+      # makes sure we have the exact same card
+      stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                        exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                        card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+    except:
+      try:
+        customer = stripe.Customer.create(card=stripe_token, email=user.email)
+        stripe_user_id = customer.id
+
+        # create on vinely
+        stripe_card, created = StripeCard.objects.get_or_create(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
+                                exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
+                                card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
+        if created:
+          profile.stripe_card = stripe_card
+          profile.save()
+          profile.stripe_cards.add(stripe_card)
+
+      except:
+        messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
+        return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+    # update cart
+    if 'cart_id' in request.session:
+      cart = Cart.objects.get(id=request.session['cart_id'])
+    else:
+      taste_kit = Product.objects.get(cart_tag='join_club_tasting_kit', active=True)
+      six_bottle = Product.objects.get(cart_tag='6', active=True)
+      # if new anon user then
+      # first purchase is for taste kit which is a one time purchase
+      # otherwise make subscription i.e. if user has personality
+      if profile.has_personality():
+        item = LineItem.objects.create(product=six_bottle, price_category=13, total_price=six_bottle.unit_price, frequency=1)
+      else:
+        item = LineItem.objects.create(product=taste_kit, price_category=15, total_price=taste_kit.unit_price, frequency=0)
+
+      cart = Cart.objects.create(user=user, receiver=user, status=4, adds=1)
+      cart.items.add(item)
+      request.session['cart_id'] = cart.id
+
+    # update the receiver user
+    request.session['receiver_id'] = user.id
+    request.session['stripe_payment'] = True
+    return HttpResponseRedirect(reverse('join_club_review'))
+
+  return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def join_club_review(request):
+  user = request.user
+  profile = user.get_profile()
+  data = {}
+
+  cart_id = request.session.get('cart_id')
+  if cart_id:
+    cart = get_object_or_404(Cart, id=request.session['cart_id'])
+    receiver = cart.receiver
+
+    if request.method == "POST":
+      # finalize order
+
+      if 'order_id' in request.session:
+        # existing order id, in case user submits multiple times
+        order_id = request.session['order_id']
+      else:
+        # new order id
+        order_id = str(uuid.uuid4())
+        request.session['order_id'] = order_id
+
+      try:
+        # create order: existing cart
+        order = Order.objects.get(cart=cart)
+        order.order_id = order_id
+        order.ordered_by = receiver
+        order.receiver = receiver
+      except Order.DoesNotExist:
+        # create new order for this cart
+        order = Order(ordered_by=receiver, receiver=receiver, order_id=order_id, cart=cart)
+
+      # save credit card and shipping address in the order
+      order.stripe_card = profile.stripe_card
+      order.shipping_address = profile.shipping_address
+      order.save()
+
+      # order completed
+      cart.status = Cart.CART_STATUS_CHOICES[5][0]
+      cart.save()
+
+      stripe.api_key = settings.STRIPE_SECRET_CA
+
+      if order.fulfill_status == 0:
+        customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+
+        non_sub_orders = order.cart.items.filter(frequency=0)
+        sub_orders = order.cart.items.filter(frequency=1)
+
+        # create invoice manually if there's no subscription
+        if non_sub_orders.exists():
+          item = non_sub_orders[0]
+          tax = float(item.total_price) * 0.08
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax * 100), currency='usd', description='Tax')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.total_price * 100), currency='usd', description='Join The Club Tasting Kit')
+
+          invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
+          invoice.pay()
+
+          # Create a subscription with a 1month trial/delay so that it's not charged now
+          trial_end_date = datetime.now() + relativedelta(months=1)
+          trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
+          customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
+
+        # if subscription exists then create plan
+        elif sub_orders.exists():
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+          item = sub_orders[0]
+          stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
+          customer.update_subscription(plan=stripe_plan)
+
+        order.fulfill_status = 1
+        order.save()
+
+        profile.club_member = True
+        profile.save()
+
+        # need to send e-mail
+        join_the_club_email(request, user)
+        send_order_confirmation_email(request, order_id)
+
+      # remove session information if it exists
+      if 'ordering' in request.session:
+        del request.session['ordering']
+      if 'order_id' in request.session:
+        del request.session['order_id']
+      if 'cart_id' in request.session:
+        del request.session['cart_id']
+      if 'stripe_payment' in request.session:
+        del request.session['stripe_payment']
+
+      return HttpResponseRedirect(reverse("join_club_done", args=[order_id]))
+
+  else:
+    messages.error(request, 'Your session expired, please start ordering again.')
+    return HttpResponseRedirect(reverse('join_club_shipping'))
+
+  data['shipping_address'] = profile.shipping_address
+  data['cart'] = cart
+  data["credit_card"] = profile.stripe_card
+  data['join_club_menu'] = True
+
+  return render_to_response("accounts/join_club_review.html", data, context_instance=RequestContext(request))
+
+
+@login_required
+def join_club_done(request, order_id):
+  user = request.user
+  profile = user.get_profile()
+
+  order = get_object_or_404(Order, order_id=order_id)
+
+  data = {}
+  data['shipping_address'] = profile.shipping_address
+  data['cart'] = order.cart
+  data["credit_card"] = order.stripe_card
+  data['join_club_menu'] = True
+  return render_to_response("accounts/join_club_done.html", data, context_instance=RequestContext(request))

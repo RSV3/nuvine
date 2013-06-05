@@ -2,9 +2,10 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-
 from emailusernames.forms import EmailAuthenticationForm
+from django.utils import timezone
 
+from main.models import Party
 from cms.models import ContentTemplate
 
 
@@ -27,10 +28,22 @@ def home(request):
   data['pro'] = sections.get(key='pro').content
 
   if u.is_authenticated():
-    if u.userprofile.is_supplier():
+    profile = u.get_profile()
+    if profile.is_supplier():
       return HttpResponseRedirect(reverse("supplier_all_orders"))
+    elif profile.is_taster():
+      if profile.club_member:
+        return HttpResponseRedirect(reverse("home_club_member"))
+      else:
+        return HttpResponseRedirect(reverse("home_page"))
+    elif profile.is_host():
+      parties = Party.objects.filter(host=u, event_date__gt=timezone.now())
+      if parties.exists():
+        return HttpResponseRedirect(reverse('home_page'))
+      elif profile.club_member:
+        return HttpResponseRedirect(reverse('home_club_member'))
     else:
-      return HttpResponseRedirect(reverse("home_page"))
+      return HttpResponseRedirect(reverse('home_page'))
 
   return render_to_response("winedora/home.html", data, context_instance=RequestContext(request))
 

@@ -63,6 +63,7 @@ class Party(models.Model):
   confirmed = models.BooleanField()
   requested = models.BooleanField()
   setup_stage = models.IntegerField(default=1)
+  fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -208,6 +209,8 @@ class PartyInvite(models.Model):
   invited_timestamp = models.DateTimeField(blank=True, null=True)  # auto_now_add=True)
   response_timestamp = models.DateTimeField(blank=True, null=True)
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
+  fee_paid = models.BooleanField(default=False)
+  attended = models.BooleanField(default=False)
 
   def invited(self):
     return bool(self.invited_timestamp)
@@ -294,7 +297,7 @@ class LineItem(models.Model):
       (12, '3 Bottles'),
       (13, '6 Bottles'),
       (14, '12 Bottles'),
-
+      (15, 'Join Club Tasting Kit')
   )
 
   product = models.ForeignKey(Product, null=True)
@@ -314,7 +317,7 @@ class LineItem(models.Model):
       return self.product.full_case_price
     elif self.price_category in [6, 8, 10]:
       return self.product.unit_price
-    elif self.price_category in [12, 13, 14]:
+    elif self.price_category in [12, 13, 14, 15]:
       # newer products that go by 3, 6, 12 bottles
       return self.product.unit_price
     else:
@@ -616,6 +619,14 @@ class Order(models.Model):
   def slot_summary(self):
     return "%s [%s]" % (self.num_slots, self.filled_slots())
 
+  def is_vip(self):
+    """
+      Checks whether it contains VIP
+    """
+    for item in self.cart.items.all():
+      if item.frequency == 1:
+        return True
+    return False
 
 class SelectedWine(models.Model):
 

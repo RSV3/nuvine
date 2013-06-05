@@ -1,0 +1,68 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load static %}
+
+{% block header %}
+  <h1 class="headline">Welcome{% if user.first_name %}, {{ user.first_name }}{% else %} to Vinely{% endif %}</h1>
+{% endblock header %}
+
+{% block additional_styles %}
+<style type="text/css">
+  .join-club-big-name {
+    position:absolute;
+    margin: 100px 28px;
+    width: 310px;
+  }
+  .personality-badge-detail img {
+    margin-top: -40px;
+  }
+</style>
+{% endblock additional_styles %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    {% if wine_personality %}
+      <div class="offset1 span5">
+        <p>Your wine personality unlocks a world of wines you are sure to love.</p>
+        <p>Remember to rate new wines as you receive shipments from Vinely 
+          so we can continue to improve your personalized selection.</p>
+        <p>Want to share the love? Host a party to enjoy the Vinely experience 
+          with your friends and earn special host rewards!</p>
+        <br />
+        <div class="center">
+          <a href="{% url member_ratings_overview %}" class="btn btn-success btn-large">Rate Wines</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="offset1 span5">
+        <p>In less than 10 days you will receive your wonderful surprise of 6 tasting wines. 
+          After you have tasted and rated these wines, we will reveal your Wine Personality!</p>
+        <p>We will notify you by e-mail when your wine is shipped. 
+          Please add info@vinely.com to your contacts to ensure the e-mail is delivered successfully.</p>
+        <p>Lastly, make sure that someone 21 or older is present to receive your shipment so there are 
+          no delays finding out your wine personality!</p>
+        <br />
+        <div class="center">
+          <a href="{% url member_ratings_overview %}" class="btn btn-success btn-large">Rate Wines</a>
+        </div>
+      </div>    
+    {% endif %}
+
+    <div class="span5">
+      {% if wine_personality %}
+        <div class="personality-badge-detail">
+          <img src="{{ STATIC_URL }}img/club_badge_{{ wine_personality.suffix }}.png">
+        </div>
+      {% else %}
+        <div class="personality-badge-detail">
+          <h1 class="headline join-club-big-name">{{ user.first_name|truncatechars:15 }}</h1>
+          <img src="{% static "img/club_badge_anon.png" %}"  />
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+  <div class="vertical-space">&nbsp;</div>
+</div>
+{% endblock content %}
