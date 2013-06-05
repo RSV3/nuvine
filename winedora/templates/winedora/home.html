@@ -2,11 +2,6 @@
 
 {% load static %}
 
-{% block header %}
-  <h1 class="headline pull-left">{{ header }}</h1>
-
-{% endblock header %}
-
 {% block additional_styles %}
 <style type="text/css">
   h1.headline {
@@ -93,6 +88,11 @@
   }
 </style>
 {% endblock additional_styles %}
+
+{% block header %}
+  <h1 class="headline pull-left">{{ header }}</h1>
+{% endblock header %}
+
 {% block content %}
 <div class="container">
   <div class="vertical-space"></div>

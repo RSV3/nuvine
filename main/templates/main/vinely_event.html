@@ -2,8 +2,44 @@
 
 {% load render_table from django_tables2 %}
 
+{% block additional_styles %}
+<style type="text/css">
+  h1.headline {
+    margin-bottom: 0;
+    text-transform: uppercase;
+    font-size: 44px;
+    line-height: 1;
+    color: inherit;
+    letter-spacing: 2px;
+  }
+  .box-content2 h1 {
+    background: url('{{ STATIC_URL }}img/arrow.png') no-repeat 130px 8px;
+    width: 200px;
+  }
+  .box-content2 {
+    /*padding-left: 30px;*/
+    padding: 10px 35px 6px;
+  }
+  .box-content2 img {
+    margin-left: 20px;
+    position: absolute;
+  }
+  .home-club {
+    margin-top: -11px;
+    /*height: 140px;*/
+  }
+  .box-content2 p {
+    color: #415A68;
+    width: 200px;
+  }
+  .event-wine {
+    position: absolute;
+    margin-left: -35px;
+  }
+ </style>
+{% endblock additional_styles %}
 {% block header %}
-  <h1 class="headline">WHAT’S A VINELY TASTE PARTY?</h1>
+  <h1 class="headline pull-left">CHANGE THE WAY YOU EXPERIENCE WINE AT A VINELY EVENT</h1>
 {% endblock header %}
 
 {% block social %} {% if not fb_view %} {{block.super}} {% endif %} {% endblock %}
@@ -14,14 +50,80 @@
 {% block content %}
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="vertical-space"></div>
   <div class="row">
-    <div class="{% if fb_view %}span9{% else %}span9{% endif %} offset1">
-      {{ event_content }}
+    <div class="{% if fb_view %}span9{% else %}span9{% endif %}">
       <!-- <div class="vertical-space"></div> -->
+    </div>
+    <div class="span3">
+      <p>Tired of the guesswork of finding the wine you'll love? Now Vinely makes it easy, convenient and fun.</p>
+      <br />
+      <p>Vinely events are as simple as Sip, Taste and Repeat. Treat your taste buds to wines you're guaranteed to love.</p>
+    </div>
+    <div class="span4">
+      <p>Are you Moxie, Sensational, Exuberant, Whimsical, Easygoing or Serendipitous? <br /> 
+      Find you your Vinely Wine Personality at an event by sipping the 6 carefully selected wines.</p>
+      <br />
+      <p>Once you have a Wine Personality there's nothing stopping you from a lifetime of discovering wine you'll love.</p>
+    </div>
+    <div class="span4">
+      <img class="event-wine" src="{{ STATIC_URL }}img/event_overview_glass.png" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="span10">
       <h2>Upcoming events</h2>
       {% render_table parties_table %}
     </div>
   </div>
+  <h2>Questions</h2>
+  <p>Contact a Vinely Care Specialist at <a href="care@vinely.com">care@vinely.com</a> or call 1.888.294.1128 ext: 1</p>
+  <br /><br />
+  <div class="row">
+    <div class="span6">
+      <div class="box-content2 join-club">
+        <a href="{% url make_host %}">
+          <div class="row">
+            <div class="span2">
+              <h1>Host a party!</h1>
+              <p>
+              Pop the cork and <br/>
+              learn about hosting <br />
+              a Vinely party
+              </p>
+            </div>
+            <div class="span3">
+              <img class="home-host" src="{{ STATIC_URL }}img/how_it_works_host_glasses.png" />
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="span6">
+      <div class="box-content2 join-club">
+        <a href="{% url join_club_start %}">
+          <div class="row">
+            <div class="span2">
+              <h1>Join the club!</h1>
+              <p>
+              Become a Vinely VIP <br />
+              and change the way you <br />
+              experience wine!
+              <br />
+              </p>
+            </div>
+            <div class="span3">
+              <img class="home-club" src="{{ STATIC_URL }}img/how_it_works_join_cta.png" />
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="vertical-space">
+    &nbsp;
+  </div>
+
 </div> <!-- container -->
 
 {% endblock content %}
