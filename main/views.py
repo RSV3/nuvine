@@ -3043,9 +3043,9 @@ def vinely_event_signup(request, party_id, fb_page=0):
       if profile.zipcode and not ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, user, account_type)
-      send_rsvp_thank_you_email(request, user, verification_code, temp_password)
+      send_rsvp_thank_you_email(request, user, verification_code, temp_password, party)
     # messages.success(request, msg)
-    # send_rsvp_thank_you_email(request, user, verification_code, temp_password)
+    # send_rsvp_thank_you_email(request, user, verification_code, temp_password, party)
     if u.is_authenticated() and u.userprofile.events_manager():
       return HttpResponseRedirect(reverse('party_details', args=[party.id]))
     else:

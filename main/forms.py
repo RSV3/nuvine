@@ -750,7 +750,7 @@ class AttendeesTable(tables.Table):
   class Meta:
     model = PartyInvite
     attrs = table_attrs
-    sequence = ['guests', 'invitee', 'email', 'phone', 'invited', '...']
+    sequence = ['guests', 'invitee', 'email', 'phone', 'invited', 'attended', '...']
     exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp', 'fee_paid']
     order_by = ['invitee']
 

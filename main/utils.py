@@ -708,13 +708,14 @@ def resend_party_invite_email(request, user, invitation_sent):
   # return msg
 
 
-def send_rsvp_thank_you_email(request, user, verification_code, temp_password):
+def send_rsvp_thank_you_email(request, user, verification_code, temp_password, party=None):
 
   template = Section.objects.get(template__key='rsvp_thank_you_email', key='general')
   txt_template = Template(template.content)
   html_template = Template('\n'.join(['<p>%s</p>' % x for x in template.content.split('\n\n') if x]))
 
   c = RequestContext(request, {"first_name": user.first_name,
+                                "party": party,
                                 "host_name": request.get_host()})
 
   if verification_code:

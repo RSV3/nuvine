@@ -1042,6 +1042,14 @@ class SimpleTest(TestCase):
 
     Guess what? (Drumroll, please.) Your RSVP was received successfully! Now you can prepare to be paired with a Vinely Personality.
 
+    Party: "{{ party.title }}"
+
+    Date: {{ party.event_date|date:"F j, o" }}
+
+    Time: {{ party.event_date|date:"g:i A" }}
+
+    Location: {{ party.address.full_text }}
+
     Please fill out our quick 11-question survey. It will give us a glimpse into your personal taste. No pressure here. There's no right or wrong answer.
 
     {% if plain %}
