@@ -3,6 +3,9 @@
 {% load render_table from django_tables2 %}
 
 {% block header %}
+  <div class="center">
+    <img src="{{ STATIC_URL }}img/event_detail_glasses.png" />
+  </div>
   <h1 class="headline">Party: {{ party.title }}</h1>
 {% endblock header %}
 
