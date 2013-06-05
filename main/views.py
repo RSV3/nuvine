@@ -3026,6 +3026,7 @@ def vinely_event_signup(request, party_id, fb_page=0):
       invite.response = response
       invite.response_timestamp = today
       invite.rsvp_code = str(uuid.uuid4())
+      invite.fee_paid = True
       invite.save()
     except PartyInvite.DoesNotExist:
       # if doest exist then create
