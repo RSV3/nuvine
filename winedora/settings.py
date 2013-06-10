@@ -257,6 +257,8 @@ INSTALLED_APPS = (
     'tinymce',
     'pro',
     # 'djcelery',
+    'tastypie',
+    'tastypie_swagger',
 )
 
 

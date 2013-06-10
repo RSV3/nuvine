@@ -68,3 +68,5 @@ pylibmc==1.2.3
 #johnny-cache==1.4
 git+git://github.com/jmoiron/johnny-cache.git
 django-celery==3.0.17
+django-tastypie==0.9.15
+django-tastypie-swagger==0.1.1
