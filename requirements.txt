@@ -69,4 +69,5 @@ pylibmc==1.2.3
 git+git://github.com/jmoiron/johnny-cache.git
 django-celery==3.0.17
 django-tastypie==0.9.15
-django-tastypie-swagger==0.1.1
+#django-tastypie-swagger==0.1.1
+-e git+https://github.com/concentricsky/django-tastypie-swagger.git#egg=django-tastypie-swagger
