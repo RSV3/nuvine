@@ -261,6 +261,7 @@ INSTALLED_APPS = (
     'tastypie_swagger',
 )
 
+TASTYPIE_SWAGGER_API_MODULE = 'main.api.tools.api'
 
 SOUTH_TESTS_MIGRATE = False
 
