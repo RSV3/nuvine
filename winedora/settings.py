@@ -257,6 +257,7 @@ INSTALLED_APPS = (
     'tinymce',
     'pro',
     # 'djcelery',
+    'coupon',
 )
 
 

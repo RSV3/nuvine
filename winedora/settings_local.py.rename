@@ -65,9 +65,13 @@ INSTALLED_APPS = (
     'social',
     'cms',
     'stripecard',
+    'pro',
     'kombu.transport.django',
     'djcelery',
     'django_tables2',
+    'tastypie',
+    'tastypie_swagger',
+    'coupon',
 )
 
 TEMPLATE_DIRS = (

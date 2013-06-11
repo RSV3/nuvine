@@ -29,4 +29,5 @@ urlpatterns = patterns('',
     url(r'^stripe/', include('stripecard.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^pro/', include('pro.urls', namespace="pro")),
+    url(r'^coupon/', include('coupon.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + staticfiles_urlpatterns()
