@@ -262,12 +262,12 @@ table .row-label-bold {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');
   color: #FFFFFF; 
-  padding-top:6px;
+  padding-top:8px;
 }
 .sidebar-nav li.active div.chev {
   display: inline;
-  background: url('../img/btn_chevronrt_bkgd.png') no-repeat center right;
-  padding: 7px 12px 7px 0;
+  background: url('../img/Chevron-Tail.png') no-repeat center right;
+  padding: 10px 12px 7px 0;
 }
 
 .sidebar-nav li div.chev.active {
