@@ -156,6 +156,7 @@ class UserProfile(models.Model):
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
   club_member = models.BooleanField(default=False)
   internal_pro = models.BooleanField(default=False)  # set for internal pros like training
+  account_credit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   ROLE_CHOICES = (
       (0, 'Unassigned Role'),
@@ -275,6 +276,14 @@ class UserProfile(models.Model):
   def has_active_subscription(self):
     subscriptions = SubscriptionInfo.objects.filter(user=self.user).order_by('-updated_datetime')
     return subscriptions.exists() and subscriptions[0].frequency in [1, 2, 3] and subscriptions[0].quantity in [12, 13, 14]
+
+  @property
+  def active_subscription(self):
+    subscriptions = SubscriptionInfo.objects.filter(user=self.user).order_by('-updated_datetime')
+    if subscriptions.exists() and subscriptions[0].frequency in [1, 2, 3] and subscriptions[0].quantity in [12, 13, 14]:
+      return subscriptions[0]
+    else:
+      return None
 
   def update_stripe_subscription(self, frequency, quantity):
     from main.models import Cart
@@ -532,7 +541,8 @@ class SubscriptionInfo(models.Model):
   updated_datetime = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
-    return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
+    # return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
+    return "%s" % (self.get_quantity_display())
 
   def update_subscription_order(self, charge_stripe=True):
     from main.models import Cart, Order, Product, PartyInvite, LineItem

@@ -9,7 +9,7 @@
 
   <div class="container">
     <div class="row">
-      <div class="span12">
+      <div class="span4">
         <h1>Communication</h1>
         <ul>
           <li><a href="{% url cms:template_list %}">Manage E-mail and Web Templates</a></li>
@@ -17,10 +17,24 @@
           <li><a href="{% url support:manage_subscriptions %}">Manage Subscriptions</a></li>
         </ul>
       </div>
+      <div class="span4">
+        <h1>Users</h1>
+        <ul>
+          <li><a href="{% url support:view_users %}">Manage</a></li>
+          <li><a href="#">Reports</a></li>
+        </ul>
+      </div>
+      <div class="span3">
+        <h1>Pros</h1>
+        <ul>
+          <li><a href="#">Manage</a></li>
+          <li><a href="#">Reports</a></li>
+        </ul>
+      </div>
     </div>
 
     <div class="row">
-      <div class="span12">
+      <div class="span4">
         <h1>Fulfillment</h1>
         <ul>        
           <li><a href="{% url support:wine_inventory %}">Wine Inventory Management</a></li>
@@ -28,7 +42,21 @@
           <li><a href="{% url support:view_past_orders %}">Exported Orders</a></li>
         </ul>
       </div>
-    </div> 
+      <div class="span4">
+        <h1>Parties</h1>
+        <ul>
+          <li><a href="{% url support:view_parties %}">Manage</a></li>
+          <li><a href="#">Reports</a></li>
+        </ul>
+      </div>
+      <div class="span3">
+        <h1>Events</h1>
+        <ul>
+          <li><a href="#">Manage</a></li>
+          <li><a href="#">Reports</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
