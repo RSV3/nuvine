@@ -32,8 +32,8 @@ urlpatterns = patterns('',
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + staticfiles_urlpatterns()
 
 from main.api.tools import api
-urlpatterns = patterns('',
-  (r'^api/', include(api.urls)),
+urlpatterns += patterns('',
+  url(r'^api/', include(api.urls)),
   # (r'^tastytools/', include('tastytools.urls'), {'api_name': api.api_name}),
   url(r'^api/doc/', include('tastypie_swagger.urls', namespace='tastypie_swagger')),
 )
