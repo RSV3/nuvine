@@ -156,6 +156,7 @@ class UserProfile(models.Model):
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
   club_member = models.BooleanField(default=False)
   internal_pro = models.BooleanField(default=False)  # set for internal pros like training
+  account_credit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   ROLE_CHOICES = (
       (0, 'Unassigned Role'),

@@ -372,7 +372,7 @@ class Cart(models.Model):
     '''
     Calculate discount based on available credits.
     '''
-    from main.utils import calculate_host_credit
+    # from main.utils import calculate_host_credit
     # dont apply when pro ordering for someone
     if self.user != self.receiver:
       return 0
@@ -385,9 +385,13 @@ class Cart(models.Model):
     if self.items.count() == 0:
       return 0
 
-    credit = calculate_host_credit(self.user)
+    # credit = calculate_host_credit(self.user)
+    credit = self.user.userprofile.account_credit
+    subtotal_without_discount = 0
+    for o in self.items.all():
+      subtotal_without_discount += float(o.subtotal())
 
-    max_discount = self.subtotal() / 2
+    max_discount = subtotal_without_discount / 2
 
     if credit <= max_discount:
       applied_discount = credit
