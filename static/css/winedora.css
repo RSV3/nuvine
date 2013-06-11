@@ -281,6 +281,7 @@ table .row-label-bold {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');  
   color: #FFFFFF;
+  padding-top:8px;
 }
 .box-container {
   position:relative;
