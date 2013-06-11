@@ -722,6 +722,10 @@ def place_order(request):
           customer.coupon = coupon.id
           customer.save()
 
+          receiver_profile = cart.user.get_profile()
+          receiver_profile.account_credit = float(receiver_profile.account_credit) - cart.discount
+          receiver_profile.save()
+
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
@@ -953,7 +957,7 @@ def party_list(request):
   today = timezone.now()
 
   my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
-  if u.userprofile.is_pro():
+  if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
@@ -969,8 +973,8 @@ def party_list(request):
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
-  elif u.userprofile.is_host():
-    data['host_credits'] = calculate_host_credit(u)
+  elif profile.is_host():
+    data['host_credits'] = u.userprofile.account_credit
     data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
     data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
 
@@ -2957,13 +2961,16 @@ def vinely_event_signup(request, party_id, fb_page=0):
       user = User.objects.get(email=request.POST.get('email').strip().lower())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
+      profile.account_credit += party.fee
       profile.save()
     except User.DoesNotExist:
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.role = account_type
+      profile.account_credit += party.fee
       profile.save()
+
       user.is_active = False
       temp_password = User.objects.make_random_password()
       user.set_password(temp_password)
