@@ -277,6 +277,8 @@ table .row-label-bold {
 }
 
 /*AvG - need to add a class here for div.chev.active a:hover */
+.sidebar-nav li div.chev a:hover {
+}
 
 .sidebar-nav li a:hover, 
 .sidebar-nav li a.hovered {
