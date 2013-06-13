@@ -249,7 +249,7 @@ table .row-label-bold {
   text-align: center;
 }
 .sidebar-nav li a, .sidebar-nav li a:visited {
-  padding: 4px 6px 4px 9px;
+  padding: 8px 6px 4px 9px;
   color: #415A68;
 }
 .sidebar-nav li div.chev {
@@ -276,11 +276,16 @@ table .row-label-bold {
   padding: 7px 12px 7px 0;
 }
 
+/*AvG - need to add a class here for div.chev.active a:hover */
+.sidebar-nav li div.chev a:hover {
+}
+
 .sidebar-nav li a:hover, 
 .sidebar-nav li a.hovered {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');  
   color: #FFFFFF;
+  padding-top:8px;
 }
 .box-container {
   position:relative;
