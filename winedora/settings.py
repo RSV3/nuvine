@@ -258,11 +258,12 @@ INSTALLED_APPS = (
     'pro',
     # 'djcelery',
     'coupon',
+    'api',
     'tastypie',
     'tastypie_swagger',
 )
 
-TASTYPIE_SWAGGER_API_MODULE = 'main.api.tools.api'
+TASTYPIE_SWAGGER_API_MODULE = 'api.tools.api'
 
 SOUTH_TESTS_MIGRATE = False
 

@@ -336,7 +336,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     self.fields['first_name'].required = True
     self.fields['last_name'].required = True
-    self.initial = kwargs['initial']
+    self.initial = kwargs.get('initial', {})
     add_form_validation(self)
     self.fields['password2'].widget.attrs['class'] = "validate[required,equals[id_password1]]"
     for field_name in self.fields:
@@ -352,12 +352,12 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     if mentor_email:
       mentor_email = mentor_email.strip().lower()
 
-    if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
+    if self.initial.get('account_type') == 1 and mentor_email:  # pro -> mentor field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
-    if self.initial['account_type'] == 2 and mentor_email or self.initial['account_type'] == 3 and mentor_email:  # host -> pro field
+    if self.initial.get('account_type') == 2 and mentor_email or self.initial.get('account_type') == 3 and mentor_email:  # host -> pro field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"

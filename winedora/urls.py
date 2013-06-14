@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from emailusernames.forms import EmailAuthenticationForm
+# from emailusernames.forms import EmailAuthenticationForm
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -32,9 +32,8 @@ urlpatterns = patterns('',
     url(r'^coupon/', include('coupon.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + staticfiles_urlpatterns()
 
-from main.api.tools import api
+from api.tools import api
 urlpatterns += patterns('',
-  url(r'^api/', include(api.urls)),
-  # (r'^tastytools/', include('tastytools.urls'), {'api_name': api.api_name}),
-  url(r'^api/doc/', include('tastypie_swagger.urls', namespace='tastypie_swagger')),
+    url(r'^api/', include(api.urls)),
+    url(r'^api/doc/', include('tastypie_swagger.urls', namespace='tastypie_swagger')),
 )
