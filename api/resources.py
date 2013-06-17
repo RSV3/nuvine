@@ -1,14 +1,16 @@
 
 from personality.models import WinePersonality, WineRatingData
 from tastypie.resources import ModelResource
-from tastypie.authentication import SessionAuthentication, BasicAuthentication, MultiAuthentication
+from tastypie.authentication import SessionAuthentication, MultiAuthentication, ApiKeyAuthentication  # , BasicAuthentication
 from tastypie.authorization import Authorization  # , DjangoAuthorization
 from tastypie.http import HttpUnauthorized, HttpForbidden
-from tastypie.exceptions import Unauthorized
 from tastypie.utils import trailing_slash
 from tastypie import fields
 from tastypie.validation import FormValidation
 
+# from django.db import models
+# from tastypie.models import create_api_key
+from tastypie.models import ApiKey
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.conf.urls import url
@@ -16,59 +18,46 @@ from django.contrib.sessions.models import Session
 
 from accounts.models import User, UserProfile
 from main.models import Party, PartyInvite, Address
-
+from api.authorization import UserObjectsOnlyAuthorization
 from personality.forms import WineRatingForm
 from accounts.forms import NameEmailUserMentorCreationForm
 
-import base64
+# import base64
+
+# models.signals.post_save.connect(create_api_key, sender=User)
 
 
-class DjangoCookieEmailAuthentication(BasicAuthentication):
-  '''
-   If the user is already authenticated by a django session it will
-   allow the request (useful for ajax calls) . If it is not, defaults
-   to basic authentication, which other clients could use.
-  '''
+class EmailApiKeyAuthentication(ApiKeyAuthentication):
   def is_authenticated(self, request, **kwargs):
-    if 'sessionid' in request.COOKIES:
+      """
+      Finds the user and checks their API key.
+
+      Should return either ``True`` if allowed, ``False`` if not or an
+      ``HttpResponse`` if you need something custom.
+      """
+      from tastypie.compat import User
       try:
-        s = Session.objects.get(pk=request.COOKIES['sessionid'])
-        if '_auth_user_id' in s.get_decoded():
-          u = User.objects.get(id=s.get_decoded()['_auth_user_id'])
-          request.user = u
-          return True
-      except Session.DoesNotExist:
-        pass
+          username, api_key = self.extract_credentials(request)
+      except ValueError:
+          return self._unauthorized()
 
-    if not request.META.get('HTTP_AUTHORIZATION'):
-      return self._unauthorized()
+      if not username or not api_key:
+          return self._unauthorized()
 
-    try:
-      (auth_type, data) = request.META['HTTP_AUTHORIZATION'].split()
-      if auth_type.lower() != 'basic':
-        return self._unauthorized()
-      user_pass = base64.b64decode(data)
-    except:
-      return self._unauthorized()
+      try:
+          # use email field instead of username
+          lookup_kwargs = {'email': username}
+          user = User.objects.get(**lookup_kwargs)
+      except (User.DoesNotExist, User.MultipleObjectsReturned):
+          return self._unauthorized()
 
-    bits = user_pass.split(':', 1)
+      if not self.check_active(user):
+          return False
 
-    if len(bits) != 2:
-      return self._unauthorized()
-
-    if self.backend:
-      user = self.backend.authenticate(email=bits[0], password=bits[1])
-    else:
-      user = authenticate(email=bits[0], password=bits[1])
-
-    if user is None:
-      return self._unauthorized()
-
-    if not self.check_active(user):
-      return False
-
-    request.user = user
-    return True
+      key_auth_check = self.get_key(user, api_key)
+      if key_auth_check and not isinstance(key_auth_check, HttpUnauthorized):
+          request.user = user
+      return key_auth_check
 
 
 class SignupResource(ModelResource):
@@ -148,18 +137,19 @@ class LoginResource(ModelResource):
     if user:
       if user.is_active:
         login(request, user)
+        api_key, created = ApiKey.objects.get_or_create(user=user)
         return self.create_response(request, {
-            'success': True
+            'api_key': api_key.key
         })
       else:
         return self.create_response(request, {
             'success': False,
-            'reason': 'disabled',
+            'reason': 'Account disabled',
         }, HttpForbidden)
     else:
       return self.create_response(request, {
           'success': False,
-          'reason': 'incorrect username or password',
+          'reason': 'Incorrect username or password',
       }, HttpUnauthorized)
 
 
@@ -170,19 +160,14 @@ class LogoutResource(ModelResource):
     resource_name = 'auth/logout'
     allowed_methods = ['get']
     detail_allowed_methods = []
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authorization = UserObjectsOnlyAuthorization()
     limit = 0
     include_resource_uri = False
 
-  def prepend_urls(self):
-    return [
-        url(r'^(?P<resource_name>%s)%s$' %
-            (self._meta.resource_name, trailing_slash()),
-            self.wrap_view('logout'), name='api_logout'),
-    ]
-
-  def logout(self, request, **kwargs):
-    self.method_check(request, allowed=['get'])
-    if request.user and request.user.is_authenticated():
+  def get_list(self, request, **kwargs):
+    if request.user and request.user.is_authenticated() or self.is_authenticated(request):
+      ApiKey.objects.filter(user=request.user).delete()
       logout(request)
       Session.objects.filter(pk=request.COOKIES.get('sessionid')).delete()
       return self.create_response(request, {'success': True})
@@ -205,15 +190,14 @@ class PartyResource(ModelResource):
     queryset = Party.objects.exclude(host__email='events@vinely.com')
     allowed_methods = ['get']
     fields = ['title', 'description', 'id', 'fee', 'event_date', 'phone']
-    # authorization = Authorization()
-    authentication = SessionAuthentication()
+    authorization = UserObjectsOnlyAuthorization()
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
 
   def obj_get_list(self, bundle, **kwargs):
-    # only return parties for logged in user
-    user = bundle.request.user
+    # only return future parties
     today = timezone.now()
     objects = super(PartyResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(partyinvite__invitee__id=user.id, event_date__gt=today).order_by('event_date')
+    filtered_objects = objects.filter(event_date__gt=today).order_by('event_date')
     return filtered_objects
 
 
@@ -227,7 +211,7 @@ class EventResource(ModelResource):
   def obj_get_list(self, bundle, **kwargs):
     today = timezone.now()
     objects = super(EventResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(event_date__gt=today)
+    filtered_objects = objects.filter(event_date__gt=today).order_by('event_date')
     return filtered_objects
 
 
@@ -237,15 +221,14 @@ class PartyInviteResource(ModelResource):
   class Meta:
     queryset = PartyInvite.objects.all()
     allowed_methods = ['get', 'put', 'post']
-    # authorization = Authorization()
-    authentication = SessionAuthentication()
+    authorization = UserObjectsOnlyAuthorization()
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
 
   def obj_get_list(self, bundle, **kwargs):
-    # only return invitations for logged in user
-    user = bundle.request.user
+    # only return future invitations
     today = timezone.now()
     objects = super(PartyInviteResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(invitee__id=user.id, party__event_date__gt=today)
+    filtered_objects = objects.filter(party__event_date__gt=today).order_by('event_date')
     return filtered_objects
 
 
@@ -264,26 +247,9 @@ class WineRatingDataResource(ModelResource):
     excludes = ['timestamp']
     allowed_methods = ['get', 'put', 'post']
     resource_name = 'rating'
-    authorization = Authorization()
-    authentication = SessionAuthentication()
+    authorization = UserObjectsOnlyAuthorization()
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
     validation = FormValidation(form_class=WineRatingForm)
-
-  def obj_get(self, bundle, **kwargs):
-    # allow user to only see their own rating data
-    obj = super(WineRatingDataResource, self).obj_get(bundle, **kwargs)
-    user = bundle.request.user
-
-    if WineRatingData.objects.filter(user__id=user.id, id=kwargs.get('pk')).exists():
-      return obj
-    else:
-      return self.unauthorized_result(Unauthorized)
-
-  def obj_get_list(self, bundle, **kwargs):
-    # only return winerating data for logged in user
-    user = bundle.request.user
-    objects = super(WineRatingDataResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(user__id=user.id)
-    return filtered_objects
 
 
 class ProfileResource(ModelResource):
@@ -296,14 +262,8 @@ class ProfileResource(ModelResource):
     # list_allowed_methods = []
     resource_name = 'profile'
     include_resource_uri = True
-    # authorization = Authorization()
-    authentication = SessionAuthentication()
-
-  def obj_get_list(self, bundle, **kwargs):
-    user = bundle.request.user
-    objects = super(ProfileResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(user__id=user.id)
-    return filtered_objects
+    authorization = UserObjectsOnlyAuthorization()
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
 
 
 class UserResource(ModelResource):
@@ -312,13 +272,7 @@ class UserResource(ModelResource):
   class Meta:
     queryset = User.objects.all()
     excludes = ['password', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined', 'username']
-    # authorization = Authorization()
-    authentication = SessionAuthentication()
+    authorization = UserObjectsOnlyAuthorization()
+    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
     allowed_methods = ['get', 'put']
     # list_allowed_methods = []
-
-  def obj_get_list(self, bundle, **kwargs):
-    user = bundle.request.user
-    objects = super(UserResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(id=user.id)
-    return filtered_objects

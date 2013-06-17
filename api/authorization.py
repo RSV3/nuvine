@@ -2,124 +2,61 @@ from tastypie.exceptions import Unauthorized
 from tastypie.authorization import Authorization
 
 
-class DjangoAuthorization(Authorization):
-    """
-    Uses permission checking
-    """
-    def base_checks(self, request, model_klass):
-        print 'base_checks'
-        # If it doesn't look like a model, we can't check permissions.
-        if not model_klass or not getattr(model_klass, '_meta', None):
-            return False
+# Ref: https://django-tastypie.readthedocs.org/en/latest/authorization.html#implementing-your-own-authorization
+class UserObjectsOnlyAuthorization(Authorization):
+  """
+  Allow users to only modify their own objects
+  """
+  def read_list(self, object_list, bundle):
+    # This assumes a ``QuerySet`` from ``ModelResource``.
+    model_name = object_list.model.__name__
+    if model_name == 'User':
+      return object_list.filter(id=bundle.request.user.id)
+    elif model_name == 'Party':
+      return object_list.filter(party_invite__invitee=bundle.request.user)
+    elif model_name == 'PartyInvite':
+      return object_list.filter(invitee=bundle.request.user)
+    else:
+      return object_list.filter(user=bundle.request.user)
 
-        # User must be logged in to check permissions.
-        if not hasattr(request, 'user'):
-            return False
+  def read_detail(self, object_list, bundle):
+    # Is the requested object owned by the user?
+    model_name = object_list.model.__name__
+    if model_name == 'User':
+      return bundle.obj.id == bundle.request.user.id
+    elif model_name == 'Party':
+      return bundle.obj.partyinvite.invitee == bundle.request.user
+    elif model_name == 'PartyInvite':
+      return bundle.obj.invitee == bundle.request.user
+    else:
+      return bundle.obj.user == bundle.request.user
 
-        return model_klass
+  def create_list(self, object_list, bundle):
+    # Assuming their auto-assigned to ``user``.
+    return object_list
 
-    def read_list(self, object_list, bundle):
-        print 'read_list'
-        klass = self.base_checks(bundle.request, object_list.model)
+  def create_detail(self, object_list, bundle):
+    return self.read_detail(object_list, bundle)
 
-        if klass is False:
-            return []
+  def update_list(self, object_list, bundle):
+    # allowed = []
 
-        # GET-style methods are always allowed.
-        return object_list
+    # # Since they may not all be saved, iterate over them.
+    # for obj in object_list:
+    #     if obj.user == bundle.request.user:
+    #         allowed.append(obj)
 
-    def read_detail(self, object_list, bundle):
-        print 'read_detail'
-        klass = self.base_checks(bundle.request, bundle.obj.__class__)
+    # return allowed
 
-        if klass is False:
-            raise Unauthorized("You are not allowed to access that resource.")
+    # for now dont allow update_list
+    return []
 
-        # GET-style methods are always allowed.
-        return True
+  def update_detail(self, object_list, bundle):
+    return self.read_detail(object_list, bundle)
 
-    def create_list(self, object_list, bundle):
-        print 'create_list'
-        klass = self.base_checks(bundle.request, object_list.model)
+  def delete_list(self, object_list, bundle):
+    # Sorry user, no deletes for you!
+    raise Unauthorized("Sorry, no deletes.")
 
-        if klass is False:
-            return []
-
-        permission = '%s.add_%s' % (klass._meta.app_label, klass._meta.module_name)
-
-        if not bundle.request.user.has_perm(permission):
-            return []
-
-        return object_list
-
-    def create_detail(self, object_list, bundle):
-        print 'create_detail'
-        klass = self.base_checks(bundle.request, bundle.obj.__class__)
-
-        if klass is False:
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        permission = '%s.add_%s' % (klass._meta.app_label, klass._meta.module_name)
-
-        if not bundle.request.user.has_perm(permission):
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        return True
-
-    def update_list(self, object_list, bundle):
-        print 'update_list'
-        klass = self.base_checks(bundle.request, object_list.model)
-
-        if klass is False:
-            return []
-
-        permission = '%s.change_%s' % (klass._meta.app_label, klass._meta.module_name)
-
-        if not bundle.request.user.has_perm(permission):
-            return []
-
-        return object_list
-
-    def update_detail(self, object_list, bundle):
-        print 'update_detail'
-        klass = self.base_checks(bundle.request, bundle.obj.__class__)
-
-        if klass is False:
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        permission = '%s.change_%s' % (klass._meta.app_label, klass._meta.module_name)
-        print 'permission', permission
-        print 'can_change', bundle.request.user, bundle.request.user.has_perm(permission)
-        if not bundle.request.user.has_perm(permission):
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        return True
-
-    def delete_list(self, object_list, bundle):
-        print 'delete_list'
-        klass = self.base_checks(bundle.request, object_list.model)
-
-        if klass is False:
-            return []
-
-        permission = '%s.delete_%s' % (klass._meta.app_label, klass._meta.module_name)
-
-        if not bundle.request.user.has_perm(permission):
-            return []
-
-        return object_list
-
-    def delete_detail(self, object_list, bundle):
-        print 'delete_detail'
-        klass = self.base_checks(bundle.request, bundle.obj.__class__)
-
-        if klass is False:
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        permission = '%s.delete_%s' % (klass._meta.app_label, klass._meta.module_name)
-
-        if not bundle.request.user.has_perm(permission):
-            raise Unauthorized("You are not allowed to access that resource.")
-
-        return True
-
+  def delete_detail(self, object_list, bundle):
+    raise Unauthorized("Sorry, no deletes.")
