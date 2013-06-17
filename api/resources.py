@@ -18,7 +18,7 @@ from accounts.models import User, UserProfile
 from main.models import Party, PartyInvite, Address
 
 from personality.forms import WineRatingForm
-from accounts.forms import MakeTasterForm
+from accounts.forms import NameEmailUserMentorCreationForm
 
 import base64
 
@@ -72,7 +72,7 @@ class DjangoCookieEmailAuthentication(BasicAuthentication):
 
 
 class SignupResource(ModelResource):
-  phone = fields.CharField()
+  phone_number = fields.CharField()
   zipcode = fields.CharField()
 
   class Meta:
@@ -81,16 +81,42 @@ class SignupResource(ModelResource):
     include_resource_uri = False
     fields = ['email', 'first_name', 'last_name', 'password', 'zipcode', 'phone']
     resource_name = 'auth/signup'
-    validation = FormValidation(form_class=MakeTasterForm)
+    validation = FormValidation(form_class=NameEmailUserMentorCreationForm)
     authorization = Authorization()
+    always_return_data = True
 
-  # def prepend_urls(self):
-  #   # request.META.get('HTTP_AUTHORIZATION')
-  #   return [
-  #       url(r"^(?P<resource_name>%s)%s$" %
-  #           (self._meta.resource_name, trailing_slash()),
-  #           self.wrap_view('signup'), name="api_signup"),
-  #   ]
+  def full_hydrate(self, bundle):
+    # form validation expects fields password1 and password2
+    bundle.data['password1'] = bundle.data.get('password')
+    bundle.data['password2'] = bundle.data.get('password')
+    return super(SignupResource, self).full_hydrate(bundle)
+
+  def full_dehydrate(self, bundle):
+    bundle = super(SignupResource, self).full_dehydrate(bundle)
+    # don't show password in data presented to user
+    del bundle.data['password1']
+    del bundle.data['password2']
+    del bundle.data['password']
+
+    profile = bundle.obj.get_profile()
+    bundle.data['phone_number'] = profile.phone
+    bundle.data['zipcode'] = profile.zipcode
+    return bundle
+
+  def obj_create(self, bundle, **kwargs):
+    for key, value in kwargs.items():
+      setattr(bundle.obj, key, value)
+
+    bundle = self.full_hydrate(bundle)
+    bundle.obj.set_password(bundle.data.get('password'))
+    bundle.obj.is_active = True
+    bundle = self.save(bundle)
+
+    profile = bundle.obj.get_profile()
+    profile.phone = bundle.data.get('phone_number')
+    profile.zipcode = bundle.data.get('zipcode')
+    profile.save()
+    return bundle
 
 
 class LoginResource(ModelResource):
