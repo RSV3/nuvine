@@ -215,6 +215,7 @@ class EventResource(ModelResource):
     return filtered_objects
 
 
+#TODO: only allow updating the response field
 class PartyInviteResource(ModelResource):
   party = fields.ToOneField(PartyResource, 'party')
 

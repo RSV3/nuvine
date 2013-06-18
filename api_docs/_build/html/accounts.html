@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Accounts: User and profile management &mdash; Vinely 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Vinely 0.9 documentation" href="index.html" />
+    <link rel="next" title="Parties and Events" href="parties.html" />
+    <link rel="prev" title="Authentication and Authorization" href="auth.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="parties.html" title="Parties and Events"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="auth.html" title="Authentication and Authorization"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="accounts-user-and-profile-management">
+<span id="ref-accounts"></span><h1>Accounts: User and profile management<a class="headerlink" href="#accounts-user-and-profile-management" title="Permalink to this headline">¶</a></h1>
+<p>Handle all user and profile management requests</p>
+<div class="section" id="user">
+<h2>User<a class="headerlink" href="#user" title="Permalink to this headline">¶</a></h2>
+<p>Fetching user information.</p>
+<dl class="get">
+<dt id="get--api-v1-user-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/user/</tt><a class="headerlink" href="#get--api-v1-user-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Detailed profile information is included in the returned information but it can
+also be fetched in a separate API call if required. <em>See below</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This exists for the purposes of convention and can be used if you don&#8217;t have the <cite>user_id</cite>.
+It returns a list with only one item i.e. the profile of the person currently logged in.</p>
+</div>
+<p>Get information by id.</p>
+<dl class="get">
+<dt id="get--api-v1-profile-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/profile/{id}/</tt><a class="headerlink" href="#get--api-v1-profile-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>This returns information about the user with the provided <cite>id</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For security reasons, the <cite>id</cite> must be the <cite>user_id</cite> of the currently logged in person.</p>
+</div>
+<p>Update user information</p>
+<dl class="put">
+<dt id="put--api-v1-user-{id}-">
+<tt class="descname">PUT </tt><tt class="descname">/api/v1/user/{id}/</tt><a class="headerlink" href="#put--api-v1-user-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For security reasons, the <cite>id</cite> must be the <cite>user_id</cite> of the currently logged in person.</p>
+</div>
+</div>
+<div class="section" id="profile">
+<h2>Profile<a class="headerlink" href="#profile" title="Permalink to this headline">¶</a></h2>
+<p>Returns user profile information</p>
+<dl class="get">
+<dt id="get--api-v1-profile-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/profile/</tt><a class="headerlink" href="#get--api-v1-profile-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This exists for the purposes of convention. It returns a list with only one item i.e.
+the profile of the person currently logged in.</p>
+</div>
+<p>Get information by id.</p>
+<dl class="get">
+<dt id="get--api-v1-profile-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/profile/{id}/</tt><a class="headerlink" href="#get--api-v1-profile-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>This returns information about the profile with the provided <cite>id</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For security reasons, the <cite>id</cite> must be the <cite>profile_id</cite> of the currently logged in person.</p>
+</div>
+<p>Update profile information</p>
+<dl class="put">
+<dt id="put--api-v1-profile-{id}-">
+<tt class="descname">PUT </tt><tt class="descname">/api/v1/profile/{id}/</tt><a class="headerlink" href="#put--api-v1-profile-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For security reasons, the <cite>id</cite> must be the <cite>profile_id</cite> of the currently logged in person.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Accounts: User and profile management</a><ul>
+<li><a class="reference internal" href="#user">User</a></li>
+<li><a class="reference internal" href="#profile">Profile</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="auth.html"
+                        title="previous chapter">Authentication and Authorization</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="parties.html"
+                        title="next chapter">Parties and Events</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/accounts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="parties.html" title="Parties and Events"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="auth.html" title="Authentication and Authorization"
+             >previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Vinely.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

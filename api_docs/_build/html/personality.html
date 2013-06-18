@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Personality and Wine Ratings &mdash; Vinely 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Vinely 0.9 documentation" href="index.html" />
+    <link rel="prev" title="Parties and Events" href="parties.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="parties.html" title="Parties and Events"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="personality-and-wine-ratings">
+<span id="ref-personality"></span><h1>Personality and Wine Ratings<a class="headerlink" href="#personality-and-wine-ratings" title="Permalink to this headline">¶</a></h1>
+<p>Every user that participates in a Vinely Tasting event or Joins the VIP club
+can have their Personalities revealed by having their wine ratings for the 6 wines filled in.</p>
+<div class="section" id="wine-personality">
+<h2>Wine Personality<a class="headerlink" href="#wine-personality" title="Permalink to this headline">¶</a></h2>
+<p>There are 6 different Wine Personalities and the mystery personality
+(for those that have not had their personality revealed yet).</p>
+<p>Fetch a list of the Wine Personalities defined by Vinely.</p>
+<dl class="get">
+<dt id="get--api-v1-personality-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/personality/</tt><a class="headerlink" href="#get--api-v1-personality-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Get information about a specfic wine personality.</p>
+<dl class="get">
+<dt id="get--api-v1-personality-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/personality/{id}/</tt><a class="headerlink" href="#get--api-v1-personality-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="wine-ratings">
+<h2>Wine Ratings<a class="headerlink" href="#wine-ratings" title="Permalink to this headline">¶</a></h2>
+<p>Each wine has a number of different values that need to be rated.</p>
+<p>The ratings choices are:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">LIKENESS_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Hate&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Dislike&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Neutral&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Like&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;Love&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">DNL_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Too Little&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Just Right&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Too Much&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">SWEET_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Tart&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Semi Tart&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Neutral&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Semi Sweet&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;Sweet&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">WEIGHT_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Light&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Semi Light&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Medium&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Semi Heavy&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;Heavy&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">TEXTURE_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Silky&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Semi Silky&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Neutral&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Semi Furry&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;Furry&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">SIZZLE_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;None&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Somewhat&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Tingle&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Semi Burn&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;Burn&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Fetch a list of Wine rating data for the user currently logged in.
+It should return up to 6 objects for the 6 wines that were tasted</p>
+<dl class="get">
+<dt id="get--api-v1-rating-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/rating/</tt><a class="headerlink" href="#get--api-v1-rating-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Get information about a particular wine rating</p>
+<dl class="get">
+<dt id="get--api-v1-rating-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/rating/{id}/</tt><a class="headerlink" href="#get--api-v1-rating-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Update wine rating information</p>
+<dl class="put">
+<dt id="put--api-v1-rating-{id}-">
+<tt class="descname">PUT </tt><tt class="descname">/api/v1/rating/{id}/</tt><a class="headerlink" href="#put--api-v1-rating-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Create a new wine rating</p>
+<dl class="post">
+<dt id="post--api-v1-rating-">
+<tt class="descname">POST </tt><tt class="descname">/api/v1/rating/</tt><a class="headerlink" href="#post--api-v1-rating-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Personality and Wine Ratings</a><ul>
+<li><a class="reference internal" href="#wine-personality">Wine Personality</a></li>
+<li><a class="reference internal" href="#wine-ratings">Wine Ratings</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parties.html"
+                        title="previous chapter">Parties and Events</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/personality.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="parties.html" title="Parties and Events"
+             >previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Vinely.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

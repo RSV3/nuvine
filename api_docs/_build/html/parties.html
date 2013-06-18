@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Parties and Events &mdash; Vinely 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Vinely 0.9 documentation" href="index.html" />
+    <link rel="next" title="Personality and Wine Ratings" href="personality.html" />
+    <link rel="prev" title="Accounts: User and profile management" href="accounts.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="personality.html" title="Personality and Wine Ratings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="accounts.html" title="Accounts: User and profile management"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="parties-and-events">
+<span id="ref-parties"></span><h1>Parties and Events<a class="headerlink" href="#parties-and-events" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="events">
+<h2>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
+<p>Vinely Events are public parties hosted by Vinely and users can come to the site and RSVP to attend.
+Generally no invitations are sent out for Events.</p>
+<p>Fetch event list</p>
+<dl class="get">
+<dt id="get--api-v1-event-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/event/</tt><a class="headerlink" href="#get--api-v1-event-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>This returns the list of all upcoming Vinely events.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Past events are not returned</p>
+</div>
+<p>Fetch information about a specific event</p>
+<dl class="get">
+<dt id="get--api-v1-event-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/event/{id}/</tt><a class="headerlink" href="#get--api-v1-event-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="party">
+<h2>Party<a class="headerlink" href="#party" title="Permalink to this headline">¶</a></h2>
+<p>Vinely Parties are private parties where someone has to be invited in order to attend.
+Invitations are sent out via mail which contains an RSVP link.</p>
+<p>Fetch a list of upcoming parties that a user has been invited to</p>
+<dl class="get">
+<dt id="get--api-v1-party-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/party/</tt><a class="headerlink" href="#get--api-v1-party-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Past parties are not returned</p>
+</div>
+<p>Fetch information about a specific party</p>
+<dl class="get">
+<dt id="get--api-v1-party-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/party/{id}/</tt><a class="headerlink" href="#get--api-v1-party-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="party-invitations-and-rsvp">
+<h2>Party Invitations and RSVP<a class="headerlink" href="#party-invitations-and-rsvp" title="Permalink to this headline">¶</a></h2>
+<p>Every Vinely Party/Event has party invites that associate users with a party.</p>
+<p>Fetch a list of all party invitations</p>
+<dl class="get">
+<dt id="get--api-v1-partyinvite-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/partyinvite/</tt><a class="headerlink" href="#get--api-v1-partyinvite-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Fetch information about a specific party invite.</p>
+<dl class="get">
+<dt id="get--api-v1-partyinvite-{id}-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/partyinvite/{id}/</tt><a class="headerlink" href="#get--api-v1-partyinvite-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Creating a party invitation.</p>
+<p>Hosts and Pro&#8217;s can invite people to a party at any time.
+Other tasters an only invite people to a party if the Host allows it.</p>
+<dl class="post">
+<dt id="post--api-v1-partyinvite-">
+<tt class="descname">POST </tt><tt class="descname">/api/v1/partyinvite/</tt><a class="headerlink" href="#post--api-v1-partyinvite-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>Updating a party invitation</p>
+<dl class="put">
+<dt id="put--api-v1-partyinvite-{id}-">
+<tt class="descname">PUT </tt><tt class="descname">/api/v1/partyinvite/{id}/</tt><a class="headerlink" href="#put--api-v1-partyinvite-{id}-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>A party invitation can be updated at any time up until the day of the event.</p>
+<p><strong>RSVP&#8217;ing to an event</strong>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">RESPONSE_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;--&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;No&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;Maybe&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;Yes&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;Under Age&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You rsvp to an event by setting the <cite>response</cite> field of the party invite object to any of the integer values in <cite>RESPONSE_CHOICES</cite> above.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Parties and Events</a><ul>
+<li><a class="reference internal" href="#events">Events</a></li>
+<li><a class="reference internal" href="#party">Party</a></li>
+<li><a class="reference internal" href="#party-invitations-and-rsvp">Party Invitations and RSVP</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="accounts.html"
+                        title="previous chapter">Accounts: User and profile management</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="personality.html"
+                        title="next chapter">Personality and Wine Ratings</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/parties.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="personality.html" title="Personality and Wine Ratings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="accounts.html" title="Accounts: User and profile management"
+             >previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Vinely.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
