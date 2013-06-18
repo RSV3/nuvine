@@ -1,63 +1,35 @@
 
-from personality.models import WinePersonality, WineRatingData
 from tastypie.resources import ModelResource
-from tastypie.authentication import SessionAuthentication, MultiAuthentication, ApiKeyAuthentication  # , BasicAuthentication
-from tastypie.authorization import Authorization  # , DjangoAuthorization
+from tastypie.authentication import MultiAuthentication
+from tastypie.authorization import Authorization
 from tastypie.http import HttpUnauthorized, HttpForbidden
 from tastypie.utils import trailing_slash
 from tastypie import fields
 from tastypie.validation import FormValidation
-
-# from django.db import models
-# from tastypie.models import create_api_key
 from tastypie.models import ApiKey
+
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.conf.urls import url
 from django.contrib.sessions.models import Session
+from django.conf import settings
+
+from api.auth import UserObjectsOnlyAuthorization, EmailApiKeyAuthentication, TestSessionAuthentication
 
 from accounts.models import User, UserProfile
-from main.models import Party, PartyInvite, Address
-from api.authorization import UserObjectsOnlyAuthorization
-from personality.forms import WineRatingForm
 from accounts.forms import NameEmailUserMentorCreationForm
 
-# import base64
+from main.forms import PartyInviteTasterForm
+from main.models import Party, PartyInvite, Address
 
-# models.signals.post_save.connect(create_api_key, sender=User)
+from personality.models import WinePersonality, WineRatingData, Wine
+from personality.forms import WineRatingForm
 
 
-class EmailApiKeyAuthentication(ApiKeyAuthentication):
-  def is_authenticated(self, request, **kwargs):
-      """
-      Finds the user and checks their API key.
-
-      Should return either ``True`` if allowed, ``False`` if not or an
-      ``HttpResponse`` if you need something custom.
-      """
-      from tastypie.compat import User
-      try:
-          username, api_key = self.extract_credentials(request)
-      except ValueError:
-          return self._unauthorized()
-
-      if not username or not api_key:
-          return self._unauthorized()
-
-      try:
-          # use email field instead of username
-          lookup_kwargs = {'email': username}
-          user = User.objects.get(**lookup_kwargs)
-      except (User.DoesNotExist, User.MultipleObjectsReturned):
-          return self._unauthorized()
-
-      if not self.check_active(user):
-          return False
-
-      key_auth_check = self.get_key(user, api_key)
-      if key_auth_check and not isinstance(key_auth_check, HttpUnauthorized):
-          request.user = user
-      return key_auth_check
+if settings.DEPLOY:
+  authentication_backends = [EmailApiKeyAuthentication()]
+else:
+  authentication_backends = [TestSessionAuthentication(), EmailApiKeyAuthentication()]
 
 
 class SignupResource(ModelResource):
@@ -160,7 +132,7 @@ class LogoutResource(ModelResource):
     resource_name = 'auth/logout'
     allowed_methods = ['get']
     detail_allowed_methods = []
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
     authorization = UserObjectsOnlyAuthorization()
     limit = 0
     include_resource_uri = False
@@ -191,7 +163,7 @@ class PartyResource(ModelResource):
     allowed_methods = ['get']
     fields = ['title', 'description', 'id', 'fee', 'event_date', 'phone']
     authorization = UserObjectsOnlyAuthorization()
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future parties
@@ -221,15 +193,17 @@ class PartyInviteResource(ModelResource):
 
   class Meta:
     queryset = PartyInvite.objects.all()
+    excludes = ['response_timestamp', 'attended', 'invited_timestamp']
     allowed_methods = ['get', 'put', 'post']
     authorization = UserObjectsOnlyAuthorization()
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
+    validation = FormValidation(form_class=PartyInviteTasterForm)
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future invitations
     today = timezone.now()
     objects = super(PartyInviteResource, self).obj_get_list(bundle, **kwargs)
-    filtered_objects = objects.filter(party__event_date__gt=today).order_by('event_date')
+    filtered_objects = objects.filter(party__event_date__gt=today).order_by('party__event_date')
     return filtered_objects
 
 
@@ -242,15 +216,37 @@ class WinePersonalityResource(ModelResource):
     # authentication = SessionAuthentication()
 
 
+class WineResource(ModelResource):
+  class Meta:
+    queryset = Wine.objects.filter(active=True)
+    allowed_methods = ['get']
+    list_allowed_methods = []
+    fields = ['name']
+
+
 class WineRatingDataResource(ModelResource):
+  wine = fields.ToOneField(WineResource, 'wine')
+  user = fields.ToOneField('api.resources.UserResource', 'user')
+
   class Meta:
     queryset = WineRatingData.objects.all()
     excludes = ['timestamp']
     allowed_methods = ['get', 'put', 'post']
     resource_name = 'rating'
     authorization = UserObjectsOnlyAuthorization()
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
     validation = FormValidation(form_class=WineRatingForm)
+
+  def obj_create(self, bundle, **kwargs):
+    for key, value in kwargs.items():
+      setattr(bundle.obj, key, value)
+
+    bundle = self.full_hydrate(bundle)
+    # form validation is failing with uri data
+    bundle.data['user'] = bundle.obj.user_id
+    bundle.data['wine'] = bundle.obj.wine_id
+    bundle = self.save(bundle)
+    return bundle
 
 
 class ProfileResource(ModelResource):
@@ -264,7 +260,7 @@ class ProfileResource(ModelResource):
     resource_name = 'profile'
     include_resource_uri = True
     authorization = UserObjectsOnlyAuthorization()
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
 
 
 class UserResource(ModelResource):
@@ -274,6 +270,6 @@ class UserResource(ModelResource):
     queryset = User.objects.all()
     excludes = ['password', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined', 'username']
     authorization = UserObjectsOnlyAuthorization()
-    authentication = MultiAuthentication(SessionAuthentication(), EmailApiKeyAuthentication())
+    authentication = MultiAuthentication(*authentication_backends)
     allowed_methods = ['get', 'put']
     # list_allowed_methods = []
