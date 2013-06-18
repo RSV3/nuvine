@@ -15,22 +15,22 @@ Fetching user information.
 Detailed profile information is included in the returned information but it can
 also be fetched in a separate API call if required. *See below*.
 
-.. NOTE:: This exists for the purposes of convention and can be used if you don't have the `user_id`. 
+.. NOTE:: This exists for the purposes of convention and can be used if you don't have the ``user_id``. 
   It returns a list with only one item i.e. the profile of the person currently logged in.
 
 Get information by id.
 
 .. http:GET:: /api/v1/profile/{id}/
 
-This returns information about the user with the provided `id`.
+This returns information about the user with the provided ``id``.
 
-.. NOTE:: For security reasons, the `id` must be the `user_id` of the currently logged in person.
+.. NOTE:: For security reasons, the ``id`` must be the ``user_id`` of the currently logged in person.
 
 Update user information
 
 .. http:PUT:: /api/v1/user/{id}/
 
-.. NOTE:: For security reasons, the `id` must be the `user_id` of the currently logged in person.
+.. NOTE:: For security reasons, the ``id`` must be the ``user_id`` of the currently logged in person.
 
 
 Profile
@@ -47,13 +47,13 @@ Get information by id.
 
 .. http:GET:: /api/v1/profile/{id}/
 
-This returns information about the profile with the provided `id`. 
+This returns information about the profile with the provided ``id``. 
 
-.. NOTE:: For security reasons, the `id` must be the `profile_id` of the currently logged in person.
+.. NOTE:: For security reasons, the ``id`` must be the ``profile_id`` of the currently logged in person.
 
 Update profile information
 
 .. http:PUT:: /api/v1/profile/{id}/
 
-.. NOTE:: For security reasons, the `id` must be the `profile_id` of the currently logged in person.
+.. NOTE:: For security reasons, the ``id`` must be the ``profile_id`` of the currently logged in person.
 

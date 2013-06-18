@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Vinely 0.9 documentation" href="index.html" />
-    <link rel="next" title="Accounts" href="accounts.html" />
+    <link rel="next" title="Accounts: User and profile management" href="accounts.html" />
     <link rel="prev" title="Welcome to Vinely’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="http-routingtable.html" title="HTTP Routing Table"
              >routing table</a> |</li>
         <li class="right" >
-          <a href="accounts.html" title="Accounts"
+          <a href="accounts.html" title="Accounts: User and profile management"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Vinely’s documentation!"
@@ -76,11 +76,24 @@ Clarity is still required as to what role signups are allowed.</p>
 <tt class="descname">POST </tt><tt class="descname">/api/v1/auth/login/</tt><a class="headerlink" href="#post--api-v1-auth-login-" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>A successful login returns an api_key for that session. This api_key must be sent along with
+<p>A successful login returns an <tt class="docutils literal"><span class="pre">api_key</span></tt> for that session. This <tt class="docutils literal"><span class="pre">api_key</span></tt> must be sent along with
 all subsequent requests</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All API calls will only allow you to view the information pertaining to the logged in user.</p>
+</div>
+<p>To use the API Key, you can specify an pass the <tt class="docutils literal"><span class="pre">username/api_key</span></tt> combination either via an
+<tt class="docutils literal"><span class="pre">Authorization</span></tt> http header or as <tt class="docutils literal"><span class="pre">GET/POST</span></tt> parameters:</p>
+<p>Examples:</p>
+<div class="highlight-python"><pre># As Authorization header
+Authorization: ApiKey attendee1@example.com:6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e
+
+# As GET Parameters
+http://dev.vinely.com/api/v1/user/?username=attendee1@example.com&amp;api_key=6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e</pre>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Use of the Authorization header is preferred for security reasons.</p>
 </div>
 </div>
 <div class="section" id="logout">
@@ -114,7 +127,7 @@ all subsequent requests</p>
                         title="previous chapter">Welcome to Vinely&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="accounts.html"
-                        title="next chapter">Accounts</a></p>
+                        title="next chapter">Accounts: User and profile management</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/auth.txt"
@@ -147,7 +160,7 @@ all subsequent requests</p>
           <a href="http-routingtable.html" title="HTTP Routing Table"
              >routing table</a> |</li>
         <li class="right" >
-          <a href="accounts.html" title="Accounts"
+          <a href="accounts.html" title="Accounts: User and profile management"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to Vinely’s documentation!"

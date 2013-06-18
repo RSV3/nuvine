@@ -153,11 +153,28 @@ Allows you to log into the system. All API calls expect the user to be logged in
 \end{fulllineitems}
 
 
-A successful login returns an api\_key for that session. This api\_key must be sent along with
+A successful login returns an \code{api\_key} for that session. This \code{api\_key} must be sent along with
 all subsequent requests
 
 \begin{notice}{note}{Note:}
 All API calls will only allow you to view the information pertaining to the logged in user.
+\end{notice}
+
+To use the API Key, you can specify an pass the \code{username/api\_key} combination either via an
+\code{Authorization} http header or as \code{GET/POST} parameters:
+
+Examples:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\# As Authorization header
+Authorization: ApiKey attendee1@example.com:6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e
+
+\# As GET Parameters
+http://dev.vinely.com/api/v1/user/?username=attendee1@example.com\&api\_key=6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e
+\end{Verbatim}
+
+\begin{notice}{warning}{Warning:}
+Use of the Authorization header is preferred for security reasons.
 \end{notice}
 
 
@@ -189,7 +206,7 @@ Detailed profile information is included in the returned information but it can
 also be fetched in a separate API call if required. \emph{See below}.
 
 \begin{notice}{note}{Note:}
-This exists for the purposes of convention and can be used if you don't have the \emph{user\_id}.
+This exists for the purposes of convention and can be used if you don't have the \code{user\_id}.
 It returns a list with only one item i.e. the profile of the person currently logged in.
 \end{notice}
 
@@ -201,10 +218,10 @@ Get information by id.
 \end{fulllineitems}
 
 
-This returns information about the user with the provided \emph{id}.
+This returns information about the user with the provided \code{id}.
 
 \begin{notice}{note}{Note:}
-For security reasons, the \emph{id} must be the \emph{user\_id} of the currently logged in person.
+For security reasons, the \code{id} must be the \code{user\_id} of the currently logged in person.
 \end{notice}
 
 Update user information
@@ -216,7 +233,7 @@ Update user information
 
 
 \begin{notice}{note}{Note:}
-For security reasons, the \emph{id} must be the \emph{user\_id} of the currently logged in person.
+For security reasons, the \code{id} must be the \code{user\_id} of the currently logged in person.
 \end{notice}
 
 
@@ -243,10 +260,10 @@ Get information by id.
 \end{fulllineitems}
 
 
-This returns information about the profile with the provided \emph{id}.
+This returns information about the profile with the provided \code{id}.
 
 \begin{notice}{note}{Note:}
-For security reasons, the \emph{id} must be the \emph{profile\_id} of the currently logged in person.
+For security reasons, the \code{id} must be the \code{profile\_id} of the currently logged in person.
 \end{notice}
 
 Update profile information
@@ -258,7 +275,7 @@ Update profile information
 
 
 \begin{notice}{note}{Note:}
-For security reasons, the \emph{id} must be the \emph{profile\_id} of the currently logged in person.
+For security reasons, the \code{id} must be the \code{profile\_id} of the currently logged in person.
 \end{notice}
 
 
@@ -373,7 +390,7 @@ A party invitation can be updated at any time up until the day of the event.
 \end{Verbatim}
 
 \begin{notice}{note}{Note:}
-You rsvp to an event by setting the \emph{response} field of the party invite object to any of the integer values in \emph{RESPONSE\_CHOICES} above.
+You rsvp to an event by setting the \code{response} field of the party invite object to any of the integer values in \code{RESPONSE\_CHOICES} above.
 \end{notice}
 
 

@@ -75,5 +75,5 @@ A party invitation can be updated at any time up until the day of the event.
         (4, 'Under Age'),
     )
 
-.. NOTE:: You rsvp to an event by setting the `response` field of the party invite object to any of the integer values in `RESPONSE_CHOICES` above.
+.. NOTE:: You rsvp to an event by setting the ``response`` field of the party invite object to any of the integer values in ``RESPONSE_CHOICES`` above.
 
