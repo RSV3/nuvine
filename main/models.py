@@ -389,19 +389,17 @@ class Cart(models.Model):
 
     # credit = calculate_host_credit(self.user)
     credit = self.user.userprofile.account_credit
-    # log.info('Calculated %s' % calculate_host_credit(self.user))
-    log.info('Saved %s' % credit)
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
 
     max_discount = subtotal_without_discount / 2
-    # log.info('self.subtotal() %s ' % self.subtotal())
+
     if credit <= max_discount:
       applied_discount = credit
     else:
       applied_discount = max_discount
-    log.info('applied_discount %s' % applied_discount)
+
     return applied_discount
 
   def subtotal(self):
