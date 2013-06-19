@@ -1,4 +1,6 @@
 
+from lepl.apps.rfc3696 import Email
+from emailusernames.utils import user_exists, create_user, get_user
 from tastypie.resources import ModelResource
 from tastypie.authentication import MultiAuthentication
 from tastypie.authorization import Authorization
@@ -7,6 +9,7 @@ from tastypie.utils import trailing_slash
 from tastypie import fields
 from tastypie.validation import FormValidation
 from tastypie.models import ApiKey
+from tastypie.exceptions import ImmediateHttpResponse
 
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
@@ -24,6 +27,9 @@ from main.models import Party, PartyInvite, Address
 
 from personality.models import WinePersonality, WineRatingData, Wine
 from personality.forms import WineRatingForm
+
+from django.forms.util import ErrorList
+email_validator = Email()
 
 
 if settings.DEPLOY:
@@ -190,6 +196,7 @@ class EventResource(ModelResource):
 #TODO: only allow updating the response field
 class PartyInviteResource(ModelResource):
   party = fields.ToOneField(PartyResource, 'party')
+  invitee = fields.ToOneField('api.resources.UserResource', 'invitee')
 
   class Meta:
     queryset = PartyInvite.objects.all()
@@ -198,6 +205,7 @@ class PartyInviteResource(ModelResource):
     authorization = UserObjectsOnlyAuthorization()
     authentication = MultiAuthentication(*authentication_backends)
     validation = FormValidation(form_class=PartyInviteTasterForm)
+    always_return_data = True
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future invitations

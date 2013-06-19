@@ -289,7 +289,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
-    initial = kwargs.get('initial')
+    initial = kwargs.get('initial', {})
 
     self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
@@ -304,7 +304,6 @@ class PartyInviteTasterForm(forms.ModelForm):
     add_form_validation(self)
 
   def clean(self):
-
     cleaned_data = super(PartyInviteTasterForm, self).clean()
     email_validator = Email()
 
