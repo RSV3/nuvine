@@ -969,7 +969,7 @@ def party_list(request):
     data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
     data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
 
-    pro_comm, mentee_comm = calculate_pro_commission(u)
+    pro_comm, mentee_comm = (0, 0)  #calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
