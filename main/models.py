@@ -55,7 +55,7 @@ class Party(models.Model):
   address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
   created = models.DateTimeField(auto_now_add=True)
-  event_date = models.DateTimeField()
+  event_date = models.DateTimeField(db_index=True)
   auto_invite = models.BooleanField()
   auto_thank_you = models.BooleanField()
   guests_can_invite = models.BooleanField()
@@ -79,6 +79,7 @@ class Party(models.Model):
     return self.host.email == 'events@vinely.com'
 
   def total_sales(self):
+    return 0
     orders = Order.objects.filter(cart__party=self)
     # should not be tasting kit
     orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
@@ -228,6 +229,7 @@ class PartyInvite(models.Model):
 
   @property
   def sales(self):
+    return "$0"
     orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
     orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
     aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
@@ -260,7 +262,7 @@ class Product(models.Model):
 
   name = models.CharField(max_length=128)
   sku = models.CharField(max_length=32, default="xxxxxxxxxxxxxxxxxxxxxxxxxx")
-  category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0])
+  category = models.IntegerField(choices=PRODUCT_TYPE, default=PRODUCT_TYPE[0][0], db_index=True)
   description = models.CharField(max_length=1024)
   #: half case price
   unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
@@ -305,7 +307,7 @@ class LineItem(models.Model):
   # NOTE: quantity: legacy from old code - 1 is full case, 2 is half case for wines
   #                 for tasting kits 1 is 6 bottles, 2 is 12 bottles total
   quantity = models.IntegerField(default=1)
-  frequency = models.IntegerField(choices=SubscriptionInfo.FREQUENCY_CHOICES, default=1)
+  frequency = models.IntegerField(choices=SubscriptionInfo.FREQUENCY_CHOICES, default=1, db_index=True)
   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
   def __unicode__(self):
