@@ -120,6 +120,25 @@ Other tasters an only invite people to a party if the Host allows it.</p>
 <tt class="descname">POST </tt><tt class="descname">/api/v1/partyinvite/</tt><a class="headerlink" href="#post--api-v1-partyinvite-" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Unlike the other calls where <tt class="docutils literal"><span class="pre">relation</span></tt> fields require the uri, you should provide the names
+and email of the <tt class="docutils literal"><span class="pre">invitee</span></tt> when creating an invitation.</p>
+<p class="last">If the user does not exist, a new account will be created for them.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Only the invitee and party fields are required, all others are optional.</span>
+
+<span class="p">{</span>
+  <span class="s">&quot;invitee&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&quot;first_name&quot;</span><span class="p">:</span> <span class="s">&quot;First&quot;</span><span class="p">,</span>
+    <span class="s">&quot;last_name&quot;</span><span class="p">:</span> <span class="s">&quot;Last&quot;</span><span class="p">,</span>
+    <span class="s">&quot;email&quot;</span><span class="p">:</span> <span class="s">&quot;someuser@example.com&quot;</span>
+  <span class="p">},</span>
+  <span class="s">&quot;party&quot;</span><span class="p">:</span> <span class="s">&quot;/api/v1/party/123/&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <p>Updating a party invitation</p>
 <dl class="put">
 <dt id="put--api-v1-partyinvite-{id}-">

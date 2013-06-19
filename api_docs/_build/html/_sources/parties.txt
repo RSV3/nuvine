@@ -59,6 +59,26 @@ Other tasters an only invite people to a party if the Host allows it.
 
 .. http:POST:: /api/v1/partyinvite/
 
+.. warning ::
+
+    Unlike the other calls where ``relation`` fields require the uri, you should provide the names 
+    and email of the ``invitee`` when creating an invitation.
+
+    If the user does not exist, a new account will be created for them.
+
+Example::
+    
+    # Only the invitee and party fields are required, all others are optional.
+
+    {
+      "invitee": {
+        "first_name": "First",
+        "last_name": "Last",
+        "email": "someuser@example.com"
+      },
+      "party": "/api/v1/party/123/"
+    }
+
 Updating a party invitation
 
 .. http:PUT:: /api/v1/partyinvite/{id}/

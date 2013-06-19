@@ -289,14 +289,16 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
-    initial = kwargs.get('initial', {})
+    # initial = kwargs.get('initial', {})
+    if kwargs.get('data', {}).get('change_rsvp'):
+      self.initial['change_rsvp'] = 't'
 
     self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['phone'].widget.attrs = {'placeholder': 'Phone number (optional)'}
     self.fields['party'].widget = forms.HiddenInput()
-    if initial.get('change_rsvp') == 't':
+    if self.initial.get('change_rsvp') == 't':
       self.fields['response'].widget.choices = PartyInvite.RESPONSE_CHOICES[:4]
     else:
       self.fields['response'].widget = forms.HiddenInput()
@@ -362,7 +364,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     if 'party' in cleaned_data and 'invitee' in cleaned_data and not self.initial.get('change_rsvp'):
       party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
       if party_invited.exists():
-        raise forms.ValidationError("Invitee (%s) has already been invited to the party" % cleaned_data['invitee'].email)
+        raise forms.ValidationError("Invitee (%s) has already been added to the invitaions list." % cleaned_data['invitee'].email)
 
     return cleaned_data
 

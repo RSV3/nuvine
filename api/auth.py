@@ -89,7 +89,6 @@ class UserObjectsOnlyAuthorization(Authorization):
   Allow users to only modify their own objects
   """
   def read_list(self, object_list, bundle):
-    print 'read_list'
     # This assumes a ``QuerySet`` from ``ModelResource``.
     model_name = object_list.model.__name__
     if model_name == 'User':
@@ -102,25 +101,27 @@ class UserObjectsOnlyAuthorization(Authorization):
       return object_list.filter(user=bundle.request.user)
 
   def read_detail(self, object_list, bundle):
-    print 'read_detail', bundle.obj.id
     # Is the requested object owned by the user?
-    model_name = object_list
+    model_name = object_list.model.__name__
     if model_name == 'User':
       return bundle.obj.id == bundle.request.user.id
     elif model_name == 'Party':
       return bundle.obj.partyinvite_set.filter(invitee=bundle.request.user).exists()
     elif model_name == 'PartyInvite':
-      return bundle.obj.invitee == bundle.request.user
+      return bundle.obj.invitee == bundle.request.user or \
+        bundle.obj.invited_by == bundle.request.user
     else:
       return bundle.obj.user == bundle.request.user
 
   def create_list(self, object_list, bundle):
-    print 'create_list'
     # Assuming their auto-assigned to ``user``.
     return object_list
 
   def create_detail(self, object_list, bundle):
-    print 'create_detail'
+    model_name = object_list.model.__name__
+    if model_name == 'PartyInvite':
+      return bundle.obj.invitee == bundle.request.user or \
+        bundle.obj.invited_by == bundle.request.user
     return self.read_detail(object_list, bundle)
 
   def update_list(self, object_list, bundle):

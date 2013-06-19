@@ -29,6 +29,8 @@ from personality.models import WinePersonality, WineRatingData, Wine
 from personality.forms import WineRatingForm
 
 from django.forms.util import ErrorList
+import uuid
+
 email_validator = Email()
 
 
@@ -205,7 +207,7 @@ class PartyInviteResource(ModelResource):
     authorization = UserObjectsOnlyAuthorization()
     authentication = MultiAuthentication(*authentication_backends)
     validation = FormValidation(form_class=PartyInviteTasterForm)
-    always_return_data = True
+    # always_return_data = True
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future invitations
@@ -213,6 +215,33 @@ class PartyInviteResource(ModelResource):
     objects = super(PartyInviteResource, self).obj_get_list(bundle, **kwargs)
     filtered_objects = objects.filter(party__event_date__gt=today).order_by('party__event_date')
     return filtered_objects
+
+  def obj_create(self, bundle, **kwargs):
+    # TODO: Allow passing invitee as uri instead of dict only
+    for key, value in kwargs.items():
+      setattr(bundle.obj, key, value)
+
+    # if new invitee was sent as dict creation will be done during form validation
+    invitee_data = bundle.data.get('invitee', {})
+    if invitee_data and isinstance(invitee_data, dict):
+      invitee_data = bundle.data.pop('invitee', {})
+      bundle.data['invitee'] = None
+    bundle = self.full_hydrate(bundle)
+
+    for key, value in invitee_data.items():
+      bundle.data[key] = value
+
+    bundle.data['party'] = bundle.obj.party_id
+    bundle.obj.rsvp_code = str(uuid.uuid4())
+    bundle.obj.invited_by = bundle.request.user
+    bundle.obj.response = 0
+    bundle = self.save(bundle)
+    return bundle
+
+  def obj_update(self, bundle, skip_errors=False, **kwargs):
+    # this is set so that form validation does not show already invited error
+    bundle.data['change_rsvp'] = 't'
+    return super(PartyInviteResource, self).obj_update(bundle, skip_errors, **kwargs)
 
 
 class WinePersonalityResource(ModelResource):
