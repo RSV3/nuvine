@@ -30,7 +30,6 @@ class APILogMiddleWare(object):
             remote_addr = request.META.get('REMOTE_ADDR', None)
 
         uri = request.META.get('PATH_INFO', '')
-        print 'request.user', request.user
         api = APILog.objects.create(**{
             'user': request.user if request.user.is_authenticated() else None,
             'source': remote_addr,
@@ -39,7 +38,6 @@ class APILogMiddleWare(object):
             'request_data': post_data,
         })
         request.session['api_logger'] = api.pk
-        print 'log saved', api.pk
 
     def process_response(self, request, response):
         # only interested in the api calls

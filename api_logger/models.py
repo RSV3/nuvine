@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class APILog(models.Model):
     user = models.ForeignKey(User, null=True)
-    source = models.CharField(max_length=12)
+    source = models.CharField(max_length=16)
     method = models.CharField(max_length=6)
     uri = models.CharField(max_length=64)
     request_data = models.TextField(blank=True)
