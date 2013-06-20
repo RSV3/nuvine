@@ -615,8 +615,8 @@ def make_pro_host(request, account_type, data):
 
       EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
 
-      ok = check_zipcode(profile.zipcode)
-      if not ok:
+      zip_ok = check_zipcode(profile.zipcode)
+      if not zip_ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, u, account_type)
 
@@ -656,13 +656,15 @@ def make_pro_host(request, account_type, data):
           pro = User.objects.get(email=mentor_email)
           profile.current_pro = pro
           profile.save()
-          send_know_pro_party_email(request, u)  # to host
+          if zip_ok:
+            send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
           # pro = get_default_pro()
           pro = profile.find_nearest_pro()
           profile.current_pro = pro
           profile.save()
-          send_unknown_pro_email(request, u)  # to host
+          if zip_ok:
+            send_unknown_pro_email(request, u)  # to host
 
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
@@ -801,9 +803,9 @@ def sign_up(request, account_type, data):
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
-    ok = check_zipcode(profile.zipcode)
+    zip_ok = check_zipcode(profile.zipcode)
 
-    if not ok:
+    if not zip_ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       send_not_in_area_party_email(request, user, account_type)
 
@@ -826,7 +828,8 @@ def sign_up(request, account_type, data):
         pro = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
         profile.current_pro = pro
         profile.save()
-        send_know_pro_party_email(request, user)  # to host
+        if zip_ok:
+          send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
         # pro e-mail was not entered
         # allow users that have accounts but never logged in (inactive accounts) to just signup as normal
@@ -838,7 +841,8 @@ def sign_up(request, account_type, data):
           profile.current_pro = pro
           profile.save()
 
-        send_unknown_pro_email(request, user)  # to host
+        if zip_ok:
+          send_unknown_pro_email(request, user)  # to host
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
     if account_type == 1:
