@@ -722,13 +722,15 @@ def place_order(request):
           customer.save()
 
           receiver_profile = cart.user.get_profile()
-          receiver_profile.account_credit = float(receiver_profile.account_credit) - cart.discount
+          receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
           receiver_profile.save()
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
+
         non_sub_orders = order.cart.items.filter(frequency=0)
         sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         for item in non_sub_orders:
