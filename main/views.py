@@ -955,7 +955,7 @@ def party_list(request):
 
   today = timezone.now()
 
-  my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
+  my_pro_parties = OrganizedParty.objects.select_related().filter(pro=u).values_list('party', flat=True).distinct()
   if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
@@ -968,7 +968,7 @@ def party_list(request):
     data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
     data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
 
-    pro_comm, mentee_comm = calculate_pro_commission(u)
+    pro_comm, mentee_comm = (0, 0)  #calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
@@ -1537,7 +1537,7 @@ def party_details(request, party_id):
     msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
-  invitees = PartyInvite.objects.filter(party=party)
+  invitees = PartyInvite.objects.select_related().filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees

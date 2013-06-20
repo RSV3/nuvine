@@ -141,7 +141,7 @@ class VerificationQueue(models.Model):
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
-  vinely_customer_id = models.CharField(max_length=16, blank=True, null=True)
+  vinely_customer_id = models.CharField(max_length=16, blank=True, null=True, db_index=True)
 
   image = ImageField(upload_to="profiles/", blank=True, null=True)
   dob = models.DateField(verbose_name="Date of Birth (mm/dd/yyyy)", null=True, blank=True)
