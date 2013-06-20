@@ -14,7 +14,7 @@
 
 
 \title{Vinely Documentation}
-\date{June 18, 2013}
+\date{June 20, 2013}
 \release{0.9}
 \author{Vinely}
 \newcommand{\sphinxlogo}{}
@@ -366,6 +366,28 @@ Other tasters an only invite people to a party if the Host allows it.
 \phantomsection\label{parties:post--api-v1-partyinvite-}\pysigline{\bfcode{POST~}\bfcode{/api/v1/partyinvite/}}
 \end{fulllineitems}
 
+
+\begin{notice}{warning}{Warning:}
+Unlike the other calls where \code{relation} fields require the uri, you should provide the names
+and email of the \code{invitee} when creating an invitation.
+
+If the user does not exist, a new account will be created for them.
+\end{notice}
+
+Example:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c}{\PYGZsh{} Only the invitee and party fields are required, all others are optional.}
+
+\PYG{p}{\PYGZob{}}
+  \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{invitee}\PYG{l+s}{\PYGZdq{}}\PYG{p}{:} \PYG{p}{\PYGZob{}}
+    \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{first\PYGZus{}name}\PYG{l+s}{\PYGZdq{}}\PYG{p}{:} \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{First}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,}
+    \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{last\PYGZus{}name}\PYG{l+s}{\PYGZdq{}}\PYG{p}{:} \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{Last}\PYG{l+s}{\PYGZdq{}}\PYG{p}{,}
+    \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{email}\PYG{l+s}{\PYGZdq{}}\PYG{p}{:} \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{someuser@example.com}\PYG{l+s}{\PYGZdq{}}
+  \PYG{p}{\PYGZcb{}}\PYG{p}{,}
+  \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{party}\PYG{l+s}{\PYGZdq{}}\PYG{p}{:} \PYG{l+s}{\PYGZdq{}}\PYG{l+s}{/api/v1/party/123/}\PYG{l+s}{\PYGZdq{}}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
 
 Updating a party invitation
 
