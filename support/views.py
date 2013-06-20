@@ -211,8 +211,8 @@ def download_users_from_party(request, party_id):
     data = {}
     user = User.objects.get(id=user_dict["invitee"])
     data['ID'] = user.id
-    data['First Name'] = user.first_name
-    data['Last Name'] = user.last_name
+    data['First Name'] = user.first_name.encode('utf-8')
+    data['Last Name'] = user.last_name.encode('utf-8')
     data['E-mail'] = user.email
     profile = user.get_profile()
     data['Zipcode'] = profile.zipcode
