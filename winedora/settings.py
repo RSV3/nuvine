@@ -212,6 +212,7 @@ else:
       'django.middleware.csrf.CsrfViewMiddleware',
       'django.contrib.auth.middleware.AuthenticationMiddleware',
       'django.contrib.messages.middleware.MessageMiddleware',
+      'api_logger.middleware.APILogMiddleWare',
       # Uncomment the next line for simple clickjacking protection:
       # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
   )
@@ -259,6 +260,7 @@ INSTALLED_APPS = (
     # 'djcelery',
     'coupon',
     'api',
+    'api_logger',
     'tastypie',
     'tastypie_swagger',
 )

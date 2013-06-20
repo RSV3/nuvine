@@ -35,5 +35,6 @@ urlpatterns = patterns('',
 from api.tools import api
 urlpatterns += patterns('',
     url(r'^api/', include(api.urls)),
-    url(r'^api/doc/', include('tastypie_swagger.urls', namespace='tastypie_swagger')),
-)
+    url(r'^api/spec/', include('tastypie_swagger.urls', namespace='tastypie_swagger')),
+    url(r'^api/log/', include('api_logger.urls', namespace='api_logger')),
+) + static('api/docs/', document_root="api_docs/_build/html/") + staticfiles_urlpatterns()

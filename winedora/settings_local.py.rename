@@ -69,9 +69,11 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'djcelery',
     'django_tables2',
+    'coupon',
+    'api',
+    'api_logger',
     'tastypie',
     'tastypie_swagger',
-    'coupon',
 )
 
 TEMPLATE_DIRS = (

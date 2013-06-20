@@ -239,7 +239,7 @@ class PartyInviteResource(ModelResource):
     return bundle
 
   def obj_update(self, bundle, skip_errors=False, **kwargs):
-    # this is set so that form validation does not show already invited error
+    # this is set so that form validation does not freak out invited error
     bundle.data['change_rsvp'] = 't'
     return super(PartyInviteResource, self).obj_update(bundle, skip_errors, **kwargs)
 
