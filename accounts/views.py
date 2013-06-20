@@ -1299,27 +1299,42 @@ def join_club_review(request):
         non_sub_orders = order.cart.items.filter(frequency=0)
         sub_orders = order.cart.items.filter(frequency=1)
 
-        # create invoice manually if there's no subscription
+        # create invoice manually if there's a non-subscription i.e. tasting kit order for those with no personality
         if non_sub_orders.exists():
           item = non_sub_orders[0]
           tax = float(item.total_price) * 0.08
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax * 100), currency='usd', description='Tax')
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.total_price * 100), currency='usd', description='Join The Club Tasting Kit')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
 
           invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
           invoice.pay()
 
           # Create a subscription with a 1month trial/delay so that it's not charged now
-          trial_end_date = datetime.now() + relativedelta(months=1)
+          trial_end_date = timezone.now() + relativedelta(months=1)
           trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
           customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
 
         # if subscription exists then create plan
         elif sub_orders.exists():
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
           item = sub_orders[0]
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
+
+        # update/create new subscription info
+        today = timezone.now()
+        from_date = datetime.date(today)
+
+        subscription = SubscriptionInfo(user=order.receiver,
+                                      quantity=LineItem.PRICE_TYPE[13][0],  # 6-bottles
+                                      frequency=SubscriptionInfo.FREQUENCY_CHOICES[1][0])  # monthly
+
+        next_invoice = from_date + relativedelta(months=+1)
+        subscription.next_invoice_date = next_invoice
+        subscription.updated_datetime = today
+        subscription.save()
 
         order.fulfill_status = 1
         order.save()

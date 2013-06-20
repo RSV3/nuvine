@@ -704,6 +704,7 @@ class SubscriptionInfo(models.Model):
       try:
 
         stripe.InvoiceItem.create(customer=customer.id, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+        stripe.InvoiceItem.create(customer=customer.id, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
         stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
         customer.update_subscription(plan=stripe_plan)
         log.info("Subscription updated on stripe for: %s %s <%s>" % (user.first_name, user.last_name, user.email))
