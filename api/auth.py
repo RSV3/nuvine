@@ -11,34 +11,34 @@ from django.conf import settings
 
 class EmailApiKeyAuthentication(ApiKeyAuthentication):
   def is_authenticated(self, request, **kwargs):
-      """
-      Finds the user and checks their API key.
+    """
+    Finds the user and checks their API key.
 
-      Should return either ``True`` if allowed, ``False`` if not or an
-      ``HttpResponse`` if you need something custom.
-      """
-      try:
-          username, api_key = self.extract_credentials(request)
-      except ValueError:
-          return self._unauthorized()
+    Should return either ``True`` if allowed, ``False`` if not or an
+    ``HttpResponse`` if you need something custom.
+    """
+    try:
+      username, api_key = self.extract_credentials(request)
+    except ValueError:
+      return self._unauthorized()
 
-      if not username or not api_key:
-          return self._unauthorized()
+    if not username or not api_key:
+        return self._unauthorized()
 
-      try:
-          # use email field instead of username
-          lookup_kwargs = {'email': username}
-          user = User.objects.get(**lookup_kwargs)
-      except (User.DoesNotExist, User.MultipleObjectsReturned):
-          return self._unauthorized()
+    try:
+      # use email field instead of username
+      lookup_kwargs = {'email': username}
+      user = User.objects.get(**lookup_kwargs)
+    except (User.DoesNotExist, User.MultipleObjectsReturned):
+      return self._unauthorized()
 
-      if not self.check_active(user):
-          return False
+    if not self.check_active(user):
+      return False
 
-      key_auth_check = self.get_key(user, api_key)
-      if key_auth_check and not isinstance(key_auth_check, HttpUnauthorized):
-          request.user = user
-      return key_auth_check
+    key_auth_check = self.get_key(user, api_key)
+    if key_auth_check and not isinstance(key_auth_check, HttpUnauthorized):
+      request.user = user
+    return key_auth_check
 
 
 class TestSessionAuthentication(Authentication):
@@ -51,6 +51,7 @@ class TestSessionAuthentication(Authentication):
     if request.method in ('GET', 'HEAD', 'OPTIONS', 'TRACE'):
       return request.user.is_authenticated()
 
+    # if post data is empty return error message
     if getattr(request, '_dont_enforce_csrf_checks', False):
       return request.user.is_authenticated()
 

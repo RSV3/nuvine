@@ -2,7 +2,7 @@
 from django.core.exceptions import MiddlewareNotUsed
 from django.conf import settings
 from api_logger.models import APILog
-import json
+# import json
 
 
 class APILogMiddleWare(object):
@@ -19,9 +19,7 @@ class APILogMiddleWare(object):
 
         post_data = {}
         if request.method == 'POST':
-            post_data = request.POST.copy()
-            post_data = post_data.keys()[0]
-            post_data = json.loads(post_data)
+            post_data = request.raw_post_data
 
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)
         if x_forwarded_for:

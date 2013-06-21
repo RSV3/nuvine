@@ -2324,7 +2324,7 @@ def supplier_orders_filter(request, history_list=False):
   if u.email == 'mi_sales@vinely.com':
     active_state = 'MI'
   elif u.email == 'sales@vinely.com':
-    active_state = 'MA'
+    active_state = 'CA'
 
   zipcodes = Zipcode.objects.filter(state=active_state).values('code')
 

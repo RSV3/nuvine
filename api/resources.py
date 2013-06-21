@@ -1,7 +1,6 @@
 
 from lepl.apps.rfc3696 import Email
-from emailusernames.utils import user_exists, create_user, get_user
-from tastypie.resources import ModelResource
+from tastypie.resources import ModelResource, Resource
 from tastypie.authentication import MultiAuthentication
 from tastypie.authorization import Authorization
 from tastypie.http import HttpUnauthorized, HttpForbidden
@@ -9,7 +8,6 @@ from tastypie.utils import trailing_slash
 from tastypie import fields
 from tastypie.validation import FormValidation
 from tastypie.models import ApiKey
-from tastypie.exceptions import ImmediateHttpResponse
 
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
@@ -28,7 +26,6 @@ from main.models import Party, PartyInvite, Address
 from personality.models import WinePersonality, WineRatingData, Wine
 from personality.forms import WineRatingForm
 
-from django.forms.util import ErrorList
 import uuid
 
 email_validator = Email()
@@ -310,3 +307,30 @@ class UserResource(ModelResource):
     authentication = MultiAuthentication(*authentication_backends)
     allowed_methods = ['get', 'put']
     # list_allowed_methods = []
+
+
+# TWITTER_SHARE = {
+#     'twitter': 'http://twitter.com/intent/tweet?text=Test',
+# }
+
+# FB_SHARE = {
+#     'facebook': 'https://www.facebook.com/sharer/sharer.php?u=vinely.com',
+# }
+
+# class ShareResource(ModelResource):
+#   link = fields.CharField()
+#   text = fields.CharField()
+
+#   class Meta:
+#     # object_class = Document
+#     queryset = User.objects.all()
+#     # fields = ['link', 'text']
+#     allowed_methods = ['get']
+#     detail_allowed_methods = []
+#     include_resource_uri = False
+#     # authorization = UserObjectsOnlyAuthorization()
+#     # authentication = MultiAuthentication(*authentication_backends)
+
+#   def get_list(self, request, **kwargs):
+#     share_resources = [TWITTER_SHARE, FB_SHARE]
+#     return self.create_response(request, share_resources)
