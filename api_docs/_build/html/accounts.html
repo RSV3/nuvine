@@ -126,6 +126,20 @@ the profile of the person currently logged in.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">For security reasons, the <tt class="docutils literal"><span class="pre">id</span></tt> must be the <tt class="docutils literal"><span class="pre">profile_id</span></tt> of the currently logged in person.</p>
 </div>
+<p>Updating the user profile image:</p>
+<div class="highlight-python"><pre># The image has to be sent as base64 encoded JSON string
+# it should include the file name
+
+# Example
+
+{
+    'image':
+        {
+            'name': 'filename.png',
+            'file': &lt;base64-encoded-data&gt;
+        }
+}</pre>
+</div>
 </div>
 </div>
 

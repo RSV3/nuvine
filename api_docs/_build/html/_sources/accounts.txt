@@ -57,3 +57,17 @@ Update profile information
 
 .. NOTE:: For security reasons, the ``id`` must be the ``profile_id`` of the currently logged in person.
 
+Updating the user profile image::
+
+    # The image has to be sent as base64 encoded JSON string
+    # it should include the file name
+
+    # Example
+
+    {
+        'image':
+            {
+                'name': 'filename.png',
+                'file': <base64-encoded-data>
+            }
+    }

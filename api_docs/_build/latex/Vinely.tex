@@ -14,7 +14,7 @@
 
 
 \title{Vinely Documentation}
-\date{June 20, 2013}
+\date{June 24, 2013}
 \release{0.9}
 \author{Vinely}
 \newcommand{\sphinxlogo}{}
@@ -277,6 +277,23 @@ Update profile information
 \begin{notice}{note}{Note:}
 For security reasons, the \code{id} must be the \code{profile\_id} of the currently logged in person.
 \end{notice}
+
+Updating the user profile image:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\# The image has to be sent as base64 encoded JSON string
+\# it should include the file name
+
+\# Example
+
+\PYGZob{}
+    'image':
+        \PYGZob{}
+            'name': 'filename.png',
+            'file': \textless{}base64-encoded-data\textgreater{}
+        \PYGZcb{}
+\PYGZcb{}
+\end{Verbatim}
 
 
 \chapter{Parties and Events}
