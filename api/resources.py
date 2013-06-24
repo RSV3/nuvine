@@ -26,6 +26,8 @@ from main.models import Party, PartyInvite, Address
 from personality.models import WinePersonality, WineRatingData, Wine
 from personality.forms import WineRatingForm
 
+from api.fields import Base64FileField
+
 import uuid
 
 email_validator = Email()
@@ -284,6 +286,7 @@ class WineRatingDataResource(ModelResource):
 
 
 class ProfileResource(ModelResource):
+  image = Base64FileField('image')
   personality = fields.ToOneField('api.resources.WinePersonalityResource', 'wine_personality', null=True)
 
   class Meta:

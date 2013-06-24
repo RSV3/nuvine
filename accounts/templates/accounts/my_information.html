@@ -64,13 +64,11 @@
           {% if pro or pending_pro %}
             <div class="control-group {% if profile.image.errors %} error{% endif %}">
               <div class="controls">
-                {% if profile.image %}
-                  {% thumbnail profile.image "120x120" as im %}
-                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                  {% endthumbnail %}
-                {% else %}
+                {% thumbnail profile.image "120x120" as im %}
+                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% empty %}
                   <img src="{% static "img/noprofilephoto_img.png" %}" height="120">
-                {% endif %}
+                {% endthumbnail %}
               </div>
               <div class="control-label" for="id_profile-image">
               {{ profile_form.image.label }}
