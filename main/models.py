@@ -635,6 +635,7 @@ class Order(models.Model):
         return True
     return False
 
+
 class SelectedWine(models.Model):
 
   LIKENESS_CHOICES = (
@@ -699,10 +700,10 @@ class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-    (0, 'Your Vinely recommendation'),
-    (1, 'Send me a mix of red & white wine'),
-    (2, 'Send me red wine only'),
-    (3, 'Send me white wine only')
+      (0, 'Your Vinely recommendation'),
+      (1, 'Send me a mix of red & white wine'),
+      (2, 'Send me red wine only'),
+      (3, 'Send me white wine only')
       # (1, 'Both'),
       # (2, 'Red'),
       # (3, 'White')
@@ -730,13 +731,13 @@ class EngagementInterest(models.Model):
   """
 
   ENGAGEMENT_CHOICES = (
-    (0, 'Unassigned Interest'),
-    (1, 'Vinely Pro'),
-    (2, 'Vinely Host'),
-    (3, 'Vinely Taster'),
-    (4, 'Unassigned Interest'),
-    (5, 'Tasting Kit'),
-    (6, 'Hosting Party'),
+      (0, 'Unassigned Interest'),
+      (1, 'Vinely Pro'),
+      (2, 'Vinely Host'),
+      (3, 'Vinely Taster'),
+      (4, 'Unassigned Interest'),
+      (5, 'Tasting Kit'),
+      (6, 'Hosting Party'),
   )
 
   user = models.ForeignKey(User)
