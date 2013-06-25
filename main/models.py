@@ -254,6 +254,7 @@ class Product(models.Model):
       (0, 'Tasting Kit'),
       (1, 'Wine Package'),
       (2, 'Wine Bottle'),
+      (3, 'VIP Tasting Kit'),
   )
 
   BASIC = "basic"
