@@ -960,32 +960,34 @@ def party_list(request):
 
   today = timezone.now()
 
-  my_pro_parties = OrganizedParty.objects.select_related().filter(pro=u).values_list('party', flat=True).distinct()
+  my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
+  my_parties = Party.objects.filter(Q(organizedparty__pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
+
   if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
     # parties managed
-    data['pro_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
-    data['pro_past_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
+    data['pro_parties'] = my_parties.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
+    data['pro_past_parties'] = my_parties.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
 
     # parties hosted
-    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
-    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
+    data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
+    data['host_past_parties'] = my_parties.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
 
-    pro_comm, mentee_comm = (0, 0)  #calculate_pro_commission(u)
+    pro_comm, mentee_comm = (0, 0)  # calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
   elif profile.is_host():
     data['host_credits'] = u.userprofile.account_credit
-    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
-    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
+    data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['host_past_parties'] = my_parties.filter(host=u, event_date__lt=today).order_by('-event_date')
 
   # parties attended
   # exclude parties in which user was the host or pro
-  data['taster_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__gte=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('event_date')
-  data['taster_past_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__lt=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('-event_date')
+  data['taster_parties'] = my_parties.filter(partyinvite__invitee=u, event_date__gte=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('event_date')
+  data['taster_past_parties'] = my_parties.filter(partyinvite__invitee=u, event_date__lt=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('-event_date')
 
   if profile.mentor:
     data['my_pro'] = profile.mentor
