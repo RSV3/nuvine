@@ -403,12 +403,12 @@ def wine_inventory(request):
       total_wines = 0
       total_wine_types = 0
 
-      if num_rows > 0:
-        # deactivate all and have them activated again so that wines that are not in
-        # the uploaded inventory remain deactivated
-        today = timezone.now()
-        TastingKit.objects.all().update(active=False, updated=today)
-        Wine.objects.all().update(active=False, deactivated=today)
+      # if num_rows > 0:
+      #   # deactivate all and have them activated again so that wines that are not in
+      #   # the uploaded inventory remain deactivated
+      #   today = timezone.now()
+      #   TastingKit.objects.all().update(active=False, updated=today)
+      #   Wine.objects.all().update(active=False, deactivated=today)
 
       while curr_row < num_rows:
         curr_row += 1
@@ -528,11 +528,11 @@ def wine_inventory(request):
       messages.warning(request, "Not a valid inventory file: needs 'Wine DB' sheet.")
 
   # only return wines from the latest inventory
-  latest_kit_inventory = TastingKitInventory.objects.filter(tasting_kit__active=True)
+  latest_kit_inventory = TastingKitInventory.objects.all()  # filter(tasting_kit__active=True)
   tasting_table = TastingInventoryTable(latest_kit_inventory)
   data["tasting_inventory"] = tasting_table
 
-  latest_wine_inventory = WineInventory.objects.filter(wine__active=True)
+  latest_wine_inventory = WineInventory.objects.all()  # filter(wine__active=True)
   table = WineInventoryTable(latest_wine_inventory)
   data["wine_inventory"] = table
   RequestConfig(request, paginate={"per_page": 25}).configure(table)

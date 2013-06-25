@@ -377,8 +377,8 @@ class Cart(models.Model):
     '''
     # from main.utils import calculate_host_credit
     # dont apply when pro ordering for someone
-    if self.user != self.receiver:
-      return 0
+    # if self.user != self.receiver:
+    #   return 0
 
     # dont apply for tasting kit
     items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
@@ -389,7 +389,7 @@ class Cart(models.Model):
       return 0
 
     # credit = calculate_host_credit(self.user)
-    credit = self.user.userprofile.account_credit
+    credit = self.receiver.userprofile.account_credit
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())

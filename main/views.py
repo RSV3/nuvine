@@ -478,7 +478,7 @@ def cart_add_wine(request):
     item.save()
     cart.items.add(item)
 
-    # udpate cart status
+    # update cart status
     if party:
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
