@@ -12,6 +12,10 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
+from django.db import transaction
+from django.db.models import Sum
+
+from decimal import Decimal
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
@@ -570,7 +574,7 @@ def cart_remove_item(request, cart_id, item_id):
   if item.product.category == 0 and 'taste_kit_order' in request.session:
     del request.session['taste_kit_order']
   cart.items.remove(item)
-  if cart.items.count() == 0:
+  if cart.items.count() == 0 and request.session.get('cart_id'):
     del request.session['cart_id']
 
   # track cart activity
@@ -724,7 +728,7 @@ def place_order(request):
           customer.coupon = coupon.id
           customer.save()
 
-          receiver_profile = cart.user.get_profile()
+          receiver_profile = cart.receiver.get_profile()
           receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
           receiver_profile.save()
 
@@ -806,6 +810,18 @@ def place_order(request):
         send_order_confirmation_email(request, order_id)
         order.fulfill_status = 1
         order.save()
+
+        with transaction.commit_on_success():
+          # update sales figure exclude tasting kit sales
+          party = order.cart.party
+          if party and order.cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0]).exists() is False:
+            invite = PartyInvite.objects.get(party=party, invitee=order.receiver)
+            sales = Decimal(order.cart.subtotal())
+            invite.sales += sales
+            invite.save()
+
+            party.sales += Decimal(order.cart.subtotal())
+            party.save()
 
       # remove session information if it exists
       if 'ordering' in request.session:
