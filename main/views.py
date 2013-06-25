@@ -145,6 +145,7 @@ def our_story(request):
   sections = ContentTemplate.objects.get(key='our_story').sections.all()
   data['our_story'] = sections.get(key='general').content
   data['heading'] = sections.get(key='header').content
+  data['title'] = data['heading']
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
@@ -245,6 +246,7 @@ def how_it_works(request, state=None):
   data["how_it_works_menu"] = True
   data['content'] = sections.get(key=state).content
   data['heading'] = sections.get(key='header').content
+  data['title'] = data['heading']
   data['sub_heading'] = sections.get(key='sub_header').content
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
@@ -2885,6 +2887,7 @@ def vinely_event(request, fb_page=0):
   vinely_parties = Party.objects.filter(host__email='events@vinely.com', event_date__gte=timezone.now()).order_by('event_date')
   data['parties_table'] = VinelyEventsTable(vinely_parties)
   data['event_content'] = page
+  data['title'] = 'Events'
 
   return render_to_response("main/vinely_event.html", data, context)
 
@@ -2908,6 +2911,7 @@ def vinely_event_detail(request, party_id, fb_page=0):
   data['form'] = form
   data['party'] = party
   data['party_desc'] = page
+  data['title'] = party.title
 
   return render_to_response("main/vinely_event_detail.html", data, context_instance=RequestContext(request))
 

@@ -696,10 +696,13 @@ def make_host(request, state=None):
     if u.is_authenticated():
       return make_pro_host(request, 2, data)
     else:
+      data['title'] = "Sign up to be a Vinely Host - It's easy"
+      data['header'] = data['title']
       return sign_up(request, 2, data)
   else:
     host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
     data['heading'] = host_sections.get(key='header').content
+    data['title'] = data['heading']
     data['sub_heading'] = host_sections.get(key='sub_header').content
     data['content'] = host_sections.get(key=state).content
     data['host_party_menu'] = True
@@ -720,10 +723,13 @@ def make_pro(request, state=None):
     if u.is_authenticated():
       return make_pro_host(request, 1, data)
     else:
+      data['title'] = "Sign up to be a Vinely Pro - It's easy"
+      data['header'] = data['title']
       return sign_up(request, 1, data)
   else:
     pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
     data['heading'] = pro_sections.get(key='header').content
+    data['title'] = data['heading']
     data['sub_heading'] = pro_sections.get(key='sub_header').content
     data['content'] = pro_sections.get(key=state).content
     data['become_pro_menu'] = True
@@ -1073,6 +1079,7 @@ def join_club_start(request, state=None):
 
   host_sections = ContentTemplate.objects.get(key='join_club').sections.all()
   data['heading'] = host_sections.get(key='header').content
+  data['title'] = data['heading']
   data['sub_heading'] = host_sections.get(key='sub_header').content
   data['content'] = host_sections.get(key=state).content
   data['join_club_menu'] = True
@@ -1094,7 +1101,8 @@ def join_club_signup(request):
   data['form'] = form
   data['login_form'] = login_form
   data['join_club_menu'] = True
-
+  data['header'] = "Have we met?"
+  data['title'] = data['header']
   # if user is inactive allow signup to go through
   if form.is_valid():
     try:
