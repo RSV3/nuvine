@@ -647,9 +647,9 @@ def view_orders(request, order_id=None):
   # show orders that have not been fulfilled
   if order_id:
     # show particular order
-    orders = Order.objects.filter(id=order_id)
+    orders = Order.objects.filter(id=order_id).select_related()
   else:
-    orders = Order.objects.filter()
+    orders = Order.objects.all().select_related()
 
   if not orders.exists():
     messages.warning(request, "No live orders are currently in the queue.")
@@ -1113,7 +1113,7 @@ def view_past_orders(request, order_id=None):
   data = {}
 
   # show the completed orders
-  fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[7][0]).order_by("-order_date")
+  fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[7][0]).select_related().order_by("-order_date")
 
   table = PastOrderTable(fulfilled_orders)
   RequestConfig(request, paginate={"per_page": 100}).configure(table)
