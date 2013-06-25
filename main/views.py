@@ -1988,7 +1988,7 @@ def party_customize_thanks_note(request):
     data["parties_menu"] = True
     data['rsvp_date'] = party.event_date - timedelta(days=5)
 
-    template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+    template = Section.objects.get(template__key='distribute_party_thanks_note_email', key='general')
 
     c = RequestContext(request, {'party': party, 'host_name': request.get_host(), 'taster_first_name': 'Taster',
                                 'pro_email': party.pro.email, 'placed_order': False, 'show_text_sig': False})

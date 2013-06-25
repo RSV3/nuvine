@@ -147,7 +147,7 @@
 
   {% if pro or host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
     <hr />
-    <div class="vertical-space"></div>
+    <div id="party-tasters" class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
     {% if not party.is_past_party %}
         {% if party.high_low == '!LOW' %}
