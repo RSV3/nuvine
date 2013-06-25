@@ -64,6 +64,7 @@ class Party(models.Model):
   requested = models.BooleanField()
   setup_stage = models.IntegerField(default=1)
   fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -212,6 +213,7 @@ class PartyInvite(models.Model):
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
   fee_paid = models.BooleanField(default=False)
   attended = models.BooleanField(default=False)
+  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
 
   def invited(self):
     return bool(self.invited_timestamp)
@@ -227,13 +229,13 @@ class PartyInvite(models.Model):
     else:
       return "%s invited to %s" % (self.invitee.email, self.party.title)
 
-  @property
-  def sales(self):
-    return "$0"
-    orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
-    orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
-    aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
-    return "$%s" % aggregate['total'] if aggregate['total'] else "$0"
+  # @property
+  # def sales(self):
+  #   return "$0"
+  #   orders = Order.objects.filter(receiver=self.invitee, cart__party=self.party)
+  #   orders = orders.exclude(cart__items__product__category=Product.PRODUCT_TYPE[0][0])
+  #   aggregate = orders.aggregate(total=Sum('cart__items__total_price'))
+  #   return "$%s" % aggregate['total'] if aggregate['total'] else "$0"
 
 
 class PersonaLog(models.Model):
@@ -254,6 +256,7 @@ class Product(models.Model):
       (0, 'Tasting Kit'),
       (1, 'Wine Package'),
       (2, 'Wine Bottle'),
+      (3, 'VIP Tasting Kit'),
   )
 
   BASIC = "basic"
@@ -376,8 +379,8 @@ class Cart(models.Model):
     '''
     # from main.utils import calculate_host_credit
     # dont apply when pro ordering for someone
-    if self.user != self.receiver:
-      return 0
+    # if self.user != self.receiver:
+    #   return 0
 
     # dont apply for tasting kit
     items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
@@ -388,7 +391,7 @@ class Cart(models.Model):
       return 0
 
     # credit = calculate_host_credit(self.user)
-    credit = self.user.userprofile.account_credit
+    credit = self.receiver.userprofile.account_credit
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
@@ -634,6 +637,7 @@ class Order(models.Model):
         return True
     return False
 
+
 class SelectedWine(models.Model):
 
   LIKENESS_CHOICES = (
@@ -698,10 +702,10 @@ class CustomizeOrder(models.Model):
   user = models.ForeignKey(User, null=True)
 
   MIX_CHOICES = (
-    (0, 'Your Vinely recommendation'),
-    (1, 'Send me a mix of red & white wine'),
-    (2, 'Send me red wine only'),
-    (3, 'Send me white wine only')
+      (0, 'Your Vinely recommendation'),
+      (1, 'Send me a mix of red & white wine'),
+      (2, 'Send me red wine only'),
+      (3, 'Send me white wine only')
       # (1, 'Both'),
       # (2, 'Red'),
       # (3, 'White')
@@ -729,13 +733,13 @@ class EngagementInterest(models.Model):
   """
 
   ENGAGEMENT_CHOICES = (
-    (0, 'Unassigned Interest'),
-    (1, 'Vinely Pro'),
-    (2, 'Vinely Host'),
-    (3, 'Vinely Taster'),
-    (4, 'Unassigned Interest'),
-    (5, 'Tasting Kit'),
-    (6, 'Hosting Party'),
+      (0, 'Unassigned Interest'),
+      (1, 'Vinely Pro'),
+      (2, 'Vinely Host'),
+      (3, 'Vinely Taster'),
+      (4, 'Unassigned Interest'),
+      (5, 'Tasting Kit'),
+      (6, 'Hosting Party'),
   )
 
   user = models.ForeignKey(User)
