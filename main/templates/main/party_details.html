@@ -19,10 +19,9 @@
   <link rel="stylesheet" type="text/css" href="{% static "css/validationEngine.jquery.css" %}">
 
   <style type="text/css">
-/*    select, option {
-      width: 120px;
-      margin: 5px;
-    }*/
+    .table thead th {
+      padding-left: 8px;
+    }
     .summary-table tr td:first-child{
       padding-right: 15px;
       text-align: right;
@@ -75,7 +74,7 @@
             {% if party.is_past_party %}
               <tr>
                 <td>Total Sales</td>
-                <td>{{ party.total_sales|currency }}</td>
+                <td>{{ party.sales|currency }}</td>
               </tr>
             {% endif %}
           </tbody>
@@ -147,7 +146,7 @@
 
   {% if pro or host or taster and party.guests_see_guestlist or taster and party.guests_can_invite %}
     <hr />
-    <div class="vertical-space"></div>
+    <div id="party-tasters" class="vertical-space"></div>
     <!-- <section id="party-tasters"> -->
     {% if not party.is_past_party %}
         {% if party.high_low == '!LOW' %}

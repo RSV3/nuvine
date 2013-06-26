@@ -10,6 +10,7 @@ from django.conf import settings
 from django.forms.formsets import formset_factory
 from django.db import transaction
 from django.views.decorators.http import require_POST
+from django.utils import timezone
 
 from django_tables2 import RequestConfig
 
@@ -214,8 +215,8 @@ def download_users_from_party(request, party_id):
     data = {}
     user = User.objects.get(id=user_dict["invitee"])
     data['ID'] = user.id
-    data['First Name'] = user.first_name
-    data['Last Name'] = user.last_name
+    data['First Name'] = user.first_name.encode('utf-8')
+    data['Last Name'] = user.last_name.encode('utf-8')
     data['E-mail'] = user.email
     profile = user.get_profile()
     data['Zipcode'] = profile.zipcode
@@ -430,6 +431,14 @@ def wine_inventory(request):
 
       total_wines = 0
       total_wine_types = 0
+
+      # if num_rows > 0:
+      #   # deactivate all and have them activated again so that wines that are not in
+      #   # the uploaded inventory remain deactivated
+      #   today = timezone.now()
+      #   TastingKit.objects.all().update(active=False, updated=today)
+      #   Wine.objects.all().update(active=False, deactivated=today)
+
       while curr_row < num_rows:
         curr_row += 1
         row = worksheet.row(curr_row)
@@ -449,7 +458,10 @@ def wine_inventory(request):
               tasting_kit = TastingKit.objects.get(sku=sku)
             else:
               tasting_kit = TastingKit(name=name, sku=sku, comment=comment, price=price)
-              tasting_kit.save()
+
+            tasting_kit.active = True
+            tasting_kit.updated = timezone.now()
+            tasting_kit.save()
 
             inv, created = TastingKitInventory.objects.get_or_create(tasting_kit=tasting_kit)
             inv.on_hand = on_hand
@@ -524,7 +536,9 @@ def wine_inventory(request):
                                 sparkling=sparkling_code,
                                 enclosure=enclosure,
                                 price=cost_per_bottle)
-              wine.save()
+            wine.active = True
+            wine.updated = timezone.now()
+            wine.save()
 
             inv, created = WineInventory.objects.get_or_create(wine=wine)
             inv.on_hand = on_hand
@@ -542,10 +556,13 @@ def wine_inventory(request):
     except xlrd.XLRDError:
       messages.warning(request, "Not a valid inventory file: needs 'Wine DB' sheet.")
 
-  tasting_table = TastingInventoryTable(TastingKitInventory.objects.all())
+  # only return wines from the latest inventory
+  latest_kit_inventory = TastingKitInventory.objects.all()  # filter(tasting_kit__active=True)
+  tasting_table = TastingInventoryTable(latest_kit_inventory)
   data["tasting_inventory"] = tasting_table
 
-  table = WineInventoryTable(WineInventory.objects.all())
+  latest_wine_inventory = WineInventory.objects.all()  # filter(wine__active=True)
+  table = WineInventoryTable(latest_wine_inventory)
   data["wine_inventory"] = table
   RequestConfig(request, paginate={"per_page": 25}).configure(table)
 
@@ -676,9 +693,9 @@ def view_orders(request, order_id=None):
   # show orders that have not been fulfilled
   if order_id:
     # show particular order
-    orders = Order.objects.filter(id=order_id)
+    orders = Order.objects.filter(id=order_id).select_related()
   else:
-    orders = Order.objects.filter()
+    orders = Order.objects.all().select_related()
 
   if not orders.exists():
     messages.warning(request, "No live orders are currently in the queue.")
@@ -1142,7 +1159,7 @@ def view_past_orders(request, order_id=None):
   data = {}
 
   # show the completed orders
-  fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[7][0]).order_by("-order_date")
+  fulfilled_orders = Order.objects.filter(fulfill_status__gte=Order.FULFILL_CHOICES[7][0]).select_related().order_by("-order_date")
 
   table = PastOrderTable(fulfilled_orders)
   RequestConfig(request, paginate={"per_page": 100}).configure(table)

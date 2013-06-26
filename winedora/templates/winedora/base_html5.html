@@ -15,7 +15,7 @@
        More info: h5bp.com/i/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title></title>
+  <title>{{ title }}{% if title != 'Vinely'%} - Vinely{% endif %}</title>
   <meta name="description" content="">
 
   <!-- Mobile viewport optimized: h5bp.com/viewport -->
@@ -72,6 +72,9 @@
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static "html5/img/apple-touch-icon-72x72-precomposed.png" %}">
   <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static "html5/img/apple-touch-icon-57x57-precomposed.png" %}">
   <style type="text/css">
+    .brand {
+      margin-left: -40px;
+    }
     /* make the like button smaller */
     .fb_edge_widget_with_comment iframe
     {
@@ -124,7 +127,7 @@
         </div>
       {% endblock social %}
       {% block brand_logo %}
-      <div class="span5 offset1">
+      <div class="span4 offset2">
         <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default"></a></h1>
       </div>
       {% endblock brand_logo %}

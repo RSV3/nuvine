@@ -79,12 +79,8 @@
 {% block header %}
   <!-- <h1 class="headline">{{ heading|safe }}</h1> -->
   <h1 class="headline">
-    {% if account_type == 1 %}
-      Sign up to be a Vinely Pro - It's easy
-    {% else %}
-      Sign up to be a Vinely host - It's easy
-    {% endif %}
-    </h1>
+    {{ header }}
+  </h1>
 
 {% endblock header %}
 
