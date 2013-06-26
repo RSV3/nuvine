@@ -5,6 +5,11 @@
 
 {% block additional_styles %}
   <link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+  <style type="text/css">
+    div.table-container {
+      display: block;
+    }
+  </style>
 {% endblock %}
 
 {% block header %}

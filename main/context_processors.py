@@ -39,4 +39,5 @@ def vinely_user_info(request):
 
   data['EMAIL_STATIC_URL'] = settings.EMAIL_STATIC_URL
   data['request'] = request
+  data['title'] = 'Vinely'  # set as default title
   return data

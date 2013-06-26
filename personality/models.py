@@ -11,6 +11,7 @@ class TastingKit(models.Model):
   name = models.CharField(max_length=128)
   price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
   comment = models.CharField(max_length=255, blank=True, null=True)
+  active = models.BooleanField(default=True)
   updated = models.DateTimeField(null=True)
   created = models.DateTimeField(null=True)
 
@@ -28,7 +29,7 @@ class Wine(models.Model):
   sip_bits = models.TextField()
   # tasting kit wine number
   number = models.IntegerField(default=0)
-  active = models.BooleanField(default=False)
+  active = models.BooleanField(default=True)
   # cost per bottle
   price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
   # the date this wine is no longer used for tasting

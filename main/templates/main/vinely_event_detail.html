@@ -90,11 +90,13 @@
 {% endblock content %}
 
 {% block additional_scripts %}
-  {% if not party.description %}
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('#edit_desc').modal();
-    });
-  </script>
+  {% if user.get_profile.events_manager %}
+    {% if not party.description %}
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#edit_desc').modal();
+      });
+    </script>
+    {% endif %}
   {% endif %}
 {% endblock additional_scripts %}

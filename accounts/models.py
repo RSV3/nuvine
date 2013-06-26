@@ -141,7 +141,7 @@ class VerificationQueue(models.Model):
 class UserProfile(models.Model):
   user = models.OneToOneField(User)
 
-  vinely_customer_id = models.CharField(max_length=16, blank=True, null=True)
+  vinely_customer_id = models.CharField(max_length=16, blank=True, null=True, db_index=True)
 
   image = ImageField(upload_to="profiles/", blank=True, null=True)
   dob = models.DateField(verbose_name="Date of Birth (mm/dd/yyyy)", null=True, blank=True)
@@ -156,6 +156,7 @@ class UserProfile(models.Model):
   current_pro = models.ForeignKey(User, null=True, blank=True, verbose_name='Current Pro (for Hosts and Tasters)', related_name='assigned_profiles')
   club_member = models.BooleanField(default=False)
   internal_pro = models.BooleanField(default=False)  # set for internal pros like training
+  account_credit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   ROLE_CHOICES = (
       (0, 'Unassigned Role'),
@@ -703,6 +704,7 @@ class SubscriptionInfo(models.Model):
       try:
 
         stripe.InvoiceItem.create(customer=customer.id, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+        stripe.InvoiceItem.create(customer=customer.id, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
         stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
         customer.update_subscription(plan=stripe_plan)
         log.info("Subscription updated on stripe for: %s %s <%s>" % (user.first_name, user.last_name, user.email))

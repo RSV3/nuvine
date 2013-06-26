@@ -116,7 +116,7 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
-    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone',
+    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone', 'credits'
               'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
 
   def __init__(self, *args, **kwargs):
