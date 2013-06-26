@@ -12,6 +12,10 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
+from django.db import transaction
+from django.db.models import Sum
+
+from decimal import Decimal
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
                         CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
@@ -145,6 +149,7 @@ def our_story(request):
   sections = ContentTemplate.objects.get(key='our_story').sections.all()
   data['our_story'] = sections.get(key='general').content
   data['heading'] = sections.get(key='header').content
+  data['title'] = data['heading']
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
@@ -245,6 +250,7 @@ def how_it_works(request, state=None):
   data["how_it_works_menu"] = True
   data['content'] = sections.get(key=state).content
   data['heading'] = sections.get(key='header').content
+  data['title'] = data['heading']
   data['sub_heading'] = sections.get(key='sub_header').content
 
   return render_to_response("main/how_it_works.html", data, context_instance=RequestContext(request))
@@ -476,7 +482,7 @@ def cart_add_wine(request):
     item.save()
     cart.items.add(item)
 
-    # udpate cart status
+    # update cart status
     if party:
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
@@ -568,7 +574,7 @@ def cart_remove_item(request, cart_id, item_id):
   if item.product.category == 0 and 'taste_kit_order' in request.session:
     del request.session['taste_kit_order']
   cart.items.remove(item)
-  if cart.items.count() == 0:
+  if cart.items.count() == 0 and request.session.get('cart_id'):
     del request.session['cart_id']
 
   # track cart activity
@@ -722,10 +728,16 @@ def place_order(request):
           customer.coupon = coupon.id
           customer.save()
 
+          receiver_profile = cart.receiver.get_profile()
+          receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
+          receiver_profile.save()
+
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.shipping() * 100), currency='usd', description='Shipping')
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+        stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
+
         non_sub_orders = order.cart.items.filter(frequency=0)
         sub_orders = order.cart.items.filter(frequency__in=[1, 2, 3])
         for item in non_sub_orders:
@@ -798,6 +810,18 @@ def place_order(request):
         send_order_confirmation_email(request, order_id)
         order.fulfill_status = 1
         order.save()
+
+        with transaction.commit_on_success():
+          # update sales figure exclude tasting kit sales
+          party = order.cart.party
+          if party and order.cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0]).exists() is False:
+            invite = PartyInvite.objects.get(party=party, invitee=order.receiver)
+            sales = Decimal(order.cart.subtotal())
+            invite.sales += sales
+            invite.save()
+
+            party.sales += Decimal(order.cart.subtotal())
+            party.save()
 
       # remove session information if it exists
       if 'ordering' in request.session:
@@ -953,31 +977,33 @@ def party_list(request):
   today = timezone.now()
 
   my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
-  if u.userprofile.is_pro():
+  my_parties = Party.objects.filter(Q(organizedparty__pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
+
+  if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
     # parties managed
-    data['pro_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
-    data['pro_past_parties'] = Party.objects.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
+    data['pro_parties'] = my_parties.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
+    data['pro_past_parties'] = my_parties.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
 
     # parties hosted
-    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
-    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
+    data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
+    data['host_past_parties'] = my_parties.filter(host=u, event_date__lt=today).exclude(id__in=my_pro_parties).order_by('-event_date')
 
-    pro_comm, mentee_comm = calculate_pro_commission(u)
+    pro_comm, mentee_comm = (0, 0)  # calculate_pro_commission(u)
     data['pro_commission'] = pro_comm
     data['mentee_commission'] = mentee_comm
     data['total_commission'] = pro_comm + mentee_comm
-  elif u.userprofile.is_host():
-    data['host_credits'] = calculate_host_credit(u)
-    data['host_parties'] = Party.objects.filter(host=u, event_date__gte=today).order_by('event_date')
-    data['host_past_parties'] = Party.objects.filter(host=u, event_date__lt=today).order_by('-event_date')
+  elif profile.is_host():
+    data['host_credits'] = u.userprofile.account_credit
+    data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).order_by('event_date')
+    data['host_past_parties'] = my_parties.filter(host=u, event_date__lt=today).order_by('-event_date')
 
   # parties attended
   # exclude parties in which user was the host or pro
-  data['taster_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__gte=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('event_date')
-  data['taster_past_parties'] = Party.objects.filter(partyinvite__invitee=u, event_date__lt=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('-event_date')
+  data['taster_parties'] = my_parties.filter(partyinvite__invitee=u, event_date__gte=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('event_date')
+  data['taster_past_parties'] = my_parties.filter(partyinvite__invitee=u, event_date__lt=today).exclude(host=u).exclude(id__in=my_pro_parties).order_by('-event_date')
 
   if profile.mentor:
     data['my_pro'] = profile.mentor
@@ -1534,7 +1560,7 @@ def party_details(request, party_id):
     msg = '%s %s (%s) has been added to the party invitations list. Remind the host to send them an invitation.' % (invitee.first_name, invitee.last_name, invitee.email)
     messages.success(request, msg)
 
-  invitees = PartyInvite.objects.filter(party=party)
+  invitees = PartyInvite.objects.select_related().filter(party=party)
 
   data["party"] = party
   data["invitees"] = invitees
@@ -1982,7 +2008,7 @@ def party_customize_thanks_note(request):
     data["parties_menu"] = True
     data['rsvp_date'] = party.event_date - timedelta(days=5)
 
-    template = Section.objects.get(template__key='distribute_party_thanks_note_email', category=0)
+    template = Section.objects.get(template__key='distribute_party_thanks_note_email', key='general')
 
     c = RequestContext(request, {'party': party, 'host_name': request.get_host(), 'taster_first_name': 'Taster',
                                 'pro_email': party.pro.email, 'placed_order': False, 'show_text_sig': False})
@@ -2879,6 +2905,7 @@ def vinely_event(request, fb_page=0):
   vinely_parties = Party.objects.filter(host__email='events@vinely.com', event_date__gte=timezone.now()).order_by('event_date')
   data['parties_table'] = VinelyEventsTable(vinely_parties)
   data['event_content'] = page
+  data['title'] = 'Events'
 
   return render_to_response("main/vinely_event.html", data, context)
 
@@ -2902,6 +2929,7 @@ def vinely_event_detail(request, party_id, fb_page=0):
   data['form'] = form
   data['party'] = party
   data['party_desc'] = page
+  data['title'] = party.title
 
   return render_to_response("main/vinely_event_detail.html", data, context_instance=RequestContext(request))
 
@@ -2957,13 +2985,16 @@ def vinely_event_signup(request, party_id, fb_page=0):
       user = User.objects.get(email=request.POST.get('email').strip().lower())
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
+      profile.account_credit += party.fee
       profile.save()
     except User.DoesNotExist:
       user = form.save()
       profile = user.get_profile()
       profile.zipcode = form.cleaned_data['zipcode']
       profile.role = account_type
+      profile.account_credit += party.fee
       profile.save()
+
       user.is_active = False
       temp_password = User.objects.make_random_password()
       user.set_password(temp_password)

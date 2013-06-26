@@ -615,8 +615,8 @@ def make_pro_host(request, account_type, data):
 
       EngagementInterest.objects.get_or_create(user=u, engagement_type=account_type)
 
-      ok = check_zipcode(profile.zipcode)
-      if not ok:
+      zip_ok = check_zipcode(profile.zipcode)
+      if not zip_ok:
         messages.info(request, 'Please note that Vinely does not currently operate in your area.')
         send_not_in_area_party_email(request, u, account_type)
 
@@ -656,13 +656,15 @@ def make_pro_host(request, account_type, data):
           pro = User.objects.get(email=mentor_email)
           profile.current_pro = pro
           profile.save()
-          send_know_pro_party_email(request, u)  # to host
+          if zip_ok:
+            send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
           # pro = get_default_pro()
           pro = profile.find_nearest_pro()
           profile.current_pro = pro
           profile.save()
-          send_unknown_pro_email(request, u)  # to host
+          if zip_ok:
+            send_unknown_pro_email(request, u)  # to host
 
         send_host_vinely_party_email(request, u, pro)  # to vinely and the mentor pro
         # send_signed_up_as_host_email(request, u)  # to the current user
@@ -694,10 +696,13 @@ def make_host(request, state=None):
     if u.is_authenticated():
       return make_pro_host(request, 2, data)
     else:
+      data['title'] = "Sign up to be a Vinely Host - It's easy"
+      data['header'] = data['title']
       return sign_up(request, 2, data)
   else:
     host_sections = ContentTemplate.objects.get(key='make_host').sections.all()
     data['heading'] = host_sections.get(key='header').content
+    data['title'] = data['heading']
     data['sub_heading'] = host_sections.get(key='sub_header').content
     data['content'] = host_sections.get(key=state).content
     data['host_party_menu'] = True
@@ -718,10 +723,13 @@ def make_pro(request, state=None):
     if u.is_authenticated():
       return make_pro_host(request, 1, data)
     else:
+      data['title'] = "Sign up to be a Vinely Pro - It's easy"
+      data['header'] = data['title']
       return sign_up(request, 1, data)
   else:
     pro_sections = ContentTemplate.objects.get(key='make_pro').sections.all()
     data['heading'] = pro_sections.get(key='header').content
+    data['title'] = data['heading']
     data['sub_heading'] = pro_sections.get(key='sub_header').content
     data['content'] = pro_sections.get(key=state).content
     data['become_pro_menu'] = True
@@ -801,9 +809,9 @@ def sign_up(request, account_type, data):
     profile = user.get_profile()
     profile.zipcode = form.cleaned_data['zipcode']
     profile.phone = form.cleaned_data['phone_number']
-    ok = check_zipcode(profile.zipcode)
+    zip_ok = check_zipcode(profile.zipcode)
 
-    if not ok:
+    if not zip_ok:
       messages.info(request, 'Please note that Vinely does not currently operate in your area.')
       send_not_in_area_party_email(request, user, account_type)
 
@@ -826,7 +834,8 @@ def sign_up(request, account_type, data):
         pro = User.objects.get(email=form.cleaned_data['mentor'], userprofile__role=UserProfile.ROLE_CHOICES[1][0])
         profile.current_pro = pro
         profile.save()
-        send_know_pro_party_email(request, user)  # to host
+        if zip_ok:
+          send_know_pro_party_email(request, user)  # to host
       except User.DoesNotExist:
         # pro e-mail was not entered
         # allow users that have accounts but never logged in (inactive accounts) to just signup as normal
@@ -838,7 +847,8 @@ def sign_up(request, account_type, data):
           profile.current_pro = pro
           profile.save()
 
-        send_unknown_pro_email(request, user)  # to host
+        if zip_ok:
+          send_unknown_pro_email(request, user)  # to host
       send_host_vinely_party_email(request, user, pro)  # to pro or vinely
 
     if account_type == 1:
@@ -1069,6 +1079,7 @@ def join_club_start(request, state=None):
 
   host_sections = ContentTemplate.objects.get(key='join_club').sections.all()
   data['heading'] = host_sections.get(key='header').content
+  data['title'] = data['heading']
   data['sub_heading'] = host_sections.get(key='sub_header').content
   data['content'] = host_sections.get(key=state).content
   data['join_club_menu'] = True
@@ -1090,7 +1101,8 @@ def join_club_signup(request):
   data['form'] = form
   data['login_form'] = login_form
   data['join_club_menu'] = True
-
+  data['header'] = "Have we met?"
+  data['title'] = data['header']
   # if user is inactive allow signup to go through
   if form.is_valid():
     try:
@@ -1295,27 +1307,42 @@ def join_club_review(request):
         non_sub_orders = order.cart.items.filter(frequency=0)
         sub_orders = order.cart.items.filter(frequency=1)
 
-        # create invoice manually if there's no subscription
+        # create invoice manually if there's a non-subscription i.e. tasting kit order for those with no personality
         if non_sub_orders.exists():
           item = non_sub_orders[0]
           tax = float(item.total_price) * 0.08
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax * 100), currency='usd', description='Tax')
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(item.total_price * 100), currency='usd', description='Join The Club Tasting Kit')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
 
           invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
           invoice.pay()
 
           # Create a subscription with a 1month trial/delay so that it's not charged now
-          trial_end_date = datetime.now() + relativedelta(months=1)
+          trial_end_date = timezone.now() + relativedelta(months=1)
           trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
           customer.update_subscription(plan='6-bottles', trial_end=trial_end_timestamp)
 
         # if subscription exists then create plan
         elif sub_orders.exists():
           stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
+          stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
           item = sub_orders[0]
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
+
+        # update/create new subscription info
+        today = timezone.now()
+        from_date = datetime.date(today)
+
+        subscription = SubscriptionInfo(user=order.receiver,
+                                      quantity=LineItem.PRICE_TYPE[13][0],  # 6-bottles
+                                      frequency=SubscriptionInfo.FREQUENCY_CHOICES[1][0])  # monthly
+
+        next_invoice = from_date + relativedelta(months=+1)
+        subscription.next_invoice_date = next_invoice
+        subscription.updated_datetime = today
+        subscription.save()
 
         order.fulfill_status = 1
         order.save()

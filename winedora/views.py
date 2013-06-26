@@ -15,7 +15,7 @@ def home(request):
   """
   data = {}
   u = request.user
-
+  data['title'] = 'Change the way you experience wine'
   form = EmailAuthenticationForm()
   form.fields['email'].widget.attrs['placeholder'] = 'E-mail'
   form.fields['password'].widget.attrs['placeholder'] = 'Password'
