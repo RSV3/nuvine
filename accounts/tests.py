@@ -162,10 +162,11 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='john.doe5@example.com')
-    self.assertEquals(profile.current_pro, None)
+    pro = User.objects.get(email='johnstecco@gmail.com')
+    self.assertEquals(profile.current_pro, pro)
 
     # check that emails are sent to vinely + pro
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
     # check that emails are sent to recipient
@@ -209,12 +210,12 @@ class SimpleTest(TestCase):
     self.assertEquals(profile.current_pro, pro)
 
     # check that emails are sent to vinely
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
-    # check that emails are sent to taster
+    # Wrong zipcode email should not sent to host
     host_recipient = Email.objects.filter(recipients="[u'attendee2@example.com']", subject='Get the party started with Vinely')
-    self.assertTrue(host_recipient.exists())
+    self.assertFalse(host_recipient.exists())
 
     self.client.logout()
 
@@ -237,15 +238,16 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='attendee3@example.com')
-    self.assertEquals(profile.current_pro, None)
+    pro = User.objects.get(email='elizabeth@vinely.com')
+    self.assertEquals(profile.current_pro, pro)
 
     # check that emails are sent to vinely
-    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'care@vinely.com']", subject='A Vinely Taste Party is ready to be scheduled')
+    vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
     self.assertTrue(vinely_recipients.exists())
 
-    # check that emails are sent to taster
+    # Wrong zipcode email should not sent to host
     host_recipient = Email.objects.filter(recipients="[u'attendee3@example.com']", subject='Get the party started with Vinely')
-    self.assertTrue(host_recipient.exists())
+    self.assertFalse(host_recipient.exists())
 
   def test_pro_approval(self):
     response = self.client.login(email="elizabeth@vinely.com", password="egoede")

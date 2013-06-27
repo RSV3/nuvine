@@ -96,7 +96,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
-    exclude = ['setup_stage', 'fee', 'fee_paid']
+    exclude = ['setup_stage', 'fee', 'fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
