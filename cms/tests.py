@@ -22,6 +22,7 @@ class SimpleTest(TestCase):
     self.rsvp_template()
     self.make_pro_template()
     self.make_host_template()
+    self.join_club_template()
 
   def create_all_templates(self):
     self.create_web_templates()
