@@ -4,6 +4,8 @@ from main.models import Product
 
 
 class Coupon(models.Model):
+  # from main.models import Product
+
   DURATION_CHOICES = (
       (0, 'One Time'),
       (1, 'Forever'),

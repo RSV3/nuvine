@@ -112,6 +112,9 @@
     </div>
     <div class="span3">
       <p>&nbsp;</p>
+      {% if cart.coupon %}
+        <p>Coupon: ({{ cart.coupon_amount|currency }})</p>
+      {% endif %}
       {% if cart.discount %}
         <p>Credit: ({{ cart.discount|currency }})</p>
       {% endif %}

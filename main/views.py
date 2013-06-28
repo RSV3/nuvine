@@ -5,15 +5,13 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django import forms
-from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
 from django.db import transaction
-from django.db.models import Sum
 
 from decimal import Decimal
 
@@ -32,8 +30,8 @@ from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message, my_pro, \
+                        distribute_party_thanks_note_email, \
+                        resend_party_invite_email, get_default_invite_message, \
                         preview_party_invites_email, get_default_signature, \
                         send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email, \
                         party_setup_completed_email, business_days_from, business_days_count
@@ -42,7 +40,8 @@ from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, 
 from cms.models import ContentTemplate
 from support.models import Email
 
-import json, uuid
+import json
+import uuid
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -487,6 +486,7 @@ def cart_add_wine(request):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -511,6 +511,8 @@ def cart_add_wine(request):
 
   data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
+
+from main.forms import ApplyCouponForm
 
 
 @login_required
@@ -552,6 +554,17 @@ def cart(request):
     check_cart = cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if check_cart.exists():
       data['allow_customize'] = False
+
+    coupon_form = ApplyCouponForm(request.POST or None, instance=cart)
+    data['coupon_form'] = coupon_form
+
+    if coupon_form.is_valid():
+      # apply coupon to cart subtotal
+      cart.coupon = coupon_form.cleaned_data['coupon']
+      cart.coupon_amount = cart.apply_coupon()
+      cart.discount = cart.calculate_discount()
+      cart.save()
+
   except KeyError:
     # cart is empty
     data["items"] = []
@@ -579,6 +592,7 @@ def cart_remove_item(request, cart_id, item_id):
 
   # track cart activity
   cart.removes += 1
+  cart.coupon_amount = cart.apply_coupon()
   cart.discount = cart.calculate_discount()
   cart.save()
 
@@ -675,6 +689,7 @@ def place_order(request):
     except CustomizeOrder.DoesNotExist:
       pass
 
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -715,6 +730,14 @@ def place_order(request):
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
+      # TODO : handle possible race conditon here i.e
+      # if times_redeemed already changed by this point dont allow redemption
+      with transaction.commit_on_success():
+        cart.coupon.times_redeemed += 1
+        if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+          cart.coupon.active = False
+        cart.coupon.save()
+
       if request.session.get('stripe_payment'):
         # charge card to stripe
 
@@ -722,14 +745,22 @@ def place_order(request):
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
 
+        if cart.coupon_amount > 0:
+          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          coupon_id = "%s-%s" % (order.vinely_order_id, cart.coupon.code)
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
+          customer.coupon = coupon.id
+          customer.save()
+
         if cart.discount > 0:
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          coupon_id = "%s-account_credit" % (order.vinely_order_id, )
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.discount * 100), duration='once', currency='usd')
           customer.coupon = coupon.id
           customer.save()
 
           receiver_profile = cart.receiver.get_profile()
-          receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
+          receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
           receiver_profile.save()
 
         # NOTE: Amount must be in cents

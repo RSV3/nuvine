@@ -45,48 +45,57 @@ def coupon_create(request, coupon_id=None):
 
   if form.is_valid():
     coupon = form.save(commit=False)
+    if coupon.duration == Coupon.STRIPE_DURATION_CHOICES[0][0]:
+      coupon.max_redemptions = 1
+    coupon.save()
+    form.save_m2m()
+
+    # NOTE: disabled creating coupon in stripe - can implement the upto 50% limit on stripe
+    # so handling this on Vinely
+
+    # coupon = form.save(commit=False)
 
     # create coupon in stripe as well
-    stripe.api_key = settings.STRIPE_SECRET_CA
-    coupon_config = {
-        'id': coupon.code,
-        'currency': 'usd',
-        'duration': Coupon.STRIPE_DURATION_CHOICES[coupon.duration],
-        'redeem_by': int(time.mktime(coupon.redeem_by.timetuple())),
-    }
-    if coupon.amount_off > 0:
-      coupon_config['amount_off'] = coupon.amount_off
-      # coupon.percent_off = 0
-    else:
-      coupon_config['percent_off'] = coupon.percent_off
-      # coupon.amount_off = 0
+    # stripe.api_key = settings.STRIPE_SECRET_CA
+    # coupon_config = {
+    #     'id': coupon.code,
+    #     'currency': 'usd',
+    #     'duration': Coupon.STRIPE_DURATION_CHOICES[coupon.duration],
+    #     'redeem_by': int(time.mktime(coupon.redeem_by.timetuple())),
+    # }
+    # if coupon.amount_off > 0:
+    #   coupon_config['amount_off'] = coupon.amount_off
+    #   # coupon.percent_off = 0
+    # else:
+    #   coupon_config['percent_off'] = coupon.percent_off
+    #   # coupon.amount_off = 0
 
-    if coupon.duration == Coupon.STRIPE_DURATION_CHOICES[2][0]:
-      coupon_config['duration_in_months'] = coupon.repeat_duration
+    # if coupon.duration == Coupon.STRIPE_DURATION_CHOICES[2][0]:
+    #   coupon_config['duration_in_months'] = coupon.repeat_duration
 
-    if coupon.max_redemptions > 0:
-      coupon_config['max_redemptions'] = coupon.max_redemptions
+    # if coupon.max_redemptions > 0:
+    #   coupon_config['max_redemptions'] = coupon.max_redemptions
 
-    try:
-      if coupon_id:
-        stripe_coupon = stripe.Coupon.retrieve(coupon.code)
-        stripe_coupon.delete()
-    except Exception, e:
-      pass
+    # try:
+    #   if coupon_id:
+    #     stripe_coupon = stripe.Coupon.retrieve(coupon.code)
+    #     stripe_coupon.delete()
+    # except Exception, e:
+    #   pass
 
-    try:
-      stripe.Coupon.create(**coupon_config)
-      coupon.save()
-      form.save_m2m()
-    except Exception, e:
-      logger.error(e)
-      messages.warning(request, 'Error saving the coupon on stripe. %s' % e)
-      return render(request, 'coupon/coupon_create.html', data)
+    # try:
+    #   stripe.Coupon.create(**coupon_config)
+    #   coupon.save()
+    #   form.save_m2m()
+    # except Exception, e:
+    #   logger.error(e)
+    #   messages.warning(request, 'Error saving the coupon on stripe. %s' % e)
+    #   return render(request, 'coupon/coupon_create.html', data)
 
     # if all is well clear the warning about changing coupon code. Cleared by iterating
-    storage = messages.get_messages(request)
-    for x in storage:
-      pass
+    # storage = messages.get_messages(request)
+    # for x in storage:
+    #   pass
 
     return HttpResponseRedirect(reverse('coupon_list'))
 

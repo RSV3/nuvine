@@ -13,6 +13,9 @@
     .table td { 
       vertical-align: middle;
     }
+    .span3.pull-right p {
+      text-align: right;
+    }
   </style>
 {% endblock additional_styles %}
 
@@ -104,7 +107,10 @@
         <div class="span6">
           &nbsp;
         </div>
-        <div class="span2 pull-right">
+        <div class="span3 pull-right">
+          {% if cart.coupon %}
+            <p>Coupon &lt;{{ cart.coupon.code }}&gt;: ({{ cart.coupon_amount|currency }})</p>
+          {% endif %}
           {% if cart.discount %}
             <p>Credit: ({{ cart.discount|currency }})</p>
           {% endif %}
