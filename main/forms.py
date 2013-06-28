@@ -285,7 +285,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    exclude = ['fee_paid']
+    exclude = ['fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
