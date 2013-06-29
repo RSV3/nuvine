@@ -745,23 +745,31 @@ def place_order(request):
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
 
+        # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
+        coupon_id = "%s" % order.vinely_order_id
         if cart.coupon_amount > 0:
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          coupon_id = "%s-%s" % (order.vinely_order_id, cart.coupon.code)
-          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
-          customer.coupon = coupon.id
-          customer.save()
+          coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
 
         if cart.discount > 0:
-          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          coupon_id = "%s-account_credit" % (order.vinely_order_id, )
-          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.discount * 100), duration='once', currency='usd')
-          customer.coupon = coupon.id
-          customer.save()
-
+          coupon_id = "%s-credit-$%s" % (coupon_id, cart.discount)
+          # customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          # coupon_id = "%s-account_credit" % (order.vinely_order_id, )
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
           receiver_profile = cart.receiver.get_profile()
           receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
           receiver_profile.save()
+
+        if cart.coupon_amount > 0 or cart.discount > 0:
+          total_off = cart.discount + cart.coupon_amount
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
+          customer.coupon = coupon.id
+          customer.save()
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.

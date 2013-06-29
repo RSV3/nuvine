@@ -4,15 +4,15 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
-from django.conf import settings
+# from django.conf import settings
 from django.contrib import messages
 
 from coupon.tables import CouponTable
 from coupon.models import Coupon
 from coupon.forms import CouponForm
 
-import time
-import stripe
+# import time
+# import stripe
 
 import logging
 
