@@ -704,7 +704,7 @@ class SimpleTest(TestCase):
     welcome_email = Email.objects.filter(subject="Welcome to Vinely!", recipients="[u'host1@example.com']")
     self.assertFalse(welcome_email.exists())
 
-  def host_complete_party_setup(self):
+  def test_host_complete_party_setup(self):
     from main.utils import get_default_invite_message, get_default_signature
 
     response = self.client.login(email='host1@example.com', password='hello')
