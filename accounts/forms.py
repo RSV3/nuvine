@@ -144,7 +144,7 @@ class AgeValidityForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
     self.fields['dob'].widget.attrs = {
-        'class': 'datepicker input-block-level',
+        'class': 'datepicker',
         'data-date-viewmode': 'years',
         'data-date-format': 'mm/dd/yyyy',
         'placeholder': 'MM/DD/YYYY',

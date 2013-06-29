@@ -24,7 +24,7 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
                         AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm, \
-                        VinelyEventsTable, EventsDescForm
+                        VinelyEventsTable, EventsDescForm, ApplyCouponForm
 
 from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
@@ -512,8 +512,6 @@ def cart_add_wine(request):
   data["shop_menu"] = True
   return render_to_response("main/cart_add_wine.html", data, context_instance=RequestContext(request))
 
-from main.forms import ApplyCouponForm
-
 
 @login_required
 def cart(request):
@@ -730,20 +728,21 @@ def place_order(request):
       cart.status = Cart.CART_STATUS_CHOICES[5][0]
       cart.save()
 
-      # TODO : handle possible race conditon here i.e
-      # if times_redeemed already changed by this point dont allow redemption
-      with transaction.commit_on_success():
-        cart.coupon.times_redeemed += 1
-        if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
-          cart.coupon.active = False
-        cart.coupon.save()
-
       if request.session.get('stripe_payment'):
         # charge card to stripe
 
         if receiver_state in Cart.STRIPE_STATES:
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
+
+      if order.fulfill_status == 0:
+        # TODO : handle possible race conditon here i.e
+        # if times_redeemed already changed by this point dont allow redemption
+        with transaction.commit_on_success():
+          cart.coupon.times_redeemed += 1
+          if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+            cart.coupon.active = False
+          cart.coupon.save()
 
         # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
         coupon_id = "%s" % order.vinely_order_id
@@ -794,7 +793,6 @@ def place_order(request):
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
-      if order.fulfill_status == 0:
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
         if items.exists():

@@ -14,7 +14,12 @@ class CouponForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(CouponForm, self).__init__(*args, **kwargs)
-    self.fields['redeem_by'].widget.attrs['class'] = 'datepicker'
+    # self.fields['redeem_by'].widget.attrs['class'] = 'datepicker'
+    self.fields['redeem_by'].widget.attrs = {
+        'class': 'datepicker',
+        'data-date-format': 'mm/dd/yyyy',
+        'placeholder': 'MM/DD/YYYY',
+    }
 
   def clean_redeem_by(self):
     cleaned_data = self.cleaned_data['redeem_by']
