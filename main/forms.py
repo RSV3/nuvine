@@ -133,7 +133,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
-    exclude = ['setup_stage', 'fee', 'fee_paid']
+    exclude = ['setup_stage', 'fee', 'fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -322,7 +322,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    exclude = ['fee_paid']
+    exclude = ['fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
