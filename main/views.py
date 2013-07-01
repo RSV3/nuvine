@@ -1078,7 +1078,7 @@ def party_add(request, party_id=None, party_pro=None):
   if u.get_profile().role in [UserProfile.ROLE_CHOICES[4][0], UserProfile.ROLE_CHOICES[3][0], UserProfile.ROLE_CHOICES[5][0]]:
     # if not a Vinely Pro or Host, one does not have permissions
     data["no_perms"] = True
-    data["pending_pro"] = UserProfile.ROLE_CHOICES[5][0] == u.get_profile().role 
+    data["pending_pro"] = UserProfile.ROLE_CHOICES[5][0] == u.get_profile().role
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
@@ -1412,7 +1412,7 @@ def party_review_request(request, party_id):
     # send e-mails
     distribute_party_invites_email(request, invitation)
 
-      # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+    # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
     messages.success(request, "Your invitations were sent successfully to %s tasters." % invites.count())
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 

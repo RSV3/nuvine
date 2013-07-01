@@ -3,9 +3,14 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.http import HttpRequest
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
+# from main.tasks import schedule_thank_notes
+
 from sorl.thumbnail import ImageField
 
 from datetime import datetime, timedelta
@@ -60,8 +65,8 @@ class Party(models.Model):
   auto_thank_you = models.BooleanField()
   guests_can_invite = models.BooleanField()
   guests_see_guestlist = models.BooleanField()
-  confirmed = models.BooleanField()
-  requested = models.BooleanField()
+  confirmed = models.BooleanField()  # set to True when host finishes final setup step
+  requested = models.BooleanField()  # set to True when pro creates the party
   setup_stage = models.IntegerField(default=1)
   fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
   sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
