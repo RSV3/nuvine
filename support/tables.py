@@ -39,6 +39,7 @@ class OrderTable(tables.Table):
     model = Order
     fields = ("orders", "vinely_order_id", "receiver_info", "order_date", "fulfill_status", )
     attrs = {"class": "paleblue table table-striped"}
+    order_by = ['-vinely_order_id']
 
 
 class PastOrderTable(tables.Table):

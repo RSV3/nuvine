@@ -15,11 +15,11 @@ from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
                         InvitationSent, Order, Product, ThankYouNote
-from accounts.models import Address, SubscriptionInfo, UserProfile
-
 from main.utils import add_form_validation, business_days_count
 
+from accounts.models import Address, SubscriptionInfo, UserProfile, SUPPORTED_STATES
 from accounts.forms import NameEmailUserCreationForm
+from accounts.utils import check_zipcode
 
 import string
 from lepl.apps.rfc3696 import Email
@@ -96,7 +96,7 @@ class PartyCreateForm(forms.ModelForm):
 
   class Meta:
     model = Party
-    exclude = ['setup_stage', 'fee', 'fee_paid']
+    exclude = ['setup_stage', 'fee', 'fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     user = kwargs.pop('user')
@@ -285,7 +285,7 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    exclude = ['fee_paid']
+    exclude = ['fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
@@ -568,6 +568,17 @@ class ShippingForm(forms.ModelForm):
     super(ShippingForm, self).__init__(*args, **kwargs)
     self.fields['email'].widget.attrs['readonly'] = True
     add_form_validation(self)
+
+  def clean(self):
+    cleaned_data = super(ShippingForm, self).clean()
+    zip_ok = check_zipcode(cleaned_data.get('zipcode'))
+    if not zip_ok:
+      self._errors["zipcode"] = self.error_class([u"Currently, we can only ship to California."])
+
+    if self.cleaned_data.get('state') not in SUPPORTED_STATES:
+      self._errors["state"] = self.error_class([u"Currently, we can only ship to California."])
+
+    return cleaned_data
 
   def save(self, commit=True):
     data = self.cleaned_data

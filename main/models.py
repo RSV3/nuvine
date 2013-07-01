@@ -213,7 +213,7 @@ class PartyInvite(models.Model):
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
   fee_paid = models.BooleanField(default=False)
   attended = models.BooleanField(default=False)
-  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank=True)
 
   def invited(self):
     return bool(self.invited_timestamp)
