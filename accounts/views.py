@@ -150,13 +150,13 @@ def my_information(request):
   u = request.user
   profile = u.get_profile()
 
-  initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
+  # initial_profile = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
   user_form = UserInfoForm(request.POST if request.POST.get('user_form') else None, instance=u, prefix='user')
   shipping_form = UpdateAddressForm(request.POST if request.POST.get('shipping_form') else None, instance=profile.shipping_address, prefix='shipping')
   # billing_form = UpdateAddressForm(request.POST or None, instance=profile.billing_address, prefix='billing')
   payment_form = PaymentForm(request.POST if request.POST.get('payment_form') else None, prefix='payment')
   profile_form = ImagePhoneForm(request.POST if request.POST.get('user_form') else None, instance=profile, prefix='profile')
-  eligibility_form = VerifyEligibilityForm(request.POST if request.POST.get('eligibility_form') else None, instance=profile, initial=initial_profile, prefix='eligibility')
+  eligibility_form = VerifyEligibilityForm(request.POST if request.POST.get('eligibility_form') else None, instance=profile, prefix='eligibility')
 
   data['user_form'] = user_form
   data['shipping_form'] = shipping_form
@@ -180,7 +180,7 @@ def my_information(request):
         profile = profile_form.save()
         messages.success(request, msg)
       else:
-        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+        messages.warning(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
 
     # eligibility_form is already validated up-top
     if request.POST.get('eligibility_form'):
@@ -192,13 +192,15 @@ def my_information(request):
           datediff = today - dob
           if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and eligibility_form.cleaned_data['above_21'] == 'on') or \
                 (not dob and eligibility_form.cleaned_data['above_21'] == 'on'):
-            messages.error(request, 'The Date of Birth shows that you are not over 21')
+            messages.warning(request, 'The Date of Birth shows that you are not over 21')
             return HttpResponseRedirect('.')
 
         eligibility_form.save()
         messages.success(request, msg)
       else:
-        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+        messages.warning(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+        if eligibility_form.errors:
+          messages.warning(request, eligibility_form.errors['__all__'])
 
     if request.POST.get('shipping_form'):
       if shipping_form.is_valid():
@@ -206,7 +208,7 @@ def my_information(request):
         shipping_form.save()
         messages.success(request, msg)
       else:
-        messages.error(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
+        messages.warning(request, 'Errors were encountered when trying to update your information. Please correct them and retry the update.')
 
     # if billing_form.is_valid():
     #   billing_form.user_profile = profile
@@ -1172,10 +1174,8 @@ def join_club_shipping(request):
     initial_data['zipcode'] = current_shipping.zipcode
   initial_data['news_optin'] = user.get_profile().news_optin
 
-  initial_age = {'dob': profile.dob.strftime("%m/%d/%Y") if profile.dob else ''}
-
   shipping_form = JoinClubShippingForm(request.POST or None, instance=user, initial=initial_data)
-  eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility', initial=initial_age)
+  eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility')
 
   # update cart
   if 'cart_id' in request.session:

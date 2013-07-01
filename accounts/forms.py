@@ -13,6 +13,7 @@ from main.models import CustomizeOrder
 from main.utils import UTC, add_form_validation
 from datetime import datetime, timedelta
 import math
+from django.forms.extras.widgets import SelectDateWidget
 
 
 class NameEmailUserCreationForm(UserCreationForm):
@@ -116,12 +117,17 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
-    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone', 'credits'
-              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
+    fields = ['dob', 'user', 'gender', 'dl_number', 'zipcode', 'accepted_tos', 'above_21']
+    # exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone', 'credits'
+    #           'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
+    # self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
+    today = datetime.now().year
+    hundred_ago = today - 100
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(hundred_ago, today - 20)])
+    self.fields['dob'].widget.attrs = {'class': 'select-date'}
     self.fields['user'].widget = forms.HiddenInput()
 
   def clean(self):
@@ -132,7 +138,8 @@ class VerifyEligibilityForm(forms.ModelForm):
       today = datetime.date(datetime.now(tz=UTC()))
       datediff = today - dob
       if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and data['above_21']) or (not dob and data['above_21']):
-        raise forms.ValidationError('The Date of Birth shows that you are not over 21')
+        # raise forms.ValidationError('The Date of Birth shows that you are not over 21')
+        self._errors["dob"] = self.error_class([u"The Date of Birth shows that you are not over 21"])
     return data
 
 
@@ -143,12 +150,16 @@ class AgeValidityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {
-        'class': 'datepicker',
-        'data-date-viewmode': 'years',
-        'data-date-format': 'mm/dd/yyyy',
-        'placeholder': 'MM/DD/YYYY',
-    }
+    # self.fields['dob'].widget.attrs = {
+    #     'class': 'datepicker input-block-level',
+    #     'data-date-viewmode': 'years',
+    #     'data-date-format': 'mm/dd/yyyy',
+    #     'placeholder': 'MM/DD/YYYY',
+    # }
+    today = datetime.now().year
+    hundred_ago = today - 100
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(hundred_ago, today - 20)])
+    self.fields['dob'].widget.attrs = {'class': 'select-date'}
     add_form_validation(self)
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()

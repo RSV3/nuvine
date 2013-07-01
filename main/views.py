@@ -2535,8 +2535,7 @@ def edit_shipping_address(request):
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
 
-  initial_age = {'dob': receiver_profile.dob.strftime("%m/%d/%Y") if receiver_profile.dob else ''}
-  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, initial=initial_age, prefix='eligibility')
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 
@@ -2544,12 +2543,12 @@ def edit_shipping_address(request):
   data['form'] = form
 
   # check zipcode is ok
-  if request.method == 'POST':
-    zipcode = request.POST.get('zipcode')
-    ok = check_zipcode(zipcode)
-    if zipcode and not ok:
-      messages.error(request, 'Currently, we can only ship to California.')
-      return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
+  # if request.method == 'POST':
+  #   zipcode = request.POST.get('zipcode')
+  #   ok = check_zipcode(zipcode)
+  #   if zipcode and not ok:
+  #     messages.warning(request, 'Currently, we can only ship to California.')
+  #     return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
   if form.is_valid() and valid_age:
     receiver = form.save()
