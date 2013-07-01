@@ -661,8 +661,9 @@ def make_pro_host(request, account_type, data):
           if zip_ok:
             send_know_pro_party_email(request, u)  # to host
         except User.DoesNotExist:
-          # pro = get_default_pro()
-          pro = profile.find_nearest_pro()
+          # #514 - jayme issue request
+          # pro = profile.find_nearest_pro()
+          pro = None
           profile.current_pro = pro
           profile.save()
           if zip_ok:
@@ -845,7 +846,9 @@ def sign_up(request, account_type, data):
         if profile.current_pro:
           pro = profile.current_pro
         else:
-          pro = profile.find_nearest_pro()
+          # #514 - jayme issue request
+          # pro = profile.find_nearest_pro()
+          pro = None
           profile.current_pro = pro
           profile.save()
 
