@@ -355,6 +355,7 @@ def view_user_details(request, user_id):
   data['credit_card'] = profile.stripe_card
   orders = Order.objects.filter(ordered_by=user).order_by('-id')
   table = OrderHistoryTable(orders, user=user)
+  RequestConfig(request, paginate={"per_page": 20}).configure(table)
   data['order_history'] = table
   return render(request, "support/user_detail.html", data)
 
@@ -363,7 +364,7 @@ def view_user_details(request, user_id):
 def view_parties(request):
   data = {}
   # user = request.user
-  parties = Party.objects.all().order_by('-event_date')
+  parties = Party.objects.all().select_related().order_by('-event_date')
 
   table = PartyTable(parties)
   RequestConfig(request, paginate={"per_page": 100}).configure(table)
@@ -379,13 +380,13 @@ def view_party_detail(request, party_id):
   data = {}
 
   party = get_object_or_404(Party, id=party_id)
-  tasters = PartyInvite.objects.filter(party=party)
+  tasters = PartyInvite.objects.filter(party=party).select_related()
   table = AttendeesTable(tasters, user=user, data={'party': party, 'can_add_taster': True, 'can_shop_for_taster': True})
-  # RequestConfig(request, paginate={"per_page": 100}).configure(table)
+  RequestConfig(request, paginate={"per_page": 30}).configure(table)
 
   data['tasters_table'] = table
   data['party'] = party
-  data['host_credit'] = calculate_host_credit(party.host)
+  data['host_credit'] = party.host.userprofile.account_credit
   return render(request, "support/view_party_detail.html", data)
 
 

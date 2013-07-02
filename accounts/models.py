@@ -678,6 +678,9 @@ class SubscriptionInfo(models.Model):
     cart.status = Cart.CART_STATUS_CHOICES[5][0]
     cart.save()
     cart.items.add(item)
+    if prof.coupon:
+      cart.coupon = prof.coupon
+      cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 

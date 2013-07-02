@@ -18,11 +18,13 @@
         </ul>
       </div>
       <div class="span4">
+        {% comment %}
         <h1>Users</h1>
         <ul>
           <li><a href="{% url support:view_users %}">Manage</a></li>
           <li><a href="#">Reports</a></li>
         </ul>
+        {% endcomment %}
       </div>
       <div class="span3">
         <h1>Pros</h1>
@@ -43,18 +45,24 @@
         </ul>
       </div>
       <div class="span4">
+        &nbsp;
+        {% comment %}
         <h1>Parties</h1>
         <ul>
           <li><a href="{% url support:view_parties %}">Manage</a></li>
           <li><a href="#">Reports</a></li>
         </ul>
+        {% endcomment %}
       </div>
       <div class="span3">
+        &nbsp;
+        {% comment %}
         <h1>Events</h1>
         <ul>
           <li><a href="#">Manage</a></li>
           <li><a href="#">Reports</a></li>
         </ul>
+        {% endcomment %}
       </div>
     </div>
   </div>
