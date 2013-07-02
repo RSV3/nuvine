@@ -34,9 +34,9 @@ def coupon_create(request, coupon_id=None):
   coupon = None
   if coupon_id:
     coupon = get_object_or_404(Coupon, pk=coupon_id)
-    messages.warning(request, 'Note that changing the Coupon code will make it unusable for users that might already have the Coupon.')
+    # messages.warning(request, 'Note that changing the Coupon code will make it unusable for users that might already have the Coupon.')
 
-  initial = {'redeem_by': coupon.redeem_by.strftime("%m/%d/%Y") if coupon.redeem_by else ''}
+  initial = {'redeem_by': coupon.redeem_by.strftime("%m/%d/%Y") if coupon and coupon.redeem_by else ''}
   form = CouponForm(request.POST or None, instance=coupon, initial=initial)
   data['form'] = form
   data['coupon'] = coupon

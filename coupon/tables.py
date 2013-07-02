@@ -16,4 +16,4 @@ class CouponTable(tables.Table):
   class Meta:
     model = Coupon
     attrs = table_attrs
-    fields = ('name', 'code', 'discount', 'active')
+    fields = ('name', 'code', 'discount', 'active', 'times_redeemed', 'max_redemptions')
