@@ -14,7 +14,7 @@ from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote
+                        InvitationSent, Order, Product, ThankYouNote, Cart
 from main.utils import add_form_validation, business_days_count
 
 from accounts.models import Address, SubscriptionInfo, UserProfile, SUPPORTED_STATES

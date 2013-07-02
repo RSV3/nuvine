@@ -14,7 +14,7 @@
     .table td { 
       vertical-align: middle;
     }
-    .span3.pull-right p {
+    .span4.pull-right p {
       text-align: right;
     }
   </style>
@@ -96,25 +96,11 @@
       <p>Card Type: {{ credit_card.card_type }}</p>
       <p><a href="{% url edit_credit_card %}">Edit</a></p>
     </div>
-    <div class="span3">
+    <div class="span2">
       <p>&nbsp;</p>
-      {% comment %}
-        {% if taste_kit_order %}
-          <p>&nbsp;</p>
-        {% else %}
-          {% if not items %}
-            <p>&nbsp;</p>
-          {% else %}
-            <p><h3>Wine Preference</h3></p>
-            <!-- <p></p> -->
-            <p>Red/White: {{ receiver.userprofile.order_customization_pref }}</p>
-            <p>Bubbles: {{ customization.get_sparkling_display }}</p>
-          {% endif %}
-        {% endif %}
-      {% endcomment %}
     </div>
-    <div class="span3 pull-right">
-      <p>&nbsp;</p>
+    <div class="span4 pull-right">
+
       {% if cart.coupon %}
         <p>Coupon &lt;{{ cart.coupon.code }}&gt;: ({{ cart.coupon_amount|currency }})</p>
       {% endif %}

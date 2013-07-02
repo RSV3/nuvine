@@ -101,7 +101,7 @@
     <div class="span3">
       <div class="cart-sub-total">
         {% if cart.coupon %}
-          <p>Coupon &lt;{{ cart.coupon.code }}&gt;: ({{ cart.coupon_amount|currency }})</p>
+          <p>Coupon: ({{ cart.coupon_amount|currency }})</p>
         {% endif %}
         {% if cart.discount %}
           <p>Credit: ({{ cart.discount|currency }})</p>

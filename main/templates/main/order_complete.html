@@ -13,7 +13,7 @@
     .table td { 
       vertical-align: middle;
     }
-    .span3.pull-right p {
+    .span4.pull-right p {
       text-align: right;
     }
   </style>
@@ -104,10 +104,10 @@
       </div>
       <hr />
       <div class="row">
-        <div class="span6">
+        <div class="span4">
           &nbsp;
         </div>
-        <div class="span3 pull-right">
+        <div class="span4 pull-right">
           {% if cart.coupon %}
             <p>Coupon &lt;{{ cart.coupon.code }}&gt;: ({{ cart.coupon_amount|currency }})</p>
           {% endif %}

@@ -417,7 +417,7 @@ class Cart(models.Model):
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
-    max_discount = (subtotal_without_discount / 2) - coupon_amount
+    max_discount = float(subtotal_without_discount / 2) - float(coupon_amount)
 
     if credit <= max_discount:
       applied_discount = credit

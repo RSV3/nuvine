@@ -559,6 +559,10 @@ def cart(request):
     if coupon_form.is_valid():
       # apply coupon to cart subtotal
       cart.coupon = coupon_form.cleaned_data['coupon']
+      receiver_profile = cart.receiver.get_profile()
+      receiver_profile.coupon = cart.coupon
+      receiver_profile.coupons.add(cart.coupon)
+      receiver_profile.coupon.save()
       cart.coupon_amount = cart.apply_coupon()
       cart.discount = cart.calculate_discount()
       cart.save()
@@ -738,11 +742,15 @@ def place_order(request):
       if order.fulfill_status == 0:
         # TODO : handle possible race conditon here i.e
         # if times_redeemed already changed by this point dont allow redemption
-        with transaction.commit_on_success():
-          cart.coupon.times_redeemed += 1
-          if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
-            cart.coupon.active = False
-          cart.coupon.save()
+        if cart.coupon:
+          with transaction.commit_on_success():
+            cart.coupon.times_redeemed += 1
+            if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+              cart.coupon.active = False
+              receiver_profile = cart.receiver.get_profile()
+              receiver_profile.coupon = None
+              receiver_profile.save()
+            cart.coupon.save()
 
         # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
         coupon_id = "%s" % order.vinely_order_id
@@ -765,7 +773,7 @@ def place_order(request):
           receiver_profile.save()
 
         if cart.coupon_amount > 0 or cart.discount > 0:
-          total_off = cart.discount + cart.coupon_amount
+          total_off = Decimal(cart.discount) + Decimal(cart.coupon_amount)
           coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
           customer.coupon = coupon.id
           customer.save()
