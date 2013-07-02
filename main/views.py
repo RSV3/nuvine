@@ -153,21 +153,21 @@ def our_story(request):
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
-def get_started(request):
-  """
-    Get started
-  """
+# def get_started(request):
+#   """
+#     Get started
+#   """
 
-  data = {}
+#   data = {}
 
-  u = request.user
-  data['get_started_menu'] = True
-  sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  data['get_started_general'] = sections.get(key='general').content
-  data['get_started_host'] = sections.get(key='host').content
-  data['get_started_pro'] = sections.get(key='pro').content
-  data['heading'] = sections.get(key='header').content
-  return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
+#   u = request.user
+#   data['get_started_menu'] = True
+#   sections = ContentTemplate.objects.get(key='get_started').sections.all()
+#   data['get_started_general'] = sections.get(key='general').content
+#   data['get_started_host'] = sections.get(key='host').content
+#   data['get_started_pro'] = sections.get(key='pro').content
+#   data['heading'] = sections.get(key='header').content
+#   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
 def contact_us(request):
@@ -191,15 +191,15 @@ def contact_us(request):
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def become_vip(request):
-  """
-    TODO: what is to become VIP
-  """
+# @login_required
+# def become_vip(request):
+#   """
+#     TODO: what is to become VIP
+#   """
 
-  data = {}
+#   data = {}
 
-  return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
 
 
 @login_required
@@ -213,27 +213,27 @@ def rate_wines(request):
   return render_to_response("main/rate_wines.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def host_vinely_party(request):
-  """
-    Host your own Vinely party
-  """
+# @login_required
+# def host_vinely_party(request):
+#   """
+#     Host your own Vinely party
+#   """
 
-  data = {}
-  # check for pro
-  pro = None
-  pros = MyHost.objects.filter(host=request.user).order_by('-timestamp')
-  if pros.exists():
-    pro = pros[0].pro
-  else:
-    my_host, created = MyHost.objects.get_or_create(pro=None, host=request.user)
+#   data = {}
+#   # check for pro
+#   pro = None
+#   pros = MyHost.objects.filter(host=request.user).order_by('-timestamp')
+#   if pros.exists():
+#     pro = pros[0].pro
+#   else:
+#     my_host, created = MyHost.objects.get_or_create(pro=None, host=request.user)
 
-  # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
-  message_body = send_host_vinely_party_email(request, request.user, pro)
+#   # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
+#   message_body = send_host_vinely_party_email(request, request.user, pro)
 
-  data["message"] = message_body
+#   data["message"] = message_body
 
-  return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 
 def how_it_works(request, state=None):
@@ -330,7 +330,7 @@ def start_order(request, receiver_id=None, party_id=None):
 
   if party:
     can_order = (today - party.event_date <= timedelta(hours=24))
-    if receiver_id and party_id and can_order == False:
+    if receiver_id and party_id and can_order is False:
       messages.error(request, "You can only order for a taster up to 24 hours after the party.")
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
@@ -584,7 +584,7 @@ def cart_remove_item(request, cart_id, item_id):
 
   data["shop_menu"] = True
 
-  return HttpResponseRedirect(request.GET.get("next"))
+  return HttpResponseRedirect(request.GET.get("next", reverse('cart')))
 
 
 @login_required
@@ -729,7 +729,7 @@ def place_order(request):
           customer.save()
 
           receiver_profile = cart.receiver.get_profile()
-          receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
+          receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
           receiver_profile.save()
 
         # NOTE: Amount must be in cents
@@ -795,7 +795,7 @@ def place_order(request):
         if items.exists():
           from personality.models import WineRatingData
 
-          if receiver_profile.is_host() or receiver_profile.is_taster():
+          if (receiver_profile.is_host() or receiver_profile.is_taster()) and order.cart.party:
             order_window = order.cart.party.event_date + timedelta(days=7)
             invites = PartyInvite.objects.filter(party=order.cart.party, party__event_date__lte=order_window, invitee=order.receiver, response=3)
             # party date considered 24hrs

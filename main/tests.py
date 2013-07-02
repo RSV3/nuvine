@@ -11,8 +11,8 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from accounts.models import Address, Zipcode, UserProfile
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, Order, OrganizedParty, MyHost, \
-                        InvitationSent
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, Order, OrganizedParty, \
+                        Cart, LineItem
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user
 
@@ -21,7 +21,6 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from cms.tests import SimpleTest as CMSTest
 from support.models import Email
-import unittest
 
 
 class SimpleTest(TestCase):
@@ -549,6 +548,25 @@ class SimpleTest(TestCase):
     taster.userprofile.save()
     response = self.client.get(reverse('accounts_profile'))
     self.assertRedirects(response, reverse('home_club_member'))
+
+  def test_static_pages(self):
+    response = self.client.get(reverse('our_story'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('how_it_works'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('how_it_works', args=['taste']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('how_it_works', args=['rate']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('how_it_works', args=['order']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('how_it_works', args=['repeat']))
+    self.assertEquals(response.status_code, 200)
 
   def test_contact_us_models(self):
     total_reasons = ContactReason.objects.all().count()
@@ -1186,13 +1204,32 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse('main.views.start_order'))
     self.assertRedirects(response, reverse("main.views.cart_add_wine"))
 
-    case = Product.objects.get(name="6 Bottles", unit_price=97.00)
+    case = Product.objects.get(name="3 Bottles", unit_price=54.00)
 
     response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
                                                                       "quantity": 2,
                                                                       "frequency": 0,
-                                                                      "total_price": 194.00})
+                                                                      "total_price": 108.00})
     self.assertRedirects(response, reverse("main.views.cart"))
+
+    # try to add multiple subscriptions
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 1,
+                                                                      "frequency": 1,
+                                                                      "total_price": 54.00})
+    self.assertRedirects(response, reverse("main.views.cart"))
+
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 1,
+                                                                      "frequency": 1,
+                                                                      "total_price": 54.00})
+    self.assertRedirects(response, reverse("main.views.cart_add_wine"))
+    cart = Cart.objects.all()[0]
+    items = LineItem.objects.all().order_by('-id')
+    self.assertEquals(items.count(), 2)
+    item = items[0]
+    response = self.client.get(reverse("main.views.cart_remove_item", args=[cart.id, item.id]))
+    self.assertRedirects(response, reverse('cart'))
 
     birth_date = timezone.now() - timedelta(days=30 * 365)
 
@@ -1249,6 +1286,55 @@ class SimpleTest(TestCase):
     subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
+
+    # try order with user having account credit
+    profile = UserProfile.objects.get(user__email='attendee1@example.com')
+    profile.account_credit = 70
+    profile.save()
+
+    response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                      "quantity": 1,
+                                                                      "frequency": 1,
+                                                                      "total_price": 54.00})
+    self.assertRedirects(response, reverse("main.views.cart"))
+
+    # ensure discount applied
+    # ensure 50% limit
+    cart = Cart.objects.all().order_by('-id')[0]
+    self.assertEquals(cart.subtotal(), float(27))
+
+    response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                              "first_name": "John",
+                                                                              "last_name": "Doe",
+                                                                              "address1": "65 Gordon St.",
+                                                                              "city": "San Fransisco",
+                                                                              "state": "CA",
+                                                                              "zipcode": "92612",
+                                                                              "phone": "555-617-6706",
+                                                                              "email": "attendee1@example.com"})
+    self.assertRedirects(response, reverse("main.views.edit_credit_card"))
+    taster = User.objects.get(email='attendee1@example.com')
+    response = self.stripe_card_processing(taster)
+
+    self.assertRedirects(response, reverse("main.views.place_order"))
+
+    response = self.client.post(reverse("main.views.place_order"))
+    order = Order.objects.get(pk=2)
+
+    self.assertRedirects(response, reverse("main.views.order_complete", args=[order.order_id]))
+
+    response = self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
+    self.assertEquals(response.status_code, 200)
+
+    # TODO: check that this discount was applied to stripe as well
+    import stripe
+    from django.conf import settings
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+
+    stripe_user = taster.userprofile.stripe_card.stripe_user
+    stripe_customer = stripe.Customer.retrieve(stripe_user)
+    stripe_customer.cancel_subscription()
 
   def test_product_ordering(self):
     """
