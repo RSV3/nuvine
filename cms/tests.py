@@ -1271,53 +1271,141 @@ class SimpleTest(TestCase):
   # Web Templates
   ######################################
   def home_template(self):
-    content = """
-      <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
-      <p>Discover your wine personality with friends at a Vinely Taste Party. We'll use that personality to select perfectly paired wine and ship wherever you sip. Interested? </p>
-
+    content_header = """
+    Change the way you experience wine
     """
-    template = ContentTemplate.objects.create(key="landing_page", category=1)
-    Section.objects.create(key='general', content=content, template=template)
+
+    content_overview1 = """
+    Tired of the guesswork of buying wine? Now Vinely makes it easy, convenient and fun.
+    """
+
+    content_overview2 = """
+    The Vinely experience is as simple as Sip, Rate and Repeat.
+    Treat your taste buds to wines you're guaranteed to love delivered right to your door.
+    """
+
+    content_host_section = """
+    <h1>Host a party</h1>
+    <p>
+    Pop the cork! <br/>
+    Learn about hosting <br />
+    a Vinely party
+    </p>
+    """
+
+    content_pro_section = """
+    <h1>Join the team</h1>
+    <p>
+    Take it to the next level <br/>
+    to earn a little or <br />
+    a lot...it's up to you!
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="landing_page", category=1)
+    section, created = Section.objects.get_or_create(key="header", template=template)
+    section.content = content_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview_col1", template=template)
+    section.content = content_overview1
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview_col2", template=template)
+    section.content = content_overview2
+    section.save()
+    section, created = Section.objects.get_or_create(key="host", template=template)
+    section.content = content_host_section
+    section.save()
+    section, created = Section.objects.get_or_create(key="pro", template=template)
+    section.content = content_pro_section
+    section.save()
 
   def our_story_template(self):
     content = """
-      <h2>Great tastes are hard to come by</h2>
+        <h2>Great tastes are hard to come by</h2>
 
-      <p>Our question was simple: Why? Why can't finding tastes you love be easy, social, and fun? Now they are, with Vinely.</p>
+        <p>Our question was simple: Why? Why can't finding tastes you love be easy, social, and fun? Now they are, with Vinely.</p>
 
-      <p>It may look like we have a great time (which we do), but when it comes to taste, we mean business. Serious business. The proof? Our patented Vinely Methodology - a proven system, thoughtfully engineered to define your true Vinely Personality. (It's not rocket science, but it's not far off.)</p>
+        <p>It may look like we have a great time (which we do), but when it comes to taste, we mean business. Serious business. The proof? Our patented Vinely Methodology - a proven system, thoughtfully engineered to define your true Vinely Personality. (It's not rocket science, but it's not far off.)</p>
 
-      <p>At each and every Vinely Taste Party, this methodology is hard at work, separating the Moxies from the Sensational. The Exuberant from the Easygoing. And the Whimsical from the Serendipitous. In turn, you'll be introduced to tastes that fit your Vinely Personality - tastes you won't be able to get enough of.</p>
+        <p>At each and every Vinely Taste Party, this methodology is hard at work, separating the Moxies from the Sensational. The Exuberant from the Easygoing. And the Whimsical from the Serendipitous. In turn, you'll be introduced to tastes that fit your Vinely Personality - tastes you won't be able to get enough of.</p>
 
-      <p>We're not out to change the things you enjoy. Fact is, we're here to help you embrace them even more! And with a Vinely Personality, there's nothing stopping you from finding wines that entice, excite, and encourage you to taste Your Personality every chance you get.</p>
+        <p>We're not out to change the things you enjoy. Fact is, we're here to help you embrace them even more! And with a Vinely Personality, there's nothing stopping you from finding wines that entice, excite, and encourage you to taste Your Personality every chance you get.</p>
 
-      <p>What are you waiting for?</p>
+        <p>What are you waiting for?</p>
     """
+    header = "Vinely's Story"
     template = ContentTemplate.objects.create(key="our_story", category=1)
     Section.objects.create(key='general', content=content, template=template)
+    Section.objects.create(key='header', content=header, template=template)
 
   def how_it_works_template(self):
-    content = """
-      <h2>What does Vinely do?</h2>
-      <p>By finding your personality, Vinely identifies wines perfectly paired to your taste.
-      After all, when it comes to choosing wines you love, who wants to play the guessing game? At a Vinely Taste Party you'll sip, savor, and rate different flavors with your friends.
-      Using those ratings, your Vinely Pro will reveal your inner personality. From there, it's hello to happier tastes.</p>
-
-      <h2>How do I order?</h4>
-      <p>Once you and your wine personality have had some time to bond, you can easily place an order.
-      Then, wines from near and far will show up at your doorstep. The best part? No guesswork. No research. And no intimidating wall of wines.
-      Not even a trip to the store. Just exceptional wines, delivered right to your home - conveniently, quickly, and best of all, deliciously.</p>
-
-      <h2>Great! Then what?</h2>
-      <p>And since you'll love every wine, every time, we give you a variety of ways to keep fully stocked.
-      Become a VIP and receive your personalized Vinely Collection monthly, bi-monthly or quarterly. Or simply place a single order.
-      No matter what works for you, we're shipping to wherever you're sipping. All you have to do is ask.</p>
-
-      <h2>Where's the party?</h2>
-      <p>If you haven't been invited to a Vinely Taste Party, become a Host and have your own.</p>
+    content_header = """
+    IT'S FUN. IT'S EASY. IT WORKS.
     """
-    template = ContentTemplate.objects.create(key="how_it_works", category=1)
-    Section.objects.create(key='general', content=content, template=template)
+    content_sub_header = '<span></span>'
+    content_overview = """
+    <p>The Vinely Experience uses your taste buds and a little technology to find your "Wine Personality"</p>
+
+    <p>Just taste, rate and order to receive your perfectly matched wines right to your doorstep.</p>
+
+    <p>You never have to worry again because we 100% <a href="javascript:;" class="guarantee" rel="popover" data-trigger="hover"
+    data-placement="top"
+    data-content="If you dislike a bottle received after you rate our tasting wines, just tell us and we'll refund the value.
+    No questions asked!">guarantee</a> your taste buds will love the wines we deliver.</p>
+    """
+
+    content_taste = """
+    <p>Get started with your tasting experience. Enjoy your way through 6 bottles to set the wheels in motion.</p>
+
+    <p>Feeling social? Host a Host a Vinely Party! Invite 8-12 friends to join you for a tasting party.</p>
+
+    <p>Feeling independent? Sip solo and your tastes in your own space and your own time.</p>
+    """
+
+    content_rate = """
+    Rate the six carefully selected tasting wines in your Experience Booklet.
+    Each rating provides an insight we'll use to uncover your tastes in wine and reveal your "Wine personality".
+    You might be Whimsical, Exuberation, Sensational, Moxie, Easygoing or Serendipitous.
+
+    """
+    content_order = """
+    <p>Place an order to receive wines that you're sure to love.
+    We will select a range of unique wines to match your tastes, and deliver them right to your door.</p>
+
+    <p>Vinely VIPs can enjoy monthly shipments (upto 144 wines per year),
+    with a continually improving selection based on your feedback ratings.
+    Shipping is free and you may cancel anytime.</p>
+
+    <p>Here's the best part...your satisfaction is 100% money-back guaranteed...
+    (Have you ever tried to return an opened bottle of wine to the store? Enough said).</p>
+    """
+    content_repeat = """
+    <p>Did you like it? Love it? The more you drink the better we get to know you.
+    Giving Vinely feedback helps us continually improve your personalized wine selection with each shipment</p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="how_it_works", category=1)
+    section, created = Section.objects.get_or_create(key="header", template=template)
+    section.content = content_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="sub_header", template=template)
+    section.content = content_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview", template=template)
+    section.content = content_overview
+    section.save()
+    section, created = Section.objects.get_or_create(key="taste", template=template)
+    section.content = content_taste
+    section.save()
+    section, created = Section.objects.get_or_create(key="rate", template=template)
+    section.content = content_rate
+    section.save()
+    section, created = Section.objects.get_or_create(key="order", template=template)
+    section.content = content_order
+    section.save()
+    section, created = Section.objects.get_or_create(key="repeat", template=template)
+    section.content = content_repeat
+    section.save()
 
   def get_started_template(self):
     general_content = """
@@ -1417,67 +1505,72 @@ class SimpleTest(TestCase):
     template = ContentTemplate.objects.create(key="rsvp", category=1)
     Section.objects.create(key='general', content=general_content, template=template)
 
-
   def make_pro_template(self):
-    host_header = 'Where\'s the wine party? Your place!'
-    host_sub_header = '<span></span>'
-
+    content_header = """
+    MAKE WORK SOCIAL, FLEXIBLE & FUN!
+    """
+    content_sub_header = '<span></span>'
     content_overview = """
-    <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
+    <p>Becoming a Vinely Pro is a fun, flexible opportunity where you can earn extra income or even replace your day job.</p>
 
-    <p>Signup to host a party and one of our carefully trained experts, or as we call them, our Vinely Pros,
-    will handle the heavy lifting. Isn't it great when you can enjoy your own party?</p>
-
-    <p>Your friends will think you're the host with the most when you introduce them to their Wine Personality.</p>
+    <p>It doesn't feel like work when you get to make new friends, build your own team,
+    and help people find wine they love all while at a party.</p>
     """
 
-    content_people = """
-    <p>Think friends, relatives, neighbors, co-workers...anyone over 21 who likes wine and a good time.</p>
+    content_parties = """
+    <p>The job starts with parties. Not bad, right? A Pro guides tasters through a fun wine-tasting experience and collects orders.
+    Vinely handles the rest, including payments and wine deliveries.
+    You probably know lots of people who like to entertain, drink wine, or simply have fun...these are your party hosts.
+    Start thinking your first few hosts now!</p>
     """
 
-    content_place = """
-    <p>Staying in is the new going out with Vinely.</p>
-    <p>Enjoy your Vinely experience anywhere so long as you can fit 12 people.
-    Any night can be turned into time with friends, a corporate retreat or a neighbourhood gathering.</p>
+    content_earnings = """
+    <p>With three ways to earn, your Vinely income can really begin to stack up!
+    First, earn on all retail sales of wine.
+    Second, earn residual income on all subscription shipments of wine club members.
+    And third, build a team to earn on sales of Pro's who you bring into the Vinely business.</p>
     """
 
-    content_rewards = """
-    <p>Lots and lots of rewards!!!</p>
+    content_support = """
+    <p>When you join the team, you'll get access to live training, marketing materials, webinars, videos, and plenty of individual TLC.
+    Our goal is to help you grow your very own wine business into a huge success!</p>
     """
 
-    content_order = """
+    content_growth = """
     <p>
-    Order your tasting experience ($99) which includes 6 bottles of wine and other tasting supplies.
-    This should be ordered 2 weeks prior to the party to ensure plenty of time to choose music and food for your party
-    (artisan, crackers, stuffed mushrooms, best of the 80's?)
+    As a Pro, your success is based on effort and performance.
+    As you grow your business, you have the opportunity to earn significant income,
+    and lead others towards accomplishing their goals by building and nurturing a successful team!
     </p>
     """
 
     template, created = ContentTemplate.objects.get_or_create(key="make_pro", category=1)
-    section, created = Section.objects.get_or_create(key="general", template=template)
+    section, created = Section.objects.get_or_create(key="header", template=template)
+    section.content = content_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="sub_header", template=template)
+    section.content = content_sub_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview", template=template)
     section.content = content_overview
     section.save()
-    section, created = Section.objects.get_or_create(key='header', template=template)
-    section.content = host_header
+    section, created = Section.objects.get_or_create(key="parties", template=template)
+    section.content = content_parties
     section.save()
-    section, created = Section.objects.get_or_create(key='sub_header', template=template)
-    section.content = host_sub_header
+    section, created = Section.objects.get_or_create(key="earnings", template=template)
+    section.content = content_earnings
     section.save()
-    section, created = Section.objects.get_or_create(key="people", template=template)
-    section.content = content_people
+    section, created = Section.objects.get_or_create(key="support", template=template)
+    section.content = content_support
     section.save()
-    section, created = Section.objects.get_or_create(key="place", template=template)
-    section.content = content_place
-    section.save()
-    section, created = Section.objects.get_or_create(key="rewards", template=template)
-    section.content = content_rewards
-    section.save()
-    section, created = Section.objects.get_or_create(key="order", template=template)
-    section.content = content_order
+    section, created = Section.objects.get_or_create(key="growth", template=template)
+    section.content = content_growth
     section.save()
 
   def make_host_template(self):
-    host_header = 'Where\'s the wine party? Your place!'
+    content_header = """
+    Where's the wine party? Your place!
+    """
     host_sub_header = '<span></span>'
     content_overview = """
     <p>You're social and you love wine. Why not benefit by having the Vinely Experience in your home?</p>
@@ -1511,8 +1604,8 @@ class SimpleTest(TestCase):
     """
 
     template, created = ContentTemplate.objects.get_or_create(key="make_host", category=1)
-    section, created = Section.objects.get_or_create(key='header', template=template)
-    section.content = host_header
+    section, created = Section.objects.get_or_create(key="header", template=template)
+    section.content = content_header
     section.save()
     section, created = Section.objects.get_or_create(key='sub_header', template=template)
     section.content = host_sub_header

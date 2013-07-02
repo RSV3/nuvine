@@ -666,6 +666,61 @@ class SimpleTest(TestCase):
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
 
+  def test_static_pages(self):
+    response = self.client.get(reverse('make_host'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['people']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['place']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['rewards']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['order']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['signup']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['parties']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['earnings']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['support']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['growth']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['signup']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['anticipation']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['surprise']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['indulgence']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['excitement']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['product']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_signup'))
+    self.assertEquals(response.status_code, 200)
+
   def test_user_rsvp_without_signup(self):
     pass
 
