@@ -273,7 +273,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   data["party_id"] = party_id
   data["party"] = party
 
-  if not party.pro == u:
+  if not party.pro == u and not u.is_superuser:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 

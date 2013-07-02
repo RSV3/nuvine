@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
+from django.db import transaction
 
 from main.models import EngagementInterest, PartyInvite, MyHost, ProSignupLog, CustomizeOrder, Cart, \
                         LineItem, Product, Order, Party
@@ -25,12 +26,14 @@ from accounts.utils import send_password_change_email, send_pro_request_email, s
 
 from cms.models import ContentTemplate
 from main.utils import send_host_vinely_party_email, my_host, my_pro, send_order_confirmation_email
-from main.forms import JoinClubShippingForm
+from main.forms import JoinClubShippingForm, ApplyCouponForm
 
 from stripecard.models import StripeCard
 
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
+from decimal import Decimal
+
 import time
 import math
 
@@ -1177,6 +1180,27 @@ def join_club_shipping(request):
   shipping_form = JoinClubShippingForm(request.POST or None, instance=user, initial=initial_data)
   eligibility_form = AgeValidityForm(request.POST or None, instance=profile, prefix='eligibility')
 
+  # update cart
+  if 'cart_id' in request.session:
+    cart = Cart.objects.get(id=request.session['cart_id'])
+  else:
+    taste_kit = Product.objects.get(cart_tag='join_club_tasting_kit', active=True)
+    six_bottle = Product.objects.get(cart_tag='6', active=True)
+    # if new anon user then
+    # first purchase is for taste kit which is a one time purchase
+    # otherwise make subscription i.e. if user has personality
+    if profile.has_personality():
+      item = LineItem.objects.create(product=six_bottle, price_category=13, total_price=six_bottle.unit_price, frequency=1)
+    else:
+      item = LineItem.objects.create(product=taste_kit, price_category=15, total_price=taste_kit.unit_price, frequency=0)
+
+    cart = Cart.objects.create(user=user, receiver=user, status=4, adds=1)
+    cart.items.add(item)
+    request.session['cart_id'] = cart.id
+
+  coupon_form = ApplyCouponForm(request.POST or None, instance=cart)
+  data['coupon_form'] = coupon_form
+
   data['join_club_menu'] = True
   data['eligibility_form'] = eligibility_form
   data['form'] = shipping_form
@@ -1184,15 +1208,17 @@ def join_club_shipping(request):
   stripe.api_key = settings.STRIPE_SECRET_CA
 
   valid_age = eligibility_form.is_valid()
+  valid_coupon = coupon_form.is_valid()
+
   # check zipcode is ok
   if request.method == 'POST':
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
     if zipcode and not ok:
-      messages.error(request, 'Currently, we can only ship to California.')
+      messages.warning(request, 'Currently, we can only ship to California.')
       return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
-  if shipping_form.is_valid() and valid_age:
+  if shipping_form.is_valid() and valid_age and valid_coupon:
     user = shipping_form.save()
     profile = user.get_profile()
 
@@ -1203,6 +1229,12 @@ def join_club_shipping(request):
     # handle credit card
     stripe_token = request.POST.get('stripe_token')
     stripe_card = profile.stripe_card
+
+    # apply coupon to cart subtotal
+    cart.coupon = coupon_form.cleaned_data['coupon']
+    cart.coupon_amount = cart.apply_coupon()
+    cart.discount = cart.calculate_discount()
+    cart.save()
 
     try:
       if not stripe_card:
@@ -1234,24 +1266,6 @@ def join_club_shipping(request):
       except:
         messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
         return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
-
-    # update cart
-    if 'cart_id' in request.session:
-      cart = Cart.objects.get(id=request.session['cart_id'])
-    else:
-      taste_kit = Product.objects.get(cart_tag='join_club_tasting_kit', active=True)
-      six_bottle = Product.objects.get(cart_tag='6', active=True)
-      # if new anon user then
-      # first purchase is for taste kit which is a one time purchase
-      # otherwise make subscription i.e. if user has personality
-      if profile.has_personality():
-        item = LineItem.objects.create(product=six_bottle, price_category=13, total_price=six_bottle.unit_price, frequency=1)
-      else:
-        item = LineItem.objects.create(product=taste_kit, price_category=15, total_price=taste_kit.unit_price, frequency=0)
-
-      cart = Cart.objects.create(user=user, receiver=user, status=4, adds=1)
-      cart.items.add(item)
-      request.session['cart_id'] = cart.id
 
     # update the receiver user
     request.session['receiver_id'] = user.id
@@ -1309,6 +1323,32 @@ def join_club_review(request):
 
         non_sub_orders = order.cart.items.filter(frequency=0)
         sub_orders = order.cart.items.filter(frequency=1)
+
+        # TODO : handle possible race conditon here i.e
+        # if times_redeemed already changed by this point dont allow redemption
+        with transaction.commit_on_success():
+          cart.coupon.times_redeemed += 1
+          if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+            cart.coupon.active = False
+          cart.coupon.save()
+
+        # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
+        coupon_id = "%s" % order.vinely_order_id
+        if cart.coupon_amount > 0:
+          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
+
+        if cart.discount > 0:
+          coupon_id = "%s-credit-$%s" % (coupon_id, cart.discount)
+          receiver_profile = cart.receiver.get_profile()
+          receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
+          receiver_profile.save()
+
+        if cart.coupon_amount > 0 or cart.discount > 0:
+          total_off = cart.discount + cart.coupon_amount
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
+          customer.coupon = coupon.id
+          customer.save()
 
         # create invoice manually if there's a non-subscription i.e. tasting kit order for those with no personality
         if non_sub_orders.exists():

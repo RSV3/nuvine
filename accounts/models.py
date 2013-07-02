@@ -1,5 +1,5 @@
-from django.db import models
-from django.contrib.auth.models import User, Group
+from django.db import models, transaction
+from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.conf import settings
 from Crypto.Cipher import AES
@@ -8,19 +8,23 @@ from sorl.thumbnail import ImageField
 from personality.models import WinePersonality
 from django.contrib.localflavor.us import models as us_models
 from django.utils import timezone
-
-from datetime import datetime, date, timedelta, tzinfo
-import binascii, string, math
-from stripecard.models import StripeCard
-
-from personality.models import WineRatingData
+from django.http import HttpRequest
 
 from dateutil.relativedelta import relativedelta
-from django.http import HttpRequest
+from datetime import datetime, date, timedelta, tzinfo
+
+from stripecard.models import StripeCard
+from personality.models import WineRatingData
 
 from pyproj import Geod
 from random import randint
+from decimal import Decimal
+
 import stripe
+import binascii
+import string
+import math
+
 ZERO = timedelta(0)
 
 import logging
@@ -157,6 +161,8 @@ class UserProfile(models.Model):
   club_member = models.BooleanField(default=False)
   internal_pro = models.BooleanField(default=False)  # set for internal pros like training
   account_credit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+  coupon = models.ForeignKey('coupon.Coupon', null=True, related_name='coupon')
+  coupons = models.ManyToManyField('coupon.Coupon', null=True, related_name='coupons')
 
   ROLE_CHOICES = (
       (0, 'Unassigned Role'),
@@ -672,6 +678,9 @@ class SubscriptionInfo(models.Model):
     cart.status = Cart.CART_STATUS_CHOICES[5][0]
     cart.save()
     cart.items.add(item)
+    if prof.coupon:
+      cart.coupon = prof.coupon
+      cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -700,18 +709,38 @@ class SubscriptionInfo(models.Model):
 
     log.info("Created a new order for %s %s <%s>" % (user.first_name, user.last_name, user.email))
 
-    if receiver_state in Cart.STRIPE_STATES:
-      if cart.discount > 0:
-        if not customer:
-          # customer wont be defined at this point for webhook calls
-          customer = stripe.Customer.retrieve(id=prof.stripe_card)
-        coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
-        customer.coupon = coupon.id
-        customer.save()
+    if cart.coupon:
+      with transaction.commit_on_success():
+        cart.coupon.times_redeemed += 1
+        if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+          cart.coupon.active = False
+          prof.coupon = None
+          prof.save()
+        cart.coupon.save()
+
+    # customer wont be defined at this point for webhook calls
+    if not customer:
+      customer = stripe.Customer.retrieve(id=prof.stripe_card.stripe_user)
+
+    # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
+    coupon_id = "%s" % order.vinely_order_id
+
+    if cart.coupon_amount > 0:
+      coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
+
+    if cart.discount > 0:
+      coupon_id = "%s-credit-$%s" % (coupon_id, cart.discount)
+      prof.account_credit = Decimal(prof.account_credit) - Decimal(cart.discount)
+      prof.save()
+
+    if cart.coupon_amount > 0 or cart.discount > 0:
+      total_off = Decimal(cart.discount) + Decimal(cart.coupon_amount)
+      coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
+      customer.coupon = coupon.id
+      customer.save()
 
     if (receiver_state in Cart.STRIPE_STATES) and charge_stripe:
       try:
-
         stripe.InvoiceItem.create(customer=customer.id, amount=int(order.cart.tax() * 100), currency='usd', description='Tax')
         stripe.InvoiceItem.create(customer=customer.id, amount=0, currency='usd', description='Order #: %s' % order.vinely_order_id)
         stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
@@ -720,7 +749,7 @@ class SubscriptionInfo(models.Model):
       except Exception, e:
         # TODO: send email to care/support if card is declined
         log.error("Error processing subscription on stripe %s" % e)
-        log.error('Could not create subscruption on stripe for %s %s <%s>' % (user.first_name, user.last_name, user.email))
+        log.error('Could not create subscription on stripe for %s %s <%s>' % (user.first_name, user.last_name, user.email))
 
     # need to update next invoice date on subscription
     if self.frequency == 1:

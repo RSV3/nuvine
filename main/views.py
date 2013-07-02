@@ -12,7 +12,6 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
 from django.db import transaction
-from django.db.models import Sum
 
 from decimal import Decimal
 
@@ -25,14 +24,14 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
                         AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm, \
-                        VinelyEventsTable, EventsDescForm
+                        VinelyEventsTable, EventsDescForm, ApplyCouponForm
 
 from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message, my_pro, \
+                        distribute_party_thanks_note_email, \
+                        resend_party_invite_email, get_default_invite_message, \
                         preview_party_invites_email, get_default_signature, \
                         send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email, \
                         party_setup_completed_email, business_days_from, business_days_count
@@ -41,7 +40,8 @@ from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, 
 from cms.models import ContentTemplate
 from support.models import Email
 
-import json, uuid
+import json
+import uuid
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -486,6 +486,7 @@ def cart_add_wine(request):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -551,6 +552,21 @@ def cart(request):
     check_cart = cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if check_cart.exists():
       data['allow_customize'] = False
+
+    coupon_form = ApplyCouponForm(request.POST or None, instance=cart)
+    data['coupon_form'] = coupon_form
+
+    if coupon_form.is_valid():
+      # apply coupon to cart subtotal
+      cart.coupon = coupon_form.cleaned_data['coupon']
+      receiver_profile = cart.receiver.get_profile()
+      receiver_profile.coupon = cart.coupon
+      receiver_profile.coupons.add(cart.coupon)
+      receiver_profile.coupon.save()
+      cart.coupon_amount = cart.apply_coupon()
+      cart.discount = cart.calculate_discount()
+      cart.save()
+
   except KeyError:
     # cart is empty
     data["items"] = []
@@ -578,6 +594,7 @@ def cart_remove_item(request, cart_id, item_id):
 
   # track cart activity
   cart.removes += 1
+  cart.coupon_amount = cart.apply_coupon()
   cart.discount = cart.calculate_discount()
   cart.save()
 
@@ -674,6 +691,7 @@ def place_order(request):
     except CustomizeOrder.DoesNotExist:
       pass
 
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -721,15 +739,44 @@ def place_order(request):
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
 
-        if cart.discount > 0:
-          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
-          customer.coupon = coupon.id
-          customer.save()
+      if order.fulfill_status == 0:
+        # TODO : handle possible race conditon here i.e
+        # if times_redeemed already changed by this point dont allow redemption
+        if cart.coupon:
+          with transaction.commit_on_success():
+            cart.coupon.times_redeemed += 1
+            if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+              cart.coupon.active = False
+              receiver_profile = cart.receiver.get_profile()
+              receiver_profile.coupon = None
+              receiver_profile.save()
+            cart.coupon.save()
 
+        # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
+        coupon_id = "%s" % order.vinely_order_id
+        if cart.coupon_amount > 0:
+          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
+
+        if cart.discount > 0:
+          coupon_id = "%s-credit-$%s" % (coupon_id, cart.discount)
+          # customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          # coupon_id = "%s-account_credit" % (order.vinely_order_id, )
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
           receiver_profile = cart.receiver.get_profile()
           receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
           receiver_profile.save()
+
+        if cart.coupon_amount > 0 or cart.discount > 0:
+          total_off = Decimal(cart.discount) + Decimal(cart.coupon_amount)
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
+          customer.coupon = coupon.id
+          customer.save()
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
@@ -754,7 +801,6 @@ def place_order(request):
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
 
-      if order.fulfill_status == 0:
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
         if items.exists():

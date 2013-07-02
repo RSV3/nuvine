@@ -13,6 +13,9 @@
     .table td { 
       vertical-align: middle;
     }
+    .apply-coupon {
+      margin-top: -3px;
+    }
   </style>
 {% endblock additional_styles %}
 
@@ -82,10 +85,24 @@
   <hr>
   <div class="row">
     <div class="span9">
-      &nbsp;
+      <form class="form-inline" method="POST">
+        {% csrf_token %}
+        {{ coupon_form.coupon.label_tag }}
+        <div class="control-group {% if coupon_form.coupon.errors %}error{% endif %}">
+          <p>{{ coupon_form.coupon }} <button class="btn btn-primary apply-coupon">Apply</button></p>
+          {% if coupon_form.coupon.errors %}
+            <span class="help-inline">
+              {{ coupon_form.coupon.errors }}
+            </span>
+          {% endif %}
+        </div>
+      </form>
     </div>
     <div class="span3">
       <div class="cart-sub-total">
+        {% if cart.coupon %}
+          <p>Coupon: ({{ cart.coupon_amount|currency }})</p>
+        {% endif %}
         {% if cart.discount %}
           <p>Credit: ({{ cart.discount|currency }})</p>
         {% endif %}

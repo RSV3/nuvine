@@ -198,6 +198,15 @@
           <div class="control-group">
               <input type="text" size="5" value="{{ user.get_profile.stripe_card.billing_zipcode }}" placeholder="Billing zipcode" class="card-address-zip input-block-level" />
           </div>
+          <div class="control-group {% if coupon_form.coupon.errors %}error{% endif %}">
+            {{ coupon_form.coupon.label_tag }}
+            {{ coupon_form.coupon }} 
+            {% if coupon_form.coupon.errors %}
+              <span class="help-inline">
+                {{ coupon_form.coupon.errors }}
+              </span>
+            {% endif %}
+          </div>
           <div class="control-group">
             <label class="checkbox">
             {{ form.news_optin}} 

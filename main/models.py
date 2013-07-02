@@ -371,12 +371,31 @@ class Cart(models.Model):
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
   discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+  coupon = models.ForeignKey('coupon.Coupon', null=True)
+  coupon_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   # tracks activity in the carts
   adds = models.IntegerField(default=0)
   removes = models.IntegerField(default=0)
   # viewing cart
   views = models.IntegerField(default=0)
+
+  def apply_coupon(self):
+    if self.coupon:
+      subtotal_without_coupon_or_discount = 0
+      for o in self.items.all():
+        subtotal_without_coupon_or_discount += float(o.subtotal())
+
+      if self.coupon.amount_off:
+        coupon_off = self.coupon.amount_off
+      else:
+        coupon_off = self.coupon.percent_off/100.0 * subtotal_without_coupon_or_discount
+      max_coupon_off = subtotal_without_coupon_or_discount / 2
+      if coupon_off <= max_coupon_off:
+        return coupon_off
+      else:
+        return max_coupon_off
+    return 0
 
   def calculate_discount(self):
     '''
@@ -386,6 +405,9 @@ class Cart(models.Model):
     # dont apply when pro ordering for someone
     # if self.user != self.receiver:
     #   return 0
+
+    # first apply coupon if any
+    coupon_amount = self.apply_coupon()
 
     # dont apply for tasting kit
     items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
@@ -400,8 +422,7 @@ class Cart(models.Model):
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
-
-    max_discount = subtotal_without_discount / 2
+    max_discount = float(subtotal_without_discount / 2) - float(coupon_amount)
 
     if credit <= max_discount:
       applied_discount = credit
@@ -415,7 +436,7 @@ class Cart(models.Model):
     price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum - float(self.discount)
+    return price_sum - float(self.coupon_amount) - float(self.discount)
 
   def shipping(self):
     # NOTE: Quantity has different interpretations depending on if wine case or tasting kit

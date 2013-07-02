@@ -396,6 +396,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO'
         },
+        'coupon': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
     },
 }
 

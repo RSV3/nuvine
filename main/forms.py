@@ -4,7 +4,7 @@ from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
-from datetime import timedelta
+from django.db import transaction
 
 import django_tables2 as tables
 from django_tables2 import Attrs
@@ -14,7 +14,7 @@ from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote
+                        InvitationSent, Order, Product, ThankYouNote, Cart
 from main.utils import add_form_validation, business_days_count
 
 from accounts.models import Address, SubscriptionInfo, UserProfile, SUPPORTED_STATES
@@ -30,6 +30,43 @@ valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 import logging
 
 log = logging.getLogger(__name__)
+
+from coupon.models import Coupon
+
+
+class ApplyCouponForm(forms.ModelForm):
+  coupon = forms.CharField(max_length=16, widget=forms.TextInput, required=False, label='Coupon Code')
+
+  class Meta:
+    model = Cart
+    fields = ('coupon', )
+
+  def __init__(self, *args, **kwargs):
+    super(ApplyCouponForm, self).__init__(*args, **kwargs)
+    self.fields['coupon'].widget.attrs = {
+        'autocomplete': "off",
+        'class': "span2",
+    }
+
+  def clean_coupon(self):
+    # TODO check that it applies to this purchase
+    cleaned_data = self.cleaned_data['coupon']
+
+    try:
+      coupon = Coupon.objects.get(code=cleaned_data, active=True, redeem_by__gte=timezone.now().date())
+    except Coupon.DoesNotExist:
+      raise forms.ValidationError(u'That coupon code does not exist or is no longer valid.')
+
+    allowed_set = set(coupon.applies_to.all())
+    cart_set = set([x.product for x in self.instance.items.all()])
+    if not cart_set.issubset(allowed_set):
+      raise forms.ValidationError(u'This coupon is not valid for this purchase.')
+
+    with transaction.commit_on_success():
+      if coupon.times_redeemed >= coupon.max_redemptions:
+        raise forms.ValidationError(u'Coupon no longer valid. The maximum redemptions allowed have already been reached.')
+
+    return coupon
 
 
 class PartyEditDateForm(forms.ModelForm):
