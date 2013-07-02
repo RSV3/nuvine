@@ -21,6 +21,9 @@ class CouponForm(forms.ModelForm):
         'placeholder': 'MM/DD/YYYY',
     }
 
+    if kwargs.get('instance'):
+      self.fields['code'].widget.attrs['readonly'] = True
+
   def clean_redeem_by(self):
     cleaned_data = self.cleaned_data['redeem_by']
     today = timezone.now().date()
