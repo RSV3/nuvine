@@ -83,7 +83,7 @@ def profile(request):
   elif profile.is_host():
     parties = Party.objects.filter(host=u, event_date__gt=timezone.now())
     if parties.exists():
-      return HttpResponseRedirect(reverse('home_page'))
+      return HttpResponseRedirect(reverse('party_list'))
     elif profile.club_member:
       return HttpResponseRedirect(reverse('home_club_member'))
   elif profile.is_pro():

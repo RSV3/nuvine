@@ -1271,13 +1271,53 @@ class SimpleTest(TestCase):
   # Web Templates
   ######################################
   def home_template(self):
-    content = """
-      <h1>WITH VINELY YOU'RE THE WINE EXPERT.</h1>
-      <p>Discover your wine personality with friends at a Vinely Taste Party. We'll use that personality to select perfectly paired wine and ship wherever you sip. Interested? </p>
-
+    content_header = """
+    Change the way you experience wine
     """
-    template = ContentTemplate.objects.create(key="landing_page", category=1)
-    Section.objects.create(key='general', content=content, template=template)
+
+    content_overview1 = """
+    Tired of the guesswork of buying wine? Now Vinely makes it easy, convenient and fun.
+    """
+
+    content_overview2 = """
+    The Vinely experience is as simple as Sip, Rate and Repeat.
+    Treat your taste buds to wines you're guaranteed to love delivered right to your door.
+    """
+
+    content_host_section = """
+    <h1>Host a party</h1>
+    <p>
+    Pop the cork! <br/>
+    Learn about hosting <br />
+    a Vinely party
+    </p>
+    """
+
+    content_pro_section = """
+    <h1>Join the team</h1>
+    <p>
+    Take it to the next level <br/>
+    to earn a little or <br />
+    a lot...it's up to you!
+    </p>
+    """
+
+    template, created = ContentTemplate.objects.get_or_create(key="landing_page", category=1)
+    section, created = Section.objects.get_or_create(key="header", template=template)
+    section.content = content_header
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview_col1", template=template)
+    section.content = content_overview1
+    section.save()
+    section, created = Section.objects.get_or_create(key="overview_col2", template=template)
+    section.content = content_overview2
+    section.save()
+    section, created = Section.objects.get_or_create(key="host", template=template)
+    section.content = content_host_section
+    section.save()
+    section, created = Section.objects.get_or_create(key="pro", template=template)
+    section.content = content_pro_section
+    section.save()
 
   def our_story_template(self):
     content = """

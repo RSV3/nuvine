@@ -42,6 +42,8 @@ def home(request):
         return HttpResponseRedirect(reverse('home_page'))
       elif profile.club_member:
         return HttpResponseRedirect(reverse('home_club_member'))
+      else:
+        return HttpResponseRedirect(reverse('home_page'))
     else:
       return HttpResponseRedirect(reverse('home_page'))
 

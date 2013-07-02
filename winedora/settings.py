@@ -324,9 +324,9 @@ try:
   )
 except:
   CACHES = {
-    'default': {
-      'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-    }
+      'default': {
+          'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+      }
   }
 
 # A sample logging configuration. The only tangible logging
