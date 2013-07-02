@@ -118,7 +118,8 @@ class LoginResource(ModelResource):
         login(request, user)
         api_key, created = ApiKey.objects.get_or_create(user=user)
         return self.create_response(request, {
-            'api_key': api_key.key
+            'api_key': api_key.key,
+            'user': user.id
         })
       else:
         return self.create_response(request, {
