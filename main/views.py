@@ -18,7 +18,7 @@ from django.db.models import Sum
 from decimal import Decimal
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
+                        CustomizeOrder, Order, EngagementInterest, InvitationSent, ThankYouNote
 from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue, Zipcode, UserProfile
 
@@ -271,6 +271,7 @@ def start_order(request, receiver_id=None, party_id=None):
   party = None
   receiver = None
   u = request.user
+  profile = u.get_profile()
 
   if 'receiver_id' in request.session:
     del request.session['receiver_id']
@@ -292,15 +293,19 @@ def start_order(request, receiver_id=None, party_id=None):
   if receiver_id:
     # can only order for others if you are the pro
     if u.get_profile().is_pro():
-      try:
-        OrganizedParty.objects.get(party=party, pro=u)
-
-        # if not the pro then must have been invited to the party
-        if u != receiver:  # True for the pro
-          invite = PartyInvite.objects.get(invitee=receiver, party=party)
-      except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
+      if party.pro != u or (u != receiver and not PartyInvite.objects.filter(invitee=receiver, party=party).exists()):
         messages.error(request, 'You can only order for tasters at your own parties')
         return HttpResponseRedirect(reverse('party_list'))
+
+      # try:
+      #   OrganizedParty.objects.get(party=party, pro=u)
+
+      #   # if not the pro then must have been invited to the party
+      #   if u != receiver:  # True for the pro
+      #     invite = PartyInvite.objects.get(invitee=receiver, party=party)
+      # except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
+      #   messages.error(request, 'You can only order for tasters at your own parties')
+      #   return HttpResponseRedirect(reverse('party_list'))
 
     personality = receiver.get_profile().wine_personality
 
@@ -976,16 +981,16 @@ def party_list(request):
 
   today = timezone.now()
 
-  my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
-  my_parties = Party.objects.filter(Q(organizedparty__pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
+  my_pro_parties = Party.objects.filter(pro=u).distinct()
+  my_parties = Party.objects.filter(Q(pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
 
   if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
     # parties managed
-    data['pro_parties'] = my_parties.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
-    data['pro_past_parties'] = my_parties.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
+    data['pro_parties'] = my_parties.filter(pro=u, event_date__gte=party_valid_date).order_by('event_date')
+    data['pro_past_parties'] = my_parties.filter(pro=u, event_date__lt=party_valid_date).order_by('-event_date')
 
     # parties hosted
     data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
@@ -1021,7 +1026,7 @@ def party_host_list(request, host_name_email):
   host_name_email = host_name_email.strip()
 
   # show people who RSVP'ed to the party
-  my_parties = Party.objects.filter(organizedparty__pro=pro)
+  my_parties = Party.objects.filter(pro=pro)
   users = User.objects.filter(id__in=[x.host.id for x in my_parties])
   users = users.filter(Q(first_name__icontains=host_name_email) | Q(last_name__icontains=host_name_email) | Q(email__icontains=host_name_email)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
@@ -1040,7 +1045,7 @@ def my_taster_list(request, taster_name_email):
     users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   elif u.userprofile.is_pro():
     # only get users linked to this pro
-    my_guests = PartyInvite.objects.filter(party__organizedparty__pro=u)
+    my_guests = PartyInvite.objects.filter(party__pro=u)
     users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   else:
     # nothing
@@ -1083,6 +1088,7 @@ def party_add(request, party_id=None, party_pro=None):
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
+  initial_data['pro'] = u
 
   party = None
 
@@ -1090,7 +1096,7 @@ def party_add(request, party_id=None, party_pro=None):
     if u.userprofile.is_host():
       party = get_object_or_404(Party, pk=party_id, host=u)
     else:
-      party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+      party = get_object_or_404(Party, pk=party_id, pro=u)
 
     if party.event_date < timezone.now():
       messages.warning(request, "You cannot change party details for a past event.")
@@ -1121,8 +1127,7 @@ def party_add(request, party_id=None, party_pro=None):
 
   else:
     # is pro
-    initial_data['pro'] = u
-    parties = Party.objects.filter(organizedparty__pro=u).order_by('-id')
+    parties = Party.objects.filter(pro=u).order_by('-id')
     most_recent_party = parties[0] if parties.exists() else None
 
   if self_hosting:
@@ -1197,7 +1202,7 @@ def party_add(request, party_id=None, party_pro=None):
         applicable_pro = u
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
-      pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
+      # pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
       if applicable_pro:
         host_profile = new_host.get_profile()
         if not host_profile.current_pro:
@@ -1261,7 +1266,7 @@ def party_edit_date(request, party_id):
   u = request.user
 
   data = {}
-  party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+  party = get_object_or_404(Party, pk=party_id, pro=u)
   data['party'] = party
 
   initial_data = {}
@@ -1626,9 +1631,9 @@ def party_confirm(request, party_id):
   party.confirmed = True
   party.save()
 
-  org_party = OrganizedParty.objects.get(party=party)
-  org_party.pro = u
-  org_party.save()
+  # org_party = OrganizedParty.objects.get(party=party)
+  # org_party.pro = u
+  # org_party.save()
 
   if party.auto_invite:
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
@@ -1716,7 +1721,7 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
       parties = Party.objects.filter(host=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
     elif u.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
-      parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=yesterday)
+      parties = Party.objects.filter(pro=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
 
     data["form"] = form
@@ -1938,7 +1943,7 @@ def party_host_confirmation_preview(request, party_id, email_id):
 
   data = {}
 
-  party = get_object_or_404(Party, id=party_id, organizedparty__pro=u)
+  party = get_object_or_404(Party, id=party_id, pro=u)
 
   email = get_object_or_404(Email, pk=email_id)
   data["party"] = party

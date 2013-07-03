@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
 from optparse import make_option
 
-from main.models import OrganizedParty, MyHost, Party
+from main.models import MyHost, Party
 
 class Command(BaseCommand):
 
@@ -38,11 +38,11 @@ class Command(BaseCommand):
       old_pro = User.objects.get(email=options["oldpro"])
 
     p = Party.objects.get(host=host)
-    org = OrganizedParty.objects.get(party=p)
+    # org = OrganizedParty.objects.get(party=p)
     if not old_pro:
-      old_pro = org.pro
+      old_pro = p.pro
 
-    if old_pro != org.pro:
+    if old_pro != p.pro:
       print "Something is wrong, old pro is not same as current pro for the party"
       return
 
@@ -52,8 +52,8 @@ class Command(BaseCommand):
       print "New pro e-mail is needed"
       return
 
-    org.pro = new_pro
-    org.save()
+    p.pro = new_pro
+    p.save()
 
     # update pro host assignment
     myhost = MyHost.objects.filter(host=host).update(pro=new_pro)

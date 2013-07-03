@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from main.models import OrganizedParty, Party, PartyInvite, Product, LineItem, Cart, Order
+from main.models import Party, PartyInvite, Product, LineItem, Cart, Order
 from accounts.models import Address, CreditCard
 
 from datetime import timedelta
@@ -13,16 +13,16 @@ def create_party(pro, host, street1, city, state, zipcode, title, description, a
                                     city=city,
                                     state=state,
                                     zipcode=zipcode
-                                    )
+                                  )
 
   if event_date:
-    party = Party.objects.create(host=host, title=title, description=description,
+    party = Party.objects.create(host=host, title=title, description=description, pro=pro,
                               address=address, event_date=event_date)
   else:
-    party = Party.objects.create(host=host, title=title, description=description,
-                              address=address, event_date=timezone.now() + timedelta(days=10))   
+    party = Party.objects.create(host=host, title=title, description=description, pro=pro,
+                              address=address, event_date=timezone.now() + timedelta(days=10))
 
-  OrganizedParty.objects.create(pro=pro, party=party)
+  # OrganizedParty.objects.create(pro=pro, party=party)
 
   # invite people
   for att in attendees:
@@ -118,7 +118,7 @@ def create_non_party_orders(non_party_orders):
       party = party_invitations[0].party
     if party and party.event_date > timezone.now() - timedelta(days=7):
       # less than 7 days at the party so credit the party pro
-      credit_pro = OrganizedParty.objects.get(party=party).pro
+      credit_pro = party.pro
     else:
       # just make the purchase part of linked pro
       if order_request[3]:

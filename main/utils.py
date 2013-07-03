@@ -1247,7 +1247,7 @@ def calculate_host_credit(host):
   return applicable_credit if applicable_credit > 0 else 0
 
 from accounts.models import SubscriptionInfo
-from main.models import OrganizedParty
+# from main.models import OrganizedParty
 
 
 def calculate_pro_commission(pro):
@@ -1259,8 +1259,9 @@ def calculate_pro_commission(pro):
   # 12.5% for subscription, superior, divine
 
   # 1. Calculate for pro's parties
-  org_parties = OrganizedParty.objects.filter(pro=pro)
-  parties = [p.party for p in org_parties]
+  # org_parties = OrganizedParty.objects.filter(pro=pro)
+  # parties = [p.party for p in org_parties]
+  parties = Party.objects.filter(pro=pro)
   basic_total = other_total = freq_total = mentee_total = 0
   for party in parties:
     orders = Order.objects.filter(cart__party=party)
@@ -1286,8 +1287,9 @@ def calculate_pro_commission(pro):
   # 2. calculate for mentee's parties
   # 5% of mentee's retail sales if within 120 days of party
   mentees = User.objects.filter(userprofile__mentor=pro)
-  org_parties = OrganizedParty.objects.filter(pro__in=mentees)
-  parties = [p.party for p in org_parties]
+  # org_parties = OrganizedParty.objects.filter(pro__in=mentees)
+  # parties = [p.party for p in org_parties]
+  parties = Party.objects.filter(pro__in=mentees)
 
   for party in parties:
     # get orders made within 120 days after party

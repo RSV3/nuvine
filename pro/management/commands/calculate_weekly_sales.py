@@ -3,7 +3,7 @@ from optparse import make_option
 
 from django.utils import timezone
 from datetime import timedelta, datetime
-from main.models import Order, SubscriptionInfo, OrganizedParty
+from main.models import Order, SubscriptionInfo
 from pro.models import WeeklyCompensation
 
 
@@ -70,8 +70,8 @@ class Command(BaseCommand):
 
       # after getting tier, find out the pro that needs to be credited
       if party:
-        party_organizer = OrganizedParty.objects.get(party=party)
-        pro = party_organizer.pro
+        # party_organizer = OrganizedParty.objects.get(party=party)
+        pro = party.pro
       else:
         receiver_profile = o.receiver.get_profile()
         if receiver_profile.is_pro():
@@ -90,13 +90,13 @@ class Command(BaseCommand):
       else:
         # create new pro comp record
         pro_comp[pro.id] = {
-          'pro': pro,
-          'total_sales': 0,
-          'tier_a_sales': 0,
-          'tier_b_sales': 0,
-          'total_earnings': 0,
-          'tier_a_earnings': 0,
-          'tier_b_earnings': 0
+            'pro': pro,
+            'total_sales': 0,
+            'tier_a_sales': 0,
+            'tier_b_sales': 0,
+            'total_earnings': 0,
+            'tier_a_earnings': 0,
+            'tier_b_earnings': 0
         }
         pro_comp[pro.id]['total_sales'] += order_revenue
         if tier == 'A':
