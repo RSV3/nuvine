@@ -75,6 +75,7 @@ class SimpleTest(TestCase):
     ma_pro = create_user("specialist1@example.com", "hello")
     ma_pro.userprofile.role = ps_group
     ma_pro.userprofile.zipcode = '02139'
+    ma_pro.userprofile.mentor = mi_pro
     ma_pro.userprofile.save()
 
     u = create_user("specialist2@example.com", "hello")
@@ -373,6 +374,41 @@ class SimpleTest(TestCase):
     self.create_test_products()
     test = CMSTest()
     test.create_all_templates()
+
+  def test_json_calls(self):
+    import json
+    response = self.client.login(email='specialist1@example.com', password='hello')
+    self.assertTrue(response)
+
+    # ensure you only get people that have been to your party
+    # 1. without party should return empty lists
+    response = self.client.get(reverse('party_host_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 0)
+
+    response = self.client.get(reverse('my_taster_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 0)
+
+    self.create_party()
+
+    # 2. after a party should return list of people in previous party
+    response = self.client.get(reverse('party_host_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 1)
+
+    response = self.client.get(reverse('my_taster_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 5)
+
+    self.client.logout()
+
+    response = self.client.login(email='host1@example.com', password='hello')
+    self.assertTrue(response)
+
+    response = self.client.get(reverse('my_taster_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 5)
 
   def test_landing_page(self):
     personality = WinePersonality.objects.get(pk=1)
@@ -1462,5 +1498,8 @@ class SimpleTest(TestCase):
     subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
+
+    response = self.client.get(reverse('order_history'))
+    self.assertEquals(response.status_code, 200)
 
     self.client.logout()

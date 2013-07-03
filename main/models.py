@@ -54,7 +54,7 @@ class ContactRequest(models.Model):
 class Party(models.Model):
 
   # default to the name of the host
-  host = models.ForeignKey(User)
+  host = models.ForeignKey(User, related_name='host')
   title = models.CharField(max_length=128)
   description = models.TextField(blank=True, verbose_name="Special Instructions")
   address = models.ForeignKey(Address, blank=True, null=True)
@@ -70,6 +70,7 @@ class Party(models.Model):
   setup_stage = models.IntegerField(default=1)
   fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
   sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+  pro = models.ForeignKey(User, related_name='pro')
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -105,13 +106,13 @@ class Party(models.Model):
         url = 'party_review_request'
     return reverse(url, args=[self.id])
 
-  @property
-  def pro(self):
-    parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
-    if parties_organized.exists():
-      return parties_organized[0].pro
-    else:
-      return None
+  # @property
+  # def pro(self):
+  #   parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
+  #   if parties_organized.exists():
+  #     return parties_organized[0].pro
+  #   else:
+  #     return None
 
   def is_past_party(self):
     party_valid_date = timezone.now() - timedelta(hours=24)
