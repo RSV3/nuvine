@@ -162,8 +162,8 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='john.doe5@example.com')
-    pro = User.objects.get(email='johnstecco@gmail.com')
-    self.assertEquals(profile.current_pro, pro)
+    # pro = User.objects.get(email='johnstecco@gmail.com')
+    self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely + pro
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
@@ -238,8 +238,8 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='attendee3@example.com')
-    pro = User.objects.get(email='elizabeth@vinely.com')
-    self.assertEquals(profile.current_pro, pro)
+    # pro = User.objects.get(email='elizabeth@vinely.com')
+    self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
@@ -277,8 +277,25 @@ class SimpleTest(TestCase):
     self.assertEquals(response, True)
 
     pro = User.objects.get(email='attendee1@example.com')
-    pro.userprofile.role = UserProfile.ROLE_CHOICES[1][0]
     pro.userprofile.save()
+    self.assertFalse(pro.userprofile.is_pro())
+
+    mentor = User.objects.get(email='specialist1@example.com')
+
+    post_data = {
+        '_save': 'Save',
+        'user': pro.id,
+        'mentor': mentor.id,
+        'gender': pro.userprofile.gender,
+        'role': UserProfile.ROLE_CHOICES[2][0],
+        'wine_personality': pro.userprofile.wine_personality.id,
+        '_selected_action': pro.userprofile.id,
+    }
+
+    response = self.client.post('/admin/accounts/userprofile/%d/' % pro.userprofile.id, post_data)
+    self.assertContains(response, "You can only assign a mentor to a Vinely Pro")
+
+    pro = User.objects.get(email='specialist2@example.com')
     self.assertTrue(pro.userprofile.is_pro())
 
     mentor = User.objects.get(email='specialist1@example.com')
@@ -290,15 +307,16 @@ class SimpleTest(TestCase):
         'gender': pro.userprofile.gender,
         'role': UserProfile.ROLE_CHOICES[1][0],
         'wine_personality': pro.userprofile.wine_personality.id,
-        '_selected_action': pro.userprofile.id
+        '_selected_action': pro.userprofile.id,
+        'vinely_pro_account': 'VP00110A',
+        'account_credit': '0.0',
     }
-
     response = self.client.post('/admin/accounts/userprofile/%d/' % pro.userprofile.id, post_data)
     self.assertRedirects(response, '/admin/accounts/userprofile/')
     self.assertEquals(pro.get_profile().mentor, mentor)
 
     # emails sent
-    mentor_assigned_emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Congratulations! Vinely Mentor has been assigned to you.')
+    mentor_assigned_emails = Email.objects.filter(recipients="[u'specialist2@example.com']", subject='Congratulations! Vinely Mentor has been assigned to you.')
     self.assertTrue(mentor_assigned_emails.exists())
 
     mentee_assigned_emails = Email.objects.filter(recipients="[u'specialist1@example.com']", subject='Congratulations! Vinely Mentee has been assigned to you.')
@@ -418,13 +436,37 @@ class SimpleTest(TestCase):
     print "Information update test all work"
 
   def test_join_the_club_anon_user(self):
+    from emailusernames.utils import create_user
+
     response = self.client.get(reverse('join_club_start'))
     self.assertEquals(response.status_code, 200)
 
     # CASE A. NO ACCOUNT, NO PERSONALITY
 
-    # 0. Try to Join with existing user email
-    response = self.client.post(reverse('join_club_start'), {
+    # 0. Try to Join with existing user email - unverified/inactive account
+    u = create_user("somerandomuser@example.com", "hello")
+    u.is_active = False
+    u.save()
+    u.userprofile.role = 0
+    u.userprofile.save()
+
+    response = self.client.post(reverse('join_club_signup'), {
+        'first_name': 'somerandom',
+        'last_name': 'user',
+        'email': 'somerandomuser@example.com',
+        'phone_number': '6172342524',
+        'zipcode': '92612',
+        'password1': 'hello',
+        'password2': 'hello',
+        'join': 'join',
+    })
+
+    self.assertRedirects(response, reverse('join_club_shipping'))
+
+    self.client.logout()
+
+    # 0. Try to Join with existing user email - verified/active account
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'attendee',
         'last_name': 'one',
         'email': 'attendee1@example.com',
@@ -434,11 +476,10 @@ class SimpleTest(TestCase):
         'password2': 'hello',
         'join': 'join',
     })
-
     self.assertContains(response, "A user with that email already exists")
 
     # 0. join with fake pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member',
         'email': 'new.member@example.com',
@@ -453,7 +494,7 @@ class SimpleTest(TestCase):
     self.assertContains(response, "The Pro email you specified is not for a Vinley Pro")
 
     # 1. join without pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member',
         'email': 'new.member@example.com',
@@ -468,13 +509,13 @@ class SimpleTest(TestCase):
     self.assertTrue(member.is_authenticated())
 
     # should auto-assign? or set to default pro
-    self.assertTrue(member.userprofile.current_pro.email, 'elizabeth@vinely.com')
+    self.assertEquals(member.userprofile.current_pro, None)
     self.assertRedirects(response, reverse('join_club_shipping'))
 
     self.client.logout()
 
     # 2. join with pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
