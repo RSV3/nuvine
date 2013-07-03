@@ -6,8 +6,12 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+    depends_on = (
+        ("coupon", "0001_initial"),
+    )
 
     def forwards(self, orm):
+
         # Adding field 'Cart.coupon'
         db.add_column('main_cart', 'coupon',
                       self.gf('django.db.models.fields.related.ForeignKey')(to=orm['coupon.Coupon'], null=True),
@@ -18,14 +22,12 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=10, decimal_places=2),
                       keep_default=False)
 
-
     def backwards(self, orm):
         # Deleting field 'Cart.coupon'
         db.delete_column('main_cart', 'coupon_id')
 
         # Deleting field 'Cart.coupon_amount'
         db.delete_column('main_cart', 'coupon_amount')
-
 
     models = {
         'accounts.address': {
