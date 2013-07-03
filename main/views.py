@@ -935,32 +935,32 @@ def order_history(request):
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def parties(request):
-  """
-    Show list of parties
-  """
-  data = {}
+# @login_required
+# def parties(request):
+#   """
+#     Show list of parties
+#   """
+#   data = {}
 
-  data["parties"] = Party.objects.all()
-  data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
+#   data["parties"] = Party.objects.all()
+#   data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
 
-  return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def tag(request):
-  """
-    Tag a member with particular term
-    - people can edit tags
-    - ajax call
-    - log those people who added those tags
-  """
-  data = {}
+# @login_required
+# def tag(request):
+#   """
+#     Tag a member with particular term
+#     - people can edit tags
+#     - ajax call
+#     - log those people who added those tags
+#   """
+#   data = {}
 
-  data["result"] = "tagging successful"
+#   data["result"] = "tagging successful"
 
-  return HttpResponse(json.dumps(data), mimetype="application/json")
+#   return HttpResponse(json.dumps(data), mimetype="application/json")
 
 
 @login_required
@@ -1021,8 +1021,8 @@ def party_host_list(request, host_name_email):
   host_name_email = host_name_email.strip()
 
   # show people who RSVP'ed to the party
-  my_hosts = MyHost.objects.filter(pro=pro)
-  users = User.objects.filter(id__in=[x.host.id for x in my_hosts])
+  my_parties = Party.objects.filter(organizedparty__pro=pro)
+  users = User.objects.filter(id__in=[x.host.id for x in my_parties])
   users = users.filter(Q(first_name__icontains=host_name_email) | Q(last_name__icontains=host_name_email) | Q(email__icontains=host_name_email)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
