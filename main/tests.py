@@ -401,6 +401,15 @@ class SimpleTest(TestCase):
     data = json.loads(response.content)
     self.assertEquals(len(data), 5)
 
+    self.client.logout()
+
+    response = self.client.login(email='host1@example.com', password='hello')
+    self.assertTrue(response)
+
+    response = self.client.get(reverse('my_taster_list', args=['@']))
+    data = json.loads(response.content)
+    self.assertEquals(len(data), 5)
+
   def test_landing_page(self):
     personality = WinePersonality.objects.get(pk=1)
 
