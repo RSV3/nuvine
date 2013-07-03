@@ -144,6 +144,7 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
+    self.fields['pro'].widget = forms.HiddenInput()
     # self.fields['email'].widget.attrs['readonly'] = True
     self.fields['description'].required = False
     self.fields['description'].widget = forms.Textarea(attrs={'rows': 10, 'cols': 100, 'style': 'width: 80%;'})
@@ -195,22 +196,18 @@ class PartyCreateForm(forms.ModelForm):
     else:
       host_email = self.cleaned_data['email']
 
-    # 2. other than themselves, a pro cannot set another pro as host
-    if self.initial.get('pro'):
-      try:
-        user = User.objects.get(email=host_email)
-        # check that host is not another pro
-        if user.id != self.initial['pro'].id:
-          if user.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
-            self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
-      except User.DoesNotExist:
-        # user with this new e-mail will be created in clean
-        pass
-
     return host_email
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
+    pro_email = self.cleaned_data['email']
+
+    # other than themselves, a pro cannot set another pro as host
+    if pro_email != self.cleaned_data['pro'].email:
+        selected_host = User.objects.filter(email=pro_email)
+        if selected_host.exists() and selected_host[0].userprofile.role == UserProfile.ROLE_CHOICES[1][0]:
+          self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
+
     if self._errors.get('host'):
       self._errors['host'] = 'Pick a Host from the list or Enter the Host details below'
 

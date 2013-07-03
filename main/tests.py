@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.core.files import File
 from accounts.models import Address, Zipcode, UserProfile
 
-from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, Order, OrganizedParty, \
+from main.models import ContactReason, ContactRequest, Party, PartyInvite, Product, Order, \
                         Cart, LineItem
 from personality.models import Wine, WinePersonality
 from emailusernames.utils import create_user
@@ -638,6 +638,7 @@ class SimpleTest(TestCase):
 
     # 1. new host
     response = self.client.post(reverse('main.views.party_add'),  {'title': 'Another Weird Party',
+                                                      'pro': pro.id,
                                                       'phone': '555-617-6706',
                                                       'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
                                                       'event_time': '08:30 PM',
@@ -656,7 +657,7 @@ class SimpleTest(TestCase):
     self.assertTrue(party.host.userprofile.is_host())
     self.assertEquals(party.host.userprofile.current_pro, pro)
 
-    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
+    self.assertEquals(party.pro, pro)
 
     # check emails were sent
     # to host
@@ -672,6 +673,7 @@ class SimpleTest(TestCase):
 
     # 2. existing host
     response = self.client.post(reverse('main.views.party_add'),  {'title': 'Host Party',
+                                                      'pro': pro.id,
                                                       'phone': '555-617-6706',
                                                       'event_day': (timezone.now() + timedelta(days=10)).strftime('%m/%d/%Y'),
                                                       'event_time': '08:30 PM',
@@ -689,7 +691,7 @@ class SimpleTest(TestCase):
 
     self.assertEquals(party.host.userprofile.current_pro, pro)
 
-    self.assertTrue(OrganizedParty.objects.filter(party=party, pro=pro).exists())
+    self.assertEquals(party.pro, pro)
 
     # check emails were sent
     # to host
@@ -713,6 +715,7 @@ class SimpleTest(TestCase):
 
     party = self.create_party()
     party.confirmed = False
+    party.requested = True
     party.save()
 
     response = self.client.post(reverse('party_add', args=[party.id]), {
@@ -720,6 +723,7 @@ class SimpleTest(TestCase):
         'last_name': 'host.last_name',
         'email': host.email,
         'title': party.title,
+        'pro': party.pro.id,
         'event_time': party.event_date.strftime('%H:%M'),
         'event_day': party.event_date.strftime('%m/%d/%Y'),
         'party_id': party.id,
@@ -730,7 +734,7 @@ class SimpleTest(TestCase):
         'city': party.address.city,
         'next': 'next',
     })
-
+    # print response
     self.assertRedirects(response, reverse('party_write_invitation', args=[party.id]))
 
     response = self.client.post(reverse('party_write_invitation', args=[party.id]), {
@@ -1105,9 +1109,9 @@ class SimpleTest(TestCase):
                                       zipcode="49546-2342")
 
     party = Party.objects.create(host=host, title="John's party", description="Wine party on a sizzling hot day",
-                              address=address, event_date=timezone.now() + timedelta(days=10))
+                              address=address, event_date=timezone.now() + timedelta(days=10), pro=pro)
 
-    OrganizedParty.objects.create(pro=pro, party=party)
+    # OrganizedParty.objects.create(pro=pro, party=party)
     # invite people
     attendees = ['attendee1@example.com',
                   'attendee2@example.com',

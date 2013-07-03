@@ -54,7 +54,7 @@ class ContactRequest(models.Model):
 class Party(models.Model):
 
   # default to the name of the host
-  host = models.ForeignKey(User, related_name='host')
+  host = models.ForeignKey(User, related_name='host_parties')
   title = models.CharField(max_length=128)
   description = models.TextField(blank=True, verbose_name="Special Instructions")
   address = models.ForeignKey(Address, blank=True, null=True)
@@ -70,7 +70,7 @@ class Party(models.Model):
   setup_stage = models.IntegerField(default=1)
   fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
   sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
-  pro = models.ForeignKey(User, related_name='pro')
+  pro = models.ForeignKey(User, related_name='pro_parties')
 
   class Meta:
     verbose_name_plural = 'Parties'
