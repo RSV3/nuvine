@@ -54,32 +54,12 @@
             
   <div class="section" id="parties-and-events">
 <span id="ref-parties"></span><h1>Parties and Events<a class="headerlink" href="#parties-and-events" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="events">
-<h2>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
-<p>Vinely Events are public parties hosted by Vinely and users can come to the site and RSVP to attend.
-Generally no invitations are sent out for Events.</p>
-<p>Fetch event list</p>
-<dl class="get">
-<dt id="get--api-v1-event-">
-<tt class="descname">GET </tt><tt class="descname">/api/v1/event/</tt><a class="headerlink" href="#get--api-v1-event-" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p>This returns the list of all upcoming Vinely events.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Past events are not returned</p>
-</div>
-<p>Fetch information about a specific event</p>
-<dl class="get">
-<dt id="get--api-v1-event-{id}-">
-<tt class="descname">GET </tt><tt class="descname">/api/v1/event/{id}/</tt><a class="headerlink" href="#get--api-v1-event-{id}-" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
 <div class="section" id="party">
 <h2>Party<a class="headerlink" href="#party" title="Permalink to this headline">¶</a></h2>
 <p>Vinely Parties are private parties where someone has to be invited in order to attend.
 Invitations are sent out via mail which contains an RSVP link.</p>
+<p>Vinely Events are public parties hosted by Vinely and users can come to the site and RSVP to attend.
+Generally no invitations are sent out for Events.</p>
 <p>Fetch a list of upcoming parties that a user has been invited to</p>
 <dl class="get">
 <dt id="get--api-v1-party-">
@@ -88,7 +68,7 @@ Invitations are sent out via mail which contains an RSVP link.</p>
 
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Past parties are not returned</p>
+<p class="last">Past parties and events are not returned</p>
 </div>
 <p>Fetch information about a specific party</p>
 <dl class="get">
@@ -96,6 +76,26 @@ Invitations are sent out via mail which contains an RSVP link.</p>
 <tt class="descname">GET </tt><tt class="descname">/api/v1/party/{id}/</tt><a class="headerlink" href="#get--api-v1-party-{id}-" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The party details have a property called <tt class="docutils literal"><span class="pre">is_event</span></tt> to distinguish between Vinely events and private parties.</p>
+</div>
+<div class="section" id="filtering-parties">
+<h3>Filtering parties<a class="headerlink" href="#filtering-parties" title="Permalink to this headline">¶</a></h3>
+<p>By default <tt class="docutils literal"><span class="pre">/api/v1/party</span></tt> returns a list of all upcoming parties</p>
+<p><em>Only My Parties</em></p>
+<dl class="get">
+<dt id="get--api-v1-party-?me=1">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/party/?me=1</tt><a class="headerlink" href="#get--api-v1-party-?me=1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p><em>Filtering parties by title</em></p>
+<dl class="get">
+<dt id="get--api-v1-party-?title=icontains=-party title-">
+<tt class="descname">GET </tt><tt class="descname">/api/v1/party/?title=icontains=&lt;party title&gt;</tt><a class="headerlink" href="#get--api-v1-party-?title=icontains=-party title-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 </div>
 <div class="section" id="party-invitations-and-rsvp">
 <h2>Party Invitations and RSVP<a class="headerlink" href="#party-invitations-and-rsvp" title="Permalink to this headline">¶</a></h2>
@@ -172,8 +172,10 @@ and email of the <tt class="docutils literal"><span class="pre">invitee</span></
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Parties and Events</a><ul>
-<li><a class="reference internal" href="#events">Events</a></li>
-<li><a class="reference internal" href="#party">Party</a></li>
+<li><a class="reference internal" href="#party">Party</a><ul>
+<li><a class="reference internal" href="#filtering-parties">Filtering parties</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#party-invitations-and-rsvp">Party Invitations and RSVP</a></li>
 </ul>
 </li>

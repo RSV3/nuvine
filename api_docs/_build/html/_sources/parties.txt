@@ -1,47 +1,45 @@
 .. _ref-parties:
 
-==================
 Parties and Events
-==================
-
-
-Events
-------
-
-Vinely Events are public parties hosted by Vinely and users can come to the site and RSVP to attend.
-Generally no invitations are sent out for Events.
-
-Fetch event list
-
-.. http:GET:: /api/v1/event/
-
-This returns the list of all upcoming Vinely events.
-
-.. NOTE:: Past events are not returned
-
-Fetch information about a specific event
-
-.. http:GET:: /api/v1/event/{id}/
+##################
 
 Party
------
+=====
 
 Vinely Parties are private parties where someone has to be invited in order to attend. 
 Invitations are sent out via mail which contains an RSVP link.
+
+Vinely Events are public parties hosted by Vinely and users can come to the site and RSVP to attend.
+Generally no invitations are sent out for Events.
 
 Fetch a list of upcoming parties that a user has been invited to
 
 .. http:GET:: /api/v1/party/
 
-.. NOTE:: Past parties are not returned
+.. NOTE:: Past parties and events are not returned
 
 Fetch information about a specific party
 
 .. http:GET:: /api/v1/party/{id}/
 
+.. NOTE:: The party details have a property called ``is_event`` to distinguish between Vinely events and private parties.
+
+Filtering parties
+-----------------
+
+By default ``/api/v1/party`` returns a list of all upcoming parties
+
+*Only My Parties*
+
+.. http:GET:: /api/v1/party/?me=1
+
+*Filtering parties by title*
+
+.. http:GET:: /api/v1/party/?title=icontains=<party title>
+
 
 Party Invitations and RSVP
---------------------------
+==========================
 Every Vinely Party/Event has party invites that associate users with a party.
 
 Fetch a list of all party invitations

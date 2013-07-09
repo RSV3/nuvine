@@ -1,6 +1,6 @@
 
 from lepl.apps.rfc3696 import Email
-from tastypie.resources import ModelResource, Resource
+from tastypie.resources import ModelResource
 from tastypie.authentication import MultiAuthentication
 from tastypie.authorization import Authorization
 from tastypie.http import HttpUnauthorized, HttpForbidden
@@ -8,6 +8,7 @@ from tastypie.utils import trailing_slash
 from tastypie import fields
 from tastypie.validation import FormValidation
 from tastypie.models import ApiKey
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
 
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
@@ -165,19 +166,34 @@ class AddressResource(ModelResource):
 class PartyResource(ModelResource):
   address = fields.ToOneField(AddressResource, 'address', full=True)
   host = fields.ToOneField('api.resources.UserResource', 'host', null=True)
+  is_event = fields.BooleanField()
 
   class Meta:
-    queryset = Party.objects.exclude(host__email='events@vinely.com')
+    queryset = Party.objects.all()  # exclude(host__email='events@vinely.com')
     allowed_methods = ['get']
-    fields = ['title', 'description', 'id', 'fee', 'event_date', 'phone']
-    authorization = UserObjectsOnlyAuthorization()
+    fields = ['title', 'description', 'id', 'fee', 'event_date', 'phone', 'is_event']
+    # authorization = UserObjectsOnlyAuthorization()
+    authorization = Authorization()
     authentication = MultiAuthentication(*authentication_backends)
+    filtering = {
+        "invitee": ('exact'),
+        "title": ALL,
+    }
+
+  def dehydrate_is_event(self, bundle):
+    return bundle.obj.is_events_party
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future parties
     today = timezone.now()
     objects = super(PartyResource, self).obj_get_list(bundle, **kwargs)
+    # filtered_objects = objects.filter(event_date__gt=today, confirmed=True).order_by('event_date')
     filtered_objects = objects.filter(event_date__gt=today).order_by('event_date')
+    invitee_filter = bundle.request.GET.get('me', None)
+    if invitee_filter:
+      return filtered_objects.filter(partyinvite__invitee__id=bundle.request.user.id)
+    # if invitee_filter:
+    #   filtered_objects = filtered_objects.filter(partyinvite__invitee__id=invitee_filter, partyinvite__invitee__id=bundle.obj.id)
     return filtered_objects
 
 
