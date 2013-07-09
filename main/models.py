@@ -55,7 +55,7 @@ class Party(models.Model):
 
   # default to the name of the host
   host = models.ForeignKey(User, related_name='host_parties')
-  title = models.CharField(max_length=128)
+  title = models.CharField(max_length=128, db_index=True)
   description = models.TextField(blank=True, verbose_name="Special Instructions")
   address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)

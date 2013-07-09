@@ -585,6 +585,62 @@ class SimpleTest(TestCase):
     response = self.client.get(reverse('accounts_profile'))
     self.assertRedirects(response, reverse('home_club_member'))
 
+  def test_party_rsvp(self):
+    party = self.create_party()
+    taster = User.objects.get(email='attendee1@example.com')
+    taster2 = User.objects.get(email='attendee2@example.com')
+    invitation = PartyInvite.objects.get(party=party, invitee=taster)
+
+    # can access rsvp page without logging in
+    response = self.client.get(reverse('party_rsvp', args=[invitation.rsvp_code, party.id]))
+    self.assertEquals(response.status_code, 200)
+
+    birth_date = timezone.now() - timedelta(days=21 * 360)
+
+    # no dob
+    response = self.client.post(reverse('party_rsvp', args=[invitation.rsvp_code, party.id, 3]), {})
+    self.assertContains(response, "required")
+
+    # ensure age validation
+    response = self.client.post(reverse('party_rsvp', args=[invitation.rsvp_code, party.id, 3]),
+      {
+          # 'dob': birth_date.strftime('%m/%d/%Y'),
+          'dob_month': birth_date.month,
+          'dob_day': birth_date.day,
+          'dob_year': birth_date.year,
+          'mentor': 1,
+          'gender': 1,
+          'user': taster.id,
+      }
+    )
+    # self.assertContains(response, "The Date of Birth shows that you are not over 21")
+    invitation = PartyInvite.objects.get(party=party, invitee=taster)
+    self.assertEquals(invitation.response, 4)  # under age
+
+    birth_date = timezone.now() - timedelta(days=30 * 365)
+    taster2 = User.objects.get(email='attendee2@example.com')
+    invitation = PartyInvite.objects.get(party=party, invitee=taster2)
+    response = self.client.post(reverse('party_rsvp', args=[invitation.rsvp_code, party.id, 3]),
+      {
+          'dob_month': birth_date.month,
+          'dob_day': birth_date.day,
+          'dob_year': birth_date.year,
+          'mentor': 1,
+          'gender': 1,
+          'user': taster2.id,
+      }
+    )
+    self.assertEquals(invitation.response, 0)
+
+    response = self.client.get(reverse('party_rsvp', args=[invitation.rsvp_code, party.id, 3]))
+    # print 'response.content', response.content
+    self.assertEquals(response.status_code, 200)
+    invitation = PartyInvite.objects.get(party=party, invitee=taster2)
+    self.assertEquals(invitation.response, 3)
+
+    # add taster from rsvp if page party allows it
+    # can only access own rsvp when logged in
+
   def test_static_pages(self):
     response = self.client.get(reverse('our_story'))
     self.assertEquals(response.status_code, 200)
