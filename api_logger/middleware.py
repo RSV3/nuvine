@@ -18,7 +18,7 @@ class APILogMiddleWare(object):
             return
 
         post_data = {}
-        if request.method == 'POST':
+        if request.method in ['POST', 'PUT']:
             post_data = request.raw_post_data
 
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)

@@ -314,6 +314,7 @@ class ProfileResource(ModelResource):
     include_resource_uri = True
     authorization = UserObjectsOnlyAuthorization()
     authentication = MultiAuthentication(*authentication_backends)
+    always_return_data = True
 
 
 class UserResource(ModelResource):
