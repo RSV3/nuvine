@@ -176,7 +176,6 @@ class PartyResource(ModelResource):
     authorization = Authorization()
     authentication = MultiAuthentication(*authentication_backends)
     filtering = {
-        "invitee": ('exact'),
         "title": ALL,
     }
 
