@@ -798,6 +798,8 @@ def place_order(request):
         if non_sub_orders.exists() and not sub_orders.exists():
           invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
           invoice.pay()
+          order.stripe_invoice = invoice.id
+          order.save()
 
         # if subscription exists then create plan
         if sub_orders.exists():

@@ -519,6 +519,7 @@ class Order(models.Model):
   credit_card = models.ForeignKey(CreditCard, null=True)
   stripe_card = models.ForeignKey(StripeCard, null=True)
   order_date = models.DateTimeField(auto_now_add=True)
+  stripe_invoice = models.CharField(max_length=20, blank=True)
 
   FULFILL_CHOICES = (
       (0, 'Not Ordered'),

@@ -6,28 +6,18 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
-    depends_on = (
-        ("coupon", "0001_initial"),
-    )
 
     def forwards(self, orm):
-
-        # Adding field 'Cart.coupon'
-        db.add_column('main_cart', 'coupon',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['coupon.Coupon'], null=True),
+        # Adding field 'Order.stripe_invoice'
+        db.add_column('main_order', 'stripe_invoice',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=20, blank=True),
                       keep_default=False)
 
-        # Adding field 'Cart.coupon_amount'
-        db.add_column('main_cart', 'coupon_amount',
-                      self.gf('django.db.models.fields.DecimalField')(default=0, max_digits=10, decimal_places=2),
-                      keep_default=False)
 
     def backwards(self, orm):
-        # Deleting field 'Cart.coupon'
-        db.delete_column('main_cart', 'coupon_id')
+        # Deleting field 'Order.stripe_invoice'
+        db.delete_column('main_order', 'stripe_invoice')
 
-        # Deleting field 'Cart.coupon_amount'
-        db.delete_column('main_cart', 'coupon_amount')
 
     models = {
         'accounts.address': {
@@ -201,6 +191,7 @@ class Migration(SchemaMigration):
             'ship_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Address']", 'null': 'True'}),
             'stripe_card': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['stripecard.StripeCard']", 'null': 'True'}),
+            'stripe_invoice': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
             'tracking_number': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'})
         },
         'main.orderreview': {
@@ -251,7 +242,7 @@ class Migration(SchemaMigration):
             'response': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'response_timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'rsvp_code': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
-            'sales': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '10', 'decimal_places': '2'})
+            'sales': ('django.db.models.fields.DecimalField', [], {'default': '0', 'max_digits': '10', 'decimal_places': '2', 'blank': 'True'})
         },
         'main.personalog': {
             'Meta': {'object_name': 'PersonaLog'},

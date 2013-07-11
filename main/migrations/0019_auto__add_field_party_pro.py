@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Party.pro'
         db.add_column('main_party', 'pro',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='pro', to=orm['auth.User']),
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='pro_parties', to=orm['auth.User']),
                       keep_default=False)
 
     def backwards(self, orm):

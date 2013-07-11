@@ -66,6 +66,7 @@ def invoice_created(event_json):
     data = event_json['data']['object']
     customer = data['customer']
     paid = data['paid']
+    invoice_id = data['id']
     # print event_json
     if paid:
         # first time subscriptions are charged immediately
@@ -111,7 +112,7 @@ def invoice_created(event_json):
         sub_total = data['subtotal']
         # only need to add tax info
         stripe.InvoiceItem.create(customer=profile.stripe_card.stripe_user, amount=int(tax(sub_total, profile)), currency='usd', description='Tax')
-        subscription.update_subscription_order(charge_stripe=False)
+        subscription.update_subscription_order(charge_stripe=False, invoice_id=invoice_id)
 
 
 # NOTE: invoice_created_old below might be necessary once we allow multiple descriptions

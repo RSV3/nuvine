@@ -553,7 +553,7 @@ class SubscriptionInfo(models.Model):
     # return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
     return "%s" % (self.get_quantity_display())
 
-  def update_subscription_order(self, charge_stripe=True):
+  def update_subscription_order(self, charge_stripe=True, invoice_id=''):
     from main.models import Cart, Order, Product, PartyInvite, LineItem
     from main.utils import send_order_confirmation_email
 
@@ -695,6 +695,7 @@ class SubscriptionInfo(models.Model):
     else:
       order.credit_card = prof.credit_card
 
+    order.stripe_invoice = invoice_id
     order.assign_new_order_id()
     order.save()
 
