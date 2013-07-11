@@ -805,6 +805,11 @@ def place_order(request):
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
+          # trial_end_date = datetime.now(tz=UTC()) + timedelta(hours=7)
+          # import time
+          # trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
+          # print 'trial_end_timestamp', trial_end_timestamp
+          # customer.update_subscription(plan=stripe_plan, trial_end=trial_end_timestamp)
 
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])

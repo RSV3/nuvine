@@ -299,10 +299,10 @@ class UserProfile(models.Model):
     stripe_card = self.stripe_card
 
     if user_state in Cart.STRIPE_STATES:
-      if user_state == 'MI':
-        stripe.api_key = settings.STRIPE_SECRET
-      elif user_state == 'CA':
-        stripe.api_key = settings.STRIPE_SECRET_CA
+      # if user_state == 'MI':
+      #   stripe.api_key = settings.STRIPE_SECRET
+      # elif user_state == 'CA':
+      stripe.api_key = settings.STRIPE_SECRET_CA
 
       if stripe_card:
         customer = stripe.Customer.retrieve(id=stripe_card.stripe_user)
@@ -393,6 +393,9 @@ class UserProfile(models.Model):
       self.shipping_address.state
       customer = stripe.Customer.retrieve(id=self.stripe_card.stripe_user)
       customer.cancel_subscription()
+
+    self.club_member = False
+    self.save()
 
   def personality_rating_code(self):
     html = '''
