@@ -13,9 +13,10 @@ from datetime import timedelta, datetime
 from django.conf import settings
 
 from main.models import ProSignupLog, Cart, Order, Product
-from accounts.models import VerificationQueue, UserProfile
+from accounts.models import VerificationQueue, UserProfile, Address, SubscriptionInfo
 from support.models import Email
 from personality.models import WinePersonality
+from stripecard.models import StripeCard
 
 from cms.tests import SimpleTest as CMSTest
 from main.tests import SimpleTest as MainTest
@@ -761,6 +762,122 @@ class SimpleTest(TestCase):
 
     response = self.client.get(reverse('join_club_signup'))
     self.assertEquals(response.status_code, 200)
+
+  def test_update_subscription(self):
+    response = self.client.login(email='attendee6@example.com', password='hello')
+    self.assertTrue(response)
+
+    user = User.objects.get(email='attendee6@example.com')
+    # user.userprofile.credit_card = user.userprofile.stripe_card = None
+    # user.userprofile.save()
+
+    # 1. new user subscription - no personality, no prev subscription, no CCard, no shipping addr
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You need to first participate in a tasting party to find out your wine personality")
+
+    # 1. new user subscription - has personality, no prev subscription, no CCard, no shipping addr
+    user.userprofile.wine_personality = WinePersonality.objects.get(id=1)
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You have no credit card on file yet to order.")
+
+    import stripe
+    from django.conf import settings
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (user.first_name, user.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+    customer = stripe.Customer.create(card=token.id, email=user.email)
+
+    card_info = {
+        "stripe_user": customer.id,
+        "exp_month": token.card.exp_month,
+        "exp_year": token.card.exp_year,
+        "last_four": token.card.last4,
+        "billing_zipcode": token.card.address_zip,
+        "card_type": token.card.type,
+    }
+    stripe_card = StripeCard.objects.create(**card_info)
+    user.userprofile.stripe_card = stripe_card
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You need to update your shipping address before you can make a subscription")
+
+    shipping_info = {
+        'street1': '65 Gordon St.',
+        'city': 'San Fransisco',
+        'state': 'CA',
+        'zipcode': '92612',
+    }
+    address = Address.objects.create(**shipping_info)
+    user.userprofile.shipping_address = address
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertEquals(response.status_code, 200)
+    self.assertContains(response, "Stripe subscription successfully updated.")
+    self.assertTrue(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=12).exists())
+
+    # 2. user changes subscription to 6 bottles
+    self.assertFalse(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=13).exists())
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 13,
+    })
+
+    self.assertEquals(response.status_code, 200)
+    self.assertContains(response, "Stripe subscription successfully updated.")
+    self.assertContains(response, "Your subscription will be updated for the next month.")
+    self.assertTrue(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=13).exists())
+
+    # 3. user cancels subscription
+    response = self.client.get(reverse('cancel_subscription'))
+    self.assertRedirects(response, reverse('edit_subscription'))
+
+    subscription = SubscriptionInfo.objects.filter(user=user).order_by('-id')[0]
+    self.assertEquals(subscription.frequency, 9)
+    self.assertEquals(subscription.quantity, 0)
+
+    profile = UserProfile.objects.get(user=user)
+    self.assertFalse(profile.club_member)
+
+    customer.delete()
+
+  def test_nearest_pro(self):
+    pass
 
   def test_user_rsvp_without_signup(self):
     pass
