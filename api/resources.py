@@ -176,7 +176,7 @@ class PartyResource(ModelResource):
     authorization = Authorization()
     authentication = MultiAuthentication(*authentication_backends)
     filtering = {
-        "title": ALL,
+        "title": ['icontains'],
     }
 
   def dehydrate_is_event(self, bundle):
