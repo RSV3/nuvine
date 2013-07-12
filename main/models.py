@@ -21,7 +21,7 @@ from personality.models import Wine, TastingKit
 
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 
@@ -197,6 +197,38 @@ class Party(models.Model):
     freq_aggr = freq_orders.aggregate(total=Sum('cart__items__total_price'))
     freq_total += freq_aggr['total'] if freq_aggr['total'] else 0
     return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total))
+
+
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+
+
+@receiver(post_save, sender=Party)
+def schedule_thank_notes_async(sender, instance, **kwargs):
+  logger.info("Scheduling Thank you notes")
+  from main.tasks import schedule_thank_notes
+  try:
+    if instance.confirmed and instance.auto_thank_you:
+      when = instance.event_date + timedelta(days=1)
+
+      if schedule_thank_notes.exists_for(instance):
+        schedule_thank_notes.terminate(instance)
+
+      # non-keyword args to apply_async should be passed as a list/tuple
+      schedule_thank_notes.apply_async([instance], eta=when, instance=instance)
+      logger.info("Auto scheduling of thank you notes completed.")
+  except Exception, e:
+    logger.error("Error: %s Celery is not running/properly configured. Auto-sending of 'Thank You Notes' could not be scheduled." % e)
+
+
+@receiver(pre_delete, sender=Party)
+def delete_scheduled_thank_notes(sender, instance, **kwargs):
+  from main.tasks import schedule_thank_notes
+  try:
+    if instance.confirmed and instance.auto_thank_you and schedule_thank_notes.exists_for(instance):
+      schedule_thank_notes.terminate(instance)
+  except:
+    logger.error("Error: Celery is not running/properly configured. The scheduled Thank You Notes could not be terminated.")
 
 
 class PartyInvite(models.Model):
@@ -819,3 +851,35 @@ class NewHostNoParty(models.Model):
 
 class UnconfirmedParty(models.Model):
   party = models.ForeignKey(Party)
+
+
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
+
+# ref: http://engineering.hackerearth.com/2013/06/05/scheduling-emails-with-celery-in-django/
+class ModelTask(models.Model):
+  """
+  For storing all scheduled tasks
+  """
+  task_id = models.CharField(max_length=36)
+  name = models.CharField(max_length=200)
+  content_type = models.ForeignKey(ContentType)
+  object_id = models.PositiveIntegerField()
+  content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+  def __unicode__(self):
+    return "%s - %s" % (self.name, self.content_object)
+
+  @staticmethod
+  def create(async_result, instance):
+    return ModelTask.objects.create(task_id=async_result.task_id,
+            name=async_result.task_name, content_object=instance)
+
+  @staticmethod
+  def filter(task, instance):
+    content_type = ContentType.objects.get_for_model(instance)
+    object_id = instance.id
+    return ModelTask.objects.filter(content_type=content_type,
+            object_id=object_id, name=task.name)

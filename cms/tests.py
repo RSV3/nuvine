@@ -1244,7 +1244,7 @@ class SimpleTest(TestCase):
     Remember, your satisfaction isn't just a goal, it's our guarantee!
     {% endif %}
 
-    {{ custom_message }}
+    {% if custom_message %}{{ custom_message }}{% endif %}
 
     {% if sig %}<div class="signature"><img src="{% static "img/vinely_logo_signature.png" %}"></div>{% endif %}
 
