@@ -205,7 +205,6 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=Party)
 def schedule_thank_notes_async(sender, instance, **kwargs):
-  logger.info("Scheduling Thank you notes")
   from main.tasks import schedule_thank_notes
   try:
     if instance.confirmed and instance.auto_thank_you:

@@ -1,5 +1,13 @@
 {% extends "winedora/base_html5.html" %}
 
+{% block additional_styles %}
+  <style type="text/css">
+    a:visited {
+      color: #DD4040;
+      text-decoration: none;
+    }
+  </style>
+{% endblock additional_styles %}
 
 {% block header %}
     <h1 class="headline">Vinely Administration</h1>
@@ -18,19 +26,17 @@
         </ul>
       </div>
       <div class="span4">
-        {% comment %}
         <h1>Users</h1>
         <ul>
           <li><a href="{% url support:view_users %}">Manage</a></li>
           <li><a href="#">Reports</a></li>
         </ul>
-        {% endcomment %}
       </div>
       <div class="span3">
         <h1>Pros</h1>
         <ul>
           <li><a href="#">Manage</a></li>
-          <li><a href="#">Reports</a></li>
+          <li><a href="{% url pro:pro_home %}">Reports</a></li>
         </ul>
       </div>
     </div>

@@ -1,3 +1,5 @@
+from django.utils.safestring import mark_safe
+
 from django_tables2 import tables
 from django_tables2 import columns
 from django_tables2.utils import A
@@ -66,20 +68,25 @@ class UserTable(tables.Table):
 
 
 class OrderHistoryTable(tables.Table):
-  vinely_order_id = columns.LinkColumn('order_complete', args=[A('order_id')], order_by=('id'))
+  vinely_order_id = columns.LinkColumn('support:edit_order', args=[A('id')], order_by=('id'))
+  # vinely_order_id = columns.TemplateColumn('<a href="{% url edit_order record.id %}>{{ record.vinely_order_id }}</a>', order_by=('id'))
   order_date = columns.TemplateColumn('{{ record.order_date|date:"F j, o" }}', order_by=('order_date'))
   receiver = columns.Column(verbose_name='Ordered For', order_by=('receiver.first_name', 'receiver.last_name'))
   order_total = columns.Column(verbose_name='Order Total', accessor='cart.total')
+  refund = columns.Column(orderable=False, accessor='stripe_invoice', verbose_name='Refund')
   # fulfill_status = columns.Column(verbose_name='Order Status')
 
   class Meta:
     model = Order
     attrs = {'class': 'table table-striped'}
-    fields = ('vinely_order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status')
+    fields = ('vinely_order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status', 'refund')
 
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user')
     super(OrderHistoryTable, self).__init__(*args, **kwargs)
+
+  def render_order_total(self, record, column):
+    return "$%0.2f" % record.cart.total()
 
   def render_receiver(self, record, column):
     if self.user == record.receiver:
@@ -88,6 +95,11 @@ class OrderHistoryTable(tables.Table):
       return "%s %s" % (record.receiver.first_name, record.receiver.last_name)
     else:
       return "Anonymous"
+
+  def render_refund(self, record, column):
+    if record.stripe_invoice:
+      return mark_safe('<a href="javascript:;" class="btn btn-primary refund">Refund</a>')
+    return ''
 
 
 class PartyTable(tables.Table):

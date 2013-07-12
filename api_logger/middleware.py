@@ -2,7 +2,6 @@
 from django.core.exceptions import MiddlewareNotUsed
 from django.conf import settings
 from api_logger.models import APILog
-# import json
 
 
 class APILogMiddleWare(object):

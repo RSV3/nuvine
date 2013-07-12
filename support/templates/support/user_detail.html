@@ -21,6 +21,10 @@
   .user-detail-table td:first-child {
     font-weight: bold;
   }
+  a:visited {
+    color: #DD4040;
+    text-decoration: none;
+  }
 </style>
 {% endblock %}
 
@@ -90,9 +94,11 @@
   </div>
   <div class="row">
     <div class="span12">
-      <button class="btn btn-success pull-right">Place Order</button>
+      <a href="{% url my_information %}?__impersonate={{ user_detail.id }}" class="btn btn-success pull-right">Edit Info</a>
       <span class="pull-right">&nbsp;</span>
-      <button class="btn btn-success pull-right">Issue Refund</button> 
+      <a href="{% url start_order %}?__impersonate={{ user_detail.id }}" class="btn btn-success pull-right">Place Order</a>
+      <span class="pull-right">&nbsp;</span>
+      <!-- <button class="btn btn-success pull-right">Issue Refund</button>  -->
     </div>
   </div>
   <div class="vertical-space"></div>

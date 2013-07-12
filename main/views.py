@@ -760,7 +760,6 @@ def place_order(request):
         # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
         coupon_id = "%s" % order.vinely_order_id
         if cart.coupon_amount > 0:
-          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
           coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
           # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
           # customer.coupon = coupon.id
@@ -778,6 +777,7 @@ def place_order(request):
           receiver_profile.save()
 
         if cart.coupon_amount > 0 or cart.discount > 0:
+          customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
           total_off = Decimal(cart.discount) + Decimal(cart.coupon_amount)
           coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
           customer.coupon = coupon.id

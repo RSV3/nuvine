@@ -72,6 +72,11 @@
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static "html5/img/apple-touch-icon-72x72-precomposed.png" %}">
   <link rel="apple-touch-icon-precomposed" sizes="57x57" href="{% static "html5/img/apple-touch-icon-57x57-precomposed.png" %}">
   <style type="text/css">
+    {% if impersonation_mode %}
+      body {
+        margin-top: 25px;
+      }
+    {% endif %}
     .brand {
       margin-left: -40px;
     }
@@ -110,6 +115,13 @@
        chromium.org/developers/how-tos/chrome-frame-getting-started -->
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
   <div class="container">
+    {% if impersonation_mode %}
+      <div class="alert alert-error center impersonation">
+        You are operating in impersonation mode as &lt;{{ request.user.email }}&gt;.
+        <a href="{% url support:admin_index %}?__unimpersonate">Return to normal mode.</a>
+      </div>
+    {% endif %}
+
     <div class="row">
     </div>
 

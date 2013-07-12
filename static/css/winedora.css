@@ -1,8 +1,20 @@
 body {
   background: url('../img/site_background_pattern.png');
-  letter-spacing:0px;
+  letter-spacing: 0;
 }
 
+.impersonation {
+  top: 0;
+  left: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
+
+.impersonation a {
+  color: #DD4040;
+  text-decoration: none;
+}
 /* utilities */
 .vertical-space {
   margin-bottom: 25px;
