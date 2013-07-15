@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-
+from support.views import view_party_detail
 urlpatterns = patterns('support.views',
     url(r'^$', 'admin_index', name='admin_index'),
     url(r'^subscriptions/manage/$', 'manage_subscriptions', name='manage_subscriptions'),

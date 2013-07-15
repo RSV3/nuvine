@@ -1,12 +1,14 @@
 from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
 
 from django_tables2 import tables
 from django_tables2 import columns
 from django_tables2.utils import A
 from django_tables2 import Attrs
 from support.models import WineInventory, TastingKitInventory
-from main.models import Order
+from main.models import Order, PartyInvite
 from accounts.models import User
+from main.forms import AttendeesTable
 
 
 class WineInventoryTable(tables.Table):
@@ -110,3 +112,27 @@ class PartyTable(tables.Table):
     model = User
     fields = ('title', 'event_date', 'host', 'pro', 'kit_ordered')
     attrs = {"class": "paleblue table table-striped"}
+
+
+table_attrs = Attrs({'class': 'table table-striped'})
+
+
+class PartyAttendeesTable(AttendeesTable):
+  shop = columns.TemplateColumn('<a href="{% url start_order record.invitee.id record.party.id %}?__impersonate={{ record.party.pro }}" class="btn btn-primary">Shop</a>', verbose_name=' ')
+
+  class Meta:
+    attrs = table_attrs
+    order_by = ['invitee']
+    exclude = ['id', 'party', 'invited_by', 'rsvp_code', 'response_timestamp', 'invited_timestamp', 'fee_paid', 'edit']
+
+  def render_shop(self, record, column):
+    if record.invitee.userprofile.has_personality():
+      return mark_safe(u'<a href="%s?__impersonate=%s" class="btn btn-primary" target="_blank">Shop</a>' % (reverse('start_order', args=[record.invitee.id, record.party.id]), record.party.pro.id))
+    else:
+      return ''
+
+  def render_wine_personality(self, record, column):
+    if record.invitee.userprofile.has_personality():
+      return mark_safe('<a href="%s?__impersonate=%s" target="_blank">%s</a>' % (reverse('personality_rating_info', args=[record.invitee.email, record.party.id]), record.party.pro.id, record.invitee.userprofile.wine_personality))
+    else:
+      return mark_safe('<a href="%s?__impersonate=%s" target="_blank">Enter ratings</a>' % (reverse('record_all_wine_ratings', args=[record.invitee.email, record.party.id]), record.party.pro.id))

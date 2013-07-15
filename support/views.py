@@ -16,13 +16,13 @@ from django_tables2 import RequestConfig
 
 from support.models import Email, WineInventory, TastingKitInventory
 from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable, UserTable, \
-                            OrderHistoryTable, PartyTable
+                            OrderHistoryTable, PartyTable, PartyAttendeesTable
 
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder, SelectedTastingKit
-from main.forms import AttendeesTable
+
 from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
-
+from main.forms import AttendeesTable
 from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm, \
                         RefundForm
 from main.utils import my_pro, calculate_host_credit
@@ -382,7 +382,8 @@ def view_party_detail(request, party_id):
 
   party = get_object_or_404(Party, id=party_id)
   tasters = PartyInvite.objects.filter(party=party).select_related()
-  table = AttendeesTable(tasters, user=user, data={'party': party, 'can_add_taster': True, 'can_shop_for_taster': True})
+  table = PartyAttendeesTable(tasters, user=user, data={'party': party, 'can_add_taster': True, 'can_shop_for_taster': True})
+  # table = PartyAttendeesTable(tasters)
   RequestConfig(request, paginate={"per_page": 30}).configure(table)
 
   data['tasters_table'] = table
