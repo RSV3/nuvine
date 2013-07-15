@@ -15,6 +15,7 @@ from personality.models import WineRatingData
 from main.utils import UTC
 from main.tests import SimpleTest as MainTest
 from accounts.models import Zipcode
+from cms.tests import SimpleTest as CMSTest
 
 from django.contrib.auth.models import User
 from django.test.client import Client
@@ -35,6 +36,8 @@ class SimpleTest(TestCase):
       main_test = MainTest()
       main_test.create_wine_personalities()
       main_test.create_test_products()
+      test = CMSTest()
+      test.create_all_templates()
 
       Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
       Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
@@ -370,7 +373,31 @@ class SimpleTest(TestCase):
       inv = WineInventory.objects.filter(wine__name="2011 Loca Macabeo")[0]
       self.assertEqual(inv.on_hand, 12)
 
+    def stripe_card_processing(self, user):
+      ##########################################################
+      #
+      # Using Stripe Credit card processing
+      #
+      ##########################################################
+
+      import stripe
+      from django.conf import settings
+
+      stripe.api_key = settings.STRIPE_SECRET_CA
+      year = datetime.today().year + 5
+      token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (user.first_name, user.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+
+      response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
+                                                                          "exp_month": token.card.exp_month,
+                                                                          "exp_year": token.card.exp_year,
+                                                                          "last4": token.card.last4,
+                                                                          "address_zip": token.card.address_zip,
+                                                                          "card_type": token.card.type})
+      return response
+
     def make_order(self):
+      import stripe
+
       response = self.client.get(reverse('main.views.start_order'))
 
       case = Product.objects.get(name="3 Bottles", unit_price=54.00)
@@ -390,34 +417,23 @@ class SimpleTest(TestCase):
                                                                                 "state": "CA",
                                                                                 "zipcode": "92612",
                                                                                 "phone": "555-617-6706",
-                                                                                "email": "attendee1@example.com"})
+                                                                                "email": "jayme@vinely.com"})
       self.assertRedirects(response, reverse('edit_credit_card'))
 
-      taster = User.objects.get(email='attendee1@example.com')
-      # response = self.stripe_card_processing(taster)
-      import stripe
-      from django.conf import settings
+      taster = User.objects.get(email='jayme@vinely.com')
+      response = self.stripe_card_processing(taster)
+      customer = stripe.Customer.retrieve(taster.userprofile.stripe_card.stripe_user)
 
-      stripe.api_key = settings.STRIPE_SECRET_CA
-      year = datetime.today().year + 5
-      token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (taster.first_name, taster.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
-      customer = stripe.Customer.create(card=token.id, email=taster.email)
-
-      response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
-                                                                          "exp_month": token.card.exp_month,
-                                                                          "exp_year": token.card.exp_year,
-                                                                          "last4": token.card.last4,
-                                                                          "address_zip": token.card.address_zip,
-                                                                          "card_type": token.card.type})
       self.assertRedirects(response, reverse("main.views.place_order"))
       self.client.post(reverse("main.views.place_order"))
-      order = Order.objects.get(cart__items__product=case)
+      order = Order.objects.filter(cart__items__product=case).order_by('-id')[0]
 
       self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
 
       return order, customer
 
     def test_refund(self):
+      # from decimal import Decimal
       response = self.client.login(email='jayme@vinely.com', password='hello')
       self.assertTrue(response)
 
@@ -426,23 +442,23 @@ class SimpleTest(TestCase):
 
       response = self.client.post(reverse('support:refund_order', args=[order.id]),
         {
-            'amount': 150.0,
+            'refund_amount': 150.0,
             # 'full_refund': 'off',
         })
 
       # check if you enter amount > order amount
       order = Order.objects.all().order_by('-id')[0]
-      self.assertFalse(order.refunded)
+      self.assertEquals(order.refund_amount, 0)
 
       response = self.client.post(reverse('support:refund_order', args=[order.id]),
         {
-            'amount': 50.0,
+            'refund_amount': 50.0,
             'full_refund': 'on',
         })
 
       # if checked full refund and has input amount - checkbox wins
       order = Order.objects.all().order_by('-id')[0]
-      self.assertEquals(order.refund_amount, order.cart.total())
+      self.assertEqual(float(order.refund_amount), order.cart.total())
 
       customer.delete()
 
@@ -450,7 +466,7 @@ class SimpleTest(TestCase):
 
       response = self.client.post(reverse('support:refund_order', args=[order.id]),
         {
-            'amount': 50.0,
+            'refund_amount': 50.0,
             # 'full_refund': 'off',
         })
 
