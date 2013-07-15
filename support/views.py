@@ -23,11 +23,12 @@ from main.forms import AttendeesTable
 from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
 
-from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm
+from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm, \
+                        RefundForm
 from main.utils import my_pro, calculate_host_credit
 from datetime import datetime
 import csv
-
+import stripe
 
 import logging
 
@@ -353,7 +354,7 @@ def view_user_details(request, user_id):
   data['user_detail'] = user
   data['profile_detail'] = profile
   data['credit_card'] = profile.stripe_card
-  orders = Order.objects.filter(ordered_by=user).order_by('-id')
+  orders = Order.objects.filter(ordered_by=user).select_related().order_by('-id')
   table = OrderHistoryTable(orders, user=user)
   RequestConfig(request, paginate={"per_page": 20}).configure(table)
   data['order_history'] = table
@@ -1187,3 +1188,43 @@ def user_overview(request):
   data['users_table'] = table
 
   return render(request, "support/user_overview.html", data)
+
+
+@staff_member_required
+def refund_order(request, order_id):
+  data = {}
+  # raise Exception
+  order = get_object_or_404(Order, pk=order_id)
+  previous_page = request.GET.get('next', reverse('support:view_user_details', args=[order.ordered_by.id]))
+  data['previous_page'] = previous_page
+
+  refund_form = RefundForm(request.POST or None, instance=order)
+  data['refund_form'] = refund_form
+  data['order'] = order
+
+  if refund_form.is_valid():
+    order = refund_form.save(commit=False)
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    inv = stripe.Invoice.retrieve(order.stripe_invoice)
+    stripe_charge = stripe.Charge.retrieve(inv.charge)
+
+    try:
+      if refund_form.cleaned_data.get('full_refund', False):
+        stripe_charge.refund()
+        refund_amount = order.cart.total()
+      else:
+        amount = refund_form.cleaned_data.get('refund_amount', 0)
+        if amount > 0:
+          stripe_charge.refund(amount=int(amount * 100))
+          refund_amount = amount
+
+      order.refund_amount = refund_amount
+      order.refund_date = timezone.now()
+      order.save()
+    except Exception, e:
+      # some stripe error
+      messages.warning(request, "Stripe Error: %s" % e)
+    return HttpResponseRedirect(reverse('support:view_user_details', args=[order.ordered_by.id]))
+
+  return render(request, "support/refund_order_modal.html", data)

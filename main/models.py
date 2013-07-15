@@ -448,7 +448,7 @@ class Cart(models.Model):
 
     if self.items.count() == 0:
       return 0
-
+    # TODO: if this cart is part of an order (e.g. viewing order history) then don't calculate
     # credit = calculate_host_credit(self.user)
     credit = self.receiver.userprofile.account_credit
     subtotal_without_discount = 0
@@ -551,6 +551,8 @@ class Order(models.Model):
   stripe_card = models.ForeignKey(StripeCard, null=True)
   order_date = models.DateTimeField(auto_now_add=True)
   stripe_invoice = models.CharField(max_length=20, blank=True)
+  refund_amount = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank=True)
+  refund_date = models.DateTimeField(blank=True, null=True)
 
   FULFILL_CHOICES = (
       (0, 'Not Ordered'),

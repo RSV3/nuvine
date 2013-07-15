@@ -74,12 +74,13 @@ class OrderHistoryTable(tables.Table):
   receiver = columns.Column(verbose_name='Ordered For', order_by=('receiver.first_name', 'receiver.last_name'))
   order_total = columns.Column(verbose_name='Order Total', accessor='cart.total')
   refund = columns.Column(orderable=False, accessor='stripe_invoice', verbose_name='Refund')
+  # refund_amount = columns.Column(orderable=False, accessor='stripe_invoice', verbose_name='Refund')
   # fulfill_status = columns.Column(verbose_name='Order Status')
 
   class Meta:
     model = Order
     attrs = {'class': 'table table-striped'}
-    fields = ('vinely_order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status', 'refund')
+    fields = ('vinely_order_id', 'order_date', 'receiver', 'order_total', 'fulfill_status', 'refund_amount', 'refund')
 
   def __init__(self, *args, **kwargs):
     self.user = kwargs.pop('user')
@@ -98,7 +99,7 @@ class OrderHistoryTable(tables.Table):
 
   def render_refund(self, record, column):
     if record.stripe_invoice:
-      return mark_safe('<a href="javascript:;" class="btn btn-primary refund">Refund</a>')
+      return mark_safe('<a href="javascript:;" class="btn btn-primary refund-order" data-order="%s">Refund</a>' % (record.id, ))
     return ''
 
 

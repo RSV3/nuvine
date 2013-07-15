@@ -25,6 +25,11 @@
     color: #DD4040;
     text-decoration: none;
   }
+  .table-striped tr td:first-child{
+    padding-right: 15px;
+    text-align: right;
+    font-weight: bold;
+  }
 </style>
 {% endblock %}
 
@@ -110,3 +115,28 @@
 
 </div>
 {% endblock content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.refund-order').click(function(e) {
+        $.ajax({
+          type: "GET",
+          url: "{% url support:refund_order 0 %}?next={{ request.path }}".replace(0, $(this).attr('data-order')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });
+      // function refund_clicked() {
+      //   $('#id_refund_amount').disabled = $(this).prop('checked');
+      // }
+    });
+  </script>
+{% endblock additional_scripts %}

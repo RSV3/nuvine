@@ -13,11 +13,14 @@ from accounts.models import Address, CreditCard
 from support.models import Wine, WineInventory
 from personality.models import WineRatingData
 from main.utils import UTC
+from main.tests import SimpleTest as MainTest
+from accounts.models import Zipcode
 
 from django.contrib.auth.models import User
 from django.test.client import Client
+from django.utils import timezone
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class SimpleTest(TestCase):
@@ -29,6 +32,13 @@ class SimpleTest(TestCase):
 
     def setUp(self):
       self.client = Client()
+      main_test = MainTest()
+      main_test.create_wine_personalities()
+      main_test.create_test_products()
+
+      Zipcode.objects.get_or_create(code="02139", country="US", state="MA")
+      Zipcode.objects.get_or_create(code="49546", country="US", state="MI")
+      Zipcode.objects.get_or_create(code="92612", country="US", state="CA")
 
       # add wine inventory
       wine = Wine(name="2011 Loca Macabeo", year=2011, sku="VW200101-1", vinely_category=1, vinely_category2=1)
@@ -359,3 +369,92 @@ class SimpleTest(TestCase):
       # check wine quantities have been updated
       inv = WineInventory.objects.filter(wine__name="2011 Loca Macabeo")[0]
       self.assertEqual(inv.on_hand, 12)
+
+    def make_order(self):
+      response = self.client.get(reverse('main.views.start_order'))
+
+      case = Product.objects.get(name="3 Bottles", unit_price=54.00)
+
+      response = self.client.post(reverse("main.views.cart_add_wine"), {"product": case.id,
+                                                                        "quantity": 2,
+                                                                        "frequency": 0,
+                                                                        "total_price": 108.00})
+
+      birth_date = timezone.now() - timedelta(days=30 * 365)
+
+      response = self.client.post(reverse("main.views.edit_shipping_address"), {"eligibility-dob": birth_date.strftime('%m/%d/%Y'),
+                                                                                "first_name": "John",
+                                                                                "last_name": "Doe",
+                                                                                "address1": "65 Gordon St.",
+                                                                                "city": "San Fransisco",
+                                                                                "state": "CA",
+                                                                                "zipcode": "92612",
+                                                                                "phone": "555-617-6706",
+                                                                                "email": "attendee1@example.com"})
+      self.assertRedirects(response, reverse('edit_credit_card'))
+
+      taster = User.objects.get(email='attendee1@example.com')
+      # response = self.stripe_card_processing(taster)
+      import stripe
+      from django.conf import settings
+
+      stripe.api_key = settings.STRIPE_SECRET_CA
+      year = datetime.today().year + 5
+      token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (taster.first_name, taster.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+      customer = stripe.Customer.create(card=token.id, email=taster.email)
+
+      response = self.client.post(reverse("main.views.edit_credit_card"), {"stripe_token": token.id,
+                                                                          "exp_month": token.card.exp_month,
+                                                                          "exp_year": token.card.exp_year,
+                                                                          "last4": token.card.last4,
+                                                                          "address_zip": token.card.address_zip,
+                                                                          "card_type": token.card.type})
+      self.assertRedirects(response, reverse("main.views.place_order"))
+      self.client.post(reverse("main.views.place_order"))
+      order = Order.objects.get(cart__items__product=case)
+
+      self.client.get(reverse("main.views.order_complete", args=[order.order_id]))
+
+      return order, customer
+
+    def test_refund(self):
+      response = self.client.login(email='jayme@vinely.com', password='hello')
+      self.assertTrue(response)
+
+      # make order
+      order, customer = self.make_order()
+
+      response = self.client.post(reverse('support:refund_order', args=[order.id]),
+        {
+            'amount': 150.0,
+            # 'full_refund': 'off',
+        })
+
+      # check if you enter amount > order amount
+      order = Order.objects.all().order_by('-id')[0]
+      self.assertFalse(order.refunded)
+
+      response = self.client.post(reverse('support:refund_order', args=[order.id]),
+        {
+            'amount': 50.0,
+            'full_refund': 'on',
+        })
+
+      # if checked full refund and has input amount - checkbox wins
+      order = Order.objects.all().order_by('-id')[0]
+      self.assertEquals(order.refund_amount, order.cart.total())
+
+      customer.delete()
+
+      order, customer = self.make_order()
+
+      response = self.client.post(reverse('support:refund_order', args=[order.id]),
+        {
+            'amount': 50.0,
+            # 'full_refund': 'off',
+        })
+
+      # check only refund specified amount
+      order = Order.objects.all().order_by('-id')[0]
+      self.assertEquals(order.refund_amount, 50.0)
+      customer.delete()
