@@ -924,6 +924,7 @@ def verify_account(request, verification_code):
 
   data["verification_code"] = verification_code
   u = request.user
+  profile = u.get_profile()
 
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
