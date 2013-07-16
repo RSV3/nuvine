@@ -13,8 +13,9 @@ class ContentTemplate(models.Model):
         (0, 'Email Template'),
         (1, 'Web Template'),
     )
-
+    name = models.CharField(max_length=120, blank=True)
     key = models.CharField(max_length=128, unique=True)
+    active = models.BooleanField(default=True)
     #content = models.TextField()
     category = models.IntegerField(choices=TEMPLATE_TYPE)
     variables_legend = models.ManyToManyField(Variable)
