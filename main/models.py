@@ -849,9 +849,15 @@ class ProSignupLog(models.Model):
 class NewHostNoParty(models.Model):
   host = models.ForeignKey(User)
 
+  class Meta:
+    verbose_name_plural = u'New host no party'
+
 
 class UnconfirmedParty(models.Model):
   party = models.ForeignKey(Party)
+
+  class Meta:
+    verbose_name_plural = u'Unconfirmed parties'
 
 
 from django.contrib.contenttypes import generic

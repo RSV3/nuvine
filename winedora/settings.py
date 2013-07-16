@@ -241,6 +241,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
+    'fluent_dashboard',
+    'admin_tools',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
@@ -429,3 +434,64 @@ else:
 #   'font_size_style_values': 'medium',
 #   'theme_advanced_font_sizes': 'medium',
 # }
+
+ADMIN_TOOLS_INDEX_DASHBOARD = 'fluent_dashboard.dashboard.FluentIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'fluent_dashboard.dashboard.FluentAppIndexDashboard'
+ADMIN_TOOLS_MENU = 'fluent_dashboard.menu.FluentMenu'
+
+FLUENT_DASHBOARD_CMS_PAGE_MODEL = ('cms', 'contenttemplate')
+
+FLUENT_DASHBOARD_APP_ICONS = {
+    'accounts/userprofile': 'preferences-contact-list.png',
+    'accounts/address': 'go-home.png',
+    'accounts/subscriptioninfo': 'view-time-schedule.png',
+    'personality/wineratingdata': 'mail-mark-task.png',
+    'main/party': 'view-resource-calendar.png',
+    'main/unconfirmedparty': 'x-office-calendar.png',
+    'main/customizeorder': 'basket.png',
+    'main/newhostnoparty': 'meeting-participant.png',
+    'main/order': 'utilities-file-archiver.png',
+    'main/prosignuplog': 'view-calendar-journal.png',
+    'main/engagementinterest': 'x-office-contact.png',
+    'main/partyinvite': 'list-add-user.png',
+    'pro/monthlybonuscompensation': 'view-bank-account.png',
+    'pro/weeklycompensation': 'help-donate.png',
+    'pro/monthlyqualification': 'office-chart-area.png',
+    'support/wineinventory': 'view-choose.png',
+#     'company/company': 'office-chart-pie.png',
+#     'main/location': 'go-home.png',
+#     'main/service': 'preferences-system-network.png',
+#     'main/education': 'document-edit.png',
+#     'main/skill': 'applications-engineering.png',
+}
+
+FLUENT_DASHBOARD_APP_GROUPS = (
+    ('Applications', {
+        'models': ('*',),
+        'module': 'AppList',
+        'collapsible': True,
+    }),
+    ('Administration', {
+        'models': (
+            'django.contrib.auth.*',
+            'django.contrib.sites.*',
+            'accounts.*',
+        ),
+    }),
+    ('Main', {
+        'models': ('main.*',),
+    }),
+    ('Personality', {
+        'models': ('personality.*',),
+    }),
+    ('Pro', {
+        'models': ('pro.*',),
+    }),
+    ('Support', {
+        'models': ('support.*',),
+    }),
+    ('Maintenance', {
+        'models': ('djcelery.*', 'tastypie.*',),
+    }),
+
+)

@@ -71,3 +71,4 @@ django-celery==3.0.17
 django-tastypie==0.9.15
 #django-tastypie-swagger==0.1.1
 -e git+https://github.com/concentricsky/django-tastypie-swagger.git#egg=django-tastypie-swagger
+django-fluent-dashboard==0.3.5

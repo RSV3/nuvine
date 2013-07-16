@@ -56,6 +56,9 @@ class Address(models.Model):
   state = us_models.USStateField()
   zipcode = models.CharField(max_length=20, help_text="5 digit or extended zipcode")
 
+  class Meta:
+    verbose_name_plural = u'addresses'
+
   def __unicode__(self):
     return "%s, %s" % (self.street1, self.zipcode)
 
@@ -548,6 +551,9 @@ class SubscriptionInfo(models.Model):
   quantity = models.IntegerField(choices=QUANTITY_CHOICES, default=0)
   next_invoice_date = models.DateField(null=True, blank=True)
   updated_datetime = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    verbose_name_plural = u'subscription info'
 
   def __unicode__(self):
     # return "%s, %s" % (self.get_quantity_display(), self.get_frequency_display())
