@@ -406,6 +406,7 @@ def cart_add_tasting_kit(request, party_id=0):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[1][0]
     cart.adds += 1
+    cart.receiver = u
     cart.save()
 
     return HttpResponseRedirect(reverse("cart"))
