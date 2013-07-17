@@ -168,6 +168,9 @@
   <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
+      if ($('#id_duration').val() == 2) {
+        $('.repeat-duration').show('fast');
+      }
       $('.datepicker').datepicker();
       $('#id_duration').change(function() {
         if ($(this).val() == 2) {

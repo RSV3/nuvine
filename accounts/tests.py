@@ -554,7 +554,10 @@ class SimpleTest(TestCase):
 
     # check that they are over 21
     shipping_info = {
-        'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -571,7 +574,10 @@ class SimpleTest(TestCase):
 
     # check that shipping address is in supported state
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
