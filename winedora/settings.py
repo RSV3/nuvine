@@ -199,6 +199,7 @@ if DEPLOY:
       'django.middleware.csrf.CsrfViewMiddleware',
       'django.contrib.auth.middleware.AuthenticationMiddleware',
       'django.contrib.messages.middleware.MessageMiddleware',
+      'django.middleware.transaction.TransactionMiddleware',
       'winedora.middleware.ImpersonateMiddleware',
       'api.middleware.XsSharing',
       # Uncomment the next line for simple clickjacking protection:
@@ -214,6 +215,7 @@ else:
       'django.middleware.csrf.CsrfViewMiddleware',
       'django.contrib.auth.middleware.AuthenticationMiddleware',
       'django.contrib.messages.middleware.MessageMiddleware',
+      'django.middleware.transaction.TransactionMiddleware',
       'winedora.middleware.ImpersonateMiddleware',
       'api.middleware.XsSharing',
       'api_logger.middleware.APILogMiddleWare',

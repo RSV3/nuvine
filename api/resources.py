@@ -176,7 +176,8 @@ class PartyResource(ModelResource):
     authorization = Authorization()
     authentication = MultiAuthentication(*authentication_backends)
     filtering = {
-        "title": ['icontains'],
+        "host": ALL_WITH_RELATIONS,
+        'host__email': ['iexact']
     }
 
   def dehydrate_is_event(self, bundle):
@@ -326,6 +327,9 @@ class UserResource(ModelResource):
     authorization = UserObjectsOnlyAuthorization()
     authentication = MultiAuthentication(*authentication_backends)
     allowed_methods = ['get', 'put']
+    filtering = {
+        'last_name': ['icontains'],
+    }
     # list_allowed_methods = []
 
 
