@@ -65,7 +65,8 @@
           </p>
           <p>&nbsp;</p>
           <p class="price-label"><b>From:</b>
-            <span id="unit_price" data-price="{{ product.unit_price }}"><strike>$139</strike> $99<!-- {{ product.unit_price|currency }} --></span>
+            <span id="unit_price" data-price="{{ product.unit_price }}"><!-- <strike>$139</strike> $99 -->
+              {{ product.unit_price|currency }}</span>
           </p>
           {{ form.total_price }}
           <!-- <div class="form-actions"> -->

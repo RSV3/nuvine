@@ -352,15 +352,15 @@ class SimpleTest(TestCase):
 
   def create_test_products(self):
     if Product.objects.all().count() < 4:
-      p, created = Product.objects.get_or_create(name="3 Bottles", description="", unit_price=54.00, category=1, cart_tag="3")
+      p, created = Product.objects.get_or_create(name="3 Bottles", description="", unit_price=54.00, category=1, cart_tag="3", active=True)
       self.assertEqual(created, True)
-      p, created = Product.objects.get_or_create(name="6 Bottles", description="", unit_price=97.00, category=1, cart_tag="6")
+      p, created = Product.objects.get_or_create(name="6 Bottles", description="", unit_price=97.00, category=1, cart_tag="6", active=True)
       self.assertEqual(created, True)
-      p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12")
+      p, created = Product.objects.get_or_create(name="12 Bottles", description="", unit_price=173.00, category=1, cart_tag="12", active=True)
       self.assertEqual(created, True)
-      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=99.00, category=0, cart_tag="tasting_kit")
+      p, created = Product.objects.get_or_create(name="Vinely's First Taste Kit", description="", unit_price=139.99, category=0, cart_tag="tasting_kit", active=True)
       self.assertEqual(created, True)
-      p, created = Product.objects.get_or_create(name="Join the Club Tasting Kit", description="", unit_price=97.00, category=0, cart_tag="join_club_tasting_kit")
+      p, created = Product.objects.get_or_create(name="Join the Club Tasting Kit", description="", unit_price=97.00, category=0, cart_tag="join_club_tasting_kit", active=True)
       self.assertEqual(created, True)
 
   def setUp(self):
@@ -1452,13 +1452,13 @@ class SimpleTest(TestCase):
                                                                                               "total_price": 100})
     self.assertContains(response, "Select a valid choice.")
 
-    kit = Product.objects.get(name="Vinely's First Taste Kit", unit_price=99.00)
+    kit = Product.objects.get(name="Vinely's First Taste Kit", active=True)
 
     response = self.client.post(reverse("main.views.cart_add_tasting_kit", args=[party.id]), {"product": kit.id,
-                                                                                              "quantity": 2,
+                                                                                              "quantity": 1,
                                                                                               "price_category": 0,
                                                                                               "frequency": 0,
-                                                                                              "total_price": 140.00})
+                                                                                              "total_price": 139.99})
     self.assertRedirects(response, reverse("main.views.cart"))
 
     party2 = self.create_party()
@@ -1467,10 +1467,10 @@ class SimpleTest(TestCase):
     self.assertEquals(response.status_code, 200)
 
     response = self.client.post(reverse("main.views.cart_add_tasting_kit", args=[party2.id]), {"product": kit.id,
-                                                                                                "quantity": 2,
+                                                                                                "quantity": 1,
                                                                                                 "price_category": 0,
                                                                                                 "frequency": 0,
-                                                                                                "total_price": 140.00})
+                                                                                                "total_price": 139.99})
     # redirects to same page with error message
     self.assertRedirects(response, reverse("main.views.cart_add_tasting_kit", args=[party2.id]))
     # self.assertContains(response, "You can only order taste kits for one party at a time.")
