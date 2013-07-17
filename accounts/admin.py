@@ -145,7 +145,7 @@ class VinelyUserProfileForm(forms.ModelForm):
   class Meta:
     model = UserProfile
     # fields = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'pro_number', 'internal_pro')
-    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses']
+    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses', 'coupon', 'coupons']
 
   def __init__(self, *args, **kwargs):
     instance = kwargs.get('instance')

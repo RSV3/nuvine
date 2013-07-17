@@ -1232,8 +1232,9 @@ def join_club_shipping(request):
     stripe_card = profile.stripe_card
 
     # apply coupon to cart subtotal
-    cart.coupon = coupon_form.cleaned_data['coupon']
-    cart.coupon_amount = cart.apply_coupon()
+    if coupon_form.cleaned_data.get('coupon'):
+      cart.coupon = coupon_form.cleaned_data['coupon']
+      cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -1250,7 +1251,7 @@ def join_club_shipping(request):
       stripe_card = StripeCard.objects.get(stripe_user=stripe_user_id, exp_month=request.POST.get('exp_month'),
                         exp_year=request.POST.get('exp_year'), last_four=request.POST.get('last4'),
                         card_type=request.POST.get('card_type'), billing_zipcode=request.POST.get('address_zip'))
-    except:
+    except Exception:
       try:
         customer = stripe.Customer.create(card=stripe_token, email=user.email)
         stripe_user_id = customer.id
@@ -1264,7 +1265,7 @@ def join_club_shipping(request):
           profile.save()
           profile.stripe_cards.add(stripe_card)
 
-      except:
+      except Exception:
         messages.error(request, 'Your card was declined. In case you are in testing mode please use the test credit card.')
         return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
@@ -1327,11 +1328,12 @@ def join_club_review(request):
 
         # TODO : handle possible race conditon here i.e
         # if times_redeemed already changed by this point dont allow redemption
-        with transaction.commit_on_success():
-          cart.coupon.times_redeemed += 1
-          if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
-            cart.coupon.active = False
-          cart.coupon.save()
+        if cart.coupon:
+          with transaction.commit_on_success():
+            cart.coupon.times_redeemed += 1
+            if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+              cart.coupon.active = False
+            cart.coupon.save()
 
         # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
         coupon_id = "%s" % order.vinely_order_id

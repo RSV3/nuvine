@@ -587,7 +587,10 @@ class SimpleTest(TestCase):
     self.assertContains(response, 'Currently, we can only ship to California.')
 
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -663,7 +666,10 @@ class SimpleTest(TestCase):
     birth_date = timezone.now() - timedelta(days=30 * 365)
 
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'Attendee',
         'last_name': 'One',
         'email': 'attendee1@example.com',

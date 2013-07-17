@@ -51,20 +51,22 @@ class ApplyCouponForm(forms.ModelForm):
   def clean_coupon(self):
     # TODO check that it applies to this purchase
     cleaned_data = self.cleaned_data['coupon']
+    coupon = None
 
-    try:
-      coupon = Coupon.objects.get(code=cleaned_data, active=True, redeem_by__gte=timezone.now().date())
-    except Coupon.DoesNotExist:
-      raise forms.ValidationError(u'That coupon code does not exist or is no longer valid.')
+    if cleaned_data:
+      try:
+        coupon = Coupon.objects.get(code=cleaned_data, active=True, redeem_by__gte=timezone.now().date())
+      except Coupon.DoesNotExist:
+        raise forms.ValidationError(u'That coupon code does not exist or is no longer valid.')
 
-    allowed_set = set(coupon.applies_to.all())
-    cart_set = set([x.product for x in self.instance.items.all()])
-    if not cart_set.issubset(allowed_set):
-      raise forms.ValidationError(u'This coupon is not valid for this purchase.')
+      allowed_set = set(coupon.applies_to.all())
+      cart_set = set([x.product for x in self.instance.items.all()])
+      if not cart_set.issubset(allowed_set):
+        raise forms.ValidationError(u'This coupon is not valid for this purchase.')
 
-    with transaction.commit_on_success():
-      if coupon.times_redeemed >= coupon.max_redemptions:
-        raise forms.ValidationError(u'Coupon no longer valid. The maximum redemptions allowed have already been reached.')
+      with transaction.commit_on_success():
+        if coupon.times_redeemed >= coupon.max_redemptions:
+          raise forms.ValidationError(u'Coupon no longer valid. The maximum redemptions allowed have already been reached.')
 
     return coupon
 
