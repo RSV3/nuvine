@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-
+from support.views import view_party_detail
 urlpatterns = patterns('support.views',
     url(r'^$', 'admin_index', name='admin_index'),
     url(r'^subscriptions/manage/$', 'manage_subscriptions', name='manage_subscriptions'),
@@ -10,10 +10,13 @@ urlpatterns = patterns('support.views',
     url(r'^download/parties/$', 'download_parties', name='download_parties'),
     url(r'^download/orders/$', 'download_orders', name='download_orders'),
     url(r'^users/$', 'view_users', name='view_users'),
+    url(r'^users/(?P<user_id>\d+)/$', 'view_user_details', name='view_user_details'),
     url(r'^parties/$', 'view_parties', name='view_parties'),
+    url(r'^parties/(?P<party_id>\d+)/$', 'view_party_detail', name='view_party_detail'),
 
     url(r'^orders/$', 'view_orders', name='view_orders'),
     url(r'^orders/(?P<order_id>\d+)/$', 'view_orders', name='view_orders'),
+    url(r'^order/refund/(?P<order_id>\d+)/$', 'refund_order', name='refund_order'),
     url(r'^order/edit/$', 'edit_order', name='edit_order'),
     url(r'^order/edit/(?P<order_id>\d+)/$', 'edit_order', name='edit_order'),
     url(r'^order/rate/(?P<order_id>\d+)/$', 'rate_order', name='rate_order'),

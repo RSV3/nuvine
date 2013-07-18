@@ -28,7 +28,11 @@
             <tbody>
               {% for template in templates %}
                 <tr>
-                  <td><a href="{% url cms:edit_template template.key %}">{{ template.key }}</a></td>
+                  {% if template.category == 0 %}
+                    <td><a href="{% url cms:edit_template template.key %}">{{ template.name }}</a></td>
+                  {% else %}
+                    <td><a href="{% url cms:edit_template template.key %}">{{ template.key }}</a></td>
+                  {% endif %}
                   <td>{{ template.get_category_display }}</td>
                   <td>{{ template.last_modified }}</td>
                 </tr>

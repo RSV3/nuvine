@@ -12,7 +12,7 @@ from datetime import datetime
 from creditcard.utils import get_cc_type
 
 from accounts.models import Address, CreditCard, VerificationQueue, UserProfile
-from main.models import SubscriptionInfo, CustomizeOrder, Party, PartyInvite, MyHost, OrganizedParty
+from main.models import SubscriptionInfo, CustomizeOrder, Party, PartyInvite, MyHost
 from personality.utils import calculate_wine_personality
 from personality.models import WinePersonality, Wine, WineRatingData
 from accounts.utils import send_thank_valued_member_email
@@ -429,21 +429,20 @@ class Command(BaseCommand):
                                         address=unknown_address_CA,
                                         event_date=event_date)
 
-
             elif row[RECIPIENT_STATE].strip() in ['MA']:
               party, created = Party.objects.get_or_create(host=host, title="%s's party" % row[HOST_EMAIL],
-                                        address=unknown_address_MA,
+                                        address=unknown_address_MA, pro=elizabeth,
                                         event_date=event_date)
             else:
               party, created = Party.objects.get_or_create(host=host, title="%s's party" % row[HOST_EMAIL],
-                                        address=unknown_address_MI,
+                                        address=unknown_address_MI, pro=elizabeth,
                                         event_date=event_date)
             if created:
               party.created = event_date
               party.save()
-              party_pro = OrganizedParty(pro=elizabeth, party=party)
-              party_pro.timestamp = event_date
-              party_pro.save()
+              # party_pro = OrganizedParty(pro=elizabeth, party=party)
+              # party_pro.timestamp = event_date
+              # party_pro.save()
 
             # create party invite
             invite, created = PartyInvite.objects.get_or_create(party=party, invitee=user)

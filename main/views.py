@@ -5,20 +5,18 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django import forms
-from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.utils import timezone
 from django_tables2 import RequestConfig
 from django.db import transaction
-from django.db.models import Sum
 
 from decimal import Decimal
 
 from main.models import Party, PartyInvite, MyHost, Product, LineItem, Cart, SubscriptionInfo, \
-                        CustomizeOrder, Order, OrganizedParty, EngagementInterest, InvitationSent, ThankYouNote
+                        CustomizeOrder, Order, EngagementInterest, InvitationSent, ThankYouNote
 from personality.models import WineTaste, GeneralTaste, WinePersonality
 from accounts.models import VerificationQueue, Zipcode, UserProfile
 
@@ -26,14 +24,14 @@ from main.forms import ContactRequestForm, PartyCreateForm, PartyInviteTasterFor
                         AddWineToCartForm, AddTastingKitToCartForm, CustomizeOrderForm, ShippingForm, \
                         CustomizeInvitationForm, OrderFulfillForm, CustomizeThankYouNoteForm, EventSignupForm, \
                         AttendeesTable, PartyTasterOptionsForm, OrderHistoryTable, PartyEditDateForm, \
-                        VinelyEventsTable, EventsDescForm
+                        VinelyEventsTable, EventsDescForm, ApplyCouponForm
 
 from accounts.utils import send_new_party_email, check_zipcode, send_not_in_area_party_email
 from main.utils import send_order_confirmation_email, send_host_vinely_party_email, \
                         distribute_party_invites_email, UTC, send_rsvp_thank_you_email, \
                         send_contact_request_email, send_order_shipped_email, if_supplier, if_pro, \
-                        calculate_host_credit, calculate_pro_commission, distribute_party_thanks_note_email, \
-                        resend_party_invite_email, get_default_invite_message, my_pro, \
+                        distribute_party_thanks_note_email, \
+                        resend_party_invite_email, get_default_invite_message, \
                         preview_party_invites_email, get_default_signature, \
                         send_new_party_host_confirm_email, preview_party_thanks_note_email, preview_host_confirm_email, \
                         party_setup_completed_email, business_days_from, business_days_count
@@ -42,7 +40,8 @@ from accounts.forms import VerifyEligibilityForm, PaymentForm, AgeValidityForm, 
 from cms.models import ContentTemplate
 from support.models import Email
 
-import json, uuid
+import json
+import uuid
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -153,21 +152,21 @@ def our_story(request):
   return render_to_response("main/our_story.html", data, context_instance=RequestContext(request))
 
 
-def get_started(request):
-  """
-    Get started
-  """
+# def get_started(request):
+#   """
+#     Get started
+#   """
 
-  data = {}
+#   data = {}
 
-  u = request.user
-  data['get_started_menu'] = True
-  sections = ContentTemplate.objects.get(key='get_started').sections.all()
-  data['get_started_general'] = sections.get(key='general').content
-  data['get_started_host'] = sections.get(key='host').content
-  data['get_started_pro'] = sections.get(key='pro').content
-  data['heading'] = sections.get(key='header').content
-  return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
+#   u = request.user
+#   data['get_started_menu'] = True
+#   sections = ContentTemplate.objects.get(key='get_started').sections.all()
+#   data['get_started_general'] = sections.get(key='general').content
+#   data['get_started_host'] = sections.get(key='host').content
+#   data['get_started_pro'] = sections.get(key='pro').content
+#   data['heading'] = sections.get(key='header').content
+#   return render_to_response("main/get_started.html", data, context_instance=RequestContext(request))
 
 
 def contact_us(request):
@@ -191,15 +190,15 @@ def contact_us(request):
   return render_to_response("main/contact_us.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def become_vip(request):
-  """
-    TODO: what is to become VIP
-  """
+# @login_required
+# def become_vip(request):
+#   """
+#     TODO: what is to become VIP
+#   """
 
-  data = {}
+#   data = {}
 
-  return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/become_vip.html", data, context_instance=RequestContext(request))
 
 
 @login_required
@@ -213,27 +212,27 @@ def rate_wines(request):
   return render_to_response("main/rate_wines.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def host_vinely_party(request):
-  """
-    Host your own Vinely party
-  """
+# @login_required
+# def host_vinely_party(request):
+#   """
+#     Host your own Vinely party
+#   """
 
-  data = {}
-  # check for pro
-  pro = None
-  pros = MyHost.objects.filter(host=request.user).order_by('-timestamp')
-  if pros.exists():
-    pro = pros[0].pro
-  else:
-    my_host, created = MyHost.objects.get_or_create(pro=None, host=request.user)
+#   data = {}
+#   # check for pro
+#   pro = None
+#   pros = MyHost.objects.filter(host=request.user).order_by('-timestamp')
+#   if pros.exists():
+#     pro = pros[0].pro
+#   else:
+#     my_host, created = MyHost.objects.get_or_create(pro=None, host=request.user)
 
-  # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
-  message_body = send_host_vinely_party_email(request, request.user, pro)
+#   # sends a notification to the Vinely Pro so this user can be upgraded to Vinely Host
+#   message_body = send_host_vinely_party_email(request, request.user, pro)
 
-  data["message"] = message_body
+#   data["message"] = message_body
 
-  return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/host_vinely_party.html", data, context_instance=RequestContext(request))
 
 
 def how_it_works(request, state=None):
@@ -271,6 +270,7 @@ def start_order(request, receiver_id=None, party_id=None):
   party = None
   receiver = None
   u = request.user
+  profile = u.get_profile()
 
   if 'receiver_id' in request.session:
     del request.session['receiver_id']
@@ -292,15 +292,19 @@ def start_order(request, receiver_id=None, party_id=None):
   if receiver_id:
     # can only order for others if you are the pro
     if u.get_profile().is_pro():
-      try:
-        OrganizedParty.objects.get(party=party, pro=u)
-
-        # if not the pro then must have been invited to the party
-        if u != receiver:  # True for the pro
-          invite = PartyInvite.objects.get(invitee=receiver, party=party)
-      except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
+      if party.pro != u or (u != receiver and not PartyInvite.objects.filter(invitee=receiver, party=party).exists()):
         messages.error(request, 'You can only order for tasters at your own parties')
         return HttpResponseRedirect(reverse('party_list'))
+
+      # try:
+      #   OrganizedParty.objects.get(party=party, pro=u)
+
+      #   # if not the pro then must have been invited to the party
+      #   if u != receiver:  # True for the pro
+      #     invite = PartyInvite.objects.get(invitee=receiver, party=party)
+      # except (OrganizedParty.DoesNotExist, PartyInvite.DoesNotExist):
+      #   messages.error(request, 'You can only order for tasters at your own parties')
+      #   return HttpResponseRedirect(reverse('party_list'))
 
     personality = receiver.get_profile().wine_personality
 
@@ -330,7 +334,7 @@ def start_order(request, receiver_id=None, party_id=None):
 
   if party:
     can_order = (today - party.event_date <= timedelta(hours=24))
-    if receiver_id and party_id and can_order == False:
+    if receiver_id and party_id and can_order is False:
       messages.error(request, "You can only order for a taster up to 24 hours after the party.")
       return HttpResponseRedirect(reverse('personality.views.personality_rating_info', args=[receiver.email, party.id]))
 
@@ -402,6 +406,7 @@ def cart_add_tasting_kit(request, party_id=0):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[1][0]
     cart.adds += 1
+    cart.receiver = u
     cart.save()
 
     return HttpResponseRedirect(reverse("cart"))
@@ -487,6 +492,7 @@ def cart_add_wine(request):
       cart.party = party
     cart.status = Cart.CART_STATUS_CHOICES[2][0]
     cart.adds += 1
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -552,6 +558,21 @@ def cart(request):
     check_cart = cart.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if check_cart.exists():
       data['allow_customize'] = False
+
+    coupon_form = ApplyCouponForm(request.POST or None, instance=cart)
+    data['coupon_form'] = coupon_form
+
+    if coupon_form.is_valid():
+      # apply coupon to cart subtotal
+      cart.coupon = coupon_form.cleaned_data['coupon']
+      receiver_profile = cart.receiver.get_profile()
+      receiver_profile.coupon = cart.coupon
+      receiver_profile.coupons.add(cart.coupon)
+      receiver_profile.coupon.save()
+      cart.coupon_amount = cart.apply_coupon()
+      cart.discount = cart.calculate_discount()
+      cart.save()
+
   except KeyError:
     # cart is empty
     data["items"] = []
@@ -579,12 +600,13 @@ def cart_remove_item(request, cart_id, item_id):
 
   # track cart activity
   cart.removes += 1
+  cart.coupon_amount = cart.apply_coupon()
   cart.discount = cart.calculate_discount()
   cart.save()
 
   data["shop_menu"] = True
 
-  return HttpResponseRedirect(request.GET.get("next"))
+  return HttpResponseRedirect(request.GET.get("next", reverse('cart')))
 
 
 @login_required
@@ -675,6 +697,7 @@ def place_order(request):
     except CustomizeOrder.DoesNotExist:
       pass
 
+    cart.coupon_amount = cart.apply_coupon()
     cart.discount = cart.calculate_discount()
     cart.save()
 
@@ -722,15 +745,44 @@ def place_order(request):
           if receiver_state == "CA":
             stripe.api_key = settings.STRIPE_SECRET_CA
 
+      if order.fulfill_status == 0:
+        # TODO : handle possible race conditon here i.e
+        # if times_redeemed already changed by this point dont allow redemption
+        if cart.coupon:
+          with transaction.commit_on_success():
+            cart.coupon.times_redeemed += 1
+            if cart.coupon.max_redemptions == cart.coupon.times_redeemed:
+              cart.coupon.active = False
+              receiver_profile = cart.receiver.get_profile()
+              receiver_profile.coupon = None
+              receiver_profile.save()
+            cart.coupon.save()
+
+        # cannot apply mutiple coupons on stripe so have to combine credit+coupon code into one
+        coupon_id = "%s" % order.vinely_order_id
+        if cart.coupon_amount > 0:
+          coupon_id = "%s-%s-$%s" % (coupon_id, cart.coupon.code, cart.coupon_amount)
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.coupon_amount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
+
         if cart.discount > 0:
+          coupon_id = "%s-credit-$%s" % (coupon_id, cart.discount)
+          # customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
+          # coupon_id = "%s-account_credit" % (order.vinely_order_id, )
+          # coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          # customer.coupon = coupon.id
+          # customer.save()
+          receiver_profile = cart.receiver.get_profile()
+          receiver_profile.account_credit = Decimal(receiver_profile.account_credit) - Decimal(cart.discount)
+          receiver_profile.save()
+
+        if cart.coupon_amount > 0 or cart.discount > 0:
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
-          coupon = stripe.Coupon.create(amount_off=int(cart.discount * 100), duration='once', currency='usd')
+          total_off = Decimal(cart.discount) + Decimal(cart.coupon_amount)
+          coupon = stripe.Coupon.create(id=coupon_id, amount_off=int(total_off * 100), duration='once', currency='usd')
           customer.coupon = coupon.id
           customer.save()
-
-          receiver_profile = cart.receiver.get_profile()
-          receiver_profile.account_credit = receiver_profile.account_credit - cart.discount
-          receiver_profile.save()
 
         # NOTE: Amount must be in cents
         # Having these first so that they come last in the stripe invoice.
@@ -747,6 +799,8 @@ def place_order(request):
         if non_sub_orders.exists() and not sub_orders.exists():
           invoice = stripe.Invoice.create(customer=profile.stripe_card.stripe_user)
           invoice.pay()
+          order.stripe_invoice = invoice.id
+          order.save()
 
         # if subscription exists then create plan
         if sub_orders.exists():
@@ -754,8 +808,12 @@ def place_order(request):
           customer = stripe.Customer.retrieve(id=profile.stripe_card.stripe_user)
           stripe_plan = SubscriptionInfo.STRIPE_PLAN[item.frequency][item.price_category - 5]
           customer.update_subscription(plan=stripe_plan)
+          # trial_end_date = datetime.now(tz=UTC()) + timedelta(hours=7)
+          # import time
+          # trial_end_timestamp = int(time.mktime(trial_end_date.timetuple()))
+          # print 'trial_end_timestamp', trial_end_timestamp
+          # customer.update_subscription(plan=stripe_plan, trial_end=trial_end_timestamp)
 
-      if order.fulfill_status == 0:
         # update subscription information if new order
         items = order.cart.items.filter(price_category__in=[12, 13, 14], frequency__in=[1])
         if items.exists():
@@ -795,7 +853,7 @@ def place_order(request):
         if items.exists():
           from personality.models import WineRatingData
 
-          if receiver_profile.is_host() or receiver_profile.is_taster():
+          if (receiver_profile.is_host() or receiver_profile.is_taster()) and order.cart.party:
             order_window = order.cart.party.event_date + timedelta(days=7)
             invites = PartyInvite.objects.filter(party=order.cart.party, party__event_date__lte=order_window, invitee=order.receiver, response=3)
             # party date considered 24hrs
@@ -935,32 +993,32 @@ def order_history(request):
   return render_to_response("main/order_history.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def parties(request):
-  """
-    Show list of parties
-  """
-  data = {}
+# @login_required
+# def parties(request):
+#   """
+#     Show list of parties
+#   """
+#   data = {}
 
-  data["parties"] = Party.objects.all()
-  data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
+#   data["parties"] = Party.objects.all()
+#   data["party_invites"] = PartyInvite.objects.values('party').annotate(num_invites=Count('invitee'))
 
-  return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
+#   return render_to_response("main/parties.html", data, context_instance=RequestContext(request))
 
 
-@login_required
-def tag(request):
-  """
-    Tag a member with particular term
-    - people can edit tags
-    - ajax call
-    - log those people who added those tags
-  """
-  data = {}
+# @login_required
+# def tag(request):
+#   """
+#     Tag a member with particular term
+#     - people can edit tags
+#     - ajax call
+#     - log those people who added those tags
+#   """
+#   data = {}
 
-  data["result"] = "tagging successful"
+#   data["result"] = "tagging successful"
 
-  return HttpResponse(json.dumps(data), mimetype="application/json")
+#   return HttpResponse(json.dumps(data), mimetype="application/json")
 
 
 @login_required
@@ -976,16 +1034,16 @@ def party_list(request):
 
   today = timezone.now()
 
-  my_pro_parties = OrganizedParty.objects.filter(pro=u).values_list('party', flat=True).distinct()
-  my_parties = Party.objects.filter(Q(organizedparty__pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
+  my_pro_parties = Party.objects.filter(pro=u).distinct()
+  my_parties = Party.objects.filter(Q(pro=u) | Q(host=u) | Q(partyinvite__invitee=u)).distinct().select_related()
 
   if profile.is_pro():
     # need to filter to parties that a particular user manages
     # consider a party 'past' 24hours after event date
     party_valid_date = today - timedelta(hours=24)
     # parties managed
-    data['pro_parties'] = my_parties.filter(organizedparty__pro=u, event_date__gte=party_valid_date).order_by('event_date')
-    data['pro_past_parties'] = my_parties.filter(organizedparty__pro=u, event_date__lt=party_valid_date).order_by('-event_date')
+    data['pro_parties'] = my_parties.filter(pro=u, event_date__gte=party_valid_date).order_by('event_date')
+    data['pro_past_parties'] = my_parties.filter(pro=u, event_date__lt=party_valid_date).order_by('-event_date')
 
     # parties hosted
     data['host_parties'] = my_parties.filter(host=u, event_date__gte=today).exclude(id__in=my_pro_parties).order_by('event_date')
@@ -1021,8 +1079,8 @@ def party_host_list(request, host_name_email):
   host_name_email = host_name_email.strip()
 
   # show people who RSVP'ed to the party
-  my_hosts = MyHost.objects.filter(pro=pro)
-  users = User.objects.filter(id__in=[x.host.id for x in my_hosts])
+  my_parties = Party.objects.filter(pro=pro)
+  users = User.objects.filter(id__in=[x.host.id for x in my_parties])
   users = users.filter(Q(first_name__icontains=host_name_email) | Q(last_name__icontains=host_name_email) | Q(email__icontains=host_name_email)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]
 
@@ -1040,7 +1098,7 @@ def my_taster_list(request, taster_name_email):
     users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   elif u.userprofile.is_pro():
     # only get users linked to this pro
-    my_guests = PartyInvite.objects.filter(party__organizedparty__pro=u)
+    my_guests = PartyInvite.objects.filter(party__pro=u)
     users = User.objects.filter(Q(first_name__icontains=taster_name_email) | Q(last_name__icontains=taster_name_email) | Q(email__icontains=taster_name_email), id__in=[x.invitee.id for x in my_guests]).order_by('first_name')[:10]
   else:
     # nothing
@@ -1079,10 +1137,11 @@ def party_add(request, party_id=None, party_pro=None):
   if u.get_profile().role in [UserProfile.ROLE_CHOICES[4][0], UserProfile.ROLE_CHOICES[3][0], UserProfile.ROLE_CHOICES[5][0]]:
     # if not a Vinely Pro or Host, one does not have permissions
     data["no_perms"] = True
-    data["pending_pro"] = UserProfile.ROLE_CHOICES[5][0] == u.get_profile().role 
+    data["pending_pro"] = UserProfile.ROLE_CHOICES[5][0] == u.get_profile().role
     return render_to_response("main/party_add.html", data, context_instance=RequestContext(request))
 
   initial_data = {}  # 'event_day': datetime.today().strftime("%m/%d/%Y")}
+  initial_data['pro'] = u
 
   party = None
 
@@ -1090,7 +1149,7 @@ def party_add(request, party_id=None, party_pro=None):
     if u.userprofile.is_host():
       party = get_object_or_404(Party, pk=party_id, host=u)
     else:
-      party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+      party = get_object_or_404(Party, pk=party_id, pro=u)
 
     if party.event_date < timezone.now():
       messages.warning(request, "You cannot change party details for a past event.")
@@ -1121,8 +1180,7 @@ def party_add(request, party_id=None, party_pro=None):
 
   else:
     # is pro
-    initial_data['pro'] = u
-    parties = Party.objects.filter(organizedparty__pro=u).order_by('-id')
+    parties = Party.objects.filter(pro=u).order_by('-id')
     most_recent_party = parties[0] if parties.exists() else None
 
   if self_hosting:
@@ -1197,7 +1255,7 @@ def party_add(request, party_id=None, party_pro=None):
         applicable_pro = u
 
       # if there's an applicable pro create OrganizedParty now, will apply pro when one is assigned
-      pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
+      # pro_parties, created = OrganizedParty.objects.get_or_create(pro=applicable_pro, party=new_party)
       if applicable_pro:
         host_profile = new_host.get_profile()
         if not host_profile.current_pro:
@@ -1261,7 +1319,7 @@ def party_edit_date(request, party_id):
   u = request.user
 
   data = {}
-  party = get_object_or_404(Party, pk=party_id, organizedparty__pro=u)
+  party = get_object_or_404(Party, pk=party_id, pro=u)
   data['party'] = party
 
   initial_data = {}
@@ -1413,7 +1471,7 @@ def party_review_request(request, party_id):
     # send e-mails
     distribute_party_invites_email(request, invitation)
 
-      # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
+    # messages.success(request, "You have submitted your party but you still need to be paired with a Vinely Pro and have the party confirmed before your invite can be sent out.")
     messages.success(request, "Your invitations were sent successfully to %s tasters." % invites.count())
     return HttpResponseRedirect(reverse("party_details", args=[party.id]))
 
@@ -1626,9 +1684,9 @@ def party_confirm(request, party_id):
   party.confirmed = True
   party.save()
 
-  org_party = OrganizedParty.objects.get(party=party)
-  org_party.pro = u
-  org_party.save()
+  # org_party = OrganizedParty.objects.get(party=party)
+  # org_party.pro = u
+  # org_party.save()
 
   if party.auto_invite:
     invitation = InvitationSent.objects.filter(party=party).order_by('-id')[0]
@@ -1716,7 +1774,7 @@ def party_taster_invite(request, rsvp_code=None, party_id=0):
       parties = Party.objects.filter(host=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
     elif u.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
-      parties = Party.objects.filter(organizedparty__pro=u, event_date__gt=yesterday)
+      parties = Party.objects.filter(pro=u, event_date__gt=yesterday)
       form.fields['party'].queryset = parties
 
     data["form"] = form
@@ -1938,7 +1996,7 @@ def party_host_confirmation_preview(request, party_id, email_id):
 
   data = {}
 
-  party = get_object_or_404(Party, id=party_id, organizedparty__pro=u)
+  party = get_object_or_404(Party, id=party_id, pro=u)
 
   email = get_object_or_404(Email, pk=email_id)
   data["party"] = party
@@ -2345,7 +2403,7 @@ def supplier_orders_filter(request, history_list=False):
   if u.email == 'mi_sales@vinely.com':
     active_state = 'MI'
   elif u.email == 'sales@vinely.com':
-    active_state = 'MA'
+    active_state = 'CA'
 
   zipcodes = Zipcode.objects.filter(state=active_state).values('code')
 
@@ -2498,8 +2556,7 @@ def edit_shipping_address(request):
 
   form = ShippingForm(request.POST or None, instance=receiver, initial=initial_data)
 
-  initial_age = {'dob': receiver_profile.dob.strftime("%m/%d/%Y") if receiver_profile.dob else ''}
-  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, initial=initial_age, prefix='eligibility')
+  age_validity_form = AgeValidityForm(request.POST or None, instance=receiver_profile, prefix='eligibility')
 
   valid_age = age_validity_form.is_valid()
 
@@ -2507,12 +2564,12 @@ def edit_shipping_address(request):
   data['form'] = form
 
   # check zipcode is ok
-  if request.method == 'POST':
-    zipcode = request.POST.get('zipcode')
-    ok = check_zipcode(zipcode)
-    if zipcode and not ok:
-      messages.error(request, 'Currently, we can only ship to California.')
-      return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
+  # if request.method == 'POST':
+  #   zipcode = request.POST.get('zipcode')
+  #   ok = check_zipcode(zipcode)
+  #   if zipcode and not ok:
+  #     messages.warning(request, 'Currently, we can only ship to California.')
+  #     return render_to_response("main/edit_shipping_address.html", data, context_instance=RequestContext(request))
 
   if form.is_valid() and valid_age:
     receiver = form.save()

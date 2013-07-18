@@ -13,6 +13,7 @@ from main.models import CustomizeOrder
 from main.utils import UTC, add_form_validation
 from datetime import datetime, timedelta
 import math
+from django.forms.extras.widgets import SelectDateWidget
 
 
 class NameEmailUserCreationForm(UserCreationForm):
@@ -116,12 +117,17 @@ class VerifyEligibilityForm(forms.ModelForm):
 
   class Meta:
     model = UserProfile
-    exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone', 'credits'
-              'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
+    fields = ['dob', 'user', 'gender', 'dl_number', 'zipcode', 'accepted_tos', 'above_21']
+    # exclude = ['wine_personality', 'prequestionnaire', 'billing_address', 'shipping_address', 'phone', 'credits'
+    #           'credit_card', 'credit_cards', 'party_addresses', 'shipping_addresses', 'mentor', 'stripe_card', 'stripe_cards']
 
   def __init__(self, *args, **kwargs):
     super(VerifyEligibilityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
+    # self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
+    today = datetime.now().year
+    hundred_ago = today - 100
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(today - 21, hundred_ago, -1)])
+    self.fields['dob'].widget.attrs = {'class': 'select-date'}
     self.fields['user'].widget = forms.HiddenInput()
 
   def clean(self):
@@ -132,7 +138,8 @@ class VerifyEligibilityForm(forms.ModelForm):
       today = datetime.date(datetime.now(tz=UTC()))
       datediff = today - dob
       if (datediff.days < timedelta(math.ceil(365.25 * 21)).days and data['above_21']) or (not dob and data['above_21']):
-        raise forms.ValidationError('The Date of Birth shows that you are not over 21')
+        # raise forms.ValidationError('The Date of Birth shows that you are not over 21')
+        self._errors["dob"] = self.error_class([u"The Date of Birth shows that you are not over 21"])
     return data
 
 
@@ -143,12 +150,16 @@ class AgeValidityForm(forms.ModelForm):
 
   def __init__(self, *args, **kwargs):
     super(AgeValidityForm, self).__init__(*args, **kwargs)
-    self.fields['dob'].widget.attrs = {
-        'class': 'datepicker input-block-level',
-        'data-date-viewmode': 'years',
-        'data-date-format': 'mm/dd/yyyy',
-        'placeholder': 'MM/DD/YYYY',
-    }
+    # self.fields['dob'].widget.attrs = {
+    #     'class': 'datepicker input-block-level',
+    #     'data-date-viewmode': 'years',
+    #     'data-date-format': 'mm/dd/yyyy',
+    #     'placeholder': 'MM/DD/YYYY',
+    # }
+    today = datetime.now().year
+    hundred_ago = today - 100
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(today - 21, hundred_ago, -1)])
+    self.fields['dob'].widget.attrs = {'class': 'select-date'}
     add_form_validation(self)
     # self.fields['mentor'].widget = forms.HiddenInput()
     # self.fields['gender'].widget = forms.HiddenInput()
@@ -336,7 +347,7 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
 
     self.fields['first_name'].required = True
     self.fields['last_name'].required = True
-    self.initial = kwargs['initial']
+    self.initial = kwargs.get('initial', {})
     add_form_validation(self)
     self.fields['password2'].widget.attrs['class'] = "validate[required,equals[id_password1]]"
     for field_name in self.fields:
@@ -352,12 +363,12 @@ class NameEmailUserMentorCreationForm(NameEmailUserCreationForm):
     if mentor_email:
       mentor_email = mentor_email.strip().lower()
 
-    if self.initial['account_type'] == 1 and mentor_email:  # pro -> mentor field
+    if self.initial.get('account_type') == 1 and mentor_email:  # pro -> mentor field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The mentor you specified is not a Vinely Pro. Please verify the email address or leave it blank and a mentor will be assigned to you"
 
-    if self.initial['account_type'] == 2 and mentor_email or self.initial['account_type'] == 3 and mentor_email:  # host -> pro field
+    if self.initial.get('account_type') == 2 and mentor_email or self.initial.get('account_type') == 3 and mentor_email:  # host -> pro field
       # make sure the pro exists
       if not User.objects.filter(email=mentor_email, userprofile__role=UserProfile.ROLE_CHOICES[1][0]).exists():
         self._errors['mentor'] = "The Pro email you specified is not for a Vinley Pro. Please verify the email address or leave it blank and a Pro will be assigned to you"
@@ -426,11 +437,11 @@ class MakeTasterForm(NameEmailUserMentorCreationForm):
 
 class HeardAboutForm(forms.Form):
   SOURCES = (
-    (0, "A Party"),
-    (1, "Print Materials"),
-    (2, "Vinely Pro"),
-    (3, "Word of mouth"),
-    (4, "Other")
+      (0, "A Party"),
+      (1, "Print Materials"),
+      (2, "Vinely Pro"),
+      (3, "Word of mouth"),
+      (4, "Other")
   )
   source = forms.ChoiceField(choices=SOURCES)
   description = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'span6'}))

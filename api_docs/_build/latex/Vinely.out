@@ -1,0 +1,16 @@
+\BOOKMARK [0][-]{chapter.1}{Authentication and Authorization}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Signup}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Login}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{Logout}{chapter.1}% 4
+\BOOKMARK [0][-]{chapter.2}{Accounts: User and profile management}{}% 5
+\BOOKMARK [1][-]{section.2.1}{User}{chapter.2}% 6
+\BOOKMARK [1][-]{section.2.2}{Profile}{chapter.2}% 7
+\BOOKMARK [0][-]{chapter.3}{Parties and Events}{}% 8
+\BOOKMARK [1][-]{section.3.1}{Events}{chapter.3}% 9
+\BOOKMARK [1][-]{section.3.2}{Party}{chapter.3}% 10
+\BOOKMARK [1][-]{section.3.3}{Party Invitations and RSVP}{chapter.3}% 11
+\BOOKMARK [0][-]{chapter.4}{Personality and Wine Ratings}{}% 12
+\BOOKMARK [1][-]{section.4.1}{Wine Personality}{chapter.4}% 13
+\BOOKMARK [1][-]{section.4.2}{Wine Ratings}{chapter.4}% 14
+\BOOKMARK [0][-]{chapter.5}{Indices and tables}{}% 15
+\BOOKMARK [0][-]{section*.26}{HTTP Routing Table}{}% 16

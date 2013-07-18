@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
 from django.conf import settings
@@ -140,12 +140,12 @@ from django.forms.util import ErrorList
 
 
 class VinelyUserProfileForm(forms.ModelForm):
-  vinely_pro_account = forms.CharField()
+  vinely_pro_account = forms.CharField(required=False)
 
   class Meta:
     model = UserProfile
     # fields = ('email', 'full_name', 'user_image', 'dob', 'phone', 'zipcode', 'news_optin_flag', 'wine_personality', 'role', 'pro_number', 'internal_pro')
-    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses']
+    exclude = ['credit_card', 'stripe_card', 'credit_cards', 'stripe_cards', 'shipping_addresses', 'party_addresses', 'coupon', 'coupons']
 
   def __init__(self, *args, **kwargs):
     instance = kwargs.get('instance')
@@ -178,9 +178,12 @@ class VinelyUserProfileForm(forms.ModelForm):
 
   def save(self, commit=True):
     profile = super(VinelyUserProfileForm, self).save(commit)
-    pro_account, created = VinelyProAccount.objects.get_or_create(users=profile.user)
-    pro_account.account_number = self.cleaned_data['vinely_pro_account']
-    pro_account.save()
+    if profile.role == 1 and self.cleaned_data.get('vinely_pro_account'):  # pro
+      pro_account, created = VinelyProAccount.objects.get_or_create(account_number=self.cleaned_data.get('vinely_pro_account'))
+      # pro_account.account_number = self.cleaned_data['vinely_pro_account']
+      pro_account.save()
+      if created:
+        pro_account.users.add(profile.user)
     return profile
 
 
