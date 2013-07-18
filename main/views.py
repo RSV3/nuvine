@@ -1161,6 +1161,8 @@ def party_add(request, party_id=None, party_pro=None):
     # if party.confirmed and not (u.userprofile.events_manager() or party.host != u):
     #   messages.warning(request, "You cannot change party details once the party confirmation request has been sent out")
     #   return HttpResponseRedirect(reverse('party_details', args=[party_id]))
+  if party and (party.host != u):
+    return HttpResponseRedirect(reverse('party_list'))
 
   self_hosting = True
   if u.userprofile.is_pro() and party_pro != 'pro' and not party_id:
@@ -1194,6 +1196,7 @@ def party_add(request, party_id=None, party_pro=None):
 
   if party and party.address:
     initial_data['host'] = party.host
+    initial_data['pro'] = party.pro
     # initial_data['address'] = party.address
     initial_data['street1'] = party.address.street1
     initial_data['street2'] = party.address.street2
