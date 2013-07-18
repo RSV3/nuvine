@@ -13,7 +13,7 @@ from datetime import timedelta
 
 from main.utils import if_supplier, send_welcome_to_vinely_email
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
-from main.models import Order, Party, PersonaLog, PartyInvite, OrganizedParty
+from main.models import Order, Party, PersonaLog, PartyInvite
 from accounts.models import VerificationQueue, UserProfile
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
                               AddTasterRatingsForm, WineRatingForm
@@ -273,7 +273,7 @@ def record_all_wine_ratings(request, email=None, party_id=None, rate=1):
   data["party_id"] = party_id
   data["party"] = party
 
-  if not party.pro == u:
+  if not party.pro == u and not u.is_superuser:
     messages.error(request, 'You can only add ratings for your own parties')
     return HttpResponseRedirect(reverse('party_list'))
 
@@ -561,7 +561,7 @@ def taster_list(request, taster, party_id):
 
   # only get tasters linked to this pro
   # show people who RSVP'ed to the party
-  my_guests = PartyInvite.objects.filter(party__organizedparty__pro=pro, party__id=party_id)
+  my_guests = PartyInvite.objects.filter(party__pro=pro, party__id=party_id)
   users = User.objects.filter(id__in=[x.invitee.id for x in my_guests])
   users = users.filter(Q(first_name__icontains=taster) | Q(last_name__icontains=taster) | Q(email__icontains=taster)).order_by('first_name')
   data = ['%s %s, %s' % (x.first_name, x.last_name, x.email) for x in users]

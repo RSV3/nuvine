@@ -1,0 +1,142 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% load static %}
+
+{% block additional_styles %}
+
+<link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+
+<style type="text/css">
+  .table-container {
+    width: 100%;
+  }
+  .user-detail-table {
+    border: none;
+  }
+  .user-detail-table td {
+    border: none;
+  }
+  .user-detail-table td:first-child {
+    font-weight: bold;
+  }
+  a:visited {
+    color: #DD4040;
+    text-decoration: none;
+  }
+  .table-striped tr td:first-child{
+    padding-right: 15px;
+    text-align: right;
+    font-weight: bold;
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">User Details - {{ user_detail.get_full_name }}</h1>
+{% endblock header %}
+
+{% block content %}
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span4">
+      <table class="table user-detail-table">
+        <tr>
+          <td>Name:</td>
+          <td>{{ user_detail.get_full_name }}</td>
+        </tr>
+        <tr>
+          <td>Email:</td>
+          <td>{{ user_detail.email }}</td>
+        </tr>
+        <tr>
+          <td>Phone:</td>
+          <td>{{ profile_detail.phone }}</td>
+        </tr>
+        <tr>
+          <td>Pro</td>
+          {% if profile_detail.is_pro %}
+            <td>{{ profile_detail.mentor }}</td>
+          {% else %}
+            <td>{{ profile_detail.current_pro }}</td>
+          {% endif %}
+        </tr>
+      </table>
+    </div>
+    <div class="span4">
+      <table class="table user-detail-table">
+        <tr>
+          <td>VIP Type:</td>
+          <td>{{ profile_detail.active_subscription }}</td>
+        </tr>
+        <tr>
+          <td>Account Credit:</td>
+          <td>{{ credits }}</td>
+        </tr>
+        <tr>
+          <td>Shipping Address:</td>
+          <td>{{ profile_detail.shipping_address }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="span4">
+      <table class="table user-detail-table">
+        <tr>
+          <td>Billing Zipcode:</td>
+          <td>{{ credit_card.billing_zipcode }}</td>
+        </tr>
+        <tr>
+          <td>Credit Card (Last 4):</td>
+          <td>{{ credit_card.last_four }}</td>
+        </tr>
+        <tr>
+          <td>Expiration Date:</td>
+          <td>{{ credit_card.exp_date}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <a href="{% url my_information %}?__impersonate={{ user_detail.id }}" class="btn btn-success pull-right">Edit Info</a>
+      <span class="pull-right">&nbsp;</span>
+      <a href="{% url start_order %}?__impersonate={{ user_detail.id }}" class="btn btn-success pull-right">Place Order</a>
+      <span class="pull-right">&nbsp;</span>
+      <!-- <button class="btn btn-success pull-right">Issue Refund</button>  -->
+    </div>
+  </div>
+  <div class="vertical-space"></div>
+  <div class="row">
+    <div class="span12">
+      {% render_table order_history %}
+    </div>
+  </div> <!-- .row -->
+
+</div>
+{% endblock content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.refund-order').click(function(e) {
+        $.ajax({
+          type: "GET",
+          url: "{% url support:refund_order 0 %}?next={{ request.path }}".replace(0, $(this).attr('data-order')),
+          cache: false,
+          dataType: "html",
+          success: function(html, textStatus) {
+            $(html).modal();
+          },
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Oops. There was a problem on the server. Try again later");
+            console.log("errorThrown:" + XMLHttpRequest);
+          }
+        });
+      });
+      // function refund_clicked() {
+      //   $('#id_refund_amount').disabled = $(this).prop('checked');
+      // }
+    });
+  </script>
+{% endblock additional_scripts %}

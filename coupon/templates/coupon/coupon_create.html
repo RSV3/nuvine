@@ -1,0 +1,186 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+
+{% load static %}
+
+{% block additional_styles %}
+  <link rel="stylesheet" href="{% static "datepicker/css/datepicker.css" %}">
+  <style type="text/css">
+    {% if coupon.duration != 2 %}
+      .repeat-duration {
+        display: none;
+      }
+    {% endif %}
+    .form-horizontal ul {
+      list-style: none;
+    }
+  </style>
+{% endblock additional_styles %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <form class="form-horizontal" method="POST" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="span10 offset2">
+        <div class="control-group {% if form.name.errors %}error{% endif %}">
+          <div class="control-label" for="id_name">{{ form.name.label }}</div>
+          <div class="controls">
+            {{ form.name }}
+            {% if form.name.errors %}
+              <span class="help-inline">
+                {{ form.name.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.code.errors %}error{% endif %}">
+          <div class="control-label" for="id_code">{{ form.code.label }}</div>
+          <div class="controls">
+            {{ form.code }}
+            {% if form.code.errors %}
+              <span class="help-inline">
+                {{ form.code.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.active.errors %}error{% endif %}">
+          <div class="control-label" for="id_active">{{ form.active.label }}</div>
+          <div class="controls">
+            {{ form.active }} 
+            {% if form.active.errors %}
+              <span class="help-inline">
+                {{ form.active.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.duration.errors %}error{% endif %}">
+          <div class="control-label" for="id_duration">{{ form.duration.label }}</div>
+          <div class="controls">
+            {{ form.duration }} 
+            {% if form.duration.errors %}
+              <span class="help-inline">
+                {{ form.duration.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group repeat-duration {% if form.repeat_duration.errors %}error{% endif %}">
+          <div class="control-label" for="id_repeat_duration">{{ form.repeat_duration.label }}</div>
+          <div class="controls">
+            {{ form.repeat_duration }} 
+            <span class="help-inline">{{ form.repeat_duration.help_text }}</span>
+            {% if form.repeat_duration.errors %}
+              <span class="help-inline">
+                {{ form.repeat_duration.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <fieldset>
+          <legend>Discount type and amount</legend>
+          <div class="control-group {% if form.amount_off.errors %}error{% endif %}">
+            <div class="control-label" for="id_amount_off">{{ form.amount_off.label }}</div>
+            <div class="controls">
+              <!-- {{ form.amount_off }}  -->
+              <div class="input-prepend">
+                  <span class="add-on">$</span>
+                  <input class="span2" type="text" name="amount_off" 
+                    value="{% if coupon.amount_off %}{{ coupon.amount_off }}{% else %}0{% endif %}" id="id_amount_off">
+              </div>
+              {% if form.amount_off.errors %}
+                <span class="help-inline">
+                  {{ form.amount_off.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          <h2 style="margin-left: 120px; margin-top: -22px;"><small>OR</small></h2>
+          <div class="control-group {% if form.percent_off.errors %}error{% endif %}">
+            <div class="control-label" for="id_percent_off">{{ form.percent_off.label }}</div>
+            <div class="controls">
+              <!-- {{ form.percent_off }}  -->
+              <div class="input-append">
+                  <input class="span1" type="text" name="percent_off" 
+                    value="{% if coupon.percent_off %}{{ coupon.percent_off }}{% else %}0{% endif %}" id="id_percent_off">
+                  <span class="add-on">%</span>
+              </div>
+              {% if form.percent_off.errors %}
+                <span class="help-inline">
+                  {{ form.percent_off.errors }}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </fieldset>
+        <div class="control-group {% if form.max_redemptions.errors %}error{% endif %}">
+          <div class="control-label" for="id_max_redemptions">{{ form.max_redemptions.label }}</div>
+          <div class="controls">
+            {{ form.max_redemptions }}
+            <span class="help-inline">{{ form.max_redemptions.help_text }}</span>
+            {% if form.max_redemptions.errors %}
+              <span class="help-inline">
+                {{ form.max_redemptions.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.redeem_by.errors %}error{% endif %}">
+          <div class="control-label" for="id_redeem_by">{{ form.redeem_by.label }}</div>
+          <div class="controls">
+            {{ form.redeem_by }}
+            {% if form.redeem_by.errors %}
+              <span class="help-inline">
+                {{ form.redeem_by.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.applies_to.errors %}error{% endif %}">
+          <div class="control-label" for="id_applies_to">{{ form.applies_to.label }}</div>
+          <div class="controls">
+            {{ form.applies_to }} 
+            {% if form.applies_to.errors %}
+              <span class="help-inline">
+                {{ form.applies_to.errors }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="control-group {% if form.applies_to.errors %}error{% endif %}">
+          <div class="controls">
+            <button type="submit" class="btn btn-primary">Update</btn>
+          </div>
+        </div>
+        
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+  <script type="text/javascript" src="{% static "datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      if ($('#id_duration').val() == 2) {
+        $('.repeat-duration').show('fast');
+      }
+      $('.datepicker').datepicker();
+      $('#id_duration').change(function() {
+        if ($(this).val() == 2) {
+          $('.repeat-duration').show('fast');
+        }
+        else {
+          $('.repeat-duration').hide('fast');
+          $('#id_repeat_duration').val(0);
+        }
+      });
+    });
+  </script>
+{% endblock additional_scripts %}

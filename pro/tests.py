@@ -10,7 +10,7 @@ from datetime import datetime
 
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from main.models import Cart, LineItem, Order, Party, OrganizedParty, MyHost, Product
+from main.models import Cart, LineItem, Order, Party, MyHost, Product
 from accounts.models import Address, UserProfile, CreditCard
 from pro.models import ProLevel
 from pro.utils import create_party, create_orders, create_non_party_orders
@@ -684,13 +684,13 @@ class SimpleTest(TestCase):
                 downline_pros.append(mentee_profile.user)
 
             pro_comp[pro.id] = {
-              'pro': pro,
-              'total_sales': 0,
-              'upline': pro.get_profile().mentor,
-              'downline': downline_pros,
-              'traversed': False,
-              'qualified': False,
-              'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
+                'pro': pro,
+                'total_sales': 0,
+                'upline': pro.get_profile().mentor,
+                'downline': downline_pros,
+                'traversed': False,
+                'qualified': False,
+                'level': ProLevel.PRO_LEVEL_CHOICES[0][0]
             }
             pro_comp[pro.id]['total_sales'] += pro_sales[pro.id]
 

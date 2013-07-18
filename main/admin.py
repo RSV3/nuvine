@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.core.urlresolvers import reverse
 
 from main.models import ProSignupLog, EngagementInterest, Party, PartyInvite, Order, \
-                        CustomizeOrder, OrganizedParty, UnconfirmedParty, NewHostNoParty
+                        CustomizeOrder, UnconfirmedParty, NewHostNoParty
 from main.utils import send_pro_assigned_notification_email, send_host_vinely_party_email
 
 
@@ -84,10 +84,10 @@ class MyHostAdmin(admin.ModelAdmin):
     if obj.pro and obj.host:
       # find any upcoming parties by host that have no pro assigned
       # assign the pro
-      host_parties = Party.objects.filter(host=obj.host, event_date__gte=timezone.now())
-      party_has_pro = OrganizedParty.objects.filter(party__in=host_parties, pro__isnull=True)
-      if party_has_pro:
-        party_has_pro.update(pro=obj.pro)
+      party_no_pro = Party.objects.filter(host=obj.host, event_date__gte=timezone.now(), pro__isnull=True)
+      # party_no_pro = OrganizedParty.objects.filter(party__in=host_parties, pro__isnull=True)
+      if party_no_pro:
+        party_no_pro.update(pro=obj.pro)
 
       host_profile = obj.host.get_profile()
       host_profile.current_pro = obj.pro

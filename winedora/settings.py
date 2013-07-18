@@ -2,11 +2,11 @@
 
 import os
 import djcelery
-# djcelery.setup_loader()
+djcelery.setup_loader()
 
 BROKER_URL = os.environ.get('CLOUDAMQP_URL', 'amqp://guest:guest@localhost:5672//')
 
-USE_CELERY = False
+USE_CELERY = True
 
 # need to get directory of parent-parent since settings.py in two layers below
 PROJECT_ROOT = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
@@ -199,6 +199,9 @@ if DEPLOY:
       'django.middleware.csrf.CsrfViewMiddleware',
       'django.contrib.auth.middleware.AuthenticationMiddleware',
       'django.contrib.messages.middleware.MessageMiddleware',
+      'django.middleware.transaction.TransactionMiddleware',
+      'winedora.middleware.ImpersonateMiddleware',
+      'api.middleware.XsSharing',
       # Uncomment the next line for simple clickjacking protection:
       # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
   )
@@ -212,6 +215,10 @@ else:
       'django.middleware.csrf.CsrfViewMiddleware',
       'django.contrib.auth.middleware.AuthenticationMiddleware',
       'django.contrib.messages.middleware.MessageMiddleware',
+      'django.middleware.transaction.TransactionMiddleware',
+      'winedora.middleware.ImpersonateMiddleware',
+      'api.middleware.XsSharing',
+      'api_logger.middleware.APILogMiddleWare',
       # Uncomment the next line for simple clickjacking protection:
       # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
   )
@@ -236,6 +243,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
+    'fluent_dashboard',
+    'admin_tools',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
@@ -256,9 +268,15 @@ INSTALLED_APPS = (
     'django_tables2',
     'tinymce',
     'pro',
-    # 'djcelery',
+    'djcelery',
+    'coupon',
+    'api',
+    'api_logger',
+    'tastypie',
+    'tastypie_swagger',
 )
 
+TASTYPIE_SWAGGER_API_MODULE = 'api.tools.api'
 
 SOUTH_TESTS_MIGRATE = False
 
@@ -324,9 +342,9 @@ try:
   )
 except:
   CACHES = {
-    'default': {
-      'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-    }
+      'default': {
+          'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+      }
   }
 
 # A sample logging configuration. The only tangible logging
@@ -387,6 +405,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO'
         },
+        'coupon': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
     },
 }
 
@@ -414,3 +436,64 @@ else:
 #   'font_size_style_values': 'medium',
 #   'theme_advanced_font_sizes': 'medium',
 # }
+
+ADMIN_TOOLS_INDEX_DASHBOARD = 'fluent_dashboard.dashboard.FluentIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'fluent_dashboard.dashboard.FluentAppIndexDashboard'
+ADMIN_TOOLS_MENU = 'fluent_dashboard.menu.FluentMenu'
+
+FLUENT_DASHBOARD_CMS_PAGE_MODEL = ('cms', 'contenttemplate')
+
+FLUENT_DASHBOARD_APP_ICONS = {
+    'accounts/userprofile': 'preferences-contact-list.png',
+    'accounts/address': 'go-home.png',
+    'accounts/subscriptioninfo': 'view-time-schedule.png',
+    'personality/wineratingdata': 'mail-mark-task.png',
+    'main/party': 'view-resource-calendar.png',
+    'main/unconfirmedparty': 'x-office-calendar.png',
+    'main/customizeorder': 'basket.png',
+    'main/newhostnoparty': 'meeting-participant.png',
+    'main/order': 'utilities-file-archiver.png',
+    'main/prosignuplog': 'view-calendar-journal.png',
+    'main/engagementinterest': 'x-office-contact.png',
+    'main/partyinvite': 'list-add-user.png',
+    'pro/monthlybonuscompensation': 'view-bank-account.png',
+    'pro/weeklycompensation': 'help-donate.png',
+    'pro/monthlyqualification': 'office-chart-area.png',
+    'support/wineinventory': 'view-choose.png',
+#     'company/company': 'office-chart-pie.png',
+#     'main/location': 'go-home.png',
+#     'main/service': 'preferences-system-network.png',
+#     'main/education': 'document-edit.png',
+#     'main/skill': 'applications-engineering.png',
+}
+
+FLUENT_DASHBOARD_APP_GROUPS = (
+    ('Applications', {
+        'models': ('*',),
+        'module': 'AppList',
+        'collapsible': True,
+    }),
+    ('Administration', {
+        'models': (
+            'django.contrib.auth.*',
+            'django.contrib.sites.*',
+            'accounts.*',
+        ),
+    }),
+    ('Main', {
+        'models': ('main.*',),
+    }),
+    ('Personality', {
+        'models': ('personality.*',),
+    }),
+    ('Pro', {
+        'models': ('pro.*',),
+    }),
+    ('Support', {
+        'models': ('support.*',),
+    }),
+    ('Maintenance', {
+        'models': ('djcelery.*', 'tastypie.*',),
+    }),
+
+)

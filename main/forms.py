@@ -4,7 +4,7 @@ from django.contrib.localflavor.us import forms as us_forms
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
-from datetime import timedelta
+from django.db import transaction
 
 import django_tables2 as tables
 from django_tables2 import Attrs
@@ -14,12 +14,12 @@ from emailusernames.utils import create_user
 from emailusernames.forms import EmailUserCreationForm
 
 from main.models import Party, PartyInvite, ContactRequest, LineItem, CustomizeOrder, \
-                        InvitationSent, Order, Product, ThankYouNote
-from accounts.models import Address, SubscriptionInfo, UserProfile
-
+                        InvitationSent, Order, Product, ThankYouNote, Cart
 from main.utils import add_form_validation, business_days_count
 
+from accounts.models import Address, SubscriptionInfo, UserProfile, SUPPORTED_STATES
 from accounts.forms import NameEmailUserCreationForm
+from accounts.utils import check_zipcode
 
 import string
 from lepl.apps.rfc3696 import Email
@@ -30,6 +30,45 @@ valid_time_formats = ['%H:%M', '%I:%M %p', '%I:%M%p']
 import logging
 
 log = logging.getLogger(__name__)
+
+from coupon.models import Coupon
+
+
+class ApplyCouponForm(forms.ModelForm):
+  coupon = forms.CharField(max_length=16, widget=forms.TextInput, required=False, label='Coupon Code')
+
+  class Meta:
+    model = Cart
+    fields = ('coupon', )
+
+  def __init__(self, *args, **kwargs):
+    super(ApplyCouponForm, self).__init__(*args, **kwargs)
+    self.fields['coupon'].widget.attrs = {
+        'autocomplete': "off",
+        'class': "span2",
+    }
+
+  def clean_coupon(self):
+    # TODO check that it applies to this purchase
+    cleaned_data = self.cleaned_data['coupon']
+    coupon = None
+
+    if cleaned_data:
+      try:
+        coupon = Coupon.objects.get(code=cleaned_data, active=True, redeem_by__gte=timezone.now().date())
+      except Coupon.DoesNotExist:
+        raise forms.ValidationError(u'That coupon code does not exist or is no longer valid.')
+
+      allowed_set = set(coupon.applies_to.all())
+      cart_set = set([x.product for x in self.instance.items.all()])
+      if not cart_set.issubset(allowed_set):
+        raise forms.ValidationError(u'This coupon is not valid for this purchase.')
+
+      with transaction.commit_on_success():
+        if coupon.times_redeemed >= coupon.max_redemptions:
+          raise forms.ValidationError(u'Coupon no longer valid. The maximum redemptions allowed have already been reached.')
+
+    return coupon
 
 
 class PartyEditDateForm(forms.ModelForm):
@@ -107,6 +146,7 @@ class PartyCreateForm(forms.ModelForm):
     self.fields['event_day'].widget.attrs['class'] = 'datepicker'
     self.fields['event_time'].widget.attrs['class'] = 'timepicker'
     self.fields['event_date'].widget = forms.HiddenInput()
+    self.fields['pro'].widget = forms.HiddenInput()
     # self.fields['email'].widget.attrs['readonly'] = True
     self.fields['description'].required = False
     self.fields['description'].widget = forms.Textarea(attrs={'rows': 10, 'cols': 100, 'style': 'width: 80%;'})
@@ -158,22 +198,18 @@ class PartyCreateForm(forms.ModelForm):
     else:
       host_email = self.cleaned_data['email']
 
-    # 2. other than themselves, a pro cannot set another pro as host
-    if self.initial.get('pro'):
-      try:
-        user = User.objects.get(email=host_email)
-        # check that host is not another pro
-        if user.id != self.initial['pro'].id:
-          if user.get_profile().role == UserProfile.ROLE_CHOICES[1][0]:
-            self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
-      except User.DoesNotExist:
-        # user with this new e-mail will be created in clean
-        pass
-
     return host_email
 
   def clean(self):
     cleaned_data = super(PartyCreateForm, self).clean()
+    pro_email = self.cleaned_data['email']
+
+    # other than themselves, a pro cannot set another pro as host
+    if pro_email != self.cleaned_data['pro'].email:
+        selected_host = User.objects.filter(email=pro_email)
+        if selected_host.exists() and selected_host[0].userprofile.role == UserProfile.ROLE_CHOICES[1][0]:
+          self._errors['email'] = "The host e-mail is associated with another Vinely Pro and cannot host a party."
+
     if self._errors.get('host'):
       self._errors['host'] = 'Pick a Host from the list or Enter the Host details below'
 
@@ -285,18 +321,20 @@ class PartyInviteTasterForm(forms.ModelForm):
 
   class Meta:
     model = PartyInvite
-    exclude = ['fee_paid']
+    exclude = ['fee_paid', 'sales']
 
   def __init__(self, *args, **kwargs):
     super(PartyInviteTasterForm, self).__init__(*args, **kwargs)
-    initial = kwargs.get('initial')
+    # initial = kwargs.get('initial', {})
+    if kwargs.get('data', {}).get('change_rsvp'):
+      self.initial['change_rsvp'] = 't'
 
     self.fields['first_name'].widget.attrs = {'placeholder': 'First Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['last_name'].widget.attrs = {'placeholder': 'Last Name', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['email'].widget.attrs = {'placeholder': 'Email', 'class': 'typeahead', 'data-provide': 'typeahead', 'autocomplete': 'off'}
     self.fields['phone'].widget.attrs = {'placeholder': 'Phone number (optional)'}
     self.fields['party'].widget = forms.HiddenInput()
-    if initial.get('change_rsvp') == 't':
+    if self.initial.get('change_rsvp') == 't':
       self.fields['response'].widget.choices = PartyInvite.RESPONSE_CHOICES[:4]
     else:
       self.fields['response'].widget = forms.HiddenInput()
@@ -304,7 +342,6 @@ class PartyInviteTasterForm(forms.ModelForm):
     add_form_validation(self)
 
   def clean(self):
-
     cleaned_data = super(PartyInviteTasterForm, self).clean()
     email_validator = Email()
 
@@ -363,7 +400,7 @@ class PartyInviteTasterForm(forms.ModelForm):
     if 'party' in cleaned_data and 'invitee' in cleaned_data and not self.initial.get('change_rsvp'):
       party_invited = PartyInvite.objects.filter(party=cleaned_data['party'], invitee=cleaned_data['invitee'])
       if party_invited.exists():
-        raise forms.ValidationError("Invitee (%s) has already been invited to the party" % cleaned_data['invitee'].email)
+        raise forms.ValidationError("Invitee (%s) has already been added to the invitaions list." % cleaned_data['invitee'].email)
 
     return cleaned_data
 
@@ -567,6 +604,17 @@ class ShippingForm(forms.ModelForm):
     super(ShippingForm, self).__init__(*args, **kwargs)
     self.fields['email'].widget.attrs['readonly'] = True
     add_form_validation(self)
+
+  def clean(self):
+    cleaned_data = super(ShippingForm, self).clean()
+    zip_ok = check_zipcode(cleaned_data.get('zipcode'))
+    if not zip_ok:
+      self._errors["zipcode"] = self.error_class([u"Currently, we can only ship to California."])
+
+    if self.cleaned_data.get('state') not in SUPPORTED_STATES:
+      self._errors["state"] = self.error_class([u"Currently, we can only ship to California."])
+
+    return cleaned_data
 
   def save(self, commit=True):
     data = self.cleaned_data

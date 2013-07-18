@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Authentication and Authorization &mdash; Vinely 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Vinely 0.9 documentation" href="index.html" />
+    <link rel="next" title="Accounts: User and profile management" href="accounts.html" />
+    <link rel="prev" title="Welcome to Vinely’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="accounts.html" title="Accounts: User and profile management"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Vinely’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="authentication-and-authorization">
+<span id="ref-auth"></span><h1>Authentication and Authorization<a class="headerlink" href="#authentication-and-authorization" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="signup">
+<h2>Signup<a class="headerlink" href="#signup" title="Permalink to this headline">¶</a></h2>
+<p>Vinely only allows you to sign up as a Host, Pro or as a Vinely Club Member.</p>
+<dl class="post">
+<dt id="post--api-v1-auth-signup-">
+<tt class="descname">POST </tt><tt class="descname">/api/v1/auth/signup/</tt><a class="headerlink" href="#post--api-v1-auth-signup-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The current implementation allows you to signup but without an unassinged role.
+Clarity is still required as to what role signups are allowed.</p>
+</div>
+</div>
+<div class="section" id="login">
+<h2>Login<a class="headerlink" href="#login" title="Permalink to this headline">¶</a></h2>
+<p>Allows you to log into the system. All API calls expect the user to be logged in.</p>
+<dl class="post">
+<dt id="post--api-v1-auth-login-">
+<tt class="descname">POST </tt><tt class="descname">/api/v1/auth/login/</tt><a class="headerlink" href="#post--api-v1-auth-login-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>A successful login returns an <tt class="docutils literal"><span class="pre">api_key</span></tt> for that session. This <tt class="docutils literal"><span class="pre">api_key</span></tt> must be sent along with
+all subsequent requests</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All API calls will only allow you to view the information pertaining to the logged in user.</p>
+</div>
+<p>To use the API Key, you can specify an pass the <tt class="docutils literal"><span class="pre">username/api_key</span></tt> combination either via an
+<tt class="docutils literal"><span class="pre">Authorization</span></tt> http header or as <tt class="docutils literal"><span class="pre">GET/POST</span></tt> parameters:</p>
+<p>Examples:</p>
+<div class="highlight-python"><pre># As Authorization header
+Authorization: ApiKey attendee1@example.com:6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e
+
+# As GET Parameters
+http://dev.vinely.com/api/v1/user/?username=attendee1@example.com&amp;api_key=6f6f5ac1a65a6c9ae78ed8a9c7bc59d0430cb89e</pre>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Use of the Authorization header is preferred for security reasons.</p>
+</div>
+</div>
+<div class="section" id="logout">
+<h2>Logout<a class="headerlink" href="#logout" title="Permalink to this headline">¶</a></h2>
+<dl class="post">
+<dt id="post--api-v1-auth-logout-">
+<tt class="descname">POST </tt><tt class="descname">/api/v1/auth/logout/</tt><a class="headerlink" href="#post--api-v1-auth-logout-" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Authentication and Authorization</a><ul>
+<li><a class="reference internal" href="#signup">Signup</a></li>
+<li><a class="reference internal" href="#login">Login</a></li>
+<li><a class="reference internal" href="#logout">Logout</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Vinely&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="accounts.html"
+                        title="next chapter">Accounts: User and profile management</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/auth.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http-routingtable.html" title="HTTP Routing Table"
+             >routing table</a> |</li>
+        <li class="right" >
+          <a href="accounts.html" title="Accounts: User and profile management"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Vinely’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Vinely 0.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Vinely.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -13,9 +13,10 @@ from datetime import timedelta, datetime
 from django.conf import settings
 
 from main.models import ProSignupLog, Cart, Order, Product
-from accounts.models import VerificationQueue, UserProfile
+from accounts.models import VerificationQueue, UserProfile, Address, SubscriptionInfo
 from support.models import Email
 from personality.models import WinePersonality
+from stripecard.models import StripeCard
 
 from cms.tests import SimpleTest as CMSTest
 from main.tests import SimpleTest as MainTest
@@ -162,8 +163,8 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='john.doe5@example.com')
-    pro = User.objects.get(email='johnstecco@gmail.com')
-    self.assertEquals(profile.current_pro, pro)
+    # pro = User.objects.get(email='johnstecco@gmail.com')
+    self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely + pro
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
@@ -238,8 +239,8 @@ class SimpleTest(TestCase):
 
     # check no pro assigned
     profile = UserProfile.objects.get(user__email='attendee3@example.com')
-    pro = User.objects.get(email='elizabeth@vinely.com')
-    self.assertEquals(profile.current_pro, pro)
+    # pro = User.objects.get(email='elizabeth@vinely.com')
+    self.assertEquals(profile.current_pro, None)
 
     # check that emails are sent to vinely
     vinely_recipients = Email.objects.filter(recipients="['sales@vinely.com', u'%s']" % pro.email, subject='A Vinely Taste Party is ready to be scheduled')
@@ -277,8 +278,25 @@ class SimpleTest(TestCase):
     self.assertEquals(response, True)
 
     pro = User.objects.get(email='attendee1@example.com')
-    pro.userprofile.role = UserProfile.ROLE_CHOICES[1][0]
     pro.userprofile.save()
+    self.assertFalse(pro.userprofile.is_pro())
+
+    mentor = User.objects.get(email='specialist1@example.com')
+
+    post_data = {
+        '_save': 'Save',
+        'user': pro.id,
+        'mentor': mentor.id,
+        'gender': pro.userprofile.gender,
+        'role': UserProfile.ROLE_CHOICES[2][0],
+        'wine_personality': pro.userprofile.wine_personality.id,
+        '_selected_action': pro.userprofile.id,
+    }
+
+    response = self.client.post('/admin/accounts/userprofile/%d/' % pro.userprofile.id, post_data)
+    self.assertContains(response, "You can only assign a mentor to a Vinely Pro")
+
+    pro = User.objects.get(email='specialist2@example.com')
     self.assertTrue(pro.userprofile.is_pro())
 
     mentor = User.objects.get(email='specialist1@example.com')
@@ -290,15 +308,16 @@ class SimpleTest(TestCase):
         'gender': pro.userprofile.gender,
         'role': UserProfile.ROLE_CHOICES[1][0],
         'wine_personality': pro.userprofile.wine_personality.id,
-        '_selected_action': pro.userprofile.id
+        '_selected_action': pro.userprofile.id,
+        'vinely_pro_account': 'VP00110A',
+        'account_credit': '0.0',
     }
-
     response = self.client.post('/admin/accounts/userprofile/%d/' % pro.userprofile.id, post_data)
     self.assertRedirects(response, '/admin/accounts/userprofile/')
     self.assertEquals(pro.get_profile().mentor, mentor)
 
     # emails sent
-    mentor_assigned_emails = Email.objects.filter(recipients="[u'attendee1@example.com']", subject='Congratulations! Vinely Mentor has been assigned to you.')
+    mentor_assigned_emails = Email.objects.filter(recipients="[u'specialist2@example.com']", subject='Congratulations! Vinely Mentor has been assigned to you.')
     self.assertTrue(mentor_assigned_emails.exists())
 
     mentee_assigned_emails = Email.objects.filter(recipients="[u'specialist1@example.com']", subject='Congratulations! Vinely Mentee has been assigned to you.')
@@ -418,13 +437,37 @@ class SimpleTest(TestCase):
     print "Information update test all work"
 
   def test_join_the_club_anon_user(self):
+    from emailusernames.utils import create_user
+
     response = self.client.get(reverse('join_club_start'))
     self.assertEquals(response.status_code, 200)
 
     # CASE A. NO ACCOUNT, NO PERSONALITY
 
-    # 0. Try to Join with existing user email
-    response = self.client.post(reverse('join_club_start'), {
+    # 0. Try to Join with existing user email - unverified/inactive account
+    u = create_user("somerandomuser@example.com", "hello")
+    u.is_active = False
+    u.save()
+    u.userprofile.role = 0
+    u.userprofile.save()
+
+    response = self.client.post(reverse('join_club_signup'), {
+        'first_name': 'somerandom',
+        'last_name': 'user',
+        'email': 'somerandomuser@example.com',
+        'phone_number': '6172342524',
+        'zipcode': '92612',
+        'password1': 'hello',
+        'password2': 'hello',
+        'join': 'join',
+    })
+
+    self.assertRedirects(response, reverse('join_club_shipping'))
+
+    self.client.logout()
+
+    # 0. Try to Join with existing user email - verified/active account
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'attendee',
         'last_name': 'one',
         'email': 'attendee1@example.com',
@@ -434,11 +477,10 @@ class SimpleTest(TestCase):
         'password2': 'hello',
         'join': 'join',
     })
-
     self.assertContains(response, "A user with that email already exists")
 
     # 0. join with fake pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member',
         'email': 'new.member@example.com',
@@ -453,7 +495,7 @@ class SimpleTest(TestCase):
     self.assertContains(response, "The Pro email you specified is not for a Vinley Pro")
 
     # 1. join without pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member',
         'email': 'new.member@example.com',
@@ -468,13 +510,13 @@ class SimpleTest(TestCase):
     self.assertTrue(member.is_authenticated())
 
     # should auto-assign? or set to default pro
-    self.assertTrue(member.userprofile.current_pro.email, 'elizabeth@vinely.com')
+    self.assertEquals(member.userprofile.current_pro, None)
     self.assertRedirects(response, reverse('join_club_shipping'))
 
     self.client.logout()
 
     # 2. join with pro
-    response = self.client.post(reverse('join_club_start'), {
+    response = self.client.post(reverse('join_club_signup'), {
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -512,7 +554,10 @@ class SimpleTest(TestCase):
 
     # check that they are over 21
     shipping_info = {
-        'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': under_age_dob.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -529,7 +574,10 @@ class SimpleTest(TestCase):
 
     # check that shipping address is in supported state
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -545,7 +593,10 @@ class SimpleTest(TestCase):
     self.assertContains(response, 'Currently, we can only ship to California.')
 
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'new',
         'last_name': 'member2',
         'email': 'new.member2@example.com',
@@ -621,7 +672,10 @@ class SimpleTest(TestCase):
     birth_date = timezone.now() - timedelta(days=30 * 365)
 
     shipping_info = {
-        'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        # 'eligibility-dob': birth_date.strftime('%m/%d/%Y'),
+        'eligibility-dob_month': birth_date.month,
+        'eligibility-dob_day': birth_date.day,
+        'eligibility-dob_year': birth_date.year,
         'first_name': 'Attendee',
         'last_name': 'One',
         'email': 'attendee1@example.com',
@@ -665,6 +719,177 @@ class SimpleTest(TestCase):
     subject = "Order ID: %s has been submitted for %s!" % (order.vinely_order_id, order.shipping_address.state)
     vinely_email = Email.objects.filter(subject=subject, recipients="['fulfillment@vinely.com']")
     self.assertTrue(vinely_email.exists())
+
+  def test_static_pages(self):
+    response = self.client.get(reverse('make_host'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['people']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['place']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['rewards']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['order']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_host', args=['signup']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['parties']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['earnings']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['support']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['growth']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('make_pro', args=['signup']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start'))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['anticipation']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['surprise']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['indulgence']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['excitement']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_start', args=['product']))
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.get(reverse('join_club_signup'))
+    self.assertEquals(response.status_code, 200)
+
+  def test_update_subscription(self):
+    response = self.client.login(email='attendee6@example.com', password='hello')
+    self.assertTrue(response)
+
+    user = User.objects.get(email='attendee6@example.com')
+    # user.userprofile.credit_card = user.userprofile.stripe_card = None
+    # user.userprofile.save()
+
+    # 1. new user subscription - no personality, no prev subscription, no CCard, no shipping addr
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You need to first participate in a tasting party to find out your wine personality")
+
+    # 1. new user subscription - has personality, no prev subscription, no CCard, no shipping addr
+    user.userprofile.wine_personality = WinePersonality.objects.get(id=1)
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You have no credit card on file yet to order.")
+
+    import stripe
+    from django.conf import settings
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    year = datetime.today().year + 5
+    token = stripe.Token.create(card={'number': 4242424242424242, "name": "%s %s" % (user.first_name, user.last_name), 'exp_month': 12, 'exp_year': year, 'cvc': 123, 'address_zip': '02139'})
+    customer = stripe.Customer.create(card=token.id, email=user.email)
+
+    card_info = {
+        "stripe_user": customer.id,
+        "exp_month": token.card.exp_month,
+        "exp_year": token.card.exp_year,
+        "last_four": token.card.last4,
+        "billing_zipcode": token.card.address_zip,
+        "card_type": token.card.type,
+    }
+    stripe_card = StripeCard.objects.create(**card_info)
+    user.userprofile.stripe_card = stripe_card
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertContains(response, "You need to update your shipping address before you can make a subscription")
+
+    shipping_info = {
+        'street1': '65 Gordon St.',
+        'city': 'San Fransisco',
+        'state': 'CA',
+        'zipcode': '92612',
+    }
+    address = Address.objects.create(**shipping_info)
+    user.userprofile.shipping_address = address
+    user.userprofile.save()
+
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 12,
+    })
+
+    self.assertEquals(response.status_code, 200)
+    self.assertContains(response, "Stripe subscription successfully updated.")
+    self.assertTrue(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=12).exists())
+
+    # 2. user changes subscription to 6 bottles
+    self.assertFalse(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=13).exists())
+    response = self.client.post(reverse('edit_subscription'), {
+        'wine_mix': 0,
+        'sparkling': 0,
+        'frequency': 1,
+        'user': user.id,
+        'quantity': 13,
+    })
+
+    self.assertEquals(response.status_code, 200)
+    self.assertContains(response, "Stripe subscription successfully updated.")
+    self.assertContains(response, "Your subscription will be updated for the next month.")
+    self.assertTrue(SubscriptionInfo.objects.filter(user=user, frequency=1, quantity=13).exists())
+
+    # 3. user cancels subscription
+    response = self.client.get(reverse('cancel_subscription'))
+    self.assertRedirects(response, reverse('edit_subscription'))
+
+    subscription = SubscriptionInfo.objects.filter(user=user).order_by('-id')[0]
+    self.assertEquals(subscription.frequency, 9)
+    self.assertEquals(subscription.quantity, 0)
+
+    profile = UserProfile.objects.get(user=user)
+    self.assertFalse(profile.club_member)
+
+    customer.delete()
+
+  def test_nearest_pro(self):
+    pass
 
   def test_user_rsvp_without_signup(self):
     pass

@@ -3,9 +3,14 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.utils import timezone
 from django.core.urlresolvers import reverse
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.http import HttpRequest
 
 from accounts.models import Address, CreditCard, SubscriptionInfo
 from personality.models import WineRatingData
+# from main.tasks import schedule_thank_notes
+
 from sorl.thumbnail import ImageField
 
 from datetime import datetime, timedelta
@@ -14,9 +19,11 @@ import uuid
 
 from personality.models import Wine, TastingKit
 
+from decimal import Decimal
+
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 
@@ -49,8 +56,8 @@ class ContactRequest(models.Model):
 class Party(models.Model):
 
   # default to the name of the host
-  host = models.ForeignKey(User)
-  title = models.CharField(max_length=128)
+  host = models.ForeignKey(User, related_name='host_parties')
+  title = models.CharField(max_length=128, db_index=True)
   description = models.TextField(blank=True, verbose_name="Special Instructions")
   address = models.ForeignKey(Address, blank=True, null=True)
   phone = models.CharField(max_length=16, verbose_name="Contact phone number", null=True, blank=True)
@@ -60,11 +67,12 @@ class Party(models.Model):
   auto_thank_you = models.BooleanField()
   guests_can_invite = models.BooleanField()
   guests_see_guestlist = models.BooleanField()
-  confirmed = models.BooleanField()
-  requested = models.BooleanField()
+  confirmed = models.BooleanField()  # set to True when host finishes final setup step
+  requested = models.BooleanField()  # set to True when pro creates the party
   setup_stage = models.IntegerField(default=1)
   fee = models.DecimalField(decimal_places=2, max_digits=10, default=0)
   sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+  pro = models.ForeignKey(User, related_name='pro_parties')
 
   class Meta:
     verbose_name_plural = 'Parties'
@@ -100,13 +108,13 @@ class Party(models.Model):
         url = 'party_review_request'
     return reverse(url, args=[self.id])
 
-  @property
-  def pro(self):
-    parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
-    if parties_organized.exists():
-      return parties_organized[0].pro
-    else:
-      return None
+  # @property
+  # def pro(self):
+  #   parties_organized = OrganizedParty.objects.filter(party=self).order_by("-timestamp")
+  #   if parties_organized.exists():
+  #     return parties_organized[0].pro
+  #   else:
+  #     return None
 
   def is_past_party(self):
     party_valid_date = timezone.now() - timedelta(hours=24)
@@ -193,6 +201,37 @@ class Party(models.Model):
     return (0.1 * float(basic_total)) + (0.125 * float(other_total)) + (0.125 * float(freq_total))
 
 
+from django.db.models.signals import post_save, pre_delete
+from django.dispatch import receiver
+
+
+@receiver(post_save, sender=Party)
+def schedule_thank_notes_async(sender, instance, **kwargs):
+  from main.tasks import schedule_thank_notes
+  try:
+    if instance.confirmed and instance.auto_thank_you:
+      when = instance.event_date + timedelta(days=1)
+
+      if schedule_thank_notes.exists_for(instance):
+        schedule_thank_notes.terminate(instance)
+
+      # non-keyword args to apply_async should be passed as a list/tuple
+      schedule_thank_notes.apply_async([instance], eta=when, instance=instance)
+      logger.info("Auto scheduling of thank you notes completed.")
+  except Exception, e:
+    logger.error("Error: %s Celery is not running/properly configured. Auto-sending of 'Thank You Notes' could not be scheduled." % e)
+
+
+@receiver(pre_delete, sender=Party)
+def delete_scheduled_thank_notes(sender, instance, **kwargs):
+  from main.tasks import schedule_thank_notes
+  try:
+    if instance.confirmed and instance.auto_thank_you and schedule_thank_notes.exists_for(instance):
+      schedule_thank_notes.terminate(instance)
+  except:
+    logger.error("Error: Celery is not running/properly configured. The scheduled Thank You Notes could not be terminated.")
+
+
 class PartyInvite(models.Model):
 
   RESPONSE_CHOICES = (
@@ -213,7 +252,7 @@ class PartyInvite(models.Model):
   rsvp_code = models.CharField(max_length=64, blank=True, null=True)
   fee_paid = models.BooleanField(default=False)
   attended = models.BooleanField(default=False)
-  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+  sales = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank=True)
 
   def invited(self):
     return bool(self.invited_timestamp)
@@ -319,15 +358,15 @@ class LineItem(models.Model):
   def subtotal(self):
     if self.price_category in [5, 7, 9]:
       #return 2*float(self.product.unit_price)
-      return self.product.full_case_price
+      return float(self.product.full_case_price)
     elif self.price_category in [6, 8, 10]:
-      return self.product.unit_price
+      return float(self.product.unit_price)
     elif self.price_category in [12, 13, 14, 15]:
       # newer products that go by 3, 6, 12 bottles
-      return self.product.unit_price
+      return float(self.product.unit_price)
     else:
       # for tasting kit only for now 3/15/2013
-      return self.quantity * self.product.unit_price
+      return float(self.quantity * self.product.unit_price)
 
   def quantity_str(self):
     if self.price_category in [5, 6, 7, 8, 9, 10]:
@@ -366,12 +405,37 @@ class Cart(models.Model):
 
   status = models.IntegerField(choices=CART_STATUS_CHOICES, default=0)
   discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+  coupon = models.ForeignKey('coupon.Coupon', null=True)
+  coupon_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
   # tracks activity in the carts
   adds = models.IntegerField(default=0)
   removes = models.IntegerField(default=0)
   # viewing cart
   views = models.IntegerField(default=0)
+
+  def apply_coupon(self):
+    if self.coupon:
+      subtotal_without_coupon_or_discount = 0
+      for o in self.items.all():
+        subtotal_without_coupon_or_discount += o.subtotal()
+
+      if self.coupon.amount_off:
+        coupon_off = self.coupon.amount_off
+      else:
+        coupon_off = self.coupon.percent_off/100.0 * subtotal_without_coupon_or_discount
+
+      items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
+      if items.exists():
+        # taste kit accepts upto 90% off
+        max_coupon_off = subtotal_without_coupon_or_discount * 0.9
+      else:
+        max_coupon_off = subtotal_without_coupon_or_discount * 0.5
+      if coupon_off <= max_coupon_off:
+        return coupon_off
+      else:
+        return max_coupon_off
+    return 0
 
   def calculate_discount(self):
     '''
@@ -382,6 +446,9 @@ class Cart(models.Model):
     # if self.user != self.receiver:
     #   return 0
 
+    # first apply coupon if any
+    coupon_amount = self.apply_coupon()
+
     # dont apply for tasting kit
     items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
     if items.exists():
@@ -389,14 +456,13 @@ class Cart(models.Model):
 
     if self.items.count() == 0:
       return 0
-
+    # TODO: if this cart is part of an order (e.g. viewing order history) then don't calculate
     # credit = calculate_host_credit(self.user)
     credit = self.receiver.userprofile.account_credit
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
-
-    max_discount = subtotal_without_discount / 2
+    max_discount = float(subtotal_without_discount / 2.0) - float(coupon_amount)
 
     if credit <= max_discount:
       applied_discount = credit
@@ -410,7 +476,7 @@ class Cart(models.Model):
     price_sum = 0
     for o in self.items.all():
       price_sum += float(o.subtotal())
-    return price_sum - float(self.discount)
+    return price_sum - float(self.coupon_amount) - float(self.discount)
 
   def shipping(self):
     # NOTE: Quantity has different interpretations depending on if wine case or tasting kit
@@ -466,6 +532,25 @@ class Cart(models.Model):
     # TODO: total everything including shipping and tax
     return self.shipping() + self.tax() + self.subtotal()
 
+  def total_no_discount(self):
+    # sum of all line items without discount
+    price_sum = 0
+    for o in self.items.all():
+      price_sum += float(o.subtotal())
+
+    if self.receiver.get_profile().shipping_address is None:
+      return -1
+
+    if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
+        tax = 0
+    else:
+      if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
+        tax = price_sum * 0.08
+      else:
+        tax = price_sum * 0.06
+
+    return price_sum + tax + self.shipping()
+
   def items_str(self):
     output = []
     for item in self.items.all():
@@ -492,6 +577,9 @@ class Order(models.Model):
   credit_card = models.ForeignKey(CreditCard, null=True)
   stripe_card = models.ForeignKey(StripeCard, null=True)
   order_date = models.DateTimeField(auto_now_add=True)
+  stripe_invoice = models.CharField(max_length=20, blank=True)
+  refund_amount = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank=True)
+  refund_date = models.DateTimeField(blank=True, null=True)
 
   FULFILL_CHOICES = (
       (0, 'Not Ordered'),
@@ -788,6 +876,44 @@ class ProSignupLog(models.Model):
 class NewHostNoParty(models.Model):
   host = models.ForeignKey(User)
 
+  class Meta:
+    verbose_name_plural = u'New host no party'
+
 
 class UnconfirmedParty(models.Model):
   party = models.ForeignKey(Party)
+
+  class Meta:
+    verbose_name_plural = u'Unconfirmed parties'
+
+
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+
+
+# ref: http://engineering.hackerearth.com/2013/06/05/scheduling-emails-with-celery-in-django/
+class ModelTask(models.Model):
+  """
+  For storing all scheduled tasks
+  """
+  task_id = models.CharField(max_length=36)
+  name = models.CharField(max_length=200)
+  content_type = models.ForeignKey(ContentType)
+  object_id = models.PositiveIntegerField()
+  content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+  def __unicode__(self):
+    return "%s - %s" % (self.name, self.content_object)
+
+  @staticmethod
+  def create(async_result, instance):
+    return ModelTask.objects.create(task_id=async_result.task_id,
+            name=async_result.task_name, content_object=instance)
+
+  @staticmethod
+  def filter(task, instance):
+    content_type = ContentType.objects.get_for_model(instance)
+    object_id = instance.id
+    return ModelTask.objects.filter(content_type=content_type,
+            object_id=object_id, name=task.name)

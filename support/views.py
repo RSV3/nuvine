@@ -15,16 +15,20 @@ from django.utils import timezone
 from django_tables2 import RequestConfig
 
 from support.models import Email, WineInventory, TastingKitInventory
-from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable
+from support.tables import WineInventoryTable, OrderTable, PastOrderTable, TastingInventoryTable, UserTable, \
+                            OrderHistoryTable, PartyTable, PartyAttendeesTable
+
 from main.models import Party, PartyInvite, Order, MyHost, SelectedWine, CustomizeOrder, SelectedTastingKit
+
 from personality.models import WineRatingData, Wine, TastingKit
 from accounts.models import SubscriptionInfo
-
-from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm
-from main.utils import my_pro
+from main.forms import AttendeesTable
+from support.forms import InventoryUploadForm, SelectedWineRatingForm, ChangeFulfillStatusForm, SelectTastingKitForm, \
+                        RefundForm
+from main.utils import my_pro, calculate_host_credit
 from datetime import datetime
 import csv
-
+import stripe
 
 import logging
 
@@ -330,34 +334,62 @@ def download_orders(request):
 @staff_member_required
 def view_users(request):
   data = {}
-  for user in User.objects.all():
-    pass
-    # export user profile
-    # export current subscription information
-    # export wine rating data
-    # export pro
 
-    # TODO: export party information
+  users = User.objects.all().order_by('first_name', 'last_name')
 
-    # TODO: export orders
+  table = UserTable(users)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-  return render_to_response("support/view_users.html", data, context_instance=RequestContext(request))
+  data['users_table'] = table
+
+  return render(request, "support/user_overview.html", data)
+
+
+@staff_member_required
+def view_user_details(request, user_id):
+  data = {}
+  user = get_object_or_404(User, pk=user_id)
+  profile = user.get_profile()
+
+  data['user_detail'] = user
+  data['profile_detail'] = profile
+  data['credit_card'] = profile.stripe_card
+  orders = Order.objects.filter(ordered_by=user).select_related().order_by('-id')
+  table = OrderHistoryTable(orders, user=user)
+  RequestConfig(request, paginate={"per_page": 20}).configure(table)
+  data['order_history'] = table
+  return render(request, "support/user_detail.html", data)
 
 
 @staff_member_required
 def view_parties(request):
   data = {}
-  for party in Party.objects.all():
-    pass
-    # export user profile
-    # export current subscription information
-    # export wine personality
-    # export pro
-    # export host
+  # user = request.user
+  parties = Party.objects.all().select_related().order_by('-event_date')
 
-    # TODO: export party information
+  table = PartyTable(parties)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
 
-  return render_to_response("support/view_parties.html", data, context_instance=RequestContext(request))
+  data['parties_table'] = table
+
+  return render(request, "support/view_parties.html", data)
+
+
+@staff_member_required
+def view_party_detail(request, party_id):
+  user = request.user
+  data = {}
+
+  party = get_object_or_404(Party, id=party_id)
+  tasters = PartyInvite.objects.filter(party=party).select_related()
+  table = PartyAttendeesTable(tasters, user=user, data={'party': party, 'can_add_taster': True, 'can_shop_for_taster': True})
+  # table = PartyAttendeesTable(tasters)
+  RequestConfig(request, paginate={"per_page": 30}).configure(table)
+
+  data['tasters_table'] = table
+  data['party'] = party
+  data['host_credit'] = party.host.userprofile.account_credit
+  return render(request, "support/view_party_detail.html", data)
 
 
 @staff_member_required
@@ -1141,3 +1173,59 @@ def view_past_orders(request, order_id=None):
 
   return render(request, "support/view_past_orders.html", data)
 
+
+@staff_member_required
+def user_overview(request):
+  '''
+  Displays a list of users in the system
+  '''
+  data = {}
+
+  users = User.objects.all()  # .order_by('')
+
+  table = UserTable(users)
+  RequestConfig(request, paginate={"per_page": 100}).configure(table)
+
+  data['users_table'] = table
+
+  return render(request, "support/user_overview.html", data)
+
+
+@staff_member_required
+def refund_order(request, order_id):
+  data = {}
+  # raise Exception
+  order = get_object_or_404(Order, pk=order_id)
+  previous_page = request.GET.get('next', reverse('support:view_user_details', args=[order.ordered_by.id]))
+  data['previous_page'] = previous_page
+
+  refund_form = RefundForm(request.POST or None, instance=order)
+  data['refund_form'] = refund_form
+  data['order'] = order
+
+  if refund_form.is_valid():
+    order = refund_form.save(commit=False)
+
+    stripe.api_key = settings.STRIPE_SECRET_CA
+    inv = stripe.Invoice.retrieve(order.stripe_invoice)
+    stripe_charge = stripe.Charge.retrieve(inv.charge)
+
+    try:
+      if refund_form.cleaned_data.get('full_refund', False):
+        stripe_charge.refund()
+        refund_amount = order.cart.total()
+      else:
+        amount = refund_form.cleaned_data.get('refund_amount', 0)
+        if amount > 0:
+          stripe_charge.refund(amount=int(amount * 100))
+          refund_amount = amount
+
+      order.refund_amount = refund_amount
+      order.refund_date = timezone.now()
+      order.save()
+    except Exception, e:
+      # some stripe error
+      messages.warning(request, "Stripe Error: %s" % e)
+    return HttpResponseRedirect(reverse('support:view_user_details', args=[order.ordered_by.id]))
+
+  return render(request, "support/refund_order_modal.html", data)
