@@ -19,6 +19,8 @@ import uuid
 
 from personality.models import Wine, TastingKit
 
+from decimal import Decimal
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -356,15 +358,15 @@ class LineItem(models.Model):
   def subtotal(self):
     if self.price_category in [5, 7, 9]:
       #return 2*float(self.product.unit_price)
-      return self.product.full_case_price
+      return float(self.product.full_case_price)
     elif self.price_category in [6, 8, 10]:
-      return self.product.unit_price
+      return float(self.product.unit_price)
     elif self.price_category in [12, 13, 14, 15]:
       # newer products that go by 3, 6, 12 bottles
-      return self.product.unit_price
+      return float(self.product.unit_price)
     else:
       # for tasting kit only for now 3/15/2013
-      return self.quantity * self.product.unit_price
+      return float(self.quantity * self.product.unit_price)
 
   def quantity_str(self):
     if self.price_category in [5, 6, 7, 8, 9, 10]:
@@ -416,13 +418,19 @@ class Cart(models.Model):
     if self.coupon:
       subtotal_without_coupon_or_discount = 0
       for o in self.items.all():
-        subtotal_without_coupon_or_discount += float(o.subtotal())
+        subtotal_without_coupon_or_discount += o.subtotal()
 
       if self.coupon.amount_off:
         coupon_off = self.coupon.amount_off
       else:
         coupon_off = self.coupon.percent_off/100.0 * subtotal_without_coupon_or_discount
-      max_coupon_off = subtotal_without_coupon_or_discount / 2
+
+      items = self.items.filter(product__category=Product.PRODUCT_TYPE[0][0])
+      if items.exists():
+        # taste kit accepts upto 90% off
+        max_coupon_off = subtotal_without_coupon_or_discount * 0.9
+      else:
+        max_coupon_off = subtotal_without_coupon_or_discount * 0.5
       if coupon_off <= max_coupon_off:
         return coupon_off
       else:
@@ -454,7 +462,7 @@ class Cart(models.Model):
     subtotal_without_discount = 0
     for o in self.items.all():
       subtotal_without_discount += float(o.subtotal())
-    max_discount = float(subtotal_without_discount / 2) - float(coupon_amount)
+    max_discount = float(subtotal_without_discount / 2.0) - float(coupon_amount)
 
     if credit <= max_discount:
       applied_discount = credit
@@ -523,6 +531,25 @@ class Cart(models.Model):
   def total(self):
     # TODO: total everything including shipping and tax
     return self.shipping() + self.tax() + self.subtotal()
+
+  def total_no_discount(self):
+    # sum of all line items without discount
+    price_sum = 0
+    for o in self.items.all():
+      price_sum += float(o.subtotal())
+
+    if self.receiver.get_profile().shipping_address is None:
+      return -1
+
+    if self.receiver and self.receiver.get_profile().shipping_address.state in self.NO_TAX_STATES:
+        tax = 0
+    else:
+      if self.receiver and (self.receiver.get_profile().shipping_address.state == 'CA'):
+        tax = price_sum * 0.08
+      else:
+        tax = price_sum * 0.06
+
+    return price_sum + tax + self.shipping()
 
   def items_str(self):
     output = []

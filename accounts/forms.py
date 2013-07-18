@@ -126,7 +126,7 @@ class VerifyEligibilityForm(forms.ModelForm):
     # self.fields['dob'].widget.attrs = {'class': 'datepicker', 'data-date-viewmode': 'years'}
     today = datetime.now().year
     hundred_ago = today - 100
-    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(hundred_ago, today - 20)])
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(today - 21, hundred_ago, -1)])
     self.fields['dob'].widget.attrs = {'class': 'select-date'}
     self.fields['user'].widget = forms.HiddenInput()
 
@@ -158,7 +158,7 @@ class AgeValidityForm(forms.ModelForm):
     # }
     today = datetime.now().year
     hundred_ago = today - 100
-    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(hundred_ago, today - 20)])
+    self.fields['dob'].widget = SelectDateWidget(years=[x for x in range(today - 21, hundred_ago, -1)])
     self.fields['dob'].widget.attrs = {'class': 'select-date'}
     add_form_validation(self)
     # self.fields['mentor'].widget = forms.HiddenInput()
