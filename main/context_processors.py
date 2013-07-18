@@ -9,7 +9,7 @@ def vinely_user_info(request):
   u = request.user
 
   data = {}
-
+  data['impersonation_mode'] = 'impersonate_id' in request.session
   try:
     profile = u.get_profile()
     if profile.is_pro():

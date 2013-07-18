@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
-from main.models import Order, OrganizedParty
+from main.models import Order
 from accounts.models import SubscriptionInfo, UserProfile
 
 from pro.models import ProLevel, MonthlyQualification, MonthlyBonusCompensation
@@ -165,8 +165,8 @@ class Command(BaseCommand):
 
       # after getting tier, find out the pro that needs to be credited
       if party:
-        party_organizer = OrganizedParty.objects.get(party=party)
-        pro = party_organizer.pro
+        # party_organizer = OrganizedParty.objects.get(party=party)
+        pro = party.pro
       else:
         receiver_profile = o.receiver.get_profile()
         if receiver_profile.is_pro():

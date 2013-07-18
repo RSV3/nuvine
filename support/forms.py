@@ -85,3 +85,10 @@ class SelectTastingKitForm(forms.ModelForm):
     model = SelectedTastingKit
     exclude = ['order']
 
+
+class RefundForm(forms.ModelForm):
+  full_refund = forms.BooleanField(required=False)
+
+  class Meta:
+    model = Order
+    fields = ['refund_amount']

@@ -1,0 +1,32 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load render_table from django_tables2 %}
+
+{% load static %}
+
+{% block additional_styles %}
+
+<link rel="stylesheet" href="{% static "django_tables2/themes/paleblue/css/screen.css" %}"/>
+
+<style type="text/css">
+  .table-container {
+    width: 100%;
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+  <h1 class="headline">Parties</h1>
+{% endblock header %}
+
+{% block content %}
+
+<div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
+  <div class="row">
+    <div class="span12">
+      {% render_table parties_table %}
+    </div>
+  </div> <!-- .row -->
+
+</div>
+{% endblock content %}

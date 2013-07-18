@@ -1,8 +1,20 @@
 body {
   background: url('../img/site_background_pattern.png');
-  letter-spacing:0px;
+  letter-spacing: 0;
 }
 
+.impersonation {
+  top: 0;
+  left: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
+
+.impersonation a {
+  color: #DD4040;
+  text-decoration: none;
+}
 /* utilities */
 .vertical-space {
   margin-bottom: 25px;
@@ -249,7 +261,7 @@ table .row-label-bold {
   text-align: center;
 }
 .sidebar-nav li a, .sidebar-nav li a:visited {
-  padding: 4px 6px 4px 9px;
+  padding: 8px 6px 4px 9px;
   color: #415A68;
 }
 .sidebar-nav li div.chev {
@@ -262,12 +274,12 @@ table .row-label-bold {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');
   color: #FFFFFF; 
-  padding-top:6px;
+  padding-top:8px;
 }
 .sidebar-nav li.active div.chev {
   display: inline;
-  background: url('../img/btn_chevronrt_bkgd.png') no-repeat center right;
-  padding: 7px 12px 7px 0;
+  background: url('../img/Chevron-Tail.png') no-repeat center right;
+  padding: 10px 12px 7px 0;
 }
 
 .sidebar-nav li div.chev.active {
@@ -276,11 +288,16 @@ table .row-label-bold {
   padding: 7px 12px 7px 0;
 }
 
+/*AvG - need to add a class here for div.chev.active a:hover */
+.sidebar-nav li div.chev a:hover {
+}
+
 .sidebar-nav li a:hover, 
 .sidebar-nav li a.hovered {
   text-decoration: none;
   background: url('../img/btn_leftsubnav_bkgd.png');  
   color: #FFFFFF;
+  padding-top:8px;
 }
 .box-container {
   position:relative;

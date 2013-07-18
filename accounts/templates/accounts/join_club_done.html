@@ -58,6 +58,9 @@
       <p>Exp Date: {{ credit_card.exp_date }}</p>
 
       <h2><small>Dues</small></h2>
+      {% if cart.coupon %}
+        <p>Coupon: ({{ cart.coupon_amount|currency }})</p>
+      {% endif %}
       <p>Subtotal: {{ cart.subtotal|currency }}</p>
       <p>Tax: {{ cart.tax|currency }}</p>
       <p><b>Total: {{ cart.total|currency }}/month</b></p>

@@ -1,0 +1,36 @@
+
+{% load currency %}
+<div id="update_age" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h2 class="center">Refund: Order # - {{ order.vinely_order_id }}</h2>
+  </div>
+  <div class="modal-body">
+    <form method="POST" class="form-horizontal" action="{% url support:refund_order order.id %}?next={{ previous_page }}">
+      {% csrf_token %}
+      {{ refund_form.order }}
+      <div class="control-group">
+        <div class="control-label">Order Amount:</div>
+        <div class="controls">
+          $<span id="amount">{{ order.cart.total }}</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">{{ refund_form.full_refund.label }}</div>
+        <div class="controls"
+          onclick="javascript:$('#id_refund_amount').prop('disabled', $('#id_full_refund').prop('checked')); $('#id_refund_amount').val($('#amount').text())">
+          {{ refund_form.full_refund }}
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">{{ refund_form.refund_amount.label }}</div>
+        <div class="controls">
+          {{ refund_form.refund_amount }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" name="refund" class="btn btn-primary" value="refund">Refund</button>
+      </div>
+    </form>
+  </div>
+</div>

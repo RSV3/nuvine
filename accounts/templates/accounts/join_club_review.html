@@ -84,9 +84,22 @@
       <p>Exp Date: {{ credit_card.exp_date }}</p>
 
       <h2><small>Dues</small></h2>
+      {% if cart.coupon %}
+        <p>Coupon: ({{ cart.coupon_amount|currency }})</p>
+      {% endif %}
+
+      {% if cart.discount %}
+        <p>Coupon: ({{ cart.discount|currency }})</p>
+      {% endif %}
       <p>Subtotal: {{ cart.subtotal|currency }}</p>
       <p>Tax: {{ cart.tax|currency }}</p>
-      <p><b>Total: {{ cart.total|currency }}/month</b></p>
+      {% if cart.discount or cart.discount %}
+        <p><b>Total: {{ cart.total|currency }}</b></p>
+        <hr />
+        <p><b>Subscription: {{ cart.total_no_discount|currency }}/month</b></p>
+      {% else %}
+        <p><b>Total: {{ cart.total|currency }}/month</b></p>
+      {% endif %}
     </div>
     <div class="span4">
       <img src="{{ STATIC_URL }}img/join_club_overview.png">

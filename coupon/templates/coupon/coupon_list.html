@@ -1,0 +1,22 @@
+{% extends "winedora/base_html5.html" %}
+
+{% load currency %}
+
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="span12">
+      <a href="{% url coupon_create %}" class="btn btn-primary pull-right">Add</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      {% render_table table %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
