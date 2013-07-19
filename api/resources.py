@@ -165,7 +165,7 @@ class AddressResource(ModelResource):
 
 class PartyResource(ModelResource):
   address = fields.ToOneField(AddressResource, 'address', full=True)
-  host = fields.ToOneField('api.resources.UserResource', 'host', null=True)
+  host = fields.ToOneField('api.resources.UserResource', 'host', null=True, full=True)
   is_event = fields.BooleanField()
 
   class Meta:
@@ -182,6 +182,10 @@ class PartyResource(ModelResource):
 
   def dehydrate_is_event(self, bundle):
     return bundle.obj.is_events_party
+
+  def dehydrate(self, bundle):
+      del bundle.data['host'].data['profile']
+      return bundle
 
   def obj_get_list(self, bundle, **kwargs):
     # only return future parties
