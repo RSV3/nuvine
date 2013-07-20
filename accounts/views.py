@@ -927,7 +927,6 @@ def verify_account(request, verification_code):
 
   data["verification_code"] = verification_code
   u = request.user
-  profile = u.get_profile()
 
   try:
     verification = VerificationQueue.objects.get(verification_code=verification_code)
@@ -969,7 +968,7 @@ def verify_account(request, verification_code):
         messages.success(request, "Your password has been reset to your new password.")
 
       # if user is taster and was invited to a party, redirect them to RSVP page
-      invites = PartyInvite.objects.filter(invitee=u, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
+      invites = PartyInvite.objects.filter(invitee__id=u.id, response=0, party__event_date__gte=timezone.now()).order_by('party__event_date')
       if invites.exists():
         return HttpResponseRedirect(reverse('party_rsvp', args=[invites[0].party.id]))
 
