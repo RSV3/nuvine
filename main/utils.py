@@ -95,7 +95,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
   c = RequestContext(request, {"customer": user.first_name if user.first_name else "Vinely Fan",
               "host_name": request.get_host(),
-              "vinley_order_id": order.vinely_order_id,
+              "vinely_order_id": order.vinely_order_id,
               "order_id": order_id,
               "verification_code": verification_code,
               "temp_password": temp_password,
