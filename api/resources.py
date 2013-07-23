@@ -73,43 +73,15 @@ class SignupResource(ModelResource):
       if user.is_active:
         login(request, user)
         api_key, created = ApiKey.objects.get_or_create(user=user)
-        data = {'api_key': api_key.key, 'user': user.id}
-        bundle.data = data
-        # return self.create_response(request, {
-        #     'api_key': api_key.key,
-        #     'user': user.id
-        # })
+        bundle.data = {
+            'api_key': api_key.key,
+            'user': user.id
+        }
       else:
         bundle.data = {
             'success': False,
-            'reason': 'Account disabled',
+            'error_message': 'Account disabled',
         }
-    # don't show password in data presented to user
-    # del bundle.data['password1']
-    # del bundle.data['password2']
-    # del bundle.data['password']
-
-    # profile = bundle.obj.get_profile()
-    # bundle.data['phone_number'] = profile.phone
-    # bundle.data['zipcode'] = profile.zipcode
-    # request = bundle.request
-    # email = bundle.data['email']
-    # password = bundle.data['password']
-    # print 'email :', email, 'password: ', password
-    # user = authenticate(email=email, password=password)
-    # if user:
-    #   if user.is_active:
-    #     login(request, user)
-    #     api_key, created = ApiKey.objects.get_or_create(user=user)
-    #     return self.create_response(request, {
-    #         'api_key': api_key.key,
-    #         'user': user.id
-    #     })
-    #   else:
-    #     return self.create_response(request, {
-    #         'success': False,
-    #         'reason': 'Account disabled',
-    #     }, HttpForbidden)
     return bundle
 
   def obj_create(self, bundle, **kwargs):
@@ -166,12 +138,12 @@ class LoginResource(ModelResource):
       else:
         return self.create_response(request, {
             'success': False,
-            'reason': 'Account disabled',
+            'error_message': 'Account disabled',
         }, HttpForbidden)
     else:
       return self.create_response(request, {
           'success': False,
-          'reason': 'Incorrect username or password',
+          'error_message': 'Incorrect username or password',
       }, HttpUnauthorized)
 
 

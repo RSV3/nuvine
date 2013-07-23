@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
@@ -13,10 +13,10 @@ from datetime import timedelta
 
 from main.utils import if_supplier, send_welcome_to_vinely_email
 from personality.models import Wine, WineRatingData, GeneralTaste, WineTaste, WinePersonality
-from main.models import Order, Party, PersonaLog, PartyInvite
+from main.models import Order, Party, PersonaLog, PartyInvite, SelectedWine
 from accounts.models import VerificationQueue, UserProfile
 from personality.forms import GeneralTasteQuestionnaire, WineTasteQuestionnaire, WineRatingsForm, AllWineRatingsForm, \
-                              AddTasterRatingsForm, WineRatingForm
+                                AddTasterRatingsForm, WineRatingForm
 
 from personality.utils import calculate_wine_personality
 from accounts.utils import send_verification_email
@@ -634,3 +634,33 @@ def member_reveal_personality(request):
   data = {}
   data['wine_personality'] = profile.wine_personality
   return render(request, 'personality/member_reveal_personality.html', data)
+
+
+@login_required
+def general_ratings_overview(request):
+  u = request.user
+  profile = u.get_profile()
+  data = {}
+  data['rate_wines_menu'] = True
+
+  latest_order = Order.objects.filter(receiver=u, fulfill_status__gte=6, cart__items__price_category__in=[12, 13, 14]).order_by('-id')[:1]
+  print 'latest_order', latest_order
+  selected_wines = SelectedWine.objects.filter(order=latest_order)
+
+  # TODO: check based on kind of order 3/6/12 to make sure all are fulfilled
+  # if empty then order has not been fulfilled yet
+  if profile.has_personality() is False or latest_order.exists() is False or len(selected_wines) < 3:
+    raise PermissionDenied
+
+  data['wine_personality'] = profile.wine_personality
+  # get list of last ordered wines
+  latest_order = latest_order[0]
+
+  data['selected_wines'] = selected_wines
+
+  return render(request, 'personality/general_ratings_overview.html', data)
+
+
+@login_required
+def general_rate_wines(request):
+  pass

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from sorl.thumbnail import ImageField
+
 # Create your models here.
 
 
@@ -72,6 +74,7 @@ class Wine(models.Model):
   comment = models.CharField(max_length=255, blank=True, null=True)
   updated = models.DateTimeField(null=True)
   created = models.DateTimeField(null=True)
+  image = ImageField(upload_to="wine_label/", blank=True, null=True)
 
   def deactivate(self):
     self.active = False
