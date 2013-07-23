@@ -78,7 +78,7 @@ def send_order_added_email(request, order_id, user_email, verification_code=None
 
     Happy Tasting!
 
-    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.processing"></div>{% endif %}
+    {% if sig %}<div class="signature"><img src="{{ EMAIL_STATIC_URL }}img/vinely_logo_signature.png"></div>{% endif %}
 
     Your Tasteful Friends,
 

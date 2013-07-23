@@ -61,15 +61,55 @@ class SignupResource(ModelResource):
     return super(SignupResource, self).full_hydrate(bundle)
 
   def full_dehydrate(self, bundle):
-    bundle = super(SignupResource, self).full_dehydrate(bundle)
-    # don't show password in data presented to user
-    del bundle.data['password1']
-    del bundle.data['password2']
-    del bundle.data['password']
+    # bundle = super(SignupResource, self).full_dehydrate(bundle)
+    # print "bundle.data['password']", bundle.data['password']
+    # print "bundle.data['password1']", bundle.data['password1']
+    request = bundle.request
+    email = bundle.data['email']
+    password = bundle.data['password1']
 
-    profile = bundle.obj.get_profile()
-    bundle.data['phone_number'] = profile.phone
-    bundle.data['zipcode'] = profile.zipcode
+    user = authenticate(email=email, password=password)
+    if user:
+      if user.is_active:
+        login(request, user)
+        api_key, created = ApiKey.objects.get_or_create(user=user)
+        data = {'api_key': api_key.key, 'user': user.id}
+        bundle.data = data
+        # return self.create_response(request, {
+        #     'api_key': api_key.key,
+        #     'user': user.id
+        # })
+      else:
+        bundle.data = {
+            'success': False,
+            'reason': 'Account disabled',
+        }
+    # don't show password in data presented to user
+    # del bundle.data['password1']
+    # del bundle.data['password2']
+    # del bundle.data['password']
+
+    # profile = bundle.obj.get_profile()
+    # bundle.data['phone_number'] = profile.phone
+    # bundle.data['zipcode'] = profile.zipcode
+    # request = bundle.request
+    # email = bundle.data['email']
+    # password = bundle.data['password']
+    # print 'email :', email, 'password: ', password
+    # user = authenticate(email=email, password=password)
+    # if user:
+    #   if user.is_active:
+    #     login(request, user)
+    #     api_key, created = ApiKey.objects.get_or_create(user=user)
+    #     return self.create_response(request, {
+    #         'api_key': api_key.key,
+    #         'user': user.id
+    #     })
+    #   else:
+    #     return self.create_response(request, {
+    #         'success': False,
+    #         'reason': 'Account disabled',
+    #     }, HttpForbidden)
     return bundle
 
   def obj_create(self, bundle, **kwargs):
@@ -85,6 +125,7 @@ class SignupResource(ModelResource):
     profile.phone = bundle.data.get('phone_number')
     profile.zipcode = bundle.data.get('zipcode')
     profile.save()
+
     return bundle
 
 
