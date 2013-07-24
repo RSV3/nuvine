@@ -14,8 +14,8 @@
     box-shadow: 0px 1px 10px rgb(147,149,152);
   }
   .wine-num-badge img {
-    margin-top: 2%;
-    width: 200px;
+    /*margin-top: 2%;*/
+    width: 220px;
   }
   .span3 > p {
     margin-top: 10px;
@@ -47,6 +47,46 @@
     position: absolute;
     margin: 0 22px;
   }
+  .rate_widget {
+      /*border:     1px solid #CCC;*/
+      overflow:   visible;
+      padding:    10px;
+      position:   relative;
+      width:      180px;
+      height:     32px;
+  }
+  .ratings_stars {
+      background: url('{{ STATIC_URL }}img/ratings/star_empty.png') no-repeat;
+      float:      left;
+      height:     28px;
+      padding:    2px;
+      width:      32px;
+  }
+  .ratings_vote {
+      background: url('{{ STATIC_URL }}img/ratings/star_full.png') no-repeat;
+  }
+  .ratings_over {
+      background: url('{{ STATIC_URL }}img/ratings/star_highlight.png') no-repeat;
+  }
+  .total_votes {
+      background: #eaeaea;
+      top: 58px;
+      left: 0;
+      padding: 5px;
+      position:   absolute;  
+  } 
+  .movie_choice {
+      position: absolute;
+      font: 10px verdana, sans-serif;
+      margin: 0 auto 40px auto;
+      width: 180px;
+  }
+  h1 {
+      text-align: center;
+      width: 400px;
+      margin: 20px auto;
+  }
+
 </style>
 {% endblock additional_styles %}
 
@@ -66,31 +106,46 @@
       </div>
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 1 %}">
+      <a href="{% url general_rate_wines selected_wines.0.id %}">
         <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
+        {% if selected_wines.0.overall_rating < 1 %}
+          <div class='movie_choice'>
+              Rate: Raiders of the Lost Ark
+              <div id="r1" class="rate_widget">
+                  <div class="star_1 ratings_stars"></div>
+                  <div class="star_2 ratings_stars"></div>
+                  <div class="star_3 ratings_stars"></div>
+                  <div class="star_4 ratings_stars"></div>
+                  <div class="star_5 ratings_stars"></div>
+              </div>
+          </div>
+          <!-- <img class="unrated" src="{{ STATIC_URL }}img/ratings/unrated.png"> -->
+        {% else %}
+          <img class="unrated" src="{{ STATIC_URL }}img/ratings/unrated.png">
+        {% endif %}
         <div class="wine-num-badge">
           <img src="{{ MEDIA_URL }}{{selected_wines.0.wine.image}}">
         </div>
       </a>
-      <p>Wine: {{selected_wines.0.wine.name}}</p>
+      <p>{{selected_wines.0.wine.name}}</p>
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 2 %}">
+      <a href="{% url general_rate_wines selected_wines.1.id %}">
         <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
         <div class="wine-num-badge">
           <img src="{{ MEDIA_URL }}{{selected_wines.1.wine.image}}">
         </div>
       </a>
-      <p>Wine: {{selected_wines.1.wine.name}}</p>
+      <p>{{selected_wines.1.wine.name}}</p>
     </div>
     <div class="span3 center">
-      <a href="{% url member_rate_wines 3 %}">
+      <a href="{% url general_rate_wines selected_wines.2.id %}">
         <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
         <div class="wine-num-badge">
           <img src="{{ MEDIA_URL }}{{selected_wines.2.wine.image}}">
         </div>
       </a>
-      <p>Wine: {{selected_wines.2.wine.name}}</p>
+      <p>{{selected_wines.2.wine.name}}</p>
     </div>
   </div>
   <div class="vertical-space">&nbsp;</div>
@@ -110,31 +165,31 @@
     </div>
     {% if selected_wines|length > 3 %}
       <div class="span3 center">
-        <a href="{% url member_rate_wines 4 %}">
+        <a href="{% url general_rate_wines selected_wines.3.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.3.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.3.wine.name}}</p>
+        <p>{{selected_wines.3.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 5 %}">
+        <a href="{% url general_rate_wines selected_wines.4.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.4.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.4.wine.name}}</p>
+        <p>{{selected_wines.4.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 6 %}">
+        <a href="{% url general_rate_wines selected_wines.5.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.5.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.5.wine.name}}</p>
+        <p>{{selected_wines.5.wine.name}}</p>
       </div>
     </div>
   {% endif %}
@@ -145,31 +200,31 @@
         &nbsp;
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 7 %}">
+        <a href="{% url general_rate_wines selected_wines.6.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.6.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.6.wine.name}}</p>
+        <p>{{selected_wines.6.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 8 %}">
+        <a href="{% url general_rate_wines selected_wines.7.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.7.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.7.wine.name}}</p>
+        <p>{{selected_wines.7.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 9 %}">
+        <a href="{% url general_rate_wines 9 %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.8.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.8.wine.name}}</p>
+        <p>{{selected_wines.8.wine.name}}</p>
       </div>
     </div>
     <div class="vertical-space">&nbsp;</div>
@@ -178,31 +233,31 @@
         &nbsp;
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 10 %}">
+        <a href="{% url general_rate_wines selected_wines.9.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.9.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.9.wine.name}}</p>
+        <p>{{selected_wines.9.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 11 %}">
+        <a href="{% url general_rate_wines selected_wines.10.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.10.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.10.wine.name}}</p>
+        <p>{{selected_wines.10.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url member_rate_wines 12 %}">
+        <a href="{% url general_rate_wines selected_wines.11.id %}">
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.11.wine.image}}">
           </div>
         </a>
-        <p>Wine: {{selected_wines.11.wine.name}}</p>
+        <p>{{selected_wines.11.wine.name}}</p>
       </div>
     </div>
     <div class="vertical-space">&nbsp;</div>
@@ -210,3 +265,75 @@
 </div>
 
 {% endblock content %}
+
+{% block additional_scripts %}
+    <script type="text/javascript">
+      $(document).ready( function () {
+        $('.rate_widget').each(function(i) {
+            var widget = this;
+            var out_data = {
+                widget_id : $(widget).attr('id'),
+                fetch: 1
+            };
+            $.post(
+                'ratings.php',
+                out_data,
+                function(INFO) {
+                    $(widget).data( 'fsr', INFO );
+                    set_votes(widget);
+                },
+                'json'
+            );
+        });
+    
+
+        $('.ratings_stars').hover(
+            // Handles the mouseover
+            function() {
+                $(this).prevAll().andSelf().addClass('ratings_over');
+                $(this).nextAll().removeClass('ratings_vote'); 
+            },
+            // Handles the mouseout
+            function() {
+                $(this).prevAll().andSelf().removeClass('ratings_over');
+                // can't use 'this' because it wont contain the updated data
+                set_votes($(this).parent());
+            }
+        );
+        
+        
+        // This actually records the vote
+        $('.ratings_stars').bind('click', function() {
+            var star = this;
+            var widget = $(this).parent();
+            
+            var clicked_data = {
+                clicked_on : $(star).attr('class'),
+                widget_id : $(star).parent().attr('id')
+            };
+            $.post(
+                'ratings.php',
+                clicked_data,
+                function(INFO) {
+                    widget.data( 'fsr', INFO );
+                    set_votes(widget);
+                },
+                'json'
+            ); 
+        });
+    });
+
+    function set_votes(widget) {
+
+        var avg = $(widget).data('fsr').whole_avg;
+        var votes = $(widget).data('fsr').number_votes;
+        var exact = $(widget).data('fsr').dec_avg;
+    
+        window.console && console.log('and now in set_votes, it thinks the fsr is ' + $(widget).data('fsr').number_votes);
+        
+        $(widget).find('.star_' + avg).prevAll().andSelf().addClass('ratings_vote');
+        $(widget).find('.star_' + avg).nextAll().removeClass('ratings_vote'); 
+        $(widget).find('.total_votes').text( votes + ' votes recorded (' + exact + ' rating)' );
+    }
+    </script>
+{% endblock additional_scripts %}

@@ -338,3 +338,9 @@
   <div class="vertical-space">&nbsp;</div>
 </div>
 {% endblock content%}
+
+{% block additional_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.validationEngine-en.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/form-validate.js" %}"></script>
+{% endblock additional_scripts %}
