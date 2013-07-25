@@ -53,7 +53,7 @@
   .rate_widget {
     /*border:     1px solid #CCC;*/
     overflow:   visible;
-    padding:    10px;
+    padding:    10px 0;
     position:   absolute;
     width:      200px;
     height:     32px;
@@ -61,22 +61,48 @@
     cursor: pointer;
   }
   .rate-widget-stars {
-    margin-left: 33px;
+    margin-left: 42px;
   }
   .rate-widget-gift {
-    margin-left: 3px;
+    margin-left: 8px;
   }
+  .ratings-text {
+    width: 200px;
+    height: 75px;
+    position: absolute;
+    z-index: 10;
+    margin-top: -70px;
+  }
+  .ratings-text-1 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-1.png') no-repeat -5px;
+  }
+  .ratings-text-2 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-2.png') no-repeat 13px;
+  }
+  .ratings-text-3 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-3.png') no-repeat 6px;
+  }
+  .ratings-text-4 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-4.png') no-repeat 28px;
+  }
+  .ratings-text-5 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-5.png') no-repeat 41px;
+  }
+  .ratings-text-6 {
+    background: url('{{ STATIC_URL }}img/ratings/unrated-text-6.png') no-repeat -5px;
+  }
+
   .ratings_gift {
       background: url('{{ STATIC_URL }}img/ratings/gift_empty.png') no-repeat;
       float:      left;
       height:     105px;
       padding:    2px;
       width:      30px;
-      margin-top: -73px;
+      margin-top: -75px;
   }
   .ratings_gift_over {
       background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
-      margin-top: -73px;
+      margin-top: -75px;
   }
   .ratings_gift_vote {
       background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
@@ -134,64 +160,58 @@
     </div>
     {% if selected_wines.0.overall_rating < 1 %}
     <div class="span3 center">
-      
-        <div class="rate-banner"></div>
-        <div id="r1" class="rate_widget rate-widget-gift">
-          <div class="gift ratings_gift"></div>
-        </div>
-        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.0.id }}">
-          <div class="star_1 ratings_stars"></div>
-          <div class="star_2 ratings_stars"></div>
-          <div class="star_3 ratings_stars"></div>
-          <div class="star_4 ratings_stars"></div>
-          <div class="star_5 ratings_stars"></div>
-        </div>
-        <div class="wine-num-badge">
-          <img src="{{ MEDIA_URL }}{{selected_wines.0.wine.image}}">
-        </div>
-      <!-- </a> -->
+      <div class="rate-banner"></div>
+      <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.0.id }}">
+        <div class="gift ratings_gift"></div>
+        <div class="ratings-text ratings-text-6 hide"></div>
+      </div>
+      <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.0.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="ratings-text ratings-text-{{ x }} hide"></div>
+          {% endfor %}
+      </div>
+      <div class="wine-num-badge">
+        <img src="{{ MEDIA_URL }}{{selected_wines.0.wine.image}}">
+      </div>
       <p>{{selected_wines.0.wine.name}}</p>
     </div>
     {% endif %}
     {% if selected_wines.1.overall_rating < 1 %}
       <div class="span3 center">
-        
-          <div class="rate-banner"></div>
-          <div id="r1" class="rate_widget rate-widget-gift">
-            <div class="gift ratings_gift"></div>
-          </div>
-          <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.1.id }}">
-            <div class="star_1 ratings_stars"></div>
-            <div class="star_2 ratings_stars"></div>
-            <div class="star_3 ratings_stars"></div>
-            <div class="star_4 ratings_stars"></div>
-            <div class="star_5 ratings_stars"></div>
-          </div>
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.1.wine.image}}">
-          </div>
-        <!-- </a> -->
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.1.id }}">
+          <div class="gift ratings_gift"></div>
+          <div class="gift ratings-text ratings-text-6 hide"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.1.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="ratings-text ratings-text-{{ x }} hide"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.1.wine.image}}">
+        </div>
         <p>{{selected_wines.1.wine.name}}</p>
       </div>
     {% endif %}
     {% if selected_wines.2.overall_rating < 1 %}
       <div class="span3 center">
-        
-          <div class="rate-banner"></div>
-          <div id="r1" class="rate_widget rate-widget-gift">
-            <div class="gift ratings_gift"></div>
-          </div>
-          <div id="r1" class="rate_widget rate-widget-stars">
-            <div class="star_1 ratings_stars"></div>
-            <div class="star_2 ratings_stars"></div>
-            <div class="star_3 ratings_stars"></div>
-            <div class="star_4 ratings_stars"></div>
-            <div class="star_5 ratings_stars"></div>
-          </div>
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.2.wine.image}}">
-          </div>
-        <!-- </a> -->
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.2.id }}">
+          <div class="gift ratings_gift"></div>
+          <div class="gift ratings-text ratings-text-6 hide"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.2.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="ratings-text ratings-text-{{ x }} hide"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.2.wine.image}}">
+        </div>
         <p>{{selected_wines.2.wine.name}}</p>
       </div>
     {% endif %}
@@ -213,30 +233,50 @@
     </div>
     {% if selected_wines|length > 3 %}
       <div class="span3 center">
-        <!-- <a href="{% url general_rate_wines selected_wines.3.id %}"> -->
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.3.wine.image}}">
-          </div>
-        <!-- </a> -->
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.3.id }}">
+          <div class="gift ratings_gift"></div>
+          <div class="gift ratings-text ratings-text-6 hide"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.3.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="ratings-text ratings-text-{{ x }} hide"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.3.wine.image}}">
+        </div>
         <p>{{selected_wines.3.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.4.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.4.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.4.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.4.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.4.wine.image}}">
+        </div>
         <p>{{selected_wines.4.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.5.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.5.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.5.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.5.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.5.wine.image}}">
+        </div>
         <p>{{selected_wines.5.wine.name}}</p>
       </div>
     </div>
@@ -248,30 +288,48 @@
         &nbsp;
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.6.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.6.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.6.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.6.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.6.wine.image}}">
+        </div>
         <p>{{selected_wines.6.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.7.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.7.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.2.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.2.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.7.wine.image}}">
+        </div>
         <p>{{selected_wines.7.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines 9 %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.8.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.8.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.8.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.8.wine.image}}">
+        </div>
         <p>{{selected_wines.8.wine.name}}</p>
       </div>
     </div>
@@ -281,30 +339,48 @@
         &nbsp;
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.9.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.9.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.9.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.9.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.9.wine.image}}">
+        </div>
         <p>{{selected_wines.9.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.10.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.10.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.10.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.10.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.10.wine.image}}">
+        </div>
         <p>{{selected_wines.10.wine.name}}</p>
       </div>
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.11.id %}">
-          <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-          <div class="wine-num-badge">
-            <img src="{{ MEDIA_URL }}{{selected_wines.11.wine.image}}">
-          </div>
-        </a>
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wines.11.id }}">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.11.id }}">
+          {% for x in "12345" %}
+            <div class="star_{{ x }} ratings_stars"></div>
+          {% endfor %}
+        </div>
+        <div class="wine-num-badge">
+          <img src="{{ MEDIA_URL }}{{selected_wines.11.wine.image}}">
+        </div>
         <p>{{selected_wines.11.wine.name}}</p>
       </div>
     </div>
@@ -353,9 +429,12 @@
           function() {
             $(this).addClass('ratings_gift_over');
             $(this).removeClass('ratings_gift_vote');
+            $(this).siblings().show();
           },
           function() {
             $(this).removeClass('ratings_gift_over');
+            // $(this).siblings().hide();
+            $(this).siblings().hide();
           }
         );
 
@@ -364,15 +443,18 @@
           function() {
             $(this).prevAll().andSelf().addClass('ratings_over');
             $(this).nextAll().removeClass('ratings_vote'); 
+            $(this).next().show();
           },
           // Handles the mouseout
           function() {
             $(this).prevAll().andSelf().removeClass('ratings_over');
+            $(this).next().hide();
           }
         );
 
         $('.ratings_gift').bind('click', function() {
-          $.post('{% url general_rate_wine 6 %}')
+          var wine = $(this).parent().data('wine');
+          $.post('{% url general_rate_wine 0 %}'.replace(0, wine), {overall_rating: 6})
           .done(function(json, textStatus, xhr) {
             console.log('Success');
           })
