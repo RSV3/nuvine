@@ -45,28 +45,55 @@
   }
   .rate-banner {
     position: absolute;
-    margin: 0 22px;
+    margin: 0 132px;
+    width: 87px;
+    height: 87px;
+    background: url('{{ STATIC_URL }}img/rate_banner.png') no-repeat;
   }
   .rate_widget {
-      /*border:     1px solid #CCC;*/
-      overflow:   visible;
-      padding:    10px;
-      position:   relative;
-      width:      180px;
-      height:     32px;
+    /*border:     1px solid #CCC;*/
+    overflow:   visible;
+    padding:    10px;
+    position:   absolute;
+    width:      200px;
+    height:     32px;
+    margin-top: 175px;
+    cursor: pointer;
+  }
+  .rate-widget-stars {
+    margin-left: 33px;
+  }
+  .rate-widget-gift {
+    margin-left: 3px;
+  }
+  .ratings_gift {
+      background: url('{{ STATIC_URL }}img/ratings/gift_empty.png') no-repeat;
+      float:      left;
+      height:     105px;
+      padding:    2px;
+      width:      30px;
+      margin-top: -73px;
+  }
+  .ratings_gift_over {
+      background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
+      margin-top: -73px;
+  }
+  .ratings_gift_vote {
+      background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
   }
   .ratings_stars {
-      background: url('{{ STATIC_URL }}img/ratings/star_empty.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/star_unrated_empty.png') no-repeat;
       float:      left;
-      height:     28px;
+      height:     105px;
       padding:    2px;
-      width:      32px;
+      width:      30px;
+      margin-top: -75px;
   }
   .ratings_vote {
-      background: url('{{ STATIC_URL }}img/ratings/star_full.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/star_unrated_filled.png') no-repeat;
   }
   .ratings_over {
-      background: url('{{ STATIC_URL }}img/ratings/star_highlight.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/star_unrated_filled.png') no-repeat;
   }
   .total_votes {
       background: #eaeaea;
@@ -105,48 +132,69 @@
         <img class="member-personality" src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png" height="310">
       </div>
     </div>
+    {% if selected_wines.0.overall_rating < 1 %}
     <div class="span3 center">
-      <a href="{% url general_rate_wines selected_wines.0.id %}">
-        <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-        {% if selected_wines.0.overall_rating < 1 %}
-          <div class='movie_choice'>
-              Rate: Raiders of the Lost Ark
-              <div id="r1" class="rate_widget">
-                  <div class="star_1 ratings_stars"></div>
-                  <div class="star_2 ratings_stars"></div>
-                  <div class="star_3 ratings_stars"></div>
-                  <div class="star_4 ratings_stars"></div>
-                  <div class="star_5 ratings_stars"></div>
-              </div>
-          </div>
-          <!-- <img class="unrated" src="{{ STATIC_URL }}img/ratings/unrated.png"> -->
-        {% else %}
-          <img class="unrated" src="{{ STATIC_URL }}img/ratings/unrated.png">
-        {% endif %}
+      
+        <div class="rate-banner"></div>
+        <div id="r1" class="rate_widget rate-widget-gift">
+          <div class="gift ratings_gift"></div>
+        </div>
+        <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.0.id }}">
+          <div class="star_1 ratings_stars"></div>
+          <div class="star_2 ratings_stars"></div>
+          <div class="star_3 ratings_stars"></div>
+          <div class="star_4 ratings_stars"></div>
+          <div class="star_5 ratings_stars"></div>
+        </div>
         <div class="wine-num-badge">
           <img src="{{ MEDIA_URL }}{{selected_wines.0.wine.image}}">
         </div>
-      </a>
+      <!-- </a> -->
       <p>{{selected_wines.0.wine.name}}</p>
     </div>
-    <div class="span3 center">
-      <a href="{% url general_rate_wines selected_wines.1.id %}">
-        <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-        <div class="wine-num-badge">
-          <img src="{{ MEDIA_URL }}{{selected_wines.1.wine.image}}">
-        </div>
-      </a>
-      <p>{{selected_wines.1.wine.name}}</p>
-    </div>
-    <div class="span3 center">
-      <a href="{% url general_rate_wines selected_wines.2.id %}">
-        <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
-        <div class="wine-num-badge">
-          <img src="{{ MEDIA_URL }}{{selected_wines.2.wine.image}}">
-        </div>
-      </a>
-      <p>{{selected_wines.2.wine.name}}</p>
-    </div>
+    {% endif %}
+    {% if selected_wines.1.overall_rating < 1 %}
+      <div class="span3 center">
+        
+          <div class="rate-banner"></div>
+          <div id="r1" class="rate_widget rate-widget-gift">
+            <div class="gift ratings_gift"></div>
+          </div>
+          <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.1.id }}">
+            <div class="star_1 ratings_stars"></div>
+            <div class="star_2 ratings_stars"></div>
+            <div class="star_3 ratings_stars"></div>
+            <div class="star_4 ratings_stars"></div>
+            <div class="star_5 ratings_stars"></div>
+          </div>
+          <div class="wine-num-badge">
+            <img src="{{ MEDIA_URL }}{{selected_wines.1.wine.image}}">
+          </div>
+        <!-- </a> -->
+        <p>{{selected_wines.1.wine.name}}</p>
+      </div>
+    {% endif %}
+    {% if selected_wines.2.overall_rating < 1 %}
+      <div class="span3 center">
+        
+          <div class="rate-banner"></div>
+          <div id="r1" class="rate_widget rate-widget-gift">
+            <div class="gift ratings_gift"></div>
+          </div>
+          <div id="r1" class="rate_widget rate-widget-stars">
+            <div class="star_1 ratings_stars"></div>
+            <div class="star_2 ratings_stars"></div>
+            <div class="star_3 ratings_stars"></div>
+            <div class="star_4 ratings_stars"></div>
+            <div class="star_5 ratings_stars"></div>
+          </div>
+          <div class="wine-num-badge">
+            <img src="{{ MEDIA_URL }}{{selected_wines.2.wine.image}}">
+          </div>
+        <!-- </a> -->
+        <p>{{selected_wines.2.wine.name}}</p>
+      </div>
+    {% endif %}
   </div>
   <div class="vertical-space">&nbsp;</div>
   <div class="row">
@@ -165,12 +213,12 @@
     </div>
     {% if selected_wines|length > 3 %}
       <div class="span3 center">
-        <a href="{% url general_rate_wines selected_wines.3.id %}">
+        <!-- <a href="{% url general_rate_wines selected_wines.3.id %}"> -->
           <img class="rate-banner" src="{{ STATIC_URL }}img/rate_banner.png">
           <div class="wine-num-badge">
             <img src="{{ MEDIA_URL }}{{selected_wines.3.wine.image}}">
           </div>
-        </a>
+        <!-- </a> -->
         <p>{{selected_wines.3.wine.name}}</p>
       </div>
       <div class="span3 center">
@@ -268,72 +316,85 @@
 
 {% block additional_scripts %}
     <script type="text/javascript">
+      function csrfSafeMethod(method) {
+          // these HTTP methods do not require CSRF protection
+          return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+
+      $.ajaxSetup({
+          crossDomain: false,
+          beforeSend: function(xhr, settings) {
+              if (!csrfSafeMethod(settings.type)) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                  xhr.setRequestHeader("X-Content-Type", "application/json");
+              }
+          }
+      });
+
+      function getCookie(name) {
+          var cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                  var cookie = jQuery.trim(cookies[i]);
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
+      var csrftoken = getCookie('csrftoken');
+
       $(document).ready( function () {
-        $('.rate_widget').each(function(i) {
-            var widget = this;
-            var out_data = {
-                widget_id : $(widget).attr('id'),
-                fetch: 1
-            };
-            $.post(
-                'ratings.php',
-                out_data,
-                function(INFO) {
-                    $(widget).data( 'fsr', INFO );
-                    set_votes(widget);
-                },
-                'json'
-            );
-        });
-    
+        $('.ratings_gift').hover(
+          function() {
+            $(this).addClass('ratings_gift_over');
+            $(this).removeClass('ratings_gift_vote');
+          },
+          function() {
+            $(this).removeClass('ratings_gift_over');
+          }
+        );
 
         $('.ratings_stars').hover(
-            // Handles the mouseover
-            function() {
-                $(this).prevAll().andSelf().addClass('ratings_over');
-                $(this).nextAll().removeClass('ratings_vote'); 
-            },
-            // Handles the mouseout
-            function() {
-                $(this).prevAll().andSelf().removeClass('ratings_over');
-                // can't use 'this' because it wont contain the updated data
-                set_votes($(this).parent());
-            }
+          // Handles the mouseover
+          function() {
+            $(this).prevAll().andSelf().addClass('ratings_over');
+            $(this).nextAll().removeClass('ratings_vote'); 
+          },
+          // Handles the mouseout
+          function() {
+            $(this).prevAll().andSelf().removeClass('ratings_over');
+          }
         );
-        
-        
+
+        $('.ratings_gift').bind('click', function() {
+          $.post('{% url general_rate_wine 6 %}')
+          .done(function(json, textStatus, xhr) {
+            console.log('Success');
+          })
+          .fail(function (xhr, status, error) {
+              console.log("error: " + JSON.stringify(xhr));
+              alert('Error: Sorry there was when trying to rate the wine.');
+          });
+        });
+
         // This actually records the vote
         $('.ratings_stars').bind('click', function() {
-            var star = this;
-            var widget = $(this).parent();
-            
-            var clicked_data = {
-                clicked_on : $(star).attr('class'),
-                widget_id : $(star).parent().attr('id')
-            };
-            $.post(
-                'ratings.php',
-                clicked_data,
-                function(INFO) {
-                    widget.data( 'fsr', INFO );
-                    set_votes(widget);
-                },
-                'json'
-            ); 
+          var wine = $(this).parent().data('wine');
+          var rating = $(this).prevAll().andSelf().length;
+            $.post('{% url general_rate_wine 0 %}'.replace(0, wine), {overall_rating: rating})
+            .done(function(json, textStatus, xhr) {
+              console.log('Success');
+            })
+            .fail(function (xhr, status, error) {
+                console.log("error: " + JSON.stringify(xhr));
+                alert('Error: Sorry there was when trying to rate the wine.');
+            });
         });
     });
-
-    function set_votes(widget) {
-
-        var avg = $(widget).data('fsr').whole_avg;
-        var votes = $(widget).data('fsr').number_votes;
-        var exact = $(widget).data('fsr').dec_avg;
-    
-        window.console && console.log('and now in set_votes, it thinks the fsr is ' + $(widget).data('fsr').number_votes);
-        
-        $(widget).find('.star_' + avg).prevAll().andSelf().addClass('ratings_vote');
-        $(widget).find('.star_' + avg).nextAll().removeClass('ratings_vote'); 
-        $(widget).find('.total_votes').text( votes + ' votes recorded (' + exact + ' rating)' );
-    }
     </script>
 {% endblock additional_scripts %}

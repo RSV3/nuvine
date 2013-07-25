@@ -18,5 +18,6 @@ urlpatterns = patterns('personality.views',
     url(r'^member/ratings/overview/$', 'member_ratings_overview', name='member_ratings_overview'),
     url(r'^member/reveal/personality/$', 'member_reveal_personality', name='member_reveal_personality'),
     url(r'^ratings/overview/$', 'general_ratings_overview', name='general_ratings_overview'),
-    url(r'^ratings/(?P<selected_wine_id>\d+)/$', 'general_rate_wines', name='general_rate_wines'),
+    # url(r'^ratings/(?P<selected_wine_id>\d+)/$', 'general_rate_wines', name='general_rate_wines'),
+    url(r'^ratings/(?P<selected_wine_id>\d+)/$', 'general_rate_wine', name='general_rate_wine'),
 )

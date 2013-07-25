@@ -720,16 +720,39 @@ def general_ratings_overview(request):
 #   return render(request, 'personality/general_rate_wines.html', data)
 
 
+# @login_required
+# def general_rate_wines(request, selected_wine_id):
+#   u = request.user
+#   profile = u.get_profile()
+#   data = {}
+#   selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
+#   # initial_data = {'wine': selected_wine.wine, 'user': u}
+
+#   form = SelectedWineRatingForm(instance=selected_wine)
+#   if form.is_valid():
+#     print 'form_valid'
+#     pass
+#   return render(request, 'personality/general_rate_wines.html', data)
+
+
 @login_required
-def general_rate_wines(request, selected_wine_id):
+def general_rate_wine(request, selected_wine_id):
   u = request.user
   profile = u.get_profile()
   data = {}
-  selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
-  # initial_data = {'wine': selected_wine.wine, 'user': u}
 
-  form = SelectedWineRatingForm(instance=selected_wine)
+  selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
+  print 'request.POST', request.POST.get('overall_rating')
+  # rating = json.loads(request.body)
+  # print 'request.POST', request.POST.get('rating')
+  initial_data = {}
+  initial_data['order'] = selected_wine.order.id
+  initial_data['wine'] = selected_wine.wine.id
+  initial_data['overall_rating'] = request.POST.get('overall_rating')
+  form = SelectedWineRatingForm(data=initial_data, instance=selected_wine)
+
   if form.is_valid():
-    print 'form_valid'
-    pass
-  return render(request, 'personality/general_rate_wines.html', data)
+    form.save()
+
+  print 'form.errors', form.errors
+  return HttpResponse(json.dumps(data), mimetype="application/json")
