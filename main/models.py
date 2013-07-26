@@ -735,7 +735,7 @@ class SelectedWine(models.Model):
       (3, 'Neutral'),
       (4, 'Like'),
       (5, 'Love'),
-      (6, 'Gifted'),
+      (6, 'N/A, I gave this away'),
   )
 
   order = models.ForeignKey(Order)

@@ -48,7 +48,7 @@
     margin: 0 132px;
     width: 87px;
     height: 87px;
-    background: url('{{ STATIC_URL }}img/rate_banner.png') no-repeat;
+    background: url('{{ STATIC_URL }}img/ratings/rate_banner.png') no-repeat;
   }
   .rate_widget {
     /*border:     1px solid #CCC;*/
@@ -74,41 +74,90 @@
     margin-top: -70px;
   }
   .ratings-text-1 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-1.png') no-repeat -5px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-1.png') no-repeat -5px;
   }
   .ratings-text-2 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-2.png') no-repeat 13px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-2.png') no-repeat 13px;
   }
   .ratings-text-3 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-3.png') no-repeat 6px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-3.png') no-repeat 6px;
   }
   .ratings-text-4 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-4.png') no-repeat 28px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-4.png') no-repeat 28px;
   }
   .ratings-text-5 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-5.png') no-repeat 41px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-5.png') no-repeat 41px;
   }
   .ratings-text-6 {
-    background: url('{{ STATIC_URL }}img/ratings/unrated-text-6.png') no-repeat -5px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-6.png') no-repeat -5px;
   }
 
   .ratings_gift {
-      background: url('{{ STATIC_URL }}img/ratings/gift_empty.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_empty.png') no-repeat;
       float:      left;
       height:     105px;
       padding:    2px;
       width:      30px;
       margin-top: -75px;
   }
+  .rated-widget {
+    position: absolute;
+    width: 218px;
+    margin-top: -117px;
+    margin-left: 1px;
+  }
+  .rated-stars {
+    height: 110px;
+  }
+  .rated-text {
+    margin-top: -142px;
+    height: 75px;
+    width: 210px;
+  }
+  .rated-container {
+    cursor: pointer;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-1 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-1.png') no-repeat 7px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-2 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-2.png') no-repeat 30px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-3 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-3.png') no-repeat 28px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-4 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-4.png') no-repeat 54px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-5 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-5.png') no-repeat 73px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-6 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-6.png') no-repeat;
+      margin: -140px 45px;
+  }
+
+  .Rated-{{ wine_personality.suffix }}-6 {
+    background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rated-{{ wine_personality.suffix }}-6.png') no-repeat;
+    height: 138px;
+  }
+
+  {% for x in "12345" %}
+  .Rated-{{ wine_personality.suffix }}-{{ x }} {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rated-{{ wine_personality.suffix }}-{{ x }}.png') no-repeat;
+      height: 138px;
+  }
+  {% endfor %}
+
   .ratings_gift_over {
-      background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_filled.png') no-repeat;
       margin-top: -75px;
   }
   .ratings_gift_vote {
-      background: url('{{ STATIC_URL }}img/ratings/gift_filled.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_filled.png') no-repeat;
   }
   .ratings_stars {
-      background: url('{{ STATIC_URL }}img/ratings/star_unrated_empty.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/star_unrated_empty.png') no-repeat;
       float:      left;
       height:     105px;
       padding:    2px;
@@ -116,10 +165,10 @@
       margin-top: -75px;
   }
   .ratings_vote {
-      background: url('{{ STATIC_URL }}img/ratings/star_unrated_filled.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/star_unrated_filled.png') no-repeat;
   }
   .ratings_over {
-      background: url('{{ STATIC_URL }}img/ratings/star_unrated_filled.png') no-repeat;
+      background: url('{{ STATIC_URL }}img/ratings/UNRATED/star_unrated_filled.png') no-repeat;
   }
   .total_votes {
       background: #eaeaea;
@@ -167,7 +216,7 @@
       </div>
       <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.0.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
             <div class="ratings-text ratings-text-{{ x }} hide"></div>
           {% endfor %}
       </div>
@@ -186,7 +235,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.1.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
             <div class="ratings-text ratings-text-{{ x }} hide"></div>
           {% endfor %}
         </div>
@@ -205,7 +254,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.2.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
             <div class="ratings-text ratings-text-{{ x }} hide"></div>
           {% endfor %}
         </div>
@@ -240,7 +289,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.3.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
             <div class="ratings-text ratings-text-{{ x }} hide"></div>
           {% endfor %}
         </div>
@@ -279,8 +328,8 @@
         </div>
         <p>{{selected_wines.5.wine.name}}</p>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
+  </div>
   <div class="vertical-space">&nbsp;</div>
   {% if selected_wines|length > 6 %}
     <div class="row">
@@ -294,7 +343,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.6.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
           {% endfor %}
         </div>
         <div class="wine-num-badge">
@@ -309,7 +358,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.2.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
           {% endfor %}
         </div>
         <div class="wine-num-badge">
@@ -324,7 +373,7 @@
         </div>
         <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wines.8.id }}">
           {% for x in "12345" %}
-            <div class="star_{{ x }} ratings_stars"></div>
+            <div class="star_{{ x }} ratings_stars" data-rating="{{ x }}"></div>
           {% endfor %}
         </div>
         <div class="wine-num-badge">
@@ -383,6 +432,38 @@
         </div>
         <p>{{selected_wines.11.wine.name}}</p>
       </div>
+    </div>
+    <div class="vertical-space">&nbsp;</div>
+  {% endif %}
+  {% if selected_rated_wines %}
+    <hr />
+    <div class="row">
+      <div class="span5">
+        Wines you've already rated have been integrated into your taste profile to make sure you get wines you're guaranteed to love.
+      </div>
+      <div class="span2">&nbsp;</div>
+      <div class="span1">
+        <label>Reds <input type="checkbox" name="wine_color" value="0" /></label>
+      </div>
+      <div class="span2">
+        <label>Whites <input type="checkbox" name="wine_color" value="1" /></label>
+      </div>
+    </div>
+    <div class="vertical-space">&nbsp;</div>
+    <div class="row">
+      {% for selected_wine in selected_rated_wines %}
+        <div class="span3 center rated-container">
+          <div class="wine-num-badge">
+            <img src="{{ MEDIA_URL }}{{selected_wine.wine.image}}">
+          </div>
+          <div class="rated-widget" data-wine="{{ selected_wine.id }}">
+            <div class="rated-stars Rated-{{ wine_personality.suffix }}-{{ selected_wine.overall_rating }}"></div>
+            <div class="rated-text Rating-{{ wine_personality.suffix }}-Text-{{ selected_wine.overall_rating }} hide"></div>
+          </div>
+          <p>Wine: {{selected_wine.wine.name}}</p>
+          <p>Rating: {{selected_wine.get_overall_rating_display }}</p>
+        </div>
+      {% endfor %}
     </div>
     <div class="vertical-space">&nbsp;</div>
   {% endif %}
@@ -467,7 +548,7 @@
         // This actually records the vote
         $('.ratings_stars').bind('click', function() {
           var wine = $(this).parent().data('wine');
-          var rating = $(this).prevAll().andSelf().length;
+          var rating = $(this).data('rating');
             $.post('{% url general_rate_wine 0 %}'.replace(0, wine), {overall_rating: rating})
             .done(function(json, textStatus, xhr) {
               console.log('Success');
@@ -477,6 +558,14 @@
                 alert('Error: Sorry there was when trying to rate the wine.');
             });
         });
+        $('.rated-container').hover(
+          function() {
+            $(this).children('.rated-widget').children('.rated-text').show()
+          },
+          function() {
+            $(this).children('.rated-widget').children('.rated-text').hide()
+          }
+        );
     });
     </script>
 {% endblock additional_scripts %}

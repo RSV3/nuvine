@@ -648,10 +648,12 @@ def general_ratings_overview(request):
   latest_order = Order.objects.filter(receiver=u, fulfill_status__gte=6, cart__items__price_category__in=[12, 13, 14]).order_by('-id')[:1]
   # print 'latest_order', latest_order
   selected_wines = SelectedWine.objects.filter(order=latest_order).order_by('id')
+  # print [x.overall_rating for x in selected_wines]
+  selected_rated_wines = SelectedWine.objects.filter(order=latest_order, overall_rating__gt=0).order_by('id')
 
   # TODO: check based on kind of order 3/6/12 to make sure all are fulfilled
   # if empty then order has not been fulfilled yet
-  if profile.has_personality() is False or latest_order.exists() is False or len(selected_wines) < 3:
+  if profile.has_personality() is False or latest_order.exists() is False:  # or (len(selected_wines) < 3 and len(selected_rated_wines) < 3):
     raise PermissionDenied
 
   data['wine_personality'] = profile.wine_personality
@@ -659,80 +661,9 @@ def general_ratings_overview(request):
   latest_order = latest_order[0]
 
   data['selected_wines'] = selected_wines
+  data['selected_rated_wines'] = selected_rated_wines
 
   return render(request, 'personality/general_ratings_overview.html', data)
-
-
-# @login_required
-# def general_rate_wines(request, selected_wine_id, wine_rating_number):
-#   u = request.user
-#   profile = u.get_profile()
-#   data = {}
-
-#   # NOTES: Wine rating data normally 6 items
-#   # 1. How to rate if they ordered 3 bottles
-#   # 2. Rate for 12 bottles - means creating 6 new rating data records
-#   # 3. How does all this affect fulfilment
-
-#   # 1. how many items were ordered in the related order
-#   # 2. how many rating data records are there
-#   # 3. if wine_rating_number > number of rating data records, create new rating record else update existing
-#   # 4 wine number should not be > number of wines in the shipment
-#   selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
-#   # print 'selected_wine', selected_wine
-#   selected_wines = SelectedWine.objects.filter(order=selected_wine.order)
-#   # print 'selected_wines', selected_wines
-#   wine_ratings = WineRatingData.objects.filter(user=u)
-#   # print 'wine_ratings', wine_ratings
-
-#   # if wine_rating_number > len(selected_wines) - 1 or selected_wine not in selected_wines:
-#   if selected_wine not in selected_wines:
-#     raise Http404
-
-#   initial_data = {'wine': selected_wine.wine, 'user': u}
-
-#   if wine_rating_number > len(wine_ratings) - 1:
-#     form = WineRatingForm(request.POST or None, initial=initial_data)
-#   else:
-#     instance = WineRatingData(id=selected_wine_id)
-#     # instance = wine_ratings[wine_rating_number]
-#     form = WineRatingForm(request.POST or None, instance=instance, initial=initial_data)
-
-#   data['form'] = form
-
-#   print 'form.errors', form.errors
-
-#   if form.is_valid():
-#     form.save()
-#     return HttpResponseRedirect(reverse('general_ratings_overview'))
-
-#   # try:
-#   #   wine_ratings = WineRatingData.objects.filter(user=u)
-#   #   if len(wine_ratings) > 6:
-#   #     # create new wineratingdata record
-#   #     pass
-#   #   form = WineRatingForm(request.POST or None, instance=wine_rating)
-#   # except WineRatingData.DoesNotExist:
-#   #   initial_data['wine'] = wine
-#   #   initial_data['user'] = u
-#   #   form = WineRatingForm(request.POST or None, initial=initial_data)
-
-#   return render(request, 'personality/general_rate_wines.html', data)
-
-
-# @login_required
-# def general_rate_wines(request, selected_wine_id):
-#   u = request.user
-#   profile = u.get_profile()
-#   data = {}
-#   selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
-#   # initial_data = {'wine': selected_wine.wine, 'user': u}
-
-#   form = SelectedWineRatingForm(instance=selected_wine)
-#   if form.is_valid():
-#     print 'form_valid'
-#     pass
-#   return render(request, 'personality/general_rate_wines.html', data)
 
 
 @login_required
@@ -742,7 +673,7 @@ def general_rate_wine(request, selected_wine_id):
   data = {}
 
   selected_wine = get_object_or_404(SelectedWine, pk=selected_wine_id)
-  print 'request.POST', request.POST.get('overall_rating')
+  # print 'request.POST', request.POST.get('overall_rating')
   # rating = json.loads(request.body)
   # print 'request.POST', request.POST.get('rating')
   initial_data = {}
@@ -754,5 +685,5 @@ def general_rate_wine(request, selected_wine_id):
   if form.is_valid():
     form.save()
 
-  print 'form.errors', form.errors
+  # print 'form.errors', form.errors
   return HttpResponse(json.dumps(data), mimetype="application/json")
