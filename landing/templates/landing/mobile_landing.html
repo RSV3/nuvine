@@ -4,18 +4,20 @@
 
 {% block content %}
 
-This is for mobile landing page :) <br><br>
+<div class="container">
+	<div class = "row">
+		<div class = "offset1 span8">
+			<h1>Hello, You are on mobile :)</h1>
+		</div>
+		<div class = "offset1 span10">
+			<br>
+			Your Variable using GET request<br>
+			mail value : {{get_mail}}
+		</div>
 
-Your OS information<br>
-{{os}}
-<br>
-<br>
-Your Variable using GET request<br>
-mail value : {{get_mail}}
-{% if %}
-
-{% endif %}
-
+	</div>
+	
+</div>
 
 {% endblock content %}
 		

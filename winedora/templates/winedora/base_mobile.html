@@ -5,12 +5,29 @@
 <!--[if (gt IEMobile 7)|!(IEMobile)]><!--> <html class="no-js"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
-        <title>Mobile Landing</title>
+        <title>Vinely Mobile</title>
         <meta name="description" content="">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="cleartype" content="on">
+
+        <!-- Avenir -->
+        <script type="text/javascript" src="//fast.fonts.com/jsapi/ca53bad3-87ea-455b-814d-efdfba31e61b.js"></script>
+
+        <!-- Alternate Gothic - going to change to javascript -->
+        <link rel="stylesheet" type="text/css" href="{% static "fonts/AlternateGothicKit/MyFontsWebfontsOrderM3947119.css" %}">
+        <!--
+        <script type="text/javascript">
+        var myfont_webfont_test = true;
+        var woffEnabled = true;
+        var customPath = "{% static "fonts" %}";
+        </script>
+        <script type="text/javascript" src="{% static "js/AlternateGothicOrderM3947119.js" %}"></script>
+        -->
+        <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.css" %}">
+        <link rel="stylesheet" href="{% static "css/docs.css" %}">
+        <link rel="stylesheet" href="{% static "css/winedora.css" %}">
 
         <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'landing_mobile/img/touch/apple-touch-icon-144x144-precomposed.png' %}">
         <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'landing_mobile/img/touch/apple-touch-icon-114x114-precomposed.png' %}">
@@ -41,9 +58,228 @@
     </head>
     <body>
 
+        <!-- This is nav-bar -->
+
+            <div class="container">
+        {% if impersonation_mode %}
+          <div class="alert alert-error center impersonation">
+            You are operating in impersonation mode as &lt;{{ request.user.email }}&gt;.
+            <a href="{% url support:admin_index %}?__unimpersonate">Return to normal mode.</a>
+          </div>
+        {% endif %}
+
+        <div class="row">
+        </div>
+
+        <div class="row">
+          {% block social %}
+            <div class="span1">
+              <a href="https://twitter.com/vinelywine" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @vinelywine</a>
+              <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+            </div>
+            <div class="span1">
+              <a href="http://pinterest.com/pin/create/button/?url=https%3A%2F%2Fwww.vinely.com&media=http%3A%2F%2Fpassets-lt.pinterest.com%2Fimages%2Fabout%2Fbuttons%2Fpinterest-button.png&description=Follow%20Me%20on%20Pinterest" class="pin-it-button" count-layout="none"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a>              
+            </div>            
+            <div class="span1">
+              <div class="fb-like" data-href="https://www.vinely.com" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+            </div>
+          {% endblock social %}
+          {% block brand_logo %}
+          <div class="span4 offset2">
+            <h1><a class="brand" href="{% url landing_page %}"><img src="{% static "img/vinely_logo_notag.png" %}" title="Vinely" class="default"></a></h1>
+          </div>
+          {% endblock brand_logo %}
+          {% block auth %}
+            <div class="span3">
+              <div class="box-container">
+              <div class="box-content authentication">
+                  {% if user.is_authenticated %}
+                      <a href="{% url logout %}">Sign Out</a> | 
+                      <a href="{% url my_information %}">My Account</a>
+                      {% if user.get_profile.has_personality %}
+                        | <a href="{% url cart %}">Cart {{ cart_item_count }}</a>
+                      {% endif %}
+                    {% else %}
+                    <!-- if not logged in, show login link -->
+                    <div class="login-forgot">
+                      <a href="{% url login %}">Sign In</a> | 
+                      <a href="{% url forgot_password %}">Forgot Password</a> | 
+                      <a id="rsvp" href="javascript:;">RSVP</a>
+                    </div>
+                  {% endif %}
+                </div> <!-- id auth-->
+                <div class="box-bg"></div>
+              </div><!--box-container-->
+            </div> <!--span4-->
+
+            <div id="email_rsvp" class="modal hide fade">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>RSVP</h3>
+              </div>
+              <div class="modal-body">
+                <form method="POST" class="modal-form" action="{% url resend_rsvp %}?next={{ request.path }}">{% csrf_token %}
+                  <p>Enter your email address below and we will send you invites for all upcoming parties that you have been invited to.</p>
+                  <br />
+                  <div class="control-label" for="id_description">Your Email:</div>
+                  <div class="controls">
+                    <input type="text" name="email" />
+                  </div>
+                  <div class="modal-footer">
+                    <input type="submit" name="send" class="btn btn-primary" value="Send" />
+                  </div>
+                </form>
+              </div>
+            </div>         
+          {% endblock %}
+        </div> <!-- .row -->
+
+        <div class="navbar divider">
+          <div class="navbar-inner">
+              {% block navbar_menu %}
+
+              {% if user.is_authenticated %} 
+                <div class="menu_wrap main">           
+                  <ul class="nav">
+                    {% if user.get_profile.has_parties or pro %}
+                      <li id="parties"{% if parties_menu %} class="active"{% endif %}>
+                        <a href="{% url party_list %}" title="parties"></a>
+                      </li>
+                    {% endif %}
+                    {% if user.get_profile.has_personality %}
+                      <li id="shop"{% if shop_menu %} class="active"{% endif %}>
+                        <a href="{% url start_order %}" title="shop"></a>
+                      </li>
+                    {% endif %}
+                    {% if user.get_profile.club_member %}
+                      <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
+                        <a href="{% url member_ratings_overview %}" title="rate wines"></a>
+                      </li>
+                    {% else %}
+                      <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
+                        <a href="{% url join_club_start %}" title="Join The Club"></a>
+                      </li>
+                    {% endif %}
+        <!-- 
+                    {% if pro %}
+                    <li id="dashboard"{% if dashboard_menu %} class="active"{% endif %}>
+                        <a href="{% url dashboard %}" title="dashboard"></a>
+                    </li>
+                    {% endif %}
+        -->
+                    <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}>
+                      <a href="{% url how_it_works %}" title="how it works"></a>
+                    </li>
+                    {% if not pro and not host %}
+                      <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
+                          <a href="{% url make_host %}" title="Host A Party"></a>
+                      </li>
+                    {% endif %}
+                    {% if not pro %}
+                      <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
+                          <a href="{% url make_pro %}" title="Join The Team"></a>
+                      </li>
+                    {% endif %}
+                    <li id="our_story"{% if our_story_menu %} class="active"{% endif %}>
+                      <a href="{% url our_story %}" title="our story"></a>
+                    </li>
+
+
+                    <!--
+                    <li id="vinely_u">
+                      <a href="#" title="vinely u"></a>
+                    </li>
+                    -->
+
+                    {% if wine_personality %}
+                    
+                    {% endif %}
+
+                    {% if pending_ratings %} 
+                      <li id="rate_wines">
+                        <a href="{% url rate_wines %}">RATE_WINES</a>
+                      </li>
+                    {% endif %}
+
+                  </ul><!-- .nave -->
+                </div><!-- .main_menu_wrap -->
+              {% else %}
+              <div class="menu_wrap main">
+                    <ul class="nav">
+                      <!--<li class="active"><a href="{% url home_page %}">Home</a></li>-->
+                      <li id="how_it_works"{% if how_it_works_menu %} class="active"{% endif %}><a href="{% url how_it_works %}" title="how it works"></a></li>
+                      <li id="host_a_party"{% if host_party_menu %} class="active"{% endif %}>
+                          <a href="{% url make_host %}" title="Host A Party"></a>
+                      </li>
+                      <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
+                        <a href="{% url join_club_start %}" title="Join The Club"></a>
+                      </li>
+                      <li id="become_a_pro"{% if become_pro_menu %} class="active"{% endif %}>
+                          <a href="{% url make_pro %}" title="Become A Pro"></a>
+                      </li>
+                      <li id="our_story"{% if our_story_menu %} class="active"{% endif %}><a href="{% url our_story %}" title="our story"></a></li>
+                    </ul>
+              </div><!-- .main_menu_wrap -->
+              {% endif %}
+
+              {% endblock navbar_menu %}
+          </div> <!-- .navbar-inner -->
+        </div> <!-- .navbar -->
+        </div> <!-- .container (do we want this here?) -->
+
+
         {% block content %}
-        
-        {% endblock content %}
+
+        {% endblock content%}
+
+
+        <footer>
+            <div class="container">
+              {% block footer %}
+              <div class="divider">
+                <div class="menu_wrap">
+                  <ul class="nav">
+                    <li>
+                      <a href="{% url home_page %}">Home</a>
+                    </li>
+                    <li>
+                      {% if user.is_authenticated and user.get_profile.has_personality %}
+                        <a href="{% url start_order %}">Shop</a>
+                      {% endif %}
+                    </li>
+                    <!-- for milestone 2 
+                    <li>
+                      <a href="#">Rate Wines</a>
+                    </li>
+                    -->
+                    <li>
+                      <a href="{% url my_information %}">Account</a>
+                    </li>
+                    <li>
+                      <a href="{% url how_it_works %}">How It Works</a>
+                    </li>
+            <!-- 
+                    <li>
+                      <a href="">Get Started</a>
+                    </li>
+            -->
+                    <li>
+                      <a href="{% url our_story %}">Our Story</a>
+                    </li>
+                    <li>
+                      <a href="{% url contact_us %}">Contact Us</a>
+                    </li>
+                    <li>
+                      <a href="{% url privacy %}">Privacy</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              {% endblock %}
+              <div class="span4 offset4"><p id="copyright">&copy; 2012 Vinely. All Rights Reserved.</p></div>
+            </div> <!-- .container -->
+        </footer>
+
 
 
         <!-- Until here -->
