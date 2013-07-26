@@ -647,7 +647,7 @@ def general_ratings_overview(request):
 
   latest_order = Order.objects.filter(receiver=u, fulfill_status__gte=6, cart__items__price_category__in=[12, 13, 14]).order_by('-id')[:1]
   # print 'latest_order', latest_order
-  selected_wines = SelectedWine.objects.filter(order=latest_order).order_by('id')
+  selected_wines = SelectedWine.objects.filter(order=latest_order, overall_rating=0).order_by('id')
   # print [x.overall_rating for x in selected_wines]
   selected_rated_wines = SelectedWine.objects.filter(order=latest_order, overall_rating__gt=0).order_by('id')
 
