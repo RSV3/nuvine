@@ -1,0 +1,26 @@
+{% extends "winedora/base_html5.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="container">
+	<div class = "row">
+		<div class = "offset1 span2">
+			<h1>Hello</h1>
+		</div>
+		<div class = "offset1 span10">
+			This is for web landing page :) <br><br>
+			Your OS information<br>
+			{{os}}
+			<br>
+			<br>
+			Your Variable using GET request<br>
+			mail value : {{get_mail}}
+		</div>
+
+	</div>
+	
+</div>
+
+
+{% endblock content %}
