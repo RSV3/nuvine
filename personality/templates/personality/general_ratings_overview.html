@@ -265,6 +265,8 @@
             </div>
             <p class="wine-name">{{ selected_wine.wine.name }}</p>
           </div>
+        {% empty %}
+          <h1>Great job, you have rated all your wines! <br /> If you are craving more you can <a href="{% url make_host %}">host your own Vinely Party</a>!</h1>
         {% endfor %}
       </div>
     </div>
