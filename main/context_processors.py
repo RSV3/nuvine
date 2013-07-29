@@ -2,6 +2,7 @@ from main.models import Cart
 from django.conf import settings
 from accounts.models import UserProfile
 # from django.core.cache import cache
+from django.core.urlresolvers import reverse
 
 
 def vinely_user_info(request):
@@ -22,6 +23,16 @@ def vinely_user_info(request):
       data["taster"] = True
     if profile.is_pending_pro():
       data["pending_pro"] = True
+
+    if profile.has_personality():
+      data['rating_url'] = reverse('general_ratings_overview')
+    else:
+      # if has previous order:
+      # if is taste kit order then must be a VIP member -> show VIP wine rating page
+      # else show normal wine rating page
+      if profile.has_orders():
+        # can only be a VIP taste kit order
+        data['rating_url'] = reverse('member_ratings_overview')
   except UserProfile.DoesNotExist:
     pass
   except:

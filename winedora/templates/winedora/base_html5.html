@@ -205,11 +205,12 @@
                     <a href="{% url start_order %}" title="shop"></a>
                   </li>
                 {% endif %}
-                {% if user.get_profile.club_member %}
+                {% if rating_url %}
                   <li id="rate_wines"{% if rate_wines_menu %} class="active"{% endif %}>
-                    <a href="{% url member_ratings_overview %}" title="rate wines"></a>
+                    <a href="{{ rating_url }}" title="rate wines"></a>
                   </li>
-                {% else %}
+                {% endif %}
+                {% if not user.get_profile.club_member %}
                   <li id="join_club"{% if join_club_menu %} class="active"{% endif %}>
                     <a href="{% url join_club_start %}" title="Join The Club"></a>
                   </li>

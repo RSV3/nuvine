@@ -48,7 +48,7 @@
     margin: 0 132px;
     width: 87px;
     height: 87px;
-    background: url('{{ STATIC_URL }}img/ratings/rate_banner.png') no-repeat;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/rate_banner.png') no-repeat;
   }
   .rate_widget {
     /*border:     1px solid #CCC;*/
@@ -74,31 +74,35 @@
     margin-top: -70px;
   }
   .ratings-text-1 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-1.png') no-repeat -5px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-1.png') no-repeat -8px;
   }
   .ratings-text-2 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-2.png') no-repeat 13px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-2.png') no-repeat 10px;
   }
   .ratings-text-3 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-3.png') no-repeat 6px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-3.png') no-repeat 3px;
   }
   .ratings-text-4 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-4.png') no-repeat 28px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-4.png') no-repeat 25px;
   }
   .ratings-text-5 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-5.png') no-repeat 41px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-5.png') no-repeat 38px;
   }
   .ratings-text-6 {
-    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-6.png') no-repeat -5px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/unrated-text-6.png') no-repeat -7px;
+    margin-top: -24px
   }
 
   .ratings_gift {
       background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_empty.png') no-repeat;
       float:      left;
-      height:     105px;
+      /*height:     105px;*/
+      height:     25px;
       padding:    2px;
-      width:      30px;
-      margin-top: -75px;
+      width: 18px;
+      /*width:      30px;*/
+      /*margin-top: -75px;*/
+      margin: 3px 5px;
   }
   .rated-widget {
     position: absolute;
@@ -151,7 +155,8 @@
 
   .ratings_gift_over {
       background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_filled.png') no-repeat;
-      margin-top: -75px;
+      /*margin-top: -75px;*/
+      margin: 3px 5px;
   }
   .ratings_gift_vote {
       background: url('{{ STATIC_URL }}img/ratings/UNRATED/gift_filled.png') no-repeat;
@@ -160,9 +165,10 @@
       background: url('{{ STATIC_URL }}img/ratings/UNRATED/star_unrated_empty.png') no-repeat;
       float:      left;
       height:     105px;
+      height:     25px;
       padding:    2px;
       width:      30px;
-      margin-top: -75px;
+      /*margin-top: -75px;*/
   }
   .ratings_vote {
       background: url('{{ STATIC_URL }}img/ratings/UNRATED/star_unrated_filled.png') no-repeat;
@@ -193,6 +199,12 @@
   }
   .wine-name {
     height: 65px;
+  }
+  .ratings-faded-bg {
+    height: 115px;
+    width: 216px;
+    background: url('{{ STATIC_URL }}img/ratings/UNRATED/faded-background.png') no-repeat;
+    margin: -80px -6px;
   }
 </style>
 {% endblock additional_styles %}
@@ -239,6 +251,7 @@
             <div class="rate-banner"></div>
             <div id="r1" class="rate_widget rate-widget-gift" data-wine="{{ selected_wine.id }}">
               <div class="gift ratings_gift"></div>
+              <div class="ratings-faded-bg"></div>
               <div class="gift ratings-text ratings-text-6 hide"></div>
             </div>
             <div id="r1" class="rate_widget rate-widget-stars" data-wine="{{ selected_wine.id }}">
@@ -330,7 +343,7 @@
       $(document).ready( function () {
         $('.select-colors').click(function() {
           var color = $(this).val();
-          console.log('Color: ' + color);
+          // console.log('Color: ' + color);
           if ($(this).prop('checked')) {
             $("[data-color='" + color + "']").show('slow');
           }
@@ -342,12 +355,12 @@
           function() {
             $(this).addClass('ratings_gift_over');
             $(this).removeClass('ratings_gift_vote');
-            $(this).siblings().show();
+            $(this).siblings('.ratings-text').show();
           },
           function() {
             $(this).removeClass('ratings_gift_over');
             // $(this).siblings().hide();
-            $(this).siblings().hide();
+            $(this).siblings('.ratings-text').hide();
           }
         );
 
