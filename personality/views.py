@@ -582,7 +582,12 @@ def member_ratings_overview(request):
 
   if profile.has_personality():
     data['wine_personality'] = profile.wine_personality
-  data['tasted_wines'] = WineRatingData.objects.filter(user=u)
+  data['tasted_wines'] = WineRatingData.objects.filter(user=u, overall=0)
+  data['rated_wines'] = WineRatingData.objects.filter(user=u, overall__gt=0)
+  all_wine_numbers = set(range(1, 7))
+  rated_wine_numbers = WineRatingData.objects.filter(user=u, overall__gt=0).values_list('wine__number', flat=True)
+  unrated_wine_numbers = set(all_wine_numbers).difference(rated_wine_numbers)
+  data['unrated_wine_numbers'] = unrated_wine_numbers
   return render(request, 'personality/member_ratings_overview.html', data)
 
 

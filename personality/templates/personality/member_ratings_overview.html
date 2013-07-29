@@ -5,7 +5,7 @@
 {% block additional_styles %}
 <style type="text/css">
   .wine-num-badge {
-    height: 190px;
+    height: 220px;
     background-color: #fff;
     border: 1px solid rgb(147,149,152);
     border-radius: 4px;
@@ -14,7 +14,7 @@
     box-shadow: 0px 1px 10px rgb(147,149,152);
   }
   .wine-num-badge img {
-    margin-top: 25%;
+    margin-top: 33%;
   }
   .span3 > p {
     margin-top: 10px;
@@ -22,6 +22,7 @@
   .box-content2 {
     margin-top: 0;
     padding-bottom: 60px;
+    height: 147px;
   }
   .side-glass {
     position: absolute;
@@ -42,6 +43,31 @@
   .headline.has-personality {
     font-size: 50px;
   }
+  .personality-container {
+    height: 261px;
+  }
+  .wine-name {
+    height: 65px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-1 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-1.png') no-repeat 7px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-2 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-2.png') no-repeat 30px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-3 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-3.png') no-repeat 28px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-4 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-4.png') no-repeat 54px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-5 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-5.png') no-repeat 73px;
+  }
+  .Rating-{{ wine_personality.suffix }}-Text-6 {
+      background: url('{{ STATIC_URL }}img/ratings/RATED-{{ wine_personality.suffix }}/Rating-{{ wine_personality.suffix }}-Text-6.png') no-repeat;
+      margin: -140px 45px;
+  }
 </style>
 {% endblock additional_styles %}
 
@@ -54,30 +80,53 @@
 
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <div class="row">
-    <div class="span3 center">
-      &nbsp;
-      {% if wine_personality %}
-        <div class="personality-badge-detail">
-          <img class="member-personality" src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png" height="310">
+    <div class="span3">
+      <div class="row">
+        <div class="span3 center personality-container">
+          &nbsp;
+          {% if wine_personality %}
+            <div class="personality-badge-detail">
+              <img class="member-personality" src="{{ STATIC_URL }}img/homepage_badge_{{ wine_personality.suffix }}.png" height="310">
+            </div>
+          {% else %}
+            <div class="personality-badge-detail">
+              <img class="member-no-personality" src="{% static "img/homepage_badge_mystery.png" %}" height="310" />
+            </div>
+          {% endif %}
         </div>
-      {% else %}
-        <div class="personality-badge-detail">
-          <img class="member-no-personality" src="{% static "img/homepage_badge_mystery.png" %}" height="310" />
+      </div>
+      <div class="vertical-space">&nbsp;</div>
+      <div class="row">
+        <div class="span3">
+          <a href="{% url make_host %}">
+            <div class="box-content2 make-host">
+              <h1>Host a party!</h1>
+              <p class="howto-sidetext">
+                Pop the cork! <br />Learn about <br />
+                hosting <br />a Vinely party. 
+              </p>
+              <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
+            </div>
+            <div class="vertical-space"></div>
+          </a>
         </div>
-      {% endif %}
+      </div>
     </div>
-    <div class="span3 center">
-      <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 1 %}{% endif %}">
-        <div class="wine-num-badge">
-          <img src="{{ STATIC_URL }}img/WINE-BADGE-ONE.png">
+    <div class="span9">
+      <div class="row">
+      {% for wine_number in unrated_wine_numbers %}
+        <div class="span3 center">
+          <a href="{% url member_rate_wines wine_number %}">
+            <div class="wine-num-badge">
+              <img src="{{ STATIC_URL }}img/WINE-BADGE-{{ wine_number }}.png">
+            </div>
+          </a>
+          <p class="wine-name">Tasting Wine {{ wine_number }}</p>
         </div>
-      </a>
-      {% if 1 == tasted_wines.0.wine.number %}
-        <p>{{tasted_wines.0.wine.name}}</p>
-      {% else %}
-        <p>Tasting Wine 1</p>
-      {% endif %}
+      {% endfor %}
+      </div>
     </div>
+    {% comment %}
     <div class="span3 center">
       <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 2 %}{% endif %}">
         <div class="wine-num-badge">
@@ -102,22 +151,9 @@
         <p>Tasting Wine 3</p>
       {% endif %}
     </div>
-  </div>
-  <div class="vertical-space">&nbsp;</div>
-  <div class="row">
-    <div class="span3">
-      <a href="{% url make_host %}">
-        <div class="box-content2 make-host">
-          <h1>Host a party!</h1>
-          <p class="howto-sidetext">
-            Pop the cork! <br />Learn about <br />
-            hosting <br />a Vinely party. 
-          </p>
-          <img class="side-glass" src="{{ STATIC_URL }}img/make_host_sidebar_glass.png">
-        </div>
-        <div class="vertical-space"></div>
-      </a>
-    </div>
+    {% endcomment %}
+
+    {% comment %}
     <div class="span3 center">
       <a href="{% if wine_personality %}#{% else %}{% url member_rate_wines 4 %}{% endif %}">
         <div class="wine-num-badge">
@@ -154,10 +190,45 @@
         <p>Tasting Wine 6</p>
       {% endif %}
     </div>
+    {% endcomment %}
   </div>
   <div class="vertical-space">&nbsp;</div>
+  {% if rated_wines %}
+    <hr />
+    <div class="row">
+      <div class="span5">
+        Wines you've already rated have been integrated into your taste profile to make sure you get wines you're guaranteed to love.
+      </div>
+      <div class="span2">&nbsp;</div>
+      <div class="span1">
+        <label>Reds <input class="select-colors" type="checkbox" name="wine_color" value="0" checked="checked" /></label>
+      </div>
+      <div class="span2">
+        <label>Whites <input class="select-colors" type="checkbox" name="wine_color" value="1" checked="checked" /></label>
+      </div>
+    </div>
+    <div class="vertical-space">&nbsp;</div>
+    <div class="row">
+      {% for selected_wine in rated_wines %}
+        <div class="span3 center rated-container" data-color="{{ selected_wine.wine.color }}">
+          <div class="wine-num-badge">
+            <img src="{{ MEDIA_URL }}{{selected_wine.wine.image}}">
+          </div>
+          <div class="rated-widget" data-wine="{{ selected_wine.id }}">
+            <div class="rated-stars Rated-{{ wine_personality.suffix }}-{{ selected_wine.overall_rating }}"></div>
+            <div class="rated-text Rating-{{ wine_personality.suffix }}-Text-{{ selected_wine.overall_rating }} hide"></div>
+          </div>
+          <p>Wine: {{selected_wine.wine.name}}</p>
+          <p>Rating: {{selected_wine.get_overall_rating_display }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="vertical-space">&nbsp;</div>
+  {% endif %}
+
 </div>
 
+{% comment %}
 {% if wine_personality %}
 <div class="container" data-spy="scroll" data-offset="50" data-target=".subnav">
   <h1 class="headline has-personality">Whoops! Our apologies. <br/>You can't rate other wine shipments on this page yet.</h1>
@@ -203,5 +274,23 @@
   </div>
 </div>
 {% endif %}
+{% endcomment %}
 
 {% endblock content %}
+
+{% block additional_scripts %}
+  <script type="text/javascript">
+    $(document).ready( function () {
+      $('.select-colors').click(function() {
+        var color = $(this).val();
+        // console.log('Color: ' + color);
+        if ($(this).prop('checked')) {
+          $("[data-color='" + color + "']").show('slow');
+        }
+        else {
+          $("[data-color='" + color + "']").hide('slow');
+        }
+      });
+    });
+  </script>
+{% endblock additional_scripts %}
