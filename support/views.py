@@ -133,7 +133,14 @@ def download_users(request):
 
   writer.writeheader()
 
+  from accounts.models import UserProfile
   for user in User.objects.all():
+
+    try:
+      prof = user.get_profile()
+    except UserProfile.DoesNotExist:
+      continue
+
     data = {}
     data['ID'] = user.id
     data['First Name'] = user.first_name
