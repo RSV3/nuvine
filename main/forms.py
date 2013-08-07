@@ -609,10 +609,10 @@ class ShippingForm(forms.ModelForm):
     cleaned_data = super(ShippingForm, self).clean()
     zip_ok = check_zipcode(cleaned_data.get('zipcode'))
     if not zip_ok:
-      self._errors["zipcode"] = self.error_class([u"Currently, we can only ship to California."])
+      self._errors["zipcode"] = self.error_class([u'Please note that Vinely does not currently operate in your area.'])
 
     if self.cleaned_data.get('state') not in SUPPORTED_STATES:
-      self._errors["state"] = self.error_class([u"Currently, we can only ship to California."])
+      self._errors["state"] = self.error_class([u'Please note that Vinely does not currently operate in your area.'])
 
     return cleaned_data
 
