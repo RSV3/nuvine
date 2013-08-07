@@ -143,7 +143,7 @@ def download_users(request):
     data['Zipcode'] = profile.zipcode
     data['Wine Personality'] = profile.wine_personality.name
     data['Date of Birth'] = profile.dob.strftime('%m/%d/%Y') if profile.dob else None
-    subscription = SubscriptionInfo.objects.filter(user=user).ordered_by('-updated_datetime')
+    subscription = SubscriptionInfo.objects.filter(user=user).order_by('-updated_datetime')
     if subscription.exists():
       data['Subscription Frequency'] = subscription.get_frequency_display()
       data['Subscription Quantity'] = subscription.get_quantity_display()
