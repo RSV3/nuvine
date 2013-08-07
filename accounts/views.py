@@ -1215,7 +1215,8 @@ def join_club_shipping(request):
     zipcode = request.POST.get('zipcode')
     ok = check_zipcode(zipcode)
     if zipcode and not ok:
-      messages.warning(request, 'Currently, we can only ship to California.')
+      # messages.warning(request, 'Currently, we can only ship to California.')
+      messages.warning(request, 'Please note that Vinely does not currently operate in your area.')
       return render_to_response("accounts/join_club_shipping.html", data, context_instance=RequestContext(request))
 
   if shipping_form.is_valid() and valid_age and valid_coupon:

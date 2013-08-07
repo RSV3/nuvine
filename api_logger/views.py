@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django_tables2 import RequestConfig
 
 from api_logger.tables import APILogTable
 from api_logger.models import APILog
@@ -14,8 +15,9 @@ import json
 def log(request):
     data = {}
     log = APILog.objects.all().order_by('-id')
-    data['table'] = APILogTable(log)
-
+    table = APILogTable(log)
+    RequestConfig(request).configure(table)
+    data['table'] = table
     return render(request, 'api_logger/log.html',  data)
 
 
